@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "eu.pb4.polymer.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "item.ItemStackAccessor",
+    "item.PacketByteBufMixin",
+    "block.BlockPaletteMixin",
+    "block.BlockMixin",
+    "block.BlockUpdateS2CPacketAccessor",
+    "block.ServerPlayNetworkHandlerMixin",
+    "block.WorldChunkMixin",
+    "block.ChunkDataS2CPacketAccessor",
+    "block.AbstractBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
