@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
-import eu.pb4.polymer.block.VirtualHeadBlock;
+import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.interfaces.WorldChunkInterface;
 import eu.pb4.polymer.mixin.other.BlockUpdateS2CPacketAccessor;
@@ -27,8 +27,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
 
-    @Shadow public abstract void sendPacket(Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener);
-
     @Shadow public ServerPlayerEntity player;
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("TAIL"))
@@ -38,19 +36,18 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 BlockUpdateS2CPacketAccessor b = (BlockUpdateS2CPacketAccessor) packet;
                 BlockState blockState = b.getState();
 
-                if (blockState.getBlock() instanceof VirtualHeadBlock) {
+                if (blockState.getBlock() instanceof VirtualBlock) {
                     BlockPos pos = ((BlockUpdateS2CPacket) packet).getPos();
-
-                    this.sendPacket(((VirtualHeadBlock) blockState.getBlock()).getVirtualHeadPacket(blockState, pos), listener);
+                    ((VirtualBlock) blockState.getBlock()).sendPacketsAfterCreation(this.player, pos, blockState);
                 }
             } else if (packet instanceof ChunkDataS2CPacket) {
                 WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).getWorldChunk();
                 WorldChunkInterface wci = (WorldChunkInterface) wc;
                 if (wc != null) {
-                    for (BlockPos pos : wci.getVirtualHeadBlocks()) {
+                    for (BlockPos pos : wci.getVirtualBlocks()) {
                         BlockState blockState = wc.getBlockState(pos);
-                        if (blockState.getBlock() instanceof VirtualHeadBlock) {
-                            this.sendPacket(((VirtualHeadBlock) blockState.getBlock()).getVirtualHeadPacket(blockState, pos), listener);
+                        if (blockState.getBlock() instanceof VirtualBlock) {
+                            ((VirtualBlock) blockState.getBlock()).sendPacketsAfterCreation(this.player, pos, blockState);
                         }
                     }
                 }
@@ -63,9 +60,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 for (int i = 0; i < localPos.length; i++) {
                     BlockState blockState = blockStates[i];
 
-                    if (blockState.getBlock() instanceof VirtualHeadBlock) {
+                    if (blockState.getBlock() instanceof VirtualBlock) {
                         BlockPos blockPos = chunkPos.unpackBlockPos(localPos[i]);
-                        this.sendPacket(((VirtualHeadBlock) blockState.getBlock()).getVirtualHeadPacket(blockState, blockPos), listener);
+                        ((VirtualBlock) blockState.getBlock()).sendPacketsAfterCreation(this.player, blockPos, blockState);
                     }
                 }
             }

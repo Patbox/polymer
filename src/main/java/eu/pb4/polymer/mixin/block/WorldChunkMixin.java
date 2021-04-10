@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
+import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.block.VirtualHeadBlock;
 import eu.pb4.polymer.interfaces.WorldChunkInterface;
 import net.minecraft.block.Block;
@@ -33,10 +34,8 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
 
     @Shadow public abstract ChunkPos getPos();
 
-    @Shadow public abstract BlockState getBlockState(BlockPos pos);
-
     @Shadow @Final private ChunkSection[] sections;
-    private Set<BlockPos> virtualHeadBlocks = new HashSet<>();
+    private Set<BlockPos> virtualBlocks = new HashSet<>();
 
     @Inject(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/TickScheduler;Lnet/minecraft/world/TickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;)V",
@@ -50,7 +49,7 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/world/chunk/ProtoChunk;)V",
             at = @At("TAIL")
     )
-    private void virtualHeadBlocksInit2(World world, ProtoChunk protoChunk, CallbackInfo info) {
+    private void virtualBlocksInit2(World world, ProtoChunk protoChunk, CallbackInfo info) {
         this.generateVirtualBlockSet();
     }
 
@@ -63,8 +62,8 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
                     ChunkSection chunkSection = this.sections[y >> 4];
                     if (!ChunkSection.isEmpty(chunkSection)) {
                         BlockState blockState =  chunkSection.getBlockState(x, y & 15, z);
-                        if (blockState.getBlock() instanceof VirtualHeadBlock) {
-                            this.virtualHeadBlocks.add(blockPos);
+                        if (blockState.getBlock() instanceof VirtualBlock) {
+                            this.virtualBlocks.add(blockPos);
                         }
                     }
                 }
@@ -74,24 +73,24 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
 
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/ChunkSection;setBlockState(IIILnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER))
-    private void addToHeadList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
-        this.setBlockVirtualHeadBlock(pos, state);
+    private void addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+        this.setVirtualBlock(pos, state);
     }
 
 
-    public void setBlockVirtualHeadBlock(BlockPos pos, BlockState state) {
-        if (state.getBlock() instanceof VirtualHeadBlock) {
-            this.virtualHeadBlocks.add(pos);
+    public void setVirtualBlock(BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof VirtualBlock) {
+            this.virtualBlocks.add(pos);
         } else {
-            this.virtualHeadBlocks.remove(pos);
+            this.virtualBlocks.remove(pos);
         }
     }
 
-    public void removeBlockVirtualHeadBlock(BlockPos pos) {
-        this.virtualHeadBlocks.remove(pos);
+    public void removeVirtualBlock(BlockPos pos) {
+        this.virtualBlocks.remove(pos);
     }
 
-    public Set<BlockPos> getVirtualHeadBlocks() {
-        return this.virtualHeadBlocks;
+    public Set<BlockPos> getVirtualBlocks() {
+        return this.virtualBlocks;
     }
 }

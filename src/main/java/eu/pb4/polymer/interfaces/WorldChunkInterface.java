@@ -5,5 +5,5 @@ import net.minecraft.util.math.BlockPos;
 import java.util.Set;
 
 public interface WorldChunkInterface {
-    Set<BlockPos> getVirtualHeadBlocks();
+    Set<BlockPos> getVirtualBlocks();
 }

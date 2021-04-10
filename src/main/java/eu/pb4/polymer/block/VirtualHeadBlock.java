@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
 public interface VirtualHeadBlock extends VirtualBlock {
@@ -35,6 +36,11 @@ public interface VirtualHeadBlock extends VirtualBlock {
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
         return new BlockEntityUpdateS2CPacket(pos, 4, main);
+    }
+
+
+    default void sendPacketsAfterCreation(ServerPlayerEntity player, BlockPos pos, BlockState blockState) {
+        player.networkHandler.sendPacket(((VirtualHeadBlock) blockState.getBlock()).getVirtualHeadPacket(blockState, pos));
     }
 
 }

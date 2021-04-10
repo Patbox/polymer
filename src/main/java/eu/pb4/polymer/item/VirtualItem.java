@@ -16,12 +16,18 @@ public interface VirtualItem {
 
         ((ItemStackAccessor) (Object) out).setItem(this.getVirtualItem());
 
+        boolean hasTag = out.hasTag();
+
+        out.getOrCreateTag().putBoolean(ItemHelper.NO_TAG, !hasTag);
+
+        out.getOrCreateTag().putBoolean(ItemHelper.REMOVE_DISPLAY, out.getSubTag("display") == null);
+
        if (!out.hasCustomName()) {
            out.setCustomName(this.getVirtualDefaultName());
-           out.getOrCreateTag().putBoolean("customNameIsDefault", true);
+           out.getOrCreateTag().putBoolean(ItemHelper.REMOVE_CUSTOM_NAME, true);
        }
 
-       out.getOrCreateTag().putString("virtualItemId", Registry.ITEM.getId(itemStack.getItem()).toString());
+       out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
 
        return out;
     }
@@ -32,4 +38,6 @@ public interface VirtualItem {
 
 
     String getTranslationKey();
+
+    default void clearVirtualNBT(ItemStack itemStack) {}
 }
