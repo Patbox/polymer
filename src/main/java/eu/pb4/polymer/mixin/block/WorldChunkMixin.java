@@ -73,19 +73,17 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
     }
 
 
-    @Inject(method = "setBlockState", at = @At("HEAD"))
+    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/ChunkSection;setBlockState(IIILnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER))
     private void addToHeadList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
-        if (state.getBlock() instanceof VirtualHeadBlock) {
-            this.virtualHeadBlocks.add(pos);
-        } else if (this.virtualHeadBlocks.contains(pos)) {
-            this.virtualHeadBlocks.remove(pos);
-        }
+        this.setBlockVirtualHeadBlock(pos, state);
     }
 
 
-    public void setBlockVirtualHeadBlock(BlockPos pos, VirtualHeadBlock virtualHeadBlock) {
-        if (virtualHeadBlock instanceof VirtualHeadBlock) {
+    public void setBlockVirtualHeadBlock(BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof VirtualHeadBlock) {
             this.virtualHeadBlocks.add(pos);
+        } else {
+            this.virtualHeadBlocks.remove(pos);
         }
     }
 

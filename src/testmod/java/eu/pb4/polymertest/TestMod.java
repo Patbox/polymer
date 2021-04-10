@@ -16,14 +16,14 @@ public class TestMod implements ModInitializer {
     public static BasicVirtualItem item = new TestItem(new FabricItemSettings().fireproof().maxCount(5), Items.IRON_HOE);
     public static Block block = new TestBlock(AbstractBlock.Settings.of(Material.STONE).breakInstantly());
     public static BlockItem blockItem = new VirtualBlockItem(block, new FabricItemSettings(), Items.STONE);
-    public static Block blockTater = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE));
+    public static Block blockTater = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
     public static BlockItem blockItemTater = new VirtualBlockItem(blockTater, new FabricItemSettings(), Items.STONE);
     @Override
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), block);
-        Registry.register(Registry.ITEM, new Identifier("test", "block_item"), blockItem);
+        Registry.register(Registry.ITEM, new Identifier("test", "block"), blockItem);
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), blockTater);
-        Registry.register(Registry.ITEM, new Identifier("test", "potato_block_item"), blockItemTater);
+        Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), blockItemTater);
     }
 }

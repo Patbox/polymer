@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.block;
+package eu.pb4.polymer.mixin.other;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;

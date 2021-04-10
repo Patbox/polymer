@@ -3,6 +3,7 @@ package eu.pb4.polymer.item;
 import eu.pb4.polymer.mixin.item.ItemStackAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.Registry;
@@ -26,7 +27,7 @@ public interface VirtualItem {
     }
 
     default Text getVirtualDefaultName() {
-        return new TranslatableText(this.getTranslationKey());
+        return new TranslatableText(this.getTranslationKey()).fillStyle(Style.EMPTY.withItalic(false));
     }
 
 

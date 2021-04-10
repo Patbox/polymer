@@ -4,15 +4,18 @@
   "package": "eu.pb4.polymer.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "item.ItemStackAccessor",
-    "item.PacketByteBufMixin",
-    "block.BlockPaletteMixin",
+    "block.AbstractBlockMixin",
     "block.BlockMixin",
-    "block.BlockUpdateS2CPacketAccessor",
+    "block.BlockPaletteMixin",
+    "block.ServerPlayerInteractionManagerMixin",
     "block.ServerPlayNetworkHandlerMixin",
     "block.WorldChunkMixin",
-    "block.ChunkDataS2CPacketAccessor",
-    "block.AbstractBlockMixin"
+    "item.ItemStackAccessor",
+    "item.PacketByteBufMixin",
+    "other.BlockUpdateS2CPacketAccessor",
+    "other.ChunkDeltaUpdateS2CPacketAccessor",
+    "other.SynchronizeRecipesS2CPacketMixin",
+    "other.ChunkDataS2CPacketMixin"
   ],
   "injectors": {
     "defaultRequire": 1
