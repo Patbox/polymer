@@ -1,6 +1,7 @@
 package eu.pb4.polymer;
 
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 

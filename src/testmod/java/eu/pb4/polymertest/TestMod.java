@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
+import net.minecraft.item.ToolMaterials;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -19,6 +20,8 @@ public class TestMod implements ModInitializer {
     public static BlockItem blockItem = new VirtualBlockItem(block, new FabricItemSettings(), Items.STONE);
     public static TinyPotatoBlock blockTater = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
     public static BlockItem blockItemTater = new VirtualHeadBlockItem(blockTater, new FabricItemSettings());
+    public static TestPickaxeItem pickaxe = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings());
+
     @Override
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
@@ -26,5 +29,7 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "block"), blockItem);
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), blockTater);
         Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), blockItemTater);
+        Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), pickaxe);
+
     }
 }

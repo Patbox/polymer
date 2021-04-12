@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.item;
 
+import eu.pb4.polymer.interfaces.PlayerContextInterface;
 import eu.pb4.polymer.item.ItemHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -14,7 +15,7 @@ public class PacketByteBufMixin {
 
     @ModifyVariable(method = "writeItemStack", at = @At("HEAD"), ordinal = 0)
     private ItemStack replaceWithVanillaItem(ItemStack itemStack) {
-        return ItemHelper.getVirtualItemStack(itemStack);
+        return ItemHelper.getVirtualItemStack(itemStack, ((PlayerContextInterface) this).getPolymerPlayer());
     }
 
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)

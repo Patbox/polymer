@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.block.VirtualBlock;
+import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -37,7 +38,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "continueMining", at = @At("TAIL"))
     private void breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (state.getBlock() instanceof VirtualBlock) {
+        if (state.getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
             int j = this.tickCounter - i;
             float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float)(j);
 
@@ -56,7 +57,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "continueMining", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockBreakingInfo(ILnet/minecraft/util/math/BlockPos;I)V"))
     private void onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (state.getBlock() instanceof VirtualBlock) {
+        if (state.getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
             int j = tickCounter - i;
             float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float)(j + 1);
             int k = (int)(f * 10.0F);
@@ -67,7 +68,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock) {
+        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getEntityId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
             } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
@@ -83,7 +84,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
     private void enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock) {
+        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.startMiningTime += blockBreakingCooldown;
             }
@@ -92,8 +93,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "finishMining", at = @At("HEAD"))
     private void clearEffects(BlockPos pos, PlayerActionC2SPacket.Action action, String reason, CallbackInfo ci) {
-        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock) {
-            this. player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getEntityId(), StatusEffects.MINING_FATIGUE));
+        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
+            this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getEntityId(), StatusEffects.MINING_FATIGUE));
             if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
                 StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
                 this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getEntityId(), effectInstance));

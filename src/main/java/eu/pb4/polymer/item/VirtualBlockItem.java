@@ -12,7 +12,6 @@ public class VirtualBlockItem extends BlockItem implements VirtualItem {
         this.virtualItem = virtualItem;
     }
 
-
     @Override
     public Item getVirtualItem() {
         return virtualItem;

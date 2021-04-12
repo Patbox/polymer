@@ -10,12 +10,14 @@
     "block.ServerPlayerInteractionManagerMixin",
     "block.ServerPlayNetworkHandlerMixin",
     "block.WorldChunkMixin",
-    "item.ItemStackAccessor",
     "item.PacketByteBufMixin",
     "other.BlockUpdateS2CPacketAccessor",
+    "other.ChunkDataS2CPacketMixin",
     "other.ChunkDeltaUpdateS2CPacketAccessor",
-    "other.SynchronizeRecipesS2CPacketMixin",
-    "other.ChunkDataS2CPacketMixin"
+    "other.PacketByteBufContextMixin",
+    "other.PacketContextMixin",
+    "other.ServerPlayNetworkHandlerContextMixin",
+    "other.SynchronizeRecipesS2CPacketMixin"
   ],
   "injectors": {
     "defaultRequire": 1
