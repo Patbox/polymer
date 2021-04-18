@@ -10,8 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 /*
  * Based on mixin from PolyMC - https://github.com/TheEpicBlock/PolyMc/blob/master/src/main/java/io/github/theepicblock/polymc/mixins/block/BlockPolyImplementation.java
  */
-
-@Mixin(Block.class)
+@Mixin(value = Block.class, priority = 500)
 public class BlockMixin {
     @ModifyVariable(method = "getRawIdFromState(Lnet/minecraft/block/BlockState;)I", at = @At("HEAD"))
     private static BlockState rawBlockStateOverwrite(BlockState state) {

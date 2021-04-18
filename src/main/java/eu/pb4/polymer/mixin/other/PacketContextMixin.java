@@ -1,7 +1,5 @@
 package eu.pb4.polymer.mixin.other;
 
-// Based on mixin from PolyMC - https://github.com/TheEpicBlock/PolyMc/blob/master/src/main/java/io/github/theepicblock/polymc/mixins/context/PacketPlayerContextContainer.java
-
 import eu.pb4.polymer.interfaces.PlayerContextInterface;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.*;

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.other;
 
 import eu.pb4.polymer.PolymerMod;
+import eu.pb4.polymer.interfaces.VirtualObject;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.SynchronizeRecipesS2CPacket;
 import net.minecraft.recipe.Recipe;
@@ -26,7 +27,7 @@ public class SynchronizeRecipesS2CPacketMixin {
     @Inject(method = "write", at = @At("HEAD"))
     public void onWrite(PacketByteBuf buf, CallbackInfo callbackInfo) {
             recipes = recipes.stream()
-                    .filter(recipe -> !PolymerMod.isVirtualRecipeSerializer(Registry.RECIPE_SERIALIZER.getId(recipe.getSerializer())))
+                    .filter(recipe -> !(recipe.getSerializer() instanceof VirtualObject))
                     .collect(Collectors.toList());
     }
 }

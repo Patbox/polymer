@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.ToolMaterials;
@@ -22,6 +23,8 @@ public class TestMod implements ModInitializer {
     public static BlockItem blockItemTater = new VirtualHeadBlockItem(blockTater, new FabricItemSettings());
     public static TestPickaxeItem pickaxe = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings());
 
+    public static Enchantment enchantment;
+
     @Override
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
@@ -30,6 +33,7 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), blockTater);
         Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), blockItemTater);
         Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), pickaxe);
+        enchantment = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
     }
 }

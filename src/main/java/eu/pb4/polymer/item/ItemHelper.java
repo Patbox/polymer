@@ -5,10 +5,13 @@ import com.google.common.collect.Multimap;
 import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import eu.pb4.polymer.interfaces.VirtualObject;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockArgumentParser;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -18,6 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.Tag;
@@ -26,7 +30,10 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ItemHelper {
@@ -42,8 +49,17 @@ public class ItemHelper {
     public static ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         if (itemStack.getItem() instanceof VirtualItem) {
             VirtualItem item = (VirtualItem) itemStack.getItem();
-
             return item.getVirtualItemStack(itemStack, player);
+        } if (itemStack.hasEnchantments()) {
+            for (net.minecraft.nbt.Tag enchantment : itemStack.getEnchantments()) {
+                String id = ((CompoundTag) enchantment).getString("id");
+
+                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+
+                if (ench instanceof VirtualObject) {
+                    return createBasicVirtualItemStack(itemStack, player);
+                }
+            }
         }
 
         return itemStack;
@@ -53,20 +69,15 @@ public class ItemHelper {
         ItemStack out = itemStack;
 
         String id = out.getOrCreateTag().getString(VIRTUAL_ITEM_ID);
-
-        if (id != null) {
+        if (id != null && !id.isEmpty()) {
             try {
                 Identifier identifier = Identifier.tryParse(id);
                 Item item = Registry.ITEM.get(identifier);
-
-                if (item instanceof VirtualItem) {
-                    out = new ItemStack(item, itemStack.getCount());
-                    CompoundTag tag = itemStack.getSubTag(REAL_TAG);
-                    if (tag != null) {
-                        out.setTag(tag);
-                    }
+                out = new ItemStack(item, itemStack.getCount());
+                CompoundTag tag = itemStack.getSubTag(REAL_TAG);
+                if (tag != null) {
+                    out.setTag(tag);
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -75,6 +86,76 @@ public class ItemHelper {
         return out;
     }
 
+    public static ItemStack createBasicVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
+        Item item = itemStack.getItem();
+        if (itemStack.getItem() instanceof VirtualItem) {
+            item = ((VirtualItem) itemStack.getItem()).getVirtualItem();
+        }
+
+        ItemStack out = new ItemStack(item, itemStack.getCount());
+
+        out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateTag().putInt("HideFlags", 127);
+
+        ListTag lore = new ListTag();
+
+        if (itemStack.getTag() != null) {
+            out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
+            assert out.getTag() != null;
+
+            if (!out.hasCustomName()) {
+                out.setCustomName(itemStack.getItem().getName(itemStack).shallowCopy().fillStyle(ItemHelper.NON_ITALIC_STYLE.withColor(itemStack.getRarity().formatting)));
+            } else {
+                out.setCustomName(itemStack.getName());
+            }
+
+            int dmg = itemStack.getDamage();
+            if (dmg != 0 && out.getTag() != null) {
+                out.getTag().putInt("Damage", (int) ((((double) dmg) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
+            }
+
+            if (itemStack.hasEnchantments()) {
+                out.addEnchantment(Enchantments.VANISHING_CURSE, 0);
+            }
+
+            net.minecraft.nbt.Tag canDestroy = itemStack.getTag().get("CanDestroy");
+
+            if (canDestroy != null) {
+                out.getTag().put("CanDestroy", canDestroy);
+            }
+
+            net.minecraft.nbt.Tag canPlaceOn = itemStack.getTag().get("CanPlaceOn");
+
+            if (canPlaceOn != null) {
+                out.getTag().put("CanPlaceOn", canPlaceOn);
+            }
+        } else {
+            out.setCustomName(itemStack.getItem().getName(itemStack).shallowCopy().fillStyle(ItemHelper.NON_ITALIC_STYLE.withColor(itemStack.getRarity().formatting)));
+        }
+
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            Multimap<EntityAttribute, EntityAttributeModifier> multimap = itemStack.getAttributeModifiers(slot);
+            for (Map.Entry<EntityAttribute, EntityAttributeModifier> entry : multimap.entries()) {
+                out.addAttributeModifier(entry.getKey(), entry.getValue(), slot);
+            }
+        }
+
+
+        List<Text> tooltip = ItemHelper.buildTooltip(itemStack, player);
+
+        if (itemStack.getItem() instanceof VirtualItem) {
+            ((VirtualItem) itemStack.getItem()).addTextToTooltip(tooltip, itemStack, player);
+        }
+
+        for (Text t : tooltip) {
+            lore.add(StringTag.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(ItemHelper.CLEAN_STYLE))));
+        }
+
+        if (lore.size() > 0) {
+            out.getOrCreateTag().getCompound("display").put("Lore", lore);
+        }
+        return out;
+    }
 
     protected static List<Text> buildTooltip(ItemStack stack, ServerPlayerEntity player) {
         List<Text> list = Lists.newArrayList();
@@ -150,19 +231,19 @@ public class ItemHelper {
                         }
 
                         if (bl) {
-                            list.add((new LiteralText(" ")).append(new TranslatableText("attribute.modifier.equals." + entityAttributeModifier.getOperation().getId(), new Object[]{ItemStack.MODIFIER_FORMAT.format(g), new TranslatableText(entry.getKey().getTranslationKey())})).formatted(Formatting.DARK_GREEN));
+                            list.add((new LiteralText(" ")).append(new TranslatableText("attribute.modifier.equals." + entityAttributeModifier.getOperation().getId(), ItemStack.MODIFIER_FORMAT.format(g), new TranslatableText(entry.getKey().getTranslationKey()))).formatted(Formatting.DARK_GREEN));
                         } else if (value > 0.0D) {
-                            list.add((new TranslatableText("attribute.modifier.plus." + entityAttributeModifier.getOperation().getId(), new Object[]{ItemStack.MODIFIER_FORMAT.format(g), new TranslatableText(entry.getKey().getTranslationKey())})).formatted(Formatting.BLUE));
+                            list.add((new TranslatableText("attribute.modifier.plus." + entityAttributeModifier.getOperation().getId(), ItemStack.MODIFIER_FORMAT.format(g), new TranslatableText(entry.getKey().getTranslationKey()))).formatted(Formatting.BLUE));
                         } else if (value < 0.0D) {
                             g *= -1.0D;
-                            list.add((new TranslatableText("attribute.modifier.take." + entityAttributeModifier.getOperation().getId(), new Object[]{ItemStack.MODIFIER_FORMAT.format(g), new TranslatableText(entry.getKey().getTranslationKey())})).formatted(Formatting.RED));
+                            list.add((new TranslatableText("attribute.modifier.take." + entityAttributeModifier.getOperation().getId(), ItemStack.MODIFIER_FORMAT.format(g), new TranslatableText(entry.getKey().getTranslationKey()))).formatted(Formatting.RED));
                         }
                     }
                 }
             }
         }
 
-        if (stack.hasTag()) {
+        if (stack.getTag() != null) {
             if (isSectionHidden(hideFlags, ItemStack.TooltipSection.UNBREAKABLE) && stack.getTag().getBoolean("Unbreakable")) {
                 list.add((new TranslatableText("item.unbreakable")).formatted(Formatting.BLUE));
             }
@@ -211,13 +292,12 @@ public class ItemHelper {
                 if (tag2 != null) {
                     Collection<Block> collection = tag2.values();
                     if (!collection.isEmpty()) {
-                        return collection.stream().map(Block::getName).map((text) -> {
-                            return text.formatted(Formatting.DARK_GRAY);
-                        }).collect(Collectors.toList());
+                        return collection.stream().map(Block::getName).map((text) -> text.formatted(Formatting.DARK_GRAY)).collect(Collectors.toList());
                     }
                 }
             }
         } catch (CommandSyntaxException var8) {
+            return Lists.newArrayList(new Text[]{(new LiteralText("missingno")).formatted(Formatting.DARK_GRAY)});
         }
 
         return Lists.newArrayList(new Text[]{(new LiteralText("missingno")).formatted(Formatting.DARK_GRAY)});
@@ -229,6 +309,6 @@ public class ItemHelper {
     }
 
     public static int getHideFlags(ItemStack stack) {
-        return stack.hasTag() && stack.getTag().contains("HideFlags", 99) ? stack.getTag().getInt("HideFlags") : 0;
+        return stack.getTag() != null && stack.getTag().contains("HideFlags", 99) ? stack.getTag().getInt("HideFlags") : 0;
     }
 }

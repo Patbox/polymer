@@ -1,11 +1,12 @@
 package eu.pb4.polymer.block;
 
+import eu.pb4.polymer.interfaces.VirtualObject;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
-public interface VirtualBlock {
+public interface VirtualBlock extends VirtualObject {
     Block getVirtualBlock();
     BlockState getDefaultVirtualBlockState();
 
