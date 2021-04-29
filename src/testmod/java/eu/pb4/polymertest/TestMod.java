@@ -20,7 +20,9 @@ import net.minecraft.util.registry.Registry;
 
 public class TestMod implements ModInitializer {
     public static BasicVirtualItem item = new TestItem(new FabricItemSettings().fireproof().maxCount(5), Items.IRON_HOE);
-    public static Block block = new TestBlock(AbstractBlock.Settings.of(Material.STONE).breakInstantly());
+    public static BasicVirtualItem item2 = new BasicVirtualItem(new FabricItemSettings().fireproof().maxCount(99), Items.DIAMOND_BLOCK);
+
+    public static Block block = new TestBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f));
     public static BlockItem blockItem = new VirtualBlockItem(block, new FabricItemSettings(), Items.STONE);
     public static TinyPotatoBlock blockTater = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
     public static BlockItem blockItemTater = new VirtualHeadBlockItem(blockTater, new FabricItemSettings());
@@ -33,6 +35,7 @@ public class TestMod implements ModInitializer {
     @Override
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
+        Registry.register(Registry.ITEM, new Identifier("test", "item2"), item2);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), block);
         Registry.register(Registry.ITEM, new Identifier("test", "block"), blockItem);
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), blockTater);

@@ -22,5 +22,4 @@ public class TestBlock extends Block implements VirtualBlock {
     public BlockState getDefaultVirtualBlockState() {
         return Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP);
     }
-
 }

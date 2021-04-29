@@ -2,15 +2,16 @@ package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.item.VirtualItem;
+import net.minecraft.block.AbstractFireBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
-import net.minecraft.network.packet.s2c.play.RemoveEntityStatusEffectS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +34,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Shadow
     public abstract void finishMining(BlockPos pos, PlayerActionC2SPacket.Action action, String reason);
 
+    @Shadow public ServerWorld world;
     private int blockBreakingCooldown;
 
 
@@ -50,7 +52,11 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 this.blockBreakingCooldown = 5;
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
                 this.finishMining(pos, PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, "destroyed");
-                //this.player.networkHandler.sendPacket(new ParticleS2CPacket());
+
+                if (!(state.getBlock() instanceof AbstractFireBlock)) {
+                    this.world.syncWorldEvent(2001, pos, Block.getRawIdFromState(state.getBlock() instanceof VirtualBlock ? ((VirtualBlock) state.getBlock()).getVirtualBlockState(state) : state));
+                }
+
             }
         }
     }

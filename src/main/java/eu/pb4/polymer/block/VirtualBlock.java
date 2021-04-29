@@ -8,7 +8,9 @@ import net.minecraft.util.math.BlockPos;
 
 public interface VirtualBlock extends VirtualObject {
     Block getVirtualBlock();
-    BlockState getDefaultVirtualBlockState();
+    default BlockState getDefaultVirtualBlockState() {
+        return this.getVirtualBlock().getDefaultState();
+    }
 
     default BlockState getVirtualBlockState(BlockState state) {
         return this.getDefaultVirtualBlockState();
