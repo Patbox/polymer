@@ -1,3 +1,4 @@
 {
-  "block.test.potato_block": "Tiny Potato"
+  "block.test.potato_block": "Tiny Potato",
+  "enchantment.test.enchantment": "TestEnch"
 }

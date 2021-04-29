@@ -12,11 +12,11 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
  */
 @Mixin(value = Block.class, priority = 500)
 public class BlockMixin {
-    @ModifyVariable(method = "getRawIdFromState(Lnet/minecraft/block/BlockState;)I", at = @At("HEAD"))
+    /*@ModifyVariable(method = "getRawIdFromState(Lnet/minecraft/block/BlockState;)I", at = @At("HEAD"))
     private static BlockState rawBlockStateOverwrite(BlockState state) {
         if (state.getBlock() instanceof VirtualBlock) {
             return ((VirtualBlock) state.getBlock()).getVirtualBlockState(state);
         }
         return state;
-    }
+    }*/
 }

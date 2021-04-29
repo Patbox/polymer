@@ -3,10 +3,10 @@ package eu.pb4.polymer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.ItemStack;
+
+
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +21,7 @@ public class PolymerMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-			LOGGER.warn("Client isn't supported yet! It might break!");
+			LOGGER.warn("Polymer and mods using it have limited support for client/singleplayer! It might not work correctly!");
 		}
 	}
 

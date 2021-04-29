@@ -5,10 +5,13 @@ import eu.pb4.polymer.item.VirtualBlockItem;
 import eu.pb4.polymer.item.VirtualHeadBlockItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.ToolMaterials;
@@ -25,6 +28,8 @@ public class TestMod implements ModInitializer {
 
     public static Enchantment enchantment;
 
+    public static final EntityType<TestEntity> entity = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
+
     @Override
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
@@ -35,5 +40,7 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), pickaxe);
         enchantment = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
+        Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), entity);
+        FabricDefaultAttributeRegistry.register(entity, TestEntity.createCreeperAttributes());
     }
 }

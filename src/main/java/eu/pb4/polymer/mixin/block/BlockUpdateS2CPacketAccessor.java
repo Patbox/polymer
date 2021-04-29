@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.other;
+package eu.pb4.polymer.mixin.block;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(BlockUpdateS2CPacket.class)
 public interface BlockUpdateS2CPacketAccessor {
-    @Accessor(value = "pos")
-    BlockPos getPos();
-
     @Accessor(value = "state")
-    BlockState getState();
+    BlockState getStateServer();
+
+    @Accessor(value = "pos")
+    BlockPos getPosServer();
 }

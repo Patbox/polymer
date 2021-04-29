@@ -3,8 +3,6 @@ package eu.pb4.polymer.mixin.block;
 import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.interfaces.WorldChunkInterface;
-import eu.pb4.polymer.mixin.other.BlockUpdateS2CPacketAccessor;
-import eu.pb4.polymer.mixin.other.ChunkDeltaUpdateS2CPacketAccessor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.block.BlockState;
@@ -17,7 +15,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.WorldChunk;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,10 +31,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
         try {
             if (packet instanceof BlockUpdateS2CPacket) {
                 BlockUpdateS2CPacketAccessor b = (BlockUpdateS2CPacketAccessor) packet;
-                BlockState blockState = b.getState();
-
+                BlockState blockState = b.getStateServer();
                 if (blockState.getBlock() instanceof VirtualBlock) {
-                    BlockPos pos = ((BlockUpdateS2CPacket) packet).getPos();
+                    BlockPos pos = ((BlockUpdateS2CPacketAccessor) packet).getPosServer();
                     ((VirtualBlock) blockState.getBlock()).sendPacketsAfterCreation(this.player, pos, blockState);
                 }
             } else if (packet instanceof ChunkDataS2CPacket) {
@@ -53,9 +49,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 }
             } else if (packet instanceof ChunkDeltaUpdateS2CPacket) {
                 ChunkDeltaUpdateS2CPacketAccessor chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
-                ChunkSectionPos chunkPos = chunk.getSectionPos();
-                BlockState[] blockStates = chunk.getBlockStates();
-                short[] localPos = chunk.getPositions();
+                ChunkSectionPos chunkPos = chunk.getSectionPosServer();
+                BlockState[] blockStates = chunk.getBlockStatesServer();
+                short[] localPos = chunk.getPositionsServer();
 
                 for (int i = 0; i < localPos.length; i++) {
                     BlockState blockState = blockStates[i];

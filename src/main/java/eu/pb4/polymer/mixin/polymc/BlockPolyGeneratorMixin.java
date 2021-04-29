@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.polymc;
 
 import eu.pb4.polymer.block.VirtualBlock;
-import eu.pb4.polymer.polymc.VirtualPoly;
+import eu.pb4.polymer.other.polymc.VirtualPoly;
 import io.github.theepicblock.polymc.api.PolyRegistry;
 import net.minecraft.block.Block;
 import org.spongepowered.asm.mixin.Mixin;

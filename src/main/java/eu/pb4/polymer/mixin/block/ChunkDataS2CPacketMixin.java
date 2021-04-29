@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.other;
+package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.PolymerMod;
 import eu.pb4.polymer.interfaces.ChunkDataS2CPacketInterface;

@@ -59,7 +59,7 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation "com.github.SuperCoder7979:databreaker:0.2.6"
+	modRuntime "com.github.SuperCoder7979:databreaker:0.2.6"
 
 	modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
 

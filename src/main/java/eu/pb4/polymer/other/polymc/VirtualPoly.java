@@ -1,4 +1,4 @@
-package eu.pb4.polymer.polymc;
+package eu.pb4.polymer.other.polymc;
 
 import eu.pb4.polymer.block.VirtualBlock;
 import io.github.theepicblock.polymc.api.block.BlockPoly;

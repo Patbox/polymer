@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.other;
+package eu.pb4.polymer.mixin.block;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ChunkDeltaUpdateS2CPacket.class)
 public interface ChunkDeltaUpdateS2CPacketAccessor {
     @Accessor("sectionPos")
-    ChunkSectionPos getSectionPos();
+    ChunkSectionPos getSectionPosServer();
 
     @Accessor("positions")
-    short[] getPositions();
+    short[] getPositionsServer();
 
     @Accessor("blockStates")
-    BlockState[] getBlockStates();
+    BlockState[] getBlockStatesServer();
 }
