@@ -6,7 +6,6 @@
   "plugin": "eu.pb4.polymer.mixin.MixinPlugin",
   "mixins": [
     "block.AbstractBlockMixin",
-    "block.BlockMixin",
     "block.BlockPaletteMixin",
     "block.BlockUpdateS2CPacketAccessor",
     "block.BlockUpdateS2CPacketMixin",

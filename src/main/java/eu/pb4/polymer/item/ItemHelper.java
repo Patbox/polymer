@@ -103,14 +103,14 @@ public class ItemHelper {
             out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
             assert out.getTag() != null;
 
-            if (!out.hasCustomName()) {
+            if (!itemStack.hasCustomName()) {
                 out.setCustomName(itemStack.getItem().getName(itemStack).shallowCopy().fillStyle(ItemHelper.NON_ITALIC_STYLE.withColor(itemStack.getRarity().formatting)));
             } else {
                 out.setCustomName(itemStack.getName());
             }
 
             int dmg = itemStack.getDamage();
-            if (dmg != 0 && out.getTag() != null) {
+            if (dmg != 0) {
                 out.getTag().putInt("Damage", (int) ((((double) dmg) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
             }
 
