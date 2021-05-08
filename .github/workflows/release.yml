@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/loom-cache
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build and publish with Gradle
+        run: ./gradlew build publish
+        env:
+          MAVEN_URL: ${{ secrets.MAVEN_URL }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
+      - name: Upload GitHub release
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'build/libs/*.jar;!build/libs/*-sources.jar;!build/libs/*-dev.jar'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

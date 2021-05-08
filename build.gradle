@@ -18,8 +18,8 @@ repositories {
 	// for more information about repositories.
 
 	maven { url "https://jitpack.io" }
-	//maven { url = "https://maven.nucleoid.xyz/" }
-	maven { url = "https://maven.tomthegeek.ml" }
+	maven { url = "https://maven.nucleoid.xyz/" }
+	//maven { url = "https://maven.tomthegeek.ml" }
 	mavenLocal()
 	maven {
 		url "https://dl.bintray.com/natanfudge/libs"
@@ -125,9 +125,16 @@ publishing {
 
 	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		if (env.MAVEN_URL) {
+			maven {
+				credentials {
+					username env.MAVEN_USERNAME
+					password env.MAVEN_PASSWORD
+				}
+				url env.MAVEN_URL
+			}
+		} else {
+			mavenLocal()
+		}
 	}
 }
