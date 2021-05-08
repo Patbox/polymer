@@ -3,6 +3,8 @@ plugins {
 	id 'maven-publish'
 }
 
+def env = System.getenv()
+
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -21,9 +23,6 @@ repositories {
 	maven { url = "https://maven.nucleoid.xyz/" }
 	//maven { url = "https://maven.tomthegeek.ml" }
 	mavenLocal()
-	maven {
-		url "https://dl.bintray.com/natanfudge/libs"
-	}
 }
 
 sourceSets {
@@ -63,7 +62,9 @@ dependencies {
 
 	modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
 
-	modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.1.1'
+	modCompileOnly('com.github.TheEpicBlock:PolyMc:3.1.1') {
+		exclude module: 'artifice'
+	}
 
 	modImplementation include("fr.catcore:server-translations-api:1.4.1")
 
