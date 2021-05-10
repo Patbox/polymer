@@ -25,14 +25,29 @@ public class PolymerMod implements ModInitializer {
 		}
 	}
 
+	/**
+	 * Marks BlockEntity type as server-side only
+	 *
+	 * @param identifier BlockEntity's Identifier
+	 */
 	public static void registerVirtualBlockEntity(Identifier identifier) {
 		BLOCK_ENTITY_IDENTIFIERS.add(identifier.toString());
 	}
 
+	/**
+	 * Checks if BlockEntity is server-side only
+	 *
+	 * @param identifier BlockEntity's Identifier
+	 */
 	public static boolean isVirtualBlockEntity(Identifier identifier) {
 		return BLOCK_ENTITY_IDENTIFIERS.contains(identifier.toString());
 	}
 
+	/**
+	 * Checks if BlockEntity is server-side only
+	 *
+	 * @param identifier BlockEntity's Identifier (as string)
+	 */
 	public static boolean isVirtualBlockEntity(String identifier) {
 		return BLOCK_ENTITY_IDENTIFIERS.contains(identifier);
 	}

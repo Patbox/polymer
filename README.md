@@ -20,6 +20,10 @@ After that, it's as easy as making your items implement `VirtualItem`, blocks `V
 `VirtualHeadBlock` and entities `VirtualEntity`. Additionally, you need to implement `VirtualObject` on your enchantments and recipe serializers.
 It's also recommended registering block entities with `PolymerMod.registerVirtualBlockEntity(Identifier)`.
 
+### Limitations
+While it's supported, please limit creation of VirtualBlock light sources. Because of how Minecraft 
+handles light updates on server/client, these can be little laggy (as it needs to be send updates every time light changes).
+
 ### If you are a server owner, you most likely wanted to get [PolyMC](https://github.com/TheEpicBlock/PolyMc)
 
 Some code in this library is based on [PolyMC](https://github.com/TheEpicBlock/PolyMc). So if you are using Polymer, give a star to PolyMC too! 

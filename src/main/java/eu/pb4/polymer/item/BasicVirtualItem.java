@@ -2,6 +2,9 @@ package eu.pb4.polymer.item;
 
 import net.minecraft.item.Item;
 
+/**
+ * Basic implementation of VirtualItem
+ */
 public class BasicVirtualItem extends Item implements VirtualItem {
     private final Item virtualItem;
 

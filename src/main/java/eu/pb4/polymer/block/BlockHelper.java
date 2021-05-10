@@ -1,0 +1,31 @@
+package eu.pb4.polymer.block;
+
+import eu.pb4.polymer.mixin.block.AbstractBlockAccessor;
+import eu.pb4.polymer.mixin.block.AbstractBlockSettingAccessor;
+import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+
+import java.util.function.ToIntFunction;
+
+public class BlockHelper {
+    private static Object2BooleanArrayMap<Block> IS_LIGHT_SOURCE_CACHE = new Object2BooleanArrayMap();
+
+    public static boolean isLightSource(Block block) {
+        if (BlockHelper.IS_LIGHT_SOURCE_CACHE.containsKey(block)) {
+            return BlockHelper.IS_LIGHT_SOURCE_CACHE.getBoolean(block);
+        } else {
+            ToIntFunction<BlockState> luminance = ((AbstractBlockSettingAccessor) ((AbstractBlockAccessor) block).getSettings()).getLuminance();
+
+            for (BlockState state : block.getStateManager().getStates()) {
+                if (luminance.applyAsInt(state) != 0) {
+                    BlockHelper.IS_LIGHT_SOURCE_CACHE.put(block, true);
+                    return true;
+                }
+            }
+
+            BlockHelper.IS_LIGHT_SOURCE_CACHE.put(block, false);
+            return false;
+        }
+    }
+}

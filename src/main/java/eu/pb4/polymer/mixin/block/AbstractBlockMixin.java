@@ -19,7 +19,6 @@ public class AbstractBlockMixin {
     private void replaceWithFakeBlock(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (this instanceof VirtualBlock) {
             VirtualBlock block = (VirtualBlock) this;
-
             cir.setReturnValue(block.getVirtualBlockState(state).getOutlineShape(world, pos, context));
         }
     }

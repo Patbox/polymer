@@ -40,17 +40,17 @@ public class ItemHelper {
     protected static final UUID ATTACK_DAMAGE_MODIFIER_ID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     protected static final UUID ATTACK_SPEED_MODIFIER_ID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
 
-    public static String VIRTUAL_ITEM_ID = "Polymer$itemId";
-    public static String REAL_TAG = "Polymer$itemTag";
+    public static final String VIRTUAL_ITEM_ID = "Polymer$itemId";
+    public static final String REAL_TAG = "Polymer$itemTag";
 
-    public static Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
-    public static Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
+    public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
+    public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
 
     public static ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         if (itemStack.getItem() instanceof VirtualItem) {
             VirtualItem item = (VirtualItem) itemStack.getItem();
             return item.getVirtualItemStack(itemStack, player);
-        } if (itemStack.hasEnchantments()) {
+        } else if (itemStack.hasEnchantments()) {
             for (net.minecraft.nbt.Tag enchantment : itemStack.getEnchantments()) {
                 String id = ((CompoundTag) enchantment).getString("id");
 
@@ -68,18 +68,20 @@ public class ItemHelper {
     public static ItemStack getRealItemStack(ItemStack itemStack) {
         ItemStack out = itemStack;
 
-        String id = out.getOrCreateTag().getString(VIRTUAL_ITEM_ID);
-        if (id != null && !id.isEmpty()) {
-            try {
-                Identifier identifier = Identifier.tryParse(id);
-                Item item = Registry.ITEM.get(identifier);
-                out = new ItemStack(item, itemStack.getCount());
-                CompoundTag tag = itemStack.getSubTag(REAL_TAG);
-                if (tag != null) {
-                    out.setTag(tag);
+        if (itemStack.hasTag()) {
+            String id = itemStack.getTag().getString(VIRTUAL_ITEM_ID);
+            if (id != null && !id.isEmpty()) {
+                try {
+                    Identifier identifier = Identifier.tryParse(id);
+                    Item item = Registry.ITEM.get(identifier);
+                    out = new ItemStack(item, itemStack.getCount());
+                    CompoundTag tag = itemStack.getSubTag(REAL_TAG);
+                    if (tag != null) {
+                        out.setTag(tag);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 

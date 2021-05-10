@@ -2,7 +2,9 @@ package eu.pb4.polymer.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-
+/**
+ * Minimalistic implementation of VirtualBlock
+*/
 public class BasicVirtualBlock extends Block implements VirtualBlock {
     private Block virtualBlock;
 

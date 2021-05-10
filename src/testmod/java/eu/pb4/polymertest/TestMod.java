@@ -1,5 +1,6 @@
 package eu.pb4.polymertest;
 
+import eu.pb4.polymer.block.BasicVirtualBlock;
 import eu.pb4.polymer.item.BasicVirtualItem;
 import eu.pb4.polymer.item.VirtualBlockItem;
 import eu.pb4.polymer.item.VirtualHeadBlockItem;
@@ -9,6 +10,7 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
@@ -22,8 +24,10 @@ public class TestMod implements ModInitializer {
     public static BasicVirtualItem item = new TestItem(new FabricItemSettings().fireproof().maxCount(5), Items.IRON_HOE);
     public static BasicVirtualItem item2 = new BasicVirtualItem(new FabricItemSettings().fireproof().maxCount(99), Items.DIAMOND_BLOCK);
 
-    public static Block block = new TestBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f));
+    public static Block block = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
     public static BlockItem blockItem = new VirtualBlockItem(block, new FabricItemSettings(), Items.STONE);
+    public static Block block2 = new BasicVirtualBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
+    public static BlockItem blockItem2 = new VirtualBlockItem(block2, new FabricItemSettings(), Items.TNT);
     public static TinyPotatoBlock blockTater = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
     public static BlockItem blockItemTater = new VirtualHeadBlockItem(blockTater, new FabricItemSettings());
     public static TestPickaxeItem pickaxe = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings());
@@ -38,6 +42,8 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "item2"), item2);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), block);
         Registry.register(Registry.ITEM, new Identifier("test", "block"), blockItem);
+        Registry.register(Registry.BLOCK, new Identifier("test", "block2"), block2);
+        Registry.register(Registry.ITEM, new Identifier("test", "block2"), blockItem2);
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), blockTater);
         Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), blockItemTater);
         Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), pickaxe);

@@ -8,6 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+/**
+ * Basic implementation of VirtualItem for blocks implementing VirtualHeadBlock
+ */
 public class VirtualHeadBlockItem extends BlockItem implements VirtualItem {
     private final VirtualHeadBlock virtualBlock;
 
