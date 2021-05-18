@@ -5,6 +5,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
@@ -15,10 +16,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
@@ -54,5 +59,44 @@ public abstract class ServerPlayNetworkHandlerMixin {
         for (Direction direction : Direction.values()) {
             this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(this.player.world, base.offset(direction)));
         }
+    }
+
+    @Unique
+    private List<ItemStack> armorItems = new ArrayList<>();
+
+    @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER))
+    private void storeSomeData(ClickSlotC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler == this.player.playerScreenHandler) {
+            for (ItemStack stack : this.player.inventory.armor) {
+                armorItems.add(stack.copy());
+            }
+        }
+    }
+
+    @Inject(method = "onClickSlot", at = @At("TAIL"))
+    private void resendArmorIfNeeded(ClickSlotC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler == this.player.playerScreenHandler && packet.getSlot() != -999) {
+            int x = 0;
+            for (ItemStack stack : this.player.inventory.armor) {
+                if (stack.getItem() instanceof VirtualItem && !ItemStack.areEqual(this.armorItems.get(x), stack)) {
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId,
+                            8 - x,
+                            stack));
+
+                    if (packet.getSlot() != 8 - x) {
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, packet.getSlot(),
+                                this.player.playerScreenHandler.getSlot(packet.getSlot()).getStack()));
+                    }
+
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1,
+                            0,
+                            this.player.inventory.getCursorStack()));
+                    return;
+                }
+                x++;
+            }
+        }
+
+        this.armorItems.clear();
     }
 }

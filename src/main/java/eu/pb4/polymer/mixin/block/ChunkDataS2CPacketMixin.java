@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Mixin(ChunkDataS2CPacket.class)
 public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
+    @Unique
     private WorldChunk worldChunk;
 
     @Inject(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;I)V", at = @At("TAIL"))

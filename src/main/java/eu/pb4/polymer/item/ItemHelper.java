@@ -29,6 +29,7 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -88,7 +89,24 @@ public class ItemHelper {
         return out;
     }
 
-    public static ItemStack createBasicVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
+    public static ItemStack createMinimalVirtualItemStack(ItemStack itemStack) {
+        Item item = itemStack.getItem();
+        if (itemStack.getItem() instanceof VirtualItem) {
+            item = ((VirtualItem) itemStack.getItem()).getVirtualItem();
+        }
+
+        ItemStack out = new ItemStack(item, itemStack.getCount());
+
+        if (itemStack.getTag() != null) {
+            out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
+        }
+
+        out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+
+        return out;
+    }
+
+    public static ItemStack createBasicVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
         if (itemStack.getItem() instanceof VirtualItem) {
             item = ((VirtualItem) itemStack.getItem()).getVirtualItem();
@@ -159,7 +177,7 @@ public class ItemHelper {
         return out;
     }
 
-    protected static List<Text> buildTooltip(ItemStack stack, ServerPlayerEntity player) {
+    protected static List<Text> buildTooltip(ItemStack stack, @Nullable ServerPlayerEntity player) {
         List<Text> list = Lists.newArrayList();
         int hideFlags = getHideFlags(stack);
 
@@ -210,6 +228,7 @@ public class ItemHelper {
                         EntityAttributeModifier entityAttributeModifier = entry.getValue();
                         double value = entityAttributeModifier.getValue();
                         boolean bl = false;
+
                         if (player != null) {
                             if (entityAttributeModifier.getId().equals(ATTACK_DAMAGE_MODIFIER_ID)) {
                                 value += player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
@@ -217,6 +236,15 @@ public class ItemHelper {
                                 bl = true;
                             } else if (entityAttributeModifier.getId().equals(ATTACK_SPEED_MODIFIER_ID)) {
                                 value += player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED);
+                                bl = true;
+                            }
+                        } else {
+                            if (entityAttributeModifier.getId().equals(ATTACK_DAMAGE_MODIFIER_ID)) {
+                                value += 1;
+                                value += EnchantmentHelper.getAttackDamage(stack, EntityGroup.DEFAULT);
+                                bl = true;
+                            } else if (entityAttributeModifier.getId().equals(ATTACK_SPEED_MODIFIER_ID)) {
+                                value += 4;
                                 bl = true;
                             }
                         }

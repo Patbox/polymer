@@ -16,7 +16,6 @@ import java.util.List;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
 public class EntityTrackerUpdateS2CPacketMixin {
-
     @Shadow private List<DataTracker.Entry<?>> trackedValues;
 
     @Inject(method = "<init>(ILnet/minecraft/entity/data/DataTracker;Z)V", at = @At("TAIL"))

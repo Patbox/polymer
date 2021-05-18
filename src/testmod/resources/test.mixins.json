@@ -4,7 +4,8 @@
   "package": "eu.pb4.polymertest.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "VillagerEntityAccessor"
+    "VillagerEntityAccessor",
+    "AECAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

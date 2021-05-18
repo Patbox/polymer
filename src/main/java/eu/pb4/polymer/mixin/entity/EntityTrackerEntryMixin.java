@@ -23,7 +23,6 @@ import java.util.function.Consumer;
 
 @Mixin(EntityTrackerEntry.class)
 public class EntityTrackerEntryMixin {
-
     @Shadow
     @Final
     private Entity entity;
@@ -47,7 +46,7 @@ public class EntityTrackerEntryMixin {
                 sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getEntityId(), list));
                 ((VirtualEntity) this.entity).sendPacketsAfterCreation(sender);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

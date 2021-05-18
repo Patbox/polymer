@@ -31,10 +31,12 @@ public class TestMod implements ModInitializer {
     public static TinyPotatoBlock blockTater = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
     public static BlockItem blockItemTater = new VirtualHeadBlockItem(blockTater, new FabricItemSettings());
     public static TestPickaxeItem pickaxe = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings());
+    public static TestHelmetItem helmet = new TestHelmetItem(new FabricItemSettings());
 
     public static Enchantment enchantment;
 
     public static final EntityType<TestEntity> entity = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
+    public static final EntityType<TestEntity2> entity2 = FabricEntityTypeBuilder.<TestEntity2>create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
 
     @Override
     public void onInitialize() {
@@ -47,9 +49,14 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), blockTater);
         Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), blockItemTater);
         Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), pickaxe);
+        Registry.register(Registry.ITEM, new Identifier("test", "helmet"), helmet);
+
         enchantment = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
         Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), entity);
         FabricDefaultAttributeRegistry.register(entity, TestEntity.createCreeperAttributes());
+
+        Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), entity2);
+        FabricDefaultAttributeRegistry.register(entity2, TestEntity2.createCreeperAttributes());
     }
 }

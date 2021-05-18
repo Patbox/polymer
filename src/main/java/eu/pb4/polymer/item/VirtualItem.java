@@ -5,6 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface VirtualItem extends VirtualObject {
      * @param player Player for which it's send
      * @return Client-side ItemStack
      */
-    default ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
+    default ItemStack getVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         return ItemHelper.createBasicVirtualItemStack(itemStack, player);
     }
 
@@ -39,5 +40,5 @@ public interface VirtualItem extends VirtualObject {
      * @param stack Server-side ItemStack
      * @param player Target player
      */
-    default void addTextToTooltip(List<Text> tooltip, ItemStack stack, ServerPlayerEntity player) {}
+    default void addTextToTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {}
 }

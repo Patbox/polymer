@@ -19,8 +19,6 @@ public class ChunkDeltaUpdateS2CPacketMixin {
         return state;
     }
 
-
-
     @Environment(EnvType.CLIENT)
     @ModifyArg(method = "visitUpdates", at = @At(value = "INVOKE", target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object replaceBlockStateOnClient(Object state) {

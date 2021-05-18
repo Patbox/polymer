@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.other;
 import eu.pb4.polymer.interfaces.PlayerContextInterface;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,9 +19,7 @@ public class ServerPlayNetworkHandlerContextMixin {
     @Shadow
     public ServerPlayerEntity player;
 
-
-    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
-            at = @At("HEAD"))
+    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("HEAD"))
     public void setPlayerInPacket(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
         if (packet instanceof PlayerContextInterface) {
             ((PlayerContextInterface) packet).setPolymerPlayer(this.player);

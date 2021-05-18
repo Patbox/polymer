@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -54,6 +55,7 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
     }
 
 
+    @Unique
     private void generateVirtualBlockSet() {
         for (byte x = 0; x < 16; x++) {
             for (byte z = 0; z < 16; z++) {

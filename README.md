@@ -21,6 +21,9 @@ After that, it's as easy as making your items implement `VirtualItem`, blocks `V
 It's also recommended registering block entities with `PolymerMod.registerVirtualBlockEntity(Identifier)`.
 
 ### Limitations
+Most command arguments that refer to entity types, items and blocks will be warning that 
+it's are incorrect. However, commands itself should work just fine.
+
 While it's supported, please limit creation of VirtualBlock light sources. Because of how Minecraft 
 handles light updates on server/client, these can be little laggy (as it needs to be send updates every time light changes).
 

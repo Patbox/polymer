@@ -8,7 +8,8 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(PacketByteBuf.class)
 public class PacketByteBufContextMixin implements PlayerContextInterface {
-    @Unique ServerPlayerEntity player;
+    @Unique
+    ServerPlayerEntity player;
 
     @Override
     public void setPolymerPlayer(ServerPlayerEntity player) {

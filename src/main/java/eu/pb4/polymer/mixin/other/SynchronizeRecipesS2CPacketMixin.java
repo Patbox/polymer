@@ -1,11 +1,9 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.PolymerMod;
 import eu.pb4.polymer.interfaces.VirtualObject;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.SynchronizeRecipesS2CPacket;
 import net.minecraft.recipe.Recipe;
-import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
