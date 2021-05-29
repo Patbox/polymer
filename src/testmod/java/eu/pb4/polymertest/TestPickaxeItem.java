@@ -19,7 +19,7 @@ public class TestPickaxeItem extends PickaxeItem implements VirtualItem {
     }
 
     @Override
-    public void addTextToTooltip(List<Text> tooltip, ItemStack stack, ServerPlayerEntity player) {
+    public void modifyTooltip(List<Text> tooltip, ItemStack stack, ServerPlayerEntity player) {
         tooltip.add(0, new LiteralText("Hello"));
         tooltip.add(new LiteralText("World!"));
     }

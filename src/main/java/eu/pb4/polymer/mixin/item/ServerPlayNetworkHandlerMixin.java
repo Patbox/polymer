@@ -39,7 +39,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
         if (itemStack.getItem() instanceof VirtualItem && (((VirtualItem) itemStack.getItem()).getVirtualItem() instanceof BlockItem || ((VirtualItem) itemStack.getItem()).getVirtualItem() instanceof BucketItem)) {
-            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.inventory.selectedSlot : 45, itemStack));
+            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER))
     private void storeSomeData(ClickSlotC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler == this.player.playerScreenHandler) {
-            for (ItemStack stack : this.player.inventory.armor) {
+            for (ItemStack stack : this.player.getInventory().armor) {
                 armorItems.add(stack.copy());
             }
         }
@@ -77,7 +77,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     private void resendArmorIfNeeded(ClickSlotC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler == this.player.playerScreenHandler && packet.getSlot() != -999) {
             int x = 0;
-            for (ItemStack stack : this.player.inventory.armor) {
+            for (ItemStack stack : this.player.getInventory().armor) {
                 if (stack.getItem() instanceof VirtualItem && !ItemStack.areEqual(this.armorItems.get(x), stack)) {
                     this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId,
                             8 - x,
@@ -90,7 +90,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
                     this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1,
                             0,
-                            this.player.inventory.getCursorStack()));
+                            this.player.currentScreenHandler.getCursorStack()));
                     return;
                 }
                 x++;

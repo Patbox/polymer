@@ -21,6 +21,8 @@ import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.entity.EntityLookup;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -49,6 +51,11 @@ public class FakeWorld extends World {
 
     }
 
+    @Override
+    public String asString() {
+        return "FakeWorld!";
+    }
+
     @Nullable
     @Override
     public Entity getEntityById(int id) {
@@ -62,7 +69,7 @@ public class FakeWorld extends World {
     }
 
     @Override
-    public void putMapState(MapState mapState) {
+    public void putMapState(String id, MapState state) {
 
     }
 
@@ -92,6 +99,11 @@ public class FakeWorld extends World {
     }
 
     @Override
+    protected EntityLookup<Entity> getEntityLookup() {
+        return null;
+    }
+
+    @Override
     public TickScheduler<Block> getBlockTickScheduler() {
         return null;
     }
@@ -108,6 +120,11 @@ public class FakeWorld extends World {
 
     @Override
     public void syncWorldEvent(@Nullable PlayerEntity player, int eventId, BlockPos pos, int data) {
+
+    }
+
+    @Override
+    public void emitGameEvent(@Nullable Entity entity, GameEvent event, BlockPos pos) {
 
     }
 

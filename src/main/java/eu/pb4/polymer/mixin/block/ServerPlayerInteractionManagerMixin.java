@@ -76,12 +76,12 @@ public abstract class ServerPlayerInteractionManagerMixin {
     private void packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
         if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
-                this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getEntityId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
+                this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
             } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
-                this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(this.player.getEntityId(), StatusEffects.MINING_FATIGUE));
+                this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(this.player.getId(), StatusEffects.MINING_FATIGUE));
                 if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
                     StatusEffectInstance effectInstance = player.getStatusEffect(StatusEffects.MINING_FATIGUE);
-                    this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getEntityId(), effectInstance));
+                    this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
                 }
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
             }
@@ -100,15 +100,15 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Inject(method = "finishMining", at = @At("HEAD"))
     private void clearEffects(BlockPos pos, PlayerActionC2SPacket.Action action, String reason, CallbackInfo ci) {
         if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
-            this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getEntityId(), StatusEffects.MINING_FATIGUE));
+            this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
             if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
                 StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
-                this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getEntityId(), effectInstance));
+                this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
             }
         }
     }
 
 
-    @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;)V"))
-    private void noOneCaresAboutMismatch(Logger logger, String message) {}
+    @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
+    private void noOneCaresAboutMismatch(Logger logger, String message, Object p0, Object p1) {}
 }

@@ -43,7 +43,7 @@ public class EntityTrackerEntryMixin {
                 }
 
                 List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this.entity).getVirtualEntityEquipment(map);
-                sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getEntityId(), list));
+                sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
                 ((VirtualEntity) this.entity).sendPacketsAfterCreation(sender);
             }
         } catch (Exception e) {

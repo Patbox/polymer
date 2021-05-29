@@ -6,6 +6,7 @@ import eu.pb4.polymer.interfaces.WorldChunkInterface;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.TickScheduler;
@@ -47,10 +48,18 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
     }
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/world/chunk/ProtoChunk;)V",
+            method = "<init>(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/world/chunk/ProtoChunk;Ljava/util/function/Consumer;)V",
             at = @At("TAIL")
     )
-    private void virtualBlocksInit2(World world, ProtoChunk protoChunk, CallbackInfo info) {
+    private void virtualBlocksInit2(ServerWorld serverWorld, ProtoChunk protoChunk, Consumer<WorldChunk> consumer, CallbackInfo ci) {
+        this.generateVirtualBlockSet();
+    }
+
+    @Inject(
+            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;)V",
+            at = @At("TAIL")
+    )
+    private void virtualBlocksInit3(World world, ChunkPos pos, BiomeArray biomes, CallbackInfo ci) {
         this.generateVirtualBlockSet();
     }
 

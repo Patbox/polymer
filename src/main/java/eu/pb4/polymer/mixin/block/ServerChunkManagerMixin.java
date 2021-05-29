@@ -86,12 +86,12 @@ public abstract class ServerChunkManagerMixin {
                 }
 
                 if (sendUpdate) {
-                    Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), true);
+                    //Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), true);
                     Set<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false).collect(Collectors.toSet());
                     if (players.size() > 0) {
                         this.lastUpdates.put(pos.toChunkPos(), System.currentTimeMillis());
                         for (ServerPlayerEntity player : players) {
-                            player.networkHandler.sendPacket(packet);
+                            //player.networkHandler.sendPacket(packet);
                         }
                     }
                 }

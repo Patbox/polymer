@@ -21,11 +21,11 @@ import java.util.Map;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
 
-    @Inject(method = "method_30123", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getChunkManager()Lnet/minecraft/server/world/ServerChunkManager;"), cancellable = true)
+    @Inject(method = "setEquipment", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getChunkManager()Lnet/minecraft/server/world/ServerChunkManager;"), cancellable = true)
     private void sendVirtualInventory(Map<EquipmentSlot, ItemStack> map, CallbackInfo ci) {
         if (this instanceof VirtualEntity) {
             List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this).getVirtualEntityEquipment(map);
-            ((ServerWorld)this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityEquipmentUpdateS2CPacket(this.getEntityId(), list));
+            ((ServerWorld)this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityEquipmentUpdateS2CPacket(this.getId(), list));
             ci.cancel();
         }
     }

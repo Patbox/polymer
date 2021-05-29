@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,7 +17,8 @@ import java.util.List;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
 public class EntityTrackerUpdateS2CPacketMixin {
-    @Shadow private List<DataTracker.Entry<?>> trackedValues;
+    @Shadow @Mutable
+    private List<DataTracker.Entry<?>> trackedValues;
 
     @Inject(method = "<init>(ILnet/minecraft/entity/data/DataTracker;Z)V", at = @At("TAIL"))
     private void removeInvalidEntries(int id, DataTracker tracker, boolean forceUpdateAll, CallbackInfo ci) {
