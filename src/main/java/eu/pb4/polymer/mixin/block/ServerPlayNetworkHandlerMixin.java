@@ -39,12 +39,11 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("TAIL"))
     private void catchBlockUpdates(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo cb) {
         try {
-            if (packet instanceof BlockUpdateS2CPacket) {
-                BlockUpdateS2CPacketAccessor b = (BlockUpdateS2CPacketAccessor) packet;
-                BlockState blockState = b.getStateServer();
+            if (packet instanceof BlockUpdateS2CPacket blockUpdatePacket) {
+                BlockState blockState = blockUpdatePacket.getState();
 
                 if (blockState.getBlock() instanceof VirtualBlock) {
-                    BlockPos pos = ((BlockUpdateS2CPacketAccessor) packet).getPosServer();
+                    BlockPos pos = blockUpdatePacket.getPos();
                     ((VirtualBlock) blockState.getBlock()).sendPacketsAfterCreation(this.player, pos, blockState);
                 }
             } else if (packet instanceof ChunkDataS2CPacket) {

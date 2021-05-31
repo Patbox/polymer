@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.BitSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,7 @@ public abstract class ServerChunkManagerMixin {
     @Nullable
     public abstract WorldChunk getWorldChunk(int chunkX, int chunkZ);
 
+    @Shadow @Final private ServerLightingProvider lightProvider;
     @Unique
     private final Object2LongArrayMap<ChunkPos> lastUpdates = new Object2LongArrayMap<>();
 
@@ -86,12 +88,14 @@ public abstract class ServerChunkManagerMixin {
                 }
 
                 if (sendUpdate) {
-                    //Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), true);
+                    BitSet bitSet = new BitSet();
+                    bitSet.set(pos.getSectionY() - this.lightProvider.getBottomY());
+                    Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
                     Set<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false).collect(Collectors.toSet());
                     if (players.size() > 0) {
                         this.lastUpdates.put(pos.toChunkPos(), System.currentTimeMillis());
                         for (ServerPlayerEntity player : players) {
-                            //player.networkHandler.sendPacket(packet);
+                            player.networkHandler.sendPacket(packet);
                         }
                     }
                 }
