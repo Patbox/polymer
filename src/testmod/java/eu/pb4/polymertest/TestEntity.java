@@ -10,6 +10,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.village.VillagerData;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.village.VillagerType;
@@ -43,5 +44,15 @@ public class TestEntity extends CreeperEntity implements VirtualEntity {
     @Override
     public void modifyTrackedData(List<DataTracker.Entry<?>> data) {
         data.add(new DataTracker.Entry<>(VillagerEntityAccessor.get(), new VillagerData(VillagerType.SWAMP, VillagerProfession.CARTOGRAPHER, 1)));
+    }
+
+    @Override
+    public float getClientSidePitch(float pitch) {
+        return 3.14f;
+    }
+
+    @Override
+    public Vec3d getClientSidePosition(Vec3d vec3d) {
+        return vec3d.add(1, 1, 1);
     }
 }

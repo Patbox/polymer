@@ -65,7 +65,7 @@ dependencies {
 		exclude module: 'artifice'
 	}
 
-	modImplementation include("fr.catcore:server-translations-api:1.4.2+1.17")
+	modImplementation include("fr.catcore:server-translations-api:1.4.4+1.17")
 	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0-1.17-pre1")
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.

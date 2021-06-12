@@ -50,7 +50,7 @@ public abstract class ServerChunkManagerMixin {
 
     @Shadow @Final private ServerLightingProvider lightProvider;
     @Unique
-    private final Object2LongArrayMap<ChunkPos> lastUpdates = new Object2LongArrayMap<>();
+    private final Object2LongArrayMap<ChunkSectionPos> lastUpdates = new Object2LongArrayMap<>();
 
     @Inject(method = "onLightUpdate", at = @At("TAIL"))
     private void sendLightUpdates(LightType type, ChunkSectionPos pos, CallbackInfo ci) {
@@ -93,7 +93,7 @@ public abstract class ServerChunkManagerMixin {
                     Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
                     Set<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false).collect(Collectors.toSet());
                     if (players.size() > 0) {
-                        this.lastUpdates.put(pos.toChunkPos(), System.currentTimeMillis());
+                        this.lastUpdates.put(pos, System.currentTimeMillis());
                         for (ServerPlayerEntity player : players) {
                             player.networkHandler.sendPacket(packet);
                         }

@@ -10,9 +10,8 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
+
+import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 import java.util.Map;
@@ -46,15 +45,53 @@ public interface VirtualEntity extends VirtualObject {
     }
 
     /**
-     * This method can be used to send packets after entity is visuble to players
+     * This method can be used to send packets after entity is visible to players
      *
      * @param sender Consumer of packets
      */
-    default void sendPacketsAfterCreation(Consumer<Packet<?>> sender) {}
+    default void sendPackets(Consumer<Packet<?>> sender) {}
+
 
     /**
      * This method allows to modify DataTracker values before they are send to the client
      * @param data Current values
      */
     default void modifyTrackedData(List<DataTracker.Entry<?>> data) {}
+
+
+    /**
+     * This method allows to modify position of entity on client
+     * @param vec3d Real position
+     * @return Client-side position
+     */
+    default Vec3d getClientSidePosition(Vec3d vec3d) {
+        return vec3d;
+    }
+
+    /**
+     * This method allows to modify yaw of entity on client
+     * @param yaw Real yaw value
+     * @return Client-side yaw value
+     */
+    default float getClientSideYaw(float yaw) {
+        return yaw;
+    }
+
+    /**
+     * This method allows to modify head yaw of entity on client
+     * @param yaw Real yaw value
+     * @return Client-side yaw value
+     */
+    default float getClientSideHeadYaw(float yaw) {
+        return yaw;
+    }
+
+    /**
+     * This method allows to modify pitch of entity on client
+     * @param pitch Real pitch value
+     * @return Client-side pitch value
+     */
+    default float getClientSidePitch(float pitch) {
+        return pitch;
+    }
 }

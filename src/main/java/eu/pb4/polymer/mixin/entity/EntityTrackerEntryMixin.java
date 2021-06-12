@@ -28,23 +28,24 @@ public class EntityTrackerEntryMixin {
     private Entity entity;
 
     @Inject(method = "sendPackets", at = @At("TAIL"))
-    private void sendVirtualStuff(Consumer<Packet<?>> sender, CallbackInfo ci) {
+    private void modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
         try {
             if (this.entity instanceof VirtualEntity) {
-                Map<EquipmentSlot, ItemStack> map = new HashMap<>();
-
                 if (this.entity instanceof LivingEntity) {
+                    Map<EquipmentSlot, ItemStack> map = new HashMap<>();
+
                     for (EquipmentSlot slot : EquipmentSlot.values()) {
                         ItemStack stack = ((LivingEntity) this.entity).getEquippedStack(slot);
                         if (!stack.isEmpty()) {
                             map.put(slot, stack);
                         }
                     }
+
+                    List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this.entity).getVirtualEntityEquipment(map);
+                    sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
                 }
 
-                List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this.entity).getVirtualEntityEquipment(map);
-                sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
-                ((VirtualEntity) this.entity).sendPacketsAfterCreation(sender);
+                ((VirtualEntity) this.entity).sendPackets(sender);
             }
         } catch (Exception e) {
             e.printStackTrace();

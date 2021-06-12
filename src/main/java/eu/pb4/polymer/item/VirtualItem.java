@@ -40,13 +40,5 @@ public interface VirtualItem extends VirtualObject {
      * @param stack Server-side ItemStack
      * @param player Target player
      */
-    default void modifyTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {
-        this.addTextToTooltip(tooltip, stack, player);
-    }
-
-    /**
-     * Use modifyTooltip instead!
-     */
-    @Deprecated(forRemoval = true)
-    default void addTextToTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {}
+    default void modifyTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {}
 }
