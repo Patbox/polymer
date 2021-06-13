@@ -13,5 +13,7 @@ public class VirtualPoly implements BlockPoly {
     }
 
     @Override
-    public void AddToResourcePack(Block block, ResourcePackMaker pack) {}
+    public void addToResourcePack(Block block, ResourcePackMaker pack) {
+
+    }
 }

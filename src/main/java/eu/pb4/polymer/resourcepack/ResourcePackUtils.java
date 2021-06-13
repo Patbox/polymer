@@ -1,7 +1,5 @@
 package eu.pb4.polymer.resourcepack;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import eu.pb4.polymer.PolymerMod;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -22,7 +20,7 @@ public class ResourcePackUtils {
     private static final Object2ObjectMap<Item, List<CMDInfo>> ITEMS = new Object2ObjectArrayMap<>();
     private static final Set<String> MOD_IDS = new HashSet<>();
 
-    private static int CMD_OFFSET = 1;
+    private static int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 1000 : 1;
 
     /**
      * This method can be used to register custom model data for items
@@ -59,11 +57,10 @@ public class ResourcePackUtils {
     }
 
     @ApiStatus.Internal
-    public static boolean build() {
+    public static boolean build(Path path) {
         try {
             PolymerMod.LOGGER.info("Starting resource pack creation...");
             boolean successful = true;
-            Path path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack");
             RPBuilder builder = new DefaultRPBuilder(path);
 
             RESOURCE_PACK_CREATION_EVENT.invoker().call(builder);

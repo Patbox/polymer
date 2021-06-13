@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockPolyGeneratorMixin {
 
     @Inject(method = "generatePoly", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void addVirtualBlockPole(Block block, PolyRegistry builder, CallbackInfoReturnable cir) {
+    private static void addVirtualBlockPoly(Block block, PolyRegistry builder, CallbackInfoReturnable cir) {
         if (block instanceof VirtualBlock) {
             cir.setReturnValue(new VirtualPoly());
         }

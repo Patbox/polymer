@@ -30,8 +30,8 @@
     "item.ItemStackContentMixin",
     "item.PacketByteBufMixin",
     "item.ServerPlayNetworkHandlerMixin",
+    "other.CommandManagerMixin",
     "other.DimensionTypeAccessor",
-    "other.MinecraftServerMixin",
     "other.RegistrySyncManagerMixin",
     "other.SynchronizeRecipesS2CPacketMixin",
     "polymc.BlockPolyGeneratorMixin"

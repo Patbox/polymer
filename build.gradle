@@ -21,6 +21,7 @@ repositories {
 
 	maven { url "https://jitpack.io" }
 	maven { url = "https://maven.nucleoid.xyz/" }
+	maven { url = "https://maven.gegy.dev/" }
 	mavenLocal()
 }
 
@@ -57,13 +58,12 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	//modRuntime "com.github.SuperCoder7979:databreaker:0.2.6"
+	modRuntime "supercoder79:databreaker:0.2.7"
 
 	modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
 
-	modCompileOnly('com.github.TheEpicBlock:PolyMc:3.1.1') {
-		exclude module: 'artifice'
-	}
+	modCompileOnly 'com.github.TheEpicBlock:PolyMc:ebe3100f5ad7'
+	//modRuntime 'com.github.TheEpicBlock:PolyMc:ebe3100f5ad7'
 
 	modImplementation include("fr.catcore:server-translations-api:1.4.4+1.17")
 	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0-1.17-pre1")
