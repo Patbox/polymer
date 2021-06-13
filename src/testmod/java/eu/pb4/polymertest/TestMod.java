@@ -4,6 +4,7 @@ import eu.pb4.polymer.block.BasicVirtualBlock;
 import eu.pb4.polymer.item.BasicVirtualItem;
 import eu.pb4.polymer.item.VirtualBlockItem;
 import eu.pb4.polymer.item.VirtualHeadBlockItem;
+import eu.pb4.polymer.resourcepack.ResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -33,6 +34,9 @@ public class TestMod implements ModInitializer {
     public static TestPickaxeItem pickaxe = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings());
     public static TestHelmetItem helmet = new TestHelmetItem(new FabricItemSettings());
 
+    public static TestBowItem bow1 = new TestBowItem(new FabricItemSettings(), "bow");
+    public static TestBowItem bow2 = new TestBowItem(new FabricItemSettings(), "bow2");
+
     public static Enchantment enchantment;
 
     public static final EntityType<TestEntity> entity = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
@@ -40,6 +44,7 @@ public class TestMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ResourcePackUtils.addModAsAssetsSource("polymertest");
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
         Registry.register(Registry.ITEM, new Identifier("test", "item2"), item2);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), block);
@@ -50,6 +55,8 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), blockItemTater);
         Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), pickaxe);
         Registry.register(Registry.ITEM, new Identifier("test", "helmet"), helmet);
+        Registry.register(Registry.ITEM, new Identifier("test", "bow1"), bow1);
+        Registry.register(Registry.ITEM, new Identifier("test", "bow2"), bow2);
 
         enchantment = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
