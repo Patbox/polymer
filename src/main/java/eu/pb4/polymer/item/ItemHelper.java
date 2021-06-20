@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -141,7 +142,9 @@ public class ItemHelper {
         }
 
         List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
-        out.setCustomName(tooltip.remove(0));
+        MutableText name = tooltip.remove(0).shallowCopy();
+        name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
+        out.setCustomName(name);
 
         if (itemStack.getItem() instanceof VirtualItem) {
             ((VirtualItem) itemStack.getItem()).modifyTooltip(tooltip, itemStack, player);

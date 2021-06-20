@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 
 /**
@@ -17,6 +18,17 @@ public interface VirtualBlock extends VirtualObject {
      * @return Vanilla (or other) Block instance
      */
     Block getVirtualBlock();
+
+    /**
+     * Returns block used on client for provided location;
+     * It's used to validate blocks
+     *
+     * @return Vanilla (or other) Block instance
+     */
+    default Block getVirtualBlock(BlockPos pos, World world) {
+        return this.getVirtualBlock();
+    }
+
 
     /**
      * Returns default virtual BlockState

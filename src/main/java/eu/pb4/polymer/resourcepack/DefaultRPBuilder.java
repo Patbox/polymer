@@ -94,11 +94,15 @@ class DefaultRPBuilder implements RPBuilder {
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         Path fileOut;
                         try {
-                            fileOut = output.resolve(assets.relativize(file));
+                            fileOut = output.resolve(assets.relativize(file).toString());
                         } catch (Exception e) {
-                            fileOut = file;
+                            fileOut = output.resolve(file.toString());
+
                         }
-                        fileOut.getParent().toFile().mkdirs();
+
+                        try {
+                            fileOut.getParent().toFile().mkdirs();
+                        } catch (Exception e) { }
 
                         Files.copy(file, fileOut);
                         return FileVisitResult.CONTINUE;

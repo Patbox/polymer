@@ -8,12 +8,14 @@
     "block.AbstractBlockAccessor",
     "block.AbstractBlockMixin",
     "block.AbstractBlockSettingAccessor",
+    "block.BlockEventS2CPacketMixin",
     "block.BlockPaletteMixin",
     "block.BlockUpdateS2CPacketMixin",
     "block.ChunkDataS2CPacketMixin",
     "block.ChunkDeltaUpdateS2CPacketAccessor",
     "block.ChunkDeltaUpdateS2CPacketMixin",
     "block.FallingBlockEntityMixin",
+    "block.PlayerActionResponseS2CPacketMixin",
     "block.ServerChunkManagerMixin",
     "block.ServerPlayerInteractionManagerMixin",
     "block.ServerPlayNetworkHandlerMixin",
@@ -28,6 +30,7 @@
     "entity.LivingEntityMixin",
     "entity.MobSpawnS2CPacketMixin",
     "item.ItemStackContentMixin",
+    "item.ItemStackMixin",
     "item.PacketByteBufMixin",
     "item.ServerPlayNetworkHandlerMixin",
     "other.CommandManagerMixin",
@@ -37,6 +40,8 @@
     "polymc.BlockPolyGeneratorMixin"
   ],
   "client": [
+    "item.ClickSlotC2SPacketMixin",
+    "item.CreativeInventoryActionC2SPacketMixin",
     "item.EntityEquipmentUpdateS2CPacketMixin",
     "item.InventoryS2CPacketMixin",
     "item.ScreenHandlerSlotUpdateS2CPacketMixin"
