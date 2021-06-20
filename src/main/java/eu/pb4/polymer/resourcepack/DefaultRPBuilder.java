@@ -13,13 +13,14 @@ import net.minecraft.util.registry.Registry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -81,7 +82,39 @@ class DefaultRPBuilder implements RPBuilder {
         if (mod.isPresent()) {
             ModContainer container = mod.get();
             try {
-                FileUtils.copyDirectory(container.getPath("assets").toFile(), this.outputPath.resolve("assets").toFile());
+                Path assets = container.getPath("assets");
+                Path output = this.outputPath.resolve("assets");
+                Files.walkFileTree(assets, new FileVisitor<>() {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Path fileOut;
+                        try {
+                            fileOut = output.resolve(assets.relativize(file));
+                        } catch (Exception e) {
+                            fileOut = file;
+                        }
+                        fileOut.getParent().toFile().mkdirs();
+
+                        Files.copy(file, fileOut);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+
                 return true;
             } catch (Exception e) {
                 PolymerMod.LOGGER.error("Something went wrong while copying assets of mod: " + modId);

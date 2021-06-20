@@ -6,13 +6,18 @@ This library is its alpha stages, however it should be stable. Feel free to sugg
 ## Usage:
 Add it to your dependencies like this:
 
-```
+```groovy
 repositories {
 	maven { url 'https://maven.nucleoid.xyz' }
 }
 
 dependencies {
-	modImplementation include("eu.pb4.polymer:[TAG]").
+	modImplementation include("eu.pb4.polymer:[TAG]")
+	
+	// Optional, but highly recommended!
+	// Allows to create server side translations with vanilla like way
+    // You can get version tag at https://maven.nucleoid.xyz/fr/catcore/server-translations-api/
+	modImplementation include("fr.catcore:server-translations-api:[STA-TAG]")
 }
 ```
 

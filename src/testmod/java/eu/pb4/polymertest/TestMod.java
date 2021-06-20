@@ -45,6 +45,8 @@ public class TestMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ResourcePackUtils.addModAsAssetsSource("polymertest");
+        //ResourcePackUtils.addModAsAssetsSource("promenade");
+
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
         Registry.register(Registry.ITEM, new Identifier("test", "item2"), item2);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), block);

@@ -15,7 +15,9 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.*;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -107,12 +109,6 @@ public class ItemHelper {
             out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
             assert out.getTag() != null;
 
-            if (!itemStack.hasCustomName() && (player == null || itemStack.getFrame() == null)) {
-                out.setCustomName(itemStack.getItem().getName(itemStack).shallowCopy().fillStyle(ItemHelper.NON_ITALIC_STYLE.withColor(itemStack.getRarity().formatting)));
-            } else {
-                out.setCustomName(itemStack.getName());
-            }
-
             int dmg = itemStack.getDamage();
             if (dmg != 0) {
                 out.getTag().putInt("Damage", (int) ((((double) dmg) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
@@ -144,22 +140,21 @@ public class ItemHelper {
             }
         }
 
-        if (player == null || itemStack.getFrame() == null) {
-            List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
-            tooltip.remove(0);
+        List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
+        out.setCustomName(tooltip.remove(0));
 
-            if (itemStack.getItem() instanceof VirtualItem) {
-                ((VirtualItem) itemStack.getItem()).modifyTooltip(tooltip, itemStack, player);
-            }
-
-            for (Text t : tooltip) {
-                lore.add(NbtString.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(ItemHelper.CLEAN_STYLE))));
-            }
-
-            if (lore.size() > 0) {
-                out.getOrCreateTag().getCompound("display").put("Lore", lore);
-            }
+        if (itemStack.getItem() instanceof VirtualItem) {
+            ((VirtualItem) itemStack.getItem()).modifyTooltip(tooltip, itemStack, player);
         }
+
+        for (Text t : tooltip) {
+            lore.add(NbtString.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(ItemHelper.CLEAN_STYLE))));
+        }
+
+        if (lore.size() > 0) {
+            out.getOrCreateTag().getCompound("display").put("Lore", lore);
+        }
+
         return out;
     }
 }

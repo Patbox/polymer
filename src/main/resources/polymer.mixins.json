@@ -36,6 +36,11 @@
     "other.SynchronizeRecipesS2CPacketMixin",
     "polymc.BlockPolyGeneratorMixin"
   ],
+  "client": [
+    "item.EntityEquipmentUpdateS2CPacketMixin",
+    "item.InventoryS2CPacketMixin",
+    "item.ScreenHandlerSlotUpdateS2CPacketMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
