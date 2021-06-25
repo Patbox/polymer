@@ -19,7 +19,9 @@ public class ScreenHandlerSlotUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getItemStack", at = @At("RETURN"), cancellable = true)
     private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<ItemStack> cir) {
-        ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
-        cir.setReturnValue(ItemHelper.getVirtualItemStack(cir.getReturnValue(), player));
+        if (MinecraftClient.getInstance().getServer() != null) {
+            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+            cir.setReturnValue(ItemHelper.getVirtualItemStack(cir.getReturnValue(), player));
+        }
     }
 }

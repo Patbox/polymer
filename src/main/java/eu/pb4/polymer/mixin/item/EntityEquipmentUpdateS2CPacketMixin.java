@@ -23,14 +23,16 @@ public class EntityEquipmentUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEquipmentList", at = @At("RETURN"), cancellable = true)
     private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<Pair<EquipmentSlot, ItemStack>>> cir) {
-        List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>();
-        ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+        if (MinecraftClient.getInstance().getServer() != null) {
+            List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>();
+            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
 
-        for (Pair<EquipmentSlot, ItemStack> pair : cir.getReturnValue()) {
-            list.add(new Pair<>(pair.getFirst(), ItemHelper.getVirtualItemStack(pair.getSecond(), player)));
+            for (Pair<EquipmentSlot, ItemStack> pair : cir.getReturnValue()) {
+                list.add(new Pair<>(pair.getFirst(), ItemHelper.getVirtualItemStack(pair.getSecond(), player)));
+            }
+
+            cir.setReturnValue(list);
         }
-
-        cir.setReturnValue(list);
     }
 
 }

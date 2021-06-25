@@ -1,6 +1,9 @@
 package eu.pb4.polymer.mixin.item;
 
 import eu.pb4.polymer.item.ItemHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,8 +20,17 @@ public class PacketByteBufMixin {
         return ItemHelper.getVirtualItemStack(itemStack, PacketContext.get().getTarget());
     }
 
+    @Environment(EnvType.SERVER)
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
     private void replaceWithRealItem(CallbackInfoReturnable<ItemStack> cir) {
         cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
+    }
+
+    @Environment(EnvType.CLIENT)
+    @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
+    private void replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir) {
+        if (MinecraftClient.getInstance().getServer() != null) {
+            cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
+        }
     }
 }

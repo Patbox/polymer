@@ -21,13 +21,15 @@ public class InventoryS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getContents", at = @At("RETURN"), cancellable = true)
     private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<ItemStack>> cir) {
-        List<ItemStack> list = new ArrayList<>();
-        ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+        if (MinecraftClient.getInstance().getServer() != null) {
+            List<ItemStack> list = new ArrayList<>();
+            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
 
-        for (ItemStack stack : cir.getReturnValue()) {
-            list.add(ItemHelper.getVirtualItemStack(stack, player));
+            for (ItemStack stack : cir.getReturnValue()) {
+                list.add(ItemHelper.getVirtualItemStack(stack, player));
+            }
+
+            cir.setReturnValue(list);
         }
-
-        cir.setReturnValue(list);
     }
 }

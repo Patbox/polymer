@@ -64,16 +64,18 @@ public class EntityTrackerUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getTrackedValues", at = @At("RETURN"), cancellable = true)
     private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
-        List<DataTracker.Entry<?>> list = new ArrayList<>();
-        ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+        if (MinecraftClient.getInstance().getServer() != null) {
+            List<DataTracker.Entry<?>> list = new ArrayList<>();
+            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
 
-        for (DataTracker.Entry<?> entry : cir.getReturnValue()) {
-            if (entry.get() instanceof ItemStack stack) {
-                list.add(new DataTracker.Entry(entry.getData(), ItemHelper.getVirtualItemStack(stack, player)));
-            } else {
-                list.add(entry);
+            for (DataTracker.Entry<?> entry : cir.getReturnValue()) {
+                if (entry.get() instanceof ItemStack stack) {
+                    list.add(new DataTracker.Entry(entry.getData(), ItemHelper.getVirtualItemStack(stack, player)));
+                } else {
+                    list.add(entry);
+                }
             }
-        }
 
-        cir.setReturnValue(list);
+            cir.setReturnValue(list);
+        }
     }}

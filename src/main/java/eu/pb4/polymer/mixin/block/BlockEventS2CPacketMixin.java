@@ -28,9 +28,11 @@ public class BlockEventS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getBlock", at = @At("TAIL"), cancellable = true)
     private void replaceBlockClient(CallbackInfoReturnable<Block> cir) {
-        ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
-        if (this.oldBlock instanceof VirtualBlock virtualBlock) {
-            cir.setReturnValue(virtualBlock.getVirtualBlock(this.pos, player.getServerWorld()));
+        if (MinecraftClient.getInstance().getServer() != null) {
+            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+            if (this.oldBlock instanceof VirtualBlock virtualBlock) {
+                cir.setReturnValue(virtualBlock.getVirtualBlock(this.pos, player.getServerWorld()));
+            }
         }
     }
 

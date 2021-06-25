@@ -2,10 +2,9 @@ package eu.pb4.polymer.resourcepack;
 
 import com.google.gson.JsonParser;
 import eu.pb4.polymer.PolymerMod;
+import eu.pb4.polymer.other.Event;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
@@ -20,7 +19,7 @@ public class ResourcePackUtils {
     private static final Object2ObjectMap<Item, List<CMDInfo>> ITEMS = new Object2ObjectArrayMap<>();
     private static final Set<String> MOD_IDS = new HashSet<>();
 
-    private static int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 1000 : 1;
+    private static int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 100000 : 1;
 
     /**
      * This method can be used to register custom model data for items
@@ -63,7 +62,7 @@ public class ResourcePackUtils {
             boolean successful = true;
             RPBuilder builder = new DefaultRPBuilder(path);
 
-            RESOURCE_PACK_CREATION_EVENT.invoker().call(builder);
+            RESOURCE_PACK_CREATION_EVENT.invoke(builder);
 
             for (String modId : MOD_IDS) {
                 successful = builder.copyModAssets(modId) && successful;
@@ -91,15 +90,5 @@ public class ResourcePackUtils {
         }
     }
 
-
-    public static final Event<ResourcePackEvent> RESOURCE_PACK_CREATION_EVENT = EventFactory.createArrayBacked(ResourcePackEvent.class, (callbacks) -> (builder) -> {
-        for(ResourcePackEvent callback : callbacks) {
-            callback.call(builder);
-        }
-    });
-
-    @FunctionalInterface
-    public interface ResourcePackEvent {
-        void call(RPBuilder builder);
-    }
+    public static final Event<RPBuilder> RESOURCE_PACK_CREATION_EVENT = new Event<>();
 }

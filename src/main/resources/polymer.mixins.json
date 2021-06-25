@@ -36,6 +36,7 @@
     "other.CommandManagerMixin",
     "other.DimensionTypeAccessor",
     "other.RegistrySyncManagerMixin",
+    "other.SimpleRegistryMixin",
     "other.SynchronizeRecipesS2CPacketMixin",
     "polymc.BlockPolyGeneratorMixin"
   ],
