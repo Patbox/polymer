@@ -2,6 +2,7 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.block.BasicVirtualBlock;
 import eu.pb4.polymer.item.BasicVirtualItem;
+import eu.pb4.polymer.item.ItemHelper;
 import eu.pb4.polymer.item.VirtualBlockItem;
 import eu.pb4.polymer.item.VirtualHeadBlockItem;
 import eu.pb4.polymer.resourcepack.ResourcePackUtils;
@@ -18,6 +19,7 @@ import net.minecraft.entity.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.ToolMaterials;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -67,5 +69,7 @@ public class TestMod implements ModInitializer {
 
         Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), entity2);
         FabricDefaultAttributeRegistry.register(entity2, TestEntity2.createCreeperAttributes());
+
+        ItemHelper.VIRTUAL_ITEM_CHECK.register((itemStack) -> itemStack.hasTag() && itemStack.getTag().contains("Test", NbtElement.STRING_TYPE));
     }
 }

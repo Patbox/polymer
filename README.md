@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-	modImplementation include("eu.pb4.polymer:[TAG]")
+	modImplementation include("eu.pb4:polymer:[TAG]")
 	
 	// Optional, but highly recommended!
 	// Allows to create server side translations with vanilla like way

@@ -2,12 +2,14 @@ package eu.pb4.polymer.item;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.polymer.interfaces.VirtualObject;
+import eu.pb4.polymer.other.BooleanEvent;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -34,6 +36,8 @@ public class ItemHelper {
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
 
+    public static final BooleanEvent<ItemStack> VIRTUAL_ITEM_CHECK = new BooleanEvent<>();
+
     public static ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         if (itemStack.getItem() instanceof VirtualItem) {
             VirtualItem item = (VirtualItem) itemStack.getItem();
@@ -48,6 +52,18 @@ public class ItemHelper {
                     return createBasicVirtualItemStack(itemStack, player);
                 }
             }
+        } else if (itemStack.hasTag() && itemStack.getTag().contains(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
+            for (NbtElement enchantment : itemStack.getTag().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
+                String id = ((NbtCompound) enchantment).getString("id");
+
+                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+
+                if (ench instanceof VirtualObject) {
+                    return createBasicVirtualItemStack(itemStack, player);
+                }
+            }
+        } else if (VIRTUAL_ITEM_CHECK.invoke(itemStack)) {
+            return createBasicVirtualItemStack(itemStack, player);
         }
 
         return itemStack;
