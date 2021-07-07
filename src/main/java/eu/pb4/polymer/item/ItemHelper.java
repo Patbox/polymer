@@ -39,8 +39,7 @@ public class ItemHelper {
     public static final BooleanEvent<ItemStack> VIRTUAL_ITEM_CHECK = new BooleanEvent<>();
 
     public static ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
-        if (itemStack.getItem() instanceof VirtualItem) {
-            VirtualItem item = (VirtualItem) itemStack.getItem();
+        if (itemStack.getItem() instanceof VirtualItem item) {
             return item.getVirtualItemStack(itemStack, player);
         } else if (itemStack.hasEnchantments()) {
             for (NbtElement enchantment : itemStack.getEnchantments()) {
@@ -62,7 +61,9 @@ public class ItemHelper {
                     return createBasicVirtualItemStack(itemStack, player);
                 }
             }
-        } else if (VIRTUAL_ITEM_CHECK.invoke(itemStack)) {
+        }
+
+        if (VIRTUAL_ITEM_CHECK.invoke(itemStack)) {
             return createBasicVirtualItemStack(itemStack, player);
         }
 

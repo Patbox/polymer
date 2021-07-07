@@ -3,10 +3,12 @@ package eu.pb4.polymer.mixin.item;
 import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -34,6 +36,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
 
+    @Shadow public abstract void onPlayerInteractItem(PlayerInteractItemC2SPacket packet);
+
     @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
     private void resendToolIfItsBlockClientSide(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
@@ -44,13 +48,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Redirect(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0))
-    private void replaceOriginalCall1(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
-    }
-
-    @Redirect(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 1))
-    private void replaceOriginalCall2(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
-    }
-
+    private void replaceOriginalCall(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {}
 
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
     private void updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
@@ -58,6 +56,13 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
         for (Direction direction : Direction.values()) {
             this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(this.player.world, base.offset(direction)));
+        }
+
+        ItemStack stack = this.player.getStackInHand(packet.getHand());
+        Item item = stack.getItem();
+
+        if (stack.getItem() instanceof VirtualItem && !(item instanceof BlockItem || item instanceof BucketItem)) {
+            this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand()));
         }
     }
 
