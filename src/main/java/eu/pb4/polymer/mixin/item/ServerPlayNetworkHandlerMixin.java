@@ -61,7 +61,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
         ItemStack stack = this.player.getStackInHand(packet.getHand());
         Item item = stack.getItem();
 
-        if (stack.getItem() instanceof VirtualItem && !(item instanceof BlockItem || item instanceof BucketItem)) {
+        if (stack.getItem() instanceof VirtualItem virtual
+                && (virtual.getVirtualItem() instanceof BlockItem || virtual.getVirtualItem() instanceof BucketItem)
+                && !(item instanceof BlockItem || item instanceof BucketItem)) {
             this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand()));
         }
     }
