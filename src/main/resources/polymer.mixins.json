@@ -45,7 +45,8 @@
     "item.CreativeInventoryActionC2SPacketMixin",
     "item.EntityEquipmentUpdateS2CPacketMixin",
     "item.InventoryS2CPacketMixin",
-    "item.ScreenHandlerSlotUpdateS2CPacketMixin"
+    "item.ScreenHandlerSlotUpdateS2CPacketMixin",
+    "other.SynchronizeRecipesS2CPacketAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

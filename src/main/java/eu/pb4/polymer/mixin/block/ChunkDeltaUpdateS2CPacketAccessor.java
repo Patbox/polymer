@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ChunkDeltaUpdateS2CPacket.class)
 public interface ChunkDeltaUpdateS2CPacketAccessor {
     @Accessor("sectionPos")
-    ChunkSectionPos getSectionPosServer();
+    ChunkSectionPos polymer_getSectionPos();
 
     @Accessor("positions")
-    short[] getPositionsServer();
+    short[] polymer_getPositions();
 
     @Accessor("blockStates")
-    BlockState[] getBlockStatesServer();
+    BlockState[] polymer_getBlockStates();
 }

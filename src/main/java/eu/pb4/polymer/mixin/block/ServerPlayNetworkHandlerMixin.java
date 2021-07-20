@@ -59,9 +59,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 }
             } else if (packet instanceof ChunkDeltaUpdateS2CPacket) {
                 ChunkDeltaUpdateS2CPacketAccessor chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
-                ChunkSectionPos chunkPos = chunk.getSectionPosServer();
-                BlockState[] blockStates = chunk.getBlockStatesServer();
-                short[] localPos = chunk.getPositionsServer();
+                ChunkSectionPos chunkPos = chunk.polymer_getSectionPos();
+                BlockState[] blockStates = chunk.polymer_getBlockStates();
+                short[] localPos = chunk.polymer_getPositions();
 
                 for (int i = 0; i < localPos.length; i++) {
                     BlockState blockState = blockStates[i];

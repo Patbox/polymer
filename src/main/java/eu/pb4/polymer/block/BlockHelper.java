@@ -15,7 +15,7 @@ public class BlockHelper {
         if (BlockHelper.IS_LIGHT_SOURCE_CACHE.containsKey(block)) {
             return BlockHelper.IS_LIGHT_SOURCE_CACHE.getBoolean(block);
         } else {
-            ToIntFunction<BlockState> luminance = ((AbstractBlockSettingAccessor) ((AbstractBlockAccessor) block).getSettings()).getLuminance();
+            ToIntFunction<BlockState> luminance = ((AbstractBlockSettingAccessor) ((AbstractBlockAccessor) block).polymer_getSettings()).polymer_getLuminance();
 
             for (BlockState state : block.getStateManager().getStates()) {
                 if (luminance.applyAsInt(state) != 0) {

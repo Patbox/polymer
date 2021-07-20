@@ -29,7 +29,7 @@ public class PacketByteBufMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
     private void replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir) {
-        if (MinecraftClient.getInstance().getServer() != null) {
+        if (MinecraftClient.getInstance().getServer() != null && PacketContext.get().getTarget() != null) {
             cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
         }
     }

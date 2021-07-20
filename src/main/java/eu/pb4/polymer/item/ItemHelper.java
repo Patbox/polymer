@@ -159,9 +159,12 @@ public class ItemHelper {
         }
 
         List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
-        MutableText name = tooltip.remove(0).shallowCopy();
-        name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
-        out.setCustomName(name);
+        MutableText name = (MutableText) tooltip.remove(0);
+
+        if (!out.getName().equals(name)) {
+            name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
+            out.setCustomName(name);
+        }
 
         if (itemStack.getItem() instanceof VirtualItem) {
             ((VirtualItem) itemStack.getItem()).modifyTooltip(tooltip, itemStack, player);

@@ -10,5 +10,5 @@ import java.util.function.ToIntFunction;
 @Mixin(AbstractBlock.Settings.class)
 public interface AbstractBlockSettingAccessor {
     @Accessor("luminance")
-    ToIntFunction<BlockState> getLuminance();
+    ToIntFunction<BlockState> polymer_getLuminance();
 }
