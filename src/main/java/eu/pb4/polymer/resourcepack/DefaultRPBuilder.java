@@ -102,7 +102,8 @@ class DefaultRPBuilder implements RPBuilder {
 
                         try {
                             fileOut.getParent().toFile().mkdirs();
-                        } catch (Exception e) { }
+                        } catch (Exception e) {
+                        }
 
                         Files.copy(file, fileOut);
                         return FileVisitResult.CONTINUE;
@@ -220,15 +221,25 @@ class DefaultRPBuilder implements RPBuilder {
         }
 
         try {
-            Path packMCData = this.outputPath.resolve("pack.mcmeta");
-            if (!packMCData.toFile().exists()) {
-                Files.writeString(packMCData, "" +
-                        "{\n" +
-                        "   \"pack\":{\n" +
-                        "      \"pack_format\":" + SharedConstants.field_29738 + ",\n" +
-                        "      \"description\":\"Server's Resource Pack\"\n" +
-                        "   }\n" +
-                        "}\n");
+            {
+                Path packMCData = this.outputPath.resolve("pack.mcmeta");
+                if (!packMCData.toFile().exists()) {
+                    Files.writeString(packMCData, "" +
+                            "{\n" +
+                            "   \"pack\":{\n" +
+                            "      \"pack_format\":" + SharedConstants.field_29738 + ",\n" +
+                            "      \"description\":\"Server resource pack\"\n" +
+                            "   }\n" +
+                            "}\n");
+                }
+            }
+            {
+                Path packMCData = this.outputPath.resolve("pack.png");
+                if (!packMCData.toFile().exists()) {
+                    Files.copy(FabricLoader.getInstance().getModContainer("polymer").get()
+                                    .getPath("assets/icon.png"),
+                            packMCData);
+                }
             }
         } catch (Exception e) {
             PolymerMod.LOGGER.error("Something went wrong while creating pack.mcmeta file.");

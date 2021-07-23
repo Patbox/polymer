@@ -112,8 +112,10 @@ public class ItemHelper {
 
     public static ItemStack createBasicVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
-        if (itemStack.getItem() instanceof VirtualItem) {
-            item = ((VirtualItem) itemStack.getItem()).getVirtualItem();
+        int cmd = -1;
+        if (itemStack.getItem() instanceof VirtualItem virtualItem) {
+            item = virtualItem.getVirtualItem(player);
+            cmd = virtualItem.getCustomModelData(itemStack, player);
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
@@ -126,6 +128,7 @@ public class ItemHelper {
         if (itemStack.getTag() != null) {
             out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
             assert out.getTag() != null;
+            cmd = itemStack.getTag().contains("CustomModelData") ? itemStack.getTag().getInt("CustomModelData") : cmd;
 
             int dmg = itemStack.getDamage();
             if (dmg != 0) {
@@ -176,6 +179,10 @@ public class ItemHelper {
 
         if (lore.size() > 0) {
             out.getOrCreateTag().getCompound("display").put("Lore", lore);
+        }
+
+        if (cmd != -1) {
+            out.getOrCreateTag().putInt("CustomModelData", cmd);
         }
 
         return out;

@@ -14,7 +14,7 @@
   },
 
   "license": "LGPLv3",
-
+  "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -29,5 +29,10 @@
     "fabricloader": ">=0.7.4",
     "fabric": "*",
     "minecraft": "1.17.x"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "library" ]
+    }
   }
 }

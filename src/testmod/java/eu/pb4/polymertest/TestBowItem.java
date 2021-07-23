@@ -27,9 +27,7 @@ public class TestBowItem extends BowItem implements VirtualItem {
     }
 
     @Override
-    public ItemStack getVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        ItemStack out = VirtualItem.super.getVirtualItemStack(itemStack, player);
-        out.getOrCreateTag().putInt("CustomModelData", this.model.value());
-        return out;
+    public int getCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return this.model.value();
     }
 }

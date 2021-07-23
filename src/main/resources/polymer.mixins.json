@@ -36,6 +36,7 @@
     "other.CommandManagerMixin",
     "other.DimensionTypeAccessor",
     "other.RegistrySyncManagerMixin",
+    "other.ServerPlayNetworkHandlerMixin",
     "other.SimpleRegistryMixin",
     "other.SynchronizeRecipesS2CPacketMixin",
     "polymc.BlockPolyGeneratorMixin"
@@ -46,6 +47,7 @@
     "item.EntityEquipmentUpdateS2CPacketMixin",
     "item.InventoryS2CPacketMixin",
     "item.ScreenHandlerSlotUpdateS2CPacketMixin",
+    "other.ResourcePackManagerMixin",
     "other.SynchronizeRecipesS2CPacketAccessor"
   ],
   "injectors": {

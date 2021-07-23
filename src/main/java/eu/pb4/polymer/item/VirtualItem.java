@@ -1,6 +1,7 @@
 package eu.pb4.polymer.item;
 
 import eu.pb4.polymer.interfaces.VirtualObject;
+import eu.pb4.polymer.resourcepack.CMDInfo;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -20,12 +21,21 @@ public interface VirtualItem extends VirtualObject {
      */
     Item getVirtualItem();
 
+    /**
+     * Returns main/default item used on client for specific player
+     *
+     * @param player    Player for which it's send
+     * @return Vanilla (or other) Item instance
+     */
+    default Item getVirtualItem(@Nullable ServerPlayerEntity player) {
+        return this.getVirtualItem();
+    }
 
     /**
      * Method used for creation of client-side ItemStack
      *
      * @param itemStack Server-side ItemStack
-     * @param player Player for which it's send
+     * @param player    Player for which it's send
      * @return Client-side ItemStack
      */
     default ItemStack getVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
@@ -34,11 +44,24 @@ public interface VirtualItem extends VirtualObject {
 
 
     /**
+     * Method used for getting custom model data of items
+     *
+     * @param itemStack Server-side ItemStack
+     * @param player    Player for which it's send
+     * @return Custom model data or -1 if not present
+     */
+    default int getCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return -1;
+    }
+
+
+    /**
      * This method allows to add (or modify) tooltip text
      *
      * @param tooltip Current tooltip text
-     * @param stack Server-side ItemStack
-     * @param player Target player
+     * @param stack   Server-side ItemStack
+     * @param player  Target player
      */
-    default void modifyTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {}
+    default void modifyTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {
+    }
 }

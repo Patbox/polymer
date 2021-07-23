@@ -7,6 +7,7 @@ import eu.pb4.polymer.item.VirtualBlockItem;
 import eu.pb4.polymer.item.VirtualHeadBlockItem;
 import eu.pb4.polymer.resourcepack.ResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -20,8 +21,11 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class TestMod implements ModInitializer {
     public static BasicVirtualItem item = new TestItem(new FabricItemSettings().fireproof().maxCount(5), Items.IRON_HOE);
@@ -47,6 +51,7 @@ public class TestMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ResourcePackUtils.addModAsAssetsSource("polymertest");
+        //ResourcePackUtils.markAsRequired();
         //ResourcePackUtils.addModAsAssetsSource("promenade");
 
         Registry.register(Registry.ITEM, new Identifier("test", "item"), item);
@@ -71,5 +76,15 @@ public class TestMod implements ModInitializer {
         FabricDefaultAttributeRegistry.register(entity2, TestEntity2.createCreeperAttributes());
 
         ItemHelper.VIRTUAL_ITEM_CHECK.register((itemStack) -> itemStack.hasTag() && itemStack.getTag().contains("Test", NbtElement.STRING_TYPE));
+
+        CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test").executes((ctx) -> {
+            try {
+                ctx.getSource().sendFeedback(new LiteralText("" + ResourcePackUtils.hasPack(ctx.getSource().getPlayer())), false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return 0;
+        })));
     }
 }

@@ -1,5 +1,6 @@
 package eu.pb4.polymer;
 
+import eu.pb4.polymer.resourcepack.ResourcePackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -21,8 +22,8 @@ public class PolymerMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-			LOGGER.warn("Polymer and mods using it have limited support for client/singleplayer! It might not work correctly!");
+		if (POLYMC_COMPAT) {
+			ResourcePackUtils.markAsRequired();
 		}
 	}
 

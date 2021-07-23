@@ -3,10 +3,13 @@ package eu.pb4.polymer.resourcepack;
 import com.google.gson.JsonParser;
 import eu.pb4.polymer.PolymerMod;
 import eu.pb4.polymer.other.Event;
+import eu.pb4.polymer.other.PlayerRP;
+import eu.pb4.polymer.other.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -14,12 +17,12 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class ResourcePackUtils {
+    public static final Event<RPBuilder> RESOURCE_PACK_CREATION_EVENT = new Event<>();
     static final JsonParser JSON_PARSER = new JsonParser();
-
     private static final Object2ObjectMap<Item, List<CMDInfo>> ITEMS = new Object2ObjectArrayMap<>();
     private static final Set<String> MOD_IDS = new HashSet<>();
-
-    private static int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 100000 : 1;
+    private static boolean REQUIRED = false;
+    private static final int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 100000 : 1;
 
     /**
      * This method can be used to register custom model data for items
@@ -40,7 +43,6 @@ public class ResourcePackUtils {
         return cmdInfo;
     }
 
-
     /**
      * Adds mod with provided mod id as a source of assets
      *
@@ -53,6 +55,38 @@ public class ResourcePackUtils {
         }
 
         return false;
+    }
+
+    /**
+     * Allows to check if there are any provided resources
+     */
+    public static boolean shouldGenerate() {
+        return ITEMS.values().size() > 0 || MOD_IDS.size() > 0;
+    }
+
+    /**
+     * Makes resource pack required
+     */
+    public static void markAsRequired() {
+        REQUIRED = true;
+    }
+
+    /**
+     * Returns if resource pack is required
+     */
+    public static boolean isRequired() {
+        return REQUIRED;
+    }
+
+    /**
+     * Allows to check if player has server side resoucepack installed
+     * However it's impossible to check if it's polymer one or not
+     *
+     * @param player Player to check
+     * @return True if player has a server resourcepack
+     */
+    public static boolean hasPack(ServerPlayerEntity player) {
+        return ((PlayerRP) player.networkHandler).polymer_hasResourcePack() || (player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded());
     }
 
     @ApiStatus.Internal
@@ -89,6 +123,4 @@ public class ResourcePackUtils {
             return false;
         }
     }
-
-    public static final Event<RPBuilder> RESOURCE_PACK_CREATION_EVENT = new Event<>();
 }

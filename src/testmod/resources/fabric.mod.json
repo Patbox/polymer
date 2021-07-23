@@ -3,8 +3,8 @@
   "id": "polymertest",
   "version": "${version}",
 
-  "name": "Polymer",
-  "description": "Library for creating better server side content!",
+  "name": "test",
+  "description": "test",
   "authors": [
     "Me!"
   ],
@@ -14,7 +14,6 @@
   },
 
   "license": "LGPLv3",
-
   "environment": "*",
   "entrypoints": {
     "main": [
