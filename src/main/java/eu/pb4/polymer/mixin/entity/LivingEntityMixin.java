@@ -25,7 +25,10 @@ public abstract class LivingEntityMixin extends Entity {
     private void sendVirtualInventory(Map<EquipmentSlot, ItemStack> map, CallbackInfo ci) {
         if (this instanceof VirtualEntity) {
             List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this).getVirtualEntityEquipment(map);
-            ((ServerWorld)this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityEquipmentUpdateS2CPacket(this.getId(), list));
+            if (!list.isEmpty()) {
+                ((ServerWorld) this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityEquipmentUpdateS2CPacket(this.getId(), list));
+            }
+
             ci.cancel();
         }
     }

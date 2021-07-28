@@ -28,13 +28,13 @@ public class TestEntity extends CreeperEntity implements VirtualEntity {
         super(TestMod.entity, world);
     }
 
-    @Override
+    /*@Override
     public List<Pair<EquipmentSlot, ItemStack>> getVirtualEntityEquipment(Map<EquipmentSlot, ItemStack> map) {
         List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(map.size());
         list.add(Pair.of(EquipmentSlot.MAINHAND, Items.DIAMOND.getDefaultStack()));
         list.add(Pair.of(EquipmentSlot.HEAD, TestMod.blockItemTater.getDefaultStack()));
         return list;
-    }
+    }*/
 
     @Override
     public EntityType<?> getVirtualEntityType() {
