@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.block.VirtualBlock;
-import eu.pb4.polymer.block.VirtualHeadBlock;
 import eu.pb4.polymer.interfaces.WorldChunkInterface;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -32,18 +31,22 @@ import java.util.function.Consumer;
 
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin implements WorldChunkInterface {
-    @Shadow @Final private World world;
+    @Shadow
+    @Final
+    private World world;
+    private final Set<BlockPos> virtualBlocks = new HashSet<>();
 
-    @Shadow public abstract ChunkPos getPos();
+    @Shadow
+    public abstract ChunkPos getPos();
 
-    @Shadow @Final private ChunkSection[] sections;
-    private Set<BlockPos> virtualBlocks = new HashSet<>();
+    @Shadow
+    public abstract ChunkSection[] getSectionArray();
 
     @Inject(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/TickScheduler;Lnet/minecraft/world/TickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;)V",
             at = @At("TAIL")
     )
-    private void virtualHeadBlocksInit1(World world, ChunkPos pos, BiomeArray biomes, UpgradeData upgradeData, TickScheduler<Block> blockTickScheduler, TickScheduler<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable ChunkSection[] sections, @Nullable Consumer<WorldChunk> loadToWorldConsumer, CallbackInfo info) {
+    private void virtualBlocksInit1(World world, ChunkPos pos, BiomeArray biomes, UpgradeData upgradeData, TickScheduler<Block> blockTickScheduler, TickScheduler<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable ChunkSection[] sections, @Nullable Consumer<WorldChunk> loadToWorldConsumer, CallbackInfo info) {
         this.generateVirtualBlockSet();
     }
 
@@ -66,20 +69,21 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
 
     @Unique
     private void generateVirtualBlockSet() {
-        for (byte x = 0; x < 16; x++) {
-            for (byte z = 0; z < 16; z++) {
-                for (int y = 0; y < this.world.getHeight(); y++) {
-                    BlockPos blockPos = new BlockPos(x + this.getPos().getStartX(), y, z + this.getPos().getStartZ());
-                    ChunkSection chunkSection = this.sections[y >> 4];
-                    if (!ChunkSection.isEmpty(chunkSection)) {
-                        BlockState blockState =  chunkSection.getBlockState(x, y & 15, z);
-                        if (blockState.getBlock() instanceof VirtualBlock) {
-                            this.virtualBlocks.add(blockPos);
+        for (var section : this.getSectionArray()) {
+            if (section != null && !section.isEmpty()) {
+                for (byte x = 0; x < 16; x++) {
+                    for (byte z = 0; z < 16; z++) {
+                        for (byte y = 0; y < 16; y++) {
+                            BlockState state = section.getBlockState(x, y, z);
+                            if (state.getBlock() instanceof VirtualBlock) {
+                                this.virtualBlocks.add(new BlockPos(x + this.getPos().getStartX(), y + section.getYOffset(), z + this.getPos().getStartZ()));
+                            }
                         }
                     }
                 }
             }
         }
+
     }
 
 

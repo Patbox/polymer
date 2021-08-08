@@ -41,13 +41,14 @@ public interface VirtualBlock extends VirtualObject {
 
     /**
      * Main method used for replacing BlockStates on client
+     * It also controls some server side things like collisions
      *
      * @param state Server side/real BlockState
      * @return BlockState visible on client
      */
     default BlockState getVirtualBlockState(BlockState state) {
         return this.getDefaultVirtualBlockState();
-    };
+    }
 
     /**
      * This method can be used to send additional packets after block is send to client

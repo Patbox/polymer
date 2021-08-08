@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.item;
 
 import eu.pb4.polymer.item.ItemHelper;
+import eu.pb4.polymer.other.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -21,9 +22,9 @@ public class InventoryS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getContents", at = @At("RETURN"), cancellable = true)
     private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<ItemStack>> cir) {
-        if (MinecraftClient.getInstance().getServer() != null) {
+        if (ClientUtils.isSingleplayer()) {
             List<ItemStack> list = new ArrayList<>();
-            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+            ServerPlayerEntity player = ClientUtils.getPlayer();
 
             for (ItemStack stack : cir.getReturnValue()) {
                 list.add(ItemHelper.getVirtualItemStack(stack, player));

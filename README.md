@@ -22,7 +22,7 @@ dependencies {
 ```
 
 After that, it's as easy as making your items implement `VirtualItem`, blocks `VirtualBlock` or 
-`VirtualHeadBlock` and entities `VirtualEntity`. Additionally, you need to implement `VirtualObject` on your enchantments and recipe serializers.
+`VirtualHeadBlock` and entities `VirtualEntity`. Additionally, you need to implement `VirtualObject` on your enchantments and recipes.
 It's also recommended registering block entities with `PolymerMod.registerVirtualBlockEntity(Identifier)`.
 
 ### Limitations

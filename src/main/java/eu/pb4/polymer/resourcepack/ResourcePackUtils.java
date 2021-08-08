@@ -86,7 +86,7 @@ public class ResourcePackUtils {
      * @return True if player has a server resourcepack
      */
     public static boolean hasPack(ServerPlayerEntity player) {
-        return ((PlayerRP) player.networkHandler).polymer_hasResourcePack() || (player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded());
+        return ((PlayerRP) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
     }
 
     @ApiStatus.Internal

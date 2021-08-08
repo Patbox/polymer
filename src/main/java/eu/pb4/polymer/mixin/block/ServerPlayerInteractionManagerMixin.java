@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.block.AbstractFireBlock;
@@ -8,7 +9,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
+import net.minecraft.network.packet.s2c.play.RemoveEntityStatusEffectS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -17,6 +20,7 @@ import net.minecraft.util.math.Direction;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -27,22 +31,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
-    @Shadow public ServerPlayerEntity player;
-    @Shadow private int tickCounter;
-    @Shadow private int startMiningTime;
+    @Shadow
+    public ServerPlayerEntity player;
+    @Shadow
+    public ServerWorld world;
+    @Shadow
+    private int tickCounter;
+    @Shadow
+    private int startMiningTime;
+    @Unique
+    private int blockBreakingCooldown;
+    @Unique
+    private final boolean isCustom = false;
 
     @Shadow
     public abstract void finishMining(BlockPos pos, PlayerActionC2SPacket.Action action, String reason);
 
-    @Shadow public ServerWorld world;
-    private int blockBreakingCooldown;
-
-
     @Inject(method = "continueMining", at = @At("TAIL"))
     private void breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (state.getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
+        if (this.shouldMineServerSide(pos, state)) {
             int j = this.tickCounter - i;
-            float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float)(j);
+            float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j);
 
             if (this.blockBreakingCooldown > 0) {
                 --this.blockBreakingCooldown;
@@ -63,10 +72,10 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "continueMining", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockBreakingInfo(ILnet/minecraft/util/math/BlockPos;I)V"))
     private void onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (state.getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
+        if (this.shouldMineServerSide(pos, state)) {
             int j = tickCounter - i;
-            float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float)(j + 1);
-            int k = (int)(f * 10.0F);
+            float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j + 1);
+            int k = (int) (f * 10.0F);
 
             this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, k));
         }
@@ -74,7 +83,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
+        if (this.shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
             } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
@@ -90,7 +99,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
     private void enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
+        if (this.shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.startMiningTime += blockBreakingCooldown;
             }
@@ -99,16 +108,20 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "finishMining", at = @At("HEAD"))
     private void clearEffects(BlockPos pos, PlayerActionC2SPacket.Action action, String reason, CallbackInfo ci) {
-        if (this.player.getServerWorld().getBlockState(pos).getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem) {
-            this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
-            if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
-                StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
-                this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
-            }
+        this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
+        if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
+            StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
+            this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
         }
     }
 
 
-    @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
-    private void noOneCaresAboutMismatch(Logger logger, String message, Object p0, Object p1) {}
+    private boolean shouldMineServerSide(BlockPos pos, BlockState state) {
+        return state.getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem || BlockHelper.SERVER_SIDE_MINING_CHECK.invoke(this.player, pos, state);
+    }
+
+
+    @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)
+    private void noOneCaresAboutMismatch(Logger logger, String message, Object p0, Object p1) {
+    }
 }

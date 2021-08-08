@@ -26,7 +26,7 @@ public class ServerPlayNetworkHandlerMixin implements PlayerRP {
 
     @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
     private void changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
-        this.hasResourcePack =  switch (packet.getStatus()) {
+        this.hasResourcePack = switch (packet.getStatus()) {
             case ACCEPTED, SUCCESSFULLY_LOADED -> true;
             case DECLINED, FAILED_DOWNLOAD -> false;
         };

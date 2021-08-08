@@ -32,7 +32,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
     @Inject(method = "write", at = @At("HEAD"))
     public void onWrite(PacketByteBuf buf, CallbackInfo callbackInfo) {
             recipes = recipes.stream()
-                    .filter(recipe -> !(recipe.getSerializer() instanceof VirtualObject))
+                    .filter(recipe -> !(recipe.getSerializer() instanceof VirtualObject || recipe instanceof VirtualObject))
                     .collect(Collectors.toList());
     }
 

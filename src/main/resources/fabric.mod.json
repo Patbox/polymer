@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "polymer",
   "version": "${version}",
-
   "name": "Polymer",
   "description": "Library for creating better server side content!",
   "authors": [

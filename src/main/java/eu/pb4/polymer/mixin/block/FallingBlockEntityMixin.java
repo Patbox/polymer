@@ -12,8 +12,8 @@ public class FallingBlockEntityMixin {
 
     @ModifyArg(method = "createSpawnPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState replaceWithVirtual(BlockState state) {
-        if (state.getBlock() instanceof VirtualBlock) {
-            return ((VirtualBlock) state.getBlock()).getVirtualBlockState(state);
+        if (state.getBlock() instanceof VirtualBlock virtualBlock) {
+            return virtualBlock.getVirtualBlockState(state);
         } else {
             return state;
         }
