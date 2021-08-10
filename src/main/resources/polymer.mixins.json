@@ -21,6 +21,8 @@
     "block.ServerPlayNetworkHandlerMixin",
     "block.WorldChunkMixin",
     "block.WorldMixin",
+    "command.CommandManagerMixin",
+    "command.SuggestionProvidersMixin",
     "entity.DataTrackerAccessor",
     "entity.EntityPositionS2CPacketMixin",
     "entity.EntitySetHeadYawS2CPacketMixin",
