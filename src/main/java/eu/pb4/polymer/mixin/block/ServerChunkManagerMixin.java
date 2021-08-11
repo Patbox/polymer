@@ -60,7 +60,7 @@ public abstract class ServerChunkManagerMixin {
                 int tooLow = pos.getSectionY() * 16 - 16;
                 int tooHigh = pos.getSectionY() * 16 + 32;
 
-                if (System.currentTimeMillis() - this.lastUpdates.getLong(pos.toChunkPos()) < 100) {
+                if (System.currentTimeMillis() - this.lastUpdates.getLong(pos.toChunkPos()) < 50) {
                     return;
                 }
 
@@ -78,7 +78,7 @@ public abstract class ServerChunkManagerMixin {
                                 }
 
                                 BlockState blockState = chunk.getBlockState(blockPos);
-                                if (blockState.getBlock() instanceof VirtualBlock && BlockHelper.isLightSource(chunk.getBlockState(blockPos).getBlock())) {
+                                if (BlockHelper.isVirtualLightSource(blockState)) {
                                     sendUpdate = true;
                                     break;
                                 }
@@ -87,7 +87,7 @@ public abstract class ServerChunkManagerMixin {
                     }
                 }
 
-                if (sendUpdate) {
+                if (sendUpdate || BlockHelper.SEND_LIGHT_UPDATE_PACKET.invoke(this.world, pos)) {
                     BitSet bitSet = new BitSet();
                     bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
                     Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);

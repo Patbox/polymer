@@ -1,33 +1,39 @@
 package eu.pb4.polymer.block;
 
-import eu.pb4.polymer.mixin.block.AbstractBlockAccessor;
-import eu.pb4.polymer.mixin.block.AbstractBlockSettingAccessor;
+import eu.pb4.polymer.other.DoubleBooleanEvent;
 import eu.pb4.polymer.other.MineEvent;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-
-import java.util.function.ToIntFunction;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.ChunkSectionPos;
 
 public class BlockHelper {
     public static final MineEvent SERVER_SIDE_MINING_CHECK = new MineEvent();
-    private static final Object2BooleanArrayMap<Block> IS_LIGHT_SOURCE_CACHE = new Object2BooleanArrayMap();
+    public static final DoubleBooleanEvent<ServerWorld, ChunkSectionPos> SEND_LIGHT_UPDATE_PACKET = new DoubleBooleanEvent<>();
+    private static final Object2BooleanMap<BlockState> IS_LIGHT_SOURCE_CACHE = new Object2BooleanOpenHashMap<>();
 
+    @Deprecated
     public static boolean isLightSource(Block block) {
-        if (BlockHelper.IS_LIGHT_SOURCE_CACHE.containsKey(block)) {
-            return BlockHelper.IS_LIGHT_SOURCE_CACHE.getBoolean(block);
-        } else {
-            ToIntFunction<BlockState> luminance = ((AbstractBlockSettingAccessor) ((AbstractBlockAccessor) block).polymer_getSettings()).polymer_getLuminance();
+        return isVirtualLightSource(block.getDefaultState());
+    }
 
-            for (BlockState state : block.getStateManager().getStates()) {
-                if (luminance.applyAsInt(state) != 0) {
-                    BlockHelper.IS_LIGHT_SOURCE_CACHE.put(block, true);
+    public static boolean isVirtualLightSource(BlockState blockState) {
+        if (blockState.getBlock() instanceof VirtualBlock virtualBlock) {
+            if (BlockHelper.IS_LIGHT_SOURCE_CACHE.containsKey(blockState)) {
+                return BlockHelper.IS_LIGHT_SOURCE_CACHE.getBoolean(blockState);
+            } else {
+                if (blockState.getLuminance() != virtualBlock.getVirtualBlockState(blockState).getLuminance()) {
+                    BlockHelper.IS_LIGHT_SOURCE_CACHE.put(blockState, true);
                     return true;
                 }
-            }
 
-            BlockHelper.IS_LIGHT_SOURCE_CACHE.put(block, false);
-            return false;
+                BlockHelper.IS_LIGHT_SOURCE_CACHE.put(blockState, false);
+                return false;
+            }
         }
+        return false;
     }
 }

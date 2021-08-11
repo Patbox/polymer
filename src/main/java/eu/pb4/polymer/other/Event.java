@@ -3,7 +3,7 @@ package eu.pb4.polymer.other;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Event<T> {
+public final class Event<T> {
     private List<EventHandler<T>> handlers = new ArrayList<>();
 
     public void register(EventHandler<T> event) {
