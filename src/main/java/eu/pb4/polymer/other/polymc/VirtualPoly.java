@@ -5,7 +5,9 @@ import io.github.theepicblock.polymc.api.block.BlockPoly;
 import io.github.theepicblock.polymc.api.resource.ResourcePackMaker;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public class VirtualPoly implements BlockPoly {
     @Override
     public BlockState getClientBlock(BlockState input) {

@@ -3,6 +3,7 @@ package eu.pb4.polymer.item;
 import com.google.common.collect.Multimap;
 import eu.pb4.polymer.interfaces.VirtualObject;
 import eu.pb4.polymer.other.BooleanEvent;
+import eu.pb4.polymer.other.ContextAwareModifyEvent;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
@@ -36,7 +37,17 @@ public class ItemHelper {
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
 
+    /**
+     * Allows to force rendering of some items as virtual (for example vanilla ones)
+     */
     public static final BooleanEvent<ItemStack> VIRTUAL_ITEM_CHECK = new BooleanEvent<>();
+
+    /**
+     * Allows to modify how virtual items looks before being send to client (only if using build in methods!)
+     * It can modify virtual version directly, as long as it's returned at the end.
+     * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
+     */
+    public static final ContextAwareModifyEvent<ItemStack> VIRTUAL_ITEM_MODIFICATION_EVENT = new ContextAwareModifyEvent<>();
 
     public static ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         if (itemStack.getItem() instanceof VirtualItem item) {
@@ -185,6 +196,6 @@ public class ItemHelper {
             out.getOrCreateTag().putInt("CustomModelData", cmd);
         }
 
-        return out;
+        return VIRTUAL_ITEM_MODIFICATION_EVENT.invoke(itemStack, out, player);
     }
 }

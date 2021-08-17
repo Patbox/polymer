@@ -1,7 +1,10 @@
 package eu.pb4.polymer.other.polymc;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.nio.file.Path;
 
+@ApiStatus.Internal
 public class PolyMcHelpers {
     public static void createResources(Path path) {
         Path inputPath = path.resolve("input");

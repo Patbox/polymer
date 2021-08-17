@@ -23,11 +23,13 @@ import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Supplier;
 
+@ApiStatus.Internal
 public class FakeWorld extends World {
     static public World INSTANCE = new FakeWorld(new FakeWorldProperties(), null, DimensionTypeAccessor.getOverworld(), null, false, true, 1);
 

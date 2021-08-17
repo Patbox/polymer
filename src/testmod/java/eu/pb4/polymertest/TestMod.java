@@ -18,10 +18,12 @@ import net.minecraft.block.Material;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -76,6 +78,16 @@ public class TestMod implements ModInitializer {
         FabricDefaultAttributeRegistry.register(entity2, TestEntity2.createCreeperAttributes());
 
         ItemHelper.VIRTUAL_ITEM_CHECK.register((itemStack) -> itemStack.hasTag() && itemStack.getTag().contains("Test", NbtElement.STRING_TYPE));
+
+        ItemHelper.VIRTUAL_ITEM_MODIFICATION_EVENT.register((original, virtual, player) -> {
+            if (original.hasTag() && original.getTag().contains("Test", NbtElement.STRING_TYPE)) {
+                ItemStack out = new ItemStack(Items.DIAMOND_SWORD, virtual.getCount());
+                out.setTag(virtual.getTag());
+                out.setCustomName(new LiteralText("TEST VALUE: " + original.getTag().getString("Test")).formatted(Formatting.WHITE));
+                return out;
+            }
+            return virtual;
+        });
 
         CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test").executes((ctx) -> {
             try {

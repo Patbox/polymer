@@ -3,6 +3,7 @@ package eu.pb4.polymer.other;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public final class DoubleBooleanEvent<T, U> {
     private List<EventHandler<T, U>> handlers = new ArrayList<>();
 

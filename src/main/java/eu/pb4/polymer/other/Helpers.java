@@ -3,11 +3,13 @@ package eu.pb4.polymer.other;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ApiStatus.Internal
 public class Helpers {
     private static Map<EntityType<?>, Entity> EXAMPLE_ENTITIES = new HashMap<>();
 

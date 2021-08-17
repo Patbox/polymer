@@ -3,10 +3,12 @@ package eu.pb4.polymer.other;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiStatus.Internal
 public class MineEvent {
     private List<EventHandler> handlers = new ArrayList<>();
 

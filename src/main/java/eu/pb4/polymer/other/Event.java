@@ -1,8 +1,11 @@
 package eu.pb4.polymer.other;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiStatus.Internal
 public final class Event<T> {
     private List<EventHandler<T>> handlers = new ArrayList<>();
 

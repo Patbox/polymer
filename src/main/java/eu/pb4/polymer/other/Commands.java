@@ -7,11 +7,13 @@ import eu.pb4.polymer.resourcepack.ResourcePackUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.file.Path;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
+@ApiStatus.Internal
 public class Commands {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal("polymer")

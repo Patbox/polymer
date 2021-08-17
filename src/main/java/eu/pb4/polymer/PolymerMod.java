@@ -10,9 +10,11 @@ import net.minecraft.util.Identifier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashSet;
 
+@ApiStatus.Internal
 public class PolymerMod implements ModInitializer {
 	private static HashSet<String> BLOCK_ENTITY_IDENTIFIERS = new HashSet<>();
 	public static final boolean POLYMC_COMPAT = FabricLoader.getInstance().isModLoaded("polymc");
