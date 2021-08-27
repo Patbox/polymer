@@ -49,6 +49,7 @@
     "item.EntityEquipmentUpdateS2CPacketMixin",
     "item.InventoryS2CPacketMixin",
     "item.ScreenHandlerSlotUpdateS2CPacketMixin",
+    "item.SetTradeOffersS2CPacketMixin",
     "other.ResourcePackManagerMixin",
     "other.SynchronizeRecipesS2CPacketAccessor"
   ],
