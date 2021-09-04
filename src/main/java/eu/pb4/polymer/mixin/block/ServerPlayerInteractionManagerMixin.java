@@ -41,8 +41,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
     private int startMiningTime;
     @Unique
     private int blockBreakingCooldown;
-    @Unique
-    private final boolean isCustom = false;
 
     @Shadow
     public abstract void finishMining(BlockPos pos, PlayerActionC2SPacket.Action action, String reason);

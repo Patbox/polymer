@@ -11,7 +11,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
  * General use case utils that can be useful in multiple situations
  */
 public class PolymerUtils {
-
+    public static String ID = "polymer";
     /**
      * Returns player if it's known to polymer (otherwise null!)
      */

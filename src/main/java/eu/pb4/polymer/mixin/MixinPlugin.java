@@ -30,13 +30,6 @@ public class MixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         String mixin = mixinClassName.substring(MIXIN_PACKAGE_ROOT.length());
 
-        if (this.isPolyMc) {
-            switch (mixin) {
-                case "block.ServerPlayInteractionManagerMixin":
-                    return false;
-            }
-        }
-
         if (mixin.startsWith("polymc")) {
             return this.isPolyMc;
         }

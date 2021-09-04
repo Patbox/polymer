@@ -95,7 +95,7 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
 
     public void setVirtualBlock(BlockPos pos, BlockState state) {
         if (state.getBlock() instanceof VirtualBlock) {
-            this.virtualBlocks.add(pos);
+            this.virtualBlocks.add(pos.toImmutable());
         } else {
             this.virtualBlocks.remove(pos);
         }
