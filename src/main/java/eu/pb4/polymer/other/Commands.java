@@ -1,6 +1,7 @@
 package eu.pb4.polymer.other;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.polymer.PolymerMod;
 import eu.pb4.polymer.other.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.ResourcePackUtils;
@@ -19,28 +20,30 @@ public class Commands {
         dispatcher.register(literal("polymer")
                 .requires((source) -> source.hasPermissionLevel(3))
                 .then(literal("generate")
-                        .executes((context -> {
-                            context.getSource().sendFeedback(new LiteralText("Starting resource pack generation..."), true);
-
-                            Path path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack");
-                            path.toFile().mkdirs();
-
-                            try {
-                                if (PolymerMod.POLYMC_COMPAT) {
-                                    PolyMcHelpers.createResources(path);
-                                }
-                            } catch (Exception e) {}
-
-                            boolean success = ResourcePackUtils.build(FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack"));
-
-                            if (success) {
-                                context.getSource().sendFeedback(new LiteralText("Resource pack created successfully! You can find it in: " + path), true);
-                            } else {
-                                context.getSource().sendError(new LiteralText("Found issues while creating resource pack! See logs above for more detail!"));
-                            }
-
-                            return 0;
-                        })))
+                        .executes(Commands::generate))
         );
+    }
+
+    public static int generate(CommandContext<ServerCommandSource> context) {
+        context.getSource().sendFeedback(new LiteralText("Starting resource pack generation..."), true);
+
+        Path path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack");
+        path.toFile().mkdirs();
+
+        try {
+            if (PolymerMod.POLYMC_COMPAT) {
+                PolyMcHelpers.createResources(path);
+            }
+        } catch (Exception e) {}
+
+        boolean success = ResourcePackUtils.build(FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack"));
+
+        if (success) {
+            context.getSource().sendFeedback(new LiteralText("Resource pack created successfully! You can find it in: " + path), true);
+        } else {
+            context.getSource().sendError(new LiteralText("Found issues while creating resource pack! See logs above for more detail!"));
+        }
+
+        return 0;
     }
 }

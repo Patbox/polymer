@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.block.VirtualBlock;
 import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
 import net.minecraft.block.Block;
@@ -14,13 +15,11 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public abstract class BlockPaletteMixin<T>  {
     @ModifyArg(method = {"toPacket", "getPacketSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;getRawId(Ljava/lang/Object;)I"))
     public T getIdRedirect(T object) {
-        if (object instanceof BlockState) {
-            BlockState blockState = (BlockState) object;
-
+        if (object instanceof BlockState blockState) {
             Block block = blockState.getBlock();
 
-            if (block instanceof VirtualBlock) {
-                return (T) ((VirtualBlock) block).getVirtualBlockState(blockState);
+            if (block instanceof VirtualBlock virtualBlock) {
+                return (T) BlockHelper.getBlockStateSafely(virtualBlock, blockState);
             }
         }
         return object;

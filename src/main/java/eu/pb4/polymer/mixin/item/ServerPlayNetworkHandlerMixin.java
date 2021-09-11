@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.item;
 
+import eu.pb4.polymer.item.ItemHelper;
 import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
@@ -30,25 +31,32 @@ import java.util.List;
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
 
+    @Unique
+    private final List<ItemStack> armorItems = new ArrayList<>();
     @Shadow
     public ServerPlayerEntity player;
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
 
-    @Shadow public abstract void onPlayerInteractItem(PlayerInteractItemC2SPacket packet);
+    @Shadow
+    public abstract void onPlayerInteractItem(PlayerInteractItemC2SPacket packet);
 
     @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
     private void resendToolIfItsBlockClientSide(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
-        if (itemStack.getItem() instanceof VirtualItem && (((VirtualItem) itemStack.getItem()).getVirtualItem() instanceof BlockItem || ((VirtualItem) itemStack.getItem()).getVirtualItem() instanceof BucketItem)) {
-            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
+        if (itemStack.getItem() instanceof VirtualItem virtualItem) {
+            var data = ItemHelper.getItemSafely(virtualItem, itemStack, this.player);
+            if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
+                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
+            }
         }
     }
 
     @Redirect(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0))
-    private void replaceOriginalCall(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {}
+    private void replaceOriginalCall(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
+    }
 
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
     private void updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
@@ -61,15 +69,13 @@ public abstract class ServerPlayNetworkHandlerMixin {
         ItemStack stack = this.player.getStackInHand(packet.getHand());
         Item item = stack.getItem();
 
-        if (stack.getItem() instanceof VirtualItem virtual
-                && (virtual.getVirtualItem() instanceof BlockItem || virtual.getVirtualItem() instanceof BucketItem)
-                && !(item instanceof BlockItem || item instanceof BucketItem)) {
-            this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand()));
+        if (stack.getItem() instanceof VirtualItem virtualItem) {
+            var data = ItemHelper.getItemSafely(virtualItem, stack, this.player);
+            if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
+                this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand()));
+            }
         }
     }
-
-    @Unique
-    private List<ItemStack> armorItems = new ArrayList<>();
 
     @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER))
     private void storeSomeData(ClickSlotC2SPacket packet, CallbackInfo ci) {

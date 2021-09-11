@@ -6,10 +6,11 @@ import io.github.theepicblock.polymc.api.PolyRegistry;
 import net.minecraft.block.Block;
 import org.spongepowered.asm.mixin.Mixin;
 import io.github.theepicblock.polymc.impl.generator.BlockPolyGenerator;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
+@Pseudo
 @Mixin(BlockPolyGenerator.class)
 public class BlockPolyGeneratorMixin {
 

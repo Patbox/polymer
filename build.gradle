@@ -62,7 +62,7 @@ dependencies {
 
 	modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
 
-	modCompileOnly 'com.github.TheEpicBlock:PolyMc:ebe3100f5ad7'
+	modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.0'
 	//modRuntime 'com.github.TheEpicBlock:PolyMc:ebe3100f5ad7'
 
 	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0-1.17-pre1")

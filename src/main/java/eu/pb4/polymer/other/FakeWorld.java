@@ -1,9 +1,11 @@
 package eu.pb4.polymer.other;
 
+import eu.pb4.polymer.PolymerMod;
 import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
@@ -30,9 +32,17 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @ApiStatus.Internal
-public class FakeWorld extends World {
-    static public World INSTANCE = new FakeWorld(new FakeWorldProperties(), null, DimensionTypeAccessor.getOverworld(), null, false, true, 1);
+class FakeWorld extends World {
+    static public World INSTANCE;
 
+    static {
+        try {
+            INSTANCE = new FakeWorld(new FakeWorldProperties(), null, DimensionTypeAccessor.getOverworld(), null, false, true, 1);
+        } catch (Exception e1) {
+            PolymerMod.LOGGER.error("Couldn't initiate fake world! See logs below!");
+            throw e1;
+        }
+    }
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed);

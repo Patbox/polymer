@@ -5,9 +5,10 @@ import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-
+@Pseudo
 @Mixin(RegistrySyncManager.class)
 public class RegistrySyncManagerMixin {
 

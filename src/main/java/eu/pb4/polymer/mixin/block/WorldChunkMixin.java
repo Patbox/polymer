@@ -31,9 +31,6 @@ import java.util.function.Consumer;
 
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin implements WorldChunkInterface {
-    @Shadow
-    @Final
-    private World world;
     private final Set<BlockPos> virtualBlocks = new HashSet<>();
 
     @Shadow

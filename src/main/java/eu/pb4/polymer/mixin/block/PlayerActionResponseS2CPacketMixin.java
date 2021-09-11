@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.block.VirtualBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,7 +25,7 @@ public class PlayerActionResponseS2CPacketMixin {
     private BlockState replaceWithVirtualBlockState(BlockState state) {
         if (state.getBlock() instanceof VirtualBlock virtualBlock) {
             if (this.cachedBlockState == null) {
-                this.cachedBlockState = virtualBlock.getVirtualBlockState(state);
+                this.cachedBlockState = BlockHelper.getBlockStateSafely(virtualBlock, state);
             }
             return this.cachedBlockState;
         }
@@ -37,7 +38,7 @@ public class PlayerActionResponseS2CPacketMixin {
     public void replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
         if (this.state.getBlock() instanceof VirtualBlock virtualBlock) {
             if (this.cachedBlockState == null) {
-                this.cachedBlockState = virtualBlock.getVirtualBlockState(state);
+                this.cachedBlockState = BlockHelper.getBlockStateSafely(virtualBlock, state);
             }
             cir.setReturnValue(this.cachedBlockState);
         }

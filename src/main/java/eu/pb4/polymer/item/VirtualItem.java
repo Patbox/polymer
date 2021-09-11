@@ -21,14 +21,21 @@ public interface VirtualItem extends VirtualObject {
      */
     Item getVirtualItem();
 
+
+    @Deprecated(forRemoval = true)
+    default Item getVirtualItem(@Nullable ServerPlayerEntity player) {
+        return this.getVirtualItem();
+    }
+
     /**
      * Returns main/default item used on client for specific player
      *
+     * @param itemStack ItemStack of virtual item
      * @param player    Player for which it's send
      * @return Vanilla (or other) Item instance
      */
-    default Item getVirtualItem(@Nullable ServerPlayerEntity player) {
-        return this.getVirtualItem();
+    default Item getVirtualItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return this.getVirtualItem(player);
     }
 
     /**

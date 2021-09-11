@@ -1,6 +1,7 @@
 package eu.pb4.polymer.item;
 
 import com.google.common.collect.Multimap;
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.interfaces.VirtualObject;
 import eu.pb4.polymer.other.BooleanEvent;
 import eu.pb4.polymer.other.ContextAwareModifyEvent;
@@ -49,6 +50,13 @@ public class ItemHelper {
      */
     public static final ContextAwareModifyEvent<ItemStack> VIRTUAL_ITEM_MODIFICATION_EVENT = new ContextAwareModifyEvent<>();
 
+    /**
+     * This methods creates a client side ItemStack representation
+     *
+     * @param itemStack Server side ItemStack
+     * @param player Player being send to
+     * @return Client side ItemStack
+     */
     public static ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         if (itemStack.getItem() instanceof VirtualItem item) {
             return item.getVirtualItemStack(itemStack, player);
@@ -81,6 +89,11 @@ public class ItemHelper {
         return itemStack;
     }
 
+    /**
+     * This method gets real ItemStack from Virtual/Client side one
+     * @param itemStack Client side ItemStack
+     * @return Server side ItemStack
+     */
     public static ItemStack getRealItemStack(ItemStack itemStack) {
         ItemStack out = itemStack;
 
@@ -104,10 +117,25 @@ public class ItemHelper {
         return out;
     }
 
+    @Deprecated
     public static ItemStack createMinimalVirtualItemStack(ItemStack itemStack) {
+        return createBasicVirtualItemStack(itemStack, null);
+    }
+
+    /**
+     * This method creates minimal representation of ItemStack
+     *
+     * @param itemStack Server side ItemStack
+     * @param player Player seeing it
+     * @return Client side ItemStack
+     */
+    public static ItemStack createMinimalVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
-        if (itemStack.getItem() instanceof VirtualItem) {
-            item = ((VirtualItem) itemStack.getItem()).getVirtualItem();
+        int cmd = -1;
+        if (itemStack.getItem() instanceof VirtualItem virtualItem) {
+            var data = ItemHelper.getItemSafely(virtualItem, itemStack, player);
+            item = data.item();
+            cmd = data.cmd();
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
@@ -118,15 +146,27 @@ public class ItemHelper {
 
         out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
 
+        if (cmd != -1) {
+            out.getOrCreateTag().putInt("CustomModelData", cmd);
+        }
+
         return out;
     }
 
+    /**
+     * This method creates full (vanilla like) representation of ItemStack
+     *
+     * @param itemStack Server side ItemStack
+     * @param player Player seeing it
+     * @return Client side ItemStack
+     */
     public static ItemStack createBasicVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
         int cmd = -1;
         if (itemStack.getItem() instanceof VirtualItem virtualItem) {
-            item = virtualItem.getVirtualItem(player);
-            cmd = virtualItem.getCustomModelData(itemStack, player);
+            var data = ItemHelper.getItemSafely(virtualItem, itemStack, player);
+            item = data.item();
+            cmd = data.cmd();
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
@@ -172,20 +212,31 @@ public class ItemHelper {
             }
         }
 
-        List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
-        MutableText name = (MutableText) tooltip.remove(0);
+        try {
+            List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
+            MutableText name = (MutableText) tooltip.remove(0);
 
-        if (!out.getName().equals(name)) {
-            name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
-            out.setCustomName(name);
-        }
+            if (!out.getName().equals(name)) {
+                name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
+                out.setCustomName(name);
+            }
 
-        if (itemStack.getItem() instanceof VirtualItem) {
-            ((VirtualItem) itemStack.getItem()).modifyTooltip(tooltip, itemStack, player);
-        }
 
-        for (Text t : tooltip) {
-            lore.add(NbtString.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(ItemHelper.CLEAN_STYLE))));
+            if (itemStack.getItem() instanceof VirtualItem) {
+                ((VirtualItem) itemStack.getItem()).modifyTooltip(tooltip, itemStack, player);
+            }
+
+            for (Text t : tooltip) {
+                lore.add(NbtString.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(ItemHelper.CLEAN_STYLE))));
+            }
+        } catch (Exception e) {
+            // Fallback for mods that require client side methods
+            MutableText name = itemStack.getName().shallowCopy();
+
+            if (!out.getName().equals(name)) {
+                name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
+                out.setCustomName(name);
+            }
         }
 
         if (lore.size() > 0) {
@@ -197,5 +248,42 @@ public class ItemHelper {
         }
 
         return VIRTUAL_ITEM_MODIFICATION_EVENT.invoke(itemStack, out, player);
+    }
+
+    /**
+     * This method is minimal wrapper around {@link VirtualItem#getVirtualItem(ItemStack, ServerPlayerEntity)} to make sure
+     * It gets replaced if it represents other VirtualItem
+     *
+     * @param item  VirtualItem
+     * @param stack Server side ItemStack
+     * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @return Client side ItemStack
+     */
+    public static ItemWithCmd getItemSafely(VirtualItem item, ItemStack stack, @Nullable ServerPlayerEntity player, int maxDistance) {
+        Item out = item.getVirtualItem(stack, player);
+        VirtualItem lastVirtual = item;
+
+        int req = 0;
+        while (out instanceof VirtualItem newItem && newItem != item && req < maxDistance) {
+            out = newItem.getVirtualItem(stack, player);
+            lastVirtual = newItem;
+            req++;
+        }
+        return new ItemWithCmd(out, lastVirtual.getCustomModelData(stack, player));
+    }
+
+    /**
+     * This method is minimal wrapper around {@link VirtualItem#getVirtualItem(ItemStack, ServerPlayerEntity)} to make sure
+     * It gets replaced if it represents other VirtualItem
+     *
+     * @param item  VirtualItem
+     * @param stack Server side ItemStack
+     * @return Client side ItemStack
+     */
+    public static ItemWithCmd getItemSafely(VirtualItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
+        return getItemSafely(item, stack, player, BlockHelper.NESTED_DEFAULT_DISTANCE);
+    }
+
+        public record ItemWithCmd(Item item, int cmd) {
     }
 }

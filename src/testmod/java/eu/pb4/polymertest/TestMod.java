@@ -17,10 +17,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ToolMaterials;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
@@ -41,6 +38,9 @@ public class TestMod implements ModInitializer {
     public static BlockItem blockItemTater = new VirtualHeadBlockItem(blockTater, new FabricItemSettings());
     public static TestPickaxeItem pickaxe = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings());
     public static TestHelmetItem helmet = new TestHelmetItem(new FabricItemSettings());
+    public static Block block_wrapped = new BasicVirtualBlock(AbstractBlock.Settings.copy(block), block);
+    public static Block self_block = new SelfReferenceBlock(AbstractBlock.Settings.copy(Blocks.STONE));
+    public static Item item_wrapped = new BasicVirtualItem(new FabricItemSettings(), item);
 
     public static TestBowItem bow1 = new TestBowItem(new FabricItemSettings(), "bow");
     public static TestBowItem bow2 = new TestBowItem(new FabricItemSettings(), "bow2");
@@ -68,6 +68,9 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "helmet"), helmet);
         Registry.register(Registry.ITEM, new Identifier("test", "bow1"), bow1);
         Registry.register(Registry.ITEM, new Identifier("test", "bow2"), bow2);
+        Registry.register(Registry.BLOCK, new Identifier("test", "wrapped_block"), block_wrapped);
+        Registry.register(Registry.BLOCK, new Identifier("test", "self_block"), self_block);
+        Registry.register(Registry.ITEM, new Identifier("test", "wrapped_item"), item_wrapped);
 
         enchantment = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 

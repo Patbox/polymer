@@ -1,5 +1,6 @@
 package eu.pb4.polymer.other.polymc;
 
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.block.VirtualBlock;
 import io.github.theepicblock.polymc.api.block.BlockPoly;
 import io.github.theepicblock.polymc.api.resource.ResourcePackMaker;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class VirtualPoly implements BlockPoly {
     @Override
     public BlockState getClientBlock(BlockState input) {
-        return ((VirtualBlock) input.getBlock()).getVirtualBlockState(input);
+        return BlockHelper.getBlockStateSafely((VirtualBlock) input.getBlock(), input);
     }
 
     @Override

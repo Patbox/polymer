@@ -89,6 +89,17 @@ public class ResourcePackUtils {
         return ((PlayerRP) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
     }
 
+    /**
+     * Gets an unmodifiable list of models for an item.
+     * This can be useful if you need to extract this list and parse it yourself.
+     *
+     * @param item Item you want list for
+     * @return An unmodifiable list of models
+     */
+    public static List<CMDInfo> getModelsFor(Item item) {
+        return Collections.unmodifiableList(ITEMS.getOrDefault(item, Collections.emptyList()));
+    }
+
     @ApiStatus.Internal
     public static boolean build(Path path) {
         try {
