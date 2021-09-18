@@ -23,6 +23,7 @@ For `[TAG]`/polymer version I recommend you checking [this maven](https://maven.
 ## Before starting
 There are few things you need to keep in mind while using Polymer. 
 All your code that interacts with Polymer should:
+
 * Be thread safe - code can run on main server thread, player's connection thread 
   or client side rendering thread.
 * Make sure to check every time you cast if it's really instance of it. Sometimes `World` won't be `ServerWorld`.
@@ -31,10 +32,12 @@ All your code that interacts with Polymer should:
 * Please don't even try using registry replacement, it will break many other mods.
 
 ## Getting started
+
 * [Items](/polymer/items)
 * [Blocks](/polymer/blocks)
 * [Entities](/polymer/entities)
 * [Resource Packs](/polymer/resource-packs)
 
 Other useful tools/projects compatible with Polymer
+
 * [Server Translation API](/other/server-translation-api)
