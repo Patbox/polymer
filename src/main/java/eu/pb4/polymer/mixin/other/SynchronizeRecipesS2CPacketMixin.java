@@ -30,7 +30,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
     @Shadow public abstract void write(PacketByteBuf buf);
 
     @Inject(method = "write", at = @At("HEAD"))
-    public void onWrite(PacketByteBuf buf, CallbackInfo callbackInfo) {
+    public void polymer_onWrite(PacketByteBuf buf, CallbackInfo callbackInfo) {
             recipes = recipes.stream()
                     .filter(recipe -> !(recipe.getSerializer() instanceof VirtualObject || recipe instanceof VirtualObject))
                     .collect(Collectors.toList());
@@ -43,7 +43,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
      */
     @Environment(EnvType.CLIENT)
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
-    private void replaceRecipesOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
+    private void polymer_replaceRecipesOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
         if (this.rewrittenRecipes == null) {
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             this.write(buf);

@@ -1,36 +1,11 @@
 # Polymer
 It's a library for creating server side content, that work for player's without mods or (required) resource packs!
+You can create blocks, items and entities, that not only will work fully on server side (and singleplayer), but also
+are represented on server the same as normal (vanilla/modded) ones (unlike bukkit/spigot ones, that are stored as vanilla block).
 
-This library is its alpha stages, however it should be stable. Feel free to suggest changes/improvements!
+This library also should work correctly with other, non-polymer mods and PolyMC!
 
-## Usage:
-Add it to your dependencies like this:
-
-```groovy
-repositories {
-	maven { url 'https://maven.nucleoid.xyz' }
-}
-
-dependencies {
-	modImplementation include("eu.pb4:polymer:[TAG]")
-	
-	// Optional, but highly recommended!
-	// Allows to create server side translations with vanilla like way
-    // You can get version tag at https://maven.nucleoid.xyz/fr/catcore/server-translations-api/
-	modImplementation include("fr.catcore:server-translations-api:[STA-TAG]")
-}
-```
-
-After that, it's as easy as making your items implement `VirtualItem`, blocks `VirtualBlock` or 
-`VirtualHeadBlock` and entities `VirtualEntity`. Additionally, you need to implement `VirtualObject` on your enchantments and recipes.
-It's also recommended registering block entities with `PolymerMod.registerVirtualBlockEntity(Identifier)`.
-
-### Limitations
-Most command arguments that refer to entity types, items and blocks will be warning that 
-it's are incorrect. However, commands itself should work just fine.
-
-While it's supported, please limit creation of VirtualBlock light sources. Because of how Minecraft 
-handles light updates on server/client, these can be little laggy (as it needs to be send updates every time light changes).
+For information about usage you can check official docs at https://polymer.pb4.eu/!
 
 ### If you are a server owner, you most likely wanted to get [PolyMC](https://github.com/TheEpicBlock/PolyMc)
 

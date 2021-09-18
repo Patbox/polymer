@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,20 +29,25 @@ public class EntityTrackerEntryMixin {
     private Entity entity;
 
     @Inject(method = "sendPackets", at = @At("TAIL"))
-    private void modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
+    private void polymer_modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
         try {
-            if (this.entity instanceof VirtualEntity) {
-                if (this.entity instanceof LivingEntity) {
+            if (this.entity instanceof VirtualEntity virtualEntity) {
+                if (this.entity instanceof LivingEntity livingEntity) {
                     Map<EquipmentSlot, ItemStack> map = new HashMap<>();
 
                     for (EquipmentSlot slot : EquipmentSlot.values()) {
-                        ItemStack stack = ((LivingEntity) this.entity).getEquippedStack(slot);
+                        ItemStack stack = livingEntity.getEquippedStack(slot);
                         if (!stack.isEmpty()) {
                             map.put(slot, stack);
                         }
                     }
 
-                    List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this.entity).getVirtualEntityEquipment(map);
+                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getVirtualEntityEquipment(map);
+                    if (!list.isEmpty()) {
+                        sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
+                    }
+                } else {
+                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getVirtualEntityEquipment(Collections.emptyMap());
                     if (!list.isEmpty()) {
                         sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
                     }

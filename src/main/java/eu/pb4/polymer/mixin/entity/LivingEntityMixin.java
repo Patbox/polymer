@@ -22,7 +22,7 @@ import java.util.Map;
 public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "setEquipment", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getChunkManager()Lnet/minecraft/server/world/ServerChunkManager;"), cancellable = true)
-    private void sendVirtualInventory(Map<EquipmentSlot, ItemStack> map, CallbackInfo ci) {
+    private void polymer_sendVirtualInventory(Map<EquipmentSlot, ItemStack> map, CallbackInfo ci) {
         if (this instanceof VirtualEntity) {
             List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this).getVirtualEntityEquipment(map);
             if (!list.isEmpty()) {

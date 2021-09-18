@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class AbstractBlockMixin {
 
     @Inject(method = "getOutlineShape", at = @At("HEAD"), cancellable = true)
-    private void replaceWithFakeBlock(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
+    private void polymer_replaceWithFakeBlock(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (this instanceof VirtualBlock block) {
             var clientState = BlockHelper.getBlockStateSafely(block, state);
             if (clientState.getBlock() != block) {

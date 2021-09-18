@@ -46,8 +46,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
     public abstract void finishMining(BlockPos pos, PlayerActionC2SPacket.Action action, String reason);
 
     @Inject(method = "continueMining", at = @At("TAIL"))
-    private void breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (this.shouldMineServerSide(pos, state)) {
+    private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
+        if (this.polymer_shouldMineServerSide(pos, state)) {
             int j = this.tickCounter - i;
             float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j);
 
@@ -69,8 +69,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "continueMining", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockBreakingInfo(ILnet/minecraft/util/math/BlockPos;I)V"))
-    private void onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (this.shouldMineServerSide(pos, state)) {
+    private void polymer_onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
+        if (this.polymer_shouldMineServerSide(pos, state)) {
             int j = tickCounter - i;
             float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j + 1);
             int k = (int) (f * 10.0F);
@@ -80,8 +80,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
-    private void packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
+    private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
+        if (this.polymer_shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
             } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
@@ -96,8 +96,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
-    private void enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
+    private void polymer_enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
+        if (this.polymer_shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.startMiningTime += blockBreakingCooldown;
             }
@@ -105,7 +105,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "finishMining", at = @At("HEAD"))
-    private void clearEffects(BlockPos pos, PlayerActionC2SPacket.Action action, String reason, CallbackInfo ci) {
+    private void polymer_clearEffects(BlockPos pos, PlayerActionC2SPacket.Action action, String reason, CallbackInfo ci) {
         this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
         if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
             StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
@@ -114,12 +114,12 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
 
-    private boolean shouldMineServerSide(BlockPos pos, BlockState state) {
+    private boolean polymer_shouldMineServerSide(BlockPos pos, BlockState state) {
         return state.getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem || BlockHelper.SERVER_SIDE_MINING_CHECK.invoke(this.player, pos, state);
     }
 
 
     @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)
-    private void noOneCaresAboutMismatch(Logger logger, String message, Object p0, Object p1) {
+    private void polymer_noOneCaresAboutMismatch(Logger logger, String message, Object p0, Object p1) {
     }
 }

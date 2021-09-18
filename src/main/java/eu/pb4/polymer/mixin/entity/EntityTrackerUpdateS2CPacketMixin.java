@@ -28,7 +28,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
     private List<DataTracker.Entry<?>> trackedValues;
 
     @Inject(method = "<init>(ILnet/minecraft/entity/data/DataTracker;Z)V", at = @At("TAIL"))
-    private void removeInvalidEntries(int id, DataTracker tracker, boolean forceUpdateAll, CallbackInfo ci) {
+    private void polymer_removeInvalidEntries(int id, DataTracker tracker, boolean forceUpdateAll, CallbackInfo ci) {
         Entity entity = ((DataTrackerAccessor) tracker).getTrackedEntity();
 
         if (entity instanceof VirtualEntity) {
@@ -63,7 +63,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getTrackedValues", at = @At("RETURN"), cancellable = true)
-    private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
+    private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
         if (MinecraftClient.getInstance().getServer() != null) {
             List<DataTracker.Entry<?>> list = new ArrayList<>();
             ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());

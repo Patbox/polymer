@@ -17,9 +17,4 @@ public class BasicVirtualBlock extends Block implements VirtualBlock {
     public Block getVirtualBlock() {
         return this.virtualBlock;
     }
-
-    @Override
-    public BlockState getDefaultVirtualBlockState() {
-        return this.virtualBlock.getDefaultState();
-    }
 }

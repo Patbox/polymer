@@ -11,8 +11,10 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -37,7 +39,7 @@ public interface VirtualEntity extends VirtualObject {
      * @return List of Pair of EquipmentSlot and ItemStack sent to client
      */
     default List<Pair<EquipmentSlot, ItemStack>> getVirtualEntityEquipment(Map<EquipmentSlot, ItemStack> map) {
-        List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(map.size());
+        List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(map.size());
         for (Map.Entry<EquipmentSlot, ItemStack> entry : map.entrySet()) {
             list.add(Pair.of(entry.getKey(), entry.getValue()));
         }
@@ -45,10 +47,9 @@ public interface VirtualEntity extends VirtualObject {
     }
 
     /**
-     * This method can be used to send packets after entity is visible to players
-     *
-     * @param sender Consumer of packets
+     * Use {@link Entity#onStartedTrackingBy(ServerPlayerEntity)} directly.
      */
+    @Deprecated(forRemoval = true)
     default void sendPackets(Consumer<Packet<?>> sender) {}
 
 

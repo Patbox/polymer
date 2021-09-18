@@ -36,7 +36,7 @@ public class MobSpawnS2CPacketMixin {
     private byte headYaw;
 
     @Inject(method = "<init>(Lnet/minecraft/entity/LivingEntity;)V", at = @At(value = "TAIL"))
-    private void replaceWithVirtual(LivingEntity entity, CallbackInfo ci) {
+    private void polymer_replaceWithVirtual(LivingEntity entity, CallbackInfo ci) {
         if (entity instanceof VirtualEntity ve) {
             this.entityTypeId = Registry.ENTITY_TYPE.getRawId(ve.getVirtualEntityType());
 

@@ -30,11 +30,7 @@ public interface VirtualBlock extends VirtualObject {
     }
 
 
-    /**
-     * Returns default virtual BlockState
-     *
-     * @return Default BlockState of Vanilla/other block
-     */
+    @Deprecated
     default BlockState getDefaultVirtualBlockState() {
         return this.getVirtualBlock().getDefaultState();
     }
@@ -59,4 +55,11 @@ public interface VirtualBlock extends VirtualObject {
      * @param blockState Real BlockState of block
      */
     default void sendPacketsAfterCreation(ServerPlayerEntity player, BlockPos pos, BlockState blockState) {}
+
+    /**
+     * You can override this method in case of issues with light updates of this block. In most cases it's not needed.
+     */
+    default boolean forceLightUpdates() {
+        return false;
+    }
 }

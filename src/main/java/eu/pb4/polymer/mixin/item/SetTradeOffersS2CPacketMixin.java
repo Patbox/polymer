@@ -23,7 +23,7 @@ public class SetTradeOffersS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getOffers", at = @At("HEAD"), cancellable = true)
-    private void replaceRecipes(CallbackInfoReturnable<TradeOfferList> cir) {
+    private void polymer_replaceRecipes(CallbackInfoReturnable<TradeOfferList> cir) {
         ServerPlayerEntity player = ClientUtils.getPlayer();
 
         if (player != null) {

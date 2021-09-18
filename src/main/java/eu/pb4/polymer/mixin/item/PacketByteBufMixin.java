@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.item;
 
+import eu.pb4.polymer.PolymerUtils;
 import eu.pb4.polymer.item.ItemHelper;
 import eu.pb4.polymer.other.client.ClientUtils;
 import net.fabricmc.api.EnvType;
@@ -17,20 +18,20 @@ import xyz.nucleoid.packettweaker.PacketContext;
 @Mixin(value = PacketByteBuf.class, priority = 500)
 public class PacketByteBufMixin {
     @ModifyVariable(method = "writeItemStack", at = @At("HEAD"), ordinal = 0)
-    private ItemStack replaceWithVanillaItem(ItemStack itemStack) {
+    private ItemStack polymer_replaceWithVanillaItem(ItemStack itemStack) {
         return ItemHelper.getVirtualItemStack(itemStack, PacketContext.get().getTarget());
     }
 
     @Environment(EnvType.SERVER)
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
-    private void replaceWithRealItem(CallbackInfoReturnable<ItemStack> cir) {
+    private void polymer_replaceWithRealItem(CallbackInfoReturnable<ItemStack> cir) {
         cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
     }
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
-    private void replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir) {
-        if (ClientUtils.isSingleplayer() && PacketContext.get().getTarget() != null) {
+    private void polymer_replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir) {
+        if (!PolymerUtils.isOnClientSide()) {
             cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
         }
     }

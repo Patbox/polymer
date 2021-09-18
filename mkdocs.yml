@@ -1,0 +1,46 @@
+site_name: Polymer
+
+repo_url: https://github.com/Patbox/polymer
+repo_name: Patbox/polymer
+
+nav:
+  - index.md
+  - Using Polymer:
+      - polymer/items.md
+      - polymer/blocks.md
+      - polymer/entities.md
+      - polymer/resource-packs.md
+  - Useful tools:
+      - other/server-translation-api.md
+
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: images/favicon.png
+
+  palette:
+    - scheme: slate
+      features:
+        - navigation.expand
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - scheme: default
+      features:
+        - navigation.expand
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+extra_css:
+   - assets/style.css
+
+markdown_extensions:
+  - admonition
+plugins:
+  - search
+extra:
+  version:
+    provider: mike
+    default: latest

@@ -23,4 +23,8 @@ public class ClientUtils {
     public static ServerPlayerEntity getPlayer() {
         return isSingleplayer() ? MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid()) : null;
     }
+
+    public static boolean isClientSide() {
+        return MinecraftClient.getInstance().isOnThread();
+    }
 }

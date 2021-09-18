@@ -20,7 +20,7 @@ public abstract class CommandManagerMixin {
      * Replaces client hardcoded entity argument type to Identifier to stop custom entities from being red (while keeping server side validation from EntitySummonArgumentType.getEntitySummon)
      */
     @ModifyVariable(method = "argument", at = @At("HEAD"), ordinal = 0)
-    private static ArgumentType<?> replaceArgumentType(ArgumentType<?> type) {
+    private static ArgumentType<?> polymer_replaceArgumentType(ArgumentType<?> type) {
         if (type instanceof EntitySummonArgumentType) {
             return IdentifierArgumentType.identifier();
         }
@@ -29,7 +29,7 @@ public abstract class CommandManagerMixin {
     }
 
     @Inject(method = "argument", at = @At("TAIL"), cancellable = true)
-    private static void makeSuggestionsServerSide(String name, ArgumentType<?> type, CallbackInfoReturnable<RequiredArgumentBuilder<ServerCommandSource, ?>> cir) {
+    private static void polymer_makeSuggestionsServerSide(String name, ArgumentType<?> type, CallbackInfoReturnable<RequiredArgumentBuilder<ServerCommandSource, ?>> cir) {
         if (type instanceof ItemStackArgumentType || type instanceof BlockStateArgumentType) {
             cir.setReturnValue(cir.getReturnValue().suggests(type::listSuggestions));
         }

@@ -64,7 +64,6 @@ public interface VirtualHeadBlock extends VirtualBlock {
     }
 
     default void sendPacketsAfterCreation(ServerPlayerEntity player, BlockPos pos, BlockState blockState) {
-        player.networkHandler.sendPacket(((VirtualHeadBlock) blockState.getBlock()).getVirtualHeadPacket(blockState, pos));
+        player.networkHandler.sendPacket(this.getVirtualHeadPacket(blockState, pos));
     }
-
 }

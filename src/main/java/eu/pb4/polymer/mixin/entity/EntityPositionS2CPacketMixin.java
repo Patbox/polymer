@@ -30,7 +30,7 @@ public class EntityPositionS2CPacketMixin {
     private byte pitch;
 
     @Inject(method = "<init>(Lnet/minecraft/entity/Entity;)V", at = @At("TAIL"))
-    private void replaceForVirtual(Entity entity, CallbackInfo ci) {
+    private void polymer_replaceForVirtual(Entity entity, CallbackInfo ci) {
         if (entity instanceof VirtualEntity virtualEntity) {
             Vec3d vec3d = virtualEntity.getClientSidePosition(entity.getPos());
             this.x = vec3d.x;

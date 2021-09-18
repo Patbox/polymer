@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(EntitySpawnS2CPacket.class)
 public class EntitySpawnS2CPacketMixin {
     @Redirect(method = "<init>(Lnet/minecraft/entity/Entity;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getType()Lnet/minecraft/entity/EntityType;"))
-    private static EntityType<?> replaceWithVirtual(Entity entity) {
+    private static EntityType<?> polymer_replaceWithVirtual(Entity entity) {
         if (entity instanceof VirtualEntity) {
             return ((VirtualEntity) entity).getVirtualEntityType();
         } else {

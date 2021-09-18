@@ -18,7 +18,7 @@ public abstract class CommandManagerMixin {
     private CommandDispatcher<ServerCommandSource> dispatcher;
 
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V"), method = "<init>")
-    private void addCommand(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
+    private void polymer_addCommand(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
         Commands.register(this.dispatcher);
     }
 }

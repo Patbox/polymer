@@ -19,10 +19,10 @@ public class BlockUpdateS2CPacketMixin {
     @Shadow private BlockState state;
 
     @Environment(EnvType.CLIENT)
-    @Unique private BlockState cachedBlockState = null;
+    @Unique private BlockState polymer_cachedBlockState = null;
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
-    private BlockState replaceWithVirtualBlockState(BlockState state) {
+    private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
         if (state.getBlock() instanceof VirtualBlock virtualBlock) {
             return BlockHelper.getBlockStateSafely(virtualBlock, state);
         }
@@ -32,13 +32,13 @@ public class BlockUpdateS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getState", at = @At("HEAD"), cancellable = true)
-    public void replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
+    public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
         if (this.state.getBlock() instanceof VirtualBlock virtualBlock) {
-            if (this.cachedBlockState == null) {
-                this.cachedBlockState = BlockHelper.getBlockStateSafely(virtualBlock, state);
+            if (this.polymer_cachedBlockState == null) {
+                this.polymer_cachedBlockState = BlockHelper.getBlockStateSafely(virtualBlock, state);
             }
 
-            cir.setReturnValue(this.cachedBlockState);
+            cir.setReturnValue(this.polymer_cachedBlockState);
         }
     }
 }

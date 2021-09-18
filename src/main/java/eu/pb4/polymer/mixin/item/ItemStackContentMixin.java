@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(HoverEvent.ItemStackContent.class)
 public class ItemStackContentMixin {
     @ModifyVariable(method = "<init>(Lnet/minecraft/item/ItemStack;)V", at = @At("HEAD"), ordinal = 0)
-    private static ItemStack replaceWithVirtual(ItemStack stack) {
+    private static ItemStack polymer_replaceWithVirtual(ItemStack stack) {
         return ItemHelper.getVirtualItemStack(stack, null);
     }
 }

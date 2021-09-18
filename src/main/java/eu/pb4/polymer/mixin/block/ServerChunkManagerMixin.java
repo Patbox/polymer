@@ -25,7 +25,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,21 +54,39 @@ public abstract class ServerChunkManagerMixin {
     @Unique
     private final Object2LongArrayMap<ChunkSectionPos> lastUpdates = new Object2LongArrayMap<>();
 
+    @Inject(method = "tickChunks", at = @At("TAIL"))
+    private void sendChunkUpdates(CallbackInfo ci) {
+        this.world.getServer().execute(() -> {
+            if (this.lastUpdates.size() != 0) {
+                for (var entry : new ArrayList<>(this.lastUpdates.object2LongEntrySet())) {
+                    var pos = entry.getKey();
+                    var time = entry.getLongValue();
+
+                    if (System.currentTimeMillis() - time > 100) {
+                        BitSet bitSet = new BitSet();
+                        bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
+                        Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
+                        Set<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false).collect(Collectors.toSet());
+                        if (players.size() > 0) {
+                            this.lastUpdates.put(pos, System.currentTimeMillis());
+                            for (ServerPlayerEntity player : players) {
+                                player.networkHandler.sendPacket(packet);
+                            }
+                        }
+                        this.lastUpdates.removeLong(pos);
+                    }
+                }
+            }
+        });
+    }
+
     @Inject(method = "onLightUpdate", at = @At("TAIL"))
-    private void sendLightUpdates(LightType type, ChunkSectionPos pos, CallbackInfo ci) {
+    private void scheduleChunkUpdates(LightType type, ChunkSectionPos pos, CallbackInfo ci) {
         if (type == LightType.BLOCK && this.world.getServer().getPlayerManager().getCurrentPlayerCount() > 0) {
             this.world.getServer().execute(() -> {
                 boolean sendUpdate = false;
                 int tooLow = pos.getSectionY() * 16 - 16;
                 int tooHigh = pos.getSectionY() * 16 + 32;
-
-                if (System.currentTimeMillis() - this.lastUpdates.getLong(pos.toChunkPos()) < 50) {
-                    return;
-                }
-
-                if (this.lastUpdates.size() > 200) {
-                    this.lastUpdates.clear();
-                }
 
                 for (int x = -1; x <= 1; x++) {
                     for (int z = -1; z <= 1; z++) {
@@ -88,16 +108,7 @@ public abstract class ServerChunkManagerMixin {
                 }
 
                 if (sendUpdate || BlockHelper.SEND_LIGHT_UPDATE_PACKET.invoke(this.world, pos)) {
-                    BitSet bitSet = new BitSet();
-                    bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
-                    Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
-                    Set<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false).collect(Collectors.toSet());
-                    if (players.size() > 0) {
-                        this.lastUpdates.put(pos, System.currentTimeMillis());
-                        for (ServerPlayerEntity player : players) {
-                            player.networkHandler.sendPacket(packet);
-                        }
-                    }
+                    this.lastUpdates.put(pos, System.currentTimeMillis());
                 }
             });
         }

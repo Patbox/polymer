@@ -1,8 +1,15 @@
 package eu.pb4.polymer.other.polymc;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import eu.pb4.polymer.other.Commands;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.file.Path;
+import java.util.List;
+
+import static net.minecraft.server.command.CommandManager.literal;
 
 @ApiStatus.Internal
 public class PolyMcHelpers {
@@ -15,6 +22,16 @@ public class PolyMcHelpers {
                 inputPath.toString(),
                 new io.github.theepicblock.polymc.impl.misc.logging.ErrorTrackerWrapper(
                         io.github.theepicblock.polymc.PolyMc.LOGGER)
+        );
+    }
+
+    public static void overrideCommand(MinecraftServer server) {
+        var dispatcher = server.getCommandManager().getDispatcher();
+        var generateNode
+                = dispatcher.findNode(List.of("polymc", "generate")).createBuilder();
+
+        dispatcher.register((LiteralArgumentBuilder<ServerCommandSource>) dispatcher.findNode(List.of("polymc"))
+                .createBuilder().then(generateNode.then(literal("resources").executes(Commands::generate)))
         );
     }
 }

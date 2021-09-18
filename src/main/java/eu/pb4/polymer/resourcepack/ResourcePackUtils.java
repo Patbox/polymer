@@ -23,6 +23,7 @@ public class ResourcePackUtils {
     private static final Set<String> MOD_IDS = new HashSet<>();
     private static boolean REQUIRED = false;
     private static final int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 100000 : 1;
+    private static boolean DEFAULT_CHECK = true;
 
     /**
      * This method can be used to register custom model data for items
@@ -89,6 +90,10 @@ public class ResourcePackUtils {
         return ((PlayerRP) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
     }
 
+    public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
+        ((PlayerRP) player.networkHandler).polymer_setResourcePack(status);
+    }
+
     /**
      * Gets an unmodifiable list of models for an item.
      * This can be useful if you need to extract this list and parse it yourself.
@@ -99,6 +104,16 @@ public class ResourcePackUtils {
     public static List<CMDInfo> getModelsFor(Item item) {
         return Collections.unmodifiableList(ITEMS.getOrDefault(item, Collections.emptyList()));
     }
+
+    public static void disableDefaultCheck() {
+        DEFAULT_CHECK = false;
+    }
+
+    public static boolean shouldCheckByDefault() {
+        return DEFAULT_CHECK;
+    }
+
+
 
     @ApiStatus.Internal
     public static boolean build(Path path) {

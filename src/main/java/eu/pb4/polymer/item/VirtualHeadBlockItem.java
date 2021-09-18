@@ -26,7 +26,7 @@ public class VirtualHeadBlockItem extends BlockItem implements VirtualItem {
 
     public ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         ItemStack out = VirtualItem.super.getVirtualItemStack(itemStack, player);
-        out.getOrCreateTag().put("SkullOwner", this.virtualBlock.getVirtualHeadSkullOwner(this.getBlock().getDefaultState()));
+        out.getOrCreateNbt().put("SkullOwner", this.virtualBlock.getVirtualHeadSkullOwner(this.getBlock().getDefaultState()));
         return out;
     }
 }

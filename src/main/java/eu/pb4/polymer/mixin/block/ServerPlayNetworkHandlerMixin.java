@@ -28,7 +28,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     public ServerPlayerEntity player;
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("TAIL"))
-    private void catchBlockUpdates(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo cb) {
+    private void polymer_catchBlockUpdates(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo cb) {
         try {
             if (packet instanceof BlockUpdateS2CPacket blockUpdatePacket) {
                 BlockState blockState = blockUpdatePacket.getState();
@@ -38,7 +38,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     ((VirtualBlock) blockState.getBlock()).sendPacketsAfterCreation(this.player, pos, blockState);
                 }
             } else if (packet instanceof ChunkDataS2CPacket) {
-                WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).getWorldChunk();
+                WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer_getWorldChunk();
                 WorldChunkInterface wci = (WorldChunkInterface) wc;
                 if (wc != null) {
                     for (BlockPos pos : wci.getVirtualBlocks()) {

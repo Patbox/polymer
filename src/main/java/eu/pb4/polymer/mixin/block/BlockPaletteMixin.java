@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(value = {ArrayPalette.class, BiMapPalette.class, LithiumHashPalette.class}, priority = 500)
 public abstract class BlockPaletteMixin<T>  {
     @ModifyArg(method = {"toPacket", "getPacketSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;getRawId(Ljava/lang/Object;)I"))
-    public T getIdRedirect(T object) {
+    public T polymer_getIdRedirect(T object) {
         if (object instanceof BlockState blockState) {
             Block block = blockState.getBlock();
 

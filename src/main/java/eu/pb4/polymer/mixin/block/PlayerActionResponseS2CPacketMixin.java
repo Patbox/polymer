@@ -22,7 +22,7 @@ public class PlayerActionResponseS2CPacketMixin {
     @Unique BlockState cachedBlockState = null;
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
-    private BlockState replaceWithVirtualBlockState(BlockState state) {
+    private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
         if (state.getBlock() instanceof VirtualBlock virtualBlock) {
             if (this.cachedBlockState == null) {
                 this.cachedBlockState = BlockHelper.getBlockStateSafely(virtualBlock, state);
@@ -35,7 +35,7 @@ public class PlayerActionResponseS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getBlockState", at = @At("HEAD"), cancellable = true)
-    public void replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
+    public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
         if (this.state.getBlock() instanceof VirtualBlock virtualBlock) {
             if (this.cachedBlockState == null) {
                 this.cachedBlockState = BlockHelper.getBlockStateSafely(virtualBlock, state);

@@ -12,6 +12,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
  */
 public class PolymerUtils {
     public static String ID = "polymer";
+
     /**
      * Returns player if it's known to polymer (otherwise null!)
      */
@@ -26,11 +27,25 @@ public class PolymerUtils {
         return player;
     }
 
+    /**
+     * Returns true, if server is running in singleplayer
+     */
     public static boolean isSingleplayer() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             return false;
         } else {
             return ClientUtils.isSingleplayer();
+        }
+    }
+
+    /**
+     * Returns true, if code is running on logical client side (not server/singleplayer server)
+     */
+    public static boolean isOnClientSide() {
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+            return false;
+        } else {
+            return ClientUtils.isClientSide();
         }
     }
 }

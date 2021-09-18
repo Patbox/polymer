@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public class FallingBlockEntityMixin {
 
     @ModifyArg(method = "createSpawnPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
-    private BlockState replaceWithVirtual(BlockState state) {
+    private BlockState polymer_replaceWithVirtual(BlockState state) {
         if (state.getBlock() instanceof VirtualBlock virtualBlock) {
             return BlockHelper.getBlockStateSafely(virtualBlock, state);
         } else {

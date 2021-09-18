@@ -21,7 +21,7 @@ public abstract class ResourcePackManagerMixin<T extends ResourcePackProfile> {
     private Set<ResourcePackProvider> providers;
 
     @Inject(method = "<init>(Lnet/minecraft/resource/ResourcePackProfile$Factory;[Lnet/minecraft/resource/ResourcePackProvider;)V", at = @At("RETURN"))
-    public void construct(ResourcePackProfile.Factory profileFactory, ResourcePackProvider[] providers, CallbackInfo ci) {
+    public void polymer_construct(ResourcePackProfile.Factory profileFactory, ResourcePackProvider[] providers, CallbackInfo ci) {
         this.providers = new HashSet<>(this.providers);
         this.providers.add(new PolymerResourcePack.Provider());
     }

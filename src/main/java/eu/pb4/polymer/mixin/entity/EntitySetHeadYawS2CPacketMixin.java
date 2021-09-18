@@ -16,7 +16,7 @@ public class EntitySetHeadYawS2CPacketMixin {
     private byte headYaw;
 
     @Inject(method = "<init>(Lnet/minecraft/entity/Entity;B)V", at = @At("TAIL"))
-    private void replaceHeadYaw(Entity entity, byte headYaw, CallbackInfo ci) {
+    private void polymer_replaceHeadYaw(Entity entity, byte headYaw, CallbackInfo ci) {
         if (entity instanceof VirtualEntity virtualEntity) {
             this.headYaw = (byte)((int)(virtualEntity.getClientSideHeadYaw(entity.getHeadYaw()) * 256.0F / 360.0F));
         }

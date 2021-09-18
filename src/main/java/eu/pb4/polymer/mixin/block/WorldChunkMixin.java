@@ -43,29 +43,29 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/TickScheduler;Lnet/minecraft/world/TickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;)V",
             at = @At("TAIL")
     )
-    private void virtualBlocksInit1(World world, ChunkPos pos, BiomeArray biomes, UpgradeData upgradeData, TickScheduler<Block> blockTickScheduler, TickScheduler<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable ChunkSection[] sections, @Nullable Consumer<WorldChunk> loadToWorldConsumer, CallbackInfo info) {
-        this.generateVirtualBlockSet();
+    private void polymer_virtualBlocksInit1(World world, ChunkPos pos, BiomeArray biomes, UpgradeData upgradeData, TickScheduler<Block> blockTickScheduler, TickScheduler<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable ChunkSection[] sections, @Nullable Consumer<WorldChunk> loadToWorldConsumer, CallbackInfo info) {
+        this.polymer_generateVirtualBlockSet();
     }
 
     @Inject(
             method = "<init>(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/world/chunk/ProtoChunk;Ljava/util/function/Consumer;)V",
             at = @At("TAIL")
     )
-    private void virtualBlocksInit2(ServerWorld serverWorld, ProtoChunk protoChunk, Consumer<WorldChunk> consumer, CallbackInfo ci) {
-        this.generateVirtualBlockSet();
+    private void polymer_virtualBlocksInit2(ServerWorld serverWorld, ProtoChunk protoChunk, Consumer<WorldChunk> consumer, CallbackInfo ci) {
+        this.polymer_generateVirtualBlockSet();
     }
 
     @Inject(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;)V",
             at = @At("TAIL")
     )
-    private void virtualBlocksInit3(World world, ChunkPos pos, BiomeArray biomes, CallbackInfo ci) {
-        this.generateVirtualBlockSet();
+    private void polymer_virtualBlocksInit3(World world, ChunkPos pos, BiomeArray biomes, CallbackInfo ci) {
+        this.polymer_generateVirtualBlockSet();
     }
 
 
     @Unique
-    private void generateVirtualBlockSet() {
+    private void polymer_generateVirtualBlockSet() {
         for (var section : this.getSectionArray()) {
             if (section != null && !section.isEmpty()) {
                 for (byte x = 0; x < 16; x++) {
@@ -85,7 +85,7 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
 
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/ChunkSection;setBlockState(IIILnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER))
-    private void addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+    private void polymer_addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         this.setVirtualBlock(pos, state);
     }
 

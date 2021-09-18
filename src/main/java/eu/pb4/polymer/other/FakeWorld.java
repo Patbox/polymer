@@ -5,7 +5,6 @@ import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
@@ -37,7 +36,7 @@ class FakeWorld extends World {
 
     static {
         try {
-            INSTANCE = new FakeWorld(new FakeWorldProperties(), null, DimensionTypeAccessor.getOverworld(), null, false, true, 1);
+            INSTANCE = new FakeWorld(new FakeWorldProperties(), null, DimensionTypeAccessor.polymer_getOverworld(), null, false, true, 1);
         } catch (Exception e1) {
             PolymerMod.LOGGER.error("Couldn't initiate fake world! See logs below!");
             throw e1;

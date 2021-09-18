@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "block.AbstractBlockMixin",
-    "block.AbstractBlockSettingAccessor",
     "block.BlockEventS2CPacketMixin",
     "block.BlockPaletteMixin",
     "block.BlockUpdateS2CPacketMixin",
@@ -42,6 +41,14 @@
     "polymc.BlockPolyGeneratorMixin"
   ],
   "client": [
+    "client.BlockModelsMixin",
+    "client.BuiltinModelItemRendererMixin",
+    "client.ItemGroupMixin",
+    "client.ItemModelsMixin",
+    "client.ItemRendererMixin",
+    "client.ModelLoaderMixin",
+    "client.ModelOverrideListMixin",
+    "client.SlotMixin",
     "item.ClickSlotC2SPacketMixin",
     "item.CreativeInventoryActionC2SPacketMixin",
     "item.EntityEquipmentUpdateS2CPacketMixin",

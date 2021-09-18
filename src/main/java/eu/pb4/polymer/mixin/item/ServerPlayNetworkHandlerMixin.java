@@ -43,7 +43,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     public abstract void onPlayerInteractItem(PlayerInteractItemC2SPacket packet);
 
     @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
-    private void resendToolIfItsBlockClientSide(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
+    private void polymer_resendToolIfItsBlockClientSide(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
         if (itemStack.getItem() instanceof VirtualItem virtualItem) {
@@ -55,11 +55,11 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Redirect(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0))
-    private void replaceOriginalCall(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
+    private void polymer_replaceOriginalCall(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
     }
 
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
-    private void updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
+    private void polymer_updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         BlockPos base = packet.getBlockHitResult().getBlockPos().offset(packet.getBlockHitResult().getSide());
 
         for (Direction direction : Direction.values()) {
@@ -78,7 +78,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER))
-    private void storeSomeData(ClickSlotC2SPacket packet, CallbackInfo ci) {
+    private void polymer_storeSomeData(ClickSlotC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler == this.player.playerScreenHandler) {
             for (ItemStack stack : this.player.getInventory().armor) {
                 armorItems.add(stack.copy());
@@ -87,7 +87,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onClickSlot", at = @At("TAIL"))
-    private void resendArmorIfNeeded(ClickSlotC2SPacket packet, CallbackInfo ci) {
+    private void polymer_resendArmorIfNeeded(ClickSlotC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler == this.player.playerScreenHandler && packet.getSlot() != -999) {
             int x = 0;
             for (ItemStack stack : this.player.getInventory().armor) {

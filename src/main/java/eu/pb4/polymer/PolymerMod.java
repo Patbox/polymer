@@ -1,8 +1,10 @@
 package eu.pb4.polymer;
 
+import eu.pb4.polymer.block.BlockHelper;
+import eu.pb4.polymer.other.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.ResourcePackUtils;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 
 
@@ -16,7 +18,6 @@ import java.util.HashSet;
 
 @ApiStatus.Internal
 public class PolymerMod implements ModInitializer {
-	private static HashSet<String> BLOCK_ENTITY_IDENTIFIERS = new HashSet<>();
 	public static final boolean POLYMC_COMPAT = FabricLoader.getInstance().isModLoaded("polymc");
 
 	public static final Logger LOGGER = LogManager.getLogger("Polymer");
@@ -26,33 +27,24 @@ public class PolymerMod implements ModInitializer {
 	public void onInitialize() {
 		if (POLYMC_COMPAT) {
 			ResourcePackUtils.markAsRequired();
+
+			// While rest of code doesn't depend on Fabric API in anyway, usage here is still fine, as PolyMC requires it
+			ServerLifecycleEvents.SERVER_STARTED.register((s) -> PolyMcHelpers.overrideCommand(s));
 		}
 	}
 
-	/**
-	 * Marks BlockEntity type as server-side only
-	 *
-	 * @param identifier BlockEntity's Identifier
-	 */
+	@Deprecated
 	public static void registerVirtualBlockEntity(Identifier identifier) {
-		BLOCK_ENTITY_IDENTIFIERS.add(identifier.toString());
+		BlockHelper.registerVirtualBlockEntity(identifier);
 	}
 
-	/**
-	 * Checks if BlockEntity is server-side only
-	 *
-	 * @param identifier BlockEntity's Identifier
-	 */
+	@Deprecated
 	public static boolean isVirtualBlockEntity(Identifier identifier) {
-		return BLOCK_ENTITY_IDENTIFIERS.contains(identifier.toString());
+		return BlockHelper.isVirtualBlockEntity(identifier);
 	}
 
-	/**
-	 * Checks if BlockEntity is server-side only
-	 *
-	 * @param identifier BlockEntity's Identifier (as string)
-	 */
+	@Deprecated
 	public static boolean isVirtualBlockEntity(String identifier) {
-		return BLOCK_ENTITY_IDENTIFIERS.contains(identifier);
+		return BlockHelper.isVirtualBlockEntity(identifier);
 	}
 }

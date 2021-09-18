@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(DimensionType.class)
 public interface DimensionTypeAccessor {
     @Accessor("OVERWORLD")
-    static DimensionType getOverworld() {
+    static DimensionType polymer_getOverworld() {
         throw new AssertionError();
     }
 }

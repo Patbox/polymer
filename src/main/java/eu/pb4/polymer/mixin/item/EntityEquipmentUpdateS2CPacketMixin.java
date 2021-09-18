@@ -22,7 +22,7 @@ import java.util.List;
 public class EntityEquipmentUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEquipmentList", at = @At("RETURN"), cancellable = true)
-    private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<Pair<EquipmentSlot, ItemStack>>> cir) {
+    private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<Pair<EquipmentSlot, ItemStack>>> cir) {
         if (MinecraftClient.getInstance().getServer() != null) {
             List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>();
             ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());

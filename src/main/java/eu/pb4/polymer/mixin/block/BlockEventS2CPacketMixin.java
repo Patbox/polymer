@@ -1,5 +1,7 @@
 package eu.pb4.polymer.mixin.block;
 
+import eu.pb4.polymer.PolymerUtils;
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.other.client.ClientUtils;
 import net.fabricmc.api.EnvType;
@@ -22,22 +24,22 @@ public class BlockEventS2CPacketMixin {
 
     @Shadow @Final private BlockPos pos;
 
-    @Unique private Block oldBlock = null;
+    @Unique private Block polymer_oldBlock = null;
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getBlock", at = @At("HEAD"), cancellable = true)
-    private void replaceBlockClient(CallbackInfoReturnable<Block> cir) {
-        if (ClientUtils.isSingleplayer() && this.oldBlock == null && this.block instanceof VirtualBlock virtualBlock) {
-            this.oldBlock = this.block;
-            this.block = virtualBlock.getVirtualBlock(this.pos, ClientUtils.getPlayer().getServerWorld());
+    private void polymer_replaceBlockClient(CallbackInfoReturnable<Block> cir) {
+        if (ClientUtils.isSingleplayer() && this.polymer_oldBlock == null && this.block instanceof VirtualBlock virtualBlock) {
+            this.polymer_oldBlock = this.block;
+            this.block = BlockHelper.getBlockSafely(virtualBlock, PolymerUtils.getPlayer().getServerWorld(), this.pos);
         }
     }
 
     @Inject(method = "write", at = @At("HEAD"))
-    private void replaceBlock(PacketByteBuf byteBuf, CallbackInfo ci) {
-        if (oldBlock == null && this.block instanceof VirtualBlock virtualBlock) {
-            this.oldBlock = block;
-            this.block = virtualBlock.getVirtualBlock(this.pos, PacketContext.get().getTarget().getServerWorld());
+    private void polymer_replaceBlock(PacketByteBuf byteBuf, CallbackInfo ci) {
+        if (polymer_oldBlock == null && this.block instanceof VirtualBlock virtualBlock) {
+            this.polymer_oldBlock = block;
+            this.block = BlockHelper.getBlockSafely(virtualBlock, PolymerUtils.getPlayer().getServerWorld(), this.pos);
         }
     }
 }

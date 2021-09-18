@@ -18,7 +18,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public class ScreenHandlerSlotUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getItemStack", at = @At("RETURN"), cancellable = true)
-    private void replaceItemsWithVirtualOnes(CallbackInfoReturnable<ItemStack> cir) {
+    private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<ItemStack> cir) {
         if (MinecraftClient.getInstance().getServer() != null) {
             ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
             cir.setReturnValue(ItemHelper.getVirtualItemStack(cir.getReturnValue(), player));

@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
     @ModifyArg(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/LiteralText;<init>(Ljava/lang/String;)V", ordinal = 3))
-    private String changeId(String id) {
+    private String polymer_changeId(String id) {
         ItemStack stack = (ItemStack) (Object) this;
-        return stack.hasTag() && stack.getTag().contains(ItemHelper.VIRTUAL_ITEM_ID) ? stack.getTag().getString(ItemHelper.VIRTUAL_ITEM_ID) : id;
+        return stack.hasNbt() && stack.getNbt().contains(ItemHelper.VIRTUAL_ITEM_ID) ? stack.getNbt().getString(ItemHelper.VIRTUAL_ITEM_ID) : id;
     }
 }

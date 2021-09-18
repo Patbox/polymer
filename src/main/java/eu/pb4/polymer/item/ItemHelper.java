@@ -70,8 +70,8 @@ public class ItemHelper {
                     return createBasicVirtualItemStack(itemStack, player);
                 }
             }
-        } else if (itemStack.hasTag() && itemStack.getTag().contains(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
-            for (NbtElement enchantment : itemStack.getTag().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
+        } else if (itemStack.hasNbt() && itemStack.getNbt().contains(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
+            for (NbtElement enchantment : itemStack.getNbt().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
                 String id = ((NbtCompound) enchantment).getString("id");
 
                 Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
@@ -97,16 +97,16 @@ public class ItemHelper {
     public static ItemStack getRealItemStack(ItemStack itemStack) {
         ItemStack out = itemStack;
 
-        if (itemStack.hasTag()) {
-            String id = itemStack.getTag().getString(VIRTUAL_ITEM_ID);
+        if (itemStack.hasNbt()) {
+            String id = itemStack.getNbt().getString(VIRTUAL_ITEM_ID);
             if (id != null && !id.isEmpty()) {
                 try {
                     Identifier identifier = Identifier.tryParse(id);
                     Item item = Registry.ITEM.get(identifier);
                     out = new ItemStack(item, itemStack.getCount());
-                    NbtCompound tag = itemStack.getSubTag(REAL_TAG);
+                    NbtCompound tag = itemStack.getSubNbt(REAL_TAG);
                     if (tag != null) {
-                        out.setTag(tag);
+                        out.setNbt(tag);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -140,14 +140,14 @@ public class ItemHelper {
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
-        if (itemStack.getTag() != null) {
-            out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
+        if (itemStack.getNbt() != null) {
+            out.getOrCreateNbt().put(ItemHelper.REAL_TAG, itemStack.getNbt());
         }
 
-        out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
 
         if (cmd != -1) {
-            out.getOrCreateTag().putInt("CustomModelData", cmd);
+            out.getOrCreateNbt().putInt("CustomModelData", cmd);
         }
 
         return out;
@@ -171,35 +171,35 @@ public class ItemHelper {
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
-        out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
-        out.getOrCreateTag().putInt("HideFlags", 127);
+        out.getOrCreateNbt().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putInt("HideFlags", 127);
 
         NbtList lore = new NbtList();
 
-        if (itemStack.getTag() != null) {
-            out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
-            assert out.getTag() != null;
-            cmd = itemStack.getTag().contains("CustomModelData") ? itemStack.getTag().getInt("CustomModelData") : cmd;
+        if (itemStack.getNbt() != null) {
+            out.getOrCreateNbt().put(ItemHelper.REAL_TAG, itemStack.getNbt());
+            assert out.getNbt() != null;
+            cmd = itemStack.getNbt().contains("CustomModelData") ? itemStack.getNbt().getInt("CustomModelData") : cmd;
 
             int dmg = itemStack.getDamage();
             if (dmg != 0) {
-                out.getTag().putInt("Damage", (int) ((((double) dmg) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
+                out.getNbt().putInt("Damage", (int) ((((double) dmg) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
             }
 
             if (itemStack.hasEnchantments()) {
                 out.addEnchantment(Enchantments.VANISHING_CURSE, 0);
             }
 
-            NbtElement canDestroy = itemStack.getTag().get("CanDestroy");
+            NbtElement canDestroy = itemStack.getNbt().get("CanDestroy");
 
             if (canDestroy != null) {
-                out.getTag().put("CanDestroy", canDestroy);
+                out.getNbt().put("CanDestroy", canDestroy);
             }
 
-            NbtElement canPlaceOn = itemStack.getTag().get("CanPlaceOn");
+            NbtElement canPlaceOn = itemStack.getNbt().get("CanPlaceOn");
 
             if (canPlaceOn != null) {
-                out.getTag().put("CanPlaceOn", canPlaceOn);
+                out.getNbt().put("CanPlaceOn", canPlaceOn);
             }
         } else if (player == null || itemStack.getFrame() == null) {
             out.setCustomName(itemStack.getItem().getName(itemStack).shallowCopy().fillStyle(ItemHelper.NON_ITALIC_STYLE.withColor(itemStack.getRarity().formatting)));
@@ -240,11 +240,11 @@ public class ItemHelper {
         }
 
         if (lore.size() > 0) {
-            out.getOrCreateTag().getCompound("display").put("Lore", lore);
+            out.getOrCreateNbt().getCompound("display").put("Lore", lore);
         }
 
         if (cmd != -1) {
-            out.getOrCreateTag().putInt("CustomModelData", cmd);
+            out.getOrCreateNbt().putInt("CustomModelData", cmd);
         }
 
         return VIRTUAL_ITEM_MODIFICATION_EVENT.invoke(itemStack, out, player);

@@ -18,7 +18,7 @@ public abstract class SimpleRegistryMixin<T> {
     @Shadow public abstract <V extends T> V set(int rawId, RegistryKey<T> key, V entry, Lifecycle lifecycle);
 
     @Inject(method = "add", at = @At("HEAD"), cancellable = true)
-    private <V extends T> void moveVirtualObjectToTheEnd(RegistryKey<T> key, V entry, Lifecycle lifecycle, CallbackInfoReturnable<V> cir) {
+    private <V extends T> void polymer_moveVirtualObjectToTheEnd(RegistryKey<T> key, V entry, Lifecycle lifecycle, CallbackInfoReturnable<V> cir) {
         if (entry instanceof VirtualObject) {
             int current = this.nextId;
             this.set(current + 1000000, key, entry, lifecycle);
