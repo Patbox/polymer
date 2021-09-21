@@ -98,7 +98,7 @@ public BlockState getVirtualBlockState(BlockState state) {
 ```
 
 ## Using BlockEntities
-The only thing you need to do to remove BlockEntity from being sent to client is registering its identifier with `BlockHelper.registerVirtualBlockEntity(Identifier identifier)`.
+The only thing you need to do to remove BlockEntity from being sent to client is registering its BlockEntityType with `BlockHelper.registerVirtualBlockEntity(BlockEntityType types)`.
 
 ## Limitations
 While it's supported, please limit creation of VirtualBlock light sources. Because of how Minecraft

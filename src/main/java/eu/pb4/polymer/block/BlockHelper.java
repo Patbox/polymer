@@ -6,12 +6,16 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class BlockHelper {
@@ -27,33 +31,25 @@ public class BlockHelper {
     public static final DoubleBooleanEvent<ServerWorld, ChunkSectionPos> SEND_LIGHT_UPDATE_PACKET = new DoubleBooleanEvent<>();
     private static final Object2BooleanMap<BlockState> IS_LIGHT_SOURCE_CACHE = new Object2BooleanOpenHashMap<>();
 
-    private static final HashSet<String> BLOCK_ENTITY_IDENTIFIERS = new HashSet<>();
+    private static final HashSet<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new HashSet<>();
 
     /**
      * Marks BlockEntity type as server-side only
      *
-     * @param identifier BlockEntity's Identifier
+     * @param types BlockEntityTypes
      */
-    public static void registerVirtualBlockEntity(Identifier identifier) {
-        BLOCK_ENTITY_IDENTIFIERS.add(identifier.toString());
+
+    public static void registerVirtualBlockEntity(BlockEntityType<?>... types) {
+        BLOCK_ENTITY_TYPES.addAll(Arrays.asList(types));
     }
 
     /**
      * Checks if BlockEntity is server-side only
      *
-     * @param identifier BlockEntity's Identifier
+     * @param type BlockEntities type
      */
-    public static boolean isVirtualBlockEntity(Identifier identifier) {
-        return BLOCK_ENTITY_IDENTIFIERS.contains(identifier.toString());
-    }
-
-    /**
-     * Checks if BlockEntity is server-side only
-     *
-     * @param identifier BlockEntity's Identifier (as string)
-     */
-    public static boolean isVirtualBlockEntity(String identifier) {
-        return BLOCK_ENTITY_IDENTIFIERS.contains(identifier);
+    public static boolean isVirtualBlockEntity(BlockEntityType<?> type) {
+        return BLOCK_ENTITY_TYPES.contains(type);
     }
 
     /**
@@ -148,5 +144,20 @@ public class BlockHelper {
      */
     public static Block getBlockSafely(VirtualBlock block, World world, BlockPos pos) {
         return getBlockSafely(block, world, pos, NESTED_DEFAULT_DISTANCE);
+    }
+
+    @Deprecated
+    public static void registerVirtualBlockEntity(Identifier identifier) {
+        BLOCK_ENTITY_TYPES.add(Registry.BLOCK_ENTITY_TYPE.get(identifier));
+    }
+
+    @Deprecated
+    public static boolean isVirtualBlockEntity(Identifier identifier) {
+        return BLOCK_ENTITY_TYPES.contains(Registry.BLOCK_ENTITY_TYPE.get(identifier));
+    }
+
+    @Deprecated
+    public static boolean isVirtualBlockEntity(String identifier) {
+        return isVirtualBlockEntity(Identifier.tryParse(identifier));
     }
 }

@@ -60,7 +60,7 @@ public interface VirtualHeadBlock extends VirtualBlock {
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
-        return new BlockEntityUpdateS2CPacket(pos, 4, main);
+        return new BlockEntityUpdateS2CPacket(pos, BlockEntityUpdateS2CPacket.SKULL, main);
     }
 
     default void sendPacketsAfterCreation(ServerPlayerEntity player, BlockPos pos, BlockState blockState) {

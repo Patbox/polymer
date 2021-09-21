@@ -1,9 +1,10 @@
 package eu.pb4.polymer.mixin.other;
 
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.entity.EntityHelper;
-import eu.pb4.polymer.entity.VirtualEntity;
 import eu.pb4.polymer.interfaces.VirtualObject;
 import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -15,11 +16,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(RegistrySyncManager.class)
 public class RegistrySyncManagerMixin {
 
-    @Redirect(method = "toTag", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"))
+    @Redirect(method = "toTag", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), require = 0)
     private static Identifier polymer_skipVirtualObjects(Registry<Object> registry, Object obj, boolean isClientSync) {
         if (isClientSync
                 && (obj instanceof VirtualObject
                         || (obj instanceof EntityType<?> type && EntityHelper.isVirtualEntityType(type))
+                        || (obj instanceof BlockEntityType<?> typeBE && BlockHelper.isVirtualBlockEntity(typeBE))
                 )
         ) {
             return null;

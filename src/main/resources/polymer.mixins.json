@@ -32,11 +32,12 @@
     "item.ItemStackMixin",
     "item.PacketByteBufMixin",
     "item.ServerPlayNetworkHandlerMixin",
+    "other.BootstrapMixin",
     "other.CommandManagerMixin",
     "other.DimensionTypeAccessor",
+    "other.IdListMixin",
     "other.RegistrySyncManagerMixin",
     "other.ServerPlayNetworkHandlerMixin",
-    "other.SimpleRegistryMixin",
     "other.SynchronizeRecipesS2CPacketMixin",
     "polymc.BlockPolyGeneratorMixin"
   ],

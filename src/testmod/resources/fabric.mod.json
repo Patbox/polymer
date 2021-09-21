@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "polymertest",
+  "id": "apolymertest",
   "version": "${version}",
 
   "name": "test",
