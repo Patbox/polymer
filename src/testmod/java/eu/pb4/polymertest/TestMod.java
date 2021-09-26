@@ -48,6 +48,9 @@ public class TestMod implements ModInitializer {
     public static Block SELF_REFERENCE_BLOCK = new SelfReferenceBlock(AbstractBlock.Settings.copy(Blocks.STONE));
     public static Item WRAPPED_ITEM = new BasicVirtualItem(new FabricItemSettings().group(ITEM_GROUP), ITEM);
 
+    public static Block WEAK_GLASS_BLOCK = new WeakGlassBlock(AbstractBlock.Settings.copy(Blocks.GLASS));
+    public static Item WEAK_GLASS_BLOCK_ITEM = new VirtualBlockItem(WEAK_GLASS_BLOCK, new Item.Settings(), Items.GLASS);
+
     public static TestBowItem BOW_1 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow");
     public static TestBowItem BOW_2 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow2");
 
@@ -77,7 +80,8 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.BLOCK, new Identifier("test", "wrapped_block"), WRAPPED_BLOCK);
         Registry.register(Registry.BLOCK, new Identifier("test", "self_block"), SELF_REFERENCE_BLOCK);
         Registry.register(Registry.ITEM, new Identifier("test", "wrapped_item"), WRAPPED_ITEM);
-
+        Registry.register(Registry.BLOCK, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK);
+        Registry.register(Registry.ITEM, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK_ITEM);
         ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
         Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);

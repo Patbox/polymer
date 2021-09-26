@@ -21,7 +21,7 @@ public class AbstractBlockMixin {
     private void polymer_replaceOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (this instanceof VirtualBlock block) {
             var clientState = BlockHelper.getBlockStateSafely(block, state);
-            if (clientState.getBlock() != block) {
+            if (!(clientState.getBlock() instanceof VirtualBlock)) {
                 cir.setReturnValue(clientState.getOutlineShape(world, pos, context));
             }
         }
@@ -31,8 +31,8 @@ public class AbstractBlockMixin {
     private void polymer_replaceCollision(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (this instanceof VirtualBlock block) {
             var clientState = BlockHelper.getBlockStateSafely(block, state);
-            if (clientState.getBlock() != block) {
-                cir.setReturnValue(clientState.getCameraCollisionShape(world, pos, context));
+            if (!(clientState.getBlock() instanceof VirtualBlock)) {
+                cir.setReturnValue(clientState.getCollisionShape(world, pos, context));
             }
         }
     }
