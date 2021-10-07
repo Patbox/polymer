@@ -15,10 +15,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(BlockEventS2CPacket.class)
 public class BlockEventS2CPacketMixin {
+    @Final
     @Shadow @Mutable
     private Block block;
 
@@ -31,7 +31,7 @@ public class BlockEventS2CPacketMixin {
     private void polymer_replaceBlockClient(CallbackInfoReturnable<Block> cir) {
         if (ClientUtils.isSingleplayer() && this.polymer_oldBlock == null && this.block instanceof VirtualBlock virtualBlock) {
             this.polymer_oldBlock = this.block;
-            this.block = BlockHelper.getBlockSafely(virtualBlock, PolymerUtils.getPlayer().getServerWorld(), this.pos);
+            this.block = BlockHelper.getBlockSafely(virtualBlock, PolymerUtils.getPlayer().getWorld(), this.pos);
         }
     }
 
@@ -39,7 +39,7 @@ public class BlockEventS2CPacketMixin {
     private void polymer_replaceBlock(PacketByteBuf byteBuf, CallbackInfo ci) {
         if (polymer_oldBlock == null && this.block instanceof VirtualBlock virtualBlock) {
             this.polymer_oldBlock = block;
-            this.block = BlockHelper.getBlockSafely(virtualBlock, PolymerUtils.getPlayer().getServerWorld(), this.pos);
+            this.block = BlockHelper.getBlockSafely(virtualBlock, PolymerUtils.getPlayer().getWorld(), this.pos);
         }
     }
 }

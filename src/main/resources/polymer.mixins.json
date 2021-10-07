@@ -8,6 +8,7 @@
     "block.BlockEventS2CPacketMixin",
     "block.BlockPaletteMixin",
     "block.BlockUpdateS2CPacketMixin",
+    "block.ChunkDataMixin",
     "block.ChunkDataS2CPacketMixin",
     "block.ChunkDeltaUpdateS2CPacketAccessor",
     "block.ChunkDeltaUpdateS2CPacketMixin",

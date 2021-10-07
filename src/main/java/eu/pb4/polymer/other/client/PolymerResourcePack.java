@@ -48,7 +48,7 @@ public class PolymerResourcePack extends DirectoryResourcePack {
                             new TranslatableText("text.polymer.resource_pack.name"),
                             ResourcePackUtils.isRequired(),
                             () -> pack,
-                            new PackResourceMetadata(new TranslatableText("text.polymer.resource_pack.description" + (ResourcePackUtils.isRequired() ? ".required" : "")), SharedConstants.field_29738),
+                            new PackResourceMetadata(new TranslatableText("text.polymer.resource_pack.description" + (ResourcePackUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION),
                             ResourcePackProfile.InsertionPosition.TOP,
                             ResourcePackSource.PACK_SOURCE_BUILTIN
                     ));

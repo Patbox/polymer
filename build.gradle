@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.9-SNAPSHOT'
+	id 'fabric-loom' version '0.10-SNAPSHOT'
 	id 'io.github.juuxel.loom-quiltflower' version '1.3.0'
 	id 'maven-publish'
 }
@@ -34,6 +34,8 @@ sourceSets {
 }
 
 loom {
+	accessWidenerPath = file("src/main/resources/polymer.accesswidener")
+
 	runs {
 		testmodClient {
 			client()
@@ -57,12 +59,12 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modRuntime "supercoder79:databreaker:0.2.7"
+//	modRuntime "supercoder79:databreaker:0.2.7"
 
-	modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
+//	modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
 
 	modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.0'
 
@@ -70,9 +72,9 @@ dependencies {
 
 	//modCompileOnly "me.shedaniel:RoughlyEnoughItems-api:6.0.279-alpha"
 
-	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.17.1")
+	modImplementation include(/*"xyz.nucleoid:packet-tweaker:0.2.0+1.17.1"*/ "com.github.arthurbambou:packet-tweaker:1.18-SNAPSHOT")
 
-	modRuntime "fr.catcore:server-translations-api:1.4.5+1.17"
+	modRuntimeOnly "com.github.arthurbambou:Server-Translations:1.18-SNAPSHOT" //"fr.catcore:server-translations-api:1.4.5+1.17"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

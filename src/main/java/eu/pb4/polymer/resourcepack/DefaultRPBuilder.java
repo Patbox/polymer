@@ -226,7 +226,7 @@ class DefaultRPBuilder implements RPBuilder {
                     Files.writeString(packMCData, "" +
                             "{\n" +
                             "   \"pack\":{\n" +
-                            "      \"pack_format\":" + SharedConstants.field_29738 + ",\n" +
+                            "      \"pack_format\":" + SharedConstants.RESOURCE_PACK_VERSION + ",\n" +
                             "      \"description\":\"Server resource pack\"\n" +
                             "   }\n" +
                             "}\n");

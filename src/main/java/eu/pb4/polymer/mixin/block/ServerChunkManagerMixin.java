@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.block.BlockHelper;
-import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.interfaces.WorldChunkInterface;
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import net.minecraft.block.BlockState;
@@ -13,7 +12,6 @@ import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.chunk.WorldChunk;
@@ -25,12 +23,11 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mixin(ServerChunkManager.class)
 public abstract class ServerChunkManagerMixin {
@@ -41,7 +38,7 @@ public abstract class ServerChunkManagerMixin {
 
     @Shadow
     @Final
-    private ServerWorld world;
+    ServerWorld world;
 
     @Shadow
     public abstract ServerLightingProvider getLightingProvider();
@@ -50,7 +47,7 @@ public abstract class ServerChunkManagerMixin {
     @Nullable
     public abstract WorldChunk getWorldChunk(int chunkX, int chunkZ);
 
-    @Shadow @Final private ServerLightingProvider lightingProvider;
+    @Shadow @Final ServerLightingProvider lightingProvider;
     @Unique
     private final Object2LongArrayMap<ChunkSectionPos> lastUpdates = new Object2LongArrayMap<>();
 
@@ -66,7 +63,7 @@ public abstract class ServerChunkManagerMixin {
                         BitSet bitSet = new BitSet();
                         bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
                         Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
-                        Set<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false).collect(Collectors.toSet());
+                        Set<ServerPlayerEntity> players = new HashSet<>(this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false));
                         if (players.size() > 0) {
                             this.lastUpdates.put(pos, System.currentTimeMillis());
                             for (ServerPlayerEntity player : players) {

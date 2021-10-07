@@ -8,17 +8,14 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.TickScheduler;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.source.BiomeArray;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ProtoChunk;
-import net.minecraft.world.chunk.UpgradeData;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.*;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,20 +27,18 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 @Mixin(WorldChunk.class)
-public abstract class WorldChunkMixin implements WorldChunkInterface {
+public abstract class WorldChunkMixin extends Chunk implements WorldChunkInterface {
     private final Set<BlockPos> virtualBlocks = new HashSet<>();
 
-    @Shadow
-    public abstract ChunkPos getPos();
-
-    @Shadow
-    public abstract ChunkSection[] getSectionArray();
+    public WorldChunkMixin(ChunkPos chunkPos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> registry, long l, @Nullable ChunkSection[] chunkSections, TickScheduler<Block> tickScheduler, TickScheduler<Fluid> tickScheduler2) {
+        super(chunkPos, upgradeData, heightLimitView, registry, l, chunkSections, tickScheduler, tickScheduler2);
+    }
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/TickScheduler;Lnet/minecraft/world/TickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;)V",
+            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/TickScheduler;Lnet/minecraft/world/TickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;)V",
             at = @At("TAIL")
     )
-    private void polymer_virtualBlocksInit1(World world, ChunkPos pos, BiomeArray biomes, UpgradeData upgradeData, TickScheduler<Block> blockTickScheduler, TickScheduler<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable ChunkSection[] sections, @Nullable Consumer<WorldChunk> loadToWorldConsumer, CallbackInfo info) {
+    private void polymer_virtualBlocksInit1(World world, ChunkPos pos, UpgradeData upgradeData, TickScheduler<Block> blockTickScheduler, TickScheduler<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable ChunkSection[] sections, @Nullable Consumer<WorldChunk> loadToWorldConsumer, CallbackInfo info) {
         this.polymer_generateVirtualBlockSet();
     }
 
@@ -56,10 +51,10 @@ public abstract class WorldChunkMixin implements WorldChunkInterface {
     }
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;)V",
+            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;)V",
             at = @At("TAIL")
     )
-    private void polymer_virtualBlocksInit3(World world, ChunkPos pos, BiomeArray biomes, CallbackInfo ci) {
+    private void polymer_virtualBlocksInit3(World world, ChunkPos pos, CallbackInfo ci) {
         this.polymer_generateVirtualBlockSet();
     }
 

@@ -1,0 +1,3 @@
+accessWidener v1 named
+
+accessible method net/minecraft/network/packet/s2c/play/BlockEntityUpdateS2CPacket <init> (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/entity/BlockEntityType;Lnet/minecraft/nbt/NbtCompound;)V

@@ -34,7 +34,7 @@ public class PlayerActionResponseS2CPacketMixin {
 
 
     @Environment(EnvType.CLIENT)
-    @Inject(method = "getBlockState", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "pos", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
         if (this.state.getBlock() instanceof VirtualBlock virtualBlock) {
             if (this.cachedBlockState == null) {
