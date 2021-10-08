@@ -3,7 +3,7 @@ package eu.pb4.polymer.resourcepack;
 import com.google.gson.JsonParser;
 import eu.pb4.polymer.PolymerMod;
 import eu.pb4.polymer.other.Event;
-import eu.pb4.polymer.other.PlayerRP;
+import eu.pb4.polymer.other.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.other.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -87,11 +87,11 @@ public class ResourcePackUtils {
      * @return True if player has a server resourcepack
      */
     public static boolean hasPack(ServerPlayerEntity player) {
-        return ((PlayerRP) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
+        return ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
     }
 
     public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
-        ((PlayerRP) player.networkHandler).polymer_setResourcePack(status);
+        ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setResourcePack(status);
     }
 
     /**

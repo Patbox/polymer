@@ -28,6 +28,7 @@
     "entity.EntityTrackerUpdateS2CPacketMixin",
     "entity.LivingEntityMixin",
     "entity.MobSpawnS2CPacketMixin",
+    "entity.PlayerSpawnS2CPacketAccessor",
     "item.ItemStackContentMixin",
     "item.ItemStackMixin",
     "item.PacketByteBufMixin",

@@ -34,7 +34,7 @@ public final class DualList<T> implements List<T> {
     @Deprecated
     @Override
     public int size() {
-        return this.firstArrayList.size();
+        return this.offsetArrayList.isEmpty() ? this.firstArrayList.size() : this.offset + this.offsetArrayList.size();
     }
 
     @Override

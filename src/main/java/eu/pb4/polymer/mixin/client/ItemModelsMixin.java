@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ItemModels.class)
 public class ItemModelsMixin {
-    @ModifyVariable(method = "getModel(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/render/model/BakedModel;", at = @At("HEAD"))
+    @ModifyVariable(method = "getModel(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/render/model/BakedModel;", at = @At("HEAD"), require = 0)
     private ItemStack polymer_replaceItemStack(ItemStack stack) {
         return stack.getItem() instanceof VirtualItem item ? item.getVirtualItemStack(stack, PolymerUtils.getPlayer()) : stack;
     }

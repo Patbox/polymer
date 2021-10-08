@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(BuiltinModelItemRenderer.class)
 public class BuiltinModelItemRendererMixin {
-    @ModifyVariable(method = "render", at = @At("HEAD"))
+    @ModifyVariable(method = "render", at = @At("HEAD"), require = 0)
     private ItemStack polymer_replaceItem(ItemStack stack) {
         return stack.getItem() instanceof VirtualItem item ? item.getVirtualItemStack(stack, PolymerUtils.getPlayer()) : stack;
     }

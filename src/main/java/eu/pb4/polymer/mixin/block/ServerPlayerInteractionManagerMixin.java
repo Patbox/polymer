@@ -32,9 +32,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
     @Shadow
-    public ServerPlayerEntity player;
+    protected ServerPlayerEntity player;
     @Shadow
-    public ServerWorld world;
+    protected ServerWorld world;
     @Shadow
     private int tickCounter;
     @Shadow
@@ -81,15 +81,20 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.polymer_shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
+        var state = this.player.getServerWorld().getBlockState(pos);
+        if (this.polymer_shouldMineServerSide(pos, state)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
-                this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
-            } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
-                this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(this.player.getId(), StatusEffects.MINING_FATIGUE));
-                if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
-                    StatusEffectInstance effectInstance = player.getStatusEffect(StatusEffects.MINING_FATIGUE);
-                    this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
+                if (state.getBlock() instanceof VirtualBlock virtualBlock) {
+                    state = BlockHelper.getBlockStateSafely(virtualBlock, state);
                 }
+
+                float delta = state.calcBlockBreakingDelta(this.player, this.world, pos);
+
+                if (delta < 1.0f) {
+                    this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
+                }
+            } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
+                this.polymer_clearMiningEffect();
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
             }
         }
@@ -106,11 +111,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "finishMining", at = @At("HEAD"))
     private void polymer_clearEffects(BlockPos pos, PlayerActionC2SPacket.Action action, String reason, CallbackInfo ci) {
-        this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
-        if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
-            StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
-            this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
-        }
+        this.polymer_clearMiningEffect();
     }
 
 
@@ -118,6 +119,13 @@ public abstract class ServerPlayerInteractionManagerMixin {
         return state.getBlock() instanceof VirtualBlock || this.player.getMainHandStack().getItem() instanceof VirtualItem || BlockHelper.SERVER_SIDE_MINING_CHECK.invoke(this.player, pos, state);
     }
 
+    private void polymer_clearMiningEffect() {
+        this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
+        if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
+            StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
+            this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
+        }
+    }
 
     @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)
     private void polymer_noOneCaresAboutMismatch(Logger logger, String message, Object p0, Object p1) {

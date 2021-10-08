@@ -17,9 +17,12 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.function.Predicate;
 
-public class BlockHelper {
+public final class BlockHelper {
     public static final int NESTED_DEFAULT_DISTANCE = 32;
+
+    public static final Predicate<BlockState> IS_VIRTUAL_BLOCK_STATE_PREDICATE = state -> state.getBlock() instanceof VirtualBlock;
 
     /**
      * This event allows you to force server side mining for any block/item
