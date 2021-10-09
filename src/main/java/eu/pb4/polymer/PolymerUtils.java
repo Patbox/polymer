@@ -15,7 +15,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
  */
 public class PolymerUtils {
     public static final String ID = "polymer";
-    public static final int BLOCK_STATE_OFFSET = Integer.MAX_VALUE / 4;
+    public static final int BLOCK_STATE_OFFSET = Integer.MAX_VALUE / 64;
     /**
      * Returns player if it's known to polymer (otherwise null!)
      */
