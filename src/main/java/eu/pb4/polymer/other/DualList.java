@@ -136,11 +136,11 @@ public final class DualList<T> implements List<T> {
     }
 
     public ArrayList<T> getArrayForIndex(int index) {
-        return index < this.offset ? this.firstArrayList : this.offsetArrayList;
+        return index <= this.offset ? this.firstArrayList : this.offsetArrayList;
     }
 
     public int normalizeIndex(int index) {
-        return index < this.offset ? index : index - this.offset;
+        return index <= this.offset ? index : index - this.offset;
     }
 
     @Override
@@ -155,6 +155,9 @@ public final class DualList<T> implements List<T> {
     public T set(int index, T element) {
         var array = this.getArrayForIndex(index);
         index = normalizeIndex(index);
+        while(array.size() <= index) {
+            array.add(null);
+        }
 
         return array.set(index, element);
     }
