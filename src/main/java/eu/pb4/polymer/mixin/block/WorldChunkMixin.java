@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.block;
 
+import eu.pb4.polymer.block.BlockHelper;
 import eu.pb4.polymer.block.VirtualBlock;
 import eu.pb4.polymer.interfaces.WorldChunkInterface;
 import net.minecraft.block.Block;
@@ -63,12 +64,16 @@ public abstract class WorldChunkMixin extends Chunk implements WorldChunkInterfa
     private void polymer_generateVirtualBlockSet() {
         for (var section : this.getSectionArray()) {
             if (section != null && !section.isEmpty()) {
-                for (byte x = 0; x < 16; x++) {
-                    for (byte z = 0; z < 16; z++) {
-                        for (byte y = 0; y < 16; y++) {
-                            BlockState state = section.getBlockState(x, y, z);
-                            if (state.getBlock() instanceof VirtualBlock) {
-                                this.virtualBlocks.add(new BlockPos(x + this.getPos().getStartX(), y + section.getYOffset(), z + this.getPos().getStartZ()));
+                var container = section.getContainer();
+                if (container.hasAny(BlockHelper.IS_VIRTUAL_BLOCK_STATE_PREDICATE)) {
+                    BlockState state;
+                    for (byte x = 0; x < 16; x++) {
+                        for (byte z = 0; z < 16; z++) {
+                            for (byte y = 0; y < 16; y++) {
+                                state = container.get(x, y, z);
+                                if (state.getBlock() instanceof VirtualBlock) {
+                                    this.virtualBlocks.add(new BlockPos(x + this.getPos().getStartX(), y + section.getYOffset(), z + this.getPos().getStartZ()));
+                                }
                             }
                         }
                     }

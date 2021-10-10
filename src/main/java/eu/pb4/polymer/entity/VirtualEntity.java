@@ -1,9 +1,7 @@
 package eu.pb4.polymer.entity;
 
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.interfaces.VirtualObject;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -51,6 +49,11 @@ public interface VirtualEntity extends VirtualObject {
      */
     @Deprecated(forRemoval = true)
     default void sendPackets(Consumer<Packet<?>> sender) {}
+
+    /**
+     * Allows to send packets before entity's spawn packet, useful for Player Virtual Entities
+     */
+    default void beforeEntitySpawnPacket(Consumer<Packet<?>> packetConsumer) {}
 
 
     /**

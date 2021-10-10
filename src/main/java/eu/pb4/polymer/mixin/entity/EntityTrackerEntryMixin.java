@@ -2,12 +2,11 @@ package eu.pb4.polymer.mixin.entity;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.entity.VirtualEntity;
-import eu.pb4.polymer.other.Helpers;
+import eu.pb4.polymer.other.InternalHelpers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
@@ -18,7 +17,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
@@ -33,10 +31,21 @@ public class EntityTrackerEntryMixin {
 
     @ModifyVariable(method = "sendPackets", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/attribute/AttributeContainer;getAttributesToSend()Ljava/util/Collection;"))
     private Collection<EntityAttributeInstance> polymer_sendAttributesOnlyForLivingVirtual(Collection<EntityAttributeInstance> attributes) {
-        if (this.entity instanceof VirtualEntity entity && !Helpers.isLivingEntity(entity.getVirtualEntityType())) {
+        if (this.entity instanceof VirtualEntity entity && !InternalHelpers.isLivingEntity(entity.getVirtualEntityType())) {
             return Collections.emptyList();
         }
         return attributes;
+    }
+
+    @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/Packet;"))
+    private void polymer_sendPacketsBeforeSpawning(Consumer<Packet<?>> sender, CallbackInfo ci) {
+        try {
+            if (this.entity instanceof VirtualEntity virtualEntity) {
+                virtualEntity.beforeEntitySpawnPacket(sender);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Inject(method = "sendPackets", at = @At("TAIL"))

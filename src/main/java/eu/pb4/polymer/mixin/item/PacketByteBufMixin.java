@@ -8,9 +8,12 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -31,7 +34,7 @@ public class PacketByteBufMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
     private void polymer_replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir) {
-        if (!PolymerUtils.isOnClientSide()) {
+        if (PolymerUtils.getPlayer() != null) {
             cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
         }
     }

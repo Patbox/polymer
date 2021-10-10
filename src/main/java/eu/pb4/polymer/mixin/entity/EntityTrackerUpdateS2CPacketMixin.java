@@ -1,8 +1,9 @@
 package eu.pb4.polymer.mixin.entity;
 
+import eu.pb4.polymer.PolymerUtils;
 import eu.pb4.polymer.entity.VirtualEntity;
 import eu.pb4.polymer.item.ItemHelper;
-import eu.pb4.polymer.other.Helpers;
+import eu.pb4.polymer.other.InternalHelpers;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -32,7 +33,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
         Entity entity = ((DataTrackerAccessor) tracker).getTrackedEntity();
 
         if (entity instanceof VirtualEntity) {
-            List<DataTracker.Entry<?>> legalTrackedData = Helpers.getExampleTrackedDataOfEntityType(((VirtualEntity) entity).getVirtualEntityType());
+            List<DataTracker.Entry<?>> legalTrackedData = InternalHelpers.getExampleTrackedDataOfEntityType(((VirtualEntity) entity).getVirtualEntityType());
 
             if (legalTrackedData.size() > 0) {
                 List<DataTracker.Entry<?>> entries = new ArrayList<>();
@@ -66,7 +67,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
     private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
         if (MinecraftClient.getInstance().getServer() != null) {
             List<DataTracker.Entry<?>> list = new ArrayList<>();
-            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+            ServerPlayerEntity player = PolymerUtils.getPlayer();
 
             for (DataTracker.Entry<?> entry : cir.getReturnValue()) {
                 if (entry.get() instanceof ItemStack stack) {

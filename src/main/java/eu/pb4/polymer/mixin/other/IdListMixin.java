@@ -41,6 +41,6 @@ public class IdListMixin implements NetworkIdList {
     @Override
     public void polymer_enableOffset() {
         this.polymer_offsetBlockStates = true;
-        this.list = new DualList<>((ArrayList<Object>) this.list, new ArrayList<>(), Integer.MAX_VALUE / 2);
+        this.list = new DualList<>((ArrayList<Object>) this.list, new ArrayList<>(), PolymerUtils.BLOCK_STATE_OFFSET);
     }
 }

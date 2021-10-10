@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ModelLoader.class)
 public class ModelLoaderMixin {
-    @ModifyVariable(method = "<init>", at = @At("STORE"), ordinal = 0)
+    @ModifyVariable(method = "<init>", at = @At("STORE"), ordinal = 0, require = 0)
     private Identifier polymer_skipPolymerItems(Identifier identifier) {
         return Registry.ITEM.get(identifier) instanceof VirtualItem ? new Identifier("air") : identifier;
     }

@@ -1,5 +1,6 @@
 package eu.pb4.polymer.other;
 
+import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.PolymerMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -7,21 +8,29 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @ApiStatus.Internal
-public class Helpers {
+public class InternalHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
     private static final PigEntity PIG = new PigEntity(EntityType.PIG, FakeWorld.INSTANCE);
 
     public static List<DataTracker.Entry<?>> getExampleTrackedDataOfEntityType(EntityType<?> type) {
         return getEntity(type).getDataTracker().getAllEntries();
+    }
+
+    public static <T extends Entity> Class<T> getEntityClass(EntityType<T> type) {
+        return (Class<T>) getEntity(type).getClass();
     }
 
     public static boolean isLivingEntity(EntityType<?> type) {
@@ -32,7 +41,7 @@ public class Helpers {
         return getEntity(type) instanceof MobEntity;
     }
 
-    private static Entity getEntity(EntityType<?> type) {
+    public static Entity getEntity(EntityType<?> type) {
         Entity entity = EXAMPLE_ENTITIES.get(type);
 
         if (entity == null) {
@@ -40,6 +49,7 @@ public class Helpers {
                 entity = type.create(FakeWorld.INSTANCE);
             } catch (Exception e) {
                 PolymerMod.LOGGER.warn(String.format("Couldn't create template entity of %s (%s)... Defaulting to empty", Registry.ENTITY_TYPE.getId(type), type.getBaseClass().toString()));
+                PolymerMod.LOGGER.warn(e);
                 entity = FakeEntity.INSTANCE;
             }
             EXAMPLE_ENTITIES.put(type, entity);
@@ -54,5 +64,21 @@ public class Helpers {
 
     public static PigEntity getTacticalPig() {
         return PIG;
+    }
+
+    static {
+        EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "NPC")) {
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return false;
+            }
+        });
+
+        EXAMPLE_ENTITIES.put(EntityType.PIG, PIG);
     }
 }

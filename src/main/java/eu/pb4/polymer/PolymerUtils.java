@@ -1,8 +1,11 @@
 package eu.pb4.polymer;
 
+import eu.pb4.polymer.other.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.other.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.Packet;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -12,7 +15,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
  */
 public class PolymerUtils {
     public static final String ID = "polymer";
-    public static final int BLOCK_STATE_OFFSET = Integer.MAX_VALUE / 4;
+    public static final int BLOCK_STATE_OFFSET = Integer.MAX_VALUE / 64;
     /**
      * Returns player if it's known to polymer (otherwise null!)
      */
@@ -47,5 +50,15 @@ public class PolymerUtils {
         } else {
             return ClientUtils.isClientSide();
         }
+    }
+
+    /**
+     * Schedules a packet sending
+     * @param handler used for packet sending
+     * @param packet sent packet
+     * @param duration time (in ticks) waited before packet is send
+     */
+    public static void schedulePacket(ServerPlayNetworkHandler handler, Packet<?> packet, int duration) {
+        ((PolymerNetworkHandlerExtension) handler).polymer_schedulePacket(packet, duration);
     }
 }
