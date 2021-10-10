@@ -83,7 +83,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        var state = this.player.getServerWorld().getBlockState(pos);
+        var state = this.player.getWorld().getBlockState(pos);
         if (this.polymer_shouldMineServerSide(pos, state)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 if (state.getBlock() instanceof VirtualBlock virtualBlock) {
