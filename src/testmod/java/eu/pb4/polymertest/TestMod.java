@@ -113,5 +113,9 @@ public class TestMod implements ModInitializer {
 
             return 0;
         })));
+
+        var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
+        System.out.println(id);
+        System.out.println(Block.STATE_IDS.get(id));
     }
 }

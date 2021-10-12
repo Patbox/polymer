@@ -148,7 +148,7 @@ public final class DualList<T> implements List<T> {
         var array = this.getArrayForIndex(index);
         index = normalizeIndex(index);
 
-        return array.get(index);
+        return array.size() > index ? array.get(index) : null;
     }
 
     @Override
