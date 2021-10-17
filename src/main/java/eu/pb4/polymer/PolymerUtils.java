@@ -52,6 +52,14 @@ public class PolymerUtils {
         }
     }
 
+    public static boolean isOnPlayerNetworking() {
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+            return getPlayer() != null;
+        } else {
+            return getPlayer() != null || ClientUtils.isSingleplayer();
+        }
+    }
+
     /**
      * Schedules a packet sending
      * @param handler used for packet sending

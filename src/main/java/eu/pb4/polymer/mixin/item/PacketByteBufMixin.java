@@ -22,7 +22,12 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public class PacketByteBufMixin {
     @ModifyVariable(method = "writeItemStack", at = @At("HEAD"), ordinal = 0)
     private ItemStack polymer_replaceWithVanillaItem(ItemStack itemStack) {
-        return ItemHelper.getVirtualItemStack(itemStack, PacketContext.get().getTarget());
+        var player = PolymerUtils.getPlayer();
+        if (player != null) {
+            return ItemHelper.getVirtualItemStack(itemStack, player);
+        } else {
+            return itemStack;
+        }
     }
 
     @Environment(EnvType.SERVER)
@@ -34,7 +39,7 @@ public class PacketByteBufMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
     private void polymer_replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir) {
-        if (PolymerUtils.getPlayer() != null) {
+        if (PolymerUtils.isOnPlayerNetworking()) {
             cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
         }
     }
