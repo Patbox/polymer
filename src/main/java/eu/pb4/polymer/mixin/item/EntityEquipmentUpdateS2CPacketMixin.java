@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.item;
 
 import com.mojang.datafixers.util.Pair;
-import eu.pb4.polymer.item.ItemHelper;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class EntityEquipmentUpdateS2CPacketMixin {
             ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
 
             for (Pair<EquipmentSlot, ItemStack> pair : cir.getReturnValue()) {
-                list.add(new Pair<>(pair.getFirst(), ItemHelper.getVirtualItemStack(pair.getSecond(), player)));
+                list.add(new Pair<>(pair.getFirst(), PolymerItemUtils.getPolymerItemStack(pair.getSecond(), player)));
             }
 
             cir.setReturnValue(list);

@@ -1,6 +1,6 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.item.BasicVirtualItem;
+import eu.pb4.polymer.api.item.SimplePolymerItem;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-public class TestItem extends BasicVirtualItem {
+public class TestItem extends SimplePolymerItem {
     private Random random = new Random();
     public TestItem(Item.Settings settings, Item virtualItem) {
         super(settings, virtualItem);

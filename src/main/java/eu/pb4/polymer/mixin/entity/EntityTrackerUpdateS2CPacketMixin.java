@@ -1,9 +1,9 @@
 package eu.pb4.polymer.mixin.entity;
 
-import eu.pb4.polymer.PolymerUtils;
-import eu.pb4.polymer.entity.VirtualEntity;
-import eu.pb4.polymer.item.ItemHelper;
-import eu.pb4.polymer.other.InternalHelpers;
+import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -32,8 +32,8 @@ public class EntityTrackerUpdateS2CPacketMixin {
     private void polymer_removeInvalidEntries(int id, DataTracker tracker, boolean forceUpdateAll, CallbackInfo ci) {
         Entity entity = ((DataTrackerAccessor) tracker).getTrackedEntity();
 
-        if (entity instanceof VirtualEntity) {
-            List<DataTracker.Entry<?>> legalTrackedData = InternalHelpers.getExampleTrackedDataOfEntityType(((VirtualEntity) entity).getVirtualEntityType());
+        if (entity instanceof PolymerEntity polymerEntity) {
+            List<DataTracker.Entry<?>> legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType()));
 
             if (legalTrackedData.size() > 0) {
                 List<DataTracker.Entry<?>> entries = new ArrayList<>();
@@ -46,7 +46,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
                     }
                 }
 
-                ((VirtualEntity) entity).modifyTrackedData(entries);
+                polymerEntity.modifyTrackedData(entries);
                 this.trackedValues = entries;
             } else {
                 List<DataTracker.Entry<?>> list = new ArrayList<>();
@@ -56,7 +56,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
                     }
                 }
 
-                ((VirtualEntity) entity).modifyTrackedData(list);
+                polymerEntity.modifyTrackedData(list);
                 this.trackedValues = list;
             }
         }
@@ -71,7 +71,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
             for (DataTracker.Entry<?> entry : cir.getReturnValue()) {
                 if (entry.get() instanceof ItemStack stack) {
-                    list.add(new DataTracker.Entry(entry.getData(), ItemHelper.getVirtualItemStack(stack, player)));
+                    list.add(new DataTracker.Entry(entry.getData(), PolymerItemUtils.getPolymerItemStack(stack, player)));
                 } else {
                     list.add(entry);
                 }

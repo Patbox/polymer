@@ -4,10 +4,9 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
-import eu.pb4.polymer.PolymerUtils;
-import eu.pb4.polymer.entity.EntityHelper;
-import eu.pb4.polymer.entity.VirtualEntity;
-import eu.pb4.polymertest.mixin.AECAccessor;
+import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.data.DataTracker;
@@ -15,22 +14,16 @@ import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Util;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class TestEntity2 extends CreeperEntity implements VirtualEntity {
+public class TestEntity2 extends CreeperEntity implements PolymerEntity {
     public TestEntity2(EntityType<TestEntity2> entityEntityType, World world) {
         super(entityEntityType, world);
     }
@@ -40,7 +33,7 @@ public class TestEntity2 extends CreeperEntity implements VirtualEntity {
     }
 
     @Override
-    public List<Pair<EquipmentSlot, ItemStack>> getVirtualEntityEquipment(Map<EquipmentSlot, ItemStack> map) {
+    public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(Map<EquipmentSlot, ItemStack> map) {
         List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(map.size());
         list.add(Pair.of(EquipmentSlot.MAINHAND, Items.DIAMOND.getDefaultStack()));
         list.add(Pair.of(EquipmentSlot.HEAD, TestMod.TATER_BLOCK_ITEM.getDefaultStack()));
@@ -48,17 +41,17 @@ public class TestEntity2 extends CreeperEntity implements VirtualEntity {
     }
 
     @Override
-    public EntityType<?> getVirtualEntityType() {
+    public EntityType<?> getPolymerEntityType() {
         return EntityType.PLAYER;
     }
 
     @Override
     public Packet<?> createSpawnPacket() {
-        return EntityHelper.createPlayerSpawnPacket(this);
+        return PolymerEntityUtils.createPlayerSpawnPacket(this);
     }
 
     @Override
-    public void beforeEntitySpawnPacket(Consumer<Packet<?>> packetConsumer) {
+    public void onBeforeSpawnPacket(Consumer<Packet<?>> packetConsumer) {
         var packet = new PlayerListS2CPacket(PlayerListS2CPacket.Action.ADD_PLAYER);
         var gameprofile = new GameProfile(this.getUuid(), "Test NPC");
         gameprofile.getProperties().put("textures", new Property("textures",

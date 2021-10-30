@@ -1,12 +1,13 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.block.BasicVirtualBlock;
-import eu.pb4.polymer.entity.EntityHelper;
-import eu.pb4.polymer.item.BasicVirtualItem;
-import eu.pb4.polymer.item.ItemHelper;
-import eu.pb4.polymer.item.VirtualBlockItem;
-import eu.pb4.polymer.item.VirtualHeadBlockItem;
-import eu.pb4.polymer.resourcepack.ResourcePackUtils;
+import eu.pb4.polymer.api.block.SimplePolymerBlock;
+import eu.pb4.polymer.api.entity.PolymerEntityUtils;
+import eu.pb4.polymer.api.item.SimplePolymerItem;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.item.PolymerBlockItem;
+import eu.pb4.polymer.api.item.PolymerHeadBlockItem;
+import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
@@ -14,14 +15,12 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.fabricmc.fabric.impl.registry.sync.FabricRegistry;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -44,22 +43,22 @@ public class TestMod implements ModInitializer {
             new Identifier("test", "general"),
             () -> new ItemStack(TestMod.ITEM));
 
-    public static BasicVirtualItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
-    public static BasicVirtualItem ITEM_2 = new BasicVirtualItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
+    public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
+    public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
     public static Block BLOCK = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
-    public static BlockItem BLOCK_ITEM = new VirtualBlockItem(BLOCK, new FabricItemSettings(), Items.STONE);
-    public static Block BLOCK_2 = new BasicVirtualBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
-    public static BlockItem BLOCK_ITEM_2 = new VirtualBlockItem(BLOCK_2, new FabricItemSettings().group(ITEM_GROUP), Items.TNT);
+    public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings(), Items.STONE);
+    public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
+    public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new FabricItemSettings().group(ITEM_GROUP), Items.TNT);
     public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
-    public static BlockItem TATER_BLOCK_ITEM = new VirtualHeadBlockItem(TATER_BLOCK, new FabricItemSettings().group(ITEM_GROUP));
+    public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new FabricItemSettings().group(ITEM_GROUP));
     public static TestPickaxeItem PICKAXE = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings().group(ITEM_GROUP));
     public static TestHelmetItem HELMET = new TestHelmetItem(new FabricItemSettings().group(ITEM_GROUP));
-    public static Block WRAPPED_BLOCK = new BasicVirtualBlock(AbstractBlock.Settings.copy(BLOCK), BLOCK);
+    public static Block WRAPPED_BLOCK = new SimplePolymerBlock(AbstractBlock.Settings.copy(BLOCK), BLOCK);
     public static Block SELF_REFERENCE_BLOCK = new SelfReferenceBlock(AbstractBlock.Settings.copy(Blocks.STONE));
-    public static Item WRAPPED_ITEM = new BasicVirtualItem(new FabricItemSettings().group(ITEM_GROUP), ITEM);
+    public static Item WRAPPED_ITEM = new SimplePolymerItem(new FabricItemSettings().group(ITEM_GROUP), ITEM);
 
     public static Block WEAK_GLASS_BLOCK = new WeakGlassBlock(AbstractBlock.Settings.copy(Blocks.GLASS));
-    public static Item WEAK_GLASS_BLOCK_ITEM = new VirtualBlockItem(WEAK_GLASS_BLOCK, new Item.Settings(), Items.GLASS);
+    public static Item WEAK_GLASS_BLOCK_ITEM = new PolymerBlockItem(WEAK_GLASS_BLOCK, new Item.Settings(), Items.GLASS);
 
     public static TestBowItem BOW_1 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow");
     public static TestBowItem BOW_2 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow2");
@@ -69,7 +68,7 @@ public class TestMod implements ModInitializer {
     public static final EntityType<TestEntity> ENTITY = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
     public static final EntityType<TestEntity2> ENTITY_2 = FabricEntityTypeBuilder.<TestEntity2>create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
 
-    public static BasicVirtualItem ICE_ITEM = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.SNOWBALL, (player, hand) -> {
+    public static SimplePolymerItem ICE_ITEM = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.SNOWBALL, (player, hand) -> {
         var tracker = new DataTracker(null);
         tracker.startTracking(EntityAccessor.getFROZEN_TICKS(), Integer.MAX_VALUE);
         player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(player.getId(), tracker, true));
@@ -85,9 +84,9 @@ public class TestMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ResourcePackUtils.addModAsAssetsSource("polymertest");
-        //ResourcePackUtils.markAsRequired();
-        //ResourcePackUtils.addModAsAssetsSource("promenade");
+        PolymerRPUtils.addAssetSource("polymertest");
+        //PolymerRPUtils.markAsRequired();
+        //PolymerRPUtils.addModAsAssetsSource("promenade");
 
         Registry.register(Registry.ITEM, new Identifier("test", "item"), ITEM);
         Registry.register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
@@ -115,11 +114,11 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), ENTITY_2);
         FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
 
-        EntityHelper.registerVirtualEntityType(ENTITY, ENTITY_2);
+        PolymerEntityUtils.registerType(ENTITY, ENTITY_2);
 
-        ItemHelper.VIRTUAL_ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
+        PolymerItemUtils.ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
 
-        ItemHelper.VIRTUAL_ITEM_MODIFICATION_EVENT.register((original, virtual, player) -> {
+        PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original, virtual, player) -> {
             if (original.hasNbt() && original.getNbt().contains("Test", NbtElement.STRING_TYPE)) {
                 ItemStack out = new ItemStack(Items.DIAMOND_SWORD, virtual.getCount());
                 out.setNbt(virtual.getNbt());
@@ -131,7 +130,7 @@ public class TestMod implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test").executes((ctx) -> {
             try {
-                ctx.getSource().sendFeedback(new LiteralText("" + ResourcePackUtils.hasPack(ctx.getSource().getPlayer())), false);
+                ctx.getSource().sendFeedback(new LiteralText("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -142,5 +141,7 @@ public class TestMod implements ModInitializer {
         var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
         System.out.println(id);
         System.out.println(Block.STATE_IDS.get(id));
+        System.out.println("Value: " + ServerPacketBuilders.getRawId(BLOCK.getDefaultState()));
+
     }
 }

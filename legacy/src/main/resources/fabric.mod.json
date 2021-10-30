@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-legacy",
+  "version": "0.1.8+1.17.1",
+  "name": "Polymer (Compatibility)",
+  "description": "Allows mods designed for previous versions of Polymer (0.1.x) to work without requiring any changes",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer"
+  },
+
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "environment": "*",
+
+  "depends": {
+    "minecraft": "1.17.x"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library",
+        "deprecated"
+      ],
+      "parent": {
+        "id": "polymer"
+      }
+    }
+  }
+}

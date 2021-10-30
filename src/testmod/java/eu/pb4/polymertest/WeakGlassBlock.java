@@ -1,6 +1,6 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.block.VirtualBlock;
+import eu.pb4.polymer.api.block.PolymerBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -11,7 +11,7 @@ import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 
-public class WeakGlassBlock extends GlassBlock implements VirtualBlock {
+public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
     public static final int DAMAGE_STATES = 4;
     public static final IntProperty DAMAGE = IntProperty.of("damage", 0, DAMAGE_STATES);
 
@@ -26,12 +26,12 @@ public class WeakGlassBlock extends GlassBlock implements VirtualBlock {
     }
 
     @Override
-    public Block getVirtualBlock() {
+    public Block getPolymerBlock(BlockState state) {
         return Blocks.GLASS;
     }
 
     @Override
-    public BlockState getVirtualBlockState(BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state) {
     return switch (state.get(DAMAGE)) {
             case 0 -> Blocks.GLASS.getDefaultState();
             case 1 -> Blocks.WHITE_STAINED_GLASS.getDefaultState();

@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.entity;
 
 import com.mojang.datafixers.util.Pair;
-import eu.pb4.polymer.entity.VirtualEntity;
+import eu.pb4.polymer.api.entity.PolymerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -23,8 +23,8 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "setEquipment", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getChunkManager()Lnet/minecraft/server/world/ServerChunkManager;"), cancellable = true)
     private void polymer_sendVirtualInventory(Map<EquipmentSlot, ItemStack> map, CallbackInfo ci) {
-        if (this instanceof VirtualEntity) {
-            List<Pair<EquipmentSlot, ItemStack>> list = ((VirtualEntity) this).getVirtualEntityEquipment(map);
+        if (this instanceof PolymerEntity polymerEntity) {
+            List<Pair<EquipmentSlot, ItemStack>> list = polymerEntity.getPolymerVisibleEquipment(map);
             if (!list.isEmpty()) {
                 ((ServerWorld) this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityEquipmentUpdateS2CPacket(this.getId(), list));
             }

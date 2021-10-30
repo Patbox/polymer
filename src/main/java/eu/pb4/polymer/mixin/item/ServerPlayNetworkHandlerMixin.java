@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.item;
 
-import eu.pb4.polymer.item.ItemHelper;
-import eu.pb4.polymer.item.VirtualItem;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.item.PolymerItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
@@ -46,8 +46,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
     private void polymer_resendToolIfItsBlockClientSide(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
-        if (itemStack.getItem() instanceof VirtualItem virtualItem) {
-            var data = ItemHelper.getItemSafely(virtualItem, itemStack, this.player);
+        if (itemStack.getItem() instanceof PolymerItem virtualItem) {
+            var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, this.player);
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
             }
@@ -69,8 +69,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
         ItemStack stack = this.player.getStackInHand(packet.getHand());
         Item item = stack.getItem();
 
-        if (stack.getItem() instanceof VirtualItem virtualItem) {
-            var data = ItemHelper.getItemSafely(virtualItem, stack, this.player);
+        if (stack.getItem() instanceof PolymerItem virtualItem) {
+            var data = PolymerItemUtils.getItemSafely(virtualItem, stack, this.player);
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand()));
             }
@@ -91,7 +91,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         if (this.player.currentScreenHandler == this.player.playerScreenHandler && packet.getSlot() != -999) {
             int x = 0;
             for (ItemStack stack : this.player.getInventory().armor) {
-                if (stack.getItem() instanceof VirtualItem && !ItemStack.areEqual(this.armorItems.get(x), stack)) {
+                if (stack.getItem() instanceof PolymerItem && !ItemStack.areEqual(this.armorItems.get(x), stack)) {
                     this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId,
                             this.player.playerScreenHandler.nextRevision(),
                             8 - x,

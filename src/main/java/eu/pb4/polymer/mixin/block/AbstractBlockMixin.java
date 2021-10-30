@@ -1,9 +1,8 @@
 package eu.pb4.polymer.mixin.block;
 
-import eu.pb4.polymer.block.BlockHelper;
-import eu.pb4.polymer.block.VirtualBlock;
+import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.util.math.BlockPos;
@@ -19,9 +18,9 @@ public class AbstractBlockMixin {
 
     @Inject(method = "getOutlineShape", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
-        if (this instanceof VirtualBlock block) {
-            var clientState = BlockHelper.getBlockStateSafely(block, state);
-            if (!(clientState.getBlock() instanceof VirtualBlock)) {
+        if (this instanceof PolymerBlock block) {
+            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state);
+            if (!(clientState.getBlock() instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getOutlineShape(world, pos, context));
             }
         }
@@ -29,9 +28,9 @@ public class AbstractBlockMixin {
 
     @Inject(method = "getCollisionShape", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceCollision(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
-        if (this instanceof VirtualBlock block) {
-            var clientState = BlockHelper.getBlockStateSafely(block, state);
-            if (!(clientState.getBlock() instanceof VirtualBlock)) {
+        if (this instanceof PolymerBlock block) {
+            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state);
+            if (!(clientState.getBlock() instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getCollisionShape(world, pos, context));
             }
         }

@@ -1,8 +1,8 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.item.VirtualItem;
-import eu.pb4.polymer.resourcepack.CMDInfo;
-import eu.pb4.polymer.resourcepack.ResourcePackUtils;
+import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.api.resourcepack.PolymerModelData;
+import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,22 +12,22 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 
-public class TestBowItem extends BowItem implements VirtualItem {
-    private final CMDInfo model;
+public class TestBowItem extends BowItem implements PolymerItem {
+    private final PolymerModelData model;
 
     public TestBowItem(Settings settings, String model) {
         super(settings);
 
-        this.model = ResourcePackUtils.requestCustomModelData(Items.BOW, new Identifier("polymertest", "item/" + model));
+        this.model = PolymerRPUtils.requestModel(Items.BOW, new Identifier("polymertest", "item/" + model));
     }
 
     @Override
-    public Item getVirtualItem() {
+    public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         return this.model.item();
     }
 
     @Override
-    public int getCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         return this.model.value();
     }
 }

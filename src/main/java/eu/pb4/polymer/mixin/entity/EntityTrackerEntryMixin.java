@@ -1,8 +1,8 @@
 package eu.pb4.polymer.mixin.entity;
 
 import com.mojang.datafixers.util.Pair;
-import eu.pb4.polymer.entity.VirtualEntity;
-import eu.pb4.polymer.other.InternalHelpers;
+import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -31,7 +31,7 @@ public class EntityTrackerEntryMixin {
 
     @ModifyVariable(method = "sendPackets", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/attribute/AttributeContainer;getAttributesToSend()Ljava/util/Collection;"))
     private Collection<EntityAttributeInstance> polymer_sendAttributesOnlyForLivingVirtual(Collection<EntityAttributeInstance> attributes) {
-        if (this.entity instanceof VirtualEntity entity && !InternalHelpers.isLivingEntity(entity.getVirtualEntityType())) {
+        if (this.entity instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType())) {
             return Collections.emptyList();
         }
         return attributes;
@@ -40,8 +40,8 @@ public class EntityTrackerEntryMixin {
     @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/Packet;"))
     private void polymer_sendPacketsBeforeSpawning(Consumer<Packet<?>> sender, CallbackInfo ci) {
         try {
-            if (this.entity instanceof VirtualEntity virtualEntity) {
-                virtualEntity.beforeEntitySpawnPacket(sender);
+            if (this.entity instanceof PolymerEntity virtualEntity) {
+                virtualEntity.onBeforeSpawnPacket(sender);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,7 +51,7 @@ public class EntityTrackerEntryMixin {
     @Inject(method = "sendPackets", at = @At("TAIL"))
     private void polymer_modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
         try {
-            if (this.entity instanceof VirtualEntity virtualEntity) {
+            if (this.entity instanceof PolymerEntity virtualEntity) {
                 if (this.entity instanceof LivingEntity livingEntity) {
                     Map<EquipmentSlot, ItemStack> map = new HashMap<>();
 
@@ -62,18 +62,16 @@ public class EntityTrackerEntryMixin {
                         }
                     }
 
-                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getVirtualEntityEquipment(map);
+                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getPolymerVisibleEquipment(map);
                     if (!list.isEmpty()) {
                         sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
                     }
                 } else {
-                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getVirtualEntityEquipment(Collections.emptyMap());
+                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getPolymerVisibleEquipment(Collections.emptyMap());
                     if (!list.isEmpty()) {
                         sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
                     }
                 }
-
-                ((VirtualEntity) this.entity).sendPackets(sender);
             }
         } catch (Exception e) {
             e.printStackTrace();

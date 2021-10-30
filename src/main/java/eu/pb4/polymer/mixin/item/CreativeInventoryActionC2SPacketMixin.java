@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.item;
 
-import eu.pb4.polymer.item.ItemHelper;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +16,7 @@ public class CreativeInventoryActionC2SPacketMixin {
     @Inject(method = "getItemStack", at = @At("TAIL"), cancellable = true)
     private void polymer_replaceWithReal(CallbackInfoReturnable<ItemStack> cir) {
         if (this.polymer_cachedItemStack == null) {
-            this.polymer_cachedItemStack = ItemHelper.getRealItemStack(cir.getReturnValue());
+            this.polymer_cachedItemStack = PolymerItemUtils.getRealItemStack(cir.getReturnValue());
         }
 
         cir.setReturnValue(this.polymer_cachedItemStack);

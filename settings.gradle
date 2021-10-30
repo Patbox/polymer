@@ -12,3 +12,4 @@ pluginManagement {
     }
 }
 rootProject.name = 'polymer'
+include 'legacy'

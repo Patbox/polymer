@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.item;
 
-import eu.pb4.polymer.item.ItemHelper;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.item.ItemStack;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ClickSlotC2SPacketMixin {
     @Inject(method = "getStack", at = @At("TAIL"), cancellable = true)
     private void polymer_replaceWithReal(CallbackInfoReturnable<ItemStack> cir) {
-        cir.setReturnValue(ItemHelper.getRealItemStack(cir.getReturnValue()));
+        cir.setReturnValue(PolymerItemUtils.getRealItemStack(cir.getReturnValue()));
     }
 
     @Inject(method = "getModifiedStacks", at = @At("TAIL"), cancellable = true)
@@ -22,7 +22,7 @@ public class ClickSlotC2SPacketMixin {
         Int2ObjectMap map = new Int2ObjectArrayMap();
 
         for (Int2ObjectMap.Entry<ItemStack> entry : cir.getReturnValue().int2ObjectEntrySet()) {
-            map.put(entry.getIntKey(), ItemHelper.getRealItemStack(entry.getValue()));
+            map.put(entry.getIntKey(), PolymerItemUtils.getRealItemStack(entry.getValue()));
         }
 
         cir.setReturnValue(map);

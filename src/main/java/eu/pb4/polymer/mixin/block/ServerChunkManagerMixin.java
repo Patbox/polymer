@@ -1,8 +1,7 @@
 package eu.pb4.polymer.mixin.block;
 
-import eu.pb4.polymer.block.BlockHelper;
-import eu.pb4.polymer.block.VirtualBlock;
-import eu.pb4.polymer.interfaces.WorldChunkInterface;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.Packet;
@@ -13,7 +12,6 @@ import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.chunk.WorldChunk;
@@ -25,7 +23,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -92,13 +89,15 @@ public abstract class ServerChunkManagerMixin {
                     for (int z = -1; z <= 1; z++) {
                         WorldChunk chunk = this.getWorldChunk(pos.getX() + x, pos.getZ() + z);
                         if (chunk != null) {
-                            for (BlockPos blockPos : ((WorldChunkInterface) chunk).getVirtualBlocks()) {
+                            var iterator = ((PolymerBlockPosStorage) chunk).polymer_iterator();
+                            while (iterator.hasNext()){
+                                var blockPos = iterator.next();
                                 if (blockPos.getY() < tooLow || blockPos.getY() > tooHigh) {
                                     continue;
                                 }
 
                                 BlockState blockState = chunk.getBlockState(blockPos);
-                                if (BlockHelper.isVirtualLightSource(blockState)) {
+                                if (PolymerBlockUtils.isLightSource(blockState)) {
                                     sendUpdate = true;
                                     break;
                                 }
@@ -107,7 +106,7 @@ public abstract class ServerChunkManagerMixin {
                     }
                 }
 
-                if (sendUpdate || BlockHelper.SEND_LIGHT_UPDATE_PACKET.invoke(this.world, pos)) {
+                if (sendUpdate || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke(this.world, pos)) {
                     this.lastUpdates.put(pos, System.currentTimeMillis());
                 }
             });

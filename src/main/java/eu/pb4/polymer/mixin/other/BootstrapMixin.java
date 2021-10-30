@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.other.NetworkIdList;
+import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import net.minecraft.Bootstrap;
 import net.minecraft.block.Block;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.other;
 
 import com.mojang.brigadier.CommandDispatcher;
-import eu.pb4.polymer.other.Commands;
+import eu.pb4.polymer.impl.Commands;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import org.spongepowered.asm.mixin.Final;

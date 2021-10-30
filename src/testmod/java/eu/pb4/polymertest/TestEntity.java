@@ -1,6 +1,6 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.entity.VirtualEntity;
+import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymertest.mixin.VillagerEntityAccessor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class TestEntity extends CreeperEntity implements VirtualEntity {
+public class TestEntity extends CreeperEntity implements PolymerEntity {
     public TestEntity(EntityType<TestEntity> entityEntityType, World world) {
         super(entityEntityType, world);
     }
@@ -31,7 +31,7 @@ public class TestEntity extends CreeperEntity implements VirtualEntity {
     }*/
 
     @Override
-    public EntityType<?> getVirtualEntityType() {
+    public EntityType<?> getPolymerEntityType() {
         return EntityType.VILLAGER;
     }
 

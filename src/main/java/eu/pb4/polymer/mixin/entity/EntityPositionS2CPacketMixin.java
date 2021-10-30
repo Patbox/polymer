@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.entity;
 
-import eu.pb4.polymer.entity.VirtualEntity;
+import eu.pb4.polymer.api.entity.PolymerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.util.math.Vec3d;
@@ -31,7 +31,7 @@ public class EntityPositionS2CPacketMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/Entity;)V", at = @At("TAIL"))
     private void polymer_replaceForVirtual(Entity entity, CallbackInfo ci) {
-        if (entity instanceof VirtualEntity virtualEntity) {
+        if (entity instanceof PolymerEntity virtualEntity) {
             Vec3d vec3d = virtualEntity.getClientSidePosition(entity.getPos());
             this.x = vec3d.x;
             this.y = vec3d.y;

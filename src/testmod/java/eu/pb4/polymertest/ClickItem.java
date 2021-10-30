@@ -1,24 +1,17 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.item.BasicVirtualItem;
+import eu.pb4.polymer.api.item.SimplePolymerItem;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
-import java.util.Random;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-public class ClickItem extends BasicVirtualItem {
+public class ClickItem extends SimplePolymerItem {
 
     private final BiConsumer<ServerPlayerEntity, Hand> executor;
 

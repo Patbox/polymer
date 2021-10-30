@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.item;
 
-import eu.pb4.polymer.item.ItemHelper;
-import eu.pb4.polymer.other.client.ClientUtils;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.packet.s2c.play.SetTradeOffersS2CPacket;
@@ -32,9 +32,9 @@ public class SetTradeOffersS2CPacketMixin {
 
                 for (TradeOffer tradeOffer : this.recipes) {
                     list.add(new TradeOffer(
-                            ItemHelper.getVirtualItemStack(tradeOffer.getOriginalFirstBuyItem(), player),
-                            ItemHelper.getVirtualItemStack(tradeOffer.getSecondBuyItem(), player),
-                            ItemHelper.getVirtualItemStack(tradeOffer.getSellItem(), player),
+                            PolymerItemUtils.getPolymerItemStack(tradeOffer.getOriginalFirstBuyItem(), player),
+                            PolymerItemUtils.getPolymerItemStack(tradeOffer.getSecondBuyItem(), player),
+                            PolymerItemUtils.getPolymerItemStack(tradeOffer.getSellItem(), player),
                             tradeOffer.getUses(),
                             tradeOffer.getMaxUses(),
                             tradeOffer.getMerchantExperience(),

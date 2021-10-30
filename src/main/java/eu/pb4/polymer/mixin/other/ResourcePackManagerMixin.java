@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.other.client.PolymerResourcePack;
+import eu.pb4.polymer.impl.client.PolymerResourcePack;
 import net.minecraft.resource.*;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

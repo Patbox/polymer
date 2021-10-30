@@ -1,10 +1,9 @@
 package eu.pb4.polymer.mixin.item;
 
-import eu.pb4.polymer.item.ItemHelper;
-import eu.pb4.polymer.other.client.ClientUtils;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,7 +26,7 @@ public class InventoryS2CPacketMixin {
             ServerPlayerEntity player = ClientUtils.getPlayer();
 
             for (ItemStack stack : cir.getReturnValue()) {
-                list.add(ItemHelper.getVirtualItemStack(stack, player));
+                list.add(PolymerItemUtils.getPolymerItemStack(stack, player));
             }
 
             cir.setReturnValue(list);

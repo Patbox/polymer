@@ -1,9 +1,10 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.PolymerUtils;
-import eu.pb4.polymer.block.VirtualBlock;
-import eu.pb4.polymer.other.DualList;
-import eu.pb4.polymer.other.NetworkIdList;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.impl.other.DualList;
+import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.IdList;
 import org.spongepowered.asm.mixin.*;
@@ -25,9 +26,9 @@ public class IdListMixin implements NetworkIdList {
 
     @Inject(method = "set", at = @At("HEAD"), cancellable = true)
     private <T> void polymer_moveToEnd(T value, int id, CallbackInfo ci) {
-        if (this.polymer_offsetBlockStates && value instanceof BlockState blockState && blockState.getBlock() instanceof VirtualBlock) {
+        if (this.polymer_offsetBlockStates && value instanceof BlockState blockState && blockState.getBlock() instanceof PolymerBlock) {
             var list = (DualList<Object>) this.list;
-            this.idMap.put(value, this.polymer_blockStateId + PolymerUtils.BLOCK_STATE_OFFSET);
+            this.idMap.put(value, this.polymer_blockStateId + PolymerBlockUtils.BLOCK_STATE_OFFSET);
             while(list.sizeOffset() <= this.polymer_blockStateId) {
                 list.getOffsetList().add(null);
             }
@@ -41,6 +42,11 @@ public class IdListMixin implements NetworkIdList {
     @Override
     public void polymer_enableOffset() {
         this.polymer_offsetBlockStates = true;
-        this.list = new DualList<>((ArrayList<Object>) this.list, new ArrayList<>(), PolymerUtils.BLOCK_STATE_OFFSET);
+        this.list = new DualList<>((ArrayList<Object>) this.list, new ArrayList<>(), PolymerBlockUtils.BLOCK_STATE_OFFSET);
+    }
+
+    @Override
+    public DualList<BlockState> polymer_getInternalList() {
+        return this.list instanceof DualList dualList ? dualList : null;
     }
 }

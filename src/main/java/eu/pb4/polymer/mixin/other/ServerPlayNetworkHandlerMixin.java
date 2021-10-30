@@ -1,9 +1,12 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.other.PolymerNetworkHandlerExtension;
-import eu.pb4.polymer.other.ScheduledPacket;
-import eu.pb4.polymer.resourcepack.ResourcePackUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.networking.ServerPacketHandler;
+import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.other.ScheduledPacket;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +26,10 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
 
     @Unique
     private boolean polymer_hasResourcePack = false;
+    @Unique
     private ArrayList<ScheduledPacket> polymer_scheduledPackets = new ArrayList<>();
+    @Unique private int polymer_protocolVersion = -2;
+    @Unique private String polymer_version = "0.0.0";
 
     @Override
     public boolean polymer_hasResourcePack() {
@@ -38,6 +44,27 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Override
     public void polymer_schedulePacket(Packet<?> packet, int duration) {
         this.polymer_scheduledPackets.add(new ScheduledPacket(packet, this.ticks + duration));
+    }
+
+    @Override
+    public boolean polymer_hasPolymer() {
+        return this.polymer_protocolVersion > -1;
+    }
+
+    @Override
+    public int polymer_protocolVersion() {
+        return this.polymer_protocolVersion;
+    }
+
+    @Override
+    public String polymer_version() {
+        return this.polymer_version;
+    }
+
+    @Override
+    public void polymer_setVersion(int protocol, String version) {
+        this.polymer_protocolVersion = protocol;
+        this.polymer_version = version;
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -56,9 +83,16 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         }
     }
 
+    @Inject(method = "onCustomPayload", at = @At("HEAD"))
+    private void polymer_catchPackets(CustomPayloadC2SPacket packet, CallbackInfo ci) {
+        if (packet.getChannel().getNamespace().equals(PolymerUtils.ID)) {
+            ServerPacketHandler.handle((ServerPlayNetworkHandler) (Object) this, packet.getChannel(), packet.getData());
+        }
+    }
+
     @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
     private void polymer_changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
-        if (ResourcePackUtils.shouldCheckByDefault()) {
+        if (PolymerRPUtils.shouldCheckByDefault()) {
             this.polymer_hasResourcePack = switch (packet.getStatus()) {
                 case ACCEPTED, SUCCESSFULLY_LOADED -> true;
                 case DECLINED, FAILED_DOWNLOAD -> false;

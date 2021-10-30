@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.entity;
 
-import eu.pb4.polymer.entity.VirtualEntity;
+import eu.pb4.polymer.api.entity.PolymerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.packet.s2c.play.MobSpawnS2CPacket;
 import net.minecraft.util.math.Vec3d;
@@ -37,8 +37,8 @@ public class MobSpawnS2CPacketMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/LivingEntity;)V", at = @At(value = "TAIL"))
     private void polymer_replaceWithVirtual(LivingEntity entity, CallbackInfo ci) {
-        if (entity instanceof VirtualEntity ve) {
-            this.entityTypeId = Registry.ENTITY_TYPE.getRawId(ve.getVirtualEntityType());
+        if (entity instanceof PolymerEntity ve) {
+            this.entityTypeId = Registry.ENTITY_TYPE.getRawId(ve.getPolymerEntityType());
 
             Vec3d vec3d = ve.getClientSidePosition(entity.getPos());
             this.x = vec3d.x;
