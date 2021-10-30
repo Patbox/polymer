@@ -36,7 +36,7 @@ public class ResourcePackUtils {
 
                 @Override
                 public boolean finish() {
-                    return builder.finish();
+                    return false;
                 }
             });
         });
@@ -83,6 +83,6 @@ public class ResourcePackUtils {
     }
 
     public static boolean build(Path path) {
-        return PolymerRPUtils.build(path);
+        return false;
     }
 }
