@@ -63,7 +63,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
         return new BlockEntityUpdateS2CPacket(pos, BlockEntityUpdateS2CPacket.SKULL, main);
     }
 
-    default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos pos, BlockState blockState) {
-        player.networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos));
+    default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) {
+        player.networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos.toImmutable()));
     }
 }

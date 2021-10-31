@@ -24,6 +24,5 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "onGameJoin", at = @At("TAIL"))
     private void polymer_sendVersion(GameJoinS2CPacket packet, CallbackInfo ci) {
-        ClientPacketBuilder.sendVersion((ClientPlayNetworkHandler) (Object) this);
     }
 }

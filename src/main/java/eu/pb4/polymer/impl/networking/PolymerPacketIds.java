@@ -2,15 +2,26 @@ package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public class PolymerPacketIds {
     public static final String VERSION = "version";
     public static final Identifier VERSION_ID = PolymerUtils.id(VERSION);
 
     public static final String REGISTRY_BLOCK = "registry/block";
     public static final Identifier REGISTRY_BLOCK_ID = PolymerUtils.id(REGISTRY_BLOCK);
+    public static final String REGISTRY_ITEM = "registry/item";
+    public static final Identifier REGISTRY_ITEM_ID = PolymerUtils.id(REGISTRY_ITEM);
+
+    public static final String REGISTRY_ITEM_GROUP = "registry/item_group";
+    public static final Identifier REGISTRY_ITEM_GROUP_ID = PolymerUtils.id(REGISTRY_ITEM_GROUP);
+    public static final String REGISTRY_ITEM_GROUP_CLEAR = "registry/item_group/clear";
+    public static final Identifier REGISTRY_ITEM_GROUP_CLEAR_ID = PolymerUtils.id(REGISTRY_ITEM_GROUP_CLEAR);
+
     public static final String REGISTRY_BLOCKSTATE = "registry/blockstate";
     public static final Identifier REGISTRY_BLOCKSTATE_ID = PolymerUtils.id(REGISTRY_BLOCKSTATE);
+
     public static final String REGISTRY_CLEAR = "registry/clear";
     public static final Identifier REGISTRY_CLEAR_ID = PolymerUtils.id(REGISTRY_CLEAR);
 

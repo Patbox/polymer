@@ -1,15 +1,15 @@
 package eu.pb4.polymer.mixin.client.block;
 
-import eu.pb4.polymer.api.client.block.ClientPolymerBlock;
+import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.impl.client.world.ClientBlockStorageInterface;
-import eu.pb4.polymer.impl.client.world.ClientPolymerBlocks;
+import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChunkSection.class)
 public class ChunkSectionMixin implements ClientBlockStorageInterface {
-    private PalettedContainer<ClientPolymerBlock.State> polymer_container = new PalettedContainer<>(ClientPolymerBlocks.PALETTE, ClientPolymerBlocks.BLOCKSTATES, null, null, null);
+    private PalettedContainer<ClientPolymerBlock.State> polymer_container = new PalettedContainer<>(InternalClientRegistry.BLOCK_STATE_PALETTE, InternalClientRegistry.BLOCK_STATES, null, null, null);
 
     @Override
     public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {

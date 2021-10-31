@@ -54,7 +54,7 @@ allprojects {
 		maven { url "https://maven.shedaniel.me/" }
 		maven { url "https://maven.bai.lol" }
 
-		mavenLocal()
+		//mavenLocal()
 	}
 
 	dependencies {
@@ -114,7 +114,8 @@ dependencies {
 
 	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.17.1")
 
-	modRuntime "fr.catcore:server-translations-api:1.4.5+1.17"
+	modRuntime "fr.catcore:server-translations-api:1.4.6+1.17"
+	modCompileOnly "fr.catcore:server-translations-api:1.4.6+1.17"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

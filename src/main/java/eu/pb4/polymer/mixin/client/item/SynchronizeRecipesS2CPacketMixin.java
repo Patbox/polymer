@@ -1,6 +1,7 @@
-package eu.pb4.polymer.mixin.other;
+package eu.pb4.polymer.mixin.client.item;
 
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.mixin.other.SynchronizeRecipesS2CPacketAccessor;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,9 +46,13 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceRecipesOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
         if (this.rewrittenRecipes == null) {
-            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-            this.write(buf);
-            this.rewrittenRecipes = ((SynchronizeRecipesS2CPacketAccessor) new SynchronizeRecipesS2CPacket(buf)).polymer_getRecipes();
+            try {
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                this.write(buf);
+                this.rewrittenRecipes = ((SynchronizeRecipesS2CPacketAccessor) new SynchronizeRecipesS2CPacket(buf)).polymer_getRecipes();
+            } catch (Exception e) {
+                this.rewrittenRecipes = Collections.emptyList();
+            }
         }
 
         cir.setReturnValue(this.rewrittenRecipes);

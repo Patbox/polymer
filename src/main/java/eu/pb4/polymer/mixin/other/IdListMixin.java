@@ -21,6 +21,7 @@ import java.util.List;
 public class IdListMixin implements NetworkIdList {
     @Shadow @Final private IdentityHashMap<Object, Integer> idMap;
     @Shadow @Mutable private List<Object> list;
+    @Shadow private int nextId;
     @Unique private int polymer_blockStateId = 0;
     @Unique private boolean polymer_offsetBlockStates;
 
@@ -48,5 +49,13 @@ public class IdListMixin implements NetworkIdList {
     @Override
     public DualList<BlockState> polymer_getInternalList() {
         return this.list instanceof DualList dualList ? dualList : null;
+    }
+
+    @Override
+    public void polymer_clear() {
+        this.idMap.clear();
+        this.list.clear();
+        this.polymer_blockStateId = 0;
+        this.nextId = 0;
     }
 }

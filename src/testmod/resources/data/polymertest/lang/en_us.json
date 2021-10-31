@@ -1,4 +1,6 @@
 {
   "block.test.potato_block": "Tiny Potato",
+  "testmod.itemgroup": "Test Mod Item Group",
+  "item.test.item": "test",
   "enchantment.test.enchantment": "TestEnch"
 }

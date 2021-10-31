@@ -3,13 +3,16 @@ package eu.pb4.polymer.impl.networking.packets;
 import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@ApiStatus.Internal
 public record PolymerBlockStateEntry(Map<String, String> states, int numId, int blockId) implements BufferWritable {
-    public void write(PacketByteBuf buf) {
+    public void write(PacketByteBuf buf, ServerPlayNetworkHandler handler) {
         buf.writeVarInt(numId);
         buf.writeVarInt(blockId);
         buf.writeMap(states, (buf2, string) -> buf2.writeString(string), (buf2, string) -> buf2.writeString(string));

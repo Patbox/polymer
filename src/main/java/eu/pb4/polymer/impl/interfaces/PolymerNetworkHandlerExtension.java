@@ -18,6 +18,9 @@ public interface PolymerNetworkHandlerExtension {
 
     void polymer_setVersion(int protocol, String version);
 
+    long polymer_lastSyncUpdate();
+    void polymer_saveSyncTime();
+
 
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {
         return (PolymerNetworkHandlerExtension) handler;

@@ -3,10 +3,12 @@ package eu.pb4.polymer.impl.interfaces;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
+@ApiStatus.Internal
 public interface PolymerBlockPosStorage {
     @Nullable
     ShortSet polymer_getBackendSet();

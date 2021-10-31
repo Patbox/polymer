@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.client.block;
 
-import eu.pb4.polymer.api.client.block.ClientPolymerBlock;
+import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.impl.client.world.ClientBlockStorageInterface;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;

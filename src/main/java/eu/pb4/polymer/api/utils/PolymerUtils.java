@@ -2,6 +2,7 @@ package eu.pb4.polymer.api.utils;
 
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.Packet;
@@ -59,6 +60,13 @@ public class PolymerUtils {
         } else {
             return getPlayer() != null || ClientUtils.isSingleplayer();
         }
+    }
+
+    /**
+     * Resends synchronization packets to player if their client supports that
+     */
+    public static void resyncPolymerClient(ServerPlayNetworkHandler handler) {
+        ServerPacketBuilders.createSyncPackets(handler);
     }
 
     /**

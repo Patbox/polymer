@@ -2,10 +2,7 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.api.item.SimplePolymerItem;
-import eu.pb4.polymer.api.item.PolymerItemUtils;
-import eu.pb4.polymer.api.item.PolymerBlockItem;
-import eu.pb4.polymer.api.item.PolymerHeadBlockItem;
+import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import eu.pb4.polymertest.mixin.EntityAccessor;
@@ -30,6 +27,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -39,9 +37,9 @@ import java.util.UUID;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class TestMod implements ModInitializer {
-    public static final ItemGroup ITEM_GROUP = FabricItemGroupBuilder.build(
-            new Identifier("test", "general"),
-            () -> new ItemStack(TestMod.ITEM));
+    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(
+            new Identifier("polymer", "test") ,
+            new TranslatableText("testmod.itemgroup").formatted(Formatting.AQUA));
 
     public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
     public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
@@ -84,6 +82,7 @@ public class TestMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ITEM_GROUP.setIcon(new ItemStack(TATER_BLOCK_ITEM));
         PolymerRPUtils.addAssetSource("polymertest");
         //PolymerRPUtils.markAsRequired();
         //PolymerRPUtils.addModAsAssetsSource("promenade");

@@ -23,7 +23,6 @@ public class PolymerMod implements ModInitializer {
 		if (POLYMC_COMPAT) {
 			PolymerRPUtils.markAsRequired();
 
-			// While rest of code doesn't depend on Fabric API in anyway, usage here is still fine, as PolyMC requires it
 			ServerLifecycleEvents.SERVER_STARTED.register((s) -> PolyMcHelpers.overrideCommand(s));
 		}
 	}

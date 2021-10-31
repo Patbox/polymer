@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.client;
 
-import eu.pb4.polymer.impl.client.world.ClientPolymerBlocks;
+import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
@@ -20,7 +20,7 @@ public class DebugHudMixin {
     @Inject(method = "getRightText", at = @At("RETURN"))
     private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK) {
-            var block = ClientPolymerBlocks.getBlockAt(((BlockHitResult)this.blockHit).getBlockPos());
+            var block = InternalClientRegistry.getBlockAt(((BlockHitResult)this.blockHit).getBlockPos());
             if (block != null) {
                 var list = cir.getReturnValue();
                 list.add("");

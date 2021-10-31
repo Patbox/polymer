@@ -31,6 +31,8 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Unique private int polymer_protocolVersion = -2;
     @Unique private String polymer_version = "0.0.0";
 
+    @Unique private long polymer_lastSync = 0;
+
     @Override
     public boolean polymer_hasResourcePack() {
         return this.polymer_hasResourcePack;
@@ -65,6 +67,16 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     public void polymer_setVersion(int protocol, String version) {
         this.polymer_protocolVersion = protocol;
         this.polymer_version = version;
+    }
+
+    @Override
+    public long polymer_lastSyncUpdate() {
+        return this.polymer_lastSync;
+    }
+
+    @Override
+    public void polymer_saveSyncTime() {
+        this.polymer_lastSync = System.currentTimeMillis();
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
