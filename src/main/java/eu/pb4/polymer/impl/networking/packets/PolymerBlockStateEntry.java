@@ -18,14 +18,14 @@ public record PolymerBlockStateEntry(Map<String, String> states, int numId, int 
         buf.writeMap(states, (buf2, string) -> buf2.writeString(string), (buf2, string) -> buf2.writeString(string));
     }
 
-    public static PolymerBlockStateEntry of(BlockState state) {
+    public static PolymerBlockStateEntry of(BlockState state, ServerPlayNetworkHandler player) {
         var list = new HashMap<String, String>();
 
         for (var entry : state.getEntries().entrySet()) {
             list.put(entry.getKey().getName(), entry.getValue().toString());
         }
 
-        return new PolymerBlockStateEntry(list, ServerPacketBuilders.getRawId(state), Registry.BLOCK.getRawId(state.getBlock()));
+        return new PolymerBlockStateEntry(list, ServerPacketBuilders.getRawId(state, player.player), Registry.BLOCK.getRawId(state.getBlock()));
     }
 
     public static PolymerBlockStateEntry read(PacketByteBuf buf) {

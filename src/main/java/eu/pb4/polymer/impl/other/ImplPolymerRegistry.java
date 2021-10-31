@@ -67,4 +67,15 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     public Iterator<T> iterator() {
         return this.entryMap.values().iterator();
     }
+
+    public void remove(T group) {
+        if (this.identifierMap.containsKey(group)) {
+            var id = this.identifierMap.get(group);
+            var rawId = this.entryIdMap.getInt(group);
+            this.rawIdMap.remove(rawId);
+            this.entryMap.remove(id);
+            this.entryIdMap.removeInt(group);
+            this.identifierMap.remove(group);
+        }
+    }
 }

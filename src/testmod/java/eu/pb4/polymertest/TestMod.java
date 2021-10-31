@@ -4,11 +4,13 @@ import eu.pb4.polymer.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -33,12 +35,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class TestMod implements ModInitializer {
-    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(
-            new Identifier("polymer", "test") ,
+    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.createPrivate(
+            new Identifier("polymer", "test"),
             new TranslatableText("testmod.itemgroup").formatted(Formatting.AQUA));
 
     public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
@@ -127,6 +130,8 @@ public class TestMod implements ModInitializer {
             return virtual;
         });
 
+
+
         CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test").executes((ctx) -> {
             try {
                 ctx.getSource().sendFeedback(new LiteralText("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
@@ -137,10 +142,27 @@ public class TestMod implements ModInitializer {
             return 0;
         })));
 
+
+        AtomicBoolean atomicBoolean = new AtomicBoolean();
+
+        CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test2").executes((ctx) -> {
+            try {
+                var player = ctx.getSource().getPlayer();
+                if (atomicBoolean.get()) {
+                    PolymerUtils.sendCreativeTab(ITEM_GROUP, player.networkHandler);
+                } else {
+                    PolymerUtils.removeCreativeTab(ITEM_GROUP, player.networkHandler);
+                }
+                atomicBoolean.set(!atomicBoolean.get());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return 0;
+        })));
+
         var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
         System.out.println(id);
         System.out.println(Block.STATE_IDS.get(id));
-        System.out.println("Value: " + ServerPacketBuilders.getRawId(BLOCK.getDefaultState()));
-
     }
 }

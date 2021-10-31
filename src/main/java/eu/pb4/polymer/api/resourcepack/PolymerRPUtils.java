@@ -1,7 +1,7 @@
 package eu.pb4.polymer.api.resourcepack;
 
 import eu.pb4.polymer.impl.PolymerMod;
-import eu.pb4.polymer.api.utils.events.Event;
+import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
@@ -15,12 +15,13 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Utilities allowing creation of single, polymer mod compatible resource pack
  */
 public class PolymerRPUtils {
-    public static final Event<PolymerRPBuilder> RESOURCE_PACK_CREATION_EVENT = new Event<>();
+    public static final SimpleEvent<Consumer<PolymerRPBuilder>> RESOURCE_PACK_CREATION_EVENT = new SimpleEvent<>();
     private static final Object2ObjectMap<Item, List<PolymerModelData>> ITEMS = new Object2ObjectArrayMap<>();
     private static final Set<String> MOD_IDS = new HashSet<>();
     private static boolean REQUIRED = false;
@@ -122,7 +123,7 @@ public class PolymerRPUtils {
             boolean successful = true;
             var builder = new DefaultRPBuilder(path);
 
-            RESOURCE_PACK_CREATION_EVENT.invoke(builder);
+            RESOURCE_PACK_CREATION_EVENT.invoke((x) -> x.accept(builder));
 
             for (String modId : MOD_IDS) {
                 successful = builder.copyModAssets(modId) && successful;

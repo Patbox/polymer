@@ -106,7 +106,7 @@ public abstract class ServerChunkManagerMixin {
                     }
                 }
 
-                if (sendUpdate || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke(this.world, pos)) {
+                if (sendUpdate || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke((c) -> c.test(this.world, pos))) {
                     this.lastUpdates.put(pos, System.currentTimeMillis());
                 }
             });

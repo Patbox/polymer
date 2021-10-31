@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.utils;
 
+import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
@@ -65,8 +66,30 @@ public class PolymerUtils {
     /**
      * Resends synchronization packets to player if their client supports that
      */
-    public static void resyncPolymerClient(ServerPlayNetworkHandler handler) {
+    public static void synchronizePolymerRegistries(ServerPlayNetworkHandler handler) {
         ServerPacketBuilders.createSyncPackets(handler);
+    }
+
+    /**
+     * Resends synchronization packets to player if their client supports that
+     */
+    public static void synchronizeCreativeTabs(ServerPlayNetworkHandler handler) {
+        ServerPacketBuilders.createCreativeTabSync(handler);
+    }
+
+    /**
+     * Sends/Updates Creative tab for player
+     */
+    public static void sendCreativeTab(PolymerItemGroup group, ServerPlayNetworkHandler handler) {
+        ServerPacketBuilders.removeItemGroup(group, handler);
+        ServerPacketBuilders.syncItemGroup(group, handler);
+    }
+
+    /**
+     * Removes creative tab from player
+     */
+    public static void removeCreativeTab(PolymerItemGroup group, ServerPlayNetworkHandler handler) {
+        ServerPacketBuilders.removeItemGroup(group, handler);
     }
 
     /**

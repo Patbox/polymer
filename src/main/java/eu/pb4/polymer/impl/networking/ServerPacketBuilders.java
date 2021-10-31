@@ -3,6 +3,7 @@ package eu.pb4.polymer.impl.networking;
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -27,6 +28,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @ApiStatus.Internal
@@ -52,7 +55,7 @@ public class ServerPacketBuilders {
             var buf = buf();
 
             buf.writeBlockPos(pos);
-            buf.writeVarInt(getRawId(state));
+            buf.writeVarInt(getRawId(state, player.player));
 
             player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.BLOCK_UPDATE_ID, buf));
         }
@@ -68,7 +71,7 @@ public class ServerPacketBuilders {
             buf.writeVarInt(positions.length);
 
             for (int i = 0; i < blockStates.length; i++) {
-                buf.writeVarLong((getRawId(blockStates[i]) << 12 | positions[i]));
+                buf.writeVarLong((getRawId(blockStates[i], player.player) << 12 | positions[i]));
             }
 
             player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.CHUNK_SECTION_UPDATE_ID, buf));
@@ -103,7 +106,7 @@ public class ServerPacketBuilders {
                                 int y = ChunkSectionPos.unpackLocalY(pos);
                                 int z = ChunkSectionPos.unpackLocalZ(pos);
 
-                                buf.writeVarLong((getRawId(section.getBlockState(x, y, z)) << 12 | pos));
+                                buf.writeVarLong((getRawId(section.getBlockState(x, y, z), player.player) << 12 | pos));
                             }
 
                             list.add(new CustomPayloadS2CPacket(PolymerPacketIds.CHUNK_SECTION_UPDATE_ID, buf));
@@ -131,9 +134,11 @@ public class ServerPacketBuilders {
 
         if (polymerHandler.polymer_hasPolymer()) {
             var entries = new ArrayList<BufferWritable>();
+            player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.REGISTRY_ITEM_GROUP_CLEAR_ID, buf()));
+
             {
                 for (var entry : Registry.ITEM) {
-                    if (entry != null && entry instanceof PolymerItem obj && obj.syncWithPolymerClients()) {
+                    if (entry != null && entry instanceof PolymerItem obj && obj.syncWithPolymerClients(player.player)) {
                         entries.add(PolymerItemEntry.of(entry, player));
 
                         if (entries.size() > 60) {
@@ -147,30 +152,16 @@ public class ServerPacketBuilders {
                 }
             }
             {
-                player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.REGISTRY_ITEM_GROUP_CLEAR_ID, buf()));
 
                 for (var group : InternalServerRegistry.ITEM_GROUPS) {
-                    if (group.syncWithPolymerClients()) {
-                        var buf = buf();
-
-                        var list = DefaultedList.<ItemStack>of();
-                        group.appendStacks(list);
-
-                        buf.writeIdentifier(group.getId());
-                        buf.writeText(ServerTranslationUtils.parseFor(player, group.getTranslationKey()));
-                        buf.writeItemStack(ServerTranslationUtils.parseFor(player, PolymerItemUtils.getPolymerItemStack(group.createIcon(), player.player)));
-                        buf.writeVarInt(list.size());
-                        for (var stack : list) {
-                            buf.writeItemStack(ServerTranslationUtils.parseFor(player, PolymerItemUtils.getPolymerItemStack(stack, player.player)));
-                        }
-
-                        player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.REGISTRY_ITEM_GROUP_ID, buf));
+                    if (group.syncWithPolymerClients(player.player)) {
+                        syncItemGroup(group, player);
                     }
                 }
             }
             {
                 for (var entry : Registry.BLOCK) {
-                    if (entry != null && entry instanceof PolymerBlock obj && obj.syncWithPolymerClients()) {
+                    if (entry != null && entry instanceof PolymerBlock obj && obj.syncWithPolymerClients(player.player)) {
                         entries.add(PolymerBlockEntry.of(entry));
 
                         if (entries.size() > 60) {
@@ -189,8 +180,8 @@ public class ServerPacketBuilders {
                 for (int i = 0; i < size; i++) {
                     var entry = list.get(i);
 
-                    if (entry != null && ((PolymerObject) entry.getBlock()).syncWithPolymerClients()) {
-                        entries.add(PolymerBlockStateEntry.of(entry));
+                    if (entry != null && ((PolymerObject) entry.getBlock()).syncWithPolymerClients(player.player)) {
+                        entries.add(PolymerBlockStateEntry.of(entry, player));
 
                         if (entries.size() > 60) {
                             sendSync(player, PolymerPacketIds.REGISTRY_BLOCKSTATE_ID, entries);
@@ -204,6 +195,56 @@ public class ServerPacketBuilders {
             }
 
         }
+    }
+
+    public static void createCreativeTabSync(ServerPlayNetworkHandler handler) {
+        var list = new HashSet<PolymerItemGroup>();
+
+
+        for (var group : InternalServerRegistry.ITEM_GROUPS) {
+            if (group.syncWithPolymerClients(handler.player)) {
+                list.add(group);
+            }
+        }
+
+        var sync = new PolymerItemGroup.ItemGroupSyncer() {
+            @Override
+            public void send(PolymerItemGroup group) {
+                list.add(group);
+            }
+
+            @Override
+            public void remove(PolymerItemGroup group) {
+                list.remove(group);
+            }
+        };
+
+        PolymerItemGroup.SYNC_EVENT.invoke((x) -> x.onItemGroupSync(handler.player, sync));
+
+        for (var group : list) {
+            syncItemGroup(group, handler);
+        }
+    }
+
+    public static void syncItemGroup(PolymerItemGroup group, ServerPlayNetworkHandler player) {
+        var buf = buf();
+
+        var list = DefaultedList.<ItemStack>of();
+        group.appendStacks(list);
+
+        buf.writeIdentifier(group.getId());
+        buf.writeText(ServerTranslationUtils.parseFor(player, group.getTranslationKey()));
+        buf.writeItemStack(ServerTranslationUtils.parseFor(player, PolymerItemUtils.getPolymerItemStack(group.createIcon(), player.player)));
+        buf.writeVarInt(list.size());
+        for (var stack : list) {
+            buf.writeItemStack(ServerTranslationUtils.parseFor(player, PolymerItemUtils.getPolymerItemStack(stack, player.player)));
+        }
+
+        player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.REGISTRY_ITEM_GROUP_ID, buf));
+    }
+
+    public static void removeItemGroup(PolymerItemGroup group, ServerPlayNetworkHandler player) {
+        player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.REGISTRY_ITEM_GROUP_REMOVE_ID, buf().writeIdentifier(group.getId())));
     }
 
     private static void sendSync(ServerPlayNetworkHandler handler, Identifier id, List<BufferWritable> entries) {
@@ -220,10 +261,8 @@ public class ServerPacketBuilders {
         handler.sendPacket(new CustomPayloadS2CPacket(id, buf));
     }
 
-
-
-    public static int getRawId(BlockState state) {
-        return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.syncWithPolymerClients() ? Block.STATE_IDS.getRawId(state) - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1 : 0;
+    public static int getRawId(BlockState state, ServerPlayerEntity player) {
+        return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.syncWithPolymerClients(player) ? Block.STATE_IDS.getRawId(state) - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1 : 0;
     }
 
     @Nullable

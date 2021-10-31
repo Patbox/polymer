@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.client.networking;
 
+import com.google.common.base.Predicates;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.PolymerMod;
@@ -58,7 +59,12 @@ public class ClientPacketHandler {
                 }
 
                 case PolymerPacketIds.REGISTRY_ITEM_GROUP_CLEAR -> {
-                    InternalClientRegistry.clearTabs();
+                    InternalClientRegistry.clearTabs(Predicates.alwaysTrue());
+                }
+
+                case PolymerPacketIds.REGISTRY_ITEM_GROUP_REMOVE -> {
+                    var id = buf.readIdentifier();
+                    InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(id));
                 }
 
                 case PolymerPacketIds.REGISTRY_ITEM_GROUP -> {
@@ -83,7 +89,7 @@ public class ClientPacketHandler {
 
                     ItemGroupAccessor.setGROUPS(newArray);
 
-                    var group = new ClientItemGroup(array.length, id.toString(), name, icon, stacks);
+                    var group = new ClientItemGroup(array.length, id, id.toString(), name, icon, stacks);
                 }
 
                 case PolymerPacketIds.REGISTRY_BLOCKSTATE -> {

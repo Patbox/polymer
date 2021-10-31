@@ -1,13 +1,13 @@
 package eu.pb4.polymer.api.block;
 
-import eu.pb4.polymer.api.utils.events.DoubleBooleanEvent;
-import eu.pb4.polymer.api.utils.events.MineEvent;
+import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -16,6 +16,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public final class PolymerBlockUtils {
@@ -27,13 +28,12 @@ public final class PolymerBlockUtils {
     /**
      * This event allows you to force server side mining for any block/item
      */
-    public static final MineEvent SERVER_SIDE_MINING_CHECK = new MineEvent();
+    public static final BooleanEvent<MineEventListener> SERVER_SIDE_MINING_CHECK = new BooleanEvent<>();
     /**
      * This event allows you to force syncing of light updates between server and clinet
      */
-    public static final DoubleBooleanEvent<ServerWorld, ChunkSectionPos> SEND_LIGHT_UPDATE_PACKET = new DoubleBooleanEvent<>();
+    public static final BooleanEvent<BiPredicate<ServerWorld, ChunkSectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
     private static final Object2BooleanMap<BlockState> IS_LIGHT_SOURCE_CACHE = new Object2BooleanOpenHashMap<>();
-
     private static final HashSet<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new HashSet<>();
 
     /**
@@ -114,7 +114,6 @@ public final class PolymerBlockUtils {
         return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE);
     }
 
-
     /**
      * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlock(BlockState)} to make sure
      * It gets replaced if it represents other PolymerBlock
@@ -147,14 +146,8 @@ public final class PolymerBlockUtils {
         return getBlockSafely(block, state, NESTED_DEFAULT_DISTANCE);
     }
 
-    /*
-    /**
-     * This method returns an collection of positions of {@link PolymerBlock}s in {@link WorldChunk}
-     *
-     * @param chunk chunk we want to get list from
-     * @return Collection of BlockPos
-
-    public static Collection<BlockPos> getPolymerBlocksIn(WorldChunk chunk) {
-        return ((PolymerBlockPosStorage) chunk).polymer_getPolymerBlocks();
-    }*/
+    @FunctionalInterface
+    public interface MineEventListener {
+        boolean onBlockMine(ServerPlayerEntity player, BlockPos pos, BlockState state);
+    }
 }

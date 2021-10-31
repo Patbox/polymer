@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.client;
 
+import com.google.common.base.Predicates;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.PolymerMod;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
@@ -32,6 +34,7 @@ public class InternalClientRegistry {
     public static final Palette<ClientPolymerBlock.State> BLOCK_STATE_PALETTE = new IdListPalette<>(BLOCK_STATES, null);
 
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>();
+    public static final ImplPolymerRegistry<ClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>();
 
     @Nullable
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
@@ -47,12 +50,16 @@ public class InternalClientRegistry {
     public static void clear() {
         BLOCKS.clear();
         ITEMS.clear();
+        ITEM_GROUPS.clear();
         ((NetworkIdList) BLOCK_STATES).polymer_clear();
 
-        clearTabs();
+        clearTabs(Predicates.alwaysTrue());
+        for (var group : ItemGroup.GROUPS) {
+            ((ClientItemGroupExtension) group).polymer_clearStacks();
+        }
     }
 
-    public static void clearTabs() {
+    public static void clearTabs(Predicate<ClientItemGroup> removePredicate) {
         var array = ItemGroupAccessor.getGROUPS();
 
         var list = new ArrayList<ItemGroup>();
@@ -60,12 +67,12 @@ public class InternalClientRegistry {
         int posOffset = 0;
 
         for (int i = 0; i < array.length; i++) {
-            if (array[i] instanceof ClientItemGroup) {
+            if (array[i] instanceof ClientItemGroup group && removePredicate.test(group)) {
                 posOffset++;
+                ITEM_GROUPS.remove(group);
                 ((ItemGroupAccessor) array[i]).setIndex(0);
             } else {
                 ((ItemGroupAccessor) array[i]).setIndex(i - posOffset);
-                ((ClientItemGroupExtension) array[i]).polymer_clearStacks();
                 list.add(array[i]);
             }
         }
@@ -80,6 +87,7 @@ public class InternalClientRegistry {
                 // noop
             }
         }
+
         ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
     }
 }

@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
-import eu.pb4.polymer.api.utils.events.ContextAwareModifyEvent;
+import eu.pb4.polymer.api.utils.events.FunctionEvent;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class PolymerItemUtils {
     public static final String VIRTUAL_ITEM_ID = "Polymer$itemId";
@@ -41,14 +42,19 @@ public class PolymerItemUtils {
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
-    public static final BooleanEvent<ItemStack> ITEM_CHECK = new BooleanEvent<>();
+    public static final BooleanEvent<Predicate<ItemStack>> ITEM_CHECK = new BooleanEvent<>();
 
     /**
      * Allows to modify how virtual items looks before being send to client (only if using build in methods!)
      * It can modify virtual version directly, as long as it's returned at the end.
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
-    public static final ContextAwareModifyEvent<ItemStack> ITEM_MODIFICATION_EVENT = new ContextAwareModifyEvent<>();
+    public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
+
+    @FunctionalInterface
+    public interface ItemModificationEventHandler {
+        ItemStack modifyItem(ItemStack original, ItemStack client, ServerPlayerEntity player);
+    }
 
     /**
      * This methods creates a client side ItemStack representation
@@ -82,7 +88,7 @@ public class PolymerItemUtils {
             }
         }
 
-        if (ITEM_CHECK.invoke(itemStack)) {
+        if (ITEM_CHECK.invoke((x) -> x.test(itemStack))) {
             return createItemStack(itemStack, player);
         }
 
@@ -242,7 +248,15 @@ public class PolymerItemUtils {
             out.getOrCreateNbt().putInt("CustomModelData", cmd);
         }
 
-        return ITEM_MODIFICATION_EVENT.invoke(itemStack, out, player);
+        return ITEM_MODIFICATION_EVENT.invoke((col) -> {
+            var custom = out;
+
+            for (var in : col) {
+                custom = in.modifyItem(itemStack, custom, player);
+            }
+
+            return custom;
+        });
     }
 
     /**
