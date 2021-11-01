@@ -1,12 +1,11 @@
 package eu.pb4.polymer.api.item;
 
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerRegistry;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.InternalServerRegistry;
-import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -14,7 +13,19 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An server side item group that can be synchronized with polymer clients
+ * It also has it's own server side functionality
+ */
 public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
+    /**
+     * Registry of all PolymerItemGroups
+     */
+    public static final PolymerRegistry<PolymerItemGroup> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
+
+    /**
+     * Even called on synchronization of PolymerItemGroups
+     */
     public static final SimpleEvent<ItemGroupSyncEventListener> SYNC_EVENT = new SimpleEvent<>();
     public static List<ItemStack> items = new ArrayList<>();
     private final Text name;
@@ -28,10 +39,16 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
         this.sync = sync;
     }
 
+    /**
+     * Creates new ItemGroup
+     */
     public static PolymerItemGroup create(Identifier id, Text name, ItemStack icon) {
         return create(id, name).setIcon(icon);
     }
 
+    /**
+     * Creates new ItemGroup
+     */
     public static PolymerItemGroup create(Identifier id, Text name) {
         var group = new PolymerItemGroup(id, name, true);
 
@@ -39,6 +56,9 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
         return group;
     }
 
+    /**
+     * Creates new ItemGroup, which isn't synced by default
+     */
     public static PolymerItemGroup createPrivate(Identifier id, Text name) {
         var group = new PolymerItemGroup(id, name, false);
 
@@ -46,6 +66,9 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
         return group;
     }
 
+    /**
+     * Sets icon of ItemGroup
+     */
     public PolymerItemGroup setIcon(ItemStack stack) {
         this.icon = stack;
         return this;

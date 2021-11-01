@@ -1,12 +1,15 @@
 package eu.pb4.polymer.impl.client.networking;
 
 import com.google.common.base.Predicates;
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerMod;
-import eu.pb4.polymer.impl.client.ClientItemGroup;
-import eu.pb4.polymer.impl.client.world.ClientBlockStorageInterface;
+import eu.pb4.polymer.impl.client.InternalClientItemGroup;
+import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import eu.pb4.polymer.impl.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.networking.PolymerPacketIds;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockEntry;
@@ -15,7 +18,9 @@ import eu.pb4.polymer.impl.networking.packets.PolymerItemEntry;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.search.SearchManager;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -24,7 +29,9 @@ import net.minecraft.util.math.ChunkSectionPos;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
@@ -46,15 +53,9 @@ public class ClientPacketHandler {
 
                     for (int i = 0; i < size; i++) {
                         var entry = PolymerItemEntry.read(buf);
-                        InternalClientRegistry.ITEMS.set(entry.identifier(), new ClientPolymerItem(entry.identifier(), entry.representation()));
-                        if (entry.itemGroup().getNamespace().equals("minecraft")) {
-                            for (var group : ItemGroup.GROUPS) {
-                                if (group.getName().toLowerCase(Locale.ROOT).replace(":", "__").equals(entry.itemGroup().getPath())) {
-                                    ((ClientItemGroupExtension) group).polymer_addStack(entry.representation());
-                                    break;
-                                }
-                            }
-                        }
+                        var item = new ClientPolymerItem(entry.identifier(), entry.representation(), entry.itemGroup());
+                        InternalClientRegistry.ITEMS.set(entry.identifier(), new ClientPolymerItem(entry.identifier(), entry.representation(), entry.itemGroup()));
+                        PolymerClientUtils.ON_ITEM_SYNC.invoke((c) -> c.accept(item));
                     }
                 }
 
@@ -65,6 +66,22 @@ public class ClientPacketHandler {
                 case PolymerPacketIds.REGISTRY_ITEM_GROUP_REMOVE -> {
                     var id = buf.readIdentifier();
                     InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(id));
+                }
+
+                case PolymerPacketIds.REGISTRY_ITEM_GROUP_VANILLA -> {
+                    var id = buf.readString();
+                    ItemGroup group = InternalClientRegistry.VANILLA_ITEM_GROUPS.get(id);
+
+                    if (group != null) {
+                        var groupAccess = (ClientItemGroupExtension) group;
+                        groupAccess.polymer_clearStacks();
+
+                        var size = buf.readVarInt();
+
+                        for (int i = 0; i < size; i++) {
+                            groupAccess.polymer_addStack(buf.readItemStack());
+                        }
+                    }
                 }
 
                 case PolymerPacketIds.REGISTRY_ITEM_GROUP -> {
@@ -89,7 +106,42 @@ public class ClientPacketHandler {
 
                     ItemGroupAccessor.setGROUPS(newArray);
 
-                    var group = new ClientItemGroup(array.length, id, id.toString(), name, icon, stacks);
+                    var group = new InternalClientItemGroup(array.length, id, id.toString(), name, icon, stacks);
+                    InternalClientRegistry.ITEM_GROUPS.set(id, group);
+                }
+
+                case PolymerPacketIds.REGISTRY_RESET_SEARCH -> {
+                    var a = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TOOLTIP);
+                    var b = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TAG);
+
+                    ((MutableSearchableContainer) a).polymer_removeIf((s) -> s instanceof ItemStack stack && PolymerItemUtils.getPolymerIdentifier(stack) != null);
+                    ((MutableSearchableContainer) b).polymer_removeIf((s) -> s instanceof ItemStack stack && PolymerItemUtils.getPolymerIdentifier(stack) != null);
+
+                    for (var group : ItemGroup.GROUPS) {
+                        if (group == ItemGroup.SEARCH) {
+                            continue;
+                        }
+
+                        Collection<ItemStack> stacks;
+
+                        if (group instanceof InternalClientItemGroup clientItemGroup) {
+                            stacks = clientItemGroup.getStacks();
+                        } else {
+                            stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
+                        }
+
+                        if (stacks != null) {
+                            for (var stack : stacks) {
+                                a.add(stack);
+                                b.add(stack);
+                            }
+                        }
+                    }
+
+                    a.reload();
+                    b.reload();
+
+                    PolymerClientUtils.ON_SEARCH_REBUILD.invoke((r) -> r.run());
                 }
 
                 case PolymerPacketIds.REGISTRY_BLOCKSTATE -> {

@@ -21,4 +21,7 @@ public interface ItemGroupAccessor {
     @Mutable
     @Accessor
     void setIndex(int index);
+
+    @Accessor
+    String getId();
 }

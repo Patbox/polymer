@@ -3,10 +3,12 @@ package eu.pb4.polymer.api.utils;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.networking.PolymerPacketIds;
 import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -61,35 +63,6 @@ public class PolymerUtils {
         } else {
             return getPlayer() != null || ClientUtils.isSingleplayer();
         }
-    }
-
-    /**
-     * Resends synchronization packets to player if their client supports that
-     */
-    public static void synchronizePolymerRegistries(ServerPlayNetworkHandler handler) {
-        ServerPacketBuilders.createSyncPackets(handler);
-    }
-
-    /**
-     * Resends synchronization packets to player if their client supports that
-     */
-    public static void synchronizeCreativeTabs(ServerPlayNetworkHandler handler) {
-        ServerPacketBuilders.createCreativeTabSync(handler);
-    }
-
-    /**
-     * Sends/Updates Creative tab for player
-     */
-    public static void sendCreativeTab(PolymerItemGroup group, ServerPlayNetworkHandler handler) {
-        ServerPacketBuilders.removeItemGroup(group, handler);
-        ServerPacketBuilders.syncItemGroup(group, handler);
-    }
-
-    /**
-     * Removes creative tab from player
-     */
-    public static void removeCreativeTab(PolymerItemGroup group, ServerPlayNetworkHandler handler) {
-        ServerPacketBuilders.removeItemGroup(group, handler);
     }
 
     /**

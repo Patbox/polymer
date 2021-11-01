@@ -106,11 +106,11 @@ dependencies {
 
 	modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.0'
 
-	modCompileOnly "mcp.mobius.waila:wthit-api:fabric-3.10.0"
+	modCompileOnly "mcp.mobius.waila:wthit-api:fabric-3.10.1"
 
 	//modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.0'
 
-	//modCompileOnly "me.shedaniel:RoughlyEnoughItems-api:6.0.279-alpha"
+	modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:6.0.307-alpha"
 
 	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.17.1")
 

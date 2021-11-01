@@ -14,7 +14,6 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
 
     private boolean fabricSync = false;
     private boolean polymc = false;
-    private boolean wthit = false;
     private boolean lithium = false;
 
     @Override
@@ -23,7 +22,6 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
 
         this.fabricSync = loader.isModLoaded("fabric-registry-sync-v0");
         this.polymc = loader.isModLoaded("polymc");
-        this.wthit = loader.isModLoaded("wthit");
         this.lithium = loader.isModLoaded("lithium");
     }
 
@@ -45,7 +43,6 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
             return switch (type) {
                 case "fabricSync" -> this.fabricSync;
                 case "polymc" -> this.polymc;
-                case "wthit" -> this.wthit;
                 default -> true;
             };
         }

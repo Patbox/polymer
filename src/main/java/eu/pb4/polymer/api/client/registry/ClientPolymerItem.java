@@ -5,6 +5,6 @@ import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
-public record ClientPolymerItem(Identifier identifier, ItemStack visualStack) {
+public record ClientPolymerItem(Identifier identifier, ItemStack visualStack, String itemGroup) {
     public static final PolymerRegistry<ClientPolymerItem> REGISTRY = InternalClientRegistry.ITEMS;
 }

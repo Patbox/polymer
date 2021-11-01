@@ -124,6 +124,52 @@ public class PolymerItemUtils {
     }
 
     /**
+     * Returns stored identifier of Polymer ItemStack. If it's invalid, null is returned instead.
+     */
+    @Nullable
+    public static Identifier getPolymerIdentifier(ItemStack itemStack) {
+        if (itemStack.hasNbt()) {
+            String id = itemStack.getNbt().getString(VIRTUAL_ITEM_ID);
+            if (id != null && !id.isEmpty()) {
+                Identifier identifier = Identifier.tryParse(id);
+
+                return identifier;
+            }
+        }
+
+        return null;
+    }
+
+    public static boolean isPolymerServerItem(ItemStack itemStack) {
+        if (itemStack.getItem() instanceof PolymerItem) {
+            return true;
+        } else if (itemStack.hasEnchantments()) {
+            for (NbtElement enchantment : itemStack.getEnchantments()) {
+                String id = ((NbtCompound) enchantment).getString("id");
+
+                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+
+                if (ench instanceof PolymerObject) {
+                    return true;
+                }
+            }
+        } else if (itemStack.hasNbt() && itemStack.getNbt().contains(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
+            for (NbtElement enchantment : itemStack.getNbt().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
+                String id = ((NbtCompound) enchantment).getString("id");
+
+                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+
+                if (ench instanceof PolymerObject) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * This method creates minimal representation of ItemStack
      *
      * @param itemStack Server side ItemStack

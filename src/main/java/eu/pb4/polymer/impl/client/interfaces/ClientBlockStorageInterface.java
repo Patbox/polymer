@@ -1,4 +1,4 @@
-package eu.pb4.polymer.impl.client.world;
+package eu.pb4.polymer.impl.client.interfaces;
 
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import net.fabricmc.api.EnvType;

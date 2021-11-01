@@ -20,6 +20,12 @@
   "entrypoints": {
     "main": [
       "eu.pb4.polymer.impl.PolymerMod"
+    ],
+    "client": [
+      "eu.pb4.polymer.impl.PolymerMod"
+    ],
+    "rei": [
+      "eu.pb4.polymer.impl.compat.ReiCompatibility"
     ]
   },
   "mixins": [

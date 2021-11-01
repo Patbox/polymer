@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import eu.pb4.polymertest.mixin.EntityAccessor;
@@ -40,14 +41,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class TestMod implements ModInitializer {
-    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.createPrivate(
+    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(
             new Identifier("polymer", "test"),
             new TranslatableText("testmod.itemgroup").formatted(Formatting.AQUA));
+
+    public static final PolymerItemGroup ITEM_GROUP_2 = PolymerItemGroup.createPrivate(
+            new Identifier("polymer", "test2"),
+            new TranslatableText("testmod.itemgroup2").formatted(Formatting.AQUA));
 
     public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
     public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
     public static Block BLOCK = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
-    public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings(), Items.STONE);
+    public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings().group(ITEM_GROUP), Items.STONE);
+    public static Block BLOCK_FENCE = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE);
+    public static BlockItem BLOCK_FENCE_ITEM = new PolymerBlockItem(BLOCK_FENCE, new FabricItemSettings().group(ITEM_GROUP), Items.NETHER_BRICK_FENCE);
     public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
     public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new FabricItemSettings().group(ITEM_GROUP), Items.TNT);
     public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
@@ -94,6 +101,8 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), BLOCK);
         Registry.register(Registry.ITEM, new Identifier("test", "block"), BLOCK_ITEM);
+        Registry.register(Registry.BLOCK, new Identifier("test", "block_fence"), BLOCK_FENCE);
+        Registry.register(Registry.ITEM, new Identifier("test", "block_fence"), BLOCK_FENCE_ITEM);
         Registry.register(Registry.BLOCK, new Identifier("test", "block2"), BLOCK_2);
         Registry.register(Registry.ITEM, new Identifier("test", "block2"), BLOCK_ITEM_2);
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), TATER_BLOCK);
@@ -143,16 +152,17 @@ public class TestMod implements ModInitializer {
         })));
 
 
-        AtomicBoolean atomicBoolean = new AtomicBoolean();
+        AtomicBoolean atomicBoolean = new AtomicBoolean(true);
 
         CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test2").executes((ctx) -> {
             try {
                 var player = ctx.getSource().getPlayer();
                 if (atomicBoolean.get()) {
-                    PolymerUtils.sendCreativeTab(ITEM_GROUP, player.networkHandler);
+                    PolymerSyncUtils.sendCreativeTab(ITEM_GROUP_2, player.networkHandler);
                 } else {
-                    PolymerUtils.removeCreativeTab(ITEM_GROUP, player.networkHandler);
+                    PolymerSyncUtils.removeCreativeTab(ITEM_GROUP_2, player.networkHandler);
                 }
+                PolymerSyncUtils.rebuildCreativeSearch(player.networkHandler);
                 atomicBoolean.set(!atomicBoolean.get());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -160,6 +170,12 @@ public class TestMod implements ModInitializer {
 
             return 0;
         })));
+
+        PolymerItemGroup.SYNC_EVENT.register((p, s) -> {
+            if (atomicBoolean.get()) {
+                s.send(ITEM_GROUP_2);
+            }
+        });
 
         var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
         System.out.println(id);

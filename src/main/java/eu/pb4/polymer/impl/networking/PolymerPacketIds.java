@@ -20,9 +20,15 @@ public class PolymerPacketIds {
     public static final String REGISTRY_ITEM_GROUP_REMOVE = "registry/item_group/remove";
     public static final Identifier REGISTRY_ITEM_GROUP_REMOVE_ID = PolymerUtils.id(REGISTRY_ITEM_GROUP_REMOVE);
 
+
+    public static final String REGISTRY_ITEM_GROUP_VANILLA = "registry/item_group/vanilla";
+    public static final Identifier REGISTRY_ITEM_GROUP_VANILLA_ID = PolymerUtils.id(REGISTRY_ITEM_GROUP_VANILLA);
+
     public static final String REGISTRY_ITEM_GROUP_CLEAR = "registry/item_group/clear";
     public static final Identifier REGISTRY_ITEM_GROUP_CLEAR_ID = PolymerUtils.id(REGISTRY_ITEM_GROUP_CLEAR);
 
+    public static final String REGISTRY_RESET_SEARCH = "registry/reset_search";
+    public static final Identifier REGISTRY_RESET_SEARCH_ID = PolymerUtils.id(REGISTRY_RESET_SEARCH);
 
     public static final String REGISTRY_BLOCKSTATE = "registry/blockstate";
     public static final Identifier REGISTRY_BLOCKSTATE_ID = PolymerUtils.id(REGISTRY_BLOCKSTATE);

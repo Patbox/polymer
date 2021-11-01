@@ -5,6 +5,7 @@ import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
+import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -16,10 +17,10 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Locale;
 
 @ApiStatus.Internal
-public record PolymerItemEntry(Identifier identifier, Identifier itemGroup, ItemStack representation) implements BufferWritable {
+public record PolymerItemEntry(Identifier identifier, String itemGroup, ItemStack representation) implements BufferWritable {
     public void write(PacketByteBuf buf, ServerPlayNetworkHandler handler) {
         buf.writeIdentifier(identifier);
-        buf.writeIdentifier(itemGroup);
+        buf.writeString(itemGroup);
         buf.writeItemStack(ServerTranslationUtils.parseFor(handler, representation));
     }
 
@@ -28,9 +29,9 @@ public record PolymerItemEntry(Identifier identifier, Identifier itemGroup, Item
 
         var groupIdentifier = group != null
                 ? group instanceof PolymerItemGroup pGroup
-                ? pGroup.getId()
-                : new Identifier(group.getName().toLowerCase(Locale.ROOT).replace(":", "__"))
-                : InternalServerRegistry.POLYMER_ITEM_GROUP;
+                ? pGroup.getId().toString()
+                : ((ItemGroupAccessor) group).getId()
+                : InternalServerRegistry.POLYMER_ITEM_GROUP.toString();
 
         return new PolymerItemEntry(
                 Registry.ITEM.getId(item),
@@ -40,6 +41,6 @@ public record PolymerItemEntry(Identifier identifier, Identifier itemGroup, Item
     }
 
     public static PolymerItemEntry read(PacketByteBuf buf) {
-        return new PolymerItemEntry(buf.readIdentifier(), buf.readIdentifier(), buf.readItemStack());
+        return new PolymerItemEntry(buf.readIdentifier(), buf.readString(), buf.readItemStack());
     }
 }

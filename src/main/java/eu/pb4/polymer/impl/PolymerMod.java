@@ -1,7 +1,9 @@
 package eu.pb4.polymer.impl;
 
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.impl.compat.ReiCompatibility;
 import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -12,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class PolymerMod implements ModInitializer {
+public class PolymerMod implements ModInitializer, ClientModInitializer {
 	public static final boolean POLYMC_COMPAT = FabricLoader.getInstance().isModLoaded("polymc");
 
 	public static final Logger LOGGER = LogManager.getLogger("Polymer");
@@ -22,8 +24,14 @@ public class PolymerMod implements ModInitializer {
 	public void onInitialize() {
 		if (POLYMC_COMPAT) {
 			PolymerRPUtils.markAsRequired();
-
 			ServerLifecycleEvents.SERVER_STARTED.register((s) -> PolyMcHelpers.overrideCommand(s));
+		}
+	}
+
+	@Override
+	public void onInitializeClient() {
+		if (FabricLoader.getInstance().isModLoaded("roughlyenoughitems")) {
+			ReiCompatibility.registerEvents();
 		}
 	}
 }
