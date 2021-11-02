@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.client;
 
+import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.util.Formatting;
@@ -30,6 +31,16 @@ public class DebugHudMixin {
                     list.add(entry.getKey() + ": " + entry.getValue());
                 }
             }
+        }
+    }
+
+    @Inject(method = "getLeftText", at = @At("RETURN"))
+    private void polymer_debugText(CallbackInfoReturnable<List<String>> cir) {
+        var list = cir.getReturnValue();
+
+        if (InternalClientRegistry.ENABLED) {
+            list.add(String.format("[Polymer] C: %s (%s), S: %s (%s)", PolymerMod.VERSION, PolymerMod.PROTOCOL_VERSION, InternalClientRegistry.SERVER_VERSION, InternalClientRegistry.SERVER_PROTOCOL));
+            list.add(String.format("[Polymer] I: %s, IG: %s, B: %s, BS: %s", InternalClientRegistry.ITEMS.size(), InternalClientRegistry.ITEM_GROUPS.size(), InternalClientRegistry.BLOCKS.size(), InternalClientRegistry.BLOCK_STATES.size()));
         }
     }
 }

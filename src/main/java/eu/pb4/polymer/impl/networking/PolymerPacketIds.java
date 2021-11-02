@@ -40,4 +40,7 @@ public class PolymerPacketIds {
     public static final Identifier BLOCK_UPDATE_ID = PolymerUtils.id(BLOCK_UPDATE);
     public static final String CHUNK_SECTION_UPDATE = "world/section";
     public static final Identifier CHUNK_SECTION_UPDATE_ID = PolymerUtils.id(CHUNK_SECTION_UPDATE);
+
+    public static final String PICK_BLOCK = "pick_block";
+    public static final Identifier PICK_BLOCK_ID = PolymerUtils.id(PICK_BLOCK);
 }

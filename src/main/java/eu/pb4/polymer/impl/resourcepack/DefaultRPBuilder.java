@@ -16,7 +16,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,24 +42,17 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/1cf89c77ed5e72401b869f66410934804f3d6f52/client.jar";
 
-    private final Path inputPath;
     private final Map<Item, JsonArray> models = new HashMap<>();
-    private final ZipOutputStream outputStream;
+    private final Map<String, byte[]> fileMap = new HashMap<>();
     private ZipFile clientJar = null;
+    private final Path outputPath;
 
-    public DefaultRPBuilder(Path outputPath, @Nullable Path inputPath) throws Exception {
+    public DefaultRPBuilder(Path outputPath) throws Exception {
         outputPath.getParent().toFile().mkdirs();
+        this.outputPath = outputPath;
 
         if (outputPath.toFile().exists()) {
             Files.deleteIfExists(outputPath);
-        }
-
-        this.outputStream = new ZipOutputStream(new FileOutputStream(outputPath.toFile()));
-
-        this.inputPath = inputPath;
-
-        if (inputPath != null && inputPath.toFile().exists() && inputPath.toFile().isDirectory()) {
-
         }
     }
 
@@ -68,12 +60,48 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     @Override
     public boolean addData(String path, byte[] data) {
         try {
-            this.outputStream.putNextEntry(new ZipEntry(path));
-            this.outputStream.write(data, 0, data.length);
-            this.outputStream.closeEntry();
+            this.fileMap.put(path, data);
             return true;
         } catch (Exception e) {
             PolymerMod.LOGGER.error("Something went wrong while adding raw data to path: " + path);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean copyFromPath(Path basePath) {
+        try {
+            Files.walkFileTree(basePath, new FileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    var relative = basePath.relativize(file);
+
+                    var bytes = Files.readAllBytes(file);
+
+                    fileMap.put(relative.toString(), bytes);
+
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return true;
+        } catch (Exception e) {
+            PolymerMod.LOGGER.error("Something went wrong while copying data from: " + basePath);
             e.printStackTrace();
             return false;
         }
@@ -96,11 +124,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         var relative = assets.relativize(file);
 
-                        outputStream.putNextEntry(new ZipEntry("assets/" + relative));
                         var bytes = Files.readAllBytes(file);
 
-                        outputStream.write(bytes, 0, bytes.length);
-                        outputStream.closeEntry();
+                        fileMap.put("assets/" + relative, bytes);
 
                         return FileVisitResult.CONTINUE;
                     }
@@ -148,21 +174,20 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 jsonArray.add(jsonObject);
             }
-            if (this.inputPath != null) {
-                String baseModelPath = "assets/" + cmdInfo.modelPath().getNamespace() + "/models/" + cmdInfo.modelPath().getPath() + ".json";
-                Path inputPath = this.inputPath.resolve(baseModelPath);
+            JsonObject modelObject = null;
+            var modelPath = "assets/" + cmdInfo.modelPath().getNamespace() + "/models/" + cmdInfo.modelPath().getPath() + ".json";
 
-                if (inputPath.toFile().exists()) {
-                    JsonObject modelObject = JSON_PARSER.parse(Files.readString(inputPath)).getAsJsonObject();
-                    if (modelObject.has("overrides")) {
-                        JsonArray array = modelObject.getAsJsonArray("overrides");
+            if (modelObject == null && this.fileMap.containsKey(modelPath)) {
+                modelObject = JSON_PARSER.parse(new String(this.fileMap.get(modelPath), StandardCharsets.UTF_8)).getAsJsonObject();
+            }
 
-                        for (JsonElement element : array) {
-                            JsonObject jsonObject = element.getAsJsonObject();
-                            jsonObject.get("predicate").getAsJsonObject().addProperty("custom_model_data", cmdInfo.value());
-                            jsonArray.add(jsonObject);
-                        }
-                    }
+            if (modelObject != null && modelObject.has("overrides")) {
+                JsonArray array = modelObject.getAsJsonArray("overrides");
+
+                for (JsonElement element : array) {
+                    JsonObject jsonObject = element.getAsJsonObject();
+                    jsonObject.get("predicate").getAsJsonObject().addProperty("custom_model_data", cmdInfo.value());
+                    jsonArray.add(jsonObject);
                 }
             }
 
@@ -176,9 +201,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     @Override
     public CompletableFuture<Boolean> buildResourcePack() {
-
         return CompletableFuture.supplyAsync(() -> {
             try {
+                var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
+
                 Path clientJarPath;
 
                 if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
@@ -199,6 +225,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 this.clientJar = new ZipFile(clientJarPath.toFile());
 
                 boolean bool = true;
+
                 for (Map.Entry<Item, JsonArray> entry : this.models.entrySet()) {
                     Identifier id = Registry.ITEM.getId(entry.getKey());
                     try {
@@ -211,10 +238,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             baseModelPath = "assets/" + itemId.getNamespace() + "/models/item/" + itemId.getPath() + ".json";
                         }
 
-                        Path inputPath = this.inputPath != null ? this.inputPath.resolve(baseModelPath) : null;
-
-                        if (inputPath != null && inputPath.toFile().exists()) {
-                            modelObject = JSON_PARSER.parse(Files.readString(inputPath)).getAsJsonObject();
+                        if (this.fileMap.containsKey(baseModelPath)) {
+                            modelObject = JSON_PARSER.parse(new String(this.fileMap.get(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
                         } else {
                             InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(baseModelPath));
                             modelObject = JSON_PARSER.parse(IOUtils.toString(stream, StandardCharsets.UTF_8.name())).getAsJsonObject();
@@ -229,11 +254,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                         modelObject.add("overrides", jsonArray);
 
-                        this.outputStream.putNextEntry(new ZipEntry(basePath + id.getPath() + ".json"));
+                        outputStream.putNextEntry(new ZipEntry(basePath + id.getPath() + ".json"));
                         var bytes = modelObject.toString().getBytes(StandardCharsets.UTF_8);
 
-                        this.outputStream.write(bytes, 0, bytes.length);
-                        this.outputStream.closeEntry();
+                        outputStream.write(bytes, 0, bytes.length);
+                        outputStream.closeEntry();
 
                     } catch (Exception e) {
                         PolymerMod.LOGGER.error("Something went wrong while saving model of " + id);
@@ -242,37 +267,30 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     }
                 }
 
-                try {
                     {
-                        if (this.inputPath == null || !this.inputPath.resolve("pack.mcmeta").toFile().exists()) {
-                            this.outputStream.putNextEntry(new ZipEntry("pack.mcmeta"));
-                            var bytes = ("" +
+                        if (!this.fileMap.containsKey("pack.mcmeta")) {
+                            this.fileMap.put("pack.mcmeta", ("" +
                                     "{\n" +
                                     "   \"pack\":{\n" +
                                     "      \"pack_format\":" + SharedConstants.field_29738 + ",\n" +
                                     "      \"description\":\"Server resource pack\"\n" +
                                     "   }\n" +
-                                    "}\n").getBytes(StandardCharsets.UTF_8);
-                            this.outputStream.write(bytes, 0, bytes.length);
-                            this.outputStream.closeEntry();
+                                    "}\n").getBytes(StandardCharsets.UTF_8));
                         }
                     }
                     {
-                        if (this.inputPath == null || !this.inputPath.resolve("pack.png").toFile().exists()) {
-                            this.outputStream.putNextEntry(new ZipEntry("pack.png"));
-
-                            var bytes = Files.readAllBytes(FabricLoader.getInstance().getModContainer("polymer").get().getPath("assets/icon.png"));
-                            this.outputStream.write(bytes, 0, bytes.length);
-                            this.outputStream.closeEntry();
+                        if (!this.fileMap.containsKey("pack.png")) {
+                            this.fileMap.put("pack.png", Files.readAllBytes(FabricLoader.getInstance().getModContainer("polymer").get().getPath("assets/icon.png")));
                         }
                     }
-                } catch (Exception e) {
-                    PolymerMod.LOGGER.error("Something went wrong while creating pack.mcmeta file.");
-                    e.printStackTrace();
-                    bool = false;
-                }
 
-                this.outputStream.close();
+                    for (var entry : fileMap.entrySet()) {
+                        outputStream.putNextEntry(new ZipEntry(entry.getKey()));
+                        outputStream.write(entry.getValue());
+                        outputStream.closeEntry();
+                    }
+
+                outputStream.close();
                 return bool;
             } catch (Exception e) {
                 PolymerMod.LOGGER.error("Something went wrong while creating resource pack!");

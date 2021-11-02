@@ -37,6 +37,12 @@ public class ClientPacketHandler {
     public static void handle(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
         try {
             switch (identifier.getPath()) {
+                case PolymerPacketIds.VERSION -> {
+                    var protocol = buf.readShort();
+                    var version = buf.readString();
+                    InternalClientRegistry.setVersion(version, protocol);
+                }
+
                 case PolymerPacketIds.REGISTRY_BLOCK -> {
                     var size = buf.readVarInt();
 

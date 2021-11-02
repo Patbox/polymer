@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.item.packet;
 
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
@@ -33,7 +34,7 @@ public class PacketByteBufMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
     private void polymer_replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir) {
-        if (PolymerUtils.isOnPlayerNetworking()) {
+        if (PolymerUtils.isOnPlayerNetworking() && !ClientUtils.isClientSide()) {
             cir.setReturnValue(PolymerItemUtils.getRealItemStack(cir.getReturnValue()));
         }
     }

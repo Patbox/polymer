@@ -9,6 +9,7 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
+import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
@@ -132,6 +133,13 @@ public class ServerPacketBuilders {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
 
         if (polymerHandler.polymer_hasPolymer()) {
+            {
+                var buf = buf();
+                buf.writeShort(PolymerMod.PROTOCOL_VERSION);
+                buf.writeString(PolymerMod.VERSION);
+                player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.VERSION_ID, buf));
+            }
+
             var entries = new ArrayList<BufferWritable>();
             player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.REGISTRY_ITEM_GROUP_CLEAR_ID, buf()));
 

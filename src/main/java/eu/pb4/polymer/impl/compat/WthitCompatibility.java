@@ -93,7 +93,7 @@ public class WthitCompatibility implements IWailaPlugin {
                         modName = IModInfo.get(regBlock).getName();
                     }
 
-                    if (modName == null || modName.equals("Minecraft")) {
+                    if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
                         modName = "Server";
                     }
 
@@ -136,7 +136,7 @@ public class WthitCompatibility implements IWailaPlugin {
                             modName = IModInfo.get(regBlock).getName();
                         }
 
-                        if (modName == null || modName.equals("Minecraft")) {
+                        if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
                             modName = "Server";
                         }
 

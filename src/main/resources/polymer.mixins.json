@@ -50,7 +50,6 @@
     "other.ServerPlayNetworkHandlerMixin"
   ],
   "client": [
-    "client.ClientConnectionMixin",
     "client.ClientPlayNetworkHandlerMixin",
     "client.CreativeInventoryScreenAccessor",
     "client.CreativeInventoryScreenMixin",
@@ -62,6 +61,7 @@
     "client.ResourcePackManagerMixin",
     "client.block.ChunkSectionMixin",
     "client.block.WorldChunkMixin",
+    "client.compat.wthit_WailaClientMixin",
     "client.item.ClickSlotC2SPacketMixin",
     "client.item.CreativeInventoryActionC2SPacketMixin",
     "client.item.EntityEquipmentUpdateS2CPacketMixin",

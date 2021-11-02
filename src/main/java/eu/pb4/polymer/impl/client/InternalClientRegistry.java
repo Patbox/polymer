@@ -30,6 +30,11 @@ import java.util.function.Predicate;
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
+    public static boolean ENABLED = false;
+    public static String SERVER_VERSION = "";
+    public static int SERVER_PROTOCOL = -1;
+
+
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>();
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
     public static final Palette<ClientPolymerBlock.State> BLOCK_STATE_PALETTE = new IdListPalette<>(BLOCK_STATES, null);
@@ -47,6 +52,17 @@ public class InternalClientRegistry {
         }
 
         return null;
+    }
+
+    public static void setVersion(String version, int protocol) {
+        SERVER_VERSION = version;
+        SERVER_PROTOCOL = Math.max(protocol, -1);
+        ENABLED = SERVER_PROTOCOL >= 0;
+    }
+
+    public static void disable() {
+        clear();
+        setVersion("", -1);
     }
 
     public static void clear() {

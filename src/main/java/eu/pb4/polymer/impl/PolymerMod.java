@@ -20,7 +20,8 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 	public static final boolean POLYMC_COMPAT = FabricLoader.getInstance().isModLoaded("polymc");
 
 	public static final Logger LOGGER = LogManager.getLogger("Polymer");
-	//public static final String VERSION = FabricLoader.getInstance().getModContainer("polymer").get().getMetadata().getVersion().getFriendlyString();
+	public static final String VERSION = FabricLoader.getInstance().getModContainer("polymer").get().getMetadata().getVersion().getFriendlyString().split("\\+")[0];
+	public static final int PROTOCOL_VERSION = 0;
 
 	@Override
 	public void onInitialize() {

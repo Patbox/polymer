@@ -7,4 +7,6 @@ public interface PolymerRegistry<T> extends Iterable<T> {
     T get(int id);
     Identifier getId(T entry);
     int getRawId(T entry);
+
+    int size();
 }

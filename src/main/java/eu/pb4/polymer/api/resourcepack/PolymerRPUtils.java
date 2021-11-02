@@ -121,12 +121,16 @@ public class PolymerRPUtils {
 
             Path possibleInput = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack-input");
 
-            var builder = new DefaultRPBuilder(output, possibleInput.toFile().exists() ? possibleInput : null);
+            var builder = new DefaultRPBuilder(output);
 
             RESOURCE_PACK_CREATION_EVENT.invoke((x) -> x.accept(builder));
 
             for (String modId : MOD_IDS) {
                 successful = builder.copyModAssets(modId) && successful;
+            }
+
+            if (possibleInput.toFile().exists()) {
+                builder.copyFromPath(possibleInput);
             }
 
             for (List<PolymerModelData> cmdInfoList : ITEMS.values()) {
