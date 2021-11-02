@@ -10,7 +10,7 @@ import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
-import eu.pb4.polymer.impl.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.networking.PolymerPacketIds;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockStateEntry;
@@ -30,8 +30,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)

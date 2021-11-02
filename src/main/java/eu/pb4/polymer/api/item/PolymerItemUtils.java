@@ -14,6 +14,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -32,7 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class PolymerItemUtils {
+public final class PolymerItemUtils {
+    private PolymerItemUtils() {}
     public static final String VIRTUAL_ITEM_ID = "Polymer$itemId";
     public static final String REAL_TAG = "Polymer$itemTag";
 
@@ -109,10 +111,12 @@ public class PolymerItemUtils {
                 try {
                     Identifier identifier = Identifier.tryParse(id);
                     Item item = Registry.ITEM.get(identifier);
-                    out = new ItemStack(item, itemStack.getCount());
-                    NbtCompound tag = itemStack.getSubNbt(REAL_TAG);
-                    if (tag != null) {
-                        out.setNbt(tag);
+                    if (item != Items.AIR) {
+                        out = new ItemStack(item, itemStack.getCount());
+                        NbtCompound tag = itemStack.getSubNbt(REAL_TAG);
+                        if (tag != null) {
+                            out.setNbt(tag);
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -1,4 +1,4 @@
-package eu.pb4.polymer.impl.interfaces;
+package eu.pb4.polymer.impl.client.interfaces;
 
 import net.minecraft.item.ItemStack;
 

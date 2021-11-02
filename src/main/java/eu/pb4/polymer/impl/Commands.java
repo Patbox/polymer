@@ -26,19 +26,18 @@ public class Commands {
     public static int generate(CommandContext<ServerCommandSource> context) {
         context.getSource().sendFeedback(new LiteralText("Starting resource pack generation..."), true);
 
-        Path path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack");
-        path.toFile().mkdirs();
-
         try {
             if (PolymerMod.POLYMC_COMPAT) {
+                Path path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack-input");
+                path.toFile().mkdirs();
                 PolyMcHelpers.createResources(path);
             }
         } catch (Exception e) {}
 
-        boolean success = PolymerRPUtils.build(FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack"));
+        boolean success = PolymerRPUtils.build(FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip"));
 
         if (success) {
-            context.getSource().sendFeedback(new LiteralText("Resource pack created successfully! You can find it in: " + path), true);
+            context.getSource().sendFeedback(new LiteralText("Resource pack created successfully! You can find it in game foleder as polymer-resourcepack.zip"), true);
         } else {
             context.getSource().sendError(new LiteralText("Found issues while creating resource pack! See logs above for more detail!"));
         }

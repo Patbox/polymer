@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
@@ -26,7 +27,7 @@ public class WthitCompatibility implements IWailaPlugin {
         registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.BODY, Block.class, 1000);
         registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.TAIL, Block.class, 1000);
         registrar.addOverride(BlockOverride.INSTANCE, Block.class, 1000);
-        registrar.addDisplayItem(BlockOverride.INSTANCE, Block.class, 1000);
+        registrar.addDisplayItem(BlockOverride.INSTANCE, Block.class, 500);
 
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.HEAD, ItemEntity.class, 1000);
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.TAIL, ItemEntity.class, 1000);
@@ -40,15 +41,19 @@ public class WthitCompatibility implements IWailaPlugin {
         public @Nullable BlockState getOverride(IBlockAccessor accessor, IPluginConfig config) {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != null) {
-                return Blocks.AIR.getDefaultState();
+                return Blocks.STONE.getDefaultState();
             }
             return null;
         }
 
         @Override
         public ItemStack getDisplayItem(IBlockAccessor accessor, IPluginConfig config) {
-            BlockState state = accessor.getWorld().getBlockState(accessor.getPosition());
-            return state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
+            var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
+            if (block != null) {
+                BlockState state = accessor.getWorld().getBlockState(accessor.getPosition());
+                return state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
+            }
+            return ItemStack.EMPTY;
         }
 
         @Override

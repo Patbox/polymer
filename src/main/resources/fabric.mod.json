@@ -17,6 +17,7 @@
   "license": "LGPLv3",
   "icon": "assets/icon.png",
   "environment": "*",
+  "accessWidener": "polymer.accesswidener",
   "entrypoints": {
     "main": [
       "eu.pb4.polymer.impl.PolymerMod"

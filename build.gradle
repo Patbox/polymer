@@ -36,7 +36,10 @@ loom {
 			source sourceSets.testmod
 		}
 	}
+
+	accessWidenerPath = file("src/main/resources/polymer.accesswidener")
 }
+
 
 allprojects {
 	apply plugin: 'fabric-loom'

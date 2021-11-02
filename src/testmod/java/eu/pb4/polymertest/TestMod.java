@@ -93,7 +93,7 @@ public class TestMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ITEM_GROUP.setIcon(new ItemStack(TATER_BLOCK_ITEM));
-        PolymerRPUtils.addAssetSource("polymertest");
+        PolymerRPUtils.addAssetSource("apolymertest");
         //PolymerRPUtils.markAsRequired();
         //PolymerRPUtils.addModAsAssetsSource("promenade");
 

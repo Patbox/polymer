@@ -5,7 +5,7 @@ import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
-import eu.pb4.polymer.impl.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.mixin.client.CreativeInventoryScreenAccessor;

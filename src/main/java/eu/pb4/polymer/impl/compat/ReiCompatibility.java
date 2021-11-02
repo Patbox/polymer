@@ -3,7 +3,7 @@ package eu.pb4.polymer.impl.compat;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
-import eu.pb4.polymer.impl.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.common.entry.EntryStack;

@@ -6,7 +6,7 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.impl.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
