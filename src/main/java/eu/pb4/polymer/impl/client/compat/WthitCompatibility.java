@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.client.compat;
 
 import eu.pb4.polymer.api.client.PolymerClientUtils;
+import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.other.InternalEntityHelpers;
@@ -49,7 +50,7 @@ public class WthitCompatibility implements IWailaPlugin {
         @Override
         public @Nullable BlockState getOverride(IBlockAccessor accessor, IPluginConfig config) {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-            if (block != null) {
+            if (block != ClientPolymerBlock.NONE_STATE) {
                 return Blocks.STONE.getDefaultState();
             }
             return null;
@@ -58,7 +59,7 @@ public class WthitCompatibility implements IWailaPlugin {
         @Override
         public ItemStack getDisplayItem(IBlockAccessor accessor, IPluginConfig config) {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-            if (block != null) {
+            if (block != ClientPolymerBlock.NONE_STATE) {
                 BlockState state = accessor.getWorld().getBlockState(accessor.getPosition());
 
                 var itemStack = state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
@@ -82,7 +83,7 @@ public class WthitCompatibility implements IWailaPlugin {
         @Override
         public void appendHead(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-            if (block != null) {
+            if (block != ClientPolymerBlock.NONE_STATE) {
                 IWailaConfig.Formatting formatting = IWailaConfig.get().getFormatting();
                 tooltip.set(WailaConstants.OBJECT_NAME_TAG, new LiteralText(formatting.formatBlockName(block.block().name().getString())));
                 if (config.getBoolean(WailaConstants.CONFIG_SHOW_REGISTRY)) {
@@ -95,7 +96,7 @@ public class WthitCompatibility implements IWailaPlugin {
         public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
             if (config.getBoolean(BLOCK_STATES)) {
                 var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-                if (block != null) {
+                if (block != ClientPolymerBlock.NONE_STATE) {
                     for (var state : block.states().entrySet()) {
                         var value = state.getValue();
                         var valueText = new LiteralText(value).setStyle(Style.EMPTY.withColor(value.equals("true") ? Formatting.GREEN : value.equals("false") ? Formatting.RED : Formatting.RESET));
@@ -109,7 +110,7 @@ public class WthitCompatibility implements IWailaPlugin {
         public void appendTail(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
                 var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-                if (block != null) {
+                if (block != ClientPolymerBlock.NONE_STATE) {
                     String modName = IModInfo.get(block.block().identifier()).getName();
 
                     if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {

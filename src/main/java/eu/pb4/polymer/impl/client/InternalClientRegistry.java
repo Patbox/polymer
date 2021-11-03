@@ -55,7 +55,7 @@ public class InternalClientRegistry {
             return storage.polymer_getClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ());
         }
 
-        return null;
+        return ClientPolymerBlock.NONE_STATE;
     }
 
     public static void setVersion(String version, int protocol) {
@@ -71,9 +71,12 @@ public class InternalClientRegistry {
 
     public static void clear() {
         BLOCKS.clear();
+        BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
         ITEMS.clear();
         ITEM_GROUPS.clear();
         ((NetworkIdList) BLOCK_STATES).polymer_clear();
+
+        BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 
         clearTabs(Predicates.alwaysTrue());
         for (var group : ItemGroup.GROUPS) {

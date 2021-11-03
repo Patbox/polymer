@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChunkSection.class)
 public class ChunkSectionMixin implements ClientBlockStorageInterface {
-    private PalettedContainer<ClientPolymerBlock.State> polymer_container = new PalettedContainer<>(InternalClientRegistry.BLOCK_STATE_PALETTE, InternalClientRegistry.BLOCK_STATES, null, null, null);
+    private PalettedContainer<ClientPolymerBlock.State> polymer_container = new PalettedContainer<>(InternalClientRegistry.BLOCK_STATE_PALETTE, InternalClientRegistry.BLOCK_STATES, null, null, ClientPolymerBlock.NONE_STATE);
 
     @Override
     public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {

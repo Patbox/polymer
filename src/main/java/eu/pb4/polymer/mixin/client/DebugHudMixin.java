@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.client;
 
+import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.client.gui.hud.DebugHud;
@@ -22,7 +23,7 @@ public class DebugHudMixin {
     private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK) {
             var block = InternalClientRegistry.getBlockAt(((BlockHitResult)this.blockHit).getBlockPos());
-            if (block != null) {
+            if (block != ClientPolymerBlock.NONE_STATE && block.block() != null) {
                 var list = cir.getReturnValue();
                 list.add("");
                 list.add(Formatting.UNDERLINE + "Polymer Block");

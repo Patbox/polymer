@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.client;
 
+import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.networking.ClientPacketBuilder;
@@ -48,7 +49,7 @@ public abstract class MinecraftClientMixin {
             if (this.crosshairTarget != null && this.crosshairTarget.getType() == HitResult.Type.BLOCK) {
                 var pos = ((BlockHitResult)this.crosshairTarget).getBlockPos();
 
-                if (InternalClientRegistry.getBlockAt(pos) != null) {
+                if (InternalClientRegistry.getBlockAt(pos) != ClientPolymerBlock.NONE_STATE) {
                     ClientPacketBuilder.sendPickBlock(this.getNetworkHandler(), pos);
                     ci.cancel();
                 }
