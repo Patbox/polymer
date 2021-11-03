@@ -191,7 +191,8 @@ public class ClientPacketHandler {
                 case PolymerPacketIds.CHUNK_SECTION_UPDATE -> {
                     var sectionPos = buf.readChunkSectionPos();
                     var size = buf.readVarInt();
-                    var section = handler.getWorld().getChunk(sectionPos.getX(), sectionPos.getZ()).getSection(sectionPos.getY());
+                    var chunk = handler.getWorld().getChunk(sectionPos.getX(), sectionPos.getZ());
+                    var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
 
                     if (section instanceof ClientBlockStorageInterface storage) {
                         for (int i = 0; i < size; i++) {
