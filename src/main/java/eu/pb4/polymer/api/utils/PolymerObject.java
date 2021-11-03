@@ -6,7 +6,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
  * Used to mark general polymer objects like BlockEntities, Enchantments, Recipe Serializers, etc
  */
 public interface PolymerObject {
-    default boolean syncWithPolymerClients(ServerPlayerEntity player) {
+    /**
+     * Allows to gate syncing of this object with clients running polymer
+     */
+    default boolean shouldSyncWithPolymerClient(ServerPlayerEntity player) {
         return true;
     }
 }

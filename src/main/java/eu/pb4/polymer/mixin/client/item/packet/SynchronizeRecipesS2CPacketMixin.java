@@ -1,7 +1,6 @@
-package eu.pb4.polymer.mixin.client.item;
+package eu.pb4.polymer.mixin.client.item.packet;
 
 import eu.pb4.polymer.api.utils.PolymerObject;
-import eu.pb4.polymer.mixin.other.SynchronizeRecipesS2CPacketAccessor;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

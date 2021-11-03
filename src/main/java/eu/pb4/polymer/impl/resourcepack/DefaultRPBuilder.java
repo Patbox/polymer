@@ -280,7 +280,13 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     }
                     {
                         if (!this.fileMap.containsKey("pack.png")) {
-                            this.fileMap.put("pack.png", Files.readAllBytes(FabricLoader.getInstance().getModContainer("polymer").get().getPath("assets/icon.png")));
+                            var filePath = FabricLoader.getInstance().getGameDir().resolve("server-icon.png");
+
+                            if (filePath.toFile().exists()) {
+                                this.fileMap.put("pack.png", Files.readAllBytes(filePath));
+                            } else {
+                                this.fileMap.put("pack.png", Files.readAllBytes(FabricLoader.getInstance().getModContainer("polymer").get().getPath("assets/icon.png")));
+                            }
                         }
                     }
 

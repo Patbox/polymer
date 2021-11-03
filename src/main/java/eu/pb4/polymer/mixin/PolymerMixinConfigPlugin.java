@@ -15,7 +15,7 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
     private boolean fabricSync = false;
     private boolean polymc = false;
     private boolean lithium = false;
-    private boolean wthit;
+    private boolean wthit = false;
 
     @Override
     public void onLoad(String mixinPackage) {

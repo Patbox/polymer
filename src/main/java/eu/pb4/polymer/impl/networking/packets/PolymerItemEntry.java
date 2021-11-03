@@ -1,6 +1,5 @@
 package eu.pb4.polymer.impl.networking.packets;
 
-import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
@@ -13,8 +12,6 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Locale;
 
 @ApiStatus.Internal
 public record PolymerItemEntry(Identifier identifier, String itemGroup, ItemStack representation) implements BufferWritable {

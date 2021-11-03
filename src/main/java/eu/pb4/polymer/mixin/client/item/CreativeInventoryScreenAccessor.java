@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.client;
+package eu.pb4.polymer.mixin.client.item;
 
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import org.spongepowered.asm.mixin.Mixin;

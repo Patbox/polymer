@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.client.item;
+package eu.pb4.polymer.mixin.client.item.packet;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;

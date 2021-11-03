@@ -1,14 +1,21 @@
-package eu.pb4.polymer.impl.compat;
+package eu.pb4.polymer.impl.client.compat;
 
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import mcp.mobius.waila.api.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.SkullItem;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
@@ -32,6 +39,8 @@ public class WthitCompatibility implements IWailaPlugin {
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.HEAD, ItemEntity.class, 1000);
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.TAIL, ItemEntity.class, 1000);
 
+        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.HEAD, Entity.class, 1000);
+        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.TAIL, Entity.class, 1000);
     }
 
     private static class BlockOverride implements IBlockComponentProvider {
@@ -51,7 +60,21 @@ public class WthitCompatibility implements IWailaPlugin {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != null) {
                 BlockState state = accessor.getWorld().getBlockState(accessor.getPosition());
-                return state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
+
+                var itemStack = state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
+
+                if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof SkullItem) {
+                    var blockEntity = accessor.getWorld().getBlockEntity(accessor.getPosition());
+
+                    if (blockEntity != null) {
+                        var nbtCompound = blockEntity.writeNbt(new NbtCompound());
+                        if (nbtCompound.contains("SkullOwner")) {
+                            itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
+                        }
+                    }
+                }
+
+                return itemStack;
             }
             return ItemStack.EMPTY;
         }
@@ -87,11 +110,7 @@ public class WthitCompatibility implements IWailaPlugin {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
                 var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
                 if (block != null) {
-                    String modName = null;
-                    var regBlock = Registry.BLOCK.get(block.block().identifier());
-                    if (regBlock != null) {
-                        modName = IModInfo.get(regBlock).getName();
-                    }
+                    String modName = IModInfo.get(block.block().identifier()).getName();
 
                     if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
                         modName = "Server";
@@ -147,4 +166,28 @@ public class WthitCompatibility implements IWailaPlugin {
         }
     }
 
+
+    private static final class EntityOverride implements IEntityComponentProvider {
+        public static final EntityOverride INSTANCE = new EntityOverride();
+
+        @Override
+        public void appendTail(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
+            if (config.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
+                var type = PolymerClientUtils.getEntityType(accessor.<ItemEntity>getEntity());
+                if (type != null) {
+                    String modName = null;
+                    var regBlock = Registry.ENTITY_TYPE.get(type.identifier());
+                    if (regBlock != null) {
+                        modName = IModInfo.get(InternalEntityHelpers.getEntity(regBlock)).getName();
+                    }
+
+                    if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !type.identifier().getNamespace().equals("minecraft"))) {
+                        modName = "Server";
+                    }
+
+                    tooltip.set(WailaConstants.MOD_NAME_TAG, new LiteralText(IWailaConfig.get().getFormatting().formatModName(modName)));
+                }
+            }
+        }
+    }
 }

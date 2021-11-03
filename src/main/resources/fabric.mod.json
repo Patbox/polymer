@@ -10,8 +10,7 @@
   "contact": {
     "homepage": "https://pb4.eu",
     "sources": "https://github.com/Patbox/polymer",
-    "issues": "https://github.com/Patbox/polymer/issues",
-    "modmenu.discord" : "https://pb4.eu/discord"
+    "issues": "https://github.com/Patbox/polymer/issues"
   },
 
   "license": "LGPLv3",
@@ -26,7 +25,7 @@
       "eu.pb4.polymer.impl.PolymerMod"
     ],
     "rei": [
-      "eu.pb4.polymer.impl.compat.ReiCompatibility"
+      "eu.pb4.polymer.impl.client.compat.ReiCompatibility"
     ]
   },
   "mixins": [
@@ -38,11 +37,12 @@
   },
   "custom": {
     "modmenu": {
-      "badges": [ "library" ]
+      "badges": [ "library" ],
+      "discord": "https://pb4.eu/discord"
     },
     "waila:plugins": {
       "id": "polymer:main",
-      "initializer": "eu.pb4.polymer.impl.compat.WthitCompatibility"
+      "initializer": "eu.pb4.polymer.impl.client.compat.WthitCompatibility"
     }
   }
 }

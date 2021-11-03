@@ -2,13 +2,12 @@ package eu.pb4.polymer.impl.client.interfaces;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.function.Predicate;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public interface MutableSearchableContainer {
-    void polymer_remove(Object obj);
-    void polymer_removeIf(Predicate<Object> predicate);
+public interface ClientEntityExtension {
+    void polymer_setId(Identifier id);
+    Identifier polymer_getId();
 }

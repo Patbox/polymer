@@ -11,14 +11,9 @@
     "homepage": "https://pb4.eu",
     "sources": "https://github.com/Patbox/polymer"
   },
-
   "license": "MIT",
   "icon": "assets/icon.png",
   "environment": "*",
-
-  "depends": {
-    "minecraft": "1.17.x"
-  },
   "custom": {
     "modmenu": {
       "badges": [

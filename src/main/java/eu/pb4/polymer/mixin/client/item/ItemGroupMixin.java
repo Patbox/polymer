@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.client;
+package eu.pb4.polymer.mixin.client.item;
 
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;

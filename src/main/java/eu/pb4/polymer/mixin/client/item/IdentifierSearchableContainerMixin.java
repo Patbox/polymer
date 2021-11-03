@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.client;
+package eu.pb4.polymer.mixin.client.item;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;

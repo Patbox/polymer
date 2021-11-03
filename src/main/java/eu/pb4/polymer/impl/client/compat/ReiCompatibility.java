@@ -1,4 +1,4 @@
-package eu.pb4.polymer.impl.compat;
+package eu.pb4.polymer.impl.client.compat;
 
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;

@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.client.item;
+package eu.pb4.polymer.mixin.client.item.packet;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.api.item.PolymerItemUtils;

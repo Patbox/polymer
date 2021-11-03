@@ -89,7 +89,7 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
     }
 
     @Override
-    public boolean syncWithPolymerClients(ServerPlayerEntity player) {
+    public boolean shouldSyncWithPolymerClient(ServerPlayerEntity player) {
         return this.sync;
     }
 

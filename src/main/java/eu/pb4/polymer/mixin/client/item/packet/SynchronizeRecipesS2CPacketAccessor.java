@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.other;
+package eu.pb4.polymer.mixin.client.item.packet;
 
 import net.minecraft.network.packet.s2c.play.SynchronizeRecipesS2CPacket;
 import net.minecraft.recipe.Recipe;

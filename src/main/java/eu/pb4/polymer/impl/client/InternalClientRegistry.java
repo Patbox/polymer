@@ -3,12 +3,13 @@ package eu.pb4.polymer.impl.client;
 import com.google.common.base.Predicates;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
+import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
-import eu.pb4.polymer.mixin.client.CreativeInventoryScreenAccessor;
+import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -42,6 +43,9 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>();
     public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>();
     public static final HashMap<String, ItemGroup> VANILLA_ITEM_GROUPS = new HashMap<>();
+
+    public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPE = new ImplPolymerRegistry<>();
+
 
     @Nullable
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {

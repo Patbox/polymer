@@ -3,17 +3,20 @@ package eu.pb4.polymer.impl.client.networking;
 import com.google.common.base.Predicates;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
+import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.client.interfaces.ClientEntityExtension;
 import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.networking.PolymerPacketIds;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockStateEntry;
+import eu.pb4.polymer.impl.networking.packets.PolymerEntityEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerItemEntry;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.fabricmc.api.EnvType;
@@ -43,6 +46,9 @@ public class ClientPacketHandler {
                     InternalClientRegistry.setVersion(version, protocol);
                 }
 
+                case PolymerPacketIds.SYNC_STARTED -> PolymerClientUtils.ON_SYNC_STARTED.invoke((r) -> r.run());
+                case PolymerPacketIds.SYNC_FINISHED -> PolymerClientUtils.ON_SYNC_FINISHED.invoke((r) -> r.run());
+
                 case PolymerPacketIds.REGISTRY_BLOCK -> {
                     var size = buf.readVarInt();
 
@@ -58,8 +64,17 @@ public class ClientPacketHandler {
                     for (int i = 0; i < size; i++) {
                         var entry = PolymerItemEntry.read(buf);
                         var item = new ClientPolymerItem(entry.identifier(), entry.representation(), entry.itemGroup());
-                        InternalClientRegistry.ITEMS.set(entry.identifier(), new ClientPolymerItem(entry.identifier(), entry.representation(), entry.itemGroup()));
-                        PolymerClientUtils.ON_ITEM_SYNC.invoke((c) -> c.accept(item));
+                        InternalClientRegistry.ITEMS.set(entry.identifier(), item);
+                    }
+                }
+
+                case PolymerPacketIds.REGISTRY_ENTITY -> {
+                    var size = buf.readVarInt();
+
+                    for (int i = 0; i < size; i++) {
+                        var entry = PolymerEntityEntry.read(buf);
+                        var entityType = new ClientPolymerEntityType(entry.identifier(), entry.name());
+                        InternalClientRegistry.ENTITY_TYPE.set(entry.identifier(), entityType);
                     }
                 }
 
@@ -187,6 +202,17 @@ public class ClientPacketHandler {
                             storage.polymer_setClientPolymerBlock(ChunkSectionPos.unpackLocalX(pos), ChunkSectionPos.unpackLocalY(pos), ChunkSectionPos.unpackLocalZ(pos), block);
                         }
                     }
+                }
+
+                case PolymerPacketIds.ENTITY -> {
+                    var id = buf.readVarInt();
+                    var polymerId = buf.readIdentifier();
+
+                    var entity = handler.getWorld().getEntityById(id);
+                    if (entity != null) {
+                        ((ClientEntityExtension) entity).polymer_setId(polymerId);
+                    }
+
                 }
             }
         } catch (Exception e) {
