@@ -24,9 +24,6 @@ public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
     @Unique
     private WorldChunk polymer_worldChunk;
 
-    @Unique
-    private Packet<?>[] polymer_attachedPackets = null;
-
     @Inject(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;)V", at = @At("TAIL"))
     private void polymer_storeWorldChunk(WorldChunk chunk, CallbackInfo ci) {
         this.polymer_worldChunk = chunk;
@@ -47,15 +44,5 @@ public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
 
     public WorldChunk polymer_getWorldChunk() {
         return this.polymer_worldChunk;
-    }
-
-    @Override
-    public Packet<?>[] polymer_getPolymerSyncPackets() {
-        return this.polymer_attachedPackets;
-    }
-
-    @Override
-    public void polymer_setPolymerSyncPackets(Packet<?>[] packets) {
-        this.polymer_attachedPackets = packets;
     }
 }

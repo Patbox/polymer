@@ -25,7 +25,7 @@ public class wthit_WailaClientMixin {
     @Inject(method = "onItemTooltip", at = @At("HEAD"), cancellable = true)
     private static void polymer_overrideTooltip(ItemStack stack, List<Text> tooltip, CallbackInfo ci) {
         if (PluginConfig.INSTANCE.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
-            if (stack.getItem() instanceof PolymerItem || !ClientUtils.isClientSide()) {
+            if (PolymerItemUtils.isPolymerServerItem(stack) || !ClientUtils.isClientSide()) {
                 ci.cancel();
                 return;
             }

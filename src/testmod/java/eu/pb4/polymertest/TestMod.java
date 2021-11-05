@@ -5,13 +5,9 @@ import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerSyncUtils;
-import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -90,10 +86,15 @@ public class TestMod implements ModInitializer {
         player.networkHandler.sendPacket(new EntityAttributesS2CPacket(player.getId(), attributes));
     });
 
+    private void regArmor(EquipmentSlot slot, String main, String id) {
+        Registry.register(Registry.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
+    }
+
     @Override
     public void onInitialize() {
         ITEM_GROUP.setIcon(new ItemStack(TATER_BLOCK_ITEM));
         PolymerRPUtils.addAssetSource("apolymertest");
+        PolymerRPUtils.requestArmor(new Identifier("polymertest", "shulker"));
         //PolymerRPUtils.markAsRequired();
         //PolymerRPUtils.addModAsAssetsSource("promenade");
 
@@ -117,6 +118,17 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.BLOCK, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK);
         Registry.register(Registry.ITEM, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK_ITEM);
         Registry.register(Registry.ITEM, new Identifier("test", "ice_item"), ICE_ITEM);
+
+        regArmor(EquipmentSlot.HEAD, "shulker", "helmet");
+        regArmor(EquipmentSlot.CHEST, "shulker", "chestplate");
+        regArmor(EquipmentSlot.LEGS, "shulker", "leggings");
+        regArmor(EquipmentSlot.FEET, "shulker", "boots");
+
+        regArmor(EquipmentSlot.HEAD, "titan", "helmet");
+        regArmor(EquipmentSlot.CHEST, "titan", "chestplate");
+        regArmor(EquipmentSlot.LEGS, "titan", "leggings");
+        regArmor(EquipmentSlot.FEET, "titan", "boots");
+
         ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
         Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);

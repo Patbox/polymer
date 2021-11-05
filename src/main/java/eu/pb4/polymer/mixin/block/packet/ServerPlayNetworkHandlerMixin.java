@@ -3,7 +3,7 @@ package eu.pb4.polymer.mixin.block.packet;
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
-import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.block.BlockState;
@@ -39,7 +39,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     polymerBlock.onPolymerBlockSend(this.player, pos.mutableCopy(), blockState);
                 }
 
-                ServerPacketBuilders.createSingleBlockPacket((ServerPlayNetworkHandler) (Object) this, pos, blockState);
+                PolymerServerProtocol.sendBlockUpdate((ServerPlayNetworkHandler) (Object) this, pos, blockState);
             } else if (packet instanceof ChunkDataS2CPacket chunkDataS2CPacket) {
                 WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer_getWorldChunk();
                 PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;
@@ -52,7 +52,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                             polymerBlock.onPolymerBlockSend(this.player, pos, blockState);
                         }
                     }
-                    ServerPacketBuilders.createChunkPacket((ServerPlayNetworkHandler) (Object) this, chunkDataS2CPacket, wc);
+                    PolymerServerProtocol.sendSectionUpdate((ServerPlayNetworkHandler) (Object) this, wc);
                 }
             } else if (packet instanceof ChunkDeltaUpdateS2CPacket) {
                 ChunkDeltaUpdateS2CPacketAccessor chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
@@ -72,7 +72,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     }
                 }
 
-                ServerPacketBuilders.createMultiBlockPacket((ServerPlayNetworkHandler) (Object) this, chunkPos, localPos, blockStates);
+                PolymerServerProtocol.sendMultiBlockUpdate((ServerPlayNetworkHandler) (Object) this, chunkPos, localPos, blockStates);
             }
         } catch (Exception e) {
             e.printStackTrace();

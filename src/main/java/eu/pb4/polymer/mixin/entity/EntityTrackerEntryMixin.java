@@ -2,7 +2,7 @@ package eu.pb4.polymer.mixin.entity;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.api.entity.PolymerEntity;
-import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
@@ -53,7 +53,7 @@ public class EntityTrackerEntryMixin {
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymer_sendEntityInfo(ServerPlayerEntity player, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity && polymerEntity.shouldSyncWithPolymerClient(player)) {
-            ServerPacketBuilders.sendEntityInfo(player.networkHandler, this.entity);
+            PolymerServerProtocol.sendEntityInfo(player.networkHandler, this.entity);
         }
     }
 

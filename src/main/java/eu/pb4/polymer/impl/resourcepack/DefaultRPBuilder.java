@@ -4,8 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import eu.pb4.polymer.api.resourcepack.PolymerArmorModel;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
 import eu.pb4.polymer.impl.PolymerMod;
+import eu.pb4.polymer.impl.other.DualList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -13,13 +15,15 @@ import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.registry.Registry;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -28,9 +32,8 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -44,8 +47,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     private final Map<Item, JsonArray> models = new HashMap<>();
     private final Map<String, byte[]> fileMap = new HashMap<>();
-    private ZipFile clientJar = null;
+    private final List<PolymerArmorModel> armors = new ArrayList<>();
     private final Path outputPath;
+    private ZipFile clientJar = null;
+    private List<ModContainer> modsList = new ArrayList<>();
+
 
     public DefaultRPBuilder(Path outputPath) throws Exception {
         outputPath.getParent().toFile().mkdirs();
@@ -56,6 +62,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         }
     }
 
+    private static Path getPolymerPath(String path) {
+        return FabricLoader.getInstance().getModContainer("polymer").get().getPath(path);
+    }
 
     @Override
     public boolean addData(String path, byte[] data) {
@@ -112,6 +121,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(modId);
         if (mod.isPresent()) {
             ModContainer container = mod.get();
+            this.modsList.add(container);
             try {
                 Path assets = container.getPath("assets");
                 Files.walkFileTree(assets, new FileVisitor<>() {
@@ -200,9 +210,37 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
+    public boolean addArmorModel(PolymerArmorModel armorModel) {
+        return this.armors.add(armorModel);
+    }
+
+    @Override
     public CompletableFuture<Boolean> buildResourcePack() {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                var credits = new ArrayList<String>();
+                credits.add("");
+                credits.add("  +-----------+");
+                credits.add("  |           |");
+                credits.add("  |   #   #   |");
+                credits.add("  |           |");
+                credits.add("  |   #   #   |");
+                credits.add("  |    ###    |");
+                credits.add("  |           |");
+                credits.add("  |           |");
+                credits.add("  +-----------+");
+                credits.add("");
+                credits.add("Generated with Polymer " + PolymerMod.VERSION);
+                credits.add("");
+                credits.add("Vanilla assets by Mojang Studios");
+                credits.add("");
+                credits.add("Used mod assets: ");
+
+                for (var entry : this.modsList) {
+                    credits.add(" - " + entry.getMetadata().getName() + " (" + entry.getMetadata().getId() + ")");
+                }
+                credits.add("");
+
                 var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
 
                 Path clientJarPath;
@@ -266,35 +304,131 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         bool = false;
                     }
                 }
+                if (this.armors.size() > 0) {
+                    credits.add("Armor texture support is based on https://github.com/Ancientkingg/fancyPants");
+                    credits.add("");
 
-                    {
-                        if (!this.fileMap.containsKey("pack.mcmeta")) {
-                            this.fileMap.put("pack.mcmeta", ("" +
-                                    "{\n" +
-                                    "   \"pack\":{\n" +
-                                    "      \"pack_format\":" + SharedConstants.field_29738 + ",\n" +
-                                    "      \"description\":\"Server resource pack\"\n" +
-                                    "   }\n" +
-                                    "}\n").getBytes(StandardCharsets.UTF_8));
-                        }
-                    }
-                    {
-                        if (!this.fileMap.containsKey("pack.png")) {
-                            var filePath = FabricLoader.getInstance().getGameDir().resolve("server-icon.png");
+                    var list = new ArrayList<Pair<Integer, BufferedImage[]>>();
 
-                            if (filePath.toFile().exists()) {
-                                this.fileMap.put("pack.png", Files.readAllBytes(filePath));
-                            } else {
-                                this.fileMap.put("pack.png", Files.readAllBytes(FabricLoader.getInstance().getModContainer("polymer").get().getPath("assets/icon.png")));
+                    int[] width = new int[]{ 64, 64 };
+                    int[] height = new int[]{ 32, 32 };
+
+                    for (var entry : this.armors) {
+                        try {
+                            var a = new BufferedImage[2];
+                            BufferedImage bi = null;
+
+                            for (int i = 0; i <= 1; i++) {
+                                var path = "assets/" + entry.modelPath().getNamespace() + "/textures/models/armor/" + entry.modelPath().getPath() + "_layer_" + (i + 1) + ".png";
+                                var data = this.fileMap.get(path);
+
+                                if (data == null) {
+                                    try {
+                                        InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(path));
+                                        if (stream != null) {
+                                            bi = ImageIO.read(stream);
+                                        }
+                                    } catch (Exception e) {
+                                        // silence!
+                                    }
+                                } else {
+                                    bi = ImageIO.read(new ByteArrayInputStream(data));
+                                }
+
+                                if (bi != null) {
+                                    height[i] = Math.max(height[i], bi.getHeight());
+                                    width[i] += bi.getWidth();
+                                }
+
+                                a[i] = bi;
                             }
+
+                            list.add(new Pair<>(entry.value(), a));
+                        } catch (Exception e) {
+                            PolymerMod.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
+                            e.printStackTrace();
                         }
                     }
 
-                    for (var entry : fileMap.entrySet()) {
-                        outputStream.putNextEntry(new ZipEntry(entry.getKey()));
-                        outputStream.write(entry.getValue());
-                        outputStream.closeEntry();
+                    var image = new BufferedImage[]{new BufferedImage(width[0], height[0], BufferedImage.TYPE_INT_ARGB), new BufferedImage(width[1], height[1], BufferedImage.TYPE_INT_ARGB)};
+                    int[] cWidth = new int[] { 64, 64 };
+
+                    var graphics = new Graphics[]{image[0].getGraphics(), image[1].getGraphics()};
+
+                    for (int i = 0; i <= 1; i++) {
+                        {
+                            var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png")));
+                            graphics[i].drawImage(tex, 0, 0, null);
+                        }
+                        {
+                            var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png")));
+                            graphics[i].drawImage(tex, 0, 0, null);
+                        }
+                        graphics[i].setColor(Color.WHITE);
+                        graphics[i].drawRect(0, 1, 0, 0);
                     }
+
+                    for (var entry : list) {
+                        for (int i = 0; i <= 1; i++) {
+                            graphics[i].drawImage(entry.getRight()[i], cWidth[i], 0, null);
+                            graphics[i].setColor(new Color(entry.getLeft() | 0xFF000000));
+                            graphics[i].drawRect(cWidth[i], 0, 0, 0);
+                            cWidth[i] += entry.getRight()[i].getWidth();
+                        }
+                    }
+
+                    for (int i = 0; i <= 1; i++) {
+                        graphics[i].dispose();
+
+                        {
+                            var out = new ByteArrayOutputStream();
+                            ImageIO.write(image[i], "png", out);
+                            this.fileMap.put("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png", out.toByteArray());
+                        }
+                        {
+                            var out = new ByteArrayOutputStream();
+                            ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "png", out);
+                            this.fileMap.put("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png", out.toByteArray());
+                        }
+                    }
+
+                    for (String string : new String[]{"fsh", "json", "vsh"}) {
+                        this.fileMap.put(
+                                "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string,
+                                Files.readAllBytes(getPolymerPath("base-armor/rendertype_armor_cutout_no_cull." + string))
+                        );
+                    }
+
+                }
+
+                if (!this.fileMap.containsKey("pack.mcmeta")) {
+                    this.fileMap.put("pack.mcmeta", ("" +
+                            "{\n" +
+                            "   \"pack\":{\n" +
+                            "      \"pack_format\":" + SharedConstants.field_29738 + ",\n" +
+                            "      \"description\":\"Server resource pack\"\n" +
+                            "   }\n" +
+                            "}\n").getBytes(StandardCharsets.UTF_8));
+                }
+
+
+                if (!this.fileMap.containsKey("pack.png")) {
+                    var filePath = FabricLoader.getInstance().getGameDir().resolve("server-icon.png");
+
+                    if (filePath.toFile().exists()) {
+                        this.fileMap.put("pack.png", Files.readAllBytes(filePath));
+                    } else {
+                        this.fileMap.put("pack.png", Files.readAllBytes(getPolymerPath("assets/icon.png")));
+                    }
+                }
+
+                this.fileMap.put("polymer-about.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
+
+                for (var entry : fileMap.entrySet()) {
+                    outputStream.putNextEntry(new ZipEntry(entry.getKey()));
+                    outputStream.write(entry.getValue());
+                    outputStream.closeEntry();
+                }
 
                 outputStream.close();
                 return bool;
@@ -303,7 +437,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 e.printStackTrace();
                 return false;
             }
-
         });
     }
 }

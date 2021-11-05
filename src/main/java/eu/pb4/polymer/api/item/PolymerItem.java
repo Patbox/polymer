@@ -6,6 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +48,18 @@ public interface PolymerItem extends PolymerObject {
         return -1;
     }
 
+    /**
+     * Method used for getting custom armor color of items
+     * It's designed to be used alongside {@link eu.pb4.polymer.api.resourcepack.PolymerRPUtils#requestArmor(Identifier)}
+     * Make sure colors isn't even so it won't get wrong texture
+     *
+     * @param itemStack Server-side ItemStack
+     * @param player    Player for which it's send
+     * @return Custom color or -1 if not present
+     */
+    default int getPolymerCustomArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return -1;
+    }
 
     /**
      * This method allows to modify tooltip text

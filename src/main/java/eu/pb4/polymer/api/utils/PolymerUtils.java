@@ -1,14 +1,10 @@
 package eu.pb4.polymer.api.utils;
 
-import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
-import eu.pb4.polymer.impl.networking.PolymerPacketIds;
-import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;

@@ -2,6 +2,7 @@ package eu.pb4.polymer.api.item;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
@@ -34,18 +35,14 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public final class PolymerItemUtils {
-    private PolymerItemUtils() {}
     public static final String VIRTUAL_ITEM_ID = "Polymer$itemId";
     public static final String REAL_TAG = "Polymer$itemTag";
-
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
-
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
     public static final BooleanEvent<Predicate<ItemStack>> ITEM_CHECK = new BooleanEvent<>();
-
     /**
      * Allows to modify how virtual items looks before being send to client (only if using build in methods!)
      * It can modify virtual version directly, as long as it's returned at the end.
@@ -53,20 +50,20 @@ public final class PolymerItemUtils {
      */
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
 
-    @FunctionalInterface
-    public interface ItemModificationEventHandler {
-        ItemStack modifyItem(ItemStack original, ItemStack client, ServerPlayerEntity player);
+    private PolymerItemUtils() {
     }
 
     /**
      * This methods creates a client side ItemStack representation
      *
      * @param itemStack Server side ItemStack
-     * @param player Player being send to
+     * @param player    Player being send to
      * @return Client side ItemStack
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, ServerPlayerEntity player) {
-        if (itemStack.getItem() instanceof PolymerItem item) {
+        if (getPolymerIdentifier(itemStack) != null) {
+            return itemStack;
+        } else if (itemStack.getItem() instanceof PolymerItem item) {
             return item.getPolymerItemStack(itemStack, player);
         } else if (itemStack.hasEnchantments()) {
             for (NbtElement enchantment : itemStack.getEnchantments()) {
@@ -88,6 +85,14 @@ public final class PolymerItemUtils {
                     return createItemStack(itemStack, player);
                 }
             }
+        } else if (itemStack.hasNbt()) {
+            var display = itemStack.getSubNbt("display");
+            if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
+                var color = display.getInt("color");
+                if (PolymerRPUtils.isColorTaken(color)) {
+                    return createItemStack(itemStack, player);
+                }
+            }
         }
 
         if (ITEM_CHECK.invoke((x) -> x.test(itemStack))) {
@@ -99,6 +104,7 @@ public final class PolymerItemUtils {
 
     /**
      * This method gets real ItemStack from Virtual/Client side one
+     *
      * @param itemStack Client side ItemStack
      * @return Server side ItemStack
      */
@@ -145,7 +151,9 @@ public final class PolymerItemUtils {
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack) {
-        if (itemStack.getItem() instanceof PolymerItem) {
+        if (getPolymerIdentifier(itemStack) != null) {
+            return false;
+        } if (itemStack.getItem() instanceof PolymerItem) {
             return true;
         } else if (itemStack.hasEnchantments()) {
             for (NbtElement enchantment : itemStack.getEnchantments()) {
@@ -167,17 +175,24 @@ public final class PolymerItemUtils {
                     return true;
                 }
             }
+        } else if (itemStack.hasNbt()) {
+            var display = itemStack.getSubNbt("display");
+            if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
+                var color = display.getInt("color");
+                if (PolymerRPUtils.isColorTaken(color)) {
+                    return true;
+                }
+            }
         }
 
         return false;
     }
 
-
     /**
      * This method creates minimal representation of ItemStack
      *
      * @param itemStack Server side ItemStack
-     * @param player Player seeing it
+     * @param player    Player seeing it
      * @return Client side ItemStack
      */
     public static ItemStack createMinimalItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
@@ -186,7 +201,7 @@ public final class PolymerItemUtils {
         if (itemStack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, player);
             item = data.item();
-            cmd = data.cmd();
+            cmd = data.customModelData();
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
@@ -208,16 +223,18 @@ public final class PolymerItemUtils {
      * This method creates full (vanilla like) representation of ItemStack
      *
      * @param itemStack Server side ItemStack
-     * @param player Player seeing it
+     * @param player    Player seeing it
      * @return Client side ItemStack
      */
     public static ItemStack createItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
         int cmd = -1;
+        int color = -1;
         if (itemStack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, player);
             item = data.item();
-            cmd = data.cmd();
+            cmd = data.customModelData();
+            color = data.color();
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
@@ -230,7 +247,18 @@ public final class PolymerItemUtils {
         if (itemStack.getNbt() != null) {
             out.getOrCreateNbt().put(PolymerItemUtils.REAL_TAG, itemStack.getNbt());
             assert out.getNbt() != null;
-            cmd = itemStack.getNbt().contains("CustomModelData") ? itemStack.getNbt().getInt("CustomModelData") : cmd;
+            cmd = cmd == -1 && itemStack.getNbt().contains("CustomModelData") ? itemStack.getNbt().getInt("CustomModelData") : cmd;
+
+            if (color == -1 && itemStack.getNbt().contains("display", NbtElement.COMPOUND_TYPE)) {
+                var display = itemStack.getSubNbt("display");
+                if (display.contains("color", NbtElement.INT_TYPE)) {
+                    color = display.getInt("color");
+
+                    if (color % 2 == 1) {
+                        color = Math.max(0, color - 1);
+                    }
+                }
+            }
 
             int dmg = itemStack.getDamage();
             if (dmg != 0) {
@@ -252,8 +280,6 @@ public final class PolymerItemUtils {
             if (canPlaceOn != null) {
                 out.getNbt().put("CanPlaceOn", canPlaceOn);
             }
-        } else if (player == null || itemStack.getFrame() == null) {
-            out.setCustomName(itemStack.getItem().getName(itemStack).shallowCopy().fillStyle(PolymerItemUtils.NON_ITALIC_STYLE.withColor(itemStack.getRarity().formatting)));
         }
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
@@ -289,13 +315,17 @@ public final class PolymerItemUtils {
                 out.setCustomName(name);
             }
         }
+        var outNbt = out.getOrCreateNbt();
+
 
         if (lore.size() > 0) {
-            out.getOrCreateNbt().getCompound("display").put("Lore", lore);
+            outNbt.getCompound("display").put("Lore", lore);
         }
-
+        if (color != -1) {
+            outNbt.getCompound("display").putInt("color", color);
+        }
         if (cmd != -1) {
-            out.getOrCreateNbt().putInt("CustomModelData", cmd);
+            outNbt.putInt("CustomModelData", cmd);
         }
 
         return ITEM_MODIFICATION_EVENT.invoke((col) -> {
@@ -313,12 +343,12 @@ public final class PolymerItemUtils {
      * This method is minimal wrapper around {@link PolymerItem#getPolymerItem(ItemStack, ServerPlayerEntity)} to make sure
      * It gets replaced if it represents other PolymerItem
      *
-     * @param item  PolymerItem
-     * @param stack Server side ItemStack
+     * @param item        PolymerItem
+     * @param stack       Server side ItemStack
      * @param maxDistance Maximum number of checks for nested virtual blocks
      * @return Client side ItemStack
      */
-    public static ItemWithCmd getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player, int maxDistance) {
+    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player, int maxDistance) {
         Item out = item.getPolymerItem(stack, player);
         PolymerItem lastVirtual = item;
 
@@ -328,7 +358,7 @@ public final class PolymerItemUtils {
             lastVirtual = newItem;
             req++;
         }
-        return new ItemWithCmd(out, lastVirtual.getPolymerCustomModelData(stack, player));
+        return new ItemWithMetadata(out, lastVirtual.getPolymerCustomModelData(stack, player), lastVirtual.getPolymerCustomArmorColor(stack, player));
     }
 
     /**
@@ -339,10 +369,15 @@ public final class PolymerItemUtils {
      * @param stack Server side ItemStack
      * @return Client side ItemStack
      */
-    public static ItemWithCmd getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
+    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
         return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
     }
 
-        public record ItemWithCmd(Item item, int cmd) {
+    @FunctionalInterface
+    public interface ItemModificationEventHandler {
+        ItemStack modifyItem(ItemStack original, ItemStack client, ServerPlayerEntity player);
+    }
+
+    public record ItemWithMetadata(Item item, int customModelData, int color) {
     }
 }

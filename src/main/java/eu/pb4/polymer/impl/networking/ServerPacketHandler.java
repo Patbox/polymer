@@ -32,7 +32,7 @@ public class ServerPacketHandler {
 
                 if (System.currentTimeMillis() - polymerHandler.polymer_lastSyncUpdate() > 1000 * 20) {
                     polymerHandler.polymer_saveSyncTime();
-                    ServerPacketBuilders.createSyncPackets(handler);
+                    PolymerServerProtocol.sendSyncPackets(handler);
 
                     if (ver == -2 && handler.getPlayer() != null) {
                         var world = handler.getPlayer().getServerWorld();
@@ -45,7 +45,7 @@ public class ServerPacketHandler {
                                 var chunk = (WorldChunk) world.getChunk(x + playerX, z + playerZ, ChunkStatus.FULL, false);
 
                                 if (chunk != null) {
-                                    ServerPacketBuilders.createChunkPacket(handler, null, chunk);
+                                    PolymerServerProtocol.sendSectionUpdate(handler, chunk);
                                 }
                             }
                         }

@@ -16,6 +16,7 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
     private boolean polymc = false;
     private boolean lithium = false;
     private boolean wthit = false;
+    private boolean rei = false;
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -25,6 +26,7 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
         this.polymc = loader.isModLoaded("polymc");
         this.lithium = loader.isModLoaded("lithium");
         this.wthit = loader.isModLoaded("wthit");
+        this.rei = loader.isModLoaded("roughlyenoughitems");
     }
 
     @Override
@@ -50,6 +52,7 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
                 case "fabricSync" -> this.fabricSync;
                 case "polymc" -> this.polymc;
                 case "wthit" -> this.wthit;
+                case "rei" -> this.rei;
                 default -> true;
             };
         }

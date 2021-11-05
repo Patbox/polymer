@@ -10,5 +10,6 @@ public interface PolymerRPBuilder {
     boolean addData(String path, byte[] data);
     boolean copyModAssets(String modId);
     boolean copyFromPath(Path path);
-    boolean addCustomModelData(PolymerModelData cmdInfo);
+    boolean addCustomModelData(PolymerModelData itemModel);
+    boolean addArmorModel(PolymerArmorModel model);
 }

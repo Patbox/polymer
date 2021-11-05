@@ -78,7 +78,6 @@
     "client.rendering.ItemRendererMixin",
     "client.rendering.ModelLoaderMixin",
     "client.rendering.ModelOverrideListMixin",
-    "client.rendering.SlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1

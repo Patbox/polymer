@@ -2,6 +2,8 @@ package eu.pb4.polymer.impl;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import net.fabricmc.loader.api.FabricLoader;
@@ -20,7 +22,18 @@ public class Commands {
                 .requires((source) -> source.hasPermissionLevel(3))
                 .then(literal("generate")
                         .executes(Commands::generate))
+                .then(literal("item-client")
+                        .executes(Commands::itemClient))
         );
+    }
+
+    private static int itemClient(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayer();
+        var itemStack = player.getMainHandStack();
+
+        context.getSource().sendFeedback(new LiteralText(PolymerItemUtils.getPolymerItemStack(itemStack, player).getNbt().toString()), false);
+
+        return 1;
     }
 
     public static int generate(CommandContext<ServerCommandSource> context) {

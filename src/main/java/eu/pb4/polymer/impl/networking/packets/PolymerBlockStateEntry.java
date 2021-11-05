@@ -1,6 +1,6 @@
 package eu.pb4.polymer.impl.networking.packets;
 
-import eu.pb4.polymer.impl.networking.ServerPacketBuilders;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -25,7 +25,7 @@ public record PolymerBlockStateEntry(Map<String, String> states, int numId, int 
             list.put(entry.getKey().getName(), entry.getValue().toString());
         }
 
-        return new PolymerBlockStateEntry(list, ServerPacketBuilders.getRawId(state, player.player), Registry.BLOCK.getRawId(state.getBlock()));
+        return new PolymerBlockStateEntry(list, PolymerServerProtocol.getRawId(state, player.player), Registry.BLOCK.getRawId(state.getBlock()));
     }
 
     public static PolymerBlockStateEntry read(PacketByteBuf buf) {

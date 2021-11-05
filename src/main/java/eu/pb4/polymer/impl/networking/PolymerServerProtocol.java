@@ -11,23 +11,18 @@ import eu.pb4.polymer.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
-import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
-import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
-import eu.pb4.polymer.impl.networking.packets.*;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
+import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.networking.packets.*;
 import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-
-
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -45,12 +40,12 @@ import java.util.HashSet;
 import java.util.List;
 
 @ApiStatus.Internal
-public class ServerPacketBuilders {
+public class PolymerServerProtocol {
     public static PacketByteBuf buf() {
         return new PacketByteBuf(Unpooled.buffer());
     }
 
-    public static void createSingleBlockPacket(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
+    public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
 
         if (polymerHandler.polymer_hasPolymer()) {
@@ -63,7 +58,7 @@ public class ServerPacketBuilders {
         }
     }
 
-    public static void createMultiBlockPacket(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {
+    public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
 
         if (polymerHandler.polymer_hasPolymer()) {
@@ -80,58 +75,40 @@ public class ServerPacketBuilders {
         }
     }
 
-    public static void createChunkPacket(ServerPlayNetworkHandler player, @Nullable ChunkDataS2CPacket packet, WorldChunk chunk) {
+    public static void sendSectionUpdate(ServerPlayNetworkHandler player, WorldChunk chunk) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
 
         if (polymerHandler.polymer_hasPolymer()) {
-            var pi = (ChunkDataS2CPacketInterface) packet;
-            var packets = packet != null ? pi.polymer_getPolymerSyncPackets() : null;
+            var wci = (PolymerBlockPosStorage) chunk;
 
-            if (packets == null) {
-                var wci = (PolymerBlockPosStorage) chunk;
+            if (wci.polymer_hasAny()) {
 
-                if (wci.polymer_hasAny()) {
-                    var list = new ArrayList<Packet<?>>();
+                for (var section : chunk.getSectionArray()) {
+                    var storage = (PolymerBlockPosStorage) section;
 
-                    for (var section : chunk.getSectionArray()) {
-                        var storage = (PolymerBlockPosStorage) section;
+                    if (section != null && storage.polymer_hasAny()) {
+                        var buf = buf();
+                        buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), section.getYOffset() >> 4));
 
-                        if (section != null && storage.polymer_hasAny()) {
-                            var buf = buf();
-                            buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), section.getYOffset() >> 4));
+                        var size = storage.polymer_getBackendSet().size();
+                        buf.writeVarInt(size);
 
-                            var size = storage.polymer_getBackendSet().size();
-                            buf.writeVarInt(size);
+                        for (var pos : storage.polymer_getBackendSet()) {
+                            int x = ChunkSectionPos.unpackLocalX(pos);
+                            int y = ChunkSectionPos.unpackLocalY(pos);
+                            int z = ChunkSectionPos.unpackLocalZ(pos);
 
-                            for (var pos : storage.polymer_getBackendSet()) {
-                                int x = ChunkSectionPos.unpackLocalX(pos);
-                                int y = ChunkSectionPos.unpackLocalY(pos);
-                                int z = ChunkSectionPos.unpackLocalZ(pos);
-
-                                buf.writeVarLong((getRawId(section.getBlockState(x, y, z), player.player) << 12 | pos));
-                            }
-
-                            list.add(new CustomPayloadS2CPacket(PolymerPacketIds.CHUNK_SECTION_UPDATE_ID, buf));
+                            buf.writeVarLong((getRawId(section.getBlockState(x, y, z), player.player) << 12 | pos));
                         }
+
+                        player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.CHUNK_SECTION_UPDATE_ID, buf));
                     }
-
-                    packets = list.toArray(new Packet[0]);
-                } else {
-                    packets = new Packet[0];
                 }
-
-                if (packet != null) {
-                    pi.polymer_setPolymerSyncPackets(packets);
-                }
-            }
-
-            for (int i = 0; i < packets.length; i++) {
-                player.sendPacket(packets[i]);
             }
         }
     }
 
-    public static void createSyncPackets(ServerPlayNetworkHandler player) {
+    public static void sendSyncPackets(ServerPlayNetworkHandler player) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
 
         if (polymerHandler.polymer_hasPolymer()) {
@@ -242,7 +219,7 @@ public class ServerPacketBuilders {
         player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.SYNC_FINISHED_ID, buf()));
     }
 
-    public static void createCreativeTabSync(ServerPlayNetworkHandler handler) {
+    public static void sendCreativeSyncPackets(ServerPlayNetworkHandler handler) {
         var list = new HashSet<PolymerItemGroup>();
 
 
@@ -304,7 +281,7 @@ public class ServerPacketBuilders {
     }
 
 
-        private static void sendSync(ServerPlayNetworkHandler handler, Identifier id, List<BufferWritable> entries) {
+    private static void sendSync(ServerPlayNetworkHandler handler, Identifier id, List<BufferWritable> entries) {
         var buf = buf();
 
         buf.writeVarInt(entries.size());

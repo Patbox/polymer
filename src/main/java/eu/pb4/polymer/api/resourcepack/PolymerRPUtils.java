@@ -5,6 +5,8 @@ import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.loader.api.FabricLoader;
@@ -23,6 +25,9 @@ public class PolymerRPUtils {
     public static final SimpleEvent<Consumer<PolymerRPBuilder>> RESOURCE_PACK_CREATION_EVENT = new SimpleEvent<>();
     private static final Object2ObjectMap<Item, List<PolymerModelData>> ITEMS = new Object2ObjectArrayMap<>();
     private static final Set<String> MOD_IDS = new HashSet<>();
+    private static final IntSet TAKEN_ARMOR_COLORS = new IntOpenHashSet();
+    private static final Map<Identifier, PolymerArmorModel> ARMOR_MODEL_MAP = new HashMap<>();
+    private static int ARMOR_VAL = 0;
     private static final int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 100000 : 1;
     private static boolean REQUIRED = false;
     private static boolean DEFAULT_CHECK = true;
@@ -44,6 +49,25 @@ public class PolymerRPUtils {
         PolymerModelData cmdInfo = new PolymerModelData(vanillaItem, cmdInfoList.size() + CMD_OFFSET, modelPath);
         cmdInfoList.add(cmdInfo);
         return cmdInfo;
+    }
+    /**
+     * This method can be used to register custom model data for items
+     *
+     * @param modelPath   Path to model in resource pack
+     * @return PolymerArmorModel with data about this model
+     */
+    public static PolymerArmorModel requestArmor(Identifier modelPath) {
+        if (ARMOR_MODEL_MAP.containsKey(modelPath)) {
+            return ARMOR_MODEL_MAP.get(modelPath);
+        } else {
+            ARMOR_VAL++;
+            int color = 0xFFFFFF - ARMOR_VAL * 2;
+            var model = new PolymerArmorModel(color, modelPath);
+
+            ARMOR_MODEL_MAP.put(modelPath, model);
+            TAKEN_ARMOR_COLORS.add(color);
+            return model;
+        }
     }
 
     /**
@@ -96,6 +120,10 @@ public class PolymerRPUtils {
         ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setResourcePack(status);
     }
 
+    public static boolean isColorTaken(int color) {
+        return TAKEN_ARMOR_COLORS.contains(color);
+    }
+
     /**
      * Gets an unmodifiable list of models for an item.
      * This can be useful if you need to extract this list and parse it yourself.
@@ -133,10 +161,14 @@ public class PolymerRPUtils {
                 builder.copyFromPath(possibleInput);
             }
 
-            for (List<PolymerModelData> cmdInfoList : ITEMS.values()) {
+            for (var cmdInfoList : ITEMS.values()) {
                 for (PolymerModelData cmdInfo : cmdInfoList) {
-                    successful = builder.addCustomModelData(cmdInfo) && successful;
+                    builder.addCustomModelData(cmdInfo);
                 }
+            }
+
+            for (var armor : ARMOR_MODEL_MAP.values()) {
+                builder.addArmorModel(armor);
             }
 
             successful = builder.buildResourcePack().get() && successful;
