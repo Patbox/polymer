@@ -6,5 +6,5 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public interface BufferWritable {
-    void write(PacketByteBuf buf, ServerPlayNetworkHandler handler);
+    void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler);
 }

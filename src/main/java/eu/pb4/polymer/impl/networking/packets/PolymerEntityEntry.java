@@ -11,7 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public record PolymerEntityEntry(Identifier identifier, Text name) implements BufferWritable {
-    public void write(PacketByteBuf buf, ServerPlayNetworkHandler handler) {
+    public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeIdentifier(identifier);
         buf.writeText(ServerTranslationUtils.parseFor(handler, name));
     }
@@ -23,7 +23,10 @@ public record PolymerEntityEntry(Identifier identifier, Text name) implements Bu
         );
     }
 
-    public static PolymerEntityEntry read(PacketByteBuf buf) {
-        return new PolymerEntityEntry(buf.readIdentifier(), buf.readText());
+    public static PolymerEntityEntry read(PacketByteBuf buf, int version) {
+        if (version == 0) {
+            return new PolymerEntityEntry(buf.readIdentifier(), buf.readText());
+        }
+        return null;
     }
 }

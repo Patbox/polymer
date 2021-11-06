@@ -12,7 +12,7 @@ import java.util.Map;
 
 @ApiStatus.Internal
 public record PolymerBlockStateEntry(Map<String, String> states, int numId, int blockId) implements BufferWritable {
-    public void write(PacketByteBuf buf, ServerPlayNetworkHandler handler) {
+    public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeVarInt(numId);
         buf.writeVarInt(blockId);
         buf.writeMap(states, (buf2, string) -> buf2.writeString(string), (buf2, string) -> buf2.writeString(string));
@@ -28,10 +28,14 @@ public record PolymerBlockStateEntry(Map<String, String> states, int numId, int 
         return new PolymerBlockStateEntry(list, PolymerServerProtocol.getRawId(state, player.player), Registry.BLOCK.getRawId(state.getBlock()));
     }
 
-    public static PolymerBlockStateEntry read(PacketByteBuf buf) {
-        var numId = buf.readVarInt();
-        var blockId = buf.readVarInt();
-        var states = buf.readMap((buf2) -> buf.readString(), (buf2) -> buf.readString());
-        return new PolymerBlockStateEntry(states, numId, blockId);
+    public static PolymerBlockStateEntry read(PacketByteBuf buf, int version) {
+        if (version == 0) {
+            var numId = buf.readVarInt();
+            var blockId = buf.readVarInt();
+            var states = buf.readMap((buf2) -> buf.readString(), (buf2) -> buf.readString());
+            return new PolymerBlockStateEntry(states, numId, blockId);
+        }
+
+        return null;
     }
 }

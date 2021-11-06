@@ -1,7 +1,9 @@
 package eu.pb4.polymer.api.utils;
 
 import eu.pb4.polymer.api.item.PolymerItemGroup;
-import eu.pb4.polymer.impl.networking.PolymerPacketIds;
+import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.networking.PacketUtils;
+import eu.pb4.polymer.impl.networking.ServerPackets;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -42,6 +44,8 @@ public final class PolymerSyncUtils {
      * Rebuild creative search index
      */
     public static void rebuildCreativeSearch(ServerPlayNetworkHandler handler) {
-        handler.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.REGISTRY_RESET_SEARCH_ID, PolymerServerProtocol.buf()));
+        if (PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(ServerPackets.SYNC_REBUILD_SEARCH_ID) == 0) {
+            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_REBUILD_SEARCH_ID, PacketUtils.buf(0)));
+        }
     }
 }

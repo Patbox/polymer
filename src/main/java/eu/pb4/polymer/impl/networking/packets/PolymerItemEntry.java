@@ -15,7 +15,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public record PolymerItemEntry(Identifier identifier, String itemGroup, ItemStack representation) implements BufferWritable {
-    public void write(PacketByteBuf buf, ServerPlayNetworkHandler handler) {
+    public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeIdentifier(identifier);
         buf.writeString(itemGroup);
         buf.writeItemStack(ServerTranslationUtils.parseFor(handler, representation));
@@ -37,7 +37,11 @@ public record PolymerItemEntry(Identifier identifier, String itemGroup, ItemStac
         );
     }
 
-    public static PolymerItemEntry read(PacketByteBuf buf) {
-        return new PolymerItemEntry(buf.readIdentifier(), buf.readString(), buf.readItemStack());
+    public static PolymerItemEntry read(PacketByteBuf buf, int version) {
+        if (version == 0) {
+            return new PolymerItemEntry(buf.readIdentifier(), buf.readString(), buf.readItemStack());
+        }
+
+        return null;
     }
 }

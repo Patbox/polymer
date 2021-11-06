@@ -1,7 +1,9 @@
 package eu.pb4.polymer.impl.interfaces;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
@@ -17,10 +19,14 @@ public interface PolymerNetworkHandlerExtension {
     String polymer_version();
     int polymer_protocolVersion();
 
-    void polymer_setVersion(int protocol, String version);
+    void polymer_setVersion(String version);
 
     long polymer_lastSyncUpdate();
     void polymer_saveSyncTime();
+
+    int polymer_getSupportedVersion(Identifier identifier);
+    void polymer_setSupportedVersion(Identifier identifier, int i);
+    Object2IntMap<Identifier> polymer_getSupportMap();
 
 
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {

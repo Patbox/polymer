@@ -12,13 +12,15 @@ import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientEntityExtension;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
-import eu.pb4.polymer.impl.networking.PolymerPacketIds;
+import eu.pb4.polymer.impl.networking.ClientPackets;
+import eu.pb4.polymer.impl.networking.ServerPackets;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockStateEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerEntityEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerItemEntry;
 import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -36,56 +38,71 @@ import java.util.Collection;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public class ClientPacketHandler {
+public class PolymerClientProtocolHandler {
     public static void handle(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
+        var version = -1;
         try {
-            switch (identifier.getPath()) {
-                case PolymerPacketIds.VERSION -> {
-                    var protocol = buf.readShort();
-                    var version = buf.readString();
-                    InternalClientRegistry.setVersion(version, protocol);
-                }
+            version = buf.readVarInt();
+            handle(handler, identifier, version, buf);
+        } catch (Exception e) {
+            PolymerMod.LOGGER.error("Invalid " + identifier + " (" + version + ") packet received from server!");
+            PolymerMod.LOGGER.error(e);
+        }
+    }
 
-                case PolymerPacketIds.SYNC_STARTED -> PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
-                case PolymerPacketIds.SYNC_FINISHED -> PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
+    private static void handle(ClientPlayNetworkHandler handler, Identifier identifier, int version, PacketByteBuf buf) {
+        switch (identifier.getPath()) {
+            case ServerPackets.HANDSHAKE -> handleHandshake(handler, version, buf);
 
-                case PolymerPacketIds.REGISTRY_BLOCK -> {
-                    var size = buf.readVarInt();
+            case ServerPackets.SYNC_STARTED -> PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
+            case ServerPackets.SYNC_FINISHED -> PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
 
-                    for (int i = 0; i < size; i++) {
-                        var entry = PolymerBlockEntry.read(buf);
+            case ServerPackets.SYNC_BLOCK -> {
+                var size = buf.readVarInt();
+
+                for (int i = 0; i < size; i++) {
+                    var entry = PolymerBlockEntry.read(buf, version);
+                    if (entry != null) {
                         InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual()));
                     }
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_ITEM -> {
-                    var size = buf.readVarInt();
+            case ServerPackets.SYNC_ITEM -> {
+                var size = buf.readVarInt();
 
-                    for (int i = 0; i < size; i++) {
-                        var entry = PolymerItemEntry.read(buf);
+                for (int i = 0; i < size; i++) {
+                    var entry = PolymerItemEntry.read(buf, version);
+                    if (entry != null) {
                         var item = new ClientPolymerItem(entry.identifier(), entry.representation(), entry.itemGroup());
                         InternalClientRegistry.ITEMS.set(entry.identifier(), item);
                     }
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_ENTITY -> {
-                    var size = buf.readVarInt();
+            case ServerPackets.SYNC_ENTITY -> {
+                var size = buf.readVarInt();
 
-                    for (int i = 0; i < size; i++) {
-                        var entry = PolymerEntityEntry.read(buf);
+                for (int i = 0; i < size; i++) {
+                    var entry = PolymerEntityEntry.read(buf, version);
+                    if (entry != null) {
                         var entityType = new ClientPolymerEntityType(entry.identifier(), entry.name());
                         InternalClientRegistry.ENTITY_TYPE.set(entry.identifier(), entityType);
                     }
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_ITEM_GROUP_CLEAR -> InternalClientRegistry.clearTabs(i -> true);
+            case ServerPackets.SYNC_ITEM_GROUP_CLEAR -> InternalClientRegistry.clearTabs(i -> true);
 
-                case PolymerPacketIds.REGISTRY_ITEM_GROUP_REMOVE -> {
+            case ServerPackets.SYNC_ITEM_GROUP_REMOVE -> {
+                if (version == 0) {
                     var id = buf.readIdentifier();
                     InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(id));
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_ITEM_GROUP_VANILLA -> {
+            case ServerPackets.SYNC_ITEM_GROUP_VANILLA -> {
+                if (version == 0) {
                     var id = buf.readString();
                     ItemGroup group = InternalClientRegistry.VANILLA_ITEM_GROUPS.get(id);
 
@@ -100,8 +117,11 @@ public class ClientPacketHandler {
                         }
                     }
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_ITEM_GROUP -> {
+            case ServerPackets.SYNC_ITEM_GROUPS -> {
+                if (version == 0) {
+
                     var id = buf.readIdentifier();
                     var name = buf.readText();
                     var icon = buf.readItemStack();
@@ -126,8 +146,11 @@ public class ClientPacketHandler {
                     var group = new InternalClientItemGroup(array.length, id, id.toString(), name, icon, stacks);
                     InternalClientRegistry.ITEM_GROUPS.set(id, group);
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_RESET_SEARCH -> {
+            case ServerPackets.SYNC_REBUILD_SEARCH -> {
+                if (version == 0) {
+
                     var a = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TOOLTIP);
                     var b = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TAG);
 
@@ -160,19 +183,23 @@ public class ClientPacketHandler {
 
                     PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_BLOCKSTATE -> {
-                    var size = buf.readVarInt();
+            case ServerPackets.SYNC_BLOCKSTATE -> {
+                var size = buf.readVarInt();
 
-                    for (int i = 0; i < size; i++) {
-                        var entry = PolymerBlockStateEntry.read(buf);
+                for (int i = 0; i < size; i++) {
+                    var entry = PolymerBlockStateEntry.read(buf, version);
+                    if (entry != null) {
                         InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId())), entry.numId());
                     }
                 }
+            }
 
-                case PolymerPacketIds.REGISTRY_CLEAR -> InternalClientRegistry.clear();
+            case ServerPackets.SYNC_CLEAR -> InternalClientRegistry.clear();
 
-                case PolymerPacketIds.BLOCK_UPDATE -> {
+            case ServerPackets.WORLD_SET_BLOCK_UPDATE -> {
+                if (version == 0) {
                     var pos = buf.readBlockPos();
                     var id = buf.readVarInt();
                     var block = InternalClientRegistry.BLOCK_STATES.get(id);
@@ -183,8 +210,10 @@ public class ClientPacketHandler {
                         storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
                     }
                 }
+            }
 
-                case PolymerPacketIds.CHUNK_SECTION_UPDATE -> {
+            case ServerPackets.WORLD_CHUNK_SECTION_UPDATE -> {
+                if (version == 0) {
                     var sectionPos = buf.readChunkSectionPos();
                     var size = buf.readVarInt();
                     var chunk = handler.getWorld().getChunk(sectionPos.getX(), sectionPos.getZ());
@@ -200,8 +229,10 @@ public class ClientPacketHandler {
                         }
                     }
                 }
+            }
 
-                case PolymerPacketIds.ENTITY -> {
+            case ServerPackets.WORLD_ENTITY -> {
+                if (version == 0) {
                     var id = buf.readVarInt();
                     var polymerId = buf.readIdentifier();
 
@@ -209,12 +240,31 @@ public class ClientPacketHandler {
                     if (entity != null) {
                         ((ClientEntityExtension) entity).polymer_setId(polymerId);
                     }
-
                 }
             }
-        } catch (Exception e) {
-            PolymerMod.LOGGER.error("Invalid " + identifier + " packet received from server!");
-            PolymerMod.LOGGER.error(e);
+        }
+    }
+
+    private static void handleHandshake(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version == 0) {
+            InternalClientRegistry.setVersion(buf.readString(64));
+
+            var size = buf.readVarInt();
+
+            for (int i = 0; i < size; i++) {
+                var id = buf.readIdentifier();
+
+                var size2 = buf.readVarInt();
+                var list = new IntArrayList();
+
+                for (int i2 = 0; i2 < size2; i2++) {
+                    list.add(buf.readVarInt());
+                }
+
+                InternalClientRegistry.CLIENT_PROTOCOL.put(id, ClientPackets.getBestSupported(id, list.elements()));
+            }
+
+            PolymerClientProtocol.sendSyncRequest(handler);
         }
     }
 }

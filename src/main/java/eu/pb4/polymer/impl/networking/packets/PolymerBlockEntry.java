@@ -15,7 +15,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public record PolymerBlockEntry(Identifier identifier, int numId, Text text, BlockState visual) implements BufferWritable {
-    public void write(PacketByteBuf buf, ServerPlayNetworkHandler handler) {
+    public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeIdentifier(identifier);
         buf.writeVarInt(numId);
         buf.writeText(ServerTranslationUtils.parseFor(handler, text));
@@ -26,7 +26,11 @@ public record PolymerBlockEntry(Identifier identifier, int numId, Text text, Blo
         return new PolymerBlockEntry(Registry.BLOCK.getId(block), Registry.BLOCK.getRawId(block), block.getName(), block.getDefaultState());
     }
 
-    public static PolymerBlockEntry read(PacketByteBuf buf) {
-        return new PolymerBlockEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText(), Block.getStateFromRawId(buf.readVarInt()));
+    public static PolymerBlockEntry read(PacketByteBuf buf, int version) {
+        if (version == 0) {
+            return new PolymerBlockEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText(), Block.getStateFromRawId(buf.readVarInt()));
+        }
+
+        return null;
     }
 }

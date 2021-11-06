@@ -57,6 +57,7 @@
     "client.DebugHudMixin",
     "client.GameOptionsMixin",
     "client.MinecraftClientMixin",
+    "client.ReloadableResourceManagerImplMixin",
     "client.ResourcePackManagerMixin",
     "client.block.ChunkSectionMixin",
     "client.block.WorldChunkMixin",

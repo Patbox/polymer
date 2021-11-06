@@ -7,6 +7,7 @@ import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
+import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
@@ -26,9 +27,17 @@ public class Commands {
                         .executes(Commands::generate))
                 .then(literal("item-client")
                         .executes(Commands::itemClient))
-                .then(literal("reload-world-self")
+                .then(literal("reload-world")
                         .executes((ctx) -> {
                             PolymerUtils.reloadWorld(ctx.getSource().getPlayer());
+                            return 0;
+                        }))
+                .then(literal("protocol-info")
+                        .executes((ctx) -> {
+                            ctx.getSource().sendFeedback(new LiteralText("Protocol supported by your client:"), false);
+                            for (var entry : PolymerNetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer_getSupportMap().object2IntEntrySet()) {
+                                ctx.getSource().sendFeedback(new LiteralText("- " + entry.getKey() + " = " + entry.getIntValue()), false);
+                            }
                             return 0;
                         }))
         );

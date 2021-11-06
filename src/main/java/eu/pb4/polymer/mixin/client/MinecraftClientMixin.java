@@ -1,14 +1,16 @@
 package eu.pb4.polymer.mixin.client;
 
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.impl.client.networking.ClientPacketBuilder;
+import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,9 +24,13 @@ import java.util.ArrayList;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
-    @Shadow @Nullable public HitResult crosshairTarget;
+    @Shadow
+    @Nullable
+    public HitResult crosshairTarget;
 
-    @Shadow @Nullable public abstract ClientPlayNetworkHandler getNetworkHandler();
+    @Shadow
+    @Nullable
+    public abstract ClientPlayNetworkHandler getNetworkHandler();
 
     @ModifyVariable(method = "initializeSearchableContainers", at = @At(value = "STORE", ordinal = 0))
     private DefaultedList<?> polymer_removePolymerItemsFromSearch(DefaultedList<?> og) {
@@ -45,13 +51,23 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
     private void polymer_pickBlock(CallbackInfo ci) {
-        if (InternalClientRegistry.ENABLED && this.getNetworkHandler() != null) {
-            if (this.crosshairTarget != null && this.crosshairTarget.getType() == HitResult.Type.BLOCK) {
-                var pos = ((BlockHitResult)this.crosshairTarget).getBlockPos();
+        if (InternalClientRegistry.ENABLED && this.getNetworkHandler() != null && this.crosshairTarget != null) {
+            switch (this.crosshairTarget.getType()) {
+                case BLOCK -> {
+                    var pos = ((BlockHitResult) this.crosshairTarget).getBlockPos();
 
-                if (InternalClientRegistry.getBlockAt(pos) != ClientPolymerBlock.NONE_STATE) {
-                    ClientPacketBuilder.sendPickBlock(this.getNetworkHandler(), pos);
-                    ci.cancel();
+                    if (InternalClientRegistry.getBlockAt(pos) != ClientPolymerBlock.NONE_STATE) {
+                        PolymerClientProtocol.sendPickBlock(this.getNetworkHandler(), pos);
+                        ci.cancel();
+                    }
+                }
+                case ENTITY -> {
+                    var entity = ((EntityHitResult) this.crosshairTarget).getEntity();
+
+                    if (PolymerClientUtils.getEntityType(entity) != null) {
+                        PolymerClientProtocol.sendPickEntity(this.getNetworkHandler(), entity.getId());
+                        ci.cancel();
+                    }
                 }
             }
         }

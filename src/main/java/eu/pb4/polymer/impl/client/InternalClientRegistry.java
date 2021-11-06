@@ -11,11 +11,14 @@ import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IdListPalette;
@@ -32,8 +35,7 @@ import java.util.function.Predicate;
 public class InternalClientRegistry {
     public static boolean ENABLED = false;
     public static String SERVER_VERSION = "";
-    public static int SERVER_PROTOCOL = -1;
-
+    public static final Object2IntMap<Identifier> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
 
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>();
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
@@ -58,15 +60,15 @@ public class InternalClientRegistry {
         return ClientPolymerBlock.NONE_STATE;
     }
 
-    public static void setVersion(String version, int protocol) {
+    public static void setVersion(String version) {
         SERVER_VERSION = version;
-        SERVER_PROTOCOL = Math.max(protocol, -1);
-        ENABLED = SERVER_PROTOCOL >= 0;
+        ENABLED = !version.isEmpty();
     }
 
     public static void disable() {
         clear();
-        setVersion("", -1);
+        setVersion("");
+        CLIENT_PROTOCOL.clear();
     }
 
     public static void clear() {
@@ -117,5 +119,9 @@ public class InternalClientRegistry {
         }
 
         ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
+    }
+
+    public static int getProtocol(Identifier identifier) {
+        return CLIENT_PROTOCOL.getOrDefault(identifier, -1);
     }
 }

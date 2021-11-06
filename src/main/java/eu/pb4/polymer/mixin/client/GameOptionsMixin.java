@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.client;
 
-import eu.pb4.polymer.impl.client.networking.ClientPacketBuilder;
+import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +16,7 @@ public class GameOptionsMixin {
     @Inject(method = "sendClientSettings", at = @At("TAIL"))
     private void polymer_requestSync(CallbackInfo ci) {
         if (this.client.player != null) {
-            ClientPacketBuilder.sendVersion(this.client.player.networkHandler);
+            PolymerClientProtocol.sendSyncRequest(this.client.player.networkHandler);
         }
     }
 }

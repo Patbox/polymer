@@ -40,7 +40,7 @@ public class DebugHudMixin {
         var list = cir.getReturnValue();
 
         if (InternalClientRegistry.ENABLED) {
-            list.add(String.format("[Polymer] C: %s (%s), S: %s (%s)", PolymerMod.VERSION, PolymerMod.PROTOCOL_VERSION, InternalClientRegistry.SERVER_VERSION, InternalClientRegistry.SERVER_PROTOCOL));
+            list.add(String.format("[Polymer] C: %s, S: %s", PolymerMod.VERSION, InternalClientRegistry.SERVER_VERSION));
             list.add(String.format("[Polymer] I: %s, IG: %s, B: %s, BS: %s, E: %s", InternalClientRegistry.ITEMS.size(), InternalClientRegistry.ITEM_GROUPS.size(), InternalClientRegistry.BLOCKS.size(), InternalClientRegistry.BLOCK_STATES.size(), InternalClientRegistry.ENTITY_TYPE.size()));
         }
     }

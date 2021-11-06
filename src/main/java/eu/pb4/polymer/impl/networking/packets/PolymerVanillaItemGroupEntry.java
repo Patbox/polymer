@@ -29,7 +29,7 @@ public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> st
     }
 
     @Override
-    public void write(PacketByteBuf buf, ServerPlayNetworkHandler handler) {
+    public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeString(identifier);
         buf.writeVarInt(stacks.size());
         for (var item : stacks) {
