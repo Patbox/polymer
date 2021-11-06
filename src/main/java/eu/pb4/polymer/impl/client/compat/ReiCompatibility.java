@@ -25,11 +25,11 @@ public class ReiCompatibility implements REIClientPlugin {
     private static final EntryComparator<ItemStack> ITEM_STACK_ENTRY_COMPARATOR = (c, i) -> {
         var nbt = i.getNbt();
 
-        if (i.hasNbt() && i.getNbt().contains(PolymerItemUtils.VIRTUAL_ITEM_ID, NbtElement.STRING_TYPE)) {
-            return i.getNbt().getString(PolymerItemUtils.VIRTUAL_ITEM_ID).hashCode();
+        if (nbt != null && nbt.contains(PolymerItemUtils.VIRTUAL_ITEM_ID, NbtElement.STRING_TYPE)) {
+            return nbt.getString(PolymerItemUtils.VIRTUAL_ITEM_ID).hashCode();
         }
 
-        return 0l;
+        return 0;
     };
 
     @Override

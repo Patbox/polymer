@@ -12,6 +12,7 @@ import java.util.List;
 import static net.minecraft.server.command.CommandManager.literal;
 
 @ApiStatus.Internal
+@SuppressWarnings({"deprecation", "unchecked"})
 public class PolyMcHelpers {
     public static void createResources(Path path) {
 

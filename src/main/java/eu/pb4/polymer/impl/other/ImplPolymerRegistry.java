@@ -15,10 +15,10 @@ import java.util.Map;
 
 @ApiStatus.Internal
 public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
-    private Map<Identifier, T> entryMap = new HashMap<>();
-    private Int2ObjectMap<T> rawIdMap = new Int2ObjectOpenHashMap<>();
-    private Object2IntMap<T> entryIdMap = new Object2IntOpenHashMap<>();
-    private Map<T, Identifier> identifierMap = new HashMap<>();
+    private final Map<Identifier, T> entryMap = new HashMap<>();
+    private final Int2ObjectMap<T> rawIdMap = new Int2ObjectOpenHashMap<>();
+    private final Object2IntMap<T> entryIdMap = new Object2IntOpenHashMap<>();
+    private final Map<T, Identifier> identifierMap = new HashMap<>();
 
     private int currentId = 0;
 

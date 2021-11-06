@@ -10,23 +10,25 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 
 
+import net.fabricmc.loader.api.ModContainer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public class PolymerMod implements ModInitializer, ClientModInitializer {
-	public static final boolean POLYMC_COMPAT = FabricLoader.getInstance().isModLoaded("polymc");
+	public static final boolean IS_POLYMC_PRESENT = FabricLoader.getInstance().isModLoaded("polymc");
 
 	public static final Logger LOGGER = LogManager.getLogger("Polymer");
-	public static final String VERSION = FabricLoader.getInstance().getModContainer("polymer").get().getMetadata().getVersion().getFriendlyString().split("\\+")[0];
+	public static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer").get();
+	public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString().split("\\+")[0];
 	public static final int PROTOCOL_VERSION = 0;
 
 	@Override
 	public void onInitialize() {
-		if (POLYMC_COMPAT) {
+		if (IS_POLYMC_PRESENT) {
 			PolymerRPUtils.markAsRequired();
-			ServerLifecycleEvents.SERVER_STARTED.register((s) -> PolyMcHelpers.overrideCommand(s));
+			ServerLifecycleEvents.SERVER_STARTED.register(PolyMcHelpers::overrideCommand);
 		}
 	}
 

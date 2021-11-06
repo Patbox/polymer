@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
+@SuppressWarnings({"unused"})
 public interface MutableSearchableContainer {
     void polymer_remove(Object obj);
     void polymer_removeIf(Predicate<Object> predicate);

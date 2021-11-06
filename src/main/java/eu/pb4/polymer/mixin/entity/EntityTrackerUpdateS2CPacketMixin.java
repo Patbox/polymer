@@ -1,9 +1,12 @@
 package eu.pb4.polymer.mixin.entity;
 
+import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.entity.PolymerTrackedDataHandler;
 import eu.pb4.polymer.impl.other.InternalEntityHelpers;
+import eu.pb4.polymer.mixin.ItemFrameEntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -31,12 +34,13 @@ public class EntityTrackerUpdateS2CPacketMixin {
     @Inject(method = "<init>(ILnet/minecraft/entity/data/DataTracker;Z)V", at = @At("TAIL"))
     private void polymer_removeInvalidEntries(int id, DataTracker tracker, boolean forceUpdateAll, CallbackInfo ci) {
         Entity entity = ((DataTrackerAccessor) tracker).getTrackedEntity();
+        List<DataTracker.Entry<?>> entries = new ArrayList<>();
 
         if (entity instanceof PolymerEntity polymerEntity) {
             List<DataTracker.Entry<?>> legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType()));
 
             if (legalTrackedData.size() > 0) {
-                List<DataTracker.Entry<?>> entries = new ArrayList<>();
+                entries = new ArrayList<>();
                 for (DataTracker.Entry<?> entry : this.trackedValues) {
                     for (DataTracker.Entry<?> trackedData : legalTrackedData) {
                         if (trackedData.getData().getId() == entry.getData().getId() && entry.get().getClass().isInstance(trackedData.get())) {
@@ -49,17 +53,27 @@ public class EntityTrackerUpdateS2CPacketMixin {
                 polymerEntity.modifyTrackedData(entries);
                 this.trackedValues = entries;
             } else {
-                List<DataTracker.Entry<?>> list = new ArrayList<>();
                 for (DataTracker.Entry<?> entry : this.trackedValues) {
                     if (entry.getData().getId() <= 13) {
-                        list.add(entry);
+                        entries.add(entry);
                     }
                 }
 
-                polymerEntity.modifyTrackedData(list);
-                this.trackedValues = list;
+                polymerEntity.modifyTrackedData(entries);
+            }
+        } else {
+            entries.addAll(this.trackedValues);
+        }
+
+        for (int i = 0; i < entries.size(); i++) {
+            var entry = entries.get(i);
+
+            if (entry.getData() == ItemFrameEntityAccessor.getITEM_STACK() && entry.get() instanceof ItemStack stack) {
+                entries.set(i, new DataTracker.Entry<>(PolymerTrackedDataHandler.CUSTOM_ITEM_FRAME_STACK, stack));
             }
         }
+
+        this.trackedValues = entries;
     }
 
     @Environment(EnvType.CLIENT)
@@ -71,7 +85,16 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
             for (DataTracker.Entry<?> entry : cir.getReturnValue()) {
                 if (entry.get() instanceof ItemStack stack) {
-                    list.add(new DataTracker.Entry(entry.getData(), PolymerItemUtils.getPolymerItemStack(stack, player)));
+                    if (entry.getData() == PolymerTrackedDataHandler.CUSTOM_ITEM_FRAME_STACK) {
+                        var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayer());
+
+                        if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
+                            polymerStack.removeCustomName();
+                        }
+                        list.add(new DataTracker.Entry(ItemFrameEntityAccessor.getITEM_STACK(), polymerStack));
+                    } else {
+                        list.add(new DataTracker.Entry(entry.getData(), PolymerItemUtils.getPolymerItemStack(stack, player)));
+                    }
                 } else {
                     list.add(entry);
                 }

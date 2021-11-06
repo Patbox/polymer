@@ -1,6 +1,5 @@
 package eu.pb4.polymer.impl.client;
 
-import com.google.common.base.Predicates;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
@@ -8,6 +7,7 @@ import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
+import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
@@ -21,7 +21,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IdListPalette;
 import net.minecraft.world.chunk.Palette;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -47,12 +46,13 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPE = new ImplPolymerRegistry<>();
 
 
-    @Nullable
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
-        var chunk = MinecraftClient.getInstance().world.getChunk(pos);
+        if (MinecraftClient.getInstance().world != null) {
+            var chunk = MinecraftClient.getInstance().world.getChunk(pos);
 
-        if (chunk instanceof ClientBlockStorageInterface storage) {
-            return storage.polymer_getClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ());
+            if (chunk instanceof ClientBlockStorageInterface storage) {
+                return storage.polymer_getClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ());
+            }
         }
 
         return ClientPolymerBlock.NONE_STATE;
@@ -78,12 +78,12 @@ public class InternalClientRegistry {
 
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 
-        clearTabs(Predicates.alwaysTrue());
+        clearTabs(i -> true);
         for (var group : ItemGroup.GROUPS) {
             ((ClientItemGroupExtension) group).polymer_clearStacks();
         }
 
-        PolymerClientUtils.ON_CLEAR.invoke((r) -> r.run());
+        PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
@@ -107,6 +107,7 @@ public class InternalClientRegistry {
         if (list.size() <= CreativeInventoryScreenAccessor.getSelectedTab()) {
             CreativeInventoryScreenAccessor.setSelectedTab(ItemGroup.BUILDING_BLOCKS.getIndex());
             try {
+                //noinspection JavaReflectionMemberAccess
                 Field f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
                 f1.setAccessible(true);
                 f1.set(null, 0);

@@ -5,6 +5,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
+@SuppressWarnings({"unused"})
 public interface PolymerNetworkHandlerExtension {
     boolean polymer_hasResourcePack();
 

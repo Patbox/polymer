@@ -2,12 +2,17 @@ package eu.pb4.polymer.api.utils;
 
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
+import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -70,6 +75,20 @@ public class PolymerUtils {
     public static void schedulePacket(ServerPlayNetworkHandler handler, Packet<?> packet, int duration) {
         ((PolymerNetworkHandlerExtension) handler).polymer_schedulePacket(packet, duration);
     }
+
+    /**
+     * Resends world to player. It's useful to run this after player changes resource packs
+     */
+    public static void reloadWorld(ServerPlayerEntity player) {
+        PolymerSyncUtils.synchronizePolymerRegistries(player.networkHandler);
+        player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
+
+        for (var e : ((ServerWorldAccessor) player.getServerWorld()).polymer_getEntityManager().getLookup().iterate()) {
+            var tracker = ((ThreadedAnvilChunkStorageAccessor) player.getServerWorld().getChunkManager().threadedAnvilChunkStorage).polymer_getEntityTrackers().get(e.getId());
+            tracker.stopTracking(player);
+            tracker.updateTrackedStatus(player);
+        }
+    };
 
     public static Identifier id(String path) {
         return new Identifier(ID, path);

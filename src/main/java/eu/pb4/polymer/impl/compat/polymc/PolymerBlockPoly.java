@@ -10,7 +10,7 @@ import net.minecraft.block.BlockState;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class VirtualPoly implements BlockPoly {
+public class PolymerBlockPoly implements BlockPoly {
     @Override
     public BlockState getClientBlock(BlockState input) {
         return PolymerBlockUtils.getBlockStateSafely((PolymerBlock) input.getBlock(), input);

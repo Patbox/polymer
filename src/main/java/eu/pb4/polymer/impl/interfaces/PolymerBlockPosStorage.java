@@ -26,8 +26,6 @@ public interface PolymerBlockPosStorage {
     boolean polymer_hasAny();
 
     static short pack(int x, int y, int z) {
-        return (short) ((x & 15) << 8 | (z & 15) << 4 | (y & 15) << 0);
+        return (short) ((x & 15) << 8 | (z & 15) << 4 | (y & 15));
     }
-
-    record XYZ(byte x, int y, byte z) {};
 }

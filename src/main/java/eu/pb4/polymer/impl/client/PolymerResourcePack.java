@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
+@SuppressWarnings({"deprecation"})
 public class PolymerResourcePack extends ZipResourcePack {
     public static boolean GENERATED = false;
 

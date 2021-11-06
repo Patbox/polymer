@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @ApiStatus.Internal
+@SuppressWarnings({"unused", "unchecked"})
 public class InternalEntityHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
     private static final PigEntity PIG = new PigEntity(EntityType.PIG, eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);

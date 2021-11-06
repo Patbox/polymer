@@ -20,7 +20,7 @@ public class ClientUtils {
     }
 
     public static ServerPlayerEntity getPlayer() {
-        return isSingleplayer() && MinecraftClient.getInstance().player != null ? MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid()) : null;
+        return MinecraftClient.getInstance().getServer() != null && MinecraftClient.getInstance().player != null ? MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid()) : null;
     }
 
     public static boolean isClientSide() {

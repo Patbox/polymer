@@ -71,4 +71,11 @@ public interface PolymerItem extends PolymerObject {
      */
     default void modifyClientTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {
     }
+
+    /**
+     * Allows to disable showing of name in item frames
+     */
+    default boolean showDefaultNameInItemFrames() {
+        return false;
+    }
 }

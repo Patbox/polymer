@@ -88,26 +88,24 @@ public class ServerPacketHandler {
                     } else if (i != -1) {
                         if (PlayerInventory.isValidHotbarIndex(i)) {
                             playerInventory.selectedSlot = i;
-                            handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
                         } else {
                             handler.player.getInventory().swapSlotWithHotbar(i);
                             handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, playerInventory.selectedSlot, playerInventory.getStack(playerInventory.selectedSlot)));
                             handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
-                            handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
                         }
+                        handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
                     }
                 }
             }
         }
     }
 
-    private static ItemStack addBlockEntityNbt(ItemStack stack, BlockEntity blockEntity) {
+    private static void addBlockEntityNbt(ItemStack stack, BlockEntity blockEntity) {
         NbtCompound nbtCompound = blockEntity.writeNbt(new NbtCompound());
         NbtCompound nbtCompound3;
         if (stack.getItem() instanceof SkullItem && nbtCompound.contains("SkullOwner")) {
             nbtCompound3 = nbtCompound.getCompound("SkullOwner");
             stack.getOrCreateNbt().put("SkullOwner", nbtCompound3);
-            return stack;
         } else {
             stack.setSubNbt("BlockEntityTag", nbtCompound);
             nbtCompound3 = new NbtCompound();
@@ -115,7 +113,6 @@ public class ServerPacketHandler {
             nbtList.add(NbtString.of("\"(+NBT)\""));
             nbtCompound3.put("Lore", nbtList);
             stack.setSubNbt("display", nbtCompound3);
-            return stack;
         }
     }
 }

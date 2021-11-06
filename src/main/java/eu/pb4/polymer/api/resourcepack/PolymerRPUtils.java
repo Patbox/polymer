@@ -28,7 +28,7 @@ public class PolymerRPUtils {
     private static final IntSet TAKEN_ARMOR_COLORS = new IntOpenHashSet();
     private static final Map<Identifier, PolymerArmorModel> ARMOR_MODEL_MAP = new HashMap<>();
     private static int ARMOR_VAL = 0;
-    private static final int CMD_OFFSET = PolymerMod.POLYMC_COMPAT ? 100000 : 1;
+    private static final int CMD_OFFSET = PolymerMod.IS_POLYMC_PRESENT ? 100000 : 1;
     private static boolean REQUIRED = false;
     private static boolean DEFAULT_CHECK = true;
 
@@ -116,12 +116,21 @@ public class PolymerRPUtils {
         return ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
     }
 
+    /**
+     * Sets resource pack status of player
+     *
+     * @param player Player to change status
+     * @param status true if player has resource pack, otherwise false
+     */
     public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
         ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setResourcePack(status);
     }
 
+    /**
+     * Returns true if color is taken
+     */
     public static boolean isColorTaken(int color) {
-        return TAKEN_ARMOR_COLORS.contains(color);
+        return TAKEN_ARMOR_COLORS.contains(color & 0xFFFFFF);
     }
 
     /**
@@ -141,6 +150,10 @@ public class PolymerRPUtils {
 
     public static boolean shouldCheckByDefault() {
         return DEFAULT_CHECK;
+    }
+
+    public static PolymerRPBuilder createBuilder(Path output) {
+        return new DefaultRPBuilder(output);
     }
 
     public static boolean build(Path output) {

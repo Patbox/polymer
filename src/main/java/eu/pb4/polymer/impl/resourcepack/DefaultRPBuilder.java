@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import eu.pb4.polymer.api.resourcepack.PolymerArmorModel;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
 import eu.pb4.polymer.impl.PolymerMod;
-import eu.pb4.polymer.impl.other.DualList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -39,6 +38,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
     static final JsonParser JSON_PARSER = new JsonParser();
@@ -50,16 +50,22 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final List<PolymerArmorModel> armors = new ArrayList<>();
     private final Path outputPath;
     private ZipFile clientJar = null;
-    private List<ModContainer> modsList = new ArrayList<>();
+    private final List<ModContainer> modsList = new ArrayList<>();
 
 
-    public DefaultRPBuilder(Path outputPath) throws Exception {
+    public DefaultRPBuilder(Path outputPath) {
         outputPath.getParent().toFile().mkdirs();
         this.outputPath = outputPath;
 
-        if (outputPath.toFile().exists()) {
-            Files.deleteIfExists(outputPath);
+        try {
+            if (outputPath.toFile().exists()) {
+                Files.deleteIfExists(outputPath);
+            }
+        } catch (Exception e) {
+            PolymerMod.LOGGER.warn("Couldn't remove " + outputPath + " file!");
+            e.printStackTrace();
         }
+
     }
 
     private static Path getPolymerPath(String path) {

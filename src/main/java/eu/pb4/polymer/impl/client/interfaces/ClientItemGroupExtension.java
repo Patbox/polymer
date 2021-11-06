@@ -10,6 +10,7 @@ import java.util.List;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
+@SuppressWarnings({"unused"})
 public interface ClientItemGroupExtension {
     void polymer_addStacks(List<ItemStack> stackList);
     void polymer_addStack(ItemStack stack);

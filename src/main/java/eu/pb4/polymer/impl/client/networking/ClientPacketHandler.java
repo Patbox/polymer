@@ -1,6 +1,5 @@
 package eu.pb4.polymer.impl.client.networking;
 
-import com.google.common.base.Predicates;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
@@ -8,16 +7,17 @@ import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
-import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientEntityExtension;
-import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import eu.pb4.polymer.impl.networking.PolymerPacketIds;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerBlockStateEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerEntityEntry;
 import eu.pb4.polymer.impl.networking.packets.PolymerItemEntry;
+import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -46,8 +46,8 @@ public class ClientPacketHandler {
                     InternalClientRegistry.setVersion(version, protocol);
                 }
 
-                case PolymerPacketIds.SYNC_STARTED -> PolymerClientUtils.ON_SYNC_STARTED.invoke((r) -> r.run());
-                case PolymerPacketIds.SYNC_FINISHED -> PolymerClientUtils.ON_SYNC_FINISHED.invoke((r) -> r.run());
+                case PolymerPacketIds.SYNC_STARTED -> PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
+                case PolymerPacketIds.SYNC_FINISHED -> PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
 
                 case PolymerPacketIds.REGISTRY_BLOCK -> {
                     var size = buf.readVarInt();
@@ -78,9 +78,7 @@ public class ClientPacketHandler {
                     }
                 }
 
-                case PolymerPacketIds.REGISTRY_ITEM_GROUP_CLEAR -> {
-                    InternalClientRegistry.clearTabs(Predicates.alwaysTrue());
-                }
+                case PolymerPacketIds.REGISTRY_ITEM_GROUP_CLEAR -> InternalClientRegistry.clearTabs(i -> true);
 
                 case PolymerPacketIds.REGISTRY_ITEM_GROUP_REMOVE -> {
                     var id = buf.readIdentifier();
@@ -119,8 +117,8 @@ public class ClientPacketHandler {
 
                     var newArray = new ItemGroup[array.length + 1];
 
-                    for (int i = 0; i < array.length; i++) {
-                        newArray[i] = array[i];
+                    if (array.length >= 0) {
+                        System.arraycopy(array, 0, newArray, 0, array.length);
                     }
 
                     ItemGroupAccessor.setGROUPS(newArray);
@@ -160,7 +158,7 @@ public class ClientPacketHandler {
                     a.reload();
                     b.reload();
 
-                    PolymerClientUtils.ON_SEARCH_REBUILD.invoke((r) -> r.run());
+                    PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
                 }
 
                 case PolymerPacketIds.REGISTRY_BLOCKSTATE -> {
@@ -172,9 +170,7 @@ public class ClientPacketHandler {
                     }
                 }
 
-                case PolymerPacketIds.REGISTRY_CLEAR -> {
-                    InternalClientRegistry.clear();
-                }
+                case PolymerPacketIds.REGISTRY_CLEAR -> InternalClientRegistry.clear();
 
                 case PolymerPacketIds.BLOCK_UPDATE -> {
                     var pos = buf.readBlockPos();

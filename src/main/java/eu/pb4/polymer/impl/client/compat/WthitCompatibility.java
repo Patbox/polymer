@@ -9,10 +9,9 @@ import mcp.mobius.waila.api.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SkullItem;
@@ -152,11 +151,11 @@ public class WthitCompatibility implements IWailaPlugin {
                     if (id != null) {
                         String modName = null;
                         var regBlock = Registry.ITEM.get(id);
-                        if (regBlock != null) {
+                        if (regBlock != Items.AIR) {
                             modName = IModInfo.get(regBlock).getName();
                         }
 
-                        if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
+                        if (modName == null || modName.isEmpty()) {
                             modName = "Server";
                         }
 
@@ -178,11 +177,11 @@ public class WthitCompatibility implements IWailaPlugin {
                 if (type != null) {
                     String modName = null;
                     var regBlock = Registry.ENTITY_TYPE.get(type.identifier());
-                    if (regBlock != null) {
+                    if (regBlock != EntityType.PIG) {
                         modName = IModInfo.get(InternalEntityHelpers.getEntity(regBlock)).getName();
                     }
 
-                    if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !type.identifier().getNamespace().equals("minecraft"))) {
+                    if (modName == null || modName.isEmpty()) {
                         modName = "Server";
                     }
 

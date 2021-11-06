@@ -68,7 +68,7 @@ public class PolymerServerProtocol {
             buf.writeVarInt(positions.length);
 
             for (int i = 0; i < blockStates.length; i++) {
-                buf.writeVarLong((getRawId(blockStates[i], player.player) << 12 | positions[i]));
+                buf.writeVarLong(((long) getRawId(blockStates[i], player.player) << 12 | positions[i]));
             }
 
             player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.CHUNK_SECTION_UPDATE_ID, buf));
@@ -88,17 +88,19 @@ public class PolymerServerProtocol {
 
                     if (section != null && storage.polymer_hasAny()) {
                         var buf = buf();
+                        var set = storage.polymer_getBackendSet();
                         buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), section.getYOffset() >> 4));
 
-                        var size = storage.polymer_getBackendSet().size();
+                        assert set != null;
+                        var size = set.size();
                         buf.writeVarInt(size);
 
-                        for (var pos : storage.polymer_getBackendSet()) {
+                        for (var pos : set) {
                             int x = ChunkSectionPos.unpackLocalX(pos);
                             int y = ChunkSectionPos.unpackLocalY(pos);
                             int z = ChunkSectionPos.unpackLocalZ(pos);
 
-                            buf.writeVarLong((getRawId(section.getBlockState(x, y, z), player.player) << 12 | pos));
+                            buf.writeVarLong(((long) getRawId(section.getBlockState(x, y, z), player.player) << 12 | pos));
                         }
 
                         player.sendPacket(new CustomPayloadS2CPacket(PolymerPacketIds.CHUNK_SECTION_UPDATE_ID, buf));
@@ -126,7 +128,7 @@ public class PolymerServerProtocol {
 
             {
                 for (var entry : Registry.ITEM) {
-                    if (entry != null && entry instanceof PolymerItem obj && obj.shouldSyncWithPolymerClient(player.player)) {
+                    if (entry instanceof PolymerItem obj && obj.shouldSyncWithPolymerClient(player.player)) {
                         entries.add(PolymerItemEntry.of(entry, player));
 
                         if (entries.size() > 40) {
@@ -161,7 +163,7 @@ public class PolymerServerProtocol {
             }
             {
                 for (var entry : Registry.BLOCK) {
-                    if (entry != null && entry instanceof PolymerBlock obj && obj.shouldSyncWithPolymerClient(player.player)) {
+                    if (entry instanceof PolymerBlock obj && obj.shouldSyncWithPolymerClient(player.player)) {
                         entries.add(PolymerBlockEntry.of(entry));
 
                         if (entries.size() > 40) {
@@ -176,10 +178,7 @@ public class PolymerServerProtocol {
             }
             {
                 var list = ((NetworkIdList) Block.STATE_IDS).polymer_getInternalList().getOffsetList();
-                var size = list.size();
-                for (int i = 0; i < size; i++) {
-                    var entry = list.get(i);
-
+                for (BlockState entry : list) {
                     if (entry != null && ((PolymerObject) entry.getBlock()).shouldSyncWithPolymerClient(player.player)) {
                         entries.add(PolymerBlockStateEntry.of(entry, player));
 

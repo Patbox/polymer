@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_16",
   "plugin": "eu.pb4.polymer.mixin.PolymerMixinConfigPlugin",
   "mixins": [
+    "ItemFrameEntityAccessor",
     "block.AbstractBlockMixin",
     "block.ServerChunkManagerMixin",
     "block.TACSMixin",
@@ -37,6 +38,8 @@
     "entity.LivingEntityMixin",
     "entity.MobSpawnS2CPacketMixin",
     "entity.PlayerSpawnS2CPacketAccessor",
+    "entity.ServerWorldAccessor",
+    "entity.TrackedDataHandlerRegistryMixin",
     "item.ItemGroupMixin",
     "item.ItemStackContentMixin",
     "item.ItemStackMixin",
@@ -77,7 +80,7 @@
     "client.rendering.ItemModelsMixin",
     "client.rendering.ItemRendererMixin",
     "client.rendering.ModelLoaderMixin",
-    "client.rendering.ModelOverrideListMixin",
+    "client.rendering.ModelOverrideListMixin"
   ],
   "injectors": {
     "defaultRequire": 1
