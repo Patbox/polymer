@@ -82,8 +82,8 @@ public class PolymerUtils {
         PolymerSyncUtils.synchronizePolymerRegistries(player.networkHandler);
         player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
 
-        for (var e : ((ServerWorldAccessor) player.getServerWorld()).polymer_getEntityManager().getLookup().iterate()) {
-            var tracker = ((ThreadedAnvilChunkStorageAccessor) player.getServerWorld().getChunkManager().threadedAnvilChunkStorage).polymer_getEntityTrackers().get(e.getId());
+        for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
+            var tracker = ((ThreadedAnvilChunkStorageAccessor) player.getWorld().getChunkManager().threadedAnvilChunkStorage).polymer_getEntityTrackers().get(e.getId());
             tracker.stopTracking(player);
             tracker.updateTrackedStatus(player);
         }

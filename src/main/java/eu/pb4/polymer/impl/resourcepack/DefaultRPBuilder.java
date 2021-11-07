@@ -411,7 +411,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     this.fileMap.put("pack.mcmeta", ("" +
                             "{\n" +
                             "   \"pack\":{\n" +
-                            "      \"pack_format\":" + SharedConstants.field_29738 + ",\n" +
+                            "      \"pack_format\":" + SharedConstants.RESOURCE_PACK_VERSION + ",\n" +
                             "      \"description\":\"Server resource pack\"\n" +
                             "   }\n" +
                             "}\n").getBytes(StandardCharsets.UTF_8));

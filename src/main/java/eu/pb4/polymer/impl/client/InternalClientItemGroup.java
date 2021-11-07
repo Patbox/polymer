@@ -35,7 +35,7 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject 
     }
 
     @Override
-    public Text getTranslationKey() {
+    public Text getDisplayName() {
         return this.name;
     }
 

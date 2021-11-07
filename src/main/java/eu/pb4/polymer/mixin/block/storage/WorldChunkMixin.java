@@ -1,52 +1,45 @@
 package eu.pb4.polymer.mixin.block.storage;
 
 import com.google.common.collect.ForwardingIterator;
-import com.google.common.collect.Iterators;
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.TickScheduler;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.source.BiomeArray;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.*;
+import net.minecraft.world.tick.ChunkTickScheduler;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
 @Mixin(WorldChunk.class)
-public abstract class WorldChunkMixin implements PolymerBlockPosStorage, Chunk {
-    @Shadow
-    public abstract ChunkPos getPos();
+public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosStorage {
 
-    @Shadow
-    public abstract ChunkSection[] getSectionArray();
-
-    @Shadow @Final private ChunkPos pos;
+    public WorldChunkMixin(ChunkPos chunkPos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> registry, long l, @Nullable ChunkSection[] chunkSections, @Nullable BlendingData blendingData) {
+        super(chunkPos, upgradeData, heightLimitView, registry, l, chunkSections, blendingData);
+    }
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/TickScheduler;Lnet/minecraft/world/TickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;)V",
+            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;)V",
             at = @At("TAIL")
     )
-    private void polymer_polymerBlocksInit1(World world, ChunkPos pos, BiomeArray biomes, UpgradeData upgradeData, TickScheduler<Block> blockTickScheduler, TickScheduler<Fluid> fluidTickScheduler, long inhabitedTime, @Nullable ChunkSection[] sections, @Nullable Consumer<WorldChunk> loadToWorldConsumer, CallbackInfo info) {
+    private void polymer_polymerBlocksInit1(World world, ChunkPos chunkPos, CallbackInfo ci) {
         this.polymer_generatePolymerBlockSet();
     }
 
@@ -59,10 +52,10 @@ public abstract class WorldChunkMixin implements PolymerBlockPosStorage, Chunk {
     }
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/biome/source/BiomeArray;)V",
+            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;Lnet/minecraft/world/chunk/BlendingData;)V",
             at = @At("TAIL")
     )
-    private void polymer_polymerBlocksInit3(World world, ChunkPos pos, BiomeArray biomes, CallbackInfo ci) {
+    private void polymer_polymerBlocksInit3(World world, ChunkPos chunkPos, UpgradeData upgradeData, ChunkTickScheduler chunkTickScheduler, ChunkTickScheduler chunkTickScheduler2, long l, ChunkSection[] chunkSections, Consumer consumer, BlendingData blendingData, CallbackInfo ci) {
         this.polymer_generatePolymerBlockSet();
     }
 
@@ -71,7 +64,7 @@ public abstract class WorldChunkMixin implements PolymerBlockPosStorage, Chunk {
     private void polymer_generatePolymerBlockSet() {
         for (var section : this.getSectionArray()) {
             if (section != null && !section.isEmpty()) {
-                var container = section.getContainer();
+                var container = section.getBlockStateContainer();
                 if (container.hasAny(PolymerBlockUtils.IS_POLYMER_BLOCK_STATE_PREDICATE)) {
                     var storage = (PolymerBlockPosStorage) section;
                     BlockState state;

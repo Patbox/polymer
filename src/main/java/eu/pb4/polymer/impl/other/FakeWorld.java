@@ -17,74 +17,23 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.MutableRegistry;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.*;
-import net.minecraft.world.biome.*;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkManager;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.tick.QueryableTickScheduler;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @ApiStatus.Internal
 class FakeWorld extends World {
     static public World INSTANCE;
-
-    private static final DynamicRegistryManager REGISTRY_MANAGER = new DynamicRegistryManager() {
-        @Override
-        public <E> Optional<MutableRegistry<E>> getOptionalMutable(RegistryKey<? extends Registry<? extends E>> key) {
-            return Optional.empty();
-        }
-    };
-
-    private static final Biome FAKE_BIOME = DefaultBiomeCreator.createTheVoid();
-
-    private static final ChunkManager CHUNK_MANAGER = new ChunkManager() {
-        LightingProvider provider = new LightingProvider(this, false, false);
-        @Nullable
-        @Override
-        public Chunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
-            return null;
-        }
-
-        @Override
-        public void tick(BooleanSupplier booleanSupplier) {
-
-        }
-
-        @Override
-        public String getDebugString() {
-            return "FakeChunkManager!";
-        }
-
-        @Override
-        public int getLoadedChunkCount() {
-            return 0;
-        }
-
-        @Override
-        public LightingProvider getLightingProvider() {
-            return provider;
-        }
-
-        @Override
-        public BlockView getWorld() {
-            return INSTANCE;
-        }
-    };
-    static private final Scoreboard SCOREBOARD = new Scoreboard();
 
     static {
         try {
@@ -148,7 +97,7 @@ class FakeWorld extends World {
 
     @Override
     public Scoreboard getScoreboard() {
-        return SCOREBOARD;
+        return null;
     }
 
     @Override
@@ -158,7 +107,7 @@ class FakeWorld extends World {
 
     @Override
     public TagManager getTagManager() {
-        return TagManager.EMPTY;
+        return null;
     }
 
     @Override
@@ -167,18 +116,18 @@ class FakeWorld extends World {
     }
 
     @Override
-    public TickScheduler<Block> getBlockTickScheduler() {
+    public QueryableTickScheduler<Block> getBlockTickScheduler() {
         return null;
     }
 
     @Override
-    public TickScheduler<Fluid> getFluidTickScheduler() {
+    public QueryableTickScheduler<Fluid> getFluidTickScheduler() {
         return null;
     }
 
     @Override
     public ChunkManager getChunkManager() {
-        return CHUNK_MANAGER;
+        return null;
     }
 
     @Override
@@ -193,7 +142,7 @@ class FakeWorld extends World {
 
     @Override
     public DynamicRegistryManager getRegistryManager() {
-        return REGISTRY_MANAGER;
+        return null;
     }
 
     @Override
@@ -203,12 +152,12 @@ class FakeWorld extends World {
 
     @Override
     public List<? extends PlayerEntity> getPlayers() {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public Biome getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return FAKE_BIOME;
+        return null;
     }
 
 

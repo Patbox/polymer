@@ -56,8 +56,8 @@ public class PolymerServerProtocolHandler {
             PolymerServerProtocol.sendSyncPackets(handler);
 
             if (ver == 0 && handler.getPlayer() != null) {
-                var world = handler.getPlayer().getServerWorld();
-                int dist = ((ThreadedAnvilChunkStorageAccessor) handler.getPlayer().getServerWorld().getChunkManager().threadedAnvilChunkStorage).getWatchDistance();
+                var world = handler.getPlayer().getWorld();
+                int dist = ((ThreadedAnvilChunkStorageAccessor) world.getChunkManager().threadedAnvilChunkStorage).getWatchDistance();
                 int playerX = handler.player.getWatchedSection().getX();
                 int playerZ = handler.player.getWatchedSection().getZ();
 
@@ -180,7 +180,7 @@ public class PolymerServerProtocolHandler {
     }
 
     private static void addBlockEntityNbt(ItemStack stack, BlockEntity blockEntity) {
-        NbtCompound nbtCompound = blockEntity.writeNbt(new NbtCompound());
+        NbtCompound nbtCompound = blockEntity.createNbtWithId();
         NbtCompound nbtCompound3;
         if (stack.getItem() instanceof SkullItem && nbtCompound.contains("SkullOwner")) {
             nbtCompound3 = nbtCompound.getCompound("SkullOwner");

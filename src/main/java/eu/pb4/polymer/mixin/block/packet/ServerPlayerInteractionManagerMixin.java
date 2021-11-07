@@ -81,7 +81,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        var state = this.player.getServerWorld().getBlockState(pos);
+        var state = this.player.getWorld().getBlockState(pos);
         if (this.polymer_shouldMineServerSide(pos, state)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 if (state.getBlock() instanceof PolymerBlock virtualBlock) {
@@ -102,7 +102,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
     private void polymer_enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (this.polymer_shouldMineServerSide(pos, this.player.getServerWorld().getBlockState(pos))) {
+        if (this.polymer_shouldMineServerSide(pos, this.player.getWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.startMiningTime += blockBreakingCooldown;
             }

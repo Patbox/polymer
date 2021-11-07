@@ -9,9 +9,10 @@ import mcp.mobius.waila.api.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SkullItem;
@@ -67,7 +68,7 @@ public class WthitCompatibility implements IWailaPlugin {
                     var blockEntity = accessor.getWorld().getBlockEntity(accessor.getPosition());
 
                     if (blockEntity != null) {
-                        var nbtCompound = blockEntity.writeNbt(new NbtCompound());
+                        var nbtCompound = blockEntity.createNbt();
                         if (nbtCompound.contains("SkullOwner")) {
                             itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
                         }
@@ -151,11 +152,11 @@ public class WthitCompatibility implements IWailaPlugin {
                     if (id != null) {
                         String modName = null;
                         var regBlock = Registry.ITEM.get(id);
-                        if (regBlock != Items.AIR) {
+                        if (regBlock != null) {
                             modName = IModInfo.get(regBlock).getName();
                         }
 
-                        if (modName == null || modName.isEmpty()) {
+                        if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
                             modName = "Server";
                         }
 
@@ -177,11 +178,11 @@ public class WthitCompatibility implements IWailaPlugin {
                 if (type != null) {
                     String modName = null;
                     var regBlock = Registry.ENTITY_TYPE.get(type.identifier());
-                    if (regBlock != EntityType.PIG) {
+                    if (regBlock != null) {
                         modName = IModInfo.get(InternalEntityHelpers.getEntity(regBlock)).getName();
                     }
 
-                    if (modName == null || modName.isEmpty()) {
+                    if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !type.identifier().getNamespace().equals("minecraft"))) {
                         modName = "Server";
                     }
 

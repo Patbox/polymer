@@ -38,7 +38,6 @@ public class InternalClientRegistry {
 
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>();
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
-    public static final Palette<ClientPolymerBlock.State> BLOCK_STATE_PALETTE = new IdListPalette<>(BLOCK_STATES, null);
 
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>();
     public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>();

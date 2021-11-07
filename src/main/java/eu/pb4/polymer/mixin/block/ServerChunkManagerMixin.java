@@ -69,7 +69,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
                         BitSet bitSet = new BitSet();
                         bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
                         Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
-                        List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false).collect(Collectors.toList());
+                        List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false);
                         if (players.size() > 0) {
                             this.polymer_lastUpdates.put(pos, System.currentTimeMillis());
                             for (ServerPlayerEntity player : players) {

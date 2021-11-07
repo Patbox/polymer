@@ -1,12 +1,13 @@
 package eu.pb4.polymer.api.block;
 
+import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
@@ -60,7 +61,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
-        return new BlockEntityUpdateS2CPacket(pos, BlockEntityUpdateS2CPacket.SKULL, main);
+        return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos, BlockEntityType.SKULL, main);
     }
 
     default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) {

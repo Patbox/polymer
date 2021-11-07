@@ -285,7 +285,7 @@ public class PolymerServerProtocol {
             group.appendStacks(list);
 
             buf.writeIdentifier(group.getId());
-            buf.writeText(ServerTranslationUtils.parseFor(player, group.getTranslationKey()));
+            buf.writeText(ServerTranslationUtils.parseFor(player, group.getDisplayName()));
             buf.writeItemStack(ServerTranslationUtils.parseFor(player, PolymerItemUtils.getPolymerItemStack(group.createIcon(), player.player)));
             buf.writeVarInt(list.size());
             for (var stack : list) {

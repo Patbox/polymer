@@ -17,7 +17,6 @@ import java.util.function.Consumer;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-@SuppressWarnings({"deprecation"})
 public class PolymerResourcePack extends ZipResourcePack {
     public static boolean GENERATED = false;
 
@@ -51,7 +50,7 @@ public class PolymerResourcePack extends ZipResourcePack {
                             new TranslatableText("text.polymer.resource_pack.name"),
                             PolymerRPUtils.isRequired(),
                             () -> pack,
-                            new PackResourceMetadata(new TranslatableText("text.polymer.resource_pack.description" + (PolymerRPUtils.isRequired() ? ".required" : "")), SharedConstants.field_29738),
+                            new PackResourceMetadata(new TranslatableText("text.polymer.resource_pack.description" + (PolymerRPUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION),
                             ResourcePackProfile.InsertionPosition.TOP,
                             ResourcePackSource.PACK_SOURCE_BUILTIN
                     ));
