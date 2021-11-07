@@ -17,4 +17,9 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install mkdocs-material mike
+      - name: Set up git credentials
+        uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        with:
+          global: true
+          token: ${{ secrets.USER_TOKEN }}
       - run: mike deploy --push --update-aliases ${{ github.event.inputs.version }}
