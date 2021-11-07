@@ -43,4 +43,4 @@ plugins:
 extra:
   version:
     provider: mike
-    default: latest
+    default: 0.1.x
