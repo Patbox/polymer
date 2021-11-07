@@ -10,16 +10,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      - run: pip install mkdocs-material mike
-      - name: Set up git credentials
-        uses: oleksiyrudenko/gha-git-credentials@v2-latest
-        with:
-          global: true
-          token: ${{ secrets.USER_TOKEN }}
-      - run: mike deploy --push --update-aliases ${{ github.event.inputs.version }}
+      -   name: Checkout code
+          uses: actions/checkout@v2
+          with:
+            fetch-depth: 0
+      -   name: Set up python 3
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.x
+      -   name: Install mkdocs and mike
+          run: pip install mkdocs-material mike
+      -   name: Set up git credentials
+          uses: oleksiyrudenko/gha-git-credentials@v2-latest
+          with:
+            global: true
+            token: ${{ secrets.USER_TOKEN }}
+      -   name: Deploy docs
+          run: mike deploy --push ${{ github.event.inputs.version }}
