@@ -24,9 +24,9 @@ public interface PolymerNetworkHandlerExtension {
     long polymer_lastSyncUpdate();
     void polymer_saveSyncTime();
 
-    int polymer_getSupportedVersion(Identifier identifier);
-    void polymer_setSupportedVersion(Identifier identifier, int i);
-    Object2IntMap<Identifier> polymer_getSupportMap();
+    int polymer_getSupportedVersion(String identifier);
+    void polymer_setSupportedVersion(String identifier, int i);
+    Object2IntMap<String> polymer_getSupportMap();
 
 
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {

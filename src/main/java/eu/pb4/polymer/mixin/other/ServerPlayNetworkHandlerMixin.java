@@ -26,7 +26,7 @@ import java.util.ArrayList;
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHandlerExtension {
     @Shadow private int ticks;
-    private Object2IntMap<Identifier> polymer_protocolMap = new Object2IntOpenHashMap<>();
+    private Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
 
     @Shadow public abstract void sendPacket(Packet<?> packet);
 
@@ -98,17 +98,17 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
     @Override
-    public int polymer_getSupportedVersion(Identifier identifier) {
+    public int polymer_getSupportedVersion(String identifier) {
         return this.polymer_protocolMap.getOrDefault(identifier, -1);
     }
 
     @Override
-    public void polymer_setSupportedVersion(Identifier identifier, int i) {
+    public void polymer_setSupportedVersion(String identifier, int i) {
         this.polymer_protocolMap.put(identifier, i);
     }
 
     @Override
-    public Object2IntMap<Identifier> polymer_getSupportMap() {
+    public Object2IntMap<String> polymer_getSupportMap() {
         return this.polymer_protocolMap;
     }
 

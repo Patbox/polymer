@@ -1,12 +1,16 @@
-package eu.pb4.polymer.api.utils;
+package eu.pb4.polymer.api.networking;
 
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.PacketUtils;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.impl.networking.ServerPackets;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 public final class PolymerSyncUtils {
     private PolymerSyncUtils(){};
@@ -44,7 +48,7 @@ public final class PolymerSyncUtils {
      * Rebuild creative search index
      */
     public static void rebuildCreativeSearch(ServerPlayNetworkHandler handler) {
-        if (PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(ServerPackets.SYNC_REBUILD_SEARCH_ID) == 0) {
+        if (PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(ServerPackets.SYNC_REBUILD_SEARCH) == 0) {
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_REBUILD_SEARCH_ID, PacketUtils.buf(0)));
         }
     }

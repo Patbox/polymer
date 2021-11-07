@@ -17,22 +17,74 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.MutableRegistry;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.*;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.*;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @ApiStatus.Internal
 class FakeWorld extends World {
     static public World INSTANCE;
+
+    private static final DynamicRegistryManager REGISTRY_MANAGER = new DynamicRegistryManager() {
+        @Override
+        public <E> Optional<MutableRegistry<E>> getOptionalMutable(RegistryKey<? extends Registry<? extends E>> key) {
+            return Optional.empty();
+        }
+    };
+
+    private static final Biome FAKE_BIOME = DefaultBiomeCreator.createTheVoid();
+
+    private static final ChunkManager CHUNK_MANAGER = new ChunkManager() {
+        LightingProvider provider = new LightingProvider(this, false, false);
+        @Nullable
+        @Override
+        public Chunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
+            return null;
+        }
+
+        @Override
+        public void tick(BooleanSupplier booleanSupplier) {
+
+        }
+
+        @Override
+        public String getDebugString() {
+            return "FakeChunkManager!";
+        }
+
+        @Override
+        public int getLoadedChunkCount() {
+            return 0;
+        }
+
+        @Override
+        public LightingProvider getLightingProvider() {
+            return provider;
+        }
+
+        @Override
+        public BlockView getWorld() {
+            return INSTANCE;
+        }
+    };
+    static private final Scoreboard SCOREBOARD = new Scoreboard();
 
     static {
         try {
@@ -96,7 +148,7 @@ class FakeWorld extends World {
 
     @Override
     public Scoreboard getScoreboard() {
-        return null;
+        return SCOREBOARD;
     }
 
     @Override
@@ -106,7 +158,7 @@ class FakeWorld extends World {
 
     @Override
     public TagManager getTagManager() {
-        return null;
+        return TagManager.EMPTY;
     }
 
     @Override
@@ -126,7 +178,7 @@ class FakeWorld extends World {
 
     @Override
     public ChunkManager getChunkManager() {
-        return null;
+        return CHUNK_MANAGER;
     }
 
     @Override
@@ -141,7 +193,7 @@ class FakeWorld extends World {
 
     @Override
     public DynamicRegistryManager getRegistryManager() {
-        return null;
+        return REGISTRY_MANAGER;
     }
 
     @Override
@@ -151,12 +203,12 @@ class FakeWorld extends World {
 
     @Override
     public List<? extends PlayerEntity> getPlayers() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public Biome getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return null;
+        return FAKE_BIOME;
     }
 
 

@@ -12,8 +12,6 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.UUID;
-
 import static eu.pb4.polymer.impl.networking.PacketUtils.buf;
 
 @ApiStatus.Internal
@@ -26,8 +24,8 @@ public class PolymerClientProtocol {
         buf.writeString(PolymerMod.VERSION);
         buf.writeVarInt(ServerPackets.REGISTRY.size());
 
-        for (var id : ServerPackets.REGISTRY.ids()) {
-            buf.writeIdentifier(id);
+        for (var id : ServerPackets.REGISTRY.keySet()) {
+            buf.writeString(id);
 
             var entry = ServerPackets.REGISTRY.get(id);
 
@@ -48,7 +46,7 @@ public class PolymerClientProtocol {
     }
 
     public static void sendPickBlock(ClientPlayNetworkHandler handler, BlockPos pos) {
-        if (InternalClientRegistry.getProtocol(ClientPackets.WORLD_PICK_BLOCK_ID) == 0) {
+        if (InternalClientRegistry.getProtocol(ClientPackets.WORLD_PICK_BLOCK) == 0) {
             var buf = buf(0);
             buf.writeBlockPos(pos);
             buf.writeBoolean(Screen.hasControlDown());
@@ -57,7 +55,7 @@ public class PolymerClientProtocol {
     }
 
     public static void sendPickEntity(ClientPlayNetworkHandler handler, int id) {
-        if (InternalClientRegistry.getProtocol(ClientPackets.WORLD_PICK_ENTITY_ID) == 0) {
+        if (InternalClientRegistry.getProtocol(ClientPackets.WORLD_PICK_ENTITY) == 0) {
             var buf = buf(0);
             buf.writeVarInt(id);
             buf.writeBoolean(Screen.hasControlDown());

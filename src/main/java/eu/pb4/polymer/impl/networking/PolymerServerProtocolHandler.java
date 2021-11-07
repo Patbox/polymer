@@ -29,7 +29,7 @@ public class PolymerServerProtocolHandler {
 
         try {
             version = buf.readVarInt();
-            handle(handler, identifier, version, buf);
+            handle(handler, identifier.getPath(), version, buf);
         } catch (Exception e) {
             PolymerMod.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()));
             PolymerMod.LOGGER.error(e);
@@ -38,8 +38,8 @@ public class PolymerServerProtocolHandler {
     }
 
 
-    private static void handle(ServerPlayNetworkHandler handler, Identifier identifier, int version, PacketByteBuf buf) {
-        switch (identifier.getPath()) {
+    private static void handle(ServerPlayNetworkHandler handler, String packet, int version, PacketByteBuf buf) {
+        switch (packet) {
             case ClientPackets.HANDSHAKE -> handleHandshake(handler, version, buf);
             case ClientPackets.SYNC_REQUEST -> handleSyncRequest(handler, version, buf);
             case ClientPackets.WORLD_PICK_BLOCK -> handlePickBlock(handler, version, buf);
@@ -51,7 +51,7 @@ public class PolymerServerProtocolHandler {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var ver = polymerHandler.polymer_lastSyncUpdate();
 
-        if (polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_STARTED_ID) == 0 && System.currentTimeMillis() - polymerHandler.polymer_lastSyncUpdate() > 1000 * 20) {
+        if (polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_STARTED) == 0 && System.currentTimeMillis() - polymerHandler.polymer_lastSyncUpdate() > 1000 * 20) {
             polymerHandler.polymer_saveSyncTime();
             PolymerServerProtocol.sendSyncPackets(handler);
 
@@ -83,7 +83,7 @@ public class PolymerServerProtocolHandler {
             var size = buf.readVarInt();
 
             for (int i = 0; i < size; i++) {
-                var id = buf.readIdentifier();
+                var id = buf.readString();
 
                 var size2 = buf.readVarInt();
                 var list = new IntArrayList();

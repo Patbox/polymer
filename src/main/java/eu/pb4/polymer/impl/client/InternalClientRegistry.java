@@ -18,7 +18,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IdListPalette;
@@ -35,7 +34,7 @@ import java.util.function.Predicate;
 public class InternalClientRegistry {
     public static boolean ENABLED = false;
     public static String SERVER_VERSION = "";
-    public static final Object2IntMap<Identifier> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
+    public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
 
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>();
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
@@ -121,7 +120,7 @@ public class InternalClientRegistry {
         ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
     }
 
-    public static int getProtocol(Identifier identifier) {
+    public static int getProtocol(String identifier) {
         return CLIENT_PROTOCOL.getOrDefault(identifier, -1);
     }
 }

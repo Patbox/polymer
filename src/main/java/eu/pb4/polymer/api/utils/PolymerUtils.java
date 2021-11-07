@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.utils;
 
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -10,9 +11,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 

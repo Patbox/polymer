@@ -19,6 +19,7 @@ import java.util.function.Consumer;
  * General utilities while dealing with client side integrations
  */
 public final class PolymerClientUtils {
+    public static final SimpleEvent<Runnable> ON_HANDSHAKE = new SimpleEvent<>();
     public static final SimpleEvent<Runnable> ON_CLEAR = new SimpleEvent<>();
     public static final SimpleEvent<Runnable> ON_SYNC_STARTED = new SimpleEvent<>();
     public static final SimpleEvent<Runnable> ON_SYNC_FINISHED = new SimpleEvent<>();

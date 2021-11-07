@@ -4,7 +4,7 @@ import eu.pb4.polymer.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymer.api.utils.PolymerSyncUtils;
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;

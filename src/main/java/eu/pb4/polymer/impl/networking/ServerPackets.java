@@ -1,16 +1,17 @@
 package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 @ApiStatus.Internal
 public class ServerPackets {
-    public static final ImplPolymerRegistry<int[]> REGISTRY = new ImplPolymerRegistry<>();
+    public static final Map<String, int[]> REGISTRY = new HashMap<>();
     public static final String HANDSHAKE = "handshake";
     public static final Identifier HANDSHAKE_ID = PolymerUtils.id(HANDSHAKE);
     public static final String SYNC_STARTED = "sync/started";
@@ -23,8 +24,8 @@ public class ServerPackets {
     public static final Identifier SYNC_ITEM_ID = PolymerUtils.id(SYNC_ITEM);
     public static final String SYNC_ENTITY = "sync/entities";
     public static final Identifier SYNC_ENTITY_ID = PolymerUtils.id(SYNC_ENTITY);
-    public static final String SYNC_ITEM_GROUPS = "sync/item_groups";
-    public static final Identifier SYNC_ITEM_GROUP_ID = PolymerUtils.id(SYNC_ITEM_GROUPS);
+    public static final String SYNC_ITEM_GROUP = "sync/item_groups";
+    public static final Identifier SYNC_ITEM_GROUP_ID = PolymerUtils.id(SYNC_ITEM_GROUP);
     public static final String SYNC_ITEM_GROUP_REMOVE = "sync/item_group/remove";
     public static final Identifier SYNC_ITEM_GROUP_REMOVE_ID = PolymerUtils.id(SYNC_ITEM_GROUP_REMOVE);
     public static final String SYNC_ITEM_GROUP_VANILLA = "sync/item_group/vanilla";
@@ -45,7 +46,7 @@ public class ServerPackets {
     public static final Identifier WORLD_ENTITY_ID = PolymerUtils.id(WORLD_ENTITY);
 
 
-    public static final int getBestSupported(Identifier identifier, int[] ver) {
+    public static final int getBestSupported(String identifier, int[] ver) {
 
         var values = REGISTRY.get(identifier);
 
@@ -60,26 +61,26 @@ public class ServerPackets {
         return -1;
     }
 
-    public static final void register(Identifier id, int... ver) {
-        REGISTRY.set(id, ver);
+    public static final void register(String id, int... ver) {
+        REGISTRY.put(id, ver);
     }
 
 
     static {
-        register(HANDSHAKE_ID, 0);
-        register(SYNC_STARTED_ID, 0);
-        register(SYNC_FINISHED_ID, 0);
-        register(SYNC_BLOCK_ID, 0);
-        register(SYNC_BLOCKSTATE_ID, 0);
-        register(SYNC_ITEM_ID, 0);
-        register(SYNC_ITEM_GROUP_ID, 0);
-        register(SYNC_ITEM_GROUP_CLEAR_ID, 0);
-        register(SYNC_ITEM_GROUP_REMOVE_ID, 0);
-        register(SYNC_ITEM_GROUP_VANILLA_ID, 0);
-        register(SYNC_ENTITY_ID, 0);
-        register(SYNC_CLEAR_ID, 0);
-        register(WORLD_SET_BLOCK_UPDATE_ID, 0);
-        register(WORLD_CHUNK_SECTION_UPDATE_ID, 0);
-        register(WORLD_ENTITY_ID, 0);
+        register(HANDSHAKE, 0);
+        register(SYNC_STARTED, 0);
+        register(SYNC_FINISHED, 0);
+        register(SYNC_BLOCK, 0);
+        register(SYNC_BLOCKSTATE, 0);
+        register(SYNC_ITEM, 0);
+        register(SYNC_ITEM_GROUP, 0);
+        register(SYNC_ITEM_GROUP_CLEAR, 0);
+        register(SYNC_ITEM_GROUP_REMOVE, 0);
+        register(SYNC_ITEM_GROUP_VANILLA, 0);
+        register(SYNC_ENTITY, 0);
+        register(SYNC_CLEAR, 0);
+        register(WORLD_SET_BLOCK_UPDATE, 0);
+        register(WORLD_CHUNK_SECTION_UPDATE, 0);
+        register(WORLD_ENTITY, 0);
     }
 }
