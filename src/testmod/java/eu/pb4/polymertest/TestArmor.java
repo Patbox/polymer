@@ -28,7 +28,7 @@ public class TestArmor extends ArmorItem implements PolymerItem {
     }
 
     @Override
-    public int getPolymerCustomArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public int getPolymerArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         return PolymerRPUtils.hasPack(player) ? this.armorModel.value() : -1;
     }
 

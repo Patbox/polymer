@@ -57,7 +57,7 @@ public interface PolymerItem extends PolymerObject {
      * @param player    Player for which it's send
      * @return Custom color or -1 if not present
      */
-    default int getPolymerCustomArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    default int getPolymerArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         return -1;
     }
 

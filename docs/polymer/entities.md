@@ -7,14 +7,14 @@
 
 ## Creation of entities
 
-Creation of entities is mostly the same as vanilla. You just need to implement `VirtualEntity` interface
+Creation of entities is mostly the same as vanilla. You just need to implement `PolymerEntity` interface
 on your entity's class. It exposes few defaulted methods for manipulation of client side visuals.
 
 You also need to register your entity type as virtual,
-by using `EntityHelper.registerVirtualEntityType(EntityType... types)`.
+by using `PolymerEntityUtils.registerType(EntityType... types)`.
 
 ### Changing client side entity.
-To select visual entity type, you just need to override `EntityType<?> getVirtualEntityType()`
+To select visual entity type, you just need to override `EntityType<?> getPolymerEntityType()`
 
 This method can't return null or another EntityType that points to other virtual entity, as it won't work.
 
@@ -23,21 +23,21 @@ Example use:
 Displaying entity as zombie
 ```
 @Override
-public EntityType<?> getVirtualEntityType() {
+public EntityType<?> getPolymerEntityType() {
     return EntityType.ZOMBIE;
 }
 ```
 
 ### Modifying held items
 You most likely want to modify items held by entity, to indicate its type. To do it you need to override
-`List<Pair<EquipmentSlot, ItemStack>> getVirtualEntityEquipment(Map<EquipmentSlot, ItemStack> map)`.
+`List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(Map<EquipmentSlot, ItemStack> map)`.
 
 Example use:
 
 Displaying real items with helmet replacement.
 ```
 @Override
-public List<Pair<EquipmentSlot, ItemStack>> getVirtualEntityEquipment(Map<EquipmentSlot, ItemStack> map) {
+public List<Pair<EquipmentSlot, ItemStack>> ggetPolymerVisibleEquipment(Map<EquipmentSlot, ItemStack> map) {
     List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(map.size());
     for (Map.Entry<EquipmentSlot, ItemStack> entry : map.entrySet()) {
         if (entry.getKey() == EquipmentSlot.HEAD) {

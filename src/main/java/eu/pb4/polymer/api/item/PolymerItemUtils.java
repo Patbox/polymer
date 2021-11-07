@@ -358,7 +358,7 @@ public final class PolymerItemUtils {
             lastVirtual = newItem;
             req++;
         }
-        return new ItemWithMetadata(out, lastVirtual.getPolymerCustomModelData(stack, player), lastVirtual.getPolymerCustomArmorColor(stack, player));
+        return new ItemWithMetadata(out, lastVirtual.getPolymerCustomModelData(stack, player), lastVirtual.getPolymerArmorColor(stack, player));
     }
 
     /**
