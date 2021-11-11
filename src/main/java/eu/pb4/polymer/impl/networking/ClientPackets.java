@@ -18,6 +18,8 @@ public class ClientPackets {
     public static final Identifier WORLD_PICK_BLOCK_ID = PolymerUtils.id(WORLD_PICK_BLOCK);
     public static final String WORLD_PICK_ENTITY = "world/pick_entity";
     public static final Identifier WORLD_PICK_ENTITY_ID = PolymerUtils.id(WORLD_PICK_ENTITY);
+    public static final String CHANGE_TOOLTIP = "other/change_tooltip";
+    public static final Identifier CHANGE_TOOLTIP_ID = PolymerUtils.id(CHANGE_TOOLTIP);
 
     public static int getBestSupported(String identifier, int[] ver) {
 
@@ -42,5 +44,6 @@ public class ClientPackets {
         register(HANDSHAKE, 0);
         register(WORLD_PICK_BLOCK, 0);
         register(WORLD_PICK_ENTITY, 0);
+        register(CHANGE_TOOLTIP, 0);
     }
 }

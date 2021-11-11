@@ -28,8 +28,8 @@ public interface PolymerTrackedDataHandler<T> extends TrackedDataHandler<T> {
                 polymerStack.removeCustomName();
             }
 
-            //buf.writeItemStack(polymerStack);
-            // Todo: remove that when STA is fixed
+            buf.writeItemStack(polymerStack);
+            /*// Todo: remove that when STA is fixed
             if (polymerStack.isEmpty()) {
                 buf.writeBoolean(false);
             } else {
@@ -43,7 +43,7 @@ public interface PolymerTrackedDataHandler<T> extends TrackedDataHandler<T> {
                 }
 
                 buf.writeNbt(nbtCompound);
-            }
+            }*/
         }
 
         public ItemStack read(PacketByteBuf packetByteBuf) {

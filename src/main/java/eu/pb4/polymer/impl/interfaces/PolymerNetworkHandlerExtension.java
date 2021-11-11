@@ -28,6 +28,9 @@ public interface PolymerNetworkHandlerExtension {
     void polymer_setSupportedVersion(String identifier, int i);
     Object2IntMap<String> polymer_getSupportMap();
 
+    boolean polymer_advancedTooltip();
+    void polymer_setAdvancedTooltip(boolean value);
+
 
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {
         return (PolymerNetworkHandlerExtension) handler;

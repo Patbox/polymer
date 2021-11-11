@@ -28,6 +28,9 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Shadow private int ticks;
     private Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
 
+    @Unique
+    private boolean polymer_advancedTooltip = false;
+
     @Shadow public abstract void sendPacket(Packet<?> packet);
 
     @Shadow public abstract ServerPlayerEntity getPlayer();
@@ -95,6 +98,16 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                 }
             }
         }
+    }
+
+    @Override
+    public void polymer_setAdvancedTooltip(boolean value) {
+        this.polymer_advancedTooltip = value;
+    }
+
+    @Override
+    public boolean polymer_advancedTooltip() {
+        return this.polymer_advancedTooltip;
     }
 
     @Override

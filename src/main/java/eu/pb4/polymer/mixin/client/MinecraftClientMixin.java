@@ -4,15 +4,21 @@ import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.client.rendering.PolymerResourceReloader;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.RunArgs;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,6 +37,17 @@ public abstract class MinecraftClientMixin {
     @Shadow
     @Nullable
     public abstract ClientPlayNetworkHandler getNetworkHandler();
+
+    @Shadow @Final private ReloadableResourceManager resourceManager;
+
+    @Shadow @Final private TextureManager textureManager;
+
+    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;initFont(Z)V"))
+    private void polymer_registerCustom(RunArgs args, CallbackInfo ci) {
+        if (CompatStatus.ALT_ARMOR_HANDLER) {
+            this.resourceManager.registerReloader(new PolymerResourceReloader(this.textureManager));
+        }
+    }
 
     @ModifyVariable(method = "initializeSearchableContainers", at = @At(value = "STORE", ordinal = 0))
     private DefaultedList<?> polymer_removePolymerItemsFromSearch(DefaultedList<?> og) {

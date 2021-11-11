@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 
@@ -19,18 +20,25 @@ import java.util.List;
 public class DebugHudMixin {
     @Shadow private HitResult blockHit;
 
-    @Inject(method = "getRightText", at = @At("RETURN"))
-    private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir) {
+    @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK) {
-            var block = InternalClientRegistry.getBlockAt(((BlockHitResult)this.blockHit).getBlockPos());
+            var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
+            var block = InternalClientRegistry.getBlockAt(blockPos);
             if (block != ClientPolymerBlock.NONE_STATE && block.block() != null) {
-                var list = cir.getReturnValue();
-                list.add("");
-                list.add(Formatting.UNDERLINE + "Polymer Block");
                 list.add(block.block().identifier().toString());
                 for (var entry : block.states().entrySet()) {
-                    list.add(entry.getKey() + ": " + entry.getValue());
+
+
+                    list.add(entry.getKey() + ": " + switch (entry.getValue()) {
+                        case "true" -> Formatting.GREEN + "true";
+                        case "false" -> Formatting.RED + "false";
+                        default -> entry.getValue();
+                    });
                 }
+                list.add("");
+                list.add(Formatting.UNDERLINE + "Targeted Client Block: " + blockPos.getX() + ", " + blockPos.getY() + ", " + blockPos.getZ());
+
             }
         }
     }

@@ -7,6 +7,7 @@ import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -88,6 +89,14 @@ public class PolymerUtils {
             tracker.updateTrackedStatus(player);
         }
     };
+
+    public static void reloadInventory(ServerPlayerEntity player) {
+        player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
+    }
+
+    public static TooltipContext getTooltipContext(@Nullable ServerPlayerEntity player) {
+        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? TooltipContext.Default.ADVANCED : TooltipContext.Default.NORMAL;
+    }
 
     public static Identifier id(String path) {
         return new Identifier(ID, path);

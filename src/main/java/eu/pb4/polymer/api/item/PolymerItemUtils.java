@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
 import net.minecraft.client.item.TooltipContext;
@@ -290,7 +291,7 @@ public final class PolymerItemUtils {
         }
 
         try {
-            List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
+            List<Text> tooltip = itemStack.getTooltip(player, PolymerUtils.getTooltipContext(player));
             MutableText name = (MutableText) tooltip.remove(0);
 
             if (!out.getName().equals(name)) {

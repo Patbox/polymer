@@ -258,7 +258,7 @@ public class PolymerClientProtocolHandler {
             }
 
             PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
-
+            PolymerClientProtocol.sendTooltipContext(handler);
             PolymerClientProtocol.sendSyncRequest(handler);
 
             return true;

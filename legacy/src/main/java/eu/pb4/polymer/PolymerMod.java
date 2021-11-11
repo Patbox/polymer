@@ -1,6 +1,7 @@
 package eu.pb4.polymer;
 
 import eu.pb4.polymer.block.BlockHelper;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @Deprecated
 public class PolymerMod implements ModInitializer {
-	public static final boolean POLYMC_COMPAT = FabricLoader.getInstance().isModLoaded("polymc");
+	public static final boolean POLYMC_COMPAT = CompatStatus.POLYMC;
 
 	public static final Logger LOGGER = LogManager.getLogger("Polymer (Legacy)");
 

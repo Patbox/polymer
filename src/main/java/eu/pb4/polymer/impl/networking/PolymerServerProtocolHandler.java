@@ -1,5 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -44,6 +46,20 @@ public class PolymerServerProtocolHandler {
             case ClientPackets.SYNC_REQUEST -> handleSyncRequest(handler, version, buf);
             case ClientPackets.WORLD_PICK_BLOCK -> handlePickBlock(handler, version, buf);
             case ClientPackets.WORLD_PICK_ENTITY -> handlePickEntity(handler, version, buf);
+            case ClientPackets.CHANGE_TOOLTIP -> handleTooltipChange(handler, version, buf);
+        }
+    }
+
+    private static void handleTooltipChange(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
+
+        if (version == 0) {
+            polymerHandler.polymer_setAdvancedTooltip(buf.readBoolean());
+            if (polymerHandler.polymer_lastSyncUpdate() != 0) {
+                PolymerServerProtocol.syncVanillaItemGroups(handler);
+                PolymerSyncUtils.synchronizeCreativeTabs(handler);
+                PolymerUtils.reloadInventory(handler.player);
+            }
         }
     }
 
@@ -77,7 +93,7 @@ public class PolymerServerProtocolHandler {
     private static void handleHandshake(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
 
-        if (version == 0) {
+        if (version == 0 && !polymerHandler.polymer_hasPolymer()) {
             polymerHandler.polymer_setVersion(buf.readString(64));
 
             var size = buf.readVarInt();

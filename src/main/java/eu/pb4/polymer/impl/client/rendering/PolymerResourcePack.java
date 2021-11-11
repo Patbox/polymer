@@ -1,6 +1,7 @@
-package eu.pb4.polymer.impl.client;
+package eu.pb4.polymer.impl.client.rendering;
 
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;

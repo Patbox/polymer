@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin;
 
-import net.fabricmc.loader.api.FabricLoader;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -12,21 +12,9 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
     private static final String PACKAGE_ROOT = "eu.pb4.polymer.mixin.";
     private static final String COMPAT_PACKAGE = "compat.";
 
-    private boolean fabricSync = false;
-    private boolean polymc = false;
-    private boolean lithium = false;
-    private boolean wthit = false;
-    private boolean rei = false;
-
     @Override
     public void onLoad(String mixinPackage) {
-        var loader = FabricLoader.getInstance();
 
-        this.fabricSync = loader.isModLoaded("fabric-registry-sync-v0");
-        this.polymc = loader.isModLoaded("polymc");
-        this.lithium = loader.isModLoaded("lithium");
-        this.wthit = loader.isModLoaded("wthit");
-        this.rei = loader.isModLoaded("roughlyenoughitems");
     }
 
     @Override
@@ -49,16 +37,17 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
 
 
             return switch (type) {
-                case "fabricSync" -> this.fabricSync;
-                case "polymc" -> this.polymc;
-                case "wthit" -> this.wthit;
-                case "rei" -> this.rei;
+                case "fabricSync" -> CompatStatus.FABRIC_SYNC;
+                case "polymc" -> CompatStatus.POLYMC;
+                case "wthit" -> CompatStatus.WTHIT;
+                case "rei" -> CompatStatus.REI;
+                case "armor" -> CompatStatus.ALT_ARMOR_HANDLER;
                 default -> true;
             };
         }
 
         if (targetClassName.contains("lithium")) {
-            return this.lithium;
+            return CompatStatus.LITHIUM;
         }
 
         return true;

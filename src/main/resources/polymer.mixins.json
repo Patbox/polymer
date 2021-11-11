@@ -76,6 +76,8 @@
     "client.item.packet.SetTradeOffersS2CPacketMixin",
     "client.item.packet.SynchronizeRecipesS2CPacketAccessor",
     "client.item.packet.SynchronizeRecipesS2CPacketMixin",
+    "client.rendering.ArmorFeatureRendererAccessor",
+    "client.compat.armor_ArmorFeatureRendererMixin",
     "client.rendering.BlockModelsMixin",
     "client.rendering.BuiltinModelItemRendererMixin",
     "client.rendering.ItemModelsMixin",

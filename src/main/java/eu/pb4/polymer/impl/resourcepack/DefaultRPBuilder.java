@@ -1,9 +1,7 @@
 package eu.pb4.polymer.impl.resourcepack;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.api.resourcepack.PolymerArmorModel;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
 import eu.pb4.polymer.impl.PolymerMod;
@@ -17,6 +15,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.registry.Registry;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.imageio.ImageIO;
@@ -41,7 +40,8 @@ import java.util.zip.ZipOutputStream;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
-    static final JsonParser JSON_PARSER = new JsonParser();
+    public static final JsonParser JSON_PARSER = new JsonParser();
+    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
     private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/1cf89c77ed5e72401b869f66410934804f3d6f52/client.jar";
 
@@ -314,47 +314,72 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     credits.add("Armor texture support is based on https://github.com/Ancientkingg/fancyPants");
                     credits.add("");
 
-                    var list = new ArrayList<Pair<Integer, BufferedImage[]>>();
+                    var list = new ArrayList<Triple<Integer, BufferedImage[], ArmorTextureMetadata[]>>();
 
                     int[] width = new int[]{ 64, 64 };
                     int[] height = new int[]{ 32, 32 };
 
+                    var armorDataMap = new HashMap<Integer, String>();
+
                     for (var entry : this.armors) {
+                        armorDataMap.put(entry.value(), entry.modelPath().toString());
                         try {
                             var a = new BufferedImage[2];
+                            var b = new ArmorTextureMetadata[2];
                             BufferedImage bi = null;
 
                             for (int i = 0; i <= 1; i++) {
-                                var path = "assets/" + entry.modelPath().getNamespace() + "/textures/models/armor/" + entry.modelPath().getPath() + "_layer_" + (i + 1) + ".png";
-                                var data = this.fileMap.get(path);
+                                {
+                                    var path = "assets/" + entry.modelPath().getNamespace() + "/textures/models/armor/" + entry.modelPath().getPath() + "_layer_" + (i + 1) + ".png";
+                                    var data = this.fileMap.get(path);
 
-                                if (data == null) {
-                                    try {
-                                        InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(path));
-                                        if (stream != null) {
-                                            bi = ImageIO.read(stream);
+                                    if (data == null) {
+                                        try {
+                                            InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(path));
+                                            if (stream != null) {
+                                                bi = ImageIO.read(stream);
+                                            }
+                                        } catch (Exception e) {
+                                            // silence!
                                         }
-                                    } catch (Exception e) {
-                                        // silence!
+                                    } else {
+                                        bi = ImageIO.read(new ByteArrayInputStream(data));
                                     }
-                                } else {
-                                    bi = ImageIO.read(new ByteArrayInputStream(data));
-                                }
 
-                                if (bi != null) {
-                                    height[i] = Math.max(height[i], bi.getHeight());
-                                    width[i] += bi.getWidth();
-                                }
+                                    if (bi != null) {
+                                        height[i] = Math.max(height[i], bi.getHeight());
+                                        width[i] += bi.getWidth();
+                                    }
 
-                                a[i] = bi;
+                                    a[i] = bi;
+                                }
+                                {
+                                    var path = "assets/" + entry.modelPath().getNamespace() + "/textures/models/armor/" + entry.modelPath().getPath() + "_layer_" + (i + 1) + ".polymer.json";
+                                    var data = this.fileMap.get(path);
+
+                                    if (data != null) {
+                                        int finalI = i;
+                                        ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JSON_PARSER.parse(new String(data))).result()
+                                                .ifPresentOrElse((r) -> b[finalI] = r.getFirst(), () -> b[finalI] = ArmorTextureMetadata.DEFAULT);
+                                    } else {
+                                        b[i] = ArmorTextureMetadata.DEFAULT;
+                                    }
+                                }
                             }
 
-                            list.add(new Pair<>(entry.value(), a));
+                            list.add(Triple.of(entry.value(), a, b));
                         } catch (Exception e) {
                             PolymerMod.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
                             e.printStackTrace();
                         }
                     }
+
+                    this.fileMap.put("assets/polymer/armors.json", GSON.toJson(armorDataMap).getBytes(StandardCharsets.UTF_8));
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_1.png")).readAllBytes());
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_1_overlay.png")).readAllBytes());
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2.png")).readAllBytes());
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2_overlay.png")).readAllBytes());
+
 
                     var image = new BufferedImage[]{new BufferedImage(width[0], height[0], BufferedImage.TYPE_INT_ARGB), new BufferedImage(width[1], height[1], BufferedImage.TYPE_INT_ARGB)};
                     int[] cWidth = new int[] { 64, 64 };
@@ -376,10 +401,26 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                     for (var entry : list) {
                         for (int i = 0; i <= 1; i++) {
-                            graphics[i].drawImage(entry.getRight()[i], cWidth[i], 0, null);
+                            var metadata = entry.getRight()[i];
+
+                            graphics[i].drawImage(entry.getMiddle()[i], cWidth[i], 0, null);
+
                             graphics[i].setColor(new Color(entry.getLeft() | 0xFF000000));
                             graphics[i].drawRect(cWidth[i], 0, 0, 0);
-                            cWidth[i] += entry.getRight()[i].getWidth();
+
+                            System.out.println(metadata);
+                            System.out.println((metadata.frames() & 0xFF) << 16 + (metadata.animationSpeed() & 0xFF) << 8 + (metadata.interpolate() ? 1 : 0));
+                            if ((metadata.frames() != 0 && metadata.animationSpeed() != 0) || metadata.interpolate()) {
+                                graphics[i].setColor(new Color(metadata.frames(), metadata.animationSpeed(), metadata.interpolate() ? 1 : 0));
+                                graphics[i].drawRect(cWidth[i] + 1, 0, 0, 0);
+                            }
+
+                            if (metadata.emissivity() != 0) {
+                                graphics[i].setColor(new Color(metadata.emissivity(), 0, 0));
+                                graphics[i].drawRect(cWidth[i] + 2, 0, 0, 0);
+                            }
+
+                            cWidth[i] += entry.getMiddle()[i].getWidth();
                         }
                     }
 
