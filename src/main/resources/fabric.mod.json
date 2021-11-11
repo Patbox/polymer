@@ -26,6 +26,9 @@
     ],
     "rei": [
       "eu.pb4.polymer.impl.client.compat.ReiCompatibility"
+    ],
+    "appleskin": [
+      "eu.pb4.polymer.impl.client.compat.AppleSkinCompatibility"
     ]
   },
   "mixins": [

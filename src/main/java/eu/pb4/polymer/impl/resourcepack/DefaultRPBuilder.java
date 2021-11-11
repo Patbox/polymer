@@ -408,8 +408,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             graphics[i].setColor(new Color(entry.getLeft() | 0xFF000000));
                             graphics[i].drawRect(cWidth[i], 0, 0, 0);
 
-                            System.out.println(metadata);
-                            System.out.println((metadata.frames() & 0xFF) << 16 + (metadata.animationSpeed() & 0xFF) << 8 + (metadata.interpolate() ? 1 : 0));
                             if ((metadata.frames() != 0 && metadata.animationSpeed() != 0) || metadata.interpolate()) {
                                 graphics[i].setColor(new Color(metadata.frames(), metadata.animationSpeed(), metadata.interpolate() ? 1 : 0));
                                 graphics[i].drawRect(cWidth[i] + 1, 0, 0, 0);

@@ -66,6 +66,7 @@ allprojects {
 		maven { url = "https://maven.gegy.dev/" }
 		maven { url "https://maven.shedaniel.me/" }
 		maven { url "https://maven.bai.lol" }
+		maven { url = "https://maven.ryanliptak.com/" }
 
 		mavenLocal()
 	}
@@ -124,6 +125,13 @@ dependencies {
 	//modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.0'
 
 	modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:6.0.307-alpha"
+
+	modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
+		exclude(group: "com.terraformersmc")
+		exclude(group: "io.github.prospector")
+		exclude(group: "io.github.prospector")
+		exclude(group: "net.fabricmc")
+	}
 
 	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.17.1")
 
