@@ -1,11 +1,14 @@
 package eu.pb4.polymer.mixin.other;
 
-import com.ibm.icu.impl.CalendarCache;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
+import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.impl.other.ScheduledPacket;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.network.Packet;
@@ -13,7 +16,7 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,23 +28,27 @@ import java.util.ArrayList;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHandlerExtension {
-    @Shadow private int ticks;
-    private Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
-
+    private final Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
+    @Shadow
+    public ServerPlayerEntity player;
+    @Shadow
+    private int ticks;
     @Unique
     private boolean polymer_advancedTooltip = false;
-
-    @Shadow public abstract void sendPacket(Packet<?> packet);
-
-    @Shadow public abstract ServerPlayerEntity getPlayer();
-
     @Unique
     private boolean polymer_hasResourcePack = false;
     @Unique
     private ArrayList<ScheduledPacket> polymer_scheduledPackets = new ArrayList<>();
-    @Unique private String polymer_version = "";
+    @Unique
+    private String polymer_version = "";
+    @Unique
+    private long polymer_lastSync = 0;
 
-    @Unique private long polymer_lastSync = 0;
+    @Shadow
+    public abstract void sendPacket(Packet<?> packet);
+
+    @Shadow
+    public abstract ServerPlayerEntity getPlayer();
 
     @Override
     public boolean polymer_hasResourcePack() {
@@ -139,6 +146,13 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                 case ACCEPTED, SUCCESSFULLY_LOADED -> true;
                 case DECLINED, FAILED_DOWNLOAD -> false;
             });
+        }
+    }
+
+    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("HEAD"), cancellable = true)
+    private void polymer_skipEffects(Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
+        if (packet instanceof StatusEffectPacketExtension packet2 && (packet2.polymer_getStatusEffect() == null || packet2.polymer_getStatusEffect() instanceof PolymerObject)) {
+            ci.cancel();
         }
     }
 }

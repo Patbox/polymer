@@ -1,8 +1,9 @@
-package eu.pb4.polymer.interfaces;
+package eu.pb4.polymer.api.other;
 
+import eu.pb4.polymer.api.utils.PolymerObject;
 import net.minecraft.entity.effect.StatusEffect;
 
-public interface VirtualStatusEffect extends VirtualObject {
+public interface PolymerStatusEffect extends PolymerObject {
 
     /**
      * Returns the effect to be displayed on the client's HUD.
@@ -10,7 +11,7 @@ public interface VirtualStatusEffect extends VirtualObject {
      *
      * @return Vanilla status effect, or <code>null</>null if nothing is to be displayed by the client
      */
-    default StatusEffect getVirtualStatusEffect() {
+    default StatusEffect getPolymerStatusEffect() {
         return null;
     }
 }

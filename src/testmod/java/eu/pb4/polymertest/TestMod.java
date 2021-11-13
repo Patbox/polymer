@@ -73,8 +73,11 @@ public class TestMod implements ModInitializer {
     public static Enchantment ENCHANTMENT;
 
     public static final StatusEffect STATUS_EFFECT = new TestStatusEffect();
+    public static final StatusEffect STATUS_EFFECT_2 = new Test2StatusEffect();
     public static final Potion POTION = new Potion(new StatusEffectInstance(STATUS_EFFECT, 300));
+    public static final Potion POTION_2 = new Potion(new StatusEffectInstance(STATUS_EFFECT_2, 300));
     public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT, 600));
+    public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT_2, 600));
 
     public static final EntityType<TestEntity> ENTITY = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
     public static final EntityType<TestEntity2> ENTITY_2 = FabricEntityTypeBuilder.<TestEntity2>create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
@@ -146,8 +149,11 @@ public class TestMod implements ModInitializer {
         ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
         Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
+        Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
         Registry.register(Registry.POTION, new Identifier("test", "potion"), POTION);
+        Registry.register(Registry.POTION, new Identifier("test", "potion2"), POTION_2);
         Registry.register(Registry.POTION, new Identifier("test", "long_potion"), LONG_POTION);
+        Registry.register(Registry.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
 
         Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
         FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes());

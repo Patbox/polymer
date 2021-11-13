@@ -7,9 +7,9 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffects;
 
-public class TestStatusEffect extends StatusEffect implements PolymerStatusEffect {
-    protected TestStatusEffect() {
-        super(StatusEffectCategory.BENEFICIAL, 110011);
+public class Test2StatusEffect extends StatusEffect implements PolymerStatusEffect {
+    protected Test2StatusEffect() {
+        super(StatusEffectCategory.BENEFICIAL, 0x000000);
     }
 
     @Override
@@ -22,10 +22,5 @@ public class TestStatusEffect extends StatusEffect implements PolymerStatusEffec
     @Override
     public boolean canApplyUpdateEffect(int duration, int amplifier) {
         return true;
-    }
-
-    @Override
-    public StatusEffect getPolymerStatusEffect() {
-        return StatusEffects.CONDUIT_POWER;
     }
 }

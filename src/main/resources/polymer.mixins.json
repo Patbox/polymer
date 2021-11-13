@@ -49,8 +49,10 @@
     "other.BootstrapMixin",
     "other.CommandManagerMixin",
     "other.DimensionTypeAccessor",
+    "other.EntityStatusEffectS2CPacketMixin",
     "other.IdListMixin",
     "other.ItemGroupAccessor",
+    "other.RemoveEntityStatusEffectS2CPacketMixin",
     "other.ServerPlayNetworkHandlerMixin"
   ],
   "client": [
