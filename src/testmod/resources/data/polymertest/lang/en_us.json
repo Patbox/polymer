@@ -1,4 +1,7 @@
 {
   "block.test.potato_block": "Tiny Potato",
-  "enchantment.test.enchantment": "TestEnch"
+  "enchantment.test.enchantment": "TestEnch",
+  "item.minecraft.potion.effect.potion": "TestPot",
+  "effect.test.effect": "Test Effect"
+
 }
