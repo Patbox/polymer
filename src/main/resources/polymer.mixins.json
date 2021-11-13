@@ -36,8 +36,10 @@
     "other.BootstrapMixin",
     "other.CommandManagerMixin",
     "other.DimensionTypeAccessor",
+    "other.EntityStatusEffectS2CPacketMixin",
     "other.IdListMixin",
     "other.RegistrySyncManagerMixin",
+    "other.RemoveEntityStatusEffectS2CPacketMixin",
     "other.ServerPlayNetworkHandlerMixin",
     "other.SynchronizeRecipesS2CPacketMixin",
     "polymc.BlockPolyGeneratorMixin"

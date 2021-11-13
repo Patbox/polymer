@@ -14,10 +14,12 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.PotionItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -79,6 +81,10 @@ public class ItemHelper {
                 if (ench instanceof VirtualObject) {
                     return createBasicVirtualItemStack(itemStack, player);
                 }
+            }
+        } else if (itemStack.getItem() instanceof PotionItem) {
+            if (PotionUtil.getPotionEffects(itemStack).stream().anyMatch(statusEffectInstance -> statusEffectInstance.getEffectType() instanceof VirtualObject)) {
+                return createBasicVirtualItemStack(itemStack, player);
             }
         }
 
@@ -188,6 +194,12 @@ public class ItemHelper {
 
             if (itemStack.hasEnchantments()) {
                 out.addEnchantment(Enchantments.VANISHING_CURSE, 0);
+            }
+
+            if (itemStack.getItem() instanceof PotionItem) {
+                if (!out.getOrCreateNbt().contains("CustomPotionColor")) {
+                    out.getOrCreateNbt().putInt("CustomPotionColor", PotionUtil.getColor(itemStack));
+                }
             }
 
             NbtElement canDestroy = itemStack.getNbt().get("CanDestroy");
