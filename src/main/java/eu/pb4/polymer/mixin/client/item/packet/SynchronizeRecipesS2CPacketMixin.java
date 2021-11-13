@@ -7,10 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.SynchronizeRecipesS2CPacket;
 import net.minecraft.recipe.Recipe;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,8 +21,7 @@ import java.util.stream.Collectors;
 public abstract class SynchronizeRecipesS2CPacketMixin {
     @Unique List<Recipe<?>> rewrittenRecipes = null;
 
-    @Shadow @Mutable
-    private List<Recipe<?>> recipes;
+    @Final @Shadow @Mutable private List<Recipe<?>> recipes;
 
     @Shadow public abstract void write(PacketByteBuf buf);
 
