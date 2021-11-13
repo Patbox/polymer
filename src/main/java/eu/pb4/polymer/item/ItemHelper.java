@@ -11,6 +11,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -83,8 +84,10 @@ public class ItemHelper {
                 }
             }
         } else if (itemStack.getItem() instanceof PotionItem) {
-            if (PotionUtil.getPotionEffects(itemStack).stream().anyMatch(statusEffectInstance -> statusEffectInstance.getEffectType() instanceof VirtualObject)) {
-                return createBasicVirtualItemStack(itemStack, player);
+            for (StatusEffectInstance statusEffectInstance : PotionUtil.getPotionEffects(itemStack)) {
+                if (statusEffectInstance.getEffectType() instanceof VirtualObject) {
+                    return createBasicVirtualItemStack(itemStack, player);
+                }
             }
         }
 
