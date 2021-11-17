@@ -15,6 +15,7 @@ import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.*;
+import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,31 +32,15 @@ import java.util.function.Consumer;
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosStorage {
 
-    public WorldChunkMixin(ChunkPos chunkPos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> registry, long l, @Nullable ChunkSection[] chunkSections, @Nullable BlendingData blendingData) {
-        super(chunkPos, upgradeData, heightLimitView, registry, l, chunkSections, blendingData);
+    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biome, long inhabitedTime, @Nullable ChunkSection[] sectionArrayInitializer, @Nullable Blender blendingData) {
+        super(pos, upgradeData, heightLimitView, biome, inhabitedTime, sectionArrayInitializer, blendingData);
     }
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;)V",
+            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$class_6829;Lnet/minecraft/world/gen/chunk/Blender;)V",
             at = @At("TAIL")
     )
-    private void polymer_polymerBlocksInit1(World world, ChunkPos chunkPos, CallbackInfo ci) {
-        this.polymer_generatePolymerBlockSet();
-    }
-
-    @Inject(
-            method = "<init>(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/world/chunk/ProtoChunk;Ljava/util/function/Consumer;)V",
-            at = @At("TAIL")
-    )
-    private void polymer_polymerBlocksInit2(ServerWorld serverWorld, ProtoChunk protoChunk, Consumer<WorldChunk> consumer, CallbackInfo ci) {
-        this.polymer_generatePolymerBlockSet();
-    }
-
-    @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Ljava/util/function/Consumer;Lnet/minecraft/world/chunk/BlendingData;)V",
-            at = @At("TAIL")
-    )
-    private void polymer_polymerBlocksInit3(World world, ChunkPos chunkPos, UpgradeData upgradeData, ChunkTickScheduler chunkTickScheduler, ChunkTickScheduler chunkTickScheduler2, long l, ChunkSection[] chunkSections, Consumer consumer, BlendingData blendingData, CallbackInfo ci) {
+    private void polymer_polymerBlocksInit(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler blockTickScheduler, ChunkTickScheduler fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.class_6829 arg, Blender blendingData, CallbackInfo ci) {
         this.polymer_generatePolymerBlockSet();
     }
 

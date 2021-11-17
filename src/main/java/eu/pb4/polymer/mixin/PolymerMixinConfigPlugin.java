@@ -24,14 +24,10 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        var name = mixinClassName.substring(PACKAGE_ROOT.length());
+        var name = mixinClassName.substring(PACKAGE_ROOT.length()).replace("client.", "");
 
         if (name.startsWith(COMPAT_PACKAGE)) {
             name = name.substring(COMPAT_PACKAGE.length());
-
-            if (name.startsWith("client.")) {
-                name = name.substring(7);
-            }
 
             var type = name.split("_")[0];
 

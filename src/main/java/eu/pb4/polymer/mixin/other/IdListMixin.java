@@ -5,6 +5,7 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.impl.other.DualList;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.IdList;
 import org.spongepowered.asm.mixin.*;
@@ -19,9 +20,9 @@ import java.util.List;
 
 @Mixin(IdList.class)
 public class IdListMixin implements NetworkIdList {
-    @Shadow @Final private IdentityHashMap<Object, Integer> idMap;
     @Shadow @Mutable private List<Object> list;
     @Shadow private int nextId;
+    @Shadow @Final private Object2IntMap<Object> idMap;
     @Unique private int polymer_blockStateId = 0;
     @Unique private boolean polymer_offsetBlockStates;
 

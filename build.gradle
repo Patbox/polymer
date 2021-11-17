@@ -87,7 +87,7 @@ allprojects {
 		// JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
 		// We'll use that if it's available, but otherwise we'll use the older option.
 
-		it.options.release = 16
+		it.options.release = 17
 	}
 
 	java {
@@ -123,12 +123,10 @@ dependencies {
 		exclude(group: "net.fabricmc")
 	}
 
-	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.17.1")
+	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
 
-	//modRuntime "fr.catcore:server-translations-api:1.4.7+1.17"
-	modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.17"
-
-	modImplementation include("com.github.arthurbambou:packet-tweaker:1.18-SNAPSHOT")
+	modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+	modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
 
 	//modRuntimeOnly "com.github.arthurbambou:Server-Translations:1.18-SNAPSHOT"
 
