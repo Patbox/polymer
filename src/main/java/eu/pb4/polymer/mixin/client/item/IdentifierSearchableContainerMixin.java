@@ -3,6 +3,8 @@ package eu.pb4.polymer.mixin.client.item;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.search.IdentifierSearchableContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -22,6 +24,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Environment(EnvType.CLIENT)
 @Mixin(IdentifierSearchableContainer.class)
 public class IdentifierSearchableContainerMixin implements MutableSearchableContainer {
     @Shadow @Final private List<?> entries;

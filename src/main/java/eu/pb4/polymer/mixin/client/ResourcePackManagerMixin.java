@@ -1,6 +1,8 @@
 package eu.pb4.polymer.mixin.client;
 
 import eu.pb4.polymer.impl.client.rendering.PolymerResourcePack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.resource.*;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashSet;
 import java.util.Set;
-
+@Environment(EnvType.CLIENT)
 @Mixin(ResourcePackManager.class)
 public abstract class ResourcePackManagerMixin<T extends ResourcePackProfile> {
     @Shadow

@@ -1,6 +1,8 @@
 package eu.pb4.polymer.mixin.client.compat;
 
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -19,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+@Environment(EnvType.CLIENT)
 @Mixin(ArmorFeatureRenderer.class)
 public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> {
     @Inject(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/DyeableArmorItem;getColor(Lnet/minecraft/item/ItemStack;)I"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Environment(EnvType.CLIENT)
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public abstract class SynchronizeRecipesS2CPacketMixin {
     @Unique List<Recipe<?>> rewrittenRecipes = null;

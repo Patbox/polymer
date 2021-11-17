@@ -21,8 +21,8 @@ public interface PolymerNetworkHandlerExtension {
 
     void polymer_setVersion(String version);
 
-    long polymer_lastSyncUpdate();
-    void polymer_saveSyncTime();
+    long polymer_lastPacketUpdate(String identifier);
+    void polymer_savePacketTime(String identifier);
 
     int polymer_getSupportedVersion(String identifier);
     void polymer_setSupportedVersion(String identifier, int i);
@@ -30,6 +30,8 @@ public interface PolymerNetworkHandlerExtension {
 
     boolean polymer_advancedTooltip();
     void polymer_setAdvancedTooltip(boolean value);
+
+    void polymer_delayAction(String identifier, int delay, Runnable action);
 
 
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {

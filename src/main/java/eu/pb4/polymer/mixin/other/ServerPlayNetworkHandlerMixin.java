@@ -6,11 +6,11 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
+import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.ScheduledPacket;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
@@ -28,7 +28,12 @@ import java.util.ArrayList;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHandlerExtension {
+    @Unique
     private final Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
+
+    @Unique
+    private final Object2ObjectMap<String, DelayedAction> polymer_delayedActions = new Object2ObjectArrayMap<>();
+
     @Shadow
     public ServerPlayerEntity player;
     @Shadow
@@ -42,7 +47,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Unique
     private String polymer_version = "";
     @Unique
-    private long polymer_lastSync = 0;
+    private Object2LongMap<String> polymer_rateLimits = new Object2LongOpenHashMap<>();
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
@@ -82,13 +87,13 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
     @Override
-    public long polymer_lastSyncUpdate() {
-        return this.polymer_lastSync;
+    public long polymer_lastPacketUpdate(String packet) {
+        return this.polymer_rateLimits.getLong(packet);
     }
 
     @Override
-    public void polymer_saveSyncTime() {
-        this.polymer_lastSync = System.currentTimeMillis();
+    public void polymer_savePacketTime(String packet) {
+        this.polymer_rateLimits.put(packet, System.currentTimeMillis());
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -105,6 +110,15 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                 }
             }
         }
+
+        if (!this.polymer_delayedActions.isEmpty()) {
+            this.polymer_delayedActions.entrySet().removeIf(e -> e.getValue().tryDoing());
+        }
+    }
+
+    @Override
+    public void polymer_delayAction(String identifier, int delay, Runnable action) {
+        this.polymer_delayedActions.put(identifier, new DelayedAction(identifier, delay, action));
     }
 
     @Override

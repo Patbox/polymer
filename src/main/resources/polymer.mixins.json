@@ -53,12 +53,14 @@
     "other.IdListMixin",
     "other.ItemGroupAccessor",
     "other.RemoveEntityStatusEffectS2CPacketMixin",
-    "other.ServerPlayNetworkHandlerMixin"
+    "other.ServerPlayNetworkHandlerMixin",
+    "other.TagGroupMixin"
   ],
   "client": [
     "client.ClientPlayNetworkHandlerMixin",
     "client.DebugHudMixin",
     "client.GameOptionsMixin",
+    "client.KeyboardMixin",
     "client.MinecraftClientMixin",
     "client.ReloadableResourceManagerImplMixin",
     "client.ResourcePackManagerMixin",

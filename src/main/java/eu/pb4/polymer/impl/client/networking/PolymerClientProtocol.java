@@ -42,7 +42,10 @@ public class PolymerClientProtocol {
 
     public static void sendSyncRequest(ClientPlayNetworkHandler handler) {
         if (InternalClientRegistry.ENABLED) {
-            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.SYNC_REQUEST_ID, buf(0)));
+            InternalClientRegistry.delayAction(ClientPackets.SYNC_REQUEST, 200, () -> {
+                InternalClientRegistry.SYNC_REQUESTS++;
+                handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.SYNC_REQUEST_ID, buf(0)));
+            });
         }
     }
 
@@ -57,9 +60,11 @@ public class PolymerClientProtocol {
 
     public static void sendTooltipContext(ClientPlayNetworkHandler handler) {
         if (InternalClientRegistry.getProtocol(ClientPackets.CHANGE_TOOLTIP) == 0) {
-            var buf = buf(0);
-            buf.writeBoolean(MinecraftClient.getInstance().options.advancedItemTooltips);
-            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.CHANGE_TOOLTIP_ID, buf));
+            InternalClientRegistry.delayAction(ClientPackets.CHANGE_TOOLTIP, 200, () -> {
+                var buf = buf(0);
+                buf.writeBoolean(MinecraftClient.getInstance().options.advancedItemTooltips);
+                handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.CHANGE_TOOLTIP_ID, buf));
+            });
         }
     }
 

@@ -2,12 +2,15 @@ package eu.pb4.polymer.mixin.client.block;
 
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+@Environment(EnvType.CLIENT)
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin implements ClientBlockStorageInterface, Chunk {
     @Shadow public abstract ChunkSection[] getSectionArray();

@@ -7,6 +7,7 @@ import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -47,6 +48,10 @@ public class TestMod implements ModInitializer {
     public static final PolymerItemGroup ITEM_GROUP_2 = PolymerItemGroup.createPrivate(
             new Identifier("polymer", "test2"),
             new TranslatableText("testmod.itemgroup2").formatted(Formatting.AQUA));
+    public static Block FLUID_BLOCK;
+    public static TestFluid.Flowing FLOWING_FLUID;
+    public static TestFluid.Still STILL_FLUID;
+    public static BucketItem FLUID_BUCKET;
 
     public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
     public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
@@ -135,6 +140,12 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "spawn_egg"), TEST_ENTITY_EGG);
         Registry.register(Registry.ITEM, new Identifier("test", "food"), TEST_FOOD);
         Registry.register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
+
+        STILL_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "fluid"), new TestFluid.Still());
+        FLOWING_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "flowing_fluid"), new TestFluid.Flowing());
+        FLUID_BUCKET = Registry.register(Registry.ITEM, new Identifier("test", "fluid_bucket"),
+                new TestBucketItem(STILL_FLUID, new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1), Items.LAVA_BUCKET));
+        FLUID_BLOCK = Registry.register(Registry.BLOCK, new Identifier("test", "fluid_block"), new TestFluidBlock(STILL_FLUID, FabricBlockSettings.copy(Blocks.WATER).build()));
 
         regArmor(EquipmentSlot.HEAD, "shulker", "helmet");
         regArmor(EquipmentSlot.CHEST, "shulker", "chestplate");

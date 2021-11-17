@@ -7,6 +7,8 @@ import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.rendering.PolymerResourceReloader;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import eu.pb4.polymer.impl.compat.CompatStatus;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -28,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 
+@Environment(EnvType.CLIENT)
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
     @Shadow
@@ -46,6 +49,13 @@ public abstract class MinecraftClientMixin {
     private void polymer_registerCustom(RunArgs args, CallbackInfo ci) {
         if (CompatStatus.ALT_ARMOR_HANDLER) {
             this.resourceManager.registerReloader(new PolymerResourceReloader(this.textureManager));
+        }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void polymer_tick(CallbackInfo ci) {
+        if (InternalClientRegistry.ENABLED) {
+            InternalClientRegistry.tick();
         }
     }
 
