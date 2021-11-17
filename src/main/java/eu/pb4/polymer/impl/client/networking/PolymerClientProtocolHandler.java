@@ -64,7 +64,16 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
                     (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual())));
             case ServerPackets.SYNC_ITEM -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
-                    (entry) -> InternalClientRegistry.ITEMS.set(entry.identifier(), new ClientPolymerItem(entry.identifier(), entry.representation(), entry.itemGroup())));
+                    (entry) -> InternalClientRegistry.ITEMS.set(entry.identifier(),
+                            new ClientPolymerItem(
+                                    entry.identifier(),
+                                    entry.representation(),
+                                    entry.itemGroup(),
+                                    entry.foodLevels(),
+                                    entry.saturation(),
+                                    entry.miningTool(),
+                                    entry.miningLevel()
+                            )));
             case ServerPackets.SYNC_BLOCKSTATE -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
                     (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId())), entry.numId()));
             case ServerPackets.SYNC_ENTITY -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
@@ -258,7 +267,7 @@ public class PolymerClientProtocolHandler {
             }
 
             PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
-
+            PolymerClientProtocol.sendTooltipContext(handler);
             PolymerClientProtocol.sendSyncRequest(handler);
 
             return true;

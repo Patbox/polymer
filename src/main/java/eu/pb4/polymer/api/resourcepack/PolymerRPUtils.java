@@ -3,6 +3,7 @@ package eu.pb4.polymer.api.resourcepack;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -13,6 +14,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -28,7 +30,7 @@ public class PolymerRPUtils {
     private static final IntSet TAKEN_ARMOR_COLORS = new IntOpenHashSet();
     private static final Map<Identifier, PolymerArmorModel> ARMOR_MODEL_MAP = new HashMap<>();
     private static int ARMOR_VAL = 0;
-    private static final int CMD_OFFSET = PolymerMod.IS_POLYMC_PRESENT ? 100000 : 1;
+    private static final int CMD_OFFSET = CompatStatus.POLYMC ? 100000 : 1;
     private static boolean REQUIRED = false;
     private static boolean DEFAULT_CHECK = true;
 
@@ -112,8 +114,8 @@ public class PolymerRPUtils {
      * @param player Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasPack(ServerPlayerEntity player) {
-        return ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
+    public static boolean hasPack(@Nullable ServerPlayerEntity player) {
+        return player != null && ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
     }
 
     /**

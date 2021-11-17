@@ -5,6 +5,14 @@ import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
-public record ClientPolymerItem(Identifier identifier, ItemStack visualStack, String itemGroup) {
+public record ClientPolymerItem(
+        Identifier identifier,
+        ItemStack visualStack,
+        String itemGroup,
+        int foodValue,
+        float saturation,
+        Identifier miningTool,
+        int miningLevel
+) {
     public static final PolymerRegistry<ClientPolymerItem> REGISTRY = InternalClientRegistry.ITEMS;
 }

@@ -4,22 +4,21 @@ import com.google.common.collect.Multimap;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.item.EnchantedBookItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -65,34 +64,8 @@ public final class PolymerItemUtils {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {
             return item.getPolymerItemStack(itemStack, player);
-        } else if (itemStack.hasEnchantments()) {
-            for (NbtElement enchantment : itemStack.getEnchantments()) {
-                String id = ((NbtCompound) enchantment).getString("id");
-
-                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
-
-                if (ench instanceof PolymerObject) {
-                    return createItemStack(itemStack, player);
-                }
-            }
-        } else if (itemStack.hasNbt() && itemStack.getNbt().contains(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
-            for (NbtElement enchantment : itemStack.getNbt().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
-                String id = ((NbtCompound) enchantment).getString("id");
-
-                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
-
-                if (ench instanceof PolymerObject) {
-                    return createItemStack(itemStack, player);
-                }
-            }
-        } else if (itemStack.hasNbt()) {
-            var display = itemStack.getSubNbt("display");
-            if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
-                var color = display.getInt("color");
-                if (PolymerRPUtils.isColorTaken(color)) {
-                    return createItemStack(itemStack, player);
-                }
-            }
+        } else if (isPolymerServerItem(itemStack)) {
+            return createItemStack(itemStack, player);
         }
 
         if (ITEM_CHECK.invoke((x) -> x.test(itemStack))) {
@@ -153,37 +126,45 @@ public final class PolymerItemUtils {
     public static boolean isPolymerServerItem(ItemStack itemStack) {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;
-        } if (itemStack.getItem() instanceof PolymerItem) {
+        }
+        if (itemStack.getItem() instanceof PolymerItem) {
             return true;
-        } else if (itemStack.hasEnchantments()) {
-            for (NbtElement enchantment : itemStack.getEnchantments()) {
-                String id = ((NbtCompound) enchantment).getString("id");
-
-                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
-
-                if (ench instanceof PolymerObject) {
-                    return true;
-                }
-            }
-        } else if (itemStack.hasNbt() && itemStack.getNbt().contains(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
-            for (NbtElement enchantment : itemStack.getNbt().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
-                String id = ((NbtCompound) enchantment).getString("id");
-
-                Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
-
-                if (ench instanceof PolymerObject) {
-                    return true;
-                }
-            }
         } else if (itemStack.hasNbt()) {
+            if (itemStack.hasEnchantments()) {
+                for (NbtElement enchantment : itemStack.getEnchantments()) {
+                    String id = ((NbtCompound) enchantment).getString("id");
+
+                    Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+
+                    if (ench instanceof PolymerObject) {
+                        return true;
+                    }
+                }
+            } else if (itemStack.getNbt().contains(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
+                for (NbtElement enchantment : itemStack.getNbt().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
+                    String id = ((NbtCompound) enchantment).getString("id");
+
+                    Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+
+                    if (ench instanceof PolymerObject) {
+                        return true;
+                    }
+                }
+            } else if (itemStack.getItem() instanceof PotionItem) {
+                for (StatusEffectInstance statusEffectInstance : PotionUtil.getPotionEffects(itemStack)) {
+                    if (statusEffectInstance.getEffectType() instanceof PolymerObject) {
+                        return true;
+                    }
+                }
+            }
+
             var display = itemStack.getSubNbt("display");
             if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
                 var color = display.getInt("color");
-                if (PolymerRPUtils.isColorTaken(color)) {
-                    return true;
-                }
+                return PolymerRPUtils.isColorTaken(color);
             }
         }
+
 
         return false;
     }
@@ -269,6 +250,12 @@ public final class PolymerItemUtils {
                 out.addEnchantment(Enchantments.VANISHING_CURSE, 0);
             }
 
+            if (itemStack.getItem() instanceof PotionItem) {
+                if (!out.getOrCreateNbt().contains("CustomPotionColor")) {
+                    out.getOrCreateNbt().putInt("CustomPotionColor", PotionUtil.getColor(itemStack));
+                }
+            }
+
             NbtElement canDestroy = itemStack.getNbt().get("CanDestroy");
 
             if (canDestroy != null) {
@@ -290,7 +277,7 @@ public final class PolymerItemUtils {
         }
 
         try {
-            List<Text> tooltip = itemStack.getTooltip(player, TooltipContext.Default.NORMAL);
+            List<Text> tooltip = itemStack.getTooltip(player, PolymerUtils.getTooltipContext(player));
             MutableText name = (MutableText) tooltip.remove(0);
 
             if (!out.getName().equals(name)) {

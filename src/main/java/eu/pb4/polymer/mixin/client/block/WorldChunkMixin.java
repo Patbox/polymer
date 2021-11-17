@@ -10,6 +10,7 @@ import net.minecraft.world.chunk.*;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
+@Environment(EnvType.CLIENT)
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin extends Chunk implements ClientBlockStorageInterface {
 

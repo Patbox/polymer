@@ -163,21 +163,6 @@ public class PolymerServerProtocol {
             }
         }
 
-        version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_VANILLA);
-        if (version != -1) {
-            for (var group : ItemGroup.GROUPS) {
-                try {
-                    if (!(group instanceof PolymerObject)) {
-                        var buf = buf(version);
-                        PolymerVanillaItemGroupEntry.of(group, player).write(buf, version, player);
-                        player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_VANILLA_ID, buf));
-                    }
-                } catch (Exception e) {
-                    //
-                }
-            }
-        }
-
 
         for (var group : InternalServerRegistry.ITEM_GROUPS) {
             if (group.shouldSyncWithPolymerClient(player.player)) {
@@ -270,6 +255,25 @@ public class PolymerServerProtocol {
 
             for (var group : list) {
                 syncItemGroup(group, handler);
+            }
+        }
+    }
+
+    public static void syncVanillaItemGroups(ServerPlayNetworkHandler player) {
+        var polymerHandler = PolymerNetworkHandlerExtension.of(player);
+        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_VANILLA);
+
+        if (version != -1) {
+            for (var group : ItemGroup.GROUPS) {
+                try {
+                    if (!(group instanceof PolymerObject)) {
+                        var buf = buf(version);
+                        PolymerVanillaItemGroupEntry.of(group, player).write(buf, version, player);
+                        player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_VANILLA_ID, buf));
+                    }
+                } catch (Exception e) {
+                    //
+                }
             }
         }
     }

@@ -1,5 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -44,15 +46,30 @@ public class PolymerServerProtocolHandler {
             case ClientPackets.SYNC_REQUEST -> handleSyncRequest(handler, version, buf);
             case ClientPackets.WORLD_PICK_BLOCK -> handlePickBlock(handler, version, buf);
             case ClientPackets.WORLD_PICK_ENTITY -> handlePickEntity(handler, version, buf);
+            case ClientPackets.CHANGE_TOOLTIP -> handleTooltipChange(handler, version, buf);
+        }
+    }
+
+    private static void handleTooltipChange(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
+
+        if (version == 0) {
+            polymerHandler.polymer_setAdvancedTooltip(buf.readBoolean());
+            if (polymerHandler.polymer_lastPacketUpdate(ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
+                PolymerServerProtocol.syncVanillaItemGroups(handler);
+                PolymerSyncUtils.synchronizeCreativeTabs(handler);
+                PolymerUtils.reloadInventory(handler.player);
+            }
         }
     }
 
     private static void handleSyncRequest(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
-        var ver = polymerHandler.polymer_lastSyncUpdate();
+        var lastPacketUpdate = polymerHandler.polymer_lastPacketUpdate(ClientPackets.SYNC_REQUEST);
+        var ver = polymerHandler.polymer_getSupportedVersion(ClientPackets.SYNC_REQUEST);
 
-        if (polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_STARTED) == 0 && System.currentTimeMillis() - polymerHandler.polymer_lastSyncUpdate() > 1000 * 20) {
-            polymerHandler.polymer_saveSyncTime();
+        if (ver == 0 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
+            polymerHandler.polymer_savePacketTime(ClientPackets.SYNC_REQUEST);
             PolymerServerProtocol.sendSyncPackets(handler);
 
             if (ver == 0 && handler.getPlayer() != null) {
@@ -77,7 +94,9 @@ public class PolymerServerProtocolHandler {
     private static void handleHandshake(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
 
-        if (version == 0) {
+        if (version == 0 && !polymerHandler.polymer_hasPolymer()) {
+            polymerHandler.polymer_savePacketTime(ClientPackets.HANDSHAKE);
+
             polymerHandler.polymer_setVersion(buf.readString(64));
 
             var size = buf.readVarInt();

@@ -1,19 +1,22 @@
 package eu.pb4.polymer.mixin.other;
 
-import com.ibm.icu.impl.CalendarCache;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
+import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
+import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.ScheduledPacket;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,20 +28,32 @@ import java.util.ArrayList;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHandlerExtension {
-    @Shadow private int ticks;
-    private Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
+    @Unique
+    private final Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
 
-    @Shadow public abstract void sendPacket(Packet<?> packet);
+    @Unique
+    private final Object2ObjectMap<String, DelayedAction> polymer_delayedActions = new Object2ObjectArrayMap<>();
 
-    @Shadow public abstract ServerPlayerEntity getPlayer();
-
+    @Shadow
+    public ServerPlayerEntity player;
+    @Shadow
+    private int ticks;
+    @Unique
+    private boolean polymer_advancedTooltip = false;
     @Unique
     private boolean polymer_hasResourcePack = false;
     @Unique
     private ArrayList<ScheduledPacket> polymer_scheduledPackets = new ArrayList<>();
-    @Unique private String polymer_version = "";
+    @Unique
+    private String polymer_version = "";
+    @Unique
+    private Object2LongMap<String> polymer_rateLimits = new Object2LongOpenHashMap<>();
 
-    @Unique private long polymer_lastSync = 0;
+    @Shadow
+    public abstract void sendPacket(Packet<?> packet);
+
+    @Shadow
+    public abstract ServerPlayerEntity getPlayer();
 
     @Override
     public boolean polymer_hasResourcePack() {
@@ -72,13 +87,13 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
     @Override
-    public long polymer_lastSyncUpdate() {
-        return this.polymer_lastSync;
+    public long polymer_lastPacketUpdate(String packet) {
+        return this.polymer_rateLimits.getLong(packet);
     }
 
     @Override
-    public void polymer_saveSyncTime() {
-        this.polymer_lastSync = System.currentTimeMillis();
+    public void polymer_savePacketTime(String packet) {
+        this.polymer_rateLimits.put(packet, System.currentTimeMillis());
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -95,6 +110,25 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                 }
             }
         }
+
+        if (!this.polymer_delayedActions.isEmpty()) {
+            this.polymer_delayedActions.entrySet().removeIf(e -> e.getValue().tryDoing());
+        }
+    }
+
+    @Override
+    public void polymer_delayAction(String identifier, int delay, Runnable action) {
+        this.polymer_delayedActions.put(identifier, new DelayedAction(identifier, delay, action));
+    }
+
+    @Override
+    public void polymer_setAdvancedTooltip(boolean value) {
+        this.polymer_advancedTooltip = value;
+    }
+
+    @Override
+    public boolean polymer_advancedTooltip() {
+        return this.polymer_advancedTooltip;
     }
 
     @Override
@@ -126,6 +160,13 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                 case ACCEPTED, SUCCESSFULLY_LOADED -> true;
                 case DECLINED, FAILED_DOWNLOAD -> false;
             });
+        }
+    }
+
+    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("HEAD"), cancellable = true)
+    private void polymer_skipEffects(Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
+        if (packet instanceof StatusEffectPacketExtension packet2 && (packet2.polymer_getStatusEffect() == null || packet2.polymer_getStatusEffect() instanceof PolymerObject)) {
+            ci.cancel();
         }
     }
 }

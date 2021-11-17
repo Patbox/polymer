@@ -7,17 +7,23 @@ import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
+import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IdListPalette;
@@ -27,14 +33,23 @@ import org.jetbrains.annotations.ApiStatus;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
+    private static final Map<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectOpenHashMap<>();
+
     public static boolean ENABLED = false;
+    public static int SYNC_REQUESTS = 0;
     public static String SERVER_VERSION = "";
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
+
+    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
+    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
 
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>();
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
@@ -64,9 +79,15 @@ public class InternalClientRegistry {
     }
 
     public static void disable() {
+        DELAYED_ACTIONS.clear();
         clear();
         setVersion("");
         CLIENT_PROTOCOL.clear();
+        SYNC_REQUESTS = 0;
+    }
+
+    public static void tick() {
+        DELAYED_ACTIONS.entrySet().removeIf(e -> e.getValue().tryDoing());
     }
 
     public static void clear() {
@@ -121,5 +142,11 @@ public class InternalClientRegistry {
 
     public static int getProtocol(String identifier) {
         return CLIENT_PROTOCOL.getOrDefault(identifier, -1);
+    }
+
+    public static void delayAction(String id, int time, Runnable action) {
+        if (ENABLED) {
+            DELAYED_ACTIONS.put(id, new DelayedAction(id, time, action));
+        }
     }
 }

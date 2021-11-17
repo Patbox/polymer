@@ -7,6 +7,7 @@ import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -21,10 +22,13 @@ import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.potion.Potion;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
@@ -44,6 +48,10 @@ public class TestMod implements ModInitializer {
     public static final PolymerItemGroup ITEM_GROUP_2 = PolymerItemGroup.createPrivate(
             new Identifier("polymer", "test2"),
             new TranslatableText("testmod.itemgroup2").formatted(Formatting.AQUA));
+    public static Block FLUID_BLOCK;
+    public static TestFluid.Flowing FLOWING_FLUID;
+    public static TestFluid.Still STILL_FLUID;
+    public static BucketItem FLUID_BUCKET;
 
     public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
     public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
@@ -69,10 +77,19 @@ public class TestMod implements ModInitializer {
 
     public static Enchantment ENCHANTMENT;
 
+    public static final StatusEffect STATUS_EFFECT = new TestStatusEffect();
+    public static final StatusEffect STATUS_EFFECT_2 = new Test2StatusEffect();
+    public static final Potion POTION = new Potion(new StatusEffectInstance(STATUS_EFFECT, 300));
+    public static final Potion POTION_2 = new Potion(new StatusEffectInstance(STATUS_EFFECT_2, 300));
+    public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT, 600));
+    public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT_2, 600));
+
     public static final EntityType<TestEntity> ENTITY = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
     public static final EntityType<TestEntity2> ENTITY_2 = FabricEntityTypeBuilder.<TestEntity2>create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
 
     public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings().group(ITEM_GROUP));
+    public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
+    public static final Item TEST_FOOD_2 = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(1).saturationModifier(2).build()), Items.CAKE);
 
     public static SimplePolymerItem ICE_ITEM = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.SNOWBALL, (player, hand) -> {
         var tracker = new DataTracker(null);
@@ -121,6 +138,14 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK_ITEM);
         Registry.register(Registry.ITEM, new Identifier("test", "ice_item"), ICE_ITEM);
         Registry.register(Registry.ITEM, new Identifier("test", "spawn_egg"), TEST_ENTITY_EGG);
+        Registry.register(Registry.ITEM, new Identifier("test", "food"), TEST_FOOD);
+        Registry.register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
+
+        STILL_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "fluid"), new TestFluid.Still());
+        FLOWING_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "flowing_fluid"), new TestFluid.Flowing());
+        FLUID_BUCKET = Registry.register(Registry.ITEM, new Identifier("test", "fluid_bucket"),
+                new TestBucketItem(STILL_FLUID, new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1), Items.LAVA_BUCKET));
+        FLUID_BLOCK = Registry.register(Registry.BLOCK, new Identifier("test", "fluid_block"), new TestFluidBlock(STILL_FLUID, FabricBlockSettings.copy(Blocks.WATER).build()));
 
         regArmor(EquipmentSlot.HEAD, "shulker", "helmet");
         regArmor(EquipmentSlot.CHEST, "shulker", "chestplate");
@@ -133,6 +158,13 @@ public class TestMod implements ModInitializer {
         regArmor(EquipmentSlot.FEET, "titan", "boots");
 
         ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
+
+        Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
+        Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
+        Registry.register(Registry.POTION, new Identifier("test", "potion"), POTION);
+        Registry.register(Registry.POTION, new Identifier("test", "potion2"), POTION_2);
+        Registry.register(Registry.POTION, new Identifier("test", "long_potion"), LONG_POTION);
+        Registry.register(Registry.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
 
         Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
         FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes());

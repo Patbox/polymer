@@ -11,5 +11,6 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 rootProject.name = 'polymer'
 include 'legacy'
