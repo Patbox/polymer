@@ -1,0 +1,137 @@
+{
+	"ghost1": {
+		"sounds": [
+			{
+				"name": "polymertest:ghost1",
+				"stream": false,
+				"volume": 1.5
+			}
+		]
+	},
+	"ghost2": {
+		"sounds": [
+			{
+				"name": "polymertest:ghost2",
+				"stream": false,
+				"volume": 1.5
+			}
+		]
+	},
+	"ghosthurt": {
+		"sounds": [
+			{
+				"name": "polymertest:ghost-hurt",
+				"stream": false,
+				"volume": 1.5
+			}
+		]
+	},
+	"sweden-remix": {
+		"sounds": [
+			{
+				"name": "anothermc:sweden-remix",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"dog": {
+		"sounds": [
+			{
+				"name": "anothermc:dog",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.biomefest": {
+		"sounds": [
+			{
+				"name": "music/game/creative/creative1",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.blind_spots": {
+		"sounds": [
+			{
+				"name": "music/game/creative/creative2",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.haunt_muskie": {
+		"sounds": [
+			{
+				"name": "music/game/creative/creative3",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.aria_math": {
+		"sounds": [
+			{
+				"name": "music/game/creative/creative4",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.dreiton": {
+		"sounds": [
+			{
+				"name": "music/game/creative/creative5",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.taswell": {
+		"sounds": [
+			{
+				"name": "music/game/creative/creative6",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.shuniji": {
+		"sounds": [
+			{
+				"name": "music/game/water/shuniji",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.dragon_fish": {
+		"sounds": [
+			{
+				"name": "music/game/water/dragon_fish",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"vanilla.axolotl": {
+		"sounds": [
+			{
+				"name": "music/game/water/axolotl",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	},
+	"n2de1zxdl6euhq4v": {
+		"sounds": [
+			{
+				"name": "anothermc:n2de1zxdl6euhq4v",
+				"stream": true,
+				"volume": 1.2
+			}
+		]
+	}
+}

@@ -1,4 +1,4 @@
-package eu.pb4.polymertest.mixin;
+package eu.pb4.polymer.mixin.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.TrackedData;
@@ -11,6 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public interface EntityAccessor {
     @Accessor
     static TrackedData<Integer> getFROZEN_TICKS() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Accessor
+    static AtomicInteger getCURRENT_ID() {
         throw new UnsupportedOperationException();
     }
 }

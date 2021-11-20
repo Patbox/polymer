@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.entity;
 
+import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
@@ -16,6 +17,15 @@ import java.util.UUID;
 
 public class PolymerEntityUtils {
     private static final HashSet<EntityType<?>> ENTITY_IDENTIFIERS = new HashSet<>();
+
+    /**
+     * Allows to get next free entity id you can use for networking
+     *
+     * @return free entity id
+     */
+    public static int requestFreeId() {
+        return EntityAccessor.getCURRENT_ID().incrementAndGet();
+    }
 
     /**
      * Marks EntityTypes as server-side only

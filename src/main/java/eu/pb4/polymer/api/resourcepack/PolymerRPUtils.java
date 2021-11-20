@@ -1,6 +1,7 @@
 package eu.pb4.polymer.api.resourcepack;
 
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
+import eu.pb4.polymer.impl.PolymerGlobalValues;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
@@ -31,7 +32,7 @@ public class PolymerRPUtils {
     private static final Map<Identifier, PolymerArmorModel> ARMOR_MODEL_MAP = new HashMap<>();
     private static int ARMOR_VAL = 0;
     private static final int CMD_OFFSET = CompatStatus.POLYMC ? 100000 : 1;
-    private static boolean REQUIRED = false;
+    private static boolean REQUIRED = PolymerGlobalValues.FORCE_RESOURCE_PACK_SERVER;
     private static boolean DEFAULT_CHECK = true;
 
     /**

@@ -1,12 +1,13 @@
 package eu.pb4.polymer.impl.compat;
 
-import eu.pb4.polymer.impl.PolymerConstants;
+import eu.pb4.polymer.impl.PolymerGlobalValues;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class CompatStatus {
     private static FabricLoader l = FabricLoader.getInstance();
 
     public static final boolean FABRIC_SYNC = l.isModLoaded("fabric-registry-sync-v0");
+
     public static final boolean POLYMC = l.isModLoaded("polymc");
     public static final boolean LITHIUM = l.isModLoaded("lithium");
 
@@ -17,5 +18,5 @@ public class CompatStatus {
     public static final boolean CANVAS = l.isModLoaded("canvas");
     public static final boolean OPTIBAD = l.isModLoaded("optifabric");
 
-    public static final boolean ALT_ARMOR_HANDLER = PolymerConstants.FORCE_ALT_ARMOR_HANDLER || IRIS || CANVAS || OPTIBAD;
+    public static final boolean REQUIRE_ALT_ARMOR_HANDLER = IRIS || CANVAS || OPTIBAD;
 }

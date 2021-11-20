@@ -51,7 +51,7 @@ public class InternalClientRegistry {
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
 
-    public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>();
+    public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
 
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>();

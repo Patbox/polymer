@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.client.networking;
 
+import eu.pb4.polymer.impl.PolymerGlobalValues;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.networking.ClientPackets;
@@ -20,24 +21,26 @@ import static eu.pb4.polymer.impl.networking.PacketUtils.buf;
 public class PolymerClientProtocol {
 
     public static void sendHandshake(ClientPlayNetworkHandler handler) {
-        var buf = buf(0);
+        if (PolymerGlobalValues.ENABLE_NETWORKING_CLIENT) {
+            var buf = buf(0);
 
-        buf.writeString(PolymerMod.VERSION);
-        buf.writeVarInt(ServerPackets.REGISTRY.size());
+            buf.writeString(PolymerMod.VERSION);
+            buf.writeVarInt(ServerPackets.REGISTRY.size());
 
-        for (var id : ServerPackets.REGISTRY.keySet()) {
-            buf.writeString(id);
+            for (var id : ServerPackets.REGISTRY.keySet()) {
+                buf.writeString(id);
 
-            var entry = ServerPackets.REGISTRY.get(id);
+                var entry = ServerPackets.REGISTRY.get(id);
 
-            buf.writeVarInt(entry.length);
+                buf.writeVarInt(entry.length);
 
-            for (int i : entry) {
-                buf.writeVarInt(i);
+                for (int i : entry) {
+                    buf.writeVarInt(i);
+                }
             }
-        }
 
-        handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.HANDSHAKE_ID, buf));
+            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.HANDSHAKE_ID, buf));
+        }
     }
 
     public static void sendSyncRequest(ClientPlayNetworkHandler handler) {

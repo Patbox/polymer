@@ -5,6 +5,7 @@ import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.PolymerGlobalValues;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -43,15 +44,17 @@ import java.util.function.Consumer;
 @Environment(EnvType.CLIENT)
 public class PolymerClientProtocolHandler {
     public static void handle(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
-        var version = -1;
-        try {
-            version = buf.readVarInt();
-            if (!handle(handler, identifier.getPath(), version, buf)) {
-                PolymerMod.LOGGER.warn("Unsupported packet " + identifier + " (" + version + ") was received from server!");
+        if (PolymerGlobalValues.ENABLE_NETWORKING_CLIENT) {
+            var version = -1;
+            try {
+                version = buf.readVarInt();
+                if (!handle(handler, identifier.getPath(), version, buf)) {
+                    PolymerMod.LOGGER.warn("Unsupported packet " + identifier + " (" + version + ") was received from server!");
+                }
+            } catch (Exception e) {
+                PolymerMod.LOGGER.error("Invalid " + identifier + " (" + version + ") packet received from server!");
+                PolymerMod.LOGGER.error(e);
             }
-        } catch (Exception e) {
-            PolymerMod.LOGGER.error("Invalid " + identifier + " (" + version + ") packet received from server!");
-            PolymerMod.LOGGER.error(e);
         }
     }
 

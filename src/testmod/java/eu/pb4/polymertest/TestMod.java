@@ -3,6 +3,7 @@ package eu.pb4.polymertest;
 import eu.pb4.polymer.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
+import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
@@ -29,6 +30,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.potion.Potion;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
@@ -90,6 +93,8 @@ public class TestMod implements ModInitializer {
     public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings().group(ITEM_GROUP));
     public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
     public static final Item TEST_FOOD_2 = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(1).saturationModifier(2).build()), Items.CAKE);
+
+    public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(new Identifier("polymertest", "ghosthurt"), SoundEvents.ENTITY_GHAST_HURT);
 
     public static SimplePolymerItem ICE_ITEM = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.SNOWBALL, (player, hand) -> {
         var tracker = new DataTracker(null);

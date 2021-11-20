@@ -40,8 +40,7 @@ import java.util.zip.ZipOutputStream;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
-    public static final JsonParser JSON_PARSER = new JsonParser();
-    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
+    public static final Gson GSON = PolymerMod.GSON;
 
     private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/1cf89c77ed5e72401b869f66410934804f3d6f52/client.jar";
 
@@ -194,7 +193,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             var modelPath = "assets/" + cmdInfo.modelPath().getNamespace() + "/models/" + cmdInfo.modelPath().getPath() + ".json";
 
             if (modelObject == null && this.fileMap.containsKey(modelPath)) {
-                modelObject = JSON_PARSER.parse(new String(this.fileMap.get(modelPath), StandardCharsets.UTF_8)).getAsJsonObject();
+                modelObject = JsonParser.parseString(new String(this.fileMap.get(modelPath), StandardCharsets.UTF_8)).getAsJsonObject();
             }
 
             if (modelObject != null && modelObject.has("overrides")) {
@@ -283,10 +282,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         }
 
                         if (this.fileMap.containsKey(baseModelPath)) {
-                            modelObject = JSON_PARSER.parse(new String(this.fileMap.get(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
+                            modelObject = JsonParser.parseString(new String(this.fileMap.get(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
                         } else {
                             InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(baseModelPath));
-                            modelObject = JSON_PARSER.parse(IOUtils.toString(stream, StandardCharsets.UTF_8.name())).getAsJsonObject();
+                            modelObject = JsonParser.parseString(IOUtils.toString(stream, StandardCharsets.UTF_8.name())).getAsJsonObject();
                         }
 
                         JsonArray jsonArray = new JsonArray();
@@ -359,7 +358,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                                     if (data != null) {
                                         int finalI = i;
-                                        ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JSON_PARSER.parse(new String(data))).result()
+                                        ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(data))).result()
                                                 .ifPresentOrElse((r) -> b[finalI] = r.getFirst(), () -> b[finalI] = ArmorTextureMetadata.DEFAULT);
                                     } else {
                                         b[i] = ArmorTextureMetadata.DEFAULT;

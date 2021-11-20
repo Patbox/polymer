@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.client.rendering;
 
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.impl.PolymerGlobalValues;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -49,7 +50,7 @@ public class PolymerResourcePack extends ZipResourcePack {
                 if (pack != null) {
                     profileAdder.accept(factory.create(pack.getName(),
                             new TranslatableText("text.polymer.resource_pack.name"),
-                            PolymerRPUtils.isRequired(),
+                            PolymerRPUtils.isRequired() || PolymerGlobalValues.FORCE_RESOURCE_PACK_CLIENT,
                             () -> pack,
                             new PackResourceMetadata(new TranslatableText("text.polymer.resource_pack.description" + (PolymerRPUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION),
                             ResourcePackProfile.InsertionPosition.TOP,

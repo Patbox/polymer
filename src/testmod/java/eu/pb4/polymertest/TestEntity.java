@@ -3,8 +3,10 @@ package eu.pb4.polymertest;
 import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymertest.mixin.VillagerEntityAccessor;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.village.VillagerData;
 import net.minecraft.village.VillagerProfession;
@@ -21,14 +23,6 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
     public TestEntity(World world) {
         super(TestMod.ENTITY, world);
     }
-
-    /*@Override
-    public List<Pair<EquipmentSlot, ItemStack>> getVirtualEntityEquipment(Map<EquipmentSlot, ItemStack> map) {
-        List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(map.size());
-        list.add(Pair.of(EquipmentSlot.MAINHAND, Items.DIAMOND.getDefaultStack()));
-        list.add(Pair.of(EquipmentSlot.HEAD, TestMod.blockItemTater.getDefaultStack()));
-        return list;
-    }*/
 
     @Override
     public EntityType<?> getPolymerEntityType() {
@@ -48,5 +42,10 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
     @Override
     public Vec3d getClientSidePosition(Vec3d vec3d) {
         return vec3d.add(1, 1, 1);
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return TestMod.GHOST_HURT;
     }
 }

@@ -31,6 +31,7 @@
     "compat.fabricSync_RegistrySyncManagerMixin",
     "compat.polymc_BlockPolyGeneratorMixin",
     "entity.DataTrackerAccessor",
+    "entity.EntityAccessor",
     "entity.EntityPositionS2CPacketMixin",
     "entity.EntitySetHeadYawS2CPacketMixin",
     "entity.EntitySpawnS2CPacketMixin",

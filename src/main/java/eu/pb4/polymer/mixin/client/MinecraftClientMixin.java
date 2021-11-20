@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.client;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.PolymerGlobalValues;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.rendering.PolymerResourceReloader;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
@@ -47,9 +48,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;initFont(Z)V"))
     private void polymer_registerCustom(RunArgs args, CallbackInfo ci) {
-        if (CompatStatus.ALT_ARMOR_HANDLER) {
-            this.resourceManager.registerReloader(new PolymerResourceReloader(this.textureManager));
-        }
+        this.resourceManager.registerReloader(new PolymerResourceReloader(this.textureManager));
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
@@ -59,7 +58,7 @@ public abstract class MinecraftClientMixin {
         }
     }
 
-    @ModifyVariable(method = "initializeSearchableContainers", at = @At(value = "STORE", ordinal = 0))
+    @ModifyVariable(method = "initializeSearchableContainers", at = @At(value = "STORE"))
     private DefaultedList<?> polymer_removePolymerItemsFromSearch(DefaultedList<?> og) {
         return new DefaultedList<>(new ArrayList<>(), null) {
             @Override

@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,12 +20,25 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     private final Int2ObjectMap<T> rawIdMap = new Int2ObjectOpenHashMap<>();
     private final Object2IntMap<T> entryIdMap = new Object2IntOpenHashMap<>();
     private final Map<T, Identifier> identifierMap = new HashMap<>();
+    private final T defaultValue;
+    private final Identifier defaultIdentifier;
 
     private int currentId = 0;
 
+    public ImplPolymerRegistry() {
+        this(null, null);
+    }
+    public ImplPolymerRegistry(@Nullable Identifier defaultIdentifier, @Nullable T defaultValue) {
+        this.defaultValue = defaultValue;
+        this.defaultIdentifier = defaultIdentifier;
+
+        this.rawIdMap.defaultReturnValue(this.defaultValue);
+        this.entryIdMap.defaultReturnValue(-1);
+    }
+
     @Override
     public T get(Identifier identifier) {
-        return this.entryMap.get(identifier);
+        return this.entryMap.getOrDefault(identifier, this.defaultValue);
     }
 
     @Override
@@ -34,7 +48,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
 
     @Override
     public Identifier getId(T entry) {
-        return this.identifierMap.get(entry);
+        return this.identifierMap.getOrDefault(entry, this.defaultIdentifier);
     }
 
     @Override

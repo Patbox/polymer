@@ -29,7 +29,7 @@ public class Commands {
                 .then(literal("generate")
                         .executes(Commands::generate));
 
-        if (PolymerConstants.DEVELOPER_MODE) {
+        if (PolymerGlobalValues.DEVELOPER_MODE) {
             command.then(literal("dev")
                     .then(literal("item-client")
                             .executes(Commands::itemClient))

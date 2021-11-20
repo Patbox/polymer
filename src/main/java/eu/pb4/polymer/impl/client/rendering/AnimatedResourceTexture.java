@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.client.rendering;
 
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.JsonOps;
@@ -36,7 +37,7 @@ public class AnimatedResourceTexture extends ResourceTexture implements TextureT
         var id = new Identifier(this.location.getNamespace(), this.location.getPath().substring(0, (this.location.getPath().length() - 3)) + "polymer.json");
 
         if (manager.containsResource(id)) {
-            ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, DefaultRPBuilder.JSON_PARSER.parse(new String(manager.getResource(id).getInputStream().readAllBytes()))).result()
+            ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(manager.getResource(id).getInputStream().readAllBytes()))).result()
                     .ifPresentOrElse((r) -> this.metadata = r.getFirst(), () -> this.metadata = ArmorTextureMetadata.DEFAULT);
         }
 

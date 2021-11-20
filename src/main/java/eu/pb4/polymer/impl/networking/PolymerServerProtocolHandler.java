@@ -2,6 +2,7 @@ package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.PolymerGlobalValues;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -27,16 +28,17 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public class PolymerServerProtocolHandler {
     public static void handle(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
-        int version = -1;
+        if (PolymerGlobalValues.ENABLE_NETWORKING_SERVER) {
+            int version = -1;
 
-        try {
-            version = buf.readVarInt();
-            handle(handler, identifier.getPath(), version, buf);
-        } catch (Exception e) {
-            PolymerMod.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()));
-            PolymerMod.LOGGER.error(e);
+            try {
+                version = buf.readVarInt();
+                handle(handler, identifier.getPath(), version, buf);
+            } catch (Exception e) {
+                PolymerMod.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()));
+                PolymerMod.LOGGER.error(e);
+            }
         }
-
     }
 
 
@@ -66,13 +68,12 @@ public class PolymerServerProtocolHandler {
     private static void handleSyncRequest(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var lastPacketUpdate = polymerHandler.polymer_lastPacketUpdate(ClientPackets.SYNC_REQUEST);
-        var ver = polymerHandler.polymer_getSupportedVersion(ClientPackets.SYNC_REQUEST);
 
-        if (ver == 0 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
+        if (version == 0 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
             polymerHandler.polymer_savePacketTime(ClientPackets.SYNC_REQUEST);
             PolymerServerProtocol.sendSyncPackets(handler);
 
-            if (ver == 0 && handler.getPlayer() != null) {
+            if (handler.getPlayer() != null) {
                 var world = handler.getPlayer().getWorld();
                 int dist = ((ThreadedAnvilChunkStorageAccessor) world.getChunkManager().threadedAnvilChunkStorage).getWatchDistance();
                 int playerX = handler.player.getWatchedSection().getX();
