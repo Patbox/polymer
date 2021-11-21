@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 public interface PolymerEntity extends PolymerObject {
     /**
      * This method is used to determine what this entity will look like on client
+     * This should never return entity type used by other PolymerEntity!
      *
      * @return Vanilla/Modded entity type
      */

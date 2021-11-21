@@ -5,8 +5,6 @@ plugins {
 }
 apply plugin: 'fabric-loom'
 
-def env = System.getenv()
-
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
 
@@ -98,6 +96,7 @@ allprojects {
 	}
 }
 
+
 dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
@@ -145,32 +144,59 @@ jar {
 	}
 }
 
+void setupRepositories(RepositoryHandler repositories) {
+	def env = System.getenv()
+
+	if (env.MAVEN_URL) {
+		repositories.maven {
+			credentials {
+				username env.MAVEN_USERNAME
+				password env.MAVEN_PASSWORD
+			}
+			url env.MAVEN_URL
+		}
+	} else {
+		repositories.mavenLocal()
+	}
+}
+
 // configure the maven publication
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
 			artifact(remapJar) {
 				builtBy remapJar
 			}
+
 			artifact(sourcesJar) {
 				builtBy remapSourcesJar
+			}
+
+			afterEvaluate {
+				groupId = rootProject.maven_group
+				artifactId = rootProject.archivesBaseName
+				version = rootProject.version
 			}
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		if (env.MAVEN_URL) {
-			maven {
-				credentials {
-					username env.MAVEN_USERNAME
-					password env.MAVEN_PASSWORD
+	setupRepositories(repositories)
+}
+
+subprojects {
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+
+				afterEvaluate {
+					groupId = rootProject.maven_group
+					artifactId = project.archivesBaseName
+					version = project.version
 				}
-				url env.MAVEN_URL
 			}
-		} else {
-			mavenLocal()
 		}
+
+		setupRepositories(repositories)
 	}
 }

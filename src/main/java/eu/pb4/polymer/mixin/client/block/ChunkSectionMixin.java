@@ -9,6 +9,9 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Mixin;
 
+/**
+ * Just additional storage for simpler lookups on client (F3 and alike)
+ */
 @Environment(EnvType.CLIENT)
 @Mixin(ChunkSection.class)
 public class ChunkSectionMixin implements ClientBlockStorageInterface {

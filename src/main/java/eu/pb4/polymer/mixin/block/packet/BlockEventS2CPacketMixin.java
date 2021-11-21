@@ -20,8 +20,6 @@ public class BlockEventS2CPacketMixin {
     @Shadow @Mutable
     private Block block;
 
-    @Shadow @Final private BlockPos pos;
-
     @Unique private Block polymer_oldBlock = null;
 
     @Environment(EnvType.CLIENT)
