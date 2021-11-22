@@ -1,7 +1,6 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
-	id("io.github.juuxel.loom-quiltflower-mini") version "1.0.0"
-	id 'maven-publish'
+    id 'fabric-loom' version '0.10-SNAPSHOT'
+    id("io.github.juuxel.loom-quiltflower-mini") version "1.0.0"
 }
 apply plugin: 'fabric-loom'
 
@@ -13,190 +12,171 @@ version = project.mod_version + "+" + project.minecraft_version
 group = project.maven_group
 
 sourceSets {
-	testmod {
-		runtimeClasspath += main.runtimeClasspath
-		compileClasspath += main.compileClasspath
-	}
+    testmod {
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.compileClasspath
+    }
 }
 
 loom {
-	runs {
-		testmodClient {
-			client()
-			ideConfigGenerated project.rootProject == project
-			name = "Test Mod Client"
-			source sourceSets.testmod
-		}
-		testmodServer {
-			server()
-			ideConfigGenerated project.rootProject == project
-			name = "Test Mod Server"
-			source sourceSets.testmod
-		}
-	}
+    runs {
+        testmodClient {
+            client()
+            ideConfigGenerated project.rootProject == project
+            name = "Test Mod Client"
+            source sourceSets.testmod
+        }
+        testmodServer {
+            server()
+            ideConfigGenerated project.rootProject == project
+            name = "Test Mod Server"
+            source sourceSets.testmod
+        }
+    }
 
-	accessWidenerPath = file("src/main/resources/polymer.accesswidener")
+    accessWidenerPath = file("src/main/resources/polymer.accesswidener")
 }
 
 
 allprojects {
-	apply plugin: 'fabric-loom'
+    apply plugin: 'fabric-loom'
 
-	repositories {
-		// Add repositories to retrieve artifacts from in here.
-		// You should only use this when depending on other mods because
-		// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-		// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-		// for more information about repositories.
+    repositories {
+        // Add repositories to retrieve artifacts from in here.
+        // You should only use this when depending on other mods because
+        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
+        // for more information about repositories.
 
-		maven { url "https://jitpack.io" }
-		maven { url = "https://maven.nucleoid.xyz/" }
-		maven { url = "https://maven.gegy.dev/" }
-		maven { url "https://maven.shedaniel.me/" }
-		maven { url "https://maven.bai.lol" }
-		maven { url = "https://maven.ryanliptak.com/" }
+        maven { url "https://jitpack.io" }
+        maven { url = "https://maven.nucleoid.xyz/" }
+        maven { url = "https://maven.gegy.dev/" }
+        maven { url "https://maven.shedaniel.me/" }
+        maven { url "https://maven.bai.lol" }
+        maven { url = "https://maven.ryanliptak.com/" }
 
-		mavenLocal()
-	}
+        mavenLocal()
+    }
 
-	dependencies {
-		// To change the versions see the gradle.properties file
-		minecraft "com.mojang:minecraft:${project.minecraft_version}"
-		mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	}
+    dependencies {
+        // To change the versions see the gradle.properties file
+        minecraft "com.mojang:minecraft:${project.minecraft_version}"
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    }
 
-	processResources {
-		inputs.property "version", project.version
+    processResources {
+        inputs.property "version", project.version
 
-		filesMatching("fabric.mod.json") {
-			expand "version": project.version
-		}
-	}
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
+        }
+    }
 
-	tasks.withType(JavaCompile).configureEach {
-		// ensure that the encoding is set to UTF-8, no matter what the system default is
-		// this fixes some edge cases with special characters not displaying correctly
-		// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-		// If Javadoc is generated, this must be specified in that task too.
-		it.options.encoding = "UTF-8"
+    tasks.withType(JavaCompile).configureEach {
+        // ensure that the encoding is set to UTF-8, no matter what the system default is
+        // this fixes some edge cases with special characters not displaying correctly
+        // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+        // If Javadoc is generated, this must be specified in that task too.
+        it.options.encoding = "UTF-8"
 
-		// The Minecraft launcher currently installs Java 8 for users, so your mod probably wants to target Java 8 too
-		// JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
-		// We'll use that if it's available, but otherwise we'll use the older option.
+        // The Minecraft launcher currently installs Java 8 for users, so your mod probably wants to target Java 8 too
+        // JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
+        // We'll use that if it's available, but otherwise we'll use the older option.
 
-		it.options.release = 17
-	}
+        it.options.release = 17
+    }
 
-	java {
-		// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-		// if it is present.
-		// If you remove this line, sources will not be generated.
-		withSourcesJar()
-	}
+    java {
+        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+        // if it is present.
+        // If you remove this line, sources will not be generated.
+        withSourcesJar()
+    }
 }
 
 
 dependencies {
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	//modRuntime "supercoder79:databreaker:0.2.7"
+    //modRuntime "supercoder79:databreaker:0.2.7"
 
-	//modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
+    //modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
 
-	modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.0'
+    modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.0'
 
-	modCompileOnly "mcp.mobius.waila:wthit:fabric-3.10.1"
+    modCompileOnly "mcp.mobius.waila:wthit:fabric-3.10.1"
 
-	//modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.0'
+    //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.0'
 
-	modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:6.0.307-alpha"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:7.0.337"
 
-	modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
-		exclude(group: "com.terraformersmc")
-		exclude(group: "io.github.prospector")
-		exclude(group: "io.github.prospector")
-		exclude(group: "net.fabricmc")
-	}
+    modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
+        exclude(group: "com.terraformersmc")
+        exclude(group: "io.github.prospector")
+        exclude(group: "io.github.prospector")
+        exclude(group: "net.fabricmc")
+    }
 
-	modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
+    modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
 
-	modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
-	modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+    modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+    modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
 
-	//modRuntimeOnly "com.github.arthurbambou:Server-Translations:1.18-SNAPSHOT"
+    //modRuntimeOnly "com.github.arthurbambou:Server-Translations:1.18-SNAPSHOT"
 
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
+    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
+    // You may need to force-disable transitiveness on them.
 
-	runtimeOnly project(":legacy")
-	include project(":legacy")
+    runtimeOnly project(":legacy")
+    include project(":legacy")
 
-	testmodImplementation sourceSets.main.output
+    testmodImplementation sourceSets.main.output
 }
 
 jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
 }
 
 void setupRepositories(RepositoryHandler repositories) {
-	def env = System.getenv()
+    def env = System.getenv()
 
-	if (env.MAVEN_URL) {
-		repositories.maven {
-			credentials {
-				username env.MAVEN_USERNAME
-				password env.MAVEN_PASSWORD
-			}
-			url env.MAVEN_URL
-		}
-	} else {
-		repositories.mavenLocal()
-	}
+    if (env.MAVEN_URL) {
+        repositories.maven {
+            credentials {
+                username env.MAVEN_USERNAME
+                password env.MAVEN_PASSWORD
+            }
+            url env.MAVEN_URL
+        }
+    } else {
+        repositories.mavenLocal()
+    }
 }
 
 // configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			artifact(remapJar) {
-				builtBy remapJar
-			}
 
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
+allprojects {
+    apply plugin: 'maven-publish'
+    afterEvaluate {
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    groupId = rootProject.maven_group
+                    artifactId = project.archivesBaseName
+                    version = project.version
 
-			afterEvaluate {
-				groupId = rootProject.maven_group
-				artifactId = rootProject.archivesBaseName
-				version = rootProject.version
-			}
-		}
-	}
+                    from components.java
+                }
+            }
 
-	setupRepositories(repositories)
+            setupRepositories(repositories)
+        }
+    }
 }
 
-subprojects {
-	publishing {
-		publications {
-			mavenJava(MavenPublication) {
-				from components.java
-
-				afterEvaluate {
-					groupId = rootProject.maven_group
-					artifactId = project.archivesBaseName
-					version = project.version
-				}
-			}
-		}
-
-		setupRepositories(repositories)
-	}
-}

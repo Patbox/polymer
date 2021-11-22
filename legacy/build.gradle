@@ -1,6 +1,5 @@
 archivesBaseName = "polymer-legacy"
-var libVersion = "0.1.9" + "+" + rootProject.minecraft_version
-version = libVersion;
+version = "0.1.9" + "+" + rootProject.minecraft_version
 
 dependencies {
     compileOnly(project(':'))
