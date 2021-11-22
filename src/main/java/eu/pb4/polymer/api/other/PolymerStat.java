@@ -6,9 +6,9 @@ import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-public class PolymerStat extends Identifier implements PolymerObject {
+public final class PolymerStat extends Identifier implements PolymerObject {
 
-    public PolymerStat(String id) {
+    private PolymerStat(String id) {
         super(id);
     }
 
