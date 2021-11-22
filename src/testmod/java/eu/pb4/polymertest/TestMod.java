@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.other.PolymerSoundEvent;
+import eu.pb4.polymer.api.other.PolymerStat;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
@@ -32,6 +33,8 @@ import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.stat.StatFormatter;
+import net.minecraft.stat.Stats;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
@@ -79,6 +82,8 @@ public class TestMod implements ModInitializer {
     public static TestBowItem BOW_2 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow2");
 
     public static Enchantment ENCHANTMENT;
+
+    public static Identifier CUSTOM_STAT;
 
     public static final StatusEffect STATUS_EFFECT = new TestStatusEffect();
     public static final StatusEffect STATUS_EFFECT_2 = new Test2StatusEffect();
@@ -164,6 +169,8 @@ public class TestMod implements ModInitializer {
 
         ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
+        CUSTOM_STAT = PolymerStat.registerStat("test:custom_stat", StatFormatter.DEFAULT);
+
         Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
         Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
         Registry.register(Registry.POTION, new Identifier("test", "potion"), POTION);
@@ -193,15 +200,27 @@ public class TestMod implements ModInitializer {
 
 
 
-        CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test").executes((ctx) -> {
-            try {
-                ctx.getSource().sendFeedback(new LiteralText("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        CommandRegistrationCallback.EVENT.register((d, b) -> {
+            d.register(literal("test")
+                    .executes((ctx) -> {
+                        try {
+                            ctx.getSource().sendFeedback(new LiteralText("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
-            return 0;
-        })));
+                        return 0;
+                    })
+            );
+            d.register(literal("incrementStat")
+                    .executes((ctx) -> {
+                        ctx.getSource().getPlayer().incrementStat(CUSTOM_STAT);
+                        ctx.getSource().sendFeedback(new LiteralText("Stat now: " + ctx.getSource().getPlayer().getStatHandler().getStat(Stats.CUSTOM, CUSTOM_STAT)), false);
+
+                        return 1;
+                    })
+            );
+        });
 
 
         AtomicBoolean atomicBoolean = new AtomicBoolean(true);
