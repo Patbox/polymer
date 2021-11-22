@@ -26,7 +26,7 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
     /**
      * Even called on synchronization of PolymerItemGroups
      */
-    public static final SimpleEvent<ItemGroupSyncEventListener> SYNC_EVENT = new SimpleEvent<>();
+    public static final SimpleEvent<ItemGroupListEventListener> LIST_EVENT = new SimpleEvent<>();
     public static List<ItemStack> items = new ArrayList<>();
     private final Text name;
     private final Identifier identifier;
@@ -94,7 +94,7 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
     }
 
     @FunctionalInterface
-    public interface ItemGroupSyncEventListener {
+    public interface ItemGroupListEventListener {
         void onItemGroupSync(ServerPlayerEntity player, ItemGroupSyncer helper);
     }
 

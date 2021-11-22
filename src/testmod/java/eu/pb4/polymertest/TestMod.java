@@ -242,7 +242,7 @@ public class TestMod implements ModInitializer {
             return 0;
         })));
 
-        PolymerItemGroup.SYNC_EVENT.register((p, s) -> {
+        PolymerItemGroup.LIST_EVENT.register((p, s) -> {
             if (atomicBoolean.get()) {
                 s.send(ITEM_GROUP_2);
             }

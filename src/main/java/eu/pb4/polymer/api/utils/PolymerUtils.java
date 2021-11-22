@@ -1,6 +1,8 @@
 package eu.pb4.polymer.api.utils;
 
+import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
+import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -12,9 +14,11 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * General use case utils that can be useful in multiple situations
@@ -98,7 +102,29 @@ public class PolymerUtils {
         return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? TooltipContext.Default.ADVANCED : TooltipContext.Default.NORMAL;
     }
 
-    public static Identifier id(String path) {
-        return new Identifier(ID, path);
+    public static List<PolymerItemGroup> getItemGroups(ServerPlayerEntity player) {
+        var list = new ArrayList<PolymerItemGroup>();
+
+        for (var group : InternalServerRegistry.ITEM_GROUPS) {
+            if (group.shouldSyncWithPolymerClient(player)) {
+                list.add(group);
+            }
+        }
+
+        var sync = new PolymerItemGroup.ItemGroupSyncer() {
+            @Override
+            public void send(PolymerItemGroup group) {
+                list.add(group);
+            }
+
+            @Override
+            public void remove(PolymerItemGroup group) {
+                list.remove(group);
+            }
+        };
+
+        PolymerItemGroup.LIST_EVENT.invoke((x) -> x.onItemGroupSync(player, sync));
+
+        return list;
     }
 }

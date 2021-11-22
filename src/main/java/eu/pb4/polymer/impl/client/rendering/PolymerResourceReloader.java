@@ -1,13 +1,10 @@
 package eu.pb4.polymer.impl.client.rendering;
 
-import com.google.common.collect.Multimap;
-import eu.pb4.polymer.impl.PolymerGlobalValues;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import eu.pb4.polymer.mixin.client.rendering.ArmorFeatureRendererAccessor;
-import fr.catcore.server.translations.api.ServerTranslations;
-import fr.catcore.server.translations.api.resource.language.TranslationMap;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceReloader;
@@ -18,7 +15,7 @@ import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import static eu.pb4.polymer.api.utils.PolymerUtils.id;
+import static eu.pb4.polymer.impl.PolymerImpl.id;
 
 public record PolymerResourceReloader(TextureManager manager) implements ResourceReloader {
     public static final Identifier POLYMER_ARMOR_ID = id("armors.json");
@@ -26,7 +23,7 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
     @Override
     public CompletableFuture<Void> reload(Synchronizer synchronizer, ResourceManager manager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
         return CompletableFuture.supplyAsync(() -> {
-            if (PolymerGlobalValues.USE_ALT_ARMOR_HANDLER) {
+            if (PolymerImpl.USE_ALT_ARMOR_HANDLER) {
                 InternalClientRegistry.ARMOR_TEXTURES_1.clear();
                 InternalClientRegistry.ARMOR_TEXTURES_2.clear();
                 ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().clear();
@@ -47,14 +44,14 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                             InternalClientRegistry.ARMOR_TEXTURES_2.put(key, tex2);
                         }
                     } catch (Exception e) {
-                        PolymerMod.LOGGER.warn("Invalid armors.json file!");
-                        PolymerMod.LOGGER.warn(e);
+                        PolymerImpl.LOGGER.warn("Invalid armors.json file!");
+                        PolymerImpl.LOGGER.warn(e);
                     }
                 }
             }
             return null;
         }, prepareExecutor).thenCompose(synchronizer::whenPrepared).thenAcceptAsync(v -> {
-            if (PolymerGlobalValues.USE_ALT_ARMOR_HANDLER) {
+            if (PolymerImpl.USE_ALT_ARMOR_HANDLER) {
                 for (var id : InternalClientRegistry.ARMOR_TEXTURES_1.values()) {
                     this.manager.registerTexture(id, new AnimatedResourceTexture(id));
                 }

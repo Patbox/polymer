@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.client;
 
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
@@ -51,7 +52,7 @@ public class DebugHudMixin {
         var list = cir.getReturnValue();
 
         if (InternalClientRegistry.ENABLED) {
-            list.add(String.format("[Polymer] C: %s, S: %s", PolymerMod.VERSION, InternalClientRegistry.SERVER_VERSION));
+            list.add(String.format("[Polymer] C: %s, S: %s", PolymerImpl.VERSION, InternalClientRegistry.SERVER_VERSION));
             list.add(String.format("[Polymer] I: %s, IG: %s, B: %s, BS: %s, E: %s", InternalClientRegistry.ITEMS.size(), InternalClientRegistry.ITEM_GROUPS.size(), InternalClientRegistry.BLOCKS.size(), InternalClientRegistry.BLOCK_STATES.size(), InternalClientRegistry.ENTITY_TYPE.size()));
         }
     }

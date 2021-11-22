@@ -1,6 +1,5 @@
 package eu.pb4.polymer.impl.networking;
 
-import eu.pb4.polymer.api.utils.PolymerUtils;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import net.minecraft.util.Identifier;
 
@@ -8,18 +7,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import static eu.pb4.polymer.impl.PolymerImpl.id;
+
 public class ClientPackets {
     public static final Map<String, int[]> REGISTRY = new HashMap<>();
     public static final String HANDSHAKE = "handshake";
-    public static final Identifier HANDSHAKE_ID = PolymerUtils.id(HANDSHAKE);
+    public static final Identifier HANDSHAKE_ID = id(HANDSHAKE);
     public static final String SYNC_REQUEST = "sync/request";
-    public static final Identifier SYNC_REQUEST_ID = PolymerUtils.id(SYNC_REQUEST);
+    public static final Identifier SYNC_REQUEST_ID = id(SYNC_REQUEST);
     public static final String WORLD_PICK_BLOCK = "world/pick_block";
-    public static final Identifier WORLD_PICK_BLOCK_ID = PolymerUtils.id(WORLD_PICK_BLOCK);
+    public static final Identifier WORLD_PICK_BLOCK_ID = id(WORLD_PICK_BLOCK);
     public static final String WORLD_PICK_ENTITY = "world/pick_entity";
-    public static final Identifier WORLD_PICK_ENTITY_ID = PolymerUtils.id(WORLD_PICK_ENTITY);
+    public static final Identifier WORLD_PICK_ENTITY_ID = id(WORLD_PICK_ENTITY);
     public static final String CHANGE_TOOLTIP = "other/change_tooltip";
-    public static final Identifier CHANGE_TOOLTIP_ID = PolymerUtils.id(CHANGE_TOOLTIP);
+    public static final Identifier CHANGE_TOOLTIP_ID = id(CHANGE_TOOLTIP);
 
     public static int getBestSupported(String identifier, int[] ver) {
 

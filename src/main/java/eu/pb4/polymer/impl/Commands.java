@@ -4,18 +4,26 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.ui.CreativeTabListUi;
+import eu.pb4.polymer.impl.ui.CreativeTabUi;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.file.Path;
+import java.util.Locale;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -26,10 +34,28 @@ public class Commands {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         var command = literal("polymer")
                 .requires((source) -> source.hasPermissionLevel(3))
-                .then(literal("generate")
-                        .executes(Commands::generate));
 
-        if (PolymerGlobalValues.DEVELOPER_MODE) {
+                .then(literal("generate")
+                        .requires((source) -> source.hasPermissionLevel(3))
+                        .executes(Commands::generate))
+                .then(literal("creative")
+                        .then(argument("itemGroup", IdentifierArgumentType.identifier())
+                                .suggests((context, builder) -> {
+                                    var remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+
+                                    var groups = PolymerUtils.getItemGroups(context.getSource().getPlayer());
+
+                                    CommandSource.forEachMatching(groups, remaining, PolymerItemGroup::getId, group -> {
+                                        builder.suggest(group.getId().toString(), group.getDisplayName());
+                                    });
+                                    return builder.buildFuture();
+                                })
+                                .executes(Commands::creativeTab)
+                        )
+                        .executes(Commands::creativeTab))
+                ;
+
+        if (PolymerImpl.DEVELOPER_MODE) {
             command.then(literal("dev")
                     .then(literal("item-client")
                             .executes(Commands::itemClient))
@@ -64,6 +90,25 @@ public class Commands {
         }
 
         dispatcher.register(command);
+    }
+
+    private static int creativeTab(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if (context.getSource().getPlayer().isCreative()) {
+            try {
+                var itemGroup = PolymerItemGroup.REGISTRY.get(context.getArgument("itemGroup", Identifier.class));
+                if (itemGroup != null && itemGroup.shouldSyncWithPolymerClient(context.getSource().getPlayer())) {
+                    new CreativeTabUi(context.getSource().getPlayer(), itemGroup);
+                    return 2;
+                }
+            } catch (Exception e) {
+                //
+            }
+
+            new CreativeTabListUi(context.getSource().getPlayer());
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private static int itemClient(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

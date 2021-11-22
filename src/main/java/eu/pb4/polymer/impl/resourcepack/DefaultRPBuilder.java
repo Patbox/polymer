@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.api.resourcepack.PolymerArmorModel;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
-import eu.pb4.polymer.impl.PolymerMod;
+import eu.pb4.polymer.impl.PolymerImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -12,7 +12,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
 import net.minecraft.util.registry.Registry;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -40,7 +39,7 @@ import java.util.zip.ZipOutputStream;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
-    public static final Gson GSON = PolymerMod.GSON;
+    public static final Gson GSON = PolymerImpl.GSON;
 
     private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/1cf89c77ed5e72401b869f66410934804f3d6f52/client.jar";
 
@@ -61,7 +60,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 Files.deleteIfExists(outputPath);
             }
         } catch (Exception e) {
-            PolymerMod.LOGGER.warn("Couldn't remove " + outputPath + " file!");
+            PolymerImpl.LOGGER.warn("Couldn't remove " + outputPath + " file!");
             e.printStackTrace();
         }
 
@@ -77,7 +76,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             this.fileMap.put(path, data);
             return true;
         } catch (Exception e) {
-            PolymerMod.LOGGER.error("Something went wrong while adding raw data to path: " + path);
+            PolymerImpl.LOGGER.error("Something went wrong while adding raw data to path: " + path);
             e.printStackTrace();
             return false;
         }
@@ -115,7 +114,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             });
             return true;
         } catch (Exception e) {
-            PolymerMod.LOGGER.error("Something went wrong while copying data from: " + basePath);
+            PolymerImpl.LOGGER.error("Something went wrong while copying data from: " + basePath);
             e.printStackTrace();
             return false;
         }
@@ -159,12 +158,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 return true;
             } catch (Exception e) {
-                PolymerMod.LOGGER.error("Something went wrong while copying assets of mod: " + modId);
+                PolymerImpl.LOGGER.error("Something went wrong while copying assets of mod: " + modId);
                 e.printStackTrace();
                 return false;
             }
         }
-        PolymerMod.LOGGER.warn("Tried to copy assets from non existing mod " + modId);
+        PolymerImpl.LOGGER.warn("Tried to copy assets from non existing mod " + modId);
         return false;
     }
 
@@ -208,7 +207,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
             return true;
         } catch (Exception e) {
-            PolymerMod.LOGGER.error(String.format("Something went wrong while adding custom model data (%s) of %s for model %s", cmdInfo.value(), Registry.ITEM.getId(cmdInfo.item()), cmdInfo.modelPath().toString()));
+            PolymerImpl.LOGGER.error(String.format("Something went wrong while adding custom model data (%s) of %s for model %s", cmdInfo.value(), Registry.ITEM.getId(cmdInfo.item()), cmdInfo.modelPath().toString()));
             e.printStackTrace();
             return false;
         }
@@ -235,7 +234,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 credits.add("  |           |");
                 credits.add("  +-----------+");
                 credits.add("");
-                credits.add("Generated with Polymer " + PolymerMod.VERSION);
+                credits.add("Generated with Polymer " + PolymerImpl.VERSION);
                 credits.add("");
                 credits.add("Vanilla assets by Mojang Studios");
                 credits.add("");
@@ -258,7 +257,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
 
                 if (!clientJarPath.toFile().exists()) {
-                    PolymerMod.LOGGER.info("Downloading vanilla client jar...");
+                    PolymerImpl.LOGGER.info("Downloading vanilla client jar...");
                     URL url = new URL(CLIENT_URL);
                     URLConnection connection = url.openConnection();
                     InputStream is = connection.getInputStream();
@@ -304,7 +303,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         outputStream.closeEntry();
 
                     } catch (Exception e) {
-                        PolymerMod.LOGGER.error("Something went wrong while saving model of " + id);
+                        PolymerImpl.LOGGER.error("Something went wrong while saving model of " + id);
                         e.printStackTrace();
                         bool = false;
                     }
@@ -315,8 +314,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                     var list = new ArrayList<Triple<Integer, BufferedImage[], ArmorTextureMetadata[]>>();
 
-                    int[] width = new int[]{ 64, 64 };
-                    int[] height = new int[]{ 32, 32 };
+                    int[] width = new int[]{64, 64};
+                    int[] height = new int[]{32, 32};
 
                     var armorDataMap = new HashMap<Integer, String>();
 
@@ -368,7 +367,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                             list.add(Triple.of(entry.value(), a, b));
                         } catch (Exception e) {
-                            PolymerMod.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
+                            PolymerImpl.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
                             e.printStackTrace();
                         }
                     }
@@ -381,7 +380,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
 
                     var image = new BufferedImage[]{new BufferedImage(width[0], height[0], BufferedImage.TYPE_INT_ARGB), new BufferedImage(width[1], height[1], BufferedImage.TYPE_INT_ARGB)};
-                    int[] cWidth = new int[] { 64, 64 };
+                    int[] cWidth = new int[]{64, 64};
 
                     var graphics = new Graphics[]{image[0].getGraphics(), image[1].getGraphics()};
 
@@ -477,7 +476,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 outputStream.close();
                 return bool;
             } catch (Exception e) {
-                PolymerMod.LOGGER.error("Something went wrong while creating resource pack!");
+                PolymerImpl.LOGGER.error("Something went wrong while creating resource pack!");
                 e.printStackTrace();
                 return false;
             }

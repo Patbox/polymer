@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin;
 
-import eu.pb4.polymer.impl.PolymerGlobalValues;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -38,7 +38,7 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
                 case "polymc" -> CompatStatus.POLYMC;
                 case "wthit" -> CompatStatus.WTHIT;
                 case "rei" -> CompatStatus.REI;
-                case "armor" -> PolymerGlobalValues.USE_ALT_ARMOR_HANDLER;
+                case "armor" -> PolymerImpl.USE_ALT_ARMOR_HANDLER;
                 default -> true;
             };
         }

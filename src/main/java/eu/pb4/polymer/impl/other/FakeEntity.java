@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.other;
 
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -39,7 +40,7 @@ class FakeEntity extends Entity {
         try {
             INSTANCE = new FakeEntity(EntityType.PIG, eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);
         } catch (Exception e1) {
-            PolymerMod.LOGGER.error("Couldn't initiate base template entity! See logs below!");
+            PolymerImpl.LOGGER.error("Couldn't initiate base template entity! See logs below!");
             throw e1;
         }
     }

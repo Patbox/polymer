@@ -1,6 +1,5 @@
 package eu.pb4.polymer.impl.compat;
 
-import eu.pb4.polymer.impl.PolymerGlobalValues;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class CompatStatus {

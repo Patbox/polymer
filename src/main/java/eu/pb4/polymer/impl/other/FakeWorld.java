@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.other;
 
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
 import net.minecraft.block.Block;
@@ -33,13 +34,14 @@ import java.util.function.Supplier;
 
 @ApiStatus.Internal
 class FakeWorld extends World {
-    static public World INSTANCE;
+    public static final World INSTANCE;
+    static final Scoreboard SCOREBOARD = new Scoreboard();
 
     static {
         try {
             INSTANCE = new FakeWorld(new FakeWorldProperties(), null, DimensionTypeAccessor.polymer_getOverworld(), null, false, true, 1);
         } catch (Exception e1) {
-            PolymerMod.LOGGER.error("Couldn't initiate fake world! See logs below!");
+            PolymerImpl.LOGGER.error("Couldn't initiate fake world! See logs below!");
             throw e1;
         }
     }
@@ -97,7 +99,7 @@ class FakeWorld extends World {
 
     @Override
     public Scoreboard getScoreboard() {
-        return null;
+        return SCOREBOARD;
     }
 
     @Override
@@ -107,7 +109,7 @@ class FakeWorld extends World {
 
     @Override
     public TagManager getTagManager() {
-        return null;
+        return TagManager.EMPTY;
     }
 
     @Override

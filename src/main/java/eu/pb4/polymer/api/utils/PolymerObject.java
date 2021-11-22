@@ -16,4 +16,8 @@ public interface PolymerObject {
     default boolean shouldSyncWithPolymerClient(ServerPlayerEntity player) {
         return true;
     }
+
+    static boolean is(Object obj) {
+        return obj instanceof PolymerObject;
+    }
 }

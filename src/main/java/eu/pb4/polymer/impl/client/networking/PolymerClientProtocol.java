@@ -1,7 +1,6 @@
 package eu.pb4.polymer.impl.client.networking;
 
-import eu.pb4.polymer.impl.PolymerGlobalValues;
-import eu.pb4.polymer.impl.PolymerMod;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.ServerPackets;
@@ -21,10 +20,10 @@ import static eu.pb4.polymer.impl.networking.PacketUtils.buf;
 public class PolymerClientProtocol {
 
     public static void sendHandshake(ClientPlayNetworkHandler handler) {
-        if (PolymerGlobalValues.ENABLE_NETWORKING_CLIENT) {
+        if (PolymerImpl.ENABLE_NETWORKING_CLIENT) {
             var buf = buf(0);
 
-            buf.writeString(PolymerMod.VERSION);
+            buf.writeString(PolymerImpl.VERSION);
             buf.writeVarInt(ServerPackets.REGISTRY.size());
 
             for (var id : ServerPackets.REGISTRY.keySet()) {

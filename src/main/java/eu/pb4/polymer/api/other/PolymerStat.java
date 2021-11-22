@@ -19,7 +19,7 @@ public final class PolymerStat extends Identifier implements PolymerObject {
      * @param formatter the formatter for the stat to use
      * @return the PolymerStat ({@link Identifier}) for the custom stat
      */
-    public static PolymerStat registerStat(String id, StatFormatter formatter) {
+    public static Identifier registerStat(String id, StatFormatter formatter) {
         PolymerStat identifier = new PolymerStat(id);
         Registry.register(Registry.CUSTOM_STAT, id, identifier);
         Stats.CUSTOM.getOrCreateStat(identifier, formatter);

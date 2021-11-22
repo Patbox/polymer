@@ -2,7 +2,7 @@ package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.PolymerGlobalValues;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -28,15 +28,15 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public class PolymerServerProtocolHandler {
     public static void handle(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
-        if (PolymerGlobalValues.ENABLE_NETWORKING_SERVER) {
+        if (PolymerImpl.ENABLE_NETWORKING_SERVER) {
             int version = -1;
 
             try {
                 version = buf.readVarInt();
                 handle(handler, identifier.getPath(), version, buf);
             } catch (Exception e) {
-                PolymerMod.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()));
-                PolymerMod.LOGGER.error(e);
+                PolymerImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()));
+                PolymerImpl.LOGGER.error(e);
             }
         }
     }

@@ -8,7 +8,7 @@ import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.impl.InternalServerRegistry;
-import eu.pb4.polymer.impl.PolymerMod;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
@@ -43,7 +43,7 @@ public class PolymerServerProtocol {
     public static void sendHandshake(ServerPlayNetworkHandler handler) {
         var buf = buf(0);
 
-        buf.writeString(PolymerMod.VERSION);
+        buf.writeString(PolymerImpl.VERSION);
         buf.writeVarInt(ClientPackets.REGISTRY.size());
 
         for (var id : ClientPackets.REGISTRY.keySet()) {
@@ -251,7 +251,7 @@ public class PolymerServerProtocol {
                 }
             };
 
-            PolymerItemGroup.SYNC_EVENT.invoke((x) -> x.onItemGroupSync(handler.player, sync));
+            PolymerItemGroup.LIST_EVENT.invoke((x) -> x.onItemGroupSync(handler.player, sync));
 
             for (var group : list) {
                 syncItemGroup(group, handler);
