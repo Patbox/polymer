@@ -3,13 +3,15 @@ package eu.pb4.polymer.api.utils;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
-import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -23,7 +25,10 @@ import java.util.List;
 /**
  * General use case utils that can be useful in multiple situations
  */
-public class PolymerUtils {
+public final class PolymerUtils {
+    private PolymerUtils() {
+    }
+
     public static final String ID = "polymer";
 
     /**
@@ -72,8 +77,9 @@ public class PolymerUtils {
 
     /**
      * Schedules a packet sending
-     * @param handler used for packet sending
-     * @param packet sent packet
+     *
+     * @param handler  used for packet sending
+     * @param packet   sent packet
      * @param duration time (in ticks) waited before packet is send
      */
     public static void schedulePacket(ServerPlayNetworkHandler handler, Packet<?> packet, int duration) {
@@ -92,16 +98,25 @@ public class PolymerUtils {
             tracker.stopTracking(player);
             tracker.updateTrackedStatus(player);
         }
-    };
+    }
 
+    /**
+     * Resends inventory to player
+     */
     public static void reloadInventory(ServerPlayerEntity player) {
         player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
     }
 
+    /**
+     * Returns current TooltipContext of player,
+     */
     public static TooltipContext getTooltipContext(@Nullable ServerPlayerEntity player) {
         return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? TooltipContext.Default.ADVANCED : TooltipContext.Default.NORMAL;
     }
 
+    /**
+     * Returns list of ItemGroups accessible by player
+     */
     public static List<PolymerItemGroup> getItemGroups(ServerPlayerEntity player) {
         var list = new ArrayList<PolymerItemGroup>();
 
@@ -111,9 +126,9 @@ public class PolymerUtils {
             }
         }
 
-        var sync = new PolymerItemGroup.ItemGroupSyncer() {
+        var sync = new PolymerItemGroup.ItemGroupListBuilder() {
             @Override
-            public void send(PolymerItemGroup group) {
+            public void add(PolymerItemGroup group) {
                 list.add(group);
             }
 
@@ -126,5 +141,26 @@ public class PolymerUtils {
         PolymerItemGroup.LIST_EVENT.invoke((x) -> x.onItemGroupSync(player, sync));
 
         return list;
+    }
+
+    /**
+     * Creates SkullOwner NbtCompound from provided skin value
+     *
+     * @param value Skin value
+     * @return NbtCompound representing SkullOwner
+     */
+    public static NbtCompound createSkullOwner(String value) {
+        NbtCompound skullOwner = new NbtCompound();
+        NbtCompound properties = new NbtCompound();
+        NbtCompound data = new NbtCompound();
+        NbtList textures = new NbtList();
+        textures.add(data);
+
+        data.putString("Value", value);
+        properties.put("textures", textures);
+        skullOwner.put("Properties", properties);
+        skullOwner.putIntArray("Id", new int[]{0, 0, 0, 0});
+
+        return skullOwner;
     }
 }

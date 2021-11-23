@@ -1,8 +1,6 @@
 package eu.pb4.polymer;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;

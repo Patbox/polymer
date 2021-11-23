@@ -244,7 +244,7 @@ public class TestMod implements ModInitializer {
 
         PolymerItemGroup.LIST_EVENT.register((p, s) -> {
             if (atomicBoolean.get()) {
-                s.send(ITEM_GROUP_2);
+                s.add(ITEM_GROUP_2);
             }
         });
 

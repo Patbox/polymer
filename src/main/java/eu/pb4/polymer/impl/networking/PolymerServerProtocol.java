@@ -239,9 +239,9 @@ public class PolymerServerProtocol {
                 }
             }
 
-            var sync = new PolymerItemGroup.ItemGroupSyncer() {
+            var sync = new PolymerItemGroup.ItemGroupListBuilder() {
                 @Override
-                public void send(PolymerItemGroup group) {
+                public void add(PolymerItemGroup group) {
                     list.add(group);
                 }
 

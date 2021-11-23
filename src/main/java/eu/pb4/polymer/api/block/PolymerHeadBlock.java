@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.block;
 
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -32,18 +33,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
      * @return NbtCompound representing client-side
      */
     default NbtCompound getPolymerHeadSkullOwner(BlockState state) {
-        NbtCompound skullOwner = new NbtCompound();
-        NbtCompound properties = new NbtCompound();
-        NbtCompound data = new NbtCompound();
-        NbtList textures = new NbtList();
-        textures.add(data);
-
-        data.putString("Value", ((PolymerHeadBlock) state.getBlock()).getPolymerSkinValue(state));
-        properties.put("textures", textures);
-        skullOwner.put("Properties", properties);
-        skullOwner.putIntArray("Id", new int[] { 0, 0, 0, 0 });
-
-        return skullOwner;
+        return PolymerUtils.createSkullOwner(((PolymerHeadBlock) state.getBlock()).getPolymerSkinValue(state));
     }
 
     /**

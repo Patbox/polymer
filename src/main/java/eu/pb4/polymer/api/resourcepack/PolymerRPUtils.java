@@ -2,7 +2,6 @@ package eu.pb4.polymer.api.resourcepack;
 
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
@@ -24,7 +23,10 @@ import java.util.function.Consumer;
 /**
  * Utilities allowing creation of single, polymer mod compatible resource pack
  */
-public class PolymerRPUtils {
+public final class PolymerRPUtils {
+    private PolymerRPUtils() {
+    }
+
     public static final SimpleEvent<Consumer<PolymerRPBuilder>> RESOURCE_PACK_CREATION_EVENT = new SimpleEvent<>();
     private static final Object2ObjectMap<Item, List<PolymerModelData>> ITEMS = new Object2ObjectArrayMap<>();
     private static final Set<String> MOD_IDS = new HashSet<>();
@@ -53,10 +55,11 @@ public class PolymerRPUtils {
         cmdInfoList.add(cmdInfo);
         return cmdInfo;
     }
+
     /**
      * This method can be used to register custom model data for items
      *
-     * @param modelPath   Path to model in resource pack
+     * @param modelPath Path to model in resource pack
      * @return PolymerArmorModel with data about this model
      */
     public static PolymerArmorModel requestArmor(Identifier modelPath) {

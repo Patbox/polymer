@@ -1,8 +1,8 @@
 package eu.pb4.polymer.api.entity;
 
+import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
-import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -15,7 +15,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-public class PolymerEntityUtils {
+public final class PolymerEntityUtils {
+    private PolymerEntityUtils() {
+    }
+
     private static final HashSet<EntityType<?>> ENTITY_IDENTIFIERS = new HashSet<>();
 
     /**

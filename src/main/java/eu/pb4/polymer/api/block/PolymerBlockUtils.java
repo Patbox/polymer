@@ -1,7 +1,6 @@
 package eu.pb4.polymer.api.block;
 
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
-import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
@@ -11,15 +10,16 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public final class PolymerBlockUtils {
+    private PolymerBlockUtils() {
+    }
+
     public static final int NESTED_DEFAULT_DISTANCE = 32;
     public static final int BLOCK_STATE_OFFSET = Integer.MAX_VALUE / 64;
 
