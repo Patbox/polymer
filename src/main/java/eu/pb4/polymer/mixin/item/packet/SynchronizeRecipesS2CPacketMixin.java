@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.client.item.packet;
+package eu.pb4.polymer.mixin.item.packet;
 
 import eu.pb4.polymer.api.utils.PolymerObject;
 import io.netty.buffer.Unpooled;
@@ -13,11 +13,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Environment(EnvType.CLIENT)
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public abstract class SynchronizeRecipesS2CPacketMixin {
     @Unique List<Recipe<?>> rewrittenRecipes = null;
@@ -26,11 +27,15 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
 
     @Shadow public abstract void write(PacketByteBuf buf);
 
-    @Inject(method = "write", at = @At("HEAD"))
-    public void polymer_onWrite(PacketByteBuf buf, CallbackInfo callbackInfo) {
-            recipes = recipes.stream()
-                    .filter(recipe -> !(recipe.getSerializer() instanceof PolymerObject || recipe instanceof PolymerObject))
-                    .collect(Collectors.toList());
+    @Inject(method = "<init>(Ljava/util/Collection;)V", at = @At("TAIL"))
+    public void polymer_onWrite(Collection<Recipe<?>> recipes, CallbackInfo ci) {
+        List<Recipe<?>> list = new ArrayList<>();
+        for (Recipe<?> recipe : recipes) {
+            if (!(PolymerObject.is(recipe.getSerializer()) || PolymerObject.is(recipe))) {
+                list.add(recipe);
+            }
+        }
+        this.recipes = list;
     }
 
     /*
