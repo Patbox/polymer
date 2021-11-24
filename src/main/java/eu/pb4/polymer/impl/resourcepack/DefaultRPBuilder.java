@@ -49,6 +49,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final Path outputPath;
     private ZipFile clientJar = null;
     private final List<ModContainer> modsList = new ArrayList<>();
+    private Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
 
 
     public DefaultRPBuilder(Path outputPath) {
@@ -179,6 +180,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 this.models.put(cmdInfo.item(), jsonArray);
             }
 
+            this.customModelData.computeIfAbsent(Registry.ITEM.getId(cmdInfo.item()), (x) -> new ArrayList<>()).add(cmdInfo);
+
             {
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("model", cmdInfo.modelPath().toString());
@@ -267,6 +270,20 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 this.clientJar = new ZipFile(clientJarPath.toFile());
 
                 boolean bool = true;
+                {
+                    var jsonObject = new JsonObject();
+                    for (var entry : this.customModelData.entrySet()) {
+                        var jsonObject2 = new JsonObject();
+                        for (var model : entry.getValue()) {
+                            jsonObject2.addProperty(model.modelPath().toString(), model.value());
+                        }
+
+                        jsonObject.add(entry.getKey().toString(), jsonObject2);
+                    }
+
+                    this.fileMap.put("assets/polymer/items.json", GSON.toJson(jsonObject).getBytes(StandardCharsets.UTF_8));
+                }
+
 
                 for (Map.Entry<Item, JsonArray> entry : this.models.entrySet()) {
                     Identifier id = Registry.ITEM.getId(entry.getKey());

@@ -21,10 +21,10 @@ import java.util.Map;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
 
-    @Inject(method = "setEquipment", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getChunkManager()Lnet/minecraft/server/world/ServerChunkManager;"), cancellable = true)
-    private void polymer_sendVirtualInventory(Map<EquipmentSlot, ItemStack> map, CallbackInfo ci) {
+    @Inject(method = "sendEquipmentChanges(Ljava/util/Map;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getChunkManager()Lnet/minecraft/server/world/ServerChunkManager;", shift = At.Shift.BEFORE), cancellable = true)
+    private void polymer_sendVirtualInventory(Map<EquipmentSlot, ItemStack> equipmentChanges, CallbackInfo ci) {
         if (this instanceof PolymerEntity polymerEntity) {
-            List<Pair<EquipmentSlot, ItemStack>> list = polymerEntity.getPolymerVisibleEquipment(map);
+            List<Pair<EquipmentSlot, ItemStack>> list = polymerEntity.getPolymerVisibleEquipment(equipmentChanges);
             if (!list.isEmpty()) {
                 ((ServerWorld) this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityEquipmentUpdateS2CPacket(this.getId(), list));
             }
@@ -32,7 +32,6 @@ public abstract class LivingEntityMixin extends Entity {
             ci.cancel();
         }
     }
-
 
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);

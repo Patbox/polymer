@@ -32,13 +32,11 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
         List<Recipe<?>> list = new ArrayList<>();
         for (Recipe<?> recipe : recipes) {
             if (recipe instanceof PolymerRecipe) {
-                Recipe<?>  polymerRecipe = ((PolymerRecipe) recipe).getPolymerRecipe(recipe);
+                Recipe<?> polymerRecipe = ((PolymerRecipe) recipe).getPolymerRecipe(recipe);
                 if (polymerRecipe != null) {
                     list.add(polymerRecipe);
-                    continue;
                 }
-            }
-            if (!(PolymerObject.is(recipe.getSerializer()) || PolymerObject.is(recipe))) {
+            } else if (!(PolymerObject.is(recipe.getSerializer()) || PolymerObject.is(recipe))) {
                 list.add(recipe);
             }
         }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "polymer-legacy",
-  "version": "0.1.9",
+  "version": "${version}",
   "name": "Polymer (Compatibility)",
   "description": "Allows mods designed for previous versions of Polymer (0.1.x) to work without requiring any changes",
   "authors": [

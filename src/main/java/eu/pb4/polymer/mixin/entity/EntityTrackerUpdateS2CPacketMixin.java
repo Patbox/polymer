@@ -78,7 +78,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getTrackedValues", at = @At("RETURN"), cancellable = true)
-    private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
+    private void polymer_replaceItemsWithPolymerOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
         if (MinecraftClient.getInstance().getServer() != null) {
             List<DataTracker.Entry<?>> list = new ArrayList<>();
             ServerPlayerEntity player = PolymerUtils.getPlayer();

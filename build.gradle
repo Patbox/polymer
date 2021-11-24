@@ -65,14 +65,6 @@ allprojects {
         modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     }
 
-    processResources {
-        inputs.property "version", project.version
-
-        filesMatching("fabric.mod.json") {
-            expand "version": project.version
-        }
-    }
-
     tasks.withType(JavaCompile).configureEach {
         // ensure that the encoding is set to UTF-8, no matter what the system default is
         // this fixes some edge cases with special characters not displaying correctly
@@ -95,6 +87,13 @@ allprojects {
     }
 }
 
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
 
 dependencies {
 
@@ -131,8 +130,8 @@ dependencies {
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
 
-    runtimeOnly project(":legacy")
-    include project(":legacy")
+    runtimeOnly project(":polymer-legacy")
+    include project(":polymer-legacy")
 
     testmodImplementation sourceSets.main.output
 }

@@ -1,0 +1,14 @@
+archivesBaseName = "polymer-legacy"
+version = "0.1.9" + "+" + rootProject.version
+
+dependencies {
+    compileOnly(project(':'))
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}

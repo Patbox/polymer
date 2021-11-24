@@ -1,6 +1,0 @@
-archivesBaseName = "polymer-legacy"
-version = "0.1.9" + "+" + rootProject.minecraft_version
-
-dependencies {
-    compileOnly(project(':'))
-}
