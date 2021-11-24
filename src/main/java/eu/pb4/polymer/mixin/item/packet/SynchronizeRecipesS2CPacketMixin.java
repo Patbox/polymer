@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.item.packet;
 
+import eu.pb4.polymer.api.item.PolymerRecipe;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public abstract class SynchronizeRecipesS2CPacketMixin {
@@ -28,9 +28,16 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
     @Shadow public abstract void write(PacketByteBuf buf);
 
     @Inject(method = "<init>(Ljava/util/Collection;)V", at = @At("TAIL"))
-    public void polymer_onWrite(Collection<Recipe<?>> recipes, CallbackInfo ci) {
+    public void polymer_onInit(Collection<Recipe<?>> recipes, CallbackInfo ci) {
         List<Recipe<?>> list = new ArrayList<>();
         for (Recipe<?> recipe : recipes) {
+            if (recipe instanceof PolymerRecipe) {
+                Recipe<?>  polymerRecipe = ((PolymerRecipe) recipe).getPolymerRecipe(recipe);
+                if (polymerRecipe != null) {
+                    list.add(polymerRecipe);
+                    continue;
+                }
+            }
             if (!(PolymerObject.is(recipe.getSerializer()) || PolymerObject.is(recipe))) {
                 list.add(recipe);
             }
