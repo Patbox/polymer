@@ -252,7 +252,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
                     clientJarPath = FabricLoader.getInstance().getGameDir().resolve("assets_client.jar");
                 } else {
-                    var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                    var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
                     clientJarPath = Path.of(clientFile);
                 }
 

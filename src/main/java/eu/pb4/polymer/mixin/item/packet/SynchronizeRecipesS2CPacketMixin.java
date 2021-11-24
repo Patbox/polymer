@@ -46,9 +46,9 @@ public abstract class SynchronizeRecipesS2CPacketMixin {
     }
 
     /*
-     * This is a hack, but I didn't have any idea how to do it in better way
-     * Well, I could do it manually but I'm too lazy to make that + this one works just fine
-     * This packet isn't spammed anyway so
+     * This is a hack, which converts all itemStack to client side version while running on singleplayer,
+     * It's not great but I didn't have any better idea how to do it in better way
+     * I could do it manually but it would require way more work + this one works just fine
      */
     @Environment(EnvType.CLIENT)
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)

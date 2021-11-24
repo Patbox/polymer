@@ -15,6 +15,14 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
+
+/**
+ * If you want to create ui in your mod you should just use sgui library instead!
+ * It's more complete and has more functionality!
+ *
+ * This one is just simple util which most likely will be used only
+ * for creative players and admins
+ */
 public class MicroUi {
     private final UiElement[] elements;
     private final int lines;
