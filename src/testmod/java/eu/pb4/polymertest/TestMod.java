@@ -3,10 +3,10 @@ package eu.pb4.polymertest;
 import eu.pb4.polymer.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.other.PolymerStat;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
@@ -19,7 +19,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -31,6 +34,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.potion.Potion;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.RecipeType;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.StatFormatter;
@@ -84,6 +89,9 @@ public class TestMod implements ModInitializer {
     public static Enchantment ENCHANTMENT;
 
     public static Identifier CUSTOM_STAT;
+
+    public static final RecipeType<TestRecipe> TEST_RECIPE_TYPE = RecipeType.register("test:test");
+    public static final RecipeSerializer<TestRecipe> TEST_RECIPE_SERIALIZER = new TestRecipe.Serializer();
 
     public static final StatusEffect STATUS_EFFECT = new TestStatusEffect();
     public static final StatusEffect STATUS_EFFECT_2 = new Test2StatusEffect();
@@ -170,6 +178,8 @@ public class TestMod implements ModInitializer {
         ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
         CUSTOM_STAT = PolymerStat.registerStat("test:custom_stat", StatFormatter.DEFAULT);
+
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier("test", "test"), TEST_RECIPE_SERIALIZER);
 
         Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
         Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
