@@ -13,19 +13,13 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(value = ChunkDeltaUpdateS2CPacket.class, priority = 500)
 public class ChunkDeltaUpdateS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
-    private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
-        if (state.getBlock() instanceof PolymerBlock virtualBlock) {
-            return PolymerBlockUtils.getBlockStateSafely(virtualBlock, state);
-        }
-        return state;
+    private BlockState polymer_replaceWithPolymerBlockState(BlockState state) {
+        return PolymerBlockUtils.getPolymerBlockState(state);
     }
 
     @Environment(EnvType.CLIENT)
     @ModifyArg(method = "visitUpdates", at = @At(value = "INVOKE", target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer_replaceBlockStateOnClient(Object state) {
-        if (((BlockState) state).getBlock() instanceof PolymerBlock virtualBlock) {
-            return PolymerBlockUtils.getBlockStateSafely(virtualBlock, (BlockState) state);
-        }
-        return state;
+        return PolymerBlockUtils.getPolymerBlockState((BlockState) state);
     }
 }

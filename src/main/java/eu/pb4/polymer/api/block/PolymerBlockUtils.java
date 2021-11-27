@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -41,7 +42,6 @@ public final class PolymerBlockUtils {
      *
      * @param types BlockEntityTypes
      */
-
     public static void registerBlockEntity(BlockEntityType<?>... types) {
         BLOCK_ENTITY_TYPES.addAll(Arrays.asList(types));
     }
@@ -83,20 +83,30 @@ public final class PolymerBlockUtils {
     }
 
     /**
-     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
-     * It gets replaced if it represents other PolymerBlock
+     * Gets BlockState used on client side
      *
-     * @param block       PolymerBlock
-     * @param blockState  Server side BlockState
-     * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @param state server side BlockState
      * @return Client side BlockState
      */
+    public static BlockState getPolymerBlockState(BlockState state) {
+        return state.getBlock() instanceof PolymerBlock polymerBlock ? getBlockStateSafely(polymerBlock, state) : state;
+    }
+
+        /**
+         * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
+         * It gets replaced if it represents other PolymerBlock
+         *
+         * @param block       PolymerBlock
+         * @param blockState  Server side BlockState
+         * @param maxDistance Maximum number of checks for nested virtual blocks
+         * @return Client side BlockState
+         */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance) {
         BlockState out = block.getPolymerBlockState(blockState);
 
         int req = 0;
         while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
-            out = newBlock.getPolymerBlockState(blockState);
+            out = newBlock.getPolymerBlockState(out);
             req++;
         }
         return out;

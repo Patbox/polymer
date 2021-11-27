@@ -23,10 +23,7 @@ public class BlockUpdateS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
-        if (state.getBlock() instanceof PolymerBlock virtualBlock) {
-            return PolymerBlockUtils.getBlockStateSafely(virtualBlock, state);
-        }
-        return state;
+        return PolymerBlockUtils.getPolymerBlockState(state);
     }
 
 

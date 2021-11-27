@@ -41,10 +41,10 @@ import java.util.zip.ZipOutputStream;
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = PolymerImpl.GSON;
 
-    private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/1cf89c77ed5e72401b869f66410934804f3d6f52/client.jar";
+    private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/060dd014d59c90d723db87f9c9cedb511f374a71/client.jar";
 
     private final Map<Item, JsonArray> models = new HashMap<>();
-    private final Map<String, byte[]> fileMap = new HashMap<>();
+    private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
     private final List<PolymerArmorModel> armors = new ArrayList<>();
     private final Path outputPath;
     private ZipFile clientJar = null;
@@ -248,10 +248,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
                 credits.add("");
 
-                var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
-
                 Path clientJarPath;
-
                 if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
                     clientJarPath = FabricLoader.getInstance().getGameDir().resolve("assets_client.jar");
                 } else {
@@ -313,12 +310,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                         modelObject.add("overrides", jsonArray);
 
-                        outputStream.putNextEntry(new ZipEntry(basePath + id.getPath() + ".json"));
-                        var bytes = modelObject.toString().getBytes(StandardCharsets.UTF_8);
-
-                        outputStream.write(bytes, 0, bytes.length);
-                        outputStream.closeEntry();
-
+                        this.fileMap.put(baseModelPath, modelObject.toString().getBytes(StandardCharsets.UTF_8));
                     } catch (Exception e) {
                         PolymerImpl.LOGGER.error("Something went wrong while saving model of " + id);
                         e.printStackTrace();
@@ -484,13 +476,34 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 this.fileMap.put("polymer-about.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
 
-                for (var entry : fileMap.entrySet()) {
-                    outputStream.putNextEntry(new ZipEntry(entry.getKey()));
-                    outputStream.write(entry.getValue());
-                    outputStream.closeEntry();
+
+                {
+                    var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
+
+                    {
+                        for (var path : fileMap.keySet().toArray(new String[0])) {
+                            var split = new ArrayList<>(List.of(path.split("/")));
+                            while (split.size() > 1) {
+                                split.remove(split.size() - 1);
+
+                                this.fileMap.put(String.join("/", split) + "/", null);
+                            }
+
+                        }
+                    }
+
+                    for (var entry : fileMap.entrySet()) {
+                        outputStream.putNextEntry(new ZipEntry(entry.getKey()));
+                        var value = entry.getValue();
+                        if (value != null) {
+                            outputStream.write(entry.getValue());
+                        }
+                        outputStream.closeEntry();
+                    }
+
+                    outputStream.close();
                 }
 
-                outputStream.close();
                 return bool;
             } catch (Exception e) {
                 PolymerImpl.LOGGER.error("Something went wrong while creating resource pack!");

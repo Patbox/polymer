@@ -23,6 +23,7 @@ public class TestFluidBlock extends FluidBlock implements PolymerBlock {
     public BlockState getPolymerBlockState(BlockState state) {
         var id = state.get(Properties.LEVEL_15);
 
-        return (id % 2 == 0 ? Blocks.WATER : Blocks.LAVA).getDefaultState().with(Properties.LEVEL_15, id);
+
+        return (id % 2 == 0 ? Blocks.SOUL_FIRE : Blocks.FIRE).getDefaultState();
     }
 }

@@ -1,14 +1,17 @@
 package eu.pb4.polymer.mixin.entity;
 
-import eu.pb4.polymer.api.item.PolymerItem;
-import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.entity.PolymerTrackedDataHandler;
 import eu.pb4.polymer.impl.other.InternalEntityHelpers;
 import eu.pb4.polymer.mixin.ItemFrameEntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
@@ -25,10 +28,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
 public class EntityTrackerUpdateS2CPacketMixin {
-    @Shadow @Mutable
+    @Shadow
+    @Mutable
     private List<DataTracker.Entry<?>> trackedValues;
 
     @Inject(method = "<init>(ILnet/minecraft/entity/data/DataTracker;Z)V", at = @At("TAIL"))
@@ -95,6 +100,9 @@ public class EntityTrackerUpdateS2CPacketMixin {
                     } else {
                         list.add(new DataTracker.Entry(entry.getData(), PolymerItemUtils.getPolymerItemStack(stack, player)));
                     }
+                } else if (entry.get() instanceof Optional<?> optionalO && optionalO.isPresent()
+                        && optionalO.get() instanceof BlockState state && state.getBlock() instanceof PolymerBlock polymerBlock) {
+                    list.add(new DataTracker.Entry(entry.getData(), Optional.of(PolymerBlockUtils.getBlockStateSafely(polymerBlock, state))));
                 } else {
                     list.add(entry);
                 }
@@ -102,4 +110,5 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
             cir.setReturnValue(list);
         }
-    }}
+    }
+}

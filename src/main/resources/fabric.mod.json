@@ -7,6 +7,9 @@
   "authors": [
     "Patbox"
   ],
+  "contributors": [
+    "aws404"
+  ],
   "contact": {
     "homepage": "https://pb4.eu",
     "sources": "https://github.com/Patbox/polymer",

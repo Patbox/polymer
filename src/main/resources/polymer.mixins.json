@@ -30,6 +30,7 @@
     "command.SuggestionProvidersMixin",
     "compat.fabricSync_RegistrySyncManagerMixin",
     "compat.polymc_BlockPolyGeneratorMixin",
+    "entity.AbstractMinecartEntityMixin",
     "entity.DataTrackerAccessor",
     "entity.EntityAccessor",
     "entity.EntityPositionS2CPacketMixin",
@@ -41,15 +42,16 @@
     "entity.MobSpawnS2CPacketMixin",
     "entity.PlayerSpawnS2CPacketAccessor",
     "entity.ServerWorldAccessor",
+    "entity.TrackedDataHandlerRegistryBlockStateMixin",
     "entity.TrackedDataHandlerRegistryMixin",
     "item.ItemGroupMixin",
     "item.ItemStackContentMixin",
     "item.ItemStackMixin",
     "item.MiningToolItemAccessor",
     "item.ServerPlayNetworkHandlerMixin",
+    "item.packet.PacketByteBufMixin",
     "item.packet.SynchronizeRecipesS2CPacketAccessor",
     "item.packet.SynchronizeRecipesS2CPacketMixin",
-    "item.packet.PacketByteBufMixin",
     "other.BootstrapMixin",
     "other.CommandManagerMixin",
     "other.DimensionTypeAccessor",
@@ -92,7 +94,8 @@
     "client.rendering.ItemModelsMixin",
     "client.rendering.ItemRendererMixin",
     "client.rendering.ModelLoaderMixin",
-    "client.rendering.ModelOverrideListMixin"
+    "client.rendering.ModelOverrideListMixin",
+    "client.rendering.StatusEffectSpriteManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -13,7 +13,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class PolymerBlockPoly implements BlockPoly {
     @Override
     public BlockState getClientBlock(BlockState input) {
-        return PolymerBlockUtils.getBlockStateSafely((PolymerBlock) input.getBlock(), input);
+        return PolymerBlockUtils.getPolymerBlockState(input);
     }
 
     @Override

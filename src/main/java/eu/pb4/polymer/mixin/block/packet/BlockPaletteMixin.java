@@ -15,11 +15,7 @@ public abstract class BlockPaletteMixin  {
     @ModifyArg(method = {"writePacket", "getPacketSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
-            Block block = blockState.getBlock();
-
-            if (block instanceof PolymerBlock virtualBlock) {
-                return PolymerBlockUtils.getBlockStateSafely(virtualBlock, blockState);
-            }
+            return PolymerBlockUtils.getPolymerBlockState(blockState);
         }
         return object;
     }

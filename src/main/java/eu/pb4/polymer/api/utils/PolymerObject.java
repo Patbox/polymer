@@ -9,6 +9,7 @@ import java.util.function.Predicate;
  */
 public interface PolymerObject {
     Predicate<Object> PREDICATE = (obj) -> obj instanceof PolymerObject;
+    Predicate<Object> PREDICATE_NOT = (obj) -> !(obj instanceof PolymerObject);
 
     /**
      * Allows to gate syncing of this object with clients running polymer
