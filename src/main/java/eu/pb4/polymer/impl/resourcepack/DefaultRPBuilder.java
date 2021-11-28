@@ -49,7 +49,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final Path outputPath;
     private ZipFile clientJar = null;
     private final List<ModContainer> modsList = new ArrayList<>();
-    private Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
+    private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
 
 
     public DefaultRPBuilder(Path outputPath) {
@@ -98,7 +98,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                     var bytes = Files.readAllBytes(file);
 
-                    fileMap.put(relative.toString(), bytes);
+                    fileMap.put(relative.toString().replace("\\", "/"), bytes);
 
                     return FileVisitResult.CONTINUE;
                 }
@@ -141,7 +141,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                         var bytes = Files.readAllBytes(file);
 
-                        fileMap.put("assets/" + relative, bytes);
+                        fileMap.put("assets/" + relative.toString().replace("\\", "/"), bytes);
 
                         return FileVisitResult.CONTINUE;
                     }
@@ -194,7 +194,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             JsonObject modelObject = null;
             var modelPath = "assets/" + cmdInfo.modelPath().getNamespace() + "/models/" + cmdInfo.modelPath().getPath() + ".json";
 
-            if (modelObject == null && this.fileMap.containsKey(modelPath)) {
+            if (this.fileMap.containsKey(modelPath)) {
                 modelObject = JsonParser.parseString(new String(this.fileMap.get(modelPath), StandardCharsets.UTF_8)).getAsJsonObject();
             }
 
@@ -285,7 +285,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 for (Map.Entry<Item, JsonArray> entry : this.models.entrySet()) {
                     Identifier id = Registry.ITEM.getId(entry.getKey());
                     try {
-                        String basePath = "assets/" + id.getNamespace() + "/models/item/";
                         JsonObject modelObject;
 
                         String baseModelPath;
@@ -475,7 +474,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
 
                 this.fileMap.put("polymer-about.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
-
 
                 {
                     var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
