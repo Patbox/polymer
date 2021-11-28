@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(BlockEntityUpdateS2CPacket.class)
 public interface BlockEntityUpdateS2CPacketAccessor {
-    @Invoker
-    static BlockEntityUpdateS2CPacket createBlockEntityUpdateS2CPacket(BlockPos blockPos, BlockEntityType<?> blockEntityType, NbtCompound nbtCompound) {
+    @Invoker("<init>")
+    static BlockEntityUpdateS2CPacket createBlockEntityUpdateS2CPacket(BlockPos pos, BlockEntityType<?> blockEntityType, NbtCompound nbt) {
         throw new UnsupportedOperationException();
     }
 }

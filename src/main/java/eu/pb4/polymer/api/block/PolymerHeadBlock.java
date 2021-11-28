@@ -51,7 +51,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
-        return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos, BlockEntityType.SKULL, main);
+        return PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, main);
     }
 
     default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) {

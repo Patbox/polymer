@@ -1,12 +1,14 @@
 package eu.pb4.polymer.api.block;
 
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
+import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -154,6 +156,10 @@ public final class PolymerBlockUtils {
      */
     public static Block getBlockSafely(PolymerBlock block, BlockState state) {
         return getBlockSafely(block, state, NESTED_DEFAULT_DISTANCE);
+    }
+
+    public static BlockEntityUpdateS2CPacket createBlockEntityPacket(BlockPos pos, BlockEntityType<?> type, NbtCompound nbtCompound) {
+        return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos.toImmutable(), type, nbtCompound);
     }
 
     @FunctionalInterface

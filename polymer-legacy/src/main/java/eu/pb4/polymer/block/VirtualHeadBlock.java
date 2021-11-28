@@ -1,5 +1,6 @@
 package eu.pb4.polymer.block;
 
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -46,7 +47,7 @@ public interface VirtualHeadBlock extends VirtualBlock {
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
-        return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos, BlockEntityType.SKULL, main);
+        return PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, main);
     }
 
     default void sendPacketsAfterCreation(ServerPlayerEntity player, BlockPos pos, BlockState blockState) {

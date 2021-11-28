@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(targets = "net/minecraft/entity/data/TrackedDataHandlerRegistry$18")
 public class TrackedDataHandlerRegistryBlockStateMixin {
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
+    @ModifyArg(method = "write(Lnet/minecraft/network/PacketByteBuf;Ljava/util/Optional;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState polymer_replaceWithPolymer(BlockState state) {
         return PolymerBlockUtils.getPolymerBlockState(state);
     }
