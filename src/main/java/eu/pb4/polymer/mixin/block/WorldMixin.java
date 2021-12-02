@@ -12,9 +12,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public class WorldMixin {
     @ModifyArg(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState polymer_replaceWithVirtual(BlockState state) {
-        if (state.getBlock() instanceof PolymerBlock virtualBlock) {
-            return PolymerBlockUtils.getBlockStateSafely(virtualBlock, state);
-        }
-        return state;
+        return PolymerBlockUtils.getPolymerBlockState(state);
     }
 }

@@ -1,7 +1,11 @@
 plugins {
     id 'fabric-loom' version '0.10-SNAPSHOT'
-    id("io.github.juuxel.loom-quiltflower-mini") version "1.0.0"
+    id("io.github.juuxel.loom-quiltflower-mini") version "1.1.0"
+    id "com.modrinth.minotaur" version "1.2.1"
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
+import com.modrinth.minotaur.TaskModrinthUpload
+
 apply plugin: 'fabric-loom'
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -98,18 +102,18 @@ processResources {
 dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     //modRuntime "supercoder79:databreaker:0.2.7"
 
-    //modCompileOnly "com.github.CaffeineMC.lithium-fabric:lithium:d2a5d9e"
+    modCompileOnly 'com.github.CaffeineMC:lithium-fabric:1.18.x~dev-SNAPSHOT'
 
     modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.0'
 
     modCompileOnly "mcp.mobius.waila:wthit:fabric-3.10.1"
 
-    //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.0'
+    modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
 
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:7.0.337"
 
@@ -176,6 +180,46 @@ allprojects {
 
             setupRepositories(repositories)
         }
+    }
+}
+
+curseforge {
+    if (System.getenv("CURSEFORGE")) {
+        apiKey = System.getenv("CURSEFORGE")
+    }
+
+    project {
+        id = "551890"
+        releaseType = "release"
+        addGameVersion "1.18"
+        addGameVersion "Fabric"
+
+        mainArtifact(remapJar) {
+            displayName = "[$project.minecraft_version] Polymer $project.version"
+        }
+
+        afterEvaluate {
+            uploadTask.dependsOn("remapJar")
+        }
+    }
+
+    options {
+        forgeGradleIntegration = false
+    }
+}
+
+afterEvaluate {
+    task publishModrinth (type: TaskModrinthUpload) {
+        onlyIf {
+            System.getenv("MODRINTH") // Only attempt to run this task if the MODRINTH variable is set, otherwise SKIP it
+        }
+
+        token = System.getenv("MODRINTH")
+        projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
+        versionNumber = version // The version of the mod to upload.
+        uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
+        addGameVersion('1.18') // Any minecraft version.
+        addLoader('fabric') // Can be fabric or forge. Modrinth will support liteloader and rift at a later date.
     }
 }
 

@@ -17,18 +17,24 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 public final class PolymerImpl {
-    private PolymerImpl() {}
+    private PolymerImpl() {
+    }
 
     public static final Logger LOGGER = LogManager.getLogger("Polymer");
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     public static final Gson GSON_PRETTY = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-    public static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer").get();
+    private static final FabricLoader LOADER = FabricLoader.getInstance();
+
+    private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer").get();
+    public static final String MOD_ID = CONTAINER.getMetadata().getId();
+    public static final String NAME = CONTAINER.getMetadata().getName();
     public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString().split("\\+")[0];
 
-    public static final ServerConfig SERVER_CONFIG = PolymerImpl.loadConfig("server", ServerConfig.class);
+    public static final ServerConfig SERVER_CONFIG = loadConfig("server", ServerConfig.class);
 
     public static final boolean DEVELOPER_MODE;
     public static final boolean ENABLE_NETWORKING_SERVER;
@@ -36,13 +42,14 @@ public final class PolymerImpl {
     public static final boolean USE_ALT_ARMOR_HANDLER;
     public static final boolean FORCE_RESOURCE_PACK_CLIENT;
     public static final boolean FORCE_RESOURCE_PACK_SERVER;
+    public static final boolean FORCE_CUSTOM_MODEL_DATA_OFFSET;
 
     static {
 
         ENABLE_NETWORKING_SERVER = PolymerImpl.SERVER_CONFIG.enableNetworkSync;
         DEVELOPER_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || PolymerImpl.SERVER_CONFIG.enableDevUtils;
         FORCE_RESOURCE_PACK_SERVER = PolymerImpl.SERVER_CONFIG.markResourcePackAsForceByDefault;
-
+        FORCE_CUSTOM_MODEL_DATA_OFFSET = PolymerImpl.SERVER_CONFIG.forcePackOffset || CompatStatus.POLYMC;
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             var clientConfig = PolymerImpl.loadConfig("client", ClientConfig.class);
@@ -54,14 +61,19 @@ public final class PolymerImpl {
             ENABLE_NETWORKING_CLIENT = false;
             FORCE_RESOURCE_PACK_CLIENT = false;
         }
+    }
 
+    public static boolean isModLoaded(String modId) {
+        return LOADER.isModLoaded(modId);
+    }
 
-
+    public static Path configDir() {
+        return LOADER.getConfigDir().resolve("polymer");
     }
 
     public static <T> T loadConfig(String name, Class<T> clazz) {
         try {
-            var folder = FabricLoader.getInstance().getConfigDir().resolve("polymer");
+            var folder = configDir();
             if (!folder.toFile().isDirectory()) {
                 if (folder.toFile().exists()) {
                     Files.deleteIfExists(folder);
@@ -82,7 +94,7 @@ public final class PolymerImpl {
         }
 
         try {
-            var obj =clazz.getConstructor().newInstance();
+            var obj = clazz.getConstructor().newInstance();
             saveConfig(name, obj);
 
             return obj;
@@ -94,7 +106,7 @@ public final class PolymerImpl {
 
     public static void saveConfig(String name, Object obj) {
         try {
-            var folder = FabricLoader.getInstance().getConfigDir().resolve("polymer");
+            var folder = configDir();
             if (!folder.toFile().isDirectory()) {
                 if (folder.toFile().exists()) {
                     Files.deleteIfExists(folder);
@@ -111,5 +123,9 @@ public final class PolymerImpl {
 
     public static Identifier id(String path) {
         return new Identifier(PolymerUtils.ID, path);
+    }
+
+    public static Path getGameDir() {
+        return LOADER.getGameDir();
     }
 }

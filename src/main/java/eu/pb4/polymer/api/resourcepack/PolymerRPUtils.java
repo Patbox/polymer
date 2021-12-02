@@ -3,14 +3,12 @@ package eu.pb4.polymer.api.resourcepack;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
-import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -33,7 +31,7 @@ public final class PolymerRPUtils {
     private static final IntSet TAKEN_ARMOR_COLORS = new IntOpenHashSet();
     private static final Map<Identifier, PolymerArmorModel> ARMOR_MODEL_MAP = new HashMap<>();
     private static int ARMOR_VAL = 0;
-    private static final int CMD_OFFSET = CompatStatus.POLYMC ? 100000 : 1;
+    private static final int CMD_OFFSET = PolymerImpl.FORCE_CUSTOM_MODEL_DATA_OFFSET ? 100000 : 1;
     private static boolean REQUIRED = PolymerImpl.FORCE_RESOURCE_PACK_SERVER;
     private static boolean DEFAULT_CHECK = true;
 
@@ -82,7 +80,7 @@ public final class PolymerRPUtils {
      * @param modId Id of mods used as a source
      */
     public static boolean addAssetSource(String modId) {
-        if (FabricLoader.getInstance().isModLoaded(modId)) {
+        if (PolymerImpl.isModLoaded(modId)) {
             MOD_IDS.add(modId);
             return true;
         }
@@ -166,7 +164,7 @@ public final class PolymerRPUtils {
         try {
             boolean successful = true;
 
-            Path possibleInput = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack-input");
+            Path possibleInput = PolymerImpl.getGameDir().resolve("polymer-resourcepack-input");
 
             var builder = new DefaultRPBuilder(output);
 

@@ -3,6 +3,7 @@ package eu.pb4.polymer.api.utils;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -30,6 +31,18 @@ public final class PolymerUtils {
     }
 
     public static final String ID = "polymer";
+
+    public static String getVersion() {
+        return PolymerImpl.VERSION;
+    }
+
+    public static String getMainModuleId() {
+        return PolymerImpl.MOD_ID;
+    }
+
+    public static String getMainModuleName() {
+        return PolymerImpl.NAME;
+    }
 
     /**
      * Returns player if it's known to polymer (otherwise null!)
