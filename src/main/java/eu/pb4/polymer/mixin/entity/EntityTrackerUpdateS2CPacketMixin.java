@@ -61,9 +61,11 @@ public class EntityTrackerUpdateS2CPacketMixin {
                 polymerEntity.modifyTrackedData(entries);
                 this.trackedValues = entries;
             } else {
-                for (DataTracker.Entry<?> entry : this.trackedValues) {
-                    if (entry.getData().getId() <= 13) {
-                        entries.add(entry);
+                if (this.trackedValues != null) {
+                    for (DataTracker.Entry<?> entry : this.trackedValues) {
+                        if (entry.getData().getId() <= 13) {
+                            entries.add(entry);
+                        }
                     }
                 }
 
