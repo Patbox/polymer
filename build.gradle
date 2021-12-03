@@ -164,6 +164,46 @@ void setupRepositories(RepositoryHandler repositories) {
 
 // configure the maven publication
 
+curseforge {
+    if (System.getenv("CURSEFORGE")) {
+        apiKey = System.getenv("CURSEFORGE")
+        System.out.println("Publishing to curseforge!")
+    }
+
+    project {
+        id = "551890"
+        releaseType = "release"
+        changelog = ""
+        changelogType = "markdown"
+        addGameVersion "1.18"
+        addGameVersion "Fabric"
+
+        afterEvaluate {
+            mainArtifact(remapJar)
+            uploadTask.dependsOn("remapJar")
+        }
+    }
+
+    options {
+        forgeGradleIntegration = false
+    }
+}
+
+task publishModrinth (type: TaskModrinthUpload) {
+    onlyIf {
+        System.getenv("MODRINTH") // Only attempt to run this task if the MODRINTH variable is set, otherwise SKIP it
+    }
+
+    token = System.getenv("MODRINTH")
+    projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
+    versionNumber = version // The version of the mod to upload.
+    uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
+    addGameVersion('1.18') // Any minecraft version.
+    addLoader('fabric') // Can be fabric or forge. Modrinth will support liteloader and rift at a later date.
+}
+
+
+
 allprojects {
     apply plugin: 'maven-publish'
     afterEvaluate {
@@ -180,46 +220,6 @@ allprojects {
 
             setupRepositories(repositories)
         }
-    }
-}
-
-curseforge {
-    if (System.getenv("CURSEFORGE")) {
-        apiKey = System.getenv("CURSEFORGE")
-    }
-
-    project {
-        id = "551890"
-        releaseType = "release"
-        addGameVersion "1.18"
-        addGameVersion "Fabric"
-
-        mainArtifact(remapJar) {
-            displayName = "[$project.minecraft_version] Polymer $project.version"
-        }
-
-        afterEvaluate {
-            uploadTask.dependsOn("remapJar")
-        }
-    }
-
-    options {
-        forgeGradleIntegration = false
-    }
-}
-
-afterEvaluate {
-    task publishModrinth (type: TaskModrinthUpload) {
-        onlyIf {
-            System.getenv("MODRINTH") // Only attempt to run this task if the MODRINTH variable is set, otherwise SKIP it
-        }
-
-        token = System.getenv("MODRINTH")
-        projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
-        versionNumber = version // The version of the mod to upload.
-        uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
-        addGameVersion('1.18') // Any minecraft version.
-        addLoader('fabric') // Can be fabric or forge. Modrinth will support liteloader and rift at a later date.
     }
 }
 

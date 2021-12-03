@@ -46,11 +46,14 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
             if (legalTrackedData.size() > 0) {
                 entries = new ArrayList<>();
-                for (DataTracker.Entry<?> entry : this.trackedValues) {
-                    for (DataTracker.Entry<?> trackedData : legalTrackedData) {
-                        if (trackedData.getData().getId() == entry.getData().getId() && entry.get().getClass().isInstance(trackedData.get())) {
-                            entries.add(entry);
-                            break;
+
+                if (this.trackedValues != null) {
+                    for (DataTracker.Entry<?> entry : this.trackedValues) {
+                        for (DataTracker.Entry<?> trackedData : legalTrackedData) {
+                            if (trackedData.getData().getId() == entry.getData().getId() && entry.get().getClass().isInstance(trackedData.get())) {
+                                entries.add(entry);
+                                break;
+                            }
                         }
                     }
                 }
@@ -66,6 +69,8 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
                 polymerEntity.modifyTrackedData(entries);
             }
+        } else if (this.trackedValues == null) {
+            return;
         } else {
             entries.addAll(this.trackedValues);
         }
@@ -84,7 +89,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getTrackedValues", at = @At("RETURN"), cancellable = true)
     private void polymer_replaceItemsWithPolymerOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
-        if (MinecraftClient.getInstance().getServer() != null) {
+        if (MinecraftClient.getInstance().getServer() != null && this.trackedValues != null) {
             List<DataTracker.Entry<?>> list = new ArrayList<>();
             ServerPlayerEntity player = PolymerUtils.getPlayer();
 
