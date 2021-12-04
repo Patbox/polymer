@@ -38,12 +38,13 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
                 case "polymc" -> CompatStatus.POLYMC;
                 case "wthit" -> CompatStatus.WTHIT;
                 case "rei" -> CompatStatus.REI;
+                case "lithium" -> CompatStatus.LITHIUM;
                 case "armor" -> PolymerImpl.USE_ALT_ARMOR_HANDLER;
                 default -> true;
             };
         }
 
-        if (targetClassName.contains("lithium")) {
+        if (targetClassName.contains("lithium_BlockPaletteMixin")) {
             return CompatStatus.LITHIUM;
         }
 

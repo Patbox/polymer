@@ -32,7 +32,7 @@ public class SetTradeOffersS2CPacketMixin {
                 TradeOfferList list = new TradeOfferList();
 
                 for (TradeOffer tradeOffer : this.recipes) {
-                    list.add(new TradeOffer(
+                    var offer = new TradeOffer(
                             PolymerItemUtils.getPolymerItemStack(tradeOffer.getOriginalFirstBuyItem(), player),
                             PolymerItemUtils.getPolymerItemStack(tradeOffer.getSecondBuyItem(), player),
                             PolymerItemUtils.getPolymerItemStack(tradeOffer.getSellItem(), player),
@@ -41,7 +41,9 @@ public class SetTradeOffersS2CPacketMixin {
                             tradeOffer.getMerchantExperience(),
                             tradeOffer.getPriceMultiplier(),
                             tradeOffer.getDemandBonus()
-                    ));
+                    );
+                    offer.setSpecialPrice(tradeOffer.getSpecialPrice());
+                    list.add(offer);
                 }
 
                 this.polymer_trades = list;

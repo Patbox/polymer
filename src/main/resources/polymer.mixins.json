@@ -29,6 +29,7 @@
     "command.CommandManagerMixin",
     "command.SuggestionProvidersMixin",
     "compat.fabricSync_RegistrySyncManagerMixin",
+    "compat.lithium_BlockPaletteMixin",
     "compat.polymc_BlockPolyGeneratorMixin",
     "entity.AbstractMinecartEntityMixin",
     "entity.DataTrackerAccessor",

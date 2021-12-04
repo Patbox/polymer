@@ -167,20 +167,19 @@ void setupRepositories(RepositoryHandler repositories) {
 curseforge {
     if (System.getenv("CURSEFORGE")) {
         apiKey = System.getenv("CURSEFORGE")
-        System.out.println("Publishing to curseforge!")
-    }
 
-    project {
-        id = "551890"
-        releaseType = "release"
-        changelog = ""
-        changelogType = "markdown"
-        addGameVersion "1.18"
-        addGameVersion "Fabric"
+        project {
+            id = "551890"
+            releaseType = "release"
+            changelog = ""
+            changelogType = "markdown"
+            addGameVersion "1.18"
+            addGameVersion "Fabric"
 
-        afterEvaluate {
-            mainArtifact(remapJar)
-            uploadTask.dependsOn("remapJar")
+            afterEvaluate {
+                mainArtifact(remapJar)
+                uploadTask.dependsOn("remapJar")
+            }
         }
     }
 
@@ -196,13 +195,19 @@ task publishModrinth (type: TaskModrinthUpload) {
 
     token = System.getenv("MODRINTH")
     projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
-    versionNumber = version // The version of the mod to upload.
+    versionNumber = "" + version // The version of the mod to upload.
     uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
     addGameVersion('1.18') // Any minecraft version.
     addLoader('fabric') // Can be fabric or forge. Modrinth will support liteloader and rift at a later date.
 }
 
+remapJar {
+    finalizedBy publishModrinth
+    finalizedBy project.tasks.curseforge
+}
 
+publishModrinth.mustRunAfter remapJar
+project.tasks.curseforge.mustRunAfter remapJar
 
 allprojects {
     apply plugin: 'maven-publish'
@@ -216,6 +221,7 @@ allprojects {
 
                     from components.java
                 }
+
             }
 
             setupRepositories(repositories)
