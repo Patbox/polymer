@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.client.rendering;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.client.PolymerKeepModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -18,13 +19,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockModelsMixin {
     @Inject(method = "getModelId(Lnet/minecraft/block/BlockState;)Lnet/minecraft/client/util/ModelIdentifier;", at = @At("HEAD"), cancellable = true, require = 0)
     private static void polymer_skipVirtualModels(BlockState state, CallbackInfoReturnable<ModelIdentifier> cir) {
-        if (state.getBlock() instanceof PolymerBlock) {
+        if (PolymerKeepModel.useServerModel(state.getBlock())) {
             cir.setReturnValue(new ModelIdentifier("minecraft:air"));
         }
     }
 
     @ModifyVariable(method = "getModel", at = @At("HEAD"), require = 0)
     private BlockState polymer_replaceBlockState(BlockState state) {
-        return state.getBlock() instanceof PolymerBlock block ? PolymerBlockUtils.getBlockStateSafely(block, state) : state;
+        return state.getBlock() instanceof PolymerBlock block && !PolymerKeepModel.is(block) ? PolymerBlockUtils.getBlockStateSafely(block, state) : state;
     }
 }

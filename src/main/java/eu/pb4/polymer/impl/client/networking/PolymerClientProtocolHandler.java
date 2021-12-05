@@ -30,6 +30,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -153,6 +154,7 @@ public class PolymerClientProtocolHandler {
 
             if (chunk instanceof ClientBlockStorageInterface storage) {
                 storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
+                PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
             }
             return true;
         }
@@ -167,12 +169,19 @@ public class PolymerClientProtocolHandler {
             var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
 
             if (section instanceof ClientBlockStorageInterface storage) {
+                var blockPos = new BlockPos.Mutable(0, 0, 0);
+
                 for (int i = 0; i < size; i++) {
                     long value = buf.readVarLong();
                     var pos = (short) ((int) (value & 4095L));
                     var block = InternalClientRegistry.BLOCK_STATES.get((int) (value >>> 12));
 
-                    storage.polymer_setClientPolymerBlock(ChunkSectionPos.unpackLocalX(pos), ChunkSectionPos.unpackLocalY(pos), ChunkSectionPos.unpackLocalZ(pos), block);
+                    var x = ChunkSectionPos.unpackLocalX(pos);
+                    var y = ChunkSectionPos.unpackLocalY(pos);
+                    var z = ChunkSectionPos.unpackLocalZ(pos);
+
+                    PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(blockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z), block));
+                    storage.polymer_setClientPolymerBlock(x, y, z, block);
                 }
             }
             return true;

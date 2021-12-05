@@ -73,6 +73,16 @@ public class InternalClientRegistry {
         return ClientPolymerBlock.NONE_STATE;
     }
 
+    public static void setBlockAt(BlockPos pos, ClientPolymerBlock.State state) {
+        if (MinecraftClient.getInstance().world != null) {
+            var chunk = MinecraftClient.getInstance().world.getChunk(pos);
+
+            if (chunk instanceof ClientBlockStorageInterface storage) {
+                storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), state);
+            }
+        }
+    }
+
     public static void setVersion(String version) {
         SERVER_VERSION = version;
         ENABLED = !version.isEmpty();

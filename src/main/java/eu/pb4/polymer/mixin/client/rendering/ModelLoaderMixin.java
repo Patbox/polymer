@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.client.rendering;
 
+import eu.pb4.polymer.api.client.PolymerKeepModel;
 import eu.pb4.polymer.api.item.PolymerItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,6 +16,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class ModelLoaderMixin {
     @ModifyVariable(method = "<init>", at = @At("STORE"), ordinal = 0, require = 0)
     private Identifier polymer_skipPolymerItems(Identifier identifier) {
-        return Registry.ITEM.get(identifier) instanceof PolymerItem ? new Identifier("air") : identifier;
+        return Registry.ITEM.get(identifier) instanceof PolymerItem item && !PolymerKeepModel.is(item) ? new Identifier("air") : identifier;
     }
 }

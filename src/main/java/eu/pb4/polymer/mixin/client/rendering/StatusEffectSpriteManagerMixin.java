@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.client.rendering;
 
+import eu.pb4.polymer.api.client.PolymerKeepModel;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import net.minecraft.client.texture.StatusEffectSpriteManager;
 import net.minecraft.util.Identifier;
@@ -15,6 +16,6 @@ import java.util.stream.Stream;
 public class StatusEffectSpriteManagerMixin {
     @Inject(method = "getSprites", at = @At("RETURN"), cancellable = true)
     private void polymer_skipPolymerEntries(CallbackInfoReturnable<Stream<Identifier>> cir) {
-        cir.setReturnValue(cir.getReturnValue().filter((id) -> !PolymerObject.is(Registry.STATUS_EFFECT.get(id))));
+        cir.setReturnValue(cir.getReturnValue().filter((id) -> !PolymerKeepModel.useServerModel(Registry.STATUS_EFFECT.get(id))));
     }
 }
