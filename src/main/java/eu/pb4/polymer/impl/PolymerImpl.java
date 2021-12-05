@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 public final class PolymerImpl {
+
     private PolymerImpl() {
     }
 
@@ -32,6 +33,7 @@ public final class PolymerImpl {
     private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer").get();
     public static final String MOD_ID = CONTAINER.getMetadata().getId();
     public static final String NAME = CONTAINER.getMetadata().getName();
+    public static final String DESCRIPTION = CONTAINER.getMetadata().getDescription();
     public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString().split("\\+")[0];
 
     public static final ServerConfig SERVER_CONFIG = loadConfig("server", ServerConfig.class);
@@ -43,13 +45,15 @@ public final class PolymerImpl {
     public static final boolean FORCE_RESOURCE_PACK_CLIENT;
     public static final boolean FORCE_RESOURCE_PACK_SERVER;
     public static final boolean FORCE_CUSTOM_MODEL_DATA_OFFSET;
+    public static final int CORE_COMMAND_MINIMAL_OP;
 
     static {
 
         ENABLE_NETWORKING_SERVER = PolymerImpl.SERVER_CONFIG.enableNetworkSync;
-        DEVELOPER_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || PolymerImpl.SERVER_CONFIG.enableDevUtils;
-        FORCE_RESOURCE_PACK_SERVER = PolymerImpl.SERVER_CONFIG.markResourcePackAsForceByDefault;
-        FORCE_CUSTOM_MODEL_DATA_OFFSET = PolymerImpl.SERVER_CONFIG.forcePackOffset || CompatStatus.POLYMC;
+        DEVELOPER_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || SERVER_CONFIG.enableDevUtils;
+        FORCE_RESOURCE_PACK_SERVER = SERVER_CONFIG.markResourcePackAsForceByDefault;
+        FORCE_CUSTOM_MODEL_DATA_OFFSET = SERVER_CONFIG.forcePackOffset || CompatStatus.POLYMC;
+        CORE_COMMAND_MINIMAL_OP = SERVER_CONFIG.coreCommandOperatorLevel;
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             var clientConfig = PolymerImpl.loadConfig("client", ClientConfig.class);
@@ -121,8 +125,9 @@ public final class PolymerImpl {
         }
     }
 
-    public static Identifier id(String path) {
-        return new Identifier(PolymerUtils.ID, path);
+
+    public static Path getJarPath(String path) {
+        return FabricLoader.getInstance().getModContainer(MOD_ID).get().getPath(path);
     }
 
     public static Path getGameDir() {

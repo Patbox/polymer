@@ -19,10 +19,16 @@ import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -31,23 +37,25 @@ import static net.minecraft.server.command.CommandManager.literal;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class Commands {
+    private static final Text[] ABOUT_PLAYER;
+    private static final Text[] ABOUT_COLORLESS;
+
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         var command = literal("polymer")
-                .requires((source) -> source.hasPermissionLevel(3))
-
+                .requires(PolymerImplUtils.permission("command.core", PolymerImpl.CORE_COMMAND_MINIMAL_OP))
+                .executes(Commands::about)
                 .then(literal("generate")
-                        .requires((source) -> source.hasPermissionLevel(3))
+                        .requires(PolymerImplUtils.permission("command.generate", 3))
                         .executes(Commands::generate))
                 .then(literal("creative")
+                        .requires(PolymerImplUtils.permission("command.creative", 0))
                         .then(argument("itemGroup", IdentifierArgumentType.identifier())
                                 .suggests((context, builder) -> {
                                     var remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
 
                                     var groups = PolymerUtils.getItemGroups(context.getSource().getPlayer());
 
-                                    CommandSource.forEachMatching(groups, remaining, PolymerItemGroup::getId, group -> {
-                                        builder.suggest(group.getId().toString(), group.getDisplayName());
-                                    });
+                                    CommandSource.forEachMatching(groups, remaining, PolymerItemGroup::getId, group -> builder.suggest(group.getId().toString(), group.getDisplayName()));
                                     return builder.buildFuture();
                                 })
                                 .executes(Commands::creativeTab)
@@ -76,7 +84,7 @@ public class Commands {
                     .then(literal("set-pack-status")
                             .then(argument("status", BoolArgumentType.bool())
                                     .executes((ctx) -> {
-                                        var status = ctx.getArgument("status", Boolean.class).booleanValue();
+                                        var status = ctx.getArgument("status", Boolean.class);
                                         PolymerRPUtils.setPlayerStatus(ctx.getSource().getPlayer(), status);
                                         ctx.getSource().sendFeedback(new LiteralText("New resource pack status: " + status), false);
                                         return 0;
@@ -90,6 +98,14 @@ public class Commands {
         }
 
         dispatcher.register(command);
+    }
+
+    private static int about(CommandContext<ServerCommandSource> context) {
+        for (var text : (context.getSource().getEntity() instanceof ServerPlayerEntity ? ABOUT_PLAYER : ABOUT_COLORLESS)) {
+            context.getSource().sendFeedback(text, false);
+        }
+
+        return 0;
     }
 
     private static int creativeTab(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -142,5 +158,62 @@ public class Commands {
         }
 
         return 0;
+    }
+
+    static {
+        var about = new ArrayList<Text>();
+        var aboutBasic = new ArrayList<Text>();
+        var output = new ArrayList<Text>();
+
+        try {
+            about.add(new LiteralText("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true)));
+            about.add(new LiteralText("Version: ").setStyle(Style.EMPTY.withColor(0xf7e1a7))
+                    .append(new LiteralText(PolymerImpl.VERSION).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
+            about.add(LiteralText.EMPTY);
+
+            aboutBasic.addAll(about);
+            aboutBasic.add(Text.of(PolymerImpl.DESCRIPTION));
+
+            var desc = new ArrayList<>(List.of(PolymerImpl.DESCRIPTION.split(" ")));
+
+            if (desc.size() > 0) {
+                StringBuilder descPart = new StringBuilder();
+                while (!desc.isEmpty()) {
+                    (descPart.isEmpty() ? descPart : descPart.append(" ")).append(desc.remove(0));
+
+                    if (descPart.length() > 16) {
+                        about.add(new LiteralText(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                        descPart = new StringBuilder();
+                    }
+                }
+
+                if (descPart.length() > 0) {
+                    about.add(new LiteralText(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                }
+            }
+
+            if (PolymerImplUtils.ICON.length > about.size() + 2) {
+                int a = 0;
+                for (int i = 0; i < PolymerImplUtils.ICON.length; i++) {
+                    if (i == (PolymerImplUtils.ICON.length - about.size() - 1) / 2 + a && a < about.size()) {
+                        output.add(PolymerImplUtils.ICON[i].shallowCopy().append("  ").append(about.get(a++)));
+                    } else {
+                        output.add(PolymerImplUtils.ICON[i]);
+                    }
+                }
+            } else {
+                Collections.addAll(output, PolymerImplUtils.ICON);
+                output.addAll(about);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            var invalid = new LiteralText("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
+
+            output.add(invalid);
+            about.add(invalid);
+        }
+
+        ABOUT_PLAYER = output.toArray(new Text[0]);
+        ABOUT_COLORLESS = aboutBasic.toArray(new Text[0]);
     }
 }

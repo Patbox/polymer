@@ -1,7 +1,6 @@
 package eu.pb4.polymer.impl.other;
 
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.PolymerMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;

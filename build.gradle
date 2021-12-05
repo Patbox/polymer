@@ -8,8 +8,8 @@ import com.modrinth.minotaur.TaskModrinthUpload
 
 apply plugin: 'fabric-loom'
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version + "+" + project.minecraft_version
@@ -58,6 +58,7 @@ allprojects {
         maven { url "https://maven.shedaniel.me/" }
         maven { url "https://maven.bai.lol" }
         maven { url = "https://maven.ryanliptak.com/" }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 
         mavenLocal()
     }
@@ -125,6 +126,7 @@ dependencies {
     }
 
     modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
+    modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
 
     modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
     modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
@@ -175,9 +177,9 @@ curseforge {
             changelogType = "markdown"
             addGameVersion "1.18"
             addGameVersion "Fabric"
+            mainArtifact(remapJar)
 
             afterEvaluate {
-                mainArtifact(remapJar)
                 uploadTask.dependsOn("remapJar")
             }
         }

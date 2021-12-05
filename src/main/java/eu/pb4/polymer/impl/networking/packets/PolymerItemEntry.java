@@ -16,7 +16,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 
-import static eu.pb4.polymer.impl.PolymerImpl.id;
+import static eu.pb4.polymer.impl.PolymerImplUtils.id;
 
 
 @ApiStatus.Internal

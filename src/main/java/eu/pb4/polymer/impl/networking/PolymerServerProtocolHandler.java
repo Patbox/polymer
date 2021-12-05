@@ -3,7 +3,6 @@ package eu.pb4.polymer.impl.networking;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;

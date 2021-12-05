@@ -1,7 +1,6 @@
 package eu.pb4.polymer.impl.other;
 
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

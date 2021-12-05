@@ -4,6 +4,7 @@ import eu.pb4.polymer.impl.PolymerImpl;
 
 public class CompatStatus {
     public static final boolean FABRIC_SYNC = PolymerImpl.isModLoaded("fabric-registry-sync-v0");
+    public static final boolean FABRIC_PERMISSION_API_V0 = PolymerImpl.isModLoaded("fabric-permissions-api-v0");
 
     public static final boolean POLYMC = PolymerImpl.isModLoaded("polymc");
     public static final boolean LITHIUM = PolymerImpl.isModLoaded("lithium");

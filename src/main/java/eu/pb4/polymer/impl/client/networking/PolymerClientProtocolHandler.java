@@ -6,7 +6,6 @@ import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;

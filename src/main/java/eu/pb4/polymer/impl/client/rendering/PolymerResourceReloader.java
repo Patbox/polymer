@@ -1,7 +1,6 @@
 package eu.pb4.polymer.impl.client.rendering;
 
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.PolymerMod;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import eu.pb4.polymer.mixin.client.rendering.ArmorFeatureRendererAccessor;
@@ -15,7 +14,7 @@ import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import static eu.pb4.polymer.impl.PolymerImpl.id;
+import static eu.pb4.polymer.impl.PolymerImplUtils.id;
 
 public record PolymerResourceReloader(TextureManager manager) implements ResourceReloader {
     public static final Identifier POLYMER_ARMOR_ID = id("armors.json");

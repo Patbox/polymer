@@ -3,7 +3,7 @@
   "id": "polymer",
   "version": "${version}",
   "name": "Polymer",
-  "description": "Library for creating better server side content!",
+  "description": "Library for creation of better server side content!",
   "authors": [
     "Patbox"
   ],

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static eu.pb4.polymer.impl.PolymerImpl.id;
+import static eu.pb4.polymer.impl.PolymerImplUtils.id;
 
 public class ClientPackets {
     public static final Map<String, int[]> REGISTRY = new HashMap<>();
