@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -16,6 +17,8 @@ import java.util.function.Predicate;
 
 public class PolymerImplUtils {
     public static final Text[] ICON;
+    public static ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
+
 
     public static Predicate<ServerCommandSource> permission(String path, int operatorLevel) {
         if (CompatStatus.FABRIC_PERMISSION_API_V0) {

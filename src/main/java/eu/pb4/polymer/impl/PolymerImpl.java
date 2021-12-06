@@ -19,9 +19,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class PolymerImpl {
-
     private PolymerImpl() {
     }
 
@@ -34,7 +35,9 @@ public final class PolymerImpl {
     public static final String MOD_ID = CONTAINER.getMetadata().getId();
     public static final String NAME = CONTAINER.getMetadata().getName();
     public static final String DESCRIPTION = CONTAINER.getMetadata().getDescription();
+    public static final String[] CONTRIBUTORS;
     public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString().split("\\+")[0];
+    public static final String GITHUB_URL = CONTAINER.getMetadata().getContact().get("sources").orElse("http://invalid-page");
 
     public static final ServerConfig SERVER_CONFIG = loadConfig("server", ServerConfig.class);
 
@@ -48,6 +51,16 @@ public final class PolymerImpl {
     public static final int CORE_COMMAND_MINIMAL_OP;
 
     static {
+        var list = new ArrayList<String>();
+        for (var person : CONTAINER.getMetadata().getAuthors()) {
+            list.add(person.getName());
+        }
+        for (var person : CONTAINER.getMetadata().getContributors()) {
+            list.add(person.getName());
+        }
+
+        CONTRIBUTORS = list.toArray(new String[0]);
+
 
         ENABLE_NETWORKING_SERVER = PolymerImpl.SERVER_CONFIG.enableNetworkSync;
         DEVELOPER_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || SERVER_CONFIG.enableDevUtils;

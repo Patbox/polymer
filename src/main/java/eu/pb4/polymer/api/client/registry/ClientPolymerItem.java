@@ -6,7 +6,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Experimental
 @Environment(EnvType.CLIENT)
 public record ClientPolymerItem(
         Identifier identifier,

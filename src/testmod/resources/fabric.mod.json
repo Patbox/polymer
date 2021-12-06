@@ -18,6 +18,9 @@
   "entrypoints": {
     "main": [
       "eu.pb4.polymertest.TestMod"
+    ],
+    "client": [
+      "eu.pb4.polymertest.TestMod"
     ]
   },
   "mixins": [

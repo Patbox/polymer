@@ -18,9 +18,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
@@ -60,8 +58,7 @@ public class Commands {
                                 })
                                 .executes(Commands::creativeTab)
                         )
-                        .executes(Commands::creativeTab))
-                ;
+                        .executes(Commands::creativeTab));
 
         if (PolymerImpl.DEVELOPER_MODE) {
             command.then(literal("dev")
@@ -90,11 +87,11 @@ public class Commands {
                                         return 0;
                                     })))
                     .then(literal("get-pack-status")
-                                    .executes((ctx) -> {
-                                        var status = PolymerRPUtils.hasPack(ctx.getSource().getPlayer());
-                                        ctx.getSource().sendFeedback(new LiteralText("Resource pack status: " + status), false);
-                                        return 0;
-                                    })));
+                            .executes((ctx) -> {
+                                var status = PolymerRPUtils.hasPack(ctx.getSource().getPlayer());
+                                ctx.getSource().sendFeedback(new LiteralText("Resource pack status: " + status), false);
+                                return 0;
+                            })));
         }
 
         dispatcher.register(command);
@@ -166,13 +163,24 @@ public class Commands {
         var output = new ArrayList<Text>();
 
         try {
-            about.add(new LiteralText("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true)));
+            about.add(new LiteralText("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, PolymerImpl.GITHUB_URL))));
             about.add(new LiteralText("Version: ").setStyle(Style.EMPTY.withColor(0xf7e1a7))
                     .append(new LiteralText(PolymerImpl.VERSION).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
-            about.add(LiteralText.EMPTY);
 
             aboutBasic.addAll(about);
+            aboutBasic.add(LiteralText.EMPTY);
             aboutBasic.add(Text.of(PolymerImpl.DESCRIPTION));
+
+            about.add(new LiteralText("")
+                    .append(new LiteralText("Contributors")
+                            .setStyle(Style.EMPTY.withColor(Formatting.AQUA)
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                            new LiteralText(String.join("\n", PolymerImpl.CONTRIBUTORS))
+                                    ))
+                            ))
+                    .append("")
+                    .setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            about.add(LiteralText.EMPTY);
 
             var desc = new ArrayList<>(List.of(PolymerImpl.DESCRIPTION.split(" ")));
 

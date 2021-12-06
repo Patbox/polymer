@@ -1,5 +1,7 @@
 package eu.pb4.polymer.impl.client.networking;
 
+import com.mojang.brigadier.StringReader;
+import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
@@ -23,20 +25,24 @@ import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.search.SearchManager;
+import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @ApiStatus.Internal
@@ -65,7 +71,7 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.SYNC_STARTED -> run(() -> PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN));
             case ServerPackets.SYNC_FINISHED -> run(() -> PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN));
             case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
-                    (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual())));
+                    (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registry.BLOCK.get(entry.identifier()))));
             case ServerPackets.SYNC_ITEM -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
                     (entry) -> InternalClientRegistry.ITEMS.set(entry.identifier(),
                             new ClientPolymerItem(
@@ -78,7 +84,7 @@ public class PolymerClientProtocolHandler {
                                     entry.miningLevel()
                             )));
             case ServerPackets.SYNC_BLOCKSTATE -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
-                    (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId())), entry.numId()));
+                    (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
             case ServerPackets.SYNC_ENTITY -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
                     (entry) -> InternalClientRegistry.ENTITY_TYPE.set(entry.identifier(), new ClientPolymerEntityType(entry.identifier(), entry.name())));
             case ServerPackets.SYNC_ITEM_GROUP -> handleItemGroupSync(handler, version, buf);
@@ -93,6 +99,37 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.WORLD_ENTITY -> handleEntity(handler, version, buf);
             default -> false;
         };
+    }
+
+    @Nullable
+    private static BlockState blockStateOrNull(Map<String, String> states, ClientPolymerBlock clientPolymerBlock) {
+        if (clientPolymerBlock.realServerBlock() != null) {
+            var path = new StringBuilder(clientPolymerBlock.identifier().toString());
+
+            if (!states.isEmpty()) {
+                path.append("[");
+                var iterator = states.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    var entry = iterator.next();
+                    path.append(entry.getKey()).append("=").append(entry.getValue());
+
+                    if (iterator.hasNext()) {
+                        path.append(",");
+                    }
+                }
+                path.append("]");
+            }
+
+            try {
+                var parsed = new BlockArgumentParser(new StringReader(path.toString()), false).parse(true);
+
+                return parsed.getBlockState();
+            } catch (Exception e) {
+                // noop
+            }
+        }
+
+        return null;
     }
 
     private static boolean run(Runnable runnable) {
@@ -152,8 +189,11 @@ public class PolymerClientProtocolHandler {
 
             var chunk = handler.getWorld().getChunk(pos);
 
-            if (chunk instanceof ClientBlockStorageInterface storage) {
+            if (block != null && chunk instanceof ClientBlockStorageInterface storage) {
                 storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
+                if (block.realServerBlockState() != null && block.block().realServerBlock() instanceof PolymerClientDecoded) {
+                    handler.getWorld().setBlockState(pos, block.realServerBlockState());
+                }
                 PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
             }
             return true;
@@ -175,13 +215,18 @@ public class PolymerClientProtocolHandler {
                     long value = buf.readVarLong();
                     var pos = (short) ((int) (value & 4095L));
                     var block = InternalClientRegistry.BLOCK_STATES.get((int) (value >>> 12));
+                    if (block != null) {
+                        var x = ChunkSectionPos.unpackLocalX(pos);
+                        var y = ChunkSectionPos.unpackLocalY(pos);
+                        var z = ChunkSectionPos.unpackLocalZ(pos);
+                        blockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z);
+                        PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(blockPos, block));
+                        storage.polymer_setClientPolymerBlock(x, y, z, block);
 
-                    var x = ChunkSectionPos.unpackLocalX(pos);
-                    var y = ChunkSectionPos.unpackLocalY(pos);
-                    var z = ChunkSectionPos.unpackLocalZ(pos);
-
-                    PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(blockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z), block));
-                    storage.polymer_setClientPolymerBlock(x, y, z, block);
+                        if (block.realServerBlockState() != null && block.block().realServerBlock() instanceof PolymerClientDecoded) {
+                            handler.getWorld().setBlockState(blockPos, block.realServerBlockState());
+                        }
+                    }
                 }
             }
             return true;

@@ -13,6 +13,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -91,27 +92,69 @@ public final class PolymerBlockUtils {
      * @return Client side BlockState
      */
     public static BlockState getPolymerBlockState(BlockState state) {
-        return state.getBlock() instanceof PolymerBlock polymerBlock ? getBlockStateSafely(polymerBlock, state) : state;
+        return getPolymerBlockState(state, null);
     }
 
-        /**
-         * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
-         * It gets replaced if it represents other PolymerBlock
-         *
-         * @param block       PolymerBlock
-         * @param blockState  Server side BlockState
-         * @param maxDistance Maximum number of checks for nested virtual blocks
-         * @return Client side BlockState
-         */
+    /**
+     * Gets BlockState used on client side
+     *
+     * @param state server side BlockState
+     * @param player      Possible target player
+     * @return Client side BlockState
+     */
+    public static BlockState getPolymerBlockState(BlockState state, @Nullable ServerPlayerEntity player) {
+        return state.getBlock() instanceof PolymerBlock polymerBlock ? getBlockStateSafely(polymerBlock, state, player) : state;
+    }
+
+    /**
+     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
+     * It gets replaced if it represents other PolymerBlock
+     *
+     * @param block       PolymerBlock
+     * @param blockState  Server side BlockState
+     * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @return Client side BlockState
+     */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance) {
-        BlockState out = block.getPolymerBlockState(blockState);
+        return getBlockStateSafely(block, blockState, maxDistance, null);
+    }
+
+    /**
+     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
+     * It gets replaced if it represents other PolymerBlock
+     *
+     * @param block       PolymerBlock
+     * @param blockState  Server side BlockState
+     * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @param player      Possible target player
+     * @return Client side BlockState
+     */
+    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, @Nullable ServerPlayerEntity player) {
+        BlockState out = player != null && block instanceof PlayerAwarePolymerBlock playerAware
+                ? playerAware.getPolymerBlockState(player, blockState)
+                : block.getPolymerBlockState(blockState);
 
         int req = 0;
         while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
-            out = newBlock.getPolymerBlockState(out);
+            out = player != null && newBlock instanceof PlayerAwarePolymerBlock playerAware
+                    ? playerAware.getPolymerBlockState(player, blockState)
+                    : newBlock.getPolymerBlockState(out);
             req++;
         }
         return out;
+    }
+
+    /**
+     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
+     * It gets replaced if it represents other PolymerBlock
+     *
+     * @param block       PolymerBlock
+     * @param blockState  Server side BlockState
+     * @param player      Possible target player
+     * @return Client side BlockState
+     */
+    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, @Nullable ServerPlayerEntity player) {
+        return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE, player);
     }
 
     /**
@@ -133,18 +176,50 @@ public final class PolymerBlockUtils {
      * @param block       PolymerBlock
      * @param state       BlockState
      * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @param player      Possible target player
      * @return Client side BlockState
      */
-    public static Block getBlockSafely(PolymerBlock block, BlockState state, int maxDistance) {
+    public static Block getBlockSafely(PolymerBlock block, BlockState state, int maxDistance, @Nullable ServerPlayerEntity player) {
         int req = 0;
-        Block out = block.getPolymerBlock(state);
+        Block out = player != null && block instanceof PlayerAwarePolymerBlock playerAware
+                ? playerAware.getPolymerBlock(state)
+                : block.getPolymerBlock(state);
 
         while (out instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
-            out = newBlock.getPolymerBlock(state);
+            out = player != null && newBlock instanceof PlayerAwarePolymerBlock playerAware
+                    ? playerAware.getPolymerBlock(player, out.getDefaultState())
+                    : newBlock.getPolymerBlock(state);
             req++;
         }
         return out;
     }
+
+    /**
+     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlock(BlockState)} to make sure
+     * It gets replaced if it represents other PolymerBlock
+     *
+     * @param block       PolymerBlock
+     * @param state       BlockState
+     * @param player      Possible target player
+     * @return Client side BlockState
+     */
+    public static Block getBlockSafely(PolymerBlock block, BlockState state, @Nullable ServerPlayerEntity player) {
+        return getBlockSafely(block, state, NESTED_DEFAULT_DISTANCE, player);
+    }
+
+    /**
+     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlock(BlockState)} to make sure
+     * It gets replaced if it represents other PolymerBlock
+     *
+     * @param block       PolymerBlock
+     * @param state       BlockState
+     * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @return Client side BlockState
+     */
+    public static Block getBlockSafely(PolymerBlock block, BlockState state, int maxDistance) {
+        return getBlockSafely(block, state, maxDistance, null);
+    }
+
 
     /**
      * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlock(BlockState)} to make sure

@@ -31,8 +31,6 @@ public class DebugHudMixin {
             if (block != ClientPolymerBlock.NONE_STATE && block.block() != null) {
                 list.add(block.block().identifier().toString());
                 for (var entry : block.states().entrySet()) {
-
-
                     list.add(entry.getKey() + ": " + switch (entry.getValue()) {
                         case "true" -> Formatting.GREEN + "true";
                         case "false" -> Formatting.RED + "false";

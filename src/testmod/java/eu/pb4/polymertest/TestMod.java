@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.api.block.SimplePolymerBlock;
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
@@ -8,6 +9,7 @@ import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.other.PolymerStat;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -18,6 +20,7 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -51,7 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class TestMod implements ModInitializer {
+public class TestMod implements ModInitializer, ClientModInitializer {
     public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(
             new Identifier("polymer", "test"),
             new TranslatableText("testmod.itemgroup").formatted(Formatting.AQUA));
@@ -68,6 +71,10 @@ public class TestMod implements ModInitializer {
     public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
     public static Block BLOCK = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
     public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings().group(ITEM_GROUP), Items.STONE);
+    public static Block BLOCK_PLAYER = new TestPerPlayerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f));
+    public static BlockItem BLOCK_PLAYER_ITEM = new PolymerBlockItem(BLOCK_PLAYER, new FabricItemSettings().group(ITEM_GROUP), Items.WHITE_CARPET);
+    public static Block BLOCK_CLIENT = new TestClientBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 3).strength(2f));
+    public static BlockItem BLOCK_CLIENT_ITEM = new PolymerBlockItem(BLOCK_CLIENT, new FabricItemSettings().group(ITEM_GROUP), Items.GLASS);
     public static Block BLOCK_FENCE = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE);
     public static BlockItem BLOCK_FENCE_ITEM = new PolymerBlockItem(BLOCK_FENCE, new FabricItemSettings().group(ITEM_GROUP), Items.NETHER_BRICK_FENCE);
     public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
@@ -139,6 +146,10 @@ public class TestMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), BLOCK);
         Registry.register(Registry.ITEM, new Identifier("test", "block"), BLOCK_ITEM);
+        Registry.register(Registry.BLOCK, new Identifier("test", "block_client"), BLOCK_CLIENT);
+        Registry.register(Registry.ITEM, new Identifier("test", "block_client"), BLOCK_CLIENT_ITEM);
+        Registry.register(Registry.BLOCK, new Identifier("test", "block_player"), BLOCK_PLAYER);
+        Registry.register(Registry.ITEM, new Identifier("test", "block_player"), BLOCK_PLAYER_ITEM);
         Registry.register(Registry.BLOCK, new Identifier("test", "block_fence"), BLOCK_FENCE);
         Registry.register(Registry.ITEM, new Identifier("test", "block_fence"), BLOCK_FENCE_ITEM);
         Registry.register(Registry.BLOCK, new Identifier("test", "block2"), BLOCK_2);
@@ -261,5 +272,10 @@ public class TestMod implements ModInitializer {
         var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
         System.out.println(id);
         System.out.println(Block.STATE_IDS.get(id));
+    }
+
+    @Override
+    public void onInitializeClient() {
+
     }
 }

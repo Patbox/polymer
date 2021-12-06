@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.block.packet;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,7 +28,7 @@ public class BlockEventS2CPacketMixin {
     private void polymer_replaceBlockClient(CallbackInfoReturnable<Block> cir) {
         if (ClientUtils.isSingleplayer() && this.polymer_oldBlock == null && this.block instanceof PolymerBlock virtualBlock) {
             this.polymer_oldBlock = this.block;
-            this.block = PolymerBlockUtils.getBlockSafely(virtualBlock, this.polymer_oldBlock.getDefaultState());
+            this.block = PolymerBlockUtils.getBlockSafely(virtualBlock, this.polymer_oldBlock.getDefaultState(), PolymerUtils.getPlayer());
         }
     }
 
@@ -35,7 +36,7 @@ public class BlockEventS2CPacketMixin {
     private void polymer_replaceBlock(PacketByteBuf byteBuf, CallbackInfo ci) {
         if (polymer_oldBlock == null && this.block instanceof PolymerBlock virtualBlock) {
             this.polymer_oldBlock = block;
-            this.block = PolymerBlockUtils.getBlockSafely(virtualBlock, this.polymer_oldBlock.getDefaultState());
+            this.block = PolymerBlockUtils.getBlockSafely(virtualBlock, this.polymer_oldBlock.getDefaultState(), PolymerUtils.getPlayer());
         }
     }
 }

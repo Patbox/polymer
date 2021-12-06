@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.block.packet;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -23,7 +24,7 @@ public class BlockUpdateS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
-        return PolymerBlockUtils.getPolymerBlockState(state);
+        return PolymerBlockUtils.getPolymerBlockState(state, PolymerUtils.getPlayer());
     }
 
 
@@ -32,7 +33,7 @@ public class BlockUpdateS2CPacketMixin {
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
         if (this.state.getBlock() instanceof PolymerBlock virtualBlock) {
             if (this.polymer_cachedBlockState == null) {
-                this.polymer_cachedBlockState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state);
+                this.polymer_cachedBlockState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer());
             }
 
             cir.setReturnValue(this.polymer_cachedBlockState);
