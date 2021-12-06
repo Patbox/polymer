@@ -192,7 +192,7 @@ public class PolymerClientProtocolHandler {
             if (block != null && chunk instanceof ClientBlockStorageInterface storage) {
                 storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
                 if (block.realServerBlockState() != null && block.block().realServerBlock() instanceof PolymerClientDecoded) {
-                    handler.getWorld().setBlockState(pos, block.realServerBlockState());
+                    //handler.getWorld().setBlockState(pos, block.realServerBlockState());
                 }
                 PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
             }
@@ -224,7 +224,7 @@ public class PolymerClientProtocolHandler {
                         storage.polymer_setClientPolymerBlock(x, y, z, block);
 
                         if (block.realServerBlockState() != null && block.block().realServerBlock() instanceof PolymerClientDecoded) {
-                            handler.getWorld().setBlockState(blockPos, block.realServerBlockState());
+                            //handler.getWorld().setBlockState(blockPos, block.realServerBlockState());
                         }
                     }
                 }

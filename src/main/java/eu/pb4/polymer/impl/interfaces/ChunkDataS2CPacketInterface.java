@@ -6,4 +6,5 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public interface ChunkDataS2CPacketInterface {
     WorldChunk polymer_getWorldChunk();
+    boolean polymer_hasPlayerDependentBlocks();
 }

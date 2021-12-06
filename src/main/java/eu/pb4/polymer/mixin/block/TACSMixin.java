@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.impl.PolymerImplUtils;
+import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.impl.interfaces.ServerChunkManagerInterface;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,7 +32,10 @@ public class TACSMixin {
     @Inject(method = "sendChunkDataPackets", at = @At("HEAD"))
     private void polymer_catchPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
         PolymerImplUtils.playerTargetHack.set(player);
-        cachedDataPacket.setValue(null);
+        var value = cachedDataPacket.getValue();
+        if (value != null && ((ChunkDataS2CPacketInterface) value).polymer_hasPlayerDependentBlocks()) {
+            cachedDataPacket.setValue(null);
+        }
     }
 
     @Inject(method = "sendChunkDataPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;sendInitialChunkPackets(Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/network/Packet;)V"))

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,15 +21,17 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 @Mixin(DebugHud.class)
-public class DebugHudMixin {
+public abstract class DebugHudMixin {
     @Shadow private HitResult blockHit;
+
+    @Shadow protected abstract World getWorld();
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
-            if (block != ClientPolymerBlock.NONE_STATE && block.block() != null) {
+            if (block != ClientPolymerBlock.NONE_STATE && block.block() != null && block.realServerBlockState() != this.getWorld().getBlockState(blockPos)) {
                 list.add(block.block().identifier().toString());
                 for (var entry : block.states().entrySet()) {
                     list.add(entry.getKey() + ": " + switch (entry.getValue()) {

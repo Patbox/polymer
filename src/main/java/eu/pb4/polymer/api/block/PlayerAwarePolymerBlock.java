@@ -5,8 +5,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.function.Predicate;
+
 @ApiStatus.Experimental
 public interface PlayerAwarePolymerBlock extends PolymerBlock {
+    Predicate<BlockState> PLAYER_AWARE_BLOCK_STATE_PREDICATE = o -> o.getBlock() instanceof PlayerAwarePolymerBlock;
+
     /**
      * Returns block used on client for player
      *
