@@ -45,6 +45,7 @@
     "entity.ServerWorldAccessor",
     "entity.TrackedDataHandlerRegistryBlockStateMixin",
     "entity.TrackedDataHandlerRegistryMixin",
+    "item.AnvilScreenHandlerMixin",
     "item.ItemGroupMixin",
     "item.ItemStackContentMixin",
     "item.ItemStackMixin",
