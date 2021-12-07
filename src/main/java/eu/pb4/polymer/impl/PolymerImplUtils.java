@@ -32,7 +32,6 @@ public class PolymerImplUtils {
         return new Identifier(PolymerUtils.ID, path);
     }
 
-
     static {
         final String chr = "█";
         var icon = new ArrayList<MutableText>();

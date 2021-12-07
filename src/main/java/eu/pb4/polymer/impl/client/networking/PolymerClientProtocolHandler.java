@@ -2,11 +2,13 @@ package eu.pb4.polymer.impl.client.networking;
 
 import com.mojang.brigadier.StringReader;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
+import eu.pb4.polymer.api.client.PolymerClientPacketHandler;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.networking.PolymerServerPacketHandler;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -42,6 +44,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -49,6 +52,8 @@ import java.util.function.Consumer;
 @SuppressWarnings({"unused"})
 @Environment(EnvType.CLIENT)
 public class PolymerClientProtocolHandler {
+    public static final HashMap<String, PolymerClientPacketHandler> CUSTOM_PACKETS = new HashMap<>();
+
     public static void handle(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
         if (PolymerImpl.ENABLE_NETWORKING_CLIENT) {
             var version = -1;
@@ -97,7 +102,14 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.WORLD_SET_BLOCK_UPDATE -> handleSetBlock(handler, version, buf);
             case ServerPackets.WORLD_CHUNK_SECTION_UPDATE -> handleWorldSectionUpdate(handler, version, buf);
             case ServerPackets.WORLD_ENTITY -> handleEntity(handler, version, buf);
-            default -> false;
+            default -> {
+                var packetHandler = CUSTOM_PACKETS.get(packet);
+                if (packetHandler != null) {
+                    packetHandler.onPacket(handler, version, buf);
+                    yield true;
+                }
+                yield false;
+            }
         };
     }
 
@@ -191,8 +203,8 @@ public class PolymerClientProtocolHandler {
 
             if (block != null && chunk instanceof ClientBlockStorageInterface storage) {
                 storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
-                if (block.realServerBlockState() != null && block.block().realServerBlock() instanceof PolymerClientDecoded) {
-                    //handler.getWorld().setBlockState(pos, block.realServerBlockState());
+                if (block.realServerBlockState() != null && PolymerClientDecoded.checkDecode(block.block().realServerBlock())) {
+                    handler.getWorld().setBlockState(pos, block.realServerBlockState());
                 }
                 PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
             }
@@ -223,8 +235,8 @@ public class PolymerClientProtocolHandler {
                         PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(blockPos, block));
                         storage.polymer_setClientPolymerBlock(x, y, z, block);
 
-                        if (block.realServerBlockState() != null && block.block().realServerBlock() instanceof PolymerClientDecoded) {
-                            //handler.getWorld().setBlockState(blockPos, block.realServerBlockState());
+                        if (block.realServerBlockState() != null && PolymerClientDecoded.checkDecode(block.block().realServerBlock())) {
+                            handler.getWorld().setBlockState(blockPos, block.realServerBlockState());
                         }
                     }
                 }

@@ -47,7 +47,7 @@ public abstract class BlockEventS2CPacketMixin {
         if (PolymerClientUtils.isEnabled() && this.block == Blocks.AIR && index != 0) {
             var block = ClientPolymerBlock.REGISTRY.get(index);
 
-            if (block != ClientPolymerBlock.NONE && block != null && block.realServerBlock() instanceof PolymerClientDecoded) {
+            if (block != ClientPolymerBlock.NONE && block != null && PolymerClientDecoded.checkDecode(block.realServerBlock())) {
                 this.block = block.realServerBlock();
             }
         }
@@ -56,7 +56,7 @@ public abstract class BlockEventS2CPacketMixin {
 
     @Inject(method = "write", at = @At("HEAD"))
     private void polymer_replaceBlockLocal(PacketByteBuf byteBuf, CallbackInfo ci) {
-        if (polymer_oldBlock == null && this.block instanceof PolymerBlock virtualBlock && !(this.block instanceof PolymerClientDecoded)) {
+        if (polymer_oldBlock == null && this.block instanceof PolymerBlock virtualBlock && !PolymerClientDecoded.checkDecode(this.block)) {
             this.polymer_oldBlock = block;
             this.block = PolymerBlockUtils.getBlockSafely(virtualBlock, this.polymer_oldBlock.getDefaultState(), PolymerUtils.getPlayer());
         }

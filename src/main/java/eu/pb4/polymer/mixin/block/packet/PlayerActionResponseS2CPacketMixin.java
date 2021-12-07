@@ -44,7 +44,7 @@ public class PlayerActionResponseS2CPacketMixin {
         if (instance == Block.STATE_IDS && index > PolymerBlockUtils.BLOCK_STATE_OFFSET) {
             var state = InternalClientRegistry.BLOCK_STATES.get(index - PolymerBlockUtils.BLOCK_STATE_OFFSET);
 
-            if (state != null && state.realServerBlockState() != null && state.realServerBlockState().getBlock() instanceof PolymerClientDecoded) {
+            if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
                 return state.realServerBlockState();
             }
         }

@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImpl;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static eu.pb4.polymer.impl.networking.PacketUtils.buf;
+import static eu.pb4.polymer.api.networking.PolymerPacketUtils.buf;
 
 @ApiStatus.Internal
 public class PolymerServerProtocol {
@@ -137,6 +138,7 @@ public class PolymerServerProtocol {
         int version;
 
         player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_STARTED_ID, buf(0)));
+        PolymerSyncUtils.ON_SYNC_STARTED.invoke((c) -> c.accept(player));
 
         version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_CLEAR);
         if (version == 0) {
@@ -221,6 +223,7 @@ public class PolymerServerProtocol {
                 sendSync(player, ServerPackets.SYNC_ENTITY_ID, version, entries);
             }
         }
+        PolymerSyncUtils.ON_SYNC_FINISHED.invoke((c) -> c.accept(player));
 
         player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_FINISHED_ID, buf(0)));
     }

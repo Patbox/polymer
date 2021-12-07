@@ -13,7 +13,7 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
 
-import static eu.pb4.polymer.impl.networking.PacketUtils.buf;
+import static eu.pb4.polymer.api.networking.PolymerPacketUtils.buf;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)

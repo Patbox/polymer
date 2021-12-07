@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.networking;
 
+import eu.pb4.polymer.api.networking.PolymerServerPacketHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
@@ -24,8 +25,12 @@ import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.HashMap;
+
 @ApiStatus.Internal
 public class PolymerServerProtocolHandler {
+    public static final HashMap<String, PolymerServerPacketHandler> CUSTOM_PACKETS = new HashMap<>();
+
     public static void handle(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
         if (PolymerImpl.ENABLE_NETWORKING_SERVER) {
             int version = -1;
@@ -48,6 +53,12 @@ public class PolymerServerProtocolHandler {
             case ClientPackets.WORLD_PICK_BLOCK -> handlePickBlock(handler, version, buf);
             case ClientPackets.WORLD_PICK_ENTITY -> handlePickEntity(handler, version, buf);
             case ClientPackets.CHANGE_TOOLTIP -> handleTooltipChange(handler, version, buf);
+            default -> {
+                var packetHandler = CUSTOM_PACKETS.get(packet);
+                if (packetHandler != null) {
+                    packetHandler.onPacket(handler, version, buf);
+                }
+            }
         }
     }
 
@@ -113,7 +124,7 @@ public class PolymerServerProtocolHandler {
 
                 polymerHandler.polymer_setSupportedVersion(id, ServerPackets.getBestSupported(id, list.elements()));
             }
-
+            PolymerSyncUtils.ON_HANDSHAKE.invoke((c) -> c.accept(handler));
             PolymerServerProtocol.sendHandshake(handler);
         }
     }
