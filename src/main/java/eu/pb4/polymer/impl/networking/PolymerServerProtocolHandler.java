@@ -84,20 +84,7 @@ public class PolymerServerProtocolHandler {
             PolymerServerProtocol.sendSyncPackets(handler);
 
             if (handler.getPlayer() != null) {
-                var world = handler.getPlayer().getWorld();
-                int dist = ((ThreadedAnvilChunkStorageAccessor) world.getChunkManager().threadedAnvilChunkStorage).getWatchDistance();
-                int playerX = handler.player.getWatchedSection().getX();
-                int playerZ = handler.player.getWatchedSection().getZ();
-
-                for (int x = -dist; x <= dist; x++) {
-                    for (int z = -dist; z <= dist; z++) {
-                        var chunk = (WorldChunk) world.getChunk(x + playerX, z + playerZ, ChunkStatus.FULL, false);
-
-                        if (chunk != null) {
-                            PolymerServerProtocol.sendSectionUpdate(handler, chunk);
-                        }
-                    }
-                }
+                PolymerUtils.reloadWorld(handler.getPlayer());
             }
         }
     }

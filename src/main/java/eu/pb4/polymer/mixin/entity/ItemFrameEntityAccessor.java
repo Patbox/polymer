@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin;
+package eu.pb4.polymer.mixin.entity;
 
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.decoration.ItemFrameEntity;

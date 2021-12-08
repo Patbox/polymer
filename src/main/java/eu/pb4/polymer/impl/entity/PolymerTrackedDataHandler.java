@@ -3,12 +3,10 @@ package eu.pb4.polymer.impl.entity;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.mixin.ItemFrameEntityAccessor;
+import eu.pb4.polymer.mixin.entity.ItemFrameEntityAccessor;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandler;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 public interface PolymerTrackedDataHandler<T> extends TrackedDataHandler<T> {

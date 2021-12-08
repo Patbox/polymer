@@ -110,11 +110,11 @@ dependencies {
 
     modCompileOnly 'com.github.CaffeineMC:lithium-fabric:1.18.x~dev-SNAPSHOT'
 
-    modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.0'
+    modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.1'
 
     modCompileOnly "mcp.mobius.waila:wthit:fabric-3.10.1"
 
-    modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
+    //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
 
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:7.0.337"
 

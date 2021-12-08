@@ -5,6 +5,7 @@ import eu.pb4.polymer.impl.client.rendering.PolymerResourcePack;
 import eu.pb4.polymer.impl.client.compat.ReiCompatibility;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
+import io.netty.util.ResourceLeakDetector;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;

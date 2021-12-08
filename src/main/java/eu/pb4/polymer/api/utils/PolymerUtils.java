@@ -17,6 +17,9 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -103,13 +106,53 @@ public final class PolymerUtils {
      * Resends world to player. It's useful to run this after player changes resource packs
      */
     public static void reloadWorld(ServerPlayerEntity player) {
-        PolymerSyncUtils.synchronizePolymerRegistries(player.networkHandler);
-        player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
+        player.server.execute(() -> {
+            PolymerSyncUtils.synchronizePolymerRegistries(player.networkHandler);
+            player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
 
-        for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
-            var tracker = ((ThreadedAnvilChunkStorageAccessor) player.getWorld().getChunkManager().threadedAnvilChunkStorage).polymer_getEntityTrackers().get(e.getId());
-            tracker.stopTracking(player);
-            tracker.updateTrackedStatus(player);
+            var world = player.getWorld();
+            var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) player.getWorld().getChunkManager().threadedAnvilChunkStorage);
+            int dist = tacsAccess.getWatchDistance();
+            int playerX = player.getWatchedSection().getX();
+            int playerZ = player.getWatchedSection().getZ();
+
+            for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
+                var tracker = tacsAccess.polymer_getEntityTrackers().get(e.getId());
+                tracker.stopTracking(player);
+            }
+
+            var toSend = new ArrayList<WorldChunk>();
+
+            for (int x = -dist; x <= dist; x++) {
+                for (int z = -dist; z <= dist; z++) {
+                    var chunk = (WorldChunk) world.getChunk(x + playerX, z + playerZ, ChunkStatus.FULL, false);
+                    if (chunk != null) {
+                        toSend.add(chunk);
+                    }
+                }
+            }
+
+            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer_delayAction("polymer:reload/send_chunks/0", 1, () -> nestedSend(player, 0, toSend));
+
+
+
+        });
+    }
+
+    private static void nestedSend(ServerPlayerEntity player, int iteration, List<WorldChunk> chunks) {
+        var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) player.getWorld().getChunkManager().threadedAnvilChunkStorage);
+
+        var iterator = chunks.listIterator();
+        int pos = 0;
+        while (iterator.hasNext() && pos < 15) {
+            var chunk = iterator.next();
+            pos++;
+            iterator.remove();
+            tacsAccess.polymer_sendChunkDataPackets(player, new MutableObject<>(), chunk);
+        }
+        if (chunks.size() != 0) {
+            int finalIteration = iteration + 1;
+            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer_delayAction("polymer:reload/send_chunks/" + finalIteration, 1, () -> nestedSend(player, finalIteration, chunks));
         }
     }
 
