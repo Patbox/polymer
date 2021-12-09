@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
+    public static boolean STABLE = false;
     private static final Map<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectOpenHashMap<>();
 
     public static boolean ENABLED = false;
@@ -57,7 +58,7 @@ public class InternalClientRegistry {
 
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
-        if (MinecraftClient.getInstance().world != null) {
+        if (MinecraftClient.getInstance().world != null && STABLE) {
             var chunk = MinecraftClient.getInstance().world.getChunk(pos);
 
             if (chunk instanceof ClientBlockStorageInterface storage) {
@@ -69,7 +70,7 @@ public class InternalClientRegistry {
     }
 
     public static void setBlockAt(BlockPos pos, ClientPolymerBlock.State state) {
-        if (MinecraftClient.getInstance().world != null) {
+        if (MinecraftClient.getInstance().world != null && STABLE) {
             var chunk = MinecraftClient.getInstance().world.getChunk(pos);
 
             if (chunk instanceof ClientBlockStorageInterface storage) {
@@ -89,6 +90,7 @@ public class InternalClientRegistry {
         setVersion("");
         CLIENT_PROTOCOL.clear();
         SYNC_REQUESTS = 0;
+        STABLE = false;
     }
 
     public static void tick() {
@@ -96,6 +98,8 @@ public class InternalClientRegistry {
     }
 
     public static void clear() {
+        STABLE = false;
+
         BLOCKS.clear();
         BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
         ITEMS.clear();
@@ -108,11 +112,13 @@ public class InternalClientRegistry {
         for (var group : ItemGroup.GROUPS) {
             ((ClientItemGroupExtension) group).polymer_clearStacks();
         }
-
+        STABLE = true;
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
+        STABLE = false;
+
         var array = ItemGroupAccessor.getGROUPS();
 
         var list = new ArrayList<ItemGroup>();
@@ -143,6 +149,7 @@ public class InternalClientRegistry {
         }
 
         ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
+        STABLE = true;
     }
 
     public static int getProtocol(String identifier) {

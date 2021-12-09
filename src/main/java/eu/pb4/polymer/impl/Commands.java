@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
@@ -67,6 +68,11 @@ public class Commands {
                     .then(literal("reload-world")
                             .executes((ctx) -> {
                                 PolymerUtils.reloadWorld(ctx.getSource().getPlayer());
+                                return 0;
+                            }))
+                    .then(literal("run-sync")
+                            .executes((ctx) -> {
+                                PolymerSyncUtils.synchronizePolymerRegistries(ctx.getSource().getPlayer().networkHandler);
                                 return 0;
                             }))
                     .then(literal("protocol-info")

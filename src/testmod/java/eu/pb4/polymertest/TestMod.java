@@ -13,6 +13,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -51,6 +53,7 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -272,6 +275,17 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
         System.out.println(id);
         System.out.println(Block.STATE_IDS.get(id));
+
+        /*var iter = new AtomicInteger();
+        ServerTickEvents.END_SERVER_TICK.register((s) -> {
+            for (var player : s.getPlayerManager().getPlayerList()) {
+                player.sendMessage(new LiteralText(iter.toString()), true);
+                for (int i = 0; i < 30; i++) {
+                    PolymerSyncUtils.synchronizePolymerRegistries(player.networkHandler);
+                }
+                iter.incrementAndGet();
+            }
+        });*/
     }
 
     @Override

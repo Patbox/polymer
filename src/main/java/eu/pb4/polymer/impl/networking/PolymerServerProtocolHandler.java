@@ -5,7 +5,6 @@ import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
-import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -21,8 +20,6 @@ import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
@@ -66,12 +63,17 @@ public class PolymerServerProtocolHandler {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
 
         if (version == 0) {
-            polymerHandler.polymer_setAdvancedTooltip(buf.readBoolean());
-            if (polymerHandler.polymer_lastPacketUpdate(ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
-                PolymerServerProtocol.syncVanillaItemGroups(handler);
-                PolymerSyncUtils.synchronizeCreativeTabs(handler);
-                PolymerUtils.reloadInventory(handler.player);
-            }
+            var tooltip = buf.readBoolean();
+            handler.getPlayer().getServer().execute(() -> {
+                polymerHandler.polymer_setAdvancedTooltip(tooltip);
+
+                if (polymerHandler.polymer_lastPacketUpdate(ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
+
+                    PolymerServerProtocol.syncVanillaItemGroups(handler);
+                    PolymerSyncUtils.synchronizeCreativeTabs(handler);
+                    PolymerUtils.reloadInventory(handler.player);
+                }
+            });
         }
     }
 
@@ -80,12 +82,14 @@ public class PolymerServerProtocolHandler {
         var lastPacketUpdate = polymerHandler.polymer_lastPacketUpdate(ClientPackets.SYNC_REQUEST);
 
         if (version == 0 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
-            polymerHandler.polymer_savePacketTime(ClientPackets.SYNC_REQUEST);
-            PolymerServerProtocol.sendSyncPackets(handler);
+            handler.getPlayer().getServer().execute(() -> {
+                polymerHandler.polymer_savePacketTime(ClientPackets.SYNC_REQUEST);
+                PolymerServerProtocol.sendSyncPackets(handler);
 
-            if (handler.getPlayer() != null) {
-                PolymerUtils.reloadWorld(handler.getPlayer());
-            }
+                if (handler.getPlayer() != null) {
+                    PolymerUtils.reloadWorld(handler.getPlayer());
+                }
+            });
         }
     }
 
@@ -111,72 +115,46 @@ public class PolymerServerProtocolHandler {
 
                 polymerHandler.polymer_setSupportedVersion(id, ServerPackets.getBestSupported(id, list.elements()));
             }
-            PolymerSyncUtils.ON_HANDSHAKE.invoke((c) -> c.accept(handler));
-            PolymerServerProtocol.sendHandshake(handler);
+
+            handler.getPlayer().getServer().execute(() -> {
+                PolymerSyncUtils.ON_HANDSHAKE.invoke((c) -> c.accept(handler));
+                PolymerServerProtocol.sendHandshake(handler);
+            });
         }
     }
 
     private static void handlePickBlock(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version == 0) {
-            var isCreative = handler.getPlayer().isCreative();
-
             var pos = buf.readBlockPos();
             var ctr = buf.readBoolean();
 
-            if (pos.getManhattanDistance(handler.player.getBlockPos()) <= 32) {
-                BlockState blockState = handler.player.world.getBlockState(pos);
-                if (blockState.isAir()) {
-                    return;
-                }
 
-                Block block = blockState.getBlock();
-                var itemStack = block.getPickStack(handler.player.world, pos, blockState);
-                if (itemStack.isEmpty()) {
-                    return;
-                }
+            handler.getPlayer().getServer().execute(() -> {
+                var isCreative = handler.getPlayer().isCreative();
 
-                BlockEntity blockEntity = null;
-                if (isCreative && ctr && blockState.hasBlockEntity()) {
-                    blockEntity = handler.player.world.getBlockEntity(pos);
-                }
-
-
-                PlayerInventory playerInventory = handler.player.getInventory();
-                if (blockEntity != null) {
-                    addBlockEntityNbt(itemStack, blockEntity);
-                }
-
-                int i = playerInventory.getSlotWithStack(itemStack);
-                if (isCreative) {
-                    playerInventory.addPickBlock(itemStack);
-                    handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
-                } else if (i != -1) {
-                    if (PlayerInventory.isValidHotbarIndex(i)) {
-                        playerInventory.selectedSlot = i;
-                    } else {
-                        handler.player.getInventory().swapSlotWithHotbar(i);
-                        handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, playerInventory.selectedSlot, playerInventory.getStack(playerInventory.selectedSlot)));
-                        handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
+                if (pos.getManhattanDistance(handler.player.getBlockPos()) <= 32) {
+                    BlockState blockState = handler.player.world.getBlockState(pos);
+                    if (blockState.isAir()) {
+                        return;
                     }
-                    handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
-                }
-            }
-        }
-    }
 
-    private static void handlePickEntity(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
-            var isCreative = handler.getPlayer().isCreative();
+                    Block block = blockState.getBlock();
+                    var itemStack = block.getPickStack(handler.player.world, pos, blockState);
+                    if (itemStack.isEmpty()) {
+                        return;
+                    }
 
-            var id = buf.readVarInt();
+                    BlockEntity blockEntity = null;
+                    if (isCreative && ctr && blockState.hasBlockEntity()) {
+                        blockEntity = handler.player.world.getBlockEntity(pos);
+                    }
 
-            var entity = handler.player.world.getEntityById(id);
 
-            if (entity != null && entity.getPos().relativize(handler.player.getPos()).lengthSquared() < 1024) {
-                var itemStack = entity.getPickBlockStack();
-
-                if (itemStack != null && !itemStack.isEmpty()) {
                     PlayerInventory playerInventory = handler.player.getInventory();
+                    if (blockEntity != null) {
+                        addBlockEntityNbt(itemStack, blockEntity);
+                    }
+
                     int i = playerInventory.getSlotWithStack(itemStack);
                     if (isCreative) {
                         playerInventory.addPickBlock(itemStack);
@@ -192,7 +170,41 @@ public class PolymerServerProtocolHandler {
                         handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
                     }
                 }
-            }
+            });
+        }
+    }
+
+    private static void handlePickEntity(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version == 0) {
+            var isCreative = handler.getPlayer().isCreative();
+
+            var id = buf.readVarInt();
+            handler.getPlayer().getServer().execute(() -> {
+
+                var entity = handler.player.world.getEntityById(id);
+
+                if (entity != null && entity.getPos().relativize(handler.player.getPos()).lengthSquared() < 1024) {
+                    var itemStack = entity.getPickBlockStack();
+
+                    if (itemStack != null && !itemStack.isEmpty()) {
+                        PlayerInventory playerInventory = handler.player.getInventory();
+                        int i = playerInventory.getSlotWithStack(itemStack);
+                        if (isCreative) {
+                            playerInventory.addPickBlock(itemStack);
+                            handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
+                        } else if (i != -1) {
+                            if (PlayerInventory.isValidHotbarIndex(i)) {
+                                playerInventory.selectedSlot = i;
+                            } else {
+                                handler.player.getInventory().swapSlotWithHotbar(i);
+                                handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, playerInventory.selectedSlot, playerInventory.getStack(playerInventory.selectedSlot)));
+                                handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
+                            }
+                            handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
+                        }
+                    }
+                }
+            });
         }
     }
 

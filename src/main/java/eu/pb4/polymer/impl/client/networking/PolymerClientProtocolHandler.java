@@ -1,14 +1,12 @@
 package eu.pb4.polymer.impl.client.networking;
 
 import com.mojang.brigadier.StringReader;
-import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.client.PolymerClientPacketHandler;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
-import eu.pb4.polymer.api.networking.PolymerServerPacketHandler;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -73,8 +71,14 @@ public class PolymerClientProtocolHandler {
         return switch (packet) {
             case ServerPackets.HANDSHAKE -> handleHandshake(handler, version, buf);
 
-            case ServerPackets.SYNC_STARTED -> run(() -> PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN));
-            case ServerPackets.SYNC_FINISHED -> run(() -> PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN));
+            case ServerPackets.SYNC_STARTED -> run(() -> {
+                InternalClientRegistry.STABLE = false;
+                PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
+            });
+            case ServerPackets.SYNC_FINISHED -> run(() -> {
+                InternalClientRegistry.STABLE = true;
+                PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
+            });
             case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
                     (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registry.BLOCK.get(entry.identifier()))));
             case ServerPackets.SYNC_ITEM -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
@@ -152,7 +156,7 @@ public class PolymerClientProtocolHandler {
     private static boolean handleItemGroupRemove(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version == 0) {
             var id = buf.readIdentifier();
-            InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(id));
+            MinecraftClient.getInstance().execute(() -> InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(id)));
             return true;
         }
 
@@ -183,11 +187,12 @@ public class PolymerClientProtocolHandler {
         if (version == 0) {
             var id = buf.readVarInt();
             var polymerId = buf.readIdentifier();
-
-            var entity = handler.getWorld().getEntityById(id);
-            if (entity != null) {
-                ((ClientEntityExtension) entity).polymer_setId(polymerId);
-            }
+            MinecraftClient.getInstance().execute(() -> {
+                var entity = handler.getWorld().getEntityById(id);
+                if (entity != null) {
+                    ((ClientEntityExtension) entity).polymer_setId(polymerId);
+                }
+            });
             return true;
         }
         return false;
@@ -197,17 +202,16 @@ public class PolymerClientProtocolHandler {
         if (version == 0) {
             var pos = buf.readBlockPos();
             var id = buf.readVarInt();
-            var block = InternalClientRegistry.BLOCK_STATES.get(id);
+            MinecraftClient.getInstance().execute(() -> {
+                var block = InternalClientRegistry.BLOCK_STATES.get(id);
 
-            var chunk = handler.getWorld().getChunk(pos);
+                var chunk = handler.getWorld().getChunk(pos);
 
-            if (block != null && chunk instanceof ClientBlockStorageInterface storage) {
-                storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
-                if (block.realServerBlockState() != null && PolymerClientDecoded.checkDecode(block.block().realServerBlock())) {
-                    handler.getWorld().setBlockState(pos, block.realServerBlockState());
+                if (block != null && chunk instanceof ClientBlockStorageInterface storage) {
+                    storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
+                    PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
                 }
-                PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
-            }
+            });
             return true;
         }
         return false;
@@ -217,68 +221,74 @@ public class PolymerClientProtocolHandler {
         if (version == 0) {
             var sectionPos = buf.readChunkSectionPos();
             var size = buf.readVarInt();
-            var chunk = handler.getWorld().getChunk(sectionPos.getX(), sectionPos.getZ());
-            var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
 
-            if (section instanceof ClientBlockStorageInterface storage) {
+            var values = new long[size];
+
+            for (int i = 0; i < size; i++) {
+                values[i] = buf.readVarLong();
+            }
+
+            MinecraftClient.getInstance().execute(() -> {
+                var chunk = handler.getWorld().getChunk(sectionPos.getX(), sectionPos.getZ());
+                var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
                 var blockPos = new BlockPos.Mutable(0, 0, 0);
+                if (section instanceof ClientBlockStorageInterface storage) {
+                    for (var value : values) {
+                        var pos = (short) ((int) (value & 4095L));
 
-                for (int i = 0; i < size; i++) {
-                    long value = buf.readVarLong();
-                    var pos = (short) ((int) (value & 4095L));
-                    var block = InternalClientRegistry.BLOCK_STATES.get((int) (value >>> 12));
-                    if (block != null) {
-                        var x = ChunkSectionPos.unpackLocalX(pos);
-                        var y = ChunkSectionPos.unpackLocalY(pos);
-                        var z = ChunkSectionPos.unpackLocalZ(pos);
-                        blockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z);
-                        PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(blockPos, block));
-                        storage.polymer_setClientPolymerBlock(x, y, z, block);
-
-                        if (block.realServerBlockState() != null && PolymerClientDecoded.checkDecode(block.block().realServerBlock())) {
-                            handler.getWorld().setBlockState(blockPos, block.realServerBlockState());
+                        var block = InternalClientRegistry.BLOCK_STATES.get((int) (value >>> 12));
+                        if (block != null) {
+                            var x = ChunkSectionPos.unpackLocalX(pos);
+                            var y = ChunkSectionPos.unpackLocalY(pos);
+                            var z = ChunkSectionPos.unpackLocalZ(pos);
+                            blockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z);
+                            PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(blockPos, block));
+                            storage.polymer_setClientPolymerBlock(x, y, z, block);
                         }
                     }
                 }
-            }
+            });
             return true;
+
         }
         return false;
     }
 
     private static boolean handleSearchRebuild(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version == 0) {
-            var a = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TOOLTIP);
-            var b = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TAG);
+            MinecraftClient.getInstance().execute(() -> {
+                var a = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TOOLTIP);
+                var b = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TAG);
 
-            ((MutableSearchableContainer) a).polymer_removeIf((s) -> s instanceof ItemStack stack && PolymerItemUtils.getPolymerIdentifier(stack) != null);
-            ((MutableSearchableContainer) b).polymer_removeIf((s) -> s instanceof ItemStack stack && PolymerItemUtils.getPolymerIdentifier(stack) != null);
+                ((MutableSearchableContainer) a).polymer_removeIf((s) -> s instanceof ItemStack stack && PolymerItemUtils.getPolymerIdentifier(stack) != null);
+                ((MutableSearchableContainer) b).polymer_removeIf((s) -> s instanceof ItemStack stack && PolymerItemUtils.getPolymerIdentifier(stack) != null);
 
-            for (var group : ItemGroup.GROUPS) {
-                if (group == ItemGroup.SEARCH) {
-                    continue;
-                }
+                for (var group : ItemGroup.GROUPS) {
+                    if (group == ItemGroup.SEARCH) {
+                        continue;
+                    }
 
-                Collection<ItemStack> stacks;
+                    Collection<ItemStack> stacks;
 
-                if (group instanceof InternalClientItemGroup clientItemGroup) {
-                    stacks = clientItemGroup.getStacks();
-                } else {
-                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                }
+                    if (group instanceof InternalClientItemGroup clientItemGroup) {
+                        stacks = clientItemGroup.getStacks();
+                    } else {
+                        stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
+                    }
 
-                if (stacks != null) {
-                    for (var stack : stacks) {
-                        a.add(stack);
-                        b.add(stack);
+                    if (stacks != null) {
+                        for (var stack : stacks) {
+                            a.add(stack);
+                            b.add(stack);
+                        }
                     }
                 }
-            }
 
-            a.reload();
-            b.reload();
+                a.reload();
+                b.reload();
 
-            PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
+                PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
+            });
             return true;
         }
         return false;
@@ -297,18 +307,20 @@ public class PolymerClientProtocolHandler {
                 stacks.add(buf.readItemStack());
             }
 
-            var array = ItemGroupAccessor.getGROUPS();
+            MinecraftClient.getInstance().execute(() -> {
+                var array = ItemGroupAccessor.getGROUPS();
 
-            var newArray = new ItemGroup[array.length + 1];
+                var newArray = new ItemGroup[array.length + 1];
 
-            if (array.length >= 0) {
-                System.arraycopy(array, 0, newArray, 0, array.length);
-            }
+                if (array.length >= 0) {
+                    System.arraycopy(array, 0, newArray, 0, array.length);
+                }
 
-            ItemGroupAccessor.setGROUPS(newArray);
+                ItemGroupAccessor.setGROUPS(newArray);
 
-            var group = new InternalClientItemGroup(array.length, id, id.toString(), name, icon, stacks);
-            InternalClientRegistry.ITEM_GROUPS.set(id, group);
+                var group = new InternalClientItemGroup(array.length, id, id.toString(), name, icon, stacks);
+                InternalClientRegistry.ITEM_GROUPS.set(id, group);
+            });
 
             return true;
         }
@@ -334,9 +346,11 @@ public class PolymerClientProtocolHandler {
                 InternalClientRegistry.CLIENT_PROTOCOL.put(id, ClientPackets.getBestSupported(id, list.elements()));
             }
 
-            PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
-            PolymerClientProtocol.sendTooltipContext(handler);
-            PolymerClientProtocol.sendSyncRequest(handler);
+            MinecraftClient.getInstance().execute(() -> {
+                PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
+                PolymerClientProtocol.sendTooltipContext(handler);
+                PolymerClientProtocol.sendSyncRequest(handler);
+            });
 
             return true;
         }
@@ -347,13 +361,19 @@ public class PolymerClientProtocolHandler {
     private static <T> boolean handleGenericSync(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf, EntryReader<T> reader, Consumer<T> entryConsumer) {
         var size = buf.readVarInt();
 
+        var list = new ArrayList<T>();
         for (int i = 0; i < size; i++) {
             var entry = reader.read(buf, version);
             if (entry != null) {
-                entryConsumer.accept(entry);
+                list.add(entry);
             }
         }
 
+        MinecraftClient.getInstance().execute(() -> {
+            for (var entry : list) {
+                entryConsumer.accept(entry);
+            }
+        });
         return true;
     }
 

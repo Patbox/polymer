@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "eu.pb4.polymer.mixin.PolymerMixinConfigPlugin",
   "mixins": [
-    "entity.ItemFrameEntityAccessor",
+    "CustomPayloadS2CPacketAccessor",
     "block.AbstractBlockMixin",
     "block.BlockEntityUpdateS2CPacketAccessor",
     "block.ServerChunkManagerMixin",
@@ -39,6 +39,7 @@
     "entity.EntitySpawnS2CPacketMixin",
     "entity.EntityTrackerEntryMixin",
     "entity.EntityTrackerUpdateS2CPacketMixin",
+    "entity.ItemFrameEntityAccessor",
     "entity.LivingEntityMixin",
     "entity.MobSpawnS2CPacketMixin",
     "entity.PlayerSpawnS2CPacketAccessor",

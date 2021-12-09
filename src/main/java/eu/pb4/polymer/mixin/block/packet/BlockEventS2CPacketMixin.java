@@ -11,33 +11,31 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.DefaultedRegistry;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BlockEventS2CPacket.class)
 public abstract class BlockEventS2CPacketMixin {
-    @Shadow @Mutable
+    @Shadow
+    @Mutable
     private Block block;
 
-    @Shadow public abstract Block getBlock();
-
-    @Unique private Block polymer_oldBlock = null;
+    @Shadow
+    public abstract Block getBlock();
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getBlock", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceBlockClient(CallbackInfoReturnable<Block> cir) {
-        if (ClientUtils.isSingleplayer() && this.polymer_oldBlock == null && this.block instanceof PolymerBlock virtualBlock) {
-            this.polymer_oldBlock = this.block;
-            this.block = PolymerBlockUtils.getBlockSafely(virtualBlock, this.polymer_oldBlock.getDefaultState(), PolymerUtils.getPlayer());
+        if (ClientUtils.isSingleplayer() && this.block instanceof PolymerBlock virtualBlock) {
+            cir.setReturnValue(PolymerBlockUtils.getBlockSafely(virtualBlock, this.block.getDefaultState(), PolymerUtils.getPlayer()));
         }
     }
 
@@ -54,11 +52,11 @@ public abstract class BlockEventS2CPacketMixin {
         return instance.get(index);
     }
 
-    @Inject(method = "write", at = @At("HEAD"))
-    private void polymer_replaceBlockLocal(PacketByteBuf byteBuf, CallbackInfo ci) {
-        if (polymer_oldBlock == null && this.block instanceof PolymerBlock virtualBlock && !PolymerClientDecoded.checkDecode(this.block)) {
-            this.polymer_oldBlock = block;
-            this.block = PolymerBlockUtils.getBlockSafely(virtualBlock, this.polymer_oldBlock.getDefaultState(), PolymerUtils.getPlayer());
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;getRawId(Ljava/lang/Object;)I"))
+    private Object polymer_replaceBlockLocal(Object block) {
+        if (block instanceof PolymerBlock virtualBlock) {
+            return PolymerBlockUtils.getBlockSafely(virtualBlock, ((Block) block).getDefaultState(), PolymerUtils.getPlayer());
         }
+        return block;
     }
 }

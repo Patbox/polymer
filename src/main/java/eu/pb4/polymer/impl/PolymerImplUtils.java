@@ -12,6 +12,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import javax.imageio.ImageIO;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
@@ -36,7 +37,7 @@ public class PolymerImplUtils {
         final String chr = "█";
         var icon = new ArrayList<MutableText>();
         try {
-            var source = ImageIO.read(PolymerImpl.getJarPath("assets/icon_ingame.png").toFile());
+            var source = ImageIO.read(PolymerImpl.getJarPath("assets/icon_ingame.png").toUri().toURL());
 
             for (int y = 0; y < source.getHeight(); y++) {
                 var base = new LiteralText("");
@@ -58,6 +59,7 @@ public class PolymerImplUtils {
                 icon.add(base);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             icon.add(new LiteralText("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));
         }
 

@@ -28,7 +28,7 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
-        if (this.blockHit.getType() == HitResult.Type.BLOCK) {
+        if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.ENABLED && InternalClientRegistry.STABLE) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
             if (block != ClientPolymerBlock.NONE_STATE && block.block() != null && block.realServerBlockState() != this.getWorld().getBlockState(blockPos)) {

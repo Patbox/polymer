@@ -1,9 +1,11 @@
 package eu.pb4.polymer.impl.client.networking;
 
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.ServerPackets;
+import eu.pb4.polymer.impl.other.EventRunners;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -46,6 +48,7 @@ public class PolymerClientProtocol {
         if (InternalClientRegistry.ENABLED) {
             InternalClientRegistry.delayAction(ClientPackets.SYNC_REQUEST, 200, () -> {
                 InternalClientRegistry.SYNC_REQUESTS++;
+                PolymerClientUtils.ON_SYNC_REQUEST.invoke(EventRunners.RUN);
                 handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.SYNC_REQUEST_ID, buf(0)));
             });
         }

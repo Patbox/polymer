@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.client;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
+import eu.pb4.polymer.mixin.CustomPayloadS2CPacketAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -22,10 +23,12 @@ public class ClientPlayNetworkHandlerMixin {
         PolymerClientProtocol.sendHandshake((ClientPlayNetworkHandler) (Object) this);
     }
 
-    @Inject(method = "onCustomPayload", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"), cancellable = true)
+    @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
     private void polymer_catchPackets(CustomPayloadS2CPacket packet, CallbackInfo ci) {
         if (packet.getChannel().getNamespace().equals(PolymerUtils.ID)) {
-            PolymerClientProtocolHandler.handle((ClientPlayNetworkHandler) (Object) this, packet.getChannel(), packet.getData());
+            var buf = ((CustomPayloadS2CPacketAccessor) packet).polymer_getData();
+            PolymerClientProtocolHandler.handle((ClientPlayNetworkHandler) (Object) this, packet.getChannel(), buf);
+            buf.release();
             ci.cancel();
         }
     }

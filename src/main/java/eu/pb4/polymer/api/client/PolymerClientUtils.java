@@ -55,7 +55,11 @@ public final class PolymerClientUtils {
      */
     public static final SimpleEvent<Runnable> ON_SEARCH_REBUILD = new SimpleEvent<>();
     /**
-     * This event ir run after receiving an Polymer block update
+     * This event is before client asks for sync request
+     */
+    public static final SimpleEvent<Runnable> ON_SYNC_REQUEST = new SimpleEvent<>();
+    /**
+     * This event is run after receiving an Polymer block update
      */
     public static final SimpleEvent<BiConsumer<BlockPos, ClientPolymerBlock.State>> ON_BLOCK_UPDATE = new SimpleEvent<>();
 
