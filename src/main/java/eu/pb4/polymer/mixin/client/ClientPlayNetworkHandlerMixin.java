@@ -3,7 +3,7 @@ package eu.pb4.polymer.mixin.client;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
-import eu.pb4.polymer.mixin.CustomPayloadS2CPacketAccessor;
+import eu.pb4.polymer.mixin.other.CustomPayloadS2CPacketAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

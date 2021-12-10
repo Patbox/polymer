@@ -14,9 +14,7 @@ import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -37,7 +35,7 @@ import java.util.function.Predicate;
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
     public static boolean STABLE = false;
-    private static final Map<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectOpenHashMap<>();
+    private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
 
     public static boolean ENABLED = false;
     public static int SYNC_REQUESTS = 0;
@@ -94,7 +92,7 @@ public class InternalClientRegistry {
     }
 
     public static void tick() {
-        DELAYED_ACTIONS.entrySet().removeIf(e -> e.getValue().tryDoing());
+        DELAYED_ACTIONS.object2ObjectEntrySet().removeIf(e -> e.getValue().tryDoing());
     }
 
     public static void clear() {

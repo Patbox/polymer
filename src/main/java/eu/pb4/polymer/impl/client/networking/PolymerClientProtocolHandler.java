@@ -202,16 +202,17 @@ public class PolymerClientProtocolHandler {
         if (version == 0) {
             var pos = buf.readBlockPos();
             var id = buf.readVarInt();
-            MinecraftClient.getInstance().execute(() -> {
-                var block = InternalClientRegistry.BLOCK_STATES.get(id);
+            var block = InternalClientRegistry.BLOCK_STATES.get(id);
+            if (block != null) {
+                MinecraftClient.getInstance().execute(() -> {
+                    var chunk = handler.getWorld().getChunk(pos);
 
-                var chunk = handler.getWorld().getChunk(pos);
-
-                if (block != null && chunk instanceof ClientBlockStorageInterface storage) {
-                    storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
-                    PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
-                }
-            });
+                    if (chunk instanceof ClientBlockStorageInterface storage) {
+                        storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
+                        PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
+                    }
+                });
+            }
             return true;
         }
         return false;
@@ -222,28 +223,32 @@ public class PolymerClientProtocolHandler {
             var sectionPos = buf.readChunkSectionPos();
             var size = buf.readVarInt();
 
-            var values = new long[size];
+            var blockPos = new short[size];
+            var states = new ClientPolymerBlock.State[size];
 
             for (int i = 0; i < size; i++) {
-                values[i] = buf.readVarLong();
+                var value = buf.readVarLong();
+                blockPos[i] = (short) ((int) (value & 4095L));
+                states[i] = InternalClientRegistry.BLOCK_STATES.get((int) (value >>> 12));
             }
 
             MinecraftClient.getInstance().execute(() -> {
                 var chunk = handler.getWorld().getChunk(sectionPos.getX(), sectionPos.getZ());
-                var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
-                var blockPos = new BlockPos.Mutable(0, 0, 0);
-                if (section instanceof ClientBlockStorageInterface storage) {
-                    for (var value : values) {
-                        var pos = (short) ((int) (value & 4095L));
-
-                        var block = InternalClientRegistry.BLOCK_STATES.get((int) (value >>> 12));
-                        if (block != null) {
-                            var x = ChunkSectionPos.unpackLocalX(pos);
-                            var y = ChunkSectionPos.unpackLocalY(pos);
-                            var z = ChunkSectionPos.unpackLocalZ(pos);
-                            blockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z);
-                            PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(blockPos, block));
-                            storage.polymer_setClientPolymerBlock(x, y, z, block);
+                if (chunk != null) {
+                    var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
+                    if (section instanceof ClientBlockStorageInterface storage) {
+                        var mutableBlockPos = new BlockPos.Mutable(0, 0, 0);
+                        for (int i = 0; i < size; i++) {
+                            var pos = blockPos[i];
+                            var block = states[i];
+                            if (block != null) {
+                                var x = ChunkSectionPos.unpackLocalX(pos);
+                                var y = ChunkSectionPos.unpackLocalY(pos);
+                                var z = ChunkSectionPos.unpackLocalZ(pos);
+                                mutableBlockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z);
+                                PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(mutableBlockPos, block));
+                                storage.polymer_setClientPolymerBlock(x, y, z, block);
+                            }
                         }
                     }
                 }

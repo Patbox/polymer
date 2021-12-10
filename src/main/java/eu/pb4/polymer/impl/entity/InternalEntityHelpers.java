@@ -1,7 +1,8 @@
-package eu.pb4.polymer.impl.other;
+package eu.pb4.polymer.impl.entity;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.entity.FakeEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -48,8 +49,10 @@ public class InternalEntityHelpers {
             try {
                 entity = type.create(eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);
             } catch (Exception e) {
-                PolymerImpl.LOGGER.warn(String.format("Couldn't create template entity of %s (%s)... Defaulting to empty", Registry.ENTITY_TYPE.getId(type), type.getBaseClass().toString()));
-                PolymerImpl.LOGGER.warn(e);
+                if (PolymerImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
+                    PolymerImpl.LOGGER.warn(String.format("Couldn't create template entity of %s (%s)... Defaulting to empty", Registry.ENTITY_TYPE.getId(type), type.getBaseClass().toString()));
+                    PolymerImpl.LOGGER.warn(e);
+                }
                 entity = FakeEntity.INSTANCE;
             }
             EXAMPLE_ENTITIES.put(type, entity);

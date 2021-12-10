@@ -3,7 +3,7 @@ package eu.pb4.polymer.mixin.entity;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
-import eu.pb4.polymer.impl.other.InternalEntityHelpers;
+import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;

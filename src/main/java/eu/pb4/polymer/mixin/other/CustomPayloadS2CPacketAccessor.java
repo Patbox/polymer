@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin;
+package eu.pb4.polymer.mixin.other;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;

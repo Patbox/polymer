@@ -15,7 +15,7 @@ import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.packets.*;
-import eu.pb4.polymer.impl.other.InternalEntityHelpers;
+import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;

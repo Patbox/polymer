@@ -4,4 +4,5 @@ public class ClientConfig {
     public boolean forceResourcePackByDefault = false;
     public boolean enableNetworkSync = true;
     public boolean useAlternativeArmorRenderer = false;
+    public boolean displayF3Info = true;
 }

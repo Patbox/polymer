@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "eu.pb4.polymer.mixin.PolymerMixinConfigPlugin",
   "mixins": [
-    "CustomPayloadS2CPacketAccessor",
+    "other.CustomPayloadS2CPacketAccessor",
+    "other.PalettedContainerAccessor",
     "block.AbstractBlockMixin",
     "block.BlockEntityUpdateS2CPacketAccessor",
     "block.ServerChunkManagerMixin",

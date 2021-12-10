@@ -1,6 +1,6 @@
 package eu.pb4.polymer.api.entity;
 
-import eu.pb4.polymer.impl.other.InternalEntityHelpers;
+import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;

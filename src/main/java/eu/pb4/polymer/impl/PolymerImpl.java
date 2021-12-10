@@ -8,7 +8,6 @@ import eu.pb4.polymer.impl.compat.CompatStatus;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,9 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.List;
 
 public final class PolymerImpl {
+
     private PolymerImpl() {
     }
 
@@ -48,7 +47,9 @@ public final class PolymerImpl {
     public static final boolean FORCE_RESOURCE_PACK_CLIENT;
     public static final boolean FORCE_RESOURCE_PACK_SERVER;
     public static final boolean FORCE_CUSTOM_MODEL_DATA_OFFSET;
+    public static final boolean ENABLE_TEMPLATE_ENTITY_WARNINGS;
     public static final int CORE_COMMAND_MINIMAL_OP;
+    public static final boolean CLIENT_DISPLAY_DEBUG_INFO;
 
     static {
         var list = new ArrayList<String>();
@@ -62,21 +63,24 @@ public final class PolymerImpl {
         CONTRIBUTORS = list.toArray(new String[0]);
 
 
-        ENABLE_NETWORKING_SERVER = PolymerImpl.SERVER_CONFIG.enableNetworkSync;
+        ENABLE_NETWORKING_SERVER = SERVER_CONFIG.enableNetworkSync;
+        ENABLE_TEMPLATE_ENTITY_WARNINGS = SERVER_CONFIG.enableTemplateEntityWarnings;
         DEVELOPER_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || SERVER_CONFIG.enableDevUtils;
-        FORCE_RESOURCE_PACK_SERVER = SERVER_CONFIG.markResourcePackAsForceByDefault;
+        FORCE_RESOURCE_PACK_SERVER = SERVER_CONFIG.markResourcePackAsForcedByDefault;
         FORCE_CUSTOM_MODEL_DATA_OFFSET = SERVER_CONFIG.forcePackOffset || CompatStatus.POLYMC;
         CORE_COMMAND_MINIMAL_OP = SERVER_CONFIG.coreCommandOperatorLevel;
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            var clientConfig = PolymerImpl.loadConfig("client", ClientConfig.class);
+            var clientConfig = loadConfig("client", ClientConfig.class);
             USE_ALT_ARMOR_HANDLER = CompatStatus.REQUIRE_ALT_ARMOR_HANDLER || clientConfig.useAlternativeArmorRenderer;
             ENABLE_NETWORKING_CLIENT = clientConfig.enableNetworkSync;
             FORCE_RESOURCE_PACK_CLIENT = clientConfig.forceResourcePackByDefault;
+            CLIENT_DISPLAY_DEBUG_INFO = clientConfig.displayF3Info;
         } else {
             USE_ALT_ARMOR_HANDLER = false;
             ENABLE_NETWORKING_CLIENT = false;
             FORCE_RESOURCE_PACK_CLIENT = false;
+            CLIENT_DISPLAY_DEBUG_INFO = false;
         }
     }
 

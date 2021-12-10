@@ -1,4 +1,4 @@
-package eu.pb4.polymer.impl.other;
+package eu.pb4.polymer.impl.entity;
 
 import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.entity.Entity;

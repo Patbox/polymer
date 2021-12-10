@@ -2,6 +2,7 @@ package eu.pb4.polymer.impl.other;
 
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
+import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -13,28 +14,77 @@ import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.tag.TagManager;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.OverworldBiomeCreator;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
+import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.QueryableTickScheduler;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @ApiStatus.Internal
-class FakeWorld extends World {
+public final class FakeWorld extends World {
     public static final World INSTANCE;
     static final Scoreboard SCOREBOARD = new Scoreboard();
+    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.create();
+    static final Biome BIOME = OverworldBiomeCreator.createTheVoid();
+    static final RecipeManager RECIPE_MANAGER = new RecipeManager();
+    static final ChunkManager CHUNK_MANAGER = new ChunkManager() {
+        @Nullable
+        @Override
+        public Chunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
+            return null;
+        }
+
+        @Override
+        public void tick(BooleanSupplier booleanSupplier) {
+
+        }
+
+        @Override
+        public String getDebugString() {
+            return "Potato";
+        }
+
+        @Override
+        public int getLoadedChunkCount() {
+            return 0;
+        }
+
+        @Override
+        public LightingProvider getLightingProvider() {
+            return null;
+        }
+
+        @Override
+        public BlockView getWorld() {
+            return INSTANCE;
+        }
+    };
 
     static {
         try {
@@ -44,6 +94,62 @@ class FakeWorld extends World {
             throw e1;
         }
     }
+
+    private static EntityLookup<Entity> ENTITY_LOOKUP = new EntityLookup<>() {
+        @Nullable
+        @Override
+        public Entity get(int id) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public Entity get(UUID uuid) {
+            return null;
+        }
+
+        @Override
+        public Iterable<Entity> iterate() {
+            return () -> ObjectIterators.emptyIterator();
+        }
+
+        @Override
+        public <U extends Entity> void forEach(TypeFilter<Entity, U> filter, Consumer<U> action) {
+
+        }
+
+        @Override
+        public void forEachIntersects(Box box, Consumer<Entity> action) {
+
+        }
+
+        @Override
+        public <U extends Entity> void forEachIntersects(TypeFilter<Entity, U> filter, Box box, Consumer<U> action) {
+
+        }
+    };
+
+    private static QueryableTickScheduler<?> FAKE_SCHEDULER = new QueryableTickScheduler<Object>() {
+        @Override
+        public boolean isTicking(BlockPos pos, Object type) {
+            return false;
+        }
+
+        @Override
+        public void scheduleTick(OrderedTick<Object> orderedTick) {
+
+        }
+
+        @Override
+        public boolean isQueued(BlockPos pos, Object type) {
+            return false;
+        }
+
+        @Override
+        public int getTickCount() {
+            return 0;
+        }
+    };
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed);
@@ -103,7 +209,7 @@ class FakeWorld extends World {
 
     @Override
     public RecipeManager getRecipeManager() {
-        return null;
+        return RECIPE_MANAGER;
     }
 
     @Override
@@ -113,22 +219,22 @@ class FakeWorld extends World {
 
     @Override
     protected EntityLookup<Entity> getEntityLookup() {
-        return null;
+        return ENTITY_LOOKUP;
     }
 
     @Override
     public QueryableTickScheduler<Block> getBlockTickScheduler() {
-        return null;
+        return (QueryableTickScheduler<Block>) FAKE_SCHEDULER;
     }
 
     @Override
     public QueryableTickScheduler<Fluid> getFluidTickScheduler() {
-        return null;
+        return (QueryableTickScheduler<Fluid>) FAKE_SCHEDULER;
     }
 
     @Override
     public ChunkManager getChunkManager() {
-        return null;
+        return CHUNK_MANAGER;
     }
 
     @Override
@@ -143,7 +249,7 @@ class FakeWorld extends World {
 
     @Override
     public DynamicRegistryManager getRegistryManager() {
-        return null;
+        return REGISTRY_MANAGER;
     }
 
     @Override
@@ -153,12 +259,12 @@ class FakeWorld extends World {
 
     @Override
     public List<? extends PlayerEntity> getPlayers() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public Biome getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return null;
+        return BIOME;
     }
 
 

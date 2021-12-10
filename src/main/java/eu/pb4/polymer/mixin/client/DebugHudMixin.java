@@ -5,11 +5,13 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,14 +26,15 @@ import java.util.List;
 public abstract class DebugHudMixin {
     @Shadow private HitResult blockHit;
 
-    @Shadow protected abstract World getWorld();
+    @Shadow @Final private MinecraftClient client;
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.ENABLED && InternalClientRegistry.STABLE) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
-            if (block != ClientPolymerBlock.NONE_STATE && block.block() != null && block.realServerBlockState() != this.getWorld().getBlockState(blockPos)) {
+            var worldState = this.client.world.getBlockState(blockPos);
+            if (block != ClientPolymerBlock.NONE_STATE && block.realServerBlockState() != worldState) {
                 list.add(block.block().identifier().toString());
                 for (var entry : block.states().entrySet()) {
                     list.add(entry.getKey() + ": " + switch (entry.getValue()) {
@@ -42,18 +45,17 @@ public abstract class DebugHudMixin {
                 }
                 list.add("");
                 list.add(Formatting.UNDERLINE + "Targeted Client Block: " + blockPos.getX() + ", " + blockPos.getY() + ", " + blockPos.getZ());
-
             }
         }
     }
 
     @Inject(method = "getLeftText", at = @At("RETURN"))
     private void polymer_debugText(CallbackInfoReturnable<List<String>> cir) {
-        var list = cir.getReturnValue();
+        if (InternalClientRegistry.ENABLED && PolymerImpl.CLIENT_DISPLAY_DEBUG_INFO) {
+            var list = cir.getReturnValue();
 
-        if (InternalClientRegistry.ENABLED) {
-            list.add(String.format("[Polymer] C: %s, S: %s", PolymerImpl.VERSION, InternalClientRegistry.SERVER_VERSION));
-            list.add(String.format("[Polymer] I: %s, IG: %s, B: %s, BS: %s, E: %s", InternalClientRegistry.ITEMS.size(), InternalClientRegistry.ITEM_GROUPS.size(), InternalClientRegistry.BLOCKS.size(), InternalClientRegistry.BLOCK_STATES.size(), InternalClientRegistry.ENTITY_TYPE.size()));
+            list.add("[Polymer] C: " + PolymerImpl.VERSION + ", S: " + InternalClientRegistry.SERVER_VERSION);
+            list.add("[Polymer] I: " + InternalClientRegistry.ITEMS.size() + ", IG: " + InternalClientRegistry.ITEM_GROUPS.size() + ", B: " + InternalClientRegistry.BLOCKS.size() + ", BS: " + InternalClientRegistry.BLOCK_STATES.size() + ", E: " + InternalClientRegistry.ENTITY_TYPE.size());
         }
     }
 }

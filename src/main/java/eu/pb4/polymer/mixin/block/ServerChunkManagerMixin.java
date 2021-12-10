@@ -67,11 +67,15 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
                     if (System.currentTimeMillis() - time > 100) {
                         BitSet bitSet = new BitSet();
-                        bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
+                        int i = this.lightingProvider.getBottomY();
+                        int j = this.lightingProvider.getTopY();
+                        int y = pos.getSectionY();
+                        if (y >= i && y <= j) {
+                            bitSet.set(y - i);
+                        }
                         Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
                         List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false);
                         if (players.size() > 0) {
-                            this.polymer_lastUpdates.put(pos, System.currentTimeMillis());
                             for (ServerPlayerEntity player : players) {
                                 player.networkHandler.sendPacket(packet);
                             }

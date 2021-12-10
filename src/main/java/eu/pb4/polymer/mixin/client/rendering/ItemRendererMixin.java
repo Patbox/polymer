@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Environment(EnvType.CLIENT)
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {
-    @ModifyVariable(method = {"renderGuiItemModel", "renderInGui", "renderGuiItemIcon", "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;IILnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"}, at = @At("HEAD"), require = 0)
+    @ModifyVariable(method = {"renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V"}, at = @At("HEAD"), require = 0)
     private ItemStack polymer_replaceItemStack(ItemStack stack) {
         return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getPlayer()) : stack;
     }
