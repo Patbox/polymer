@@ -37,12 +37,8 @@ public class BlockUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
     private Object polymer_replaceState(IdList instance, int index) {
-        if (instance == Block.STATE_IDS && index > PolymerBlockUtils.BLOCK_STATE_OFFSET) {
-            var state = InternalClientRegistry.BLOCK_STATES.get(index - PolymerBlockUtils.BLOCK_STATE_OFFSET);
-
-            if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
-                return state.realServerBlockState();
-            }
+        if (instance == Block.STATE_IDS && index >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
+            return InternalClientRegistry.getRealBlockState(index - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1);
         }
 
         return instance.get(index);
@@ -52,7 +48,7 @@ public class BlockUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getState", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
-        if (this.state.getBlock() instanceof PolymerBlock virtualBlock) {
+        if (this.state.getBlock() instanceof PolymerBlock virtualBlock && !(this.state.getBlock() instanceof PolymerClientDecoded)) {
             if (this.polymer_cachedBlockState == null) {
                 this.polymer_cachedBlockState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer());
             }

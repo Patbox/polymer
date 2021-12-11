@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(value = {ArrayPalette.class, BiMapPalette.class}, priority = 500)
 public abstract class BlockPaletteMixin {
 
-    @ModifyArg(method = {"writePacket", "getPacketSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
+    @ModifyArg(method = { "writePacket", "getPacketSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
             return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerImplUtils.playerTargetHack.get());
@@ -28,16 +28,12 @@ public abstract class BlockPaletteMixin {
     }
 
     @Environment(EnvType.CLIENT)
-    @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;get(I)Ljava/lang/Object;"))
+    @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getOrThrow(I)Ljava/lang/Object;"))
     private Object polymer_replaceState(IndexedIterable<?> instance, int i) {
-        if (instance == Block.STATE_IDS && i > PolymerBlockUtils.BLOCK_STATE_OFFSET) {
-            var state = InternalClientRegistry.BLOCK_STATES.get(i - PolymerBlockUtils.BLOCK_STATE_OFFSET);
-
-            if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
-                return state.realServerBlockState();
-            }
+        if (instance == Block.STATE_IDS && i >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
+            return InternalClientRegistry.getRealBlockState(i - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1);
         }
 
-        return instance.get(i);
+        return instance.getOrThrow(i);
     }
 }

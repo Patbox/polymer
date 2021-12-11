@@ -39,7 +39,7 @@
   ],
 
   "depends": {
-    "minecraft": "1.18.x",
+    "minecraft": ">=1.18.1 <1.19",
     "fabricloader": ">=0.12.0"
   },
   "custom": {

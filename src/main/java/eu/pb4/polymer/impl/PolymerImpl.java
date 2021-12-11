@@ -2,7 +2,6 @@ package eu.pb4.polymer.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientConfig;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import net.fabricmc.api.EnvType;

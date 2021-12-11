@@ -1,5 +1,7 @@
 package eu.pb4.polymer.impl.client;
 
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
@@ -17,6 +19,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.item.ItemGroup;
@@ -89,6 +93,16 @@ public class InternalClientRegistry {
         CLIENT_PROTOCOL.clear();
         SYNC_REQUESTS = 0;
         STABLE = false;
+    }
+
+    public static BlockState getRealBlockState(int rawPolymerId) {
+        var state = InternalClientRegistry.BLOCK_STATES.get(rawPolymerId);
+
+        if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
+            return state.realServerBlockState();
+        }
+
+        return Blocks.AIR.getDefaultState();
     }
 
     public static void tick() {

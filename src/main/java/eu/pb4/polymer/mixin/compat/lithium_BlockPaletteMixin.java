@@ -27,16 +27,12 @@ public class lithium_BlockPaletteMixin {
     }
 
     @Environment(EnvType.CLIENT)
-    @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;get(I)Ljava/lang/Object;"))
-    private Object polymer_replaceState(IndexedIterable<?> instance, int i) {
-        if (instance == Block.STATE_IDS && i > PolymerBlockUtils.BLOCK_STATE_OFFSET) {
-            var state = InternalClientRegistry.BLOCK_STATES.get(i - PolymerBlockUtils.BLOCK_STATE_OFFSET);
-
-            if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
-                return state.realServerBlockState();
-            }
+    @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;get(I)Ljava/lang/Object;"), require = 0)
+    private Object polymer_replaceState(IndexedIterable<?> instance, int index) {
+        if (instance == Block.STATE_IDS && index >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
+            return InternalClientRegistry.getRealBlockState(index - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1);
         }
 
-        return instance.get(i);
+        return instance.get(index);
     }
 }

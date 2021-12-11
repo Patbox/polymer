@@ -34,22 +34,9 @@ public abstract class BlockEventS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getBlock", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceBlockClient(CallbackInfoReturnable<Block> cir) {
-        if (ClientUtils.isSingleplayer() && this.block instanceof PolymerBlock virtualBlock) {
+        if (ClientUtils.isSingleplayer() && this.block instanceof PolymerBlock virtualBlock && !(this.block instanceof PolymerClientDecoded)) {
             cir.setReturnValue(PolymerBlockUtils.getBlockSafely(virtualBlock, this.block.getDefaultState(), PolymerUtils.getPlayer()));
         }
-    }
-
-    @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;get(I)Ljava/lang/Object;"))
-    private Object polymer_replaceBlockNetworking(DefaultedRegistry instance, int index) {
-        if (PolymerClientUtils.isEnabled() && this.block == Blocks.AIR && index != 0) {
-            var block = ClientPolymerBlock.REGISTRY.get(index);
-
-            if (block != ClientPolymerBlock.NONE && block != null && PolymerClientDecoded.checkDecode(block.realServerBlock())) {
-                this.block = block.realServerBlock();
-            }
-        }
-        return instance.get(index);
     }
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;getRawId(Ljava/lang/Object;)I"))

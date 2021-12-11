@@ -22,31 +22,21 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerActionResponseS2CPacket.class)
-public class PlayerActionResponseS2CPacketMixin {
+public abstract class PlayerActionResponseS2CPacketMixin {
     @Shadow @Final private BlockState state;
 
-    @Unique BlockState polymer_cachedBlockState = null;
+    @Shadow public abstract BlockState state();
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
-        if (state.getBlock() instanceof PolymerBlock virtualBlock) {
-            if (this.polymer_cachedBlockState == null) {
-                this.polymer_cachedBlockState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer());
-            }
-            return this.polymer_cachedBlockState;
-        }
-        return state;
+        return PolymerBlockUtils.getPolymerBlockState(state(), PolymerUtils.getPlayer());
     }
 
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
     private static Object polymer_replaceState(IdList instance, int index) {
-        if (instance == Block.STATE_IDS && index > PolymerBlockUtils.BLOCK_STATE_OFFSET) {
-            var state = InternalClientRegistry.BLOCK_STATES.get(index - PolymerBlockUtils.BLOCK_STATE_OFFSET);
-
-            if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
-                return state.realServerBlockState();
-            }
+        if (index >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
+            return InternalClientRegistry.getRealBlockState(index - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1);
         }
 
         return instance.get(index);
@@ -55,11 +45,8 @@ public class PlayerActionResponseS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "state", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
-        if (this.state.getBlock() instanceof PolymerBlock virtualBlock) {
-            if (this.polymer_cachedBlockState == null) {
-                this.polymer_cachedBlockState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer());
-            }
-            cir.setReturnValue(this.polymer_cachedBlockState);
+        if (this.state.getBlock() instanceof PolymerBlock virtualBlock && !PolymerClientDecoded.checkDecode(virtualBlock)) {
+            cir.setReturnValue(PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer()));
         }
     }
 }

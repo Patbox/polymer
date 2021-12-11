@@ -61,7 +61,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 this.finishMining(pos, PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, "destroyed");
 
                 if (!(state.getBlock() instanceof AbstractFireBlock)) {
-                    this.world.syncWorldEvent(2001, pos, Block.getRawIdFromState(state.getBlock() instanceof PolymerBlock virtualBlock ? PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, this.player) : state));
+                    this.world.syncWorldEvent(2001, pos, Block.getRawIdFromState(state));
                 }
 
             }

@@ -24,11 +24,21 @@ public abstract class WorldChunkMixin extends Chunk implements ClientBlockStorag
 
     @Override
     public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {
-        ((ClientBlockStorageInterface) this.getSection(this.getSectionIndex(y))).polymer_setClientPolymerBlock(x, y, z, block);
+        var section = this.getSection(this.getSectionIndex(y));
+
+        if (section != null && !section.isEmpty()) {
+            ((ClientBlockStorageInterface) section).polymer_setClientPolymerBlock(x, y, z, block);
+        }
     }
 
     @Override
     public ClientPolymerBlock.State polymer_getClientPolymerBlock(int x, int y, int z) {
-        return ((ClientBlockStorageInterface) this.getSection(this.getSectionIndex(y))).polymer_getClientPolymerBlock(x, y, z);
+        var section = this.getSection(this.getSectionIndex(y));
+
+        if (section != null && !section.isEmpty()) {
+            return ((ClientBlockStorageInterface) section).polymer_getClientPolymerBlock(x, y, z);
+        }
+
+        return ClientPolymerBlock.NONE_STATE;
     }
 }

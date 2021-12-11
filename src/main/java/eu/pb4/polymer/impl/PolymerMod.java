@@ -11,6 +11,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 
+import net.minecraft.world.chunk.PalettedContainer;
 import org.jetbrains.annotations.ApiStatus;
 
 

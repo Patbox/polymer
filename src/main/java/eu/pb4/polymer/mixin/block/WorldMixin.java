@@ -1,6 +1,5 @@
 package eu.pb4.polymer.mixin.block;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.world.World;

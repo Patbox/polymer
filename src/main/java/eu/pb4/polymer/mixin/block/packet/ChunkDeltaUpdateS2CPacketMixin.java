@@ -32,12 +32,8 @@ public class ChunkDeltaUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
     private Object polymer_replaceState(IdList instance, int index) {
-        if (instance == Block.STATE_IDS && index > PolymerBlockUtils.BLOCK_STATE_OFFSET) {
-            var state = InternalClientRegistry.BLOCK_STATES.get(index - PolymerBlockUtils.BLOCK_STATE_OFFSET);
-
-            if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
-                return state.realServerBlockState();
-            }
+        if (instance == Block.STATE_IDS && index >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
+            return InternalClientRegistry.getRealBlockState(index - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1);
         }
 
         return instance.get(index);
