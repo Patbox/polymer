@@ -59,7 +59,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
     @Inject(method = "tickChunks", at = @At("TAIL"))
     private void polymer_sendChunkUpdates(CallbackInfo ci) {
-        this.mainThreadExecutor.execute(() -> {
+        this.world.getServer().execute(() -> {
             if (this.polymer_lastUpdates.size() != 0) {
                 for (var entry : new ArrayList<>(this.polymer_lastUpdates.object2LongEntrySet())) {
                     var pos = entry.getKey();
@@ -89,8 +89,8 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
     @Inject(method = "onLightUpdate", at = @At("TAIL"))
     private void polymer_scheduleChunkUpdates(LightType type, ChunkSectionPos pos, CallbackInfo ci) {
-        if (type == LightType.BLOCK && this.world.getServer().getPlayerManager().getCurrentPlayerCount() > 0) {
-            this.mainThreadExecutor.execute(() -> {
+        if (type == LightType.BLOCK) {
+            this.world.getServer().execute(() -> {
                 boolean sendUpdate = false;
                 boolean safeHasPolymer = false;
                 int tooLow = pos.getSectionY() * 16 - 16;
@@ -98,7 +98,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
                 for (int x = -1; x <= 1; x++) {
                     for (int z = -1; z <= 1; z++) {
-                        WorldChunk chunk = this.getWorldChunk(pos.getX() + x, pos.getZ() + z);
+                        var chunk = this.getWorldChunk(pos.getX() + x, pos.getZ() + z);
                         if (chunk != null) {
                             if (!safeHasPolymer) {
                                 for (int y = -1; y <= 1; y++) {

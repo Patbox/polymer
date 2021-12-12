@@ -27,6 +27,6 @@ public class TestClientBlock extends Block implements PlayerAwarePolymerBlock, P
 
     @Override
     public BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state) {
-        return player.getServer().isHost(player.getGameProfile()) ? state : Blocks.DIAMOND_BLOCK.getDefaultState();
+        return state;
     }
 }

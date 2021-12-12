@@ -21,6 +21,7 @@ import static eu.pb4.polymer.impl.PolymerImplUtils.id;
 
 @ApiStatus.Internal
 public record PolymerItemEntry(
+        int numId,
         Identifier identifier,
         String itemGroup,
         ItemStack representation,
@@ -33,11 +34,15 @@ public record PolymerItemEntry(
 
     public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         if (version > -1) {
+            if (version >= 2) {
+                buf.writeVarInt(this.numId);
+            }
+
             buf.writeIdentifier(identifier);
             buf.writeString(itemGroup);
             buf.writeItemStack(ServerTranslationUtils.parseFor(handler, representation));
 
-            if (version > 0) {
+            if (version >= 1) {
                 buf.writeVarInt(foodLevels);
                 buf.writeFloat(saturation);
                 buf.writeIdentifier(miningTool);
@@ -59,6 +64,7 @@ public record PolymerItemEntry(
         var food = item.getFoodComponent();
 
         return new PolymerItemEntry(
+                Item.getRawId(item),
                 Registry.ITEM.getId(item),
                 groupIdentifier,
                 PolymerItemUtils.getPolymerItemStack(item.getDefaultStack(), handler.player),
@@ -71,8 +77,9 @@ public record PolymerItemEntry(
 
     public static PolymerItemEntry read(PacketByteBuf buf, int version) {
         return switch (version) {
-            case 0 -> new PolymerItemEntry(buf.readIdentifier(), buf.readString(), buf.readItemStack(), 0, 0, NOT_TOOL, 0);
-            case 1 -> new PolymerItemEntry(buf.readIdentifier(), buf.readString(), buf.readItemStack(), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
+            case 0 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), buf.readItemStack(), 0, 0, NOT_TOOL, 0);
+            case 1 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), buf.readItemStack(), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
+            case 2 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), buf.readItemStack(), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
             default -> null;
         };
     }

@@ -62,6 +62,10 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     }
 
     public void set(Identifier identifier, int rawId, T entry) {
+        if (rawId == -1) {
+            rawId = this.currentId;
+        }
+
         this.entryMap.put(identifier, entry);
         this.identifierMap.put(entry, identifier);
         this.rawIdMap.put(rawId, entry);

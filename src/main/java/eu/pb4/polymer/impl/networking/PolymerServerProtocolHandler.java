@@ -68,7 +68,6 @@ public class PolymerServerProtocolHandler {
                 polymerHandler.polymer_setAdvancedTooltip(tooltip);
 
                 if (polymerHandler.polymer_lastPacketUpdate(ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
-
                     PolymerServerProtocol.syncVanillaItemGroups(handler);
                     PolymerSyncUtils.synchronizeCreativeTabs(handler);
                     PolymerUtils.reloadInventory(handler.player);

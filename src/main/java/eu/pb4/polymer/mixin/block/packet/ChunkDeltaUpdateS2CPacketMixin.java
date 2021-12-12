@@ -1,6 +1,5 @@
 package eu.pb4.polymer.mixin.block.packet;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -26,13 +25,16 @@ public class ChunkDeltaUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @ModifyArg(method = "visitUpdates", at = @At(value = "INVOKE", target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer_replaceBlockStateOnClient(Object state) {
-        return PolymerBlockUtils.getPolymerBlockState((BlockState) state, PolymerUtils.getPlayer());
+        if (!PolymerClientDecoded.checkDecode(state)) {
+            return PolymerBlockUtils.getPolymerBlockState((BlockState) state, PolymerUtils.getPlayer());
+        }
+        return state;
     }
 
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
     private Object polymer_replaceState(IdList instance, int index) {
-        if (instance == Block.STATE_IDS && index >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
+        if (index >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
             return InternalClientRegistry.getRealBlockState(index - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1);
         }
 

@@ -8,6 +8,7 @@ import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
@@ -34,7 +35,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import static eu.pb4.polymer.api.networking.PolymerPacketUtils.buf;
@@ -234,29 +234,7 @@ public class PolymerServerProtocol {
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP);
 
         if (version != -1) {
-            var list = new HashSet<PolymerItemGroup>();
-
-            for (var group : InternalServerRegistry.ITEM_GROUPS) {
-                if (group.shouldSyncWithPolymerClient(handler.player)) {
-                    list.add(group);
-                }
-            }
-
-            var sync = new PolymerItemGroup.ItemGroupListBuilder() {
-                @Override
-                public void add(PolymerItemGroup group) {
-                    list.add(group);
-                }
-
-                @Override
-                public void remove(PolymerItemGroup group) {
-                    list.remove(group);
-                }
-            };
-
-            PolymerItemGroup.LIST_EVENT.invoke((x) -> x.onItemGroupSync(handler.player, sync));
-
-            for (var group : list) {
+            for (var group : PolymerUtils.getItemGroups(handler.getPlayer())) {
                 syncItemGroup(group, handler);
             }
         }

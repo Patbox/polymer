@@ -9,7 +9,6 @@
     "block.BlockEntityUpdateS2CPacketAccessor",
     "block.ServerChunkManagerMixin",
     "block.TACSMixin",
-    "block.WorldMixin",
     "block.packet.BlockEventS2CPacketMixin",
     "block.packet.BlockPaletteMixin",
     "block.packet.BlockUpdateS2CPacketAccessor",

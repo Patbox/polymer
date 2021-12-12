@@ -117,7 +117,7 @@ public final class PolymerRPUtils {
      * @return True if player has a server resourcepack
      */
     public static boolean hasPack(@Nullable ServerPlayerEntity player) {
-        return player != null && ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded()));
+        return player != null && (((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded())));
     }
 
     /**

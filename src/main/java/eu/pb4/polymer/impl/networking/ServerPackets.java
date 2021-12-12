@@ -74,7 +74,7 @@ public class ServerPackets {
         register(SYNC_FINISHED, 0);
         register(SYNC_BLOCK, 0);
         register(SYNC_BLOCKSTATE, 0);
-        register(SYNC_ITEM, 0, 1);
+        register(SYNC_ITEM, 0, 1, 2);
         register(SYNC_ITEM_GROUP, 0);
         register(SYNC_ITEM_GROUP_CLEAR, 0);
         register(SYNC_ITEM_GROUP_REMOVE, 0);

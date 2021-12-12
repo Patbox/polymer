@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -174,7 +175,7 @@ public final class PolymerUtils {
      * Returns list of ItemGroups accessible by player
      */
     public static List<PolymerItemGroup> getItemGroups(ServerPlayerEntity player) {
-        var list = new ArrayList<PolymerItemGroup>();
+        var list = new LinkedHashSet<PolymerItemGroup>();
 
         for (var group : InternalServerRegistry.ITEM_GROUPS) {
             if (group.shouldSyncWithPolymerClient(player)) {
@@ -196,7 +197,7 @@ public final class PolymerUtils {
 
         PolymerItemGroup.LIST_EVENT.invoke((x) -> x.onItemGroupSync(player, sync));
 
-        return list;
+        return new ArrayList<>(list);
     }
 
     /**

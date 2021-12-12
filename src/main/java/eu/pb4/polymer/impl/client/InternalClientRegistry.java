@@ -39,6 +39,7 @@ import java.util.function.Predicate;
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
     public static boolean STABLE = false;
+    public static boolean ITEMS_MATCH = false;
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
 
     public static boolean ENABLED = false;
@@ -93,6 +94,7 @@ public class InternalClientRegistry {
         CLIENT_PROTOCOL.clear();
         SYNC_REQUESTS = 0;
         STABLE = false;
+        ITEMS_MATCH = false;
     }
 
     public static BlockState getRealBlockState(int rawPolymerId) {
