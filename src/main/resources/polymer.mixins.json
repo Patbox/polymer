@@ -62,7 +62,10 @@
     "other.IdListMixin",
     "other.ItemGroupAccessor",
     "other.PalettedContainerAccessor",
+    "other.PlayerManagerMixin",
     "other.RemoveEntityStatusEffectS2CPacketMixin",
+    "other.ServerLoginNetworkHandlerMixin",
+    "other.ServerPlayerEntityMixin",
     "other.ServerPlayNetworkHandlerMixin",
     "other.StatisticsS2CPacketMixin",
     "other.TagGroupMixin"

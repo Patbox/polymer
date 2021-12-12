@@ -1,11 +1,14 @@
 package eu.pb4.polymer.impl.networking;
 
+import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.api.networking.PolymerServerPacketHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -45,7 +48,7 @@ public class PolymerServerProtocolHandler {
 
     private static void handle(ServerPlayNetworkHandler handler, String packet, int version, PacketByteBuf buf) {
         switch (packet) {
-            case ClientPackets.HANDSHAKE -> handleHandshake(handler, version, buf);
+            case ClientPackets.HANDSHAKE -> handleHandshake(PolymerHandshakeHandler.of(handler), version, buf);
             case ClientPackets.SYNC_REQUEST -> handleSyncRequest(handler, version, buf);
             case ClientPackets.WORLD_PICK_BLOCK -> handlePickBlock(handler, version, buf);
             case ClientPackets.WORLD_PICK_ENTITY -> handlePickEntity(handler, version, buf);
@@ -85,20 +88,18 @@ public class PolymerServerProtocolHandler {
                 polymerHandler.polymer_savePacketTime(ClientPackets.SYNC_REQUEST);
                 PolymerServerProtocol.sendSyncPackets(handler);
 
-                if (handler.getPlayer() != null) {
+                if (handler.getPlayer() != null && ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_getWorldReload()) {
+                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_setWorldReload(false);
                     PolymerUtils.reloadWorld(handler.getPlayer());
                 }
             });
         }
     }
 
-    private static void handleHandshake(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
-
-        if (version == 0 && !polymerHandler.polymer_hasPolymer()) {
-            polymerHandler.polymer_savePacketTime(ClientPackets.HANDSHAKE);
-
-            polymerHandler.polymer_setVersion(buf.readString(64));
+    public static void handleHandshake(PolymerHandshakeHandler handler, int version, PacketByteBuf buf) {
+        if (version == 0 && !handler.isPolymer()) {
+            var polymerVersion = buf.readString(64);
+            var versionMap = new Object2IntOpenHashMap<String>();
 
             var size = buf.readVarInt();
 
@@ -112,10 +113,17 @@ public class PolymerServerProtocolHandler {
                     list.add(buf.readVarInt());
                 }
 
-                polymerHandler.polymer_setSupportedVersion(id, ServerPackets.getBestSupported(id, list.elements()));
+                versionMap.put(id, ServerPackets.getBestSupported(id, list.elements()));
             }
 
-            handler.getPlayer().getServer().execute(() -> {
+            handler.getServer().execute(() -> {
+                handler.set(polymerVersion, versionMap);
+                handler.setLastPacketTime(ClientPackets.HANDSHAKE);
+
+                if (handler.getPlayer() != null) {
+                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_setWorldReload(handler.shouldUpdateWorld());
+                }
+
                 PolymerSyncUtils.ON_HANDSHAKE.invoke((c) -> c.accept(handler));
                 PolymerServerProtocol.sendHandshake(handler);
             });

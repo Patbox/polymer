@@ -17,7 +17,7 @@ public final class PolymerSyncUtils {
     /**
      * This event is run after receiving client handshake
      */
-    public static final SimpleEvent<Consumer<ServerPlayNetworkHandler>> ON_HANDSHAKE = new SimpleEvent<>();
+    public static final SimpleEvent<Consumer<PolymerHandshakeHandler>> ON_HANDSHAKE = new SimpleEvent<>();
     /**
      * This event ir run before Polymer registry sync
      */

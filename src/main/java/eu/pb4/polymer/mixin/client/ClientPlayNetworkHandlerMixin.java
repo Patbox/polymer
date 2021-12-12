@@ -3,12 +3,14 @@ package eu.pb4.polymer.mixin.client;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
+import eu.pb4.polymer.impl.networking.PolymerHandshakeHandlerImplLogin;
 import eu.pb4.polymer.mixin.other.CustomPayloadS2CPacketAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.network.packet.s2c.play.KeepAliveS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,6 +32,13 @@ public class ClientPlayNetworkHandlerMixin {
             PolymerClientProtocolHandler.handle((ClientPlayNetworkHandler) (Object) this, packet.getChannel(), buf);
             buf.release();
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "onKeepAlive", at = @At("HEAD"))
+    private void polymer_handleHackfest(KeepAliveS2CPacket packet, CallbackInfo ci) {
+        if (packet.getId() == PolymerHandshakeHandlerImplLogin.MAGIC_VALUE) {
+            PolymerClientProtocol.sendHandshake((ClientPlayNetworkHandler) (Object) this);
         }
     }
 }

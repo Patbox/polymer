@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -41,7 +42,7 @@ import static eu.pb4.polymer.api.networking.PolymerPacketUtils.buf;
 
 @ApiStatus.Internal
 public class PolymerServerProtocol {
-    public static void sendHandshake(ServerPlayNetworkHandler handler) {
+    public static void sendHandshake(PolymerHandshakeHandler handler) {
         var buf = buf(0);
 
         buf.writeString(PolymerImpl.VERSION);

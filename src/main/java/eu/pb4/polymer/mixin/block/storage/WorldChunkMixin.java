@@ -42,7 +42,9 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
             at = @At("TAIL")
     )
     private void polymer_polymerBlocksInit(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler blockTickScheduler, ChunkTickScheduler fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
-        this.polymer_generatePolymerBlockSet();
+        if (world instanceof ServerWorld) {
+            this.polymer_generatePolymerBlockSet();
+        }
     }
 
 
