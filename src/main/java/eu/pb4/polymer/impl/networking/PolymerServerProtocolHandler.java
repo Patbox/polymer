@@ -86,7 +86,7 @@ public class PolymerServerProtocolHandler {
         if (version == 0 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
             handler.getPlayer().getServer().execute(() -> {
                 polymerHandler.polymer_savePacketTime(ClientPackets.SYNC_REQUEST);
-                PolymerServerProtocol.sendSyncPackets(handler);
+                PolymerServerProtocol.sendSyncPackets(handler, true);
 
                 if (handler.getPlayer() != null && ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_getWorldReload()) {
                     ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_setWorldReload(false);

@@ -41,4 +41,9 @@ public abstract class WorldChunkMixin extends Chunk implements ClientBlockStorag
 
         return ClientPolymerBlock.NONE_STATE;
     }
+
+    @Override
+    public boolean polymer_hasClientPalette() {
+        return true;
+    }
 }

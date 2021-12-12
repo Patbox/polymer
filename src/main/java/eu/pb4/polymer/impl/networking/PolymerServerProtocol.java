@@ -130,7 +130,7 @@ public class PolymerServerProtocol {
     }
 
 
-    public static void sendSyncPackets(ServerPlayNetworkHandler player) {
+    public static void sendSyncPackets(ServerPlayNetworkHandler player, boolean fullSync) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
 
         if (!polymerHandler.polymer_hasPolymer()) {
@@ -166,10 +166,11 @@ public class PolymerServerProtocol {
             }
         }
 
-
-        for (var group : InternalServerRegistry.ITEM_GROUPS) {
-            if (group.shouldSyncWithPolymerClient(player.player)) {
-                syncItemGroup(group, player);
+        if (fullSync) {
+            for (var group : InternalServerRegistry.ITEM_GROUPS) {
+                if (group.shouldSyncWithPolymerClient(player.player)) {
+                    syncItemGroup(group, player);
+                }
             }
         }
 
@@ -224,6 +225,9 @@ public class PolymerServerProtocol {
                 sendSync(player, ServerPackets.SYNC_ENTITY_ID, version, entries);
             }
         }
+
+        PolymerSyncUtils.ON_SYNC_CUSTOM.invoke((c) -> c.accept(player, fullSync));
+
         PolymerSyncUtils.ON_SYNC_FINISHED.invoke((c) -> c.accept(player));
 
         player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_FINISHED_ID, buf(0)));

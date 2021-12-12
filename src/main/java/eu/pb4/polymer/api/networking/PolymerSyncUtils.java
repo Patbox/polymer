@@ -8,6 +8,7 @@ import eu.pb4.polymer.impl.networking.ServerPackets;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class PolymerSyncUtils {
@@ -19,11 +20,15 @@ public final class PolymerSyncUtils {
      */
     public static final SimpleEvent<Consumer<PolymerHandshakeHandler>> ON_HANDSHAKE = new SimpleEvent<>();
     /**
-     * This event ir run before Polymer registry sync
+     * This event is run before Polymer registry sync
      */
     public static final SimpleEvent<Consumer<ServerPlayNetworkHandler>> ON_SYNC_STARTED = new SimpleEvent<>();
     /**
-     * This event ir run after Polymer registry sync
+     * This event is run when it's suggested to sync custom content
+     */
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> ON_SYNC_CUSTOM = new SimpleEvent<>();
+    /**
+     * This event is run after Polymer registry sync
      */
     public static final SimpleEvent<Consumer<ServerPlayNetworkHandler>> ON_SYNC_FINISHED = new SimpleEvent<>();
 
@@ -32,7 +37,7 @@ public final class PolymerSyncUtils {
      * Resends synchronization packets to player if their client supports that
      */
     public static void synchronizePolymerRegistries(ServerPlayNetworkHandler handler) {
-        PolymerServerProtocol.sendSyncPackets(handler);
+        PolymerServerProtocol.sendSyncPackets(handler, true);
     }
 
     /**

@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -46,7 +47,7 @@ public abstract class PlayerActionResponseS2CPacketMixin {
     @Inject(method = "state", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
         if (this.state.getBlock() instanceof PolymerBlock virtualBlock && !PolymerClientDecoded.checkDecode(virtualBlock)) {
-            cir.setReturnValue(PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer()));
+            cir.setReturnValue(PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, ClientUtils.getPlayer()));
         }
     }
 }

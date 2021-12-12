@@ -92,7 +92,7 @@ public final class PolymerRPUtils {
      * Allows to check if there are any provided resources
      */
     public static boolean shouldGenerate() {
-        return ITEMS.values().size() > 0 || MOD_IDS.size() > 0;
+        return ITEMS.values().size() > 0 || MOD_IDS.size() > 0 || ARMOR_MODEL_MAP.size() > 0;
     }
 
     /**

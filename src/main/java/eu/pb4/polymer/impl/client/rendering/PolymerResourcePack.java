@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class PolymerResourcePack extends ZipResourcePack {
-    public static boolean GENERATED = false;
+    public static boolean generated = false;
 
     private PolymerResourcePack(File file) {
         super(file);
@@ -34,8 +34,8 @@ public class PolymerResourcePack extends ZipResourcePack {
     @Nullable
     public static PolymerResourcePack setup() {
         Path outputPath = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip");
-        if ((outputPath.toFile().exists() && GENERATED) || PolymerRPUtils.build(outputPath)) {
-            GENERATED = true;
+        if ((outputPath.toFile().exists() && generated) || PolymerRPUtils.build(outputPath)) {
+            generated = true;
             return new PolymerResourcePack(outputPath.toFile());
         } else {
             return null;
@@ -45,8 +45,9 @@ public class PolymerResourcePack extends ZipResourcePack {
     public static class Provider implements ResourcePackProvider {
         @Override
         public void register(Consumer<ResourcePackProfile> profileAdder, ResourcePackProfile.Factory factory) {
-            ResourcePack pack = PolymerResourcePack.setup();
             if (PolymerRPUtils.shouldGenerate()) {
+                ResourcePack pack = PolymerResourcePack.setup();
+
                 if (pack != null) {
                     profileAdder.accept(factory.create(pack.getName(),
                             new TranslatableText("text.polymer.resource_pack.name"),

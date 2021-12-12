@@ -73,6 +73,10 @@ public class PolymerClientProtocolHandler {
         return switch (packet) {
             case ServerPackets.HANDSHAKE -> handleHandshake(handler, version, buf);
 
+            case ServerPackets.WORLD_SET_BLOCK_UPDATE -> handleSetBlock(handler, version, buf);
+            case ServerPackets.WORLD_CHUNK_SECTION_UPDATE -> handleWorldSectionUpdate(handler, version, buf);
+            case ServerPackets.WORLD_ENTITY -> handleEntity(handler, version, buf);
+
             case ServerPackets.SYNC_STARTED -> run(() -> {
                 InternalClientRegistry.STABLE = false;
                 PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
@@ -106,9 +110,6 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.SYNC_REBUILD_SEARCH -> handleSearchRebuild(handler, version, buf);
             case ServerPackets.SYNC_CLEAR -> run(InternalClientRegistry::clear);
 
-            case ServerPackets.WORLD_SET_BLOCK_UPDATE -> handleSetBlock(handler, version, buf);
-            case ServerPackets.WORLD_CHUNK_SECTION_UPDATE -> handleWorldSectionUpdate(handler, version, buf);
-            case ServerPackets.WORLD_ENTITY -> handleEntity(handler, version, buf);
             default -> {
                 var packetHandler = CUSTOM_PACKETS.get(packet);
                 if (packetHandler != null) {
@@ -245,11 +246,12 @@ public class PolymerClientProtocolHandler {
                 if (chunk != null) {
                     var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
                     if (section instanceof ClientBlockStorageInterface storage) {
+                        boolean hasPalette = storage.polymer_hasClientPalette();
                         var mutableBlockPos = new BlockPos.Mutable(0, 0, 0);
                         for (int i = 0; i < size; i++) {
                             var pos = blockPos[i];
                             var block = states[i];
-                            if (block != null) {
+                            if (block != null && (hasPalette || block != ClientPolymerBlock.NONE_STATE)) {
                                 var x = ChunkSectionPos.unpackLocalX(pos);
                                 var y = ChunkSectionPos.unpackLocalY(pos);
                                 var z = ChunkSectionPos.unpackLocalZ(pos);

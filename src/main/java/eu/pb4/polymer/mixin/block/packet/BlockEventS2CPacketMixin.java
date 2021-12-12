@@ -35,7 +35,7 @@ public abstract class BlockEventS2CPacketMixin {
     @Inject(method = "getBlock", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceBlockClient(CallbackInfoReturnable<Block> cir) {
         if (ClientUtils.isSingleplayer() && this.block instanceof PolymerBlock virtualBlock && !(this.block instanceof PolymerClientDecoded)) {
-            cir.setReturnValue(PolymerBlockUtils.getBlockSafely(virtualBlock, this.block.getDefaultState(), PolymerUtils.getPlayer()));
+            cir.setReturnValue(PolymerBlockUtils.getBlockSafely(virtualBlock, this.block.getDefaultState(), ClientUtils.getPlayer()));
         }
     }
 

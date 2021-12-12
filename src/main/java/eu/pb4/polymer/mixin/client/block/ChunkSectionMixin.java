@@ -27,7 +27,7 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Unique
     private PalettedContainerAccessor<ClientPolymerBlock.State> polymer_accessor;
 
-    @Inject(method = "<init>(ILnet/minecraft/util/registry/Registry;)V", at = @At("TAIL"))
+    /*@Inject(method = "<init>(ILnet/minecraft/util/registry/Registry;)V", at = @At("TAIL"))
     private void polymer_init(int chunkPos, Registry biomeRegistry, CallbackInfo ci) {
         this.polymer_createContainers();
     }
@@ -35,7 +35,7 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/world/chunk/PalettedContainer;)V", at = @At("TAIL"))
     private void polymer_init2(int chunkPos, PalettedContainer blockStateContainer, PalettedContainer biomeContainer, CallbackInfo ci) {
         this.polymer_createContainers();
-    }
+    }*/
 
 
     private void polymer_createContainers() {
@@ -45,11 +45,23 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
 
     @Override
     public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {
+        if (this.polymer_container == null) {
+            if (block == ClientPolymerBlock.NONE_STATE) {
+                return;
+            }
+
+            this.polymer_createContainers();
+        }
         this.polymer_accessor.polymer_set(this.polymer_accessor.polymer_paletteProvider().computeIndex(x & 15, y & 15, z & 15), block);
     }
 
     @Override
     public ClientPolymerBlock.State polymer_getClientPolymerBlock(int x, int y, int z) {
-        return this.polymer_container.get(x & 15, y & 15, z & 15);
+        return this.polymer_container != null ? this.polymer_container.get(x & 15, y & 15, z & 15) : ClientPolymerBlock.NONE_STATE;
+    }
+
+    @Override
+    public boolean polymer_hasClientPalette() {
+        return this.polymer_container != null;
     }
 }

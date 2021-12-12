@@ -10,4 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
 public interface ClientBlockStorageInterface {
     void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block);
     ClientPolymerBlock.State polymer_getClientPolymerBlock(int x, int y, int z);
+
+    boolean polymer_hasClientPalette();
 }

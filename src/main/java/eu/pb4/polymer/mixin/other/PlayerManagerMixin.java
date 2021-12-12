@@ -18,7 +18,7 @@ public class PlayerManagerMixin {
 
         if (handshake != null) {
             handshake.apply(handler);
-            PolymerServerProtocol.sendSyncPackets(handler);
+            PolymerServerProtocol.sendSyncPackets(handler, false);
         }
 
         return handler;
