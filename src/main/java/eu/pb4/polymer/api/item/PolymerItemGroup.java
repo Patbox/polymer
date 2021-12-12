@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerRegistry;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.InternalServerRegistry;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -71,13 +72,11 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
      * Sets icon of ItemGroup
      */
     public PolymerItemGroup setIcon(ItemStack stack) {
-        this.icon = stack.copy();
-        var text = this.getDisplayName().shallowCopy();
-
-        if (!text.getStyle().isItalic()) {
-            text.setStyle(text.getStyle().withItalic(false));
+        if (stack.isEmpty()) {
+            this.icon = PolymerImplUtils.getNoTextureItem().copy();
+        } else {
+            this.icon = stack.copy();
         }
-        this.icon.setCustomName(text);
         return this;
     }
 

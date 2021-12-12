@@ -13,4 +13,6 @@ public class ServerConfig {
     public boolean enableTemplateEntityWarnings = true;
     public String _c6 = "Enables Polymer dev tools on non-development server";
     public boolean enableDevUtils = false;
+    public String _c7 = "Displays vanilla/modded creatives tabs in /polymer creative";
+    public boolean displayNonPolymerCreativeTabs = true;
 }

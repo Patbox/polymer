@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.ui;
 
 import eu.pb4.polymer.api.item.PolymerItemGroup;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -9,11 +10,11 @@ import net.minecraft.util.collection.DefaultedList;
 public class CreativeTabUi extends MicroUi {
     private static final int ITEMS_PER_PAGE = 45;
 
-    private final PolymerItemGroup itemGroup;
+    private final ItemGroup itemGroup;
     private final DefaultedList<ItemStack> items;
     private int page;
 
-    public CreativeTabUi(ServerPlayerEntity player, PolymerItemGroup itemGroup) {
+    public CreativeTabUi(ServerPlayerEntity player, ItemGroup itemGroup) {
         super(6);
         this.title(itemGroup.getDisplayName());
         this.itemGroup = itemGroup;
@@ -54,7 +55,7 @@ public class CreativeTabUi extends MicroUi {
 
         this.slot(ITEMS_PER_PAGE + 2, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 3, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
-        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
+        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_BACK, (player, slotIndex, button, actionType) -> new CreativeTabListUi(player));
         this.slot(ITEMS_PER_PAGE + 5, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 6, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         if (this.page >= this.items.size() / ITEMS_PER_PAGE) {

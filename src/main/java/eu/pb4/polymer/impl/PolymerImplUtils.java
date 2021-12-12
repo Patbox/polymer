@@ -3,6 +3,8 @@ package eu.pb4.polymer.impl;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -19,6 +21,7 @@ import java.util.function.Predicate;
 public class PolymerImplUtils {
     public static final Text[] ICON;
     public static ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
+    private static ItemStack NO_TEXTURE;
 
 
     public static Predicate<ServerCommandSource> permission(String path, int operatorLevel) {
@@ -31,6 +34,15 @@ public class PolymerImplUtils {
 
     public static Identifier id(String path) {
         return new Identifier(PolymerUtils.ID, path);
+    }
+
+    public static ItemStack getNoTextureItem() {
+        if (NO_TEXTURE == null) {
+            NO_TEXTURE = Items.PLAYER_HEAD.getDefaultStack();
+            NO_TEXTURE.getOrCreateNbt().put("SkullOwner", PolymerUtils.createSkullOwner(PolymerUtils.NO_TEXTURE_HEAD_VALUE));
+            NO_TEXTURE.setCustomName(LiteralText.EMPTY);
+        }
+        return NO_TEXTURE;
     }
 
     static {
