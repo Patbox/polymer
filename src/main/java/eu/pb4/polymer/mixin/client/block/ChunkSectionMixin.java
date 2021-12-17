@@ -6,7 +6,9 @@ import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.mixin.other.PalettedContainerAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,15 +29,15 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Unique
     private PalettedContainerAccessor<ClientPolymerBlock.State> polymer_accessor;
 
-    /*@Inject(method = "<init>(ILnet/minecraft/util/registry/Registry;)V", at = @At("TAIL"))
-    private void polymer_init(int chunkPos, Registry biomeRegistry, CallbackInfo ci) {
+    @Inject(method = "<init>(ILnet/minecraft/util/registry/Registry;)V", at = @At("TAIL"))
+    private void polymer_init(int chunkPos, Registry<Biome> biomeRegistry, CallbackInfo ci) {
         this.polymer_createContainers();
     }
 
     @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/world/chunk/PalettedContainer;)V", at = @At("TAIL"))
-    private void polymer_init2(int chunkPos, PalettedContainer blockStateContainer, PalettedContainer biomeContainer, CallbackInfo ci) {
+    private void polymer_init2(int chunkPos, PalettedContainer<BlockState> blockStateContainer, PalettedContainer<Biome> biomeContainer, CallbackInfo ci) {
         this.polymer_createContainers();
-    }*/
+    }
 
 
     private void polymer_createContainers() {
@@ -45,19 +47,12 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
 
     @Override
     public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {
-        if (this.polymer_container == null) {
-            if (block == ClientPolymerBlock.NONE_STATE) {
-                return;
-            }
-
-            this.polymer_createContainers();
-        }
         this.polymer_accessor.polymer_set(this.polymer_accessor.polymer_paletteProvider().computeIndex(x & 15, y & 15, z & 15), block);
     }
 
     @Override
     public ClientPolymerBlock.State polymer_getClientPolymerBlock(int x, int y, int z) {
-        return this.polymer_container != null ? this.polymer_container.get(x & 15, y & 15, z & 15) : ClientPolymerBlock.NONE_STATE;
+        return this.polymer_container.get(x & 15, y & 15, z & 15);
     }
 
     @Override

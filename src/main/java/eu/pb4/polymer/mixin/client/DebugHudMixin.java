@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.client;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -29,7 +30,7 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
-        if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.ENABLED && InternalClientRegistry.STABLE) {
+        if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.enabled && InternalClientRegistry.stable) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
             var worldState = this.client.world.getBlockState(blockPos);
@@ -50,11 +51,11 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getLeftText", at = @At("RETURN"))
     private void polymer_debugText(CallbackInfoReturnable<List<String>> cir) {
-        if (InternalClientRegistry.ENABLED && PolymerImpl.DISPLAY_DEBUG_INFO_CLIENT) {
+        if (InternalClientRegistry.enabled && PolymerImpl.DISPLAY_DEBUG_INFO_CLIENT) {
             var list = cir.getReturnValue();
 
-            list.add("[Polymer] C: " + PolymerImpl.VERSION + ", S: " + InternalClientRegistry.SERVER_VERSION);
-            list.add("[Polymer] I: " + InternalClientRegistry.ITEMS.size() + ", IG: " + InternalClientRegistry.ITEM_GROUPS.size() + ", B: " + InternalClientRegistry.BLOCKS.size() + ", BS: " + InternalClientRegistry.BLOCK_STATES.size() + ", E: " + InternalClientRegistry.ENTITY_TYPE.size());
+            list.add(InternalClientRegistry.debugServerInfo);
+            list.add(InternalClientRegistry.debugRegistryInfo);
         }
     }
 }

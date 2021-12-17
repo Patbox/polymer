@@ -51,7 +51,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer_tick(CallbackInfo ci) {
-        if (InternalClientRegistry.ENABLED) {
+        if (InternalClientRegistry.enabled) {
             InternalClientRegistry.tick();
         }
     }
@@ -75,7 +75,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
     private void polymer_pickBlock(CallbackInfo ci) {
-        if (InternalClientRegistry.ENABLED && InternalClientRegistry.STABLE && this.getNetworkHandler() != null && this.crosshairTarget != null) {
+        if (InternalClientRegistry.enabled && InternalClientRegistry.stable && this.getNetworkHandler() != null && this.crosshairTarget != null) {
             switch (this.crosshairTarget.getType()) {
                 case BLOCK -> {
                     var pos = ((BlockHitResult) this.crosshairTarget).getBlockPos();

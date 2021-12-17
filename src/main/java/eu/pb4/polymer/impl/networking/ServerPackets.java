@@ -81,8 +81,8 @@ public class ServerPackets {
         register(SYNC_ITEM_GROUP_VANILLA, 0);
         register(SYNC_ENTITY, 0);
         register(SYNC_CLEAR, 0);
-        register(WORLD_SET_BLOCK_UPDATE, 0);
-        register(WORLD_CHUNK_SECTION_UPDATE, 0);
+        register(WORLD_SET_BLOCK_UPDATE, 0, 1);
+        register(WORLD_CHUNK_SECTION_UPDATE, 0, 1);
         register(WORLD_ENTITY, 0);
     }
 }

@@ -7,7 +7,6 @@ import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientEntityExtension;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
-import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.ServerPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,7 +14,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -77,11 +75,11 @@ public final class PolymerClientUtils {
     }
 
     public static String getServerVersion() {
-        return InternalClientRegistry.SERVER_VERSION;
+        return InternalClientRegistry.serverVersion;
     }
 
     public static boolean isEnabled() {
-        return InternalClientRegistry.ENABLED;
+        return InternalClientRegistry.enabled;
     }
 
     public static boolean sendPacket(ClientPlayNetworkHandler player, Identifier identifier, PacketByteBuf packetByteBuf) {

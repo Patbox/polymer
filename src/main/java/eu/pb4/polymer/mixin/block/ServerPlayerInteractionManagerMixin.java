@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.block.packet;
+package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
@@ -17,6 +17,7 @@ import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.WorldEvents;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -61,7 +62,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 this.finishMining(pos, PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, "destroyed");
 
                 if (!(state.getBlock() instanceof AbstractFireBlock)) {
-                    this.world.syncWorldEvent(2001, pos, Block.getRawIdFromState(state));
+                    this.world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, pos, Block.getRawIdFromState(state));
                 }
 
             }

@@ -45,7 +45,7 @@ public class PacketByteBufMixin {
     @Environment(EnvType.CLIENT)
     @Redirect(method = "readItemStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/Item;byRawId(I)Lnet/minecraft/item/Item;"))
     private Item polymer_replaceWithId(int id) {
-        if (InternalClientRegistry.ENABLED && InternalClientRegistry.STABLE && InternalClientRegistry.ITEMS_MATCH) {
+        if (InternalClientRegistry.enabled && InternalClientRegistry.stable && InternalClientRegistry.itemsMatch) {
             var item = InternalClientRegistry.ITEMS.get(id);
 
             if (item != null && item.realServerItem() != null) {

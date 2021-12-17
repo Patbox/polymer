@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @Deprecated
 public class ItemHelper {
-    public static final String VIRTUAL_ITEM_ID = PolymerItemUtils.VIRTUAL_ITEM_ID;
+    public static final String VIRTUAL_ITEM_ID = PolymerItemUtils.POLYMER_ITEM_ID;
     public static final String REAL_TAG = PolymerItemUtils.REAL_TAG;
 
     public static final Style CLEAN_STYLE = PolymerItemUtils.CLEAN_STYLE;

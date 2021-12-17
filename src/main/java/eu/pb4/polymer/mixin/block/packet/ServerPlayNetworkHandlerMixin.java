@@ -40,7 +40,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     polymerBlock.onPolymerBlockSend(this.player, pos.mutableCopy(), blockState);
                 }
 
-            } else if (packet instanceof ChunkDataS2CPacket chunkDataS2CPacket) {
+            } else if (packet instanceof ChunkDataS2CPacket) {
                 WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer_getWorldChunk();
                 PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;
                 if (wc != null) {
@@ -65,7 +65,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 var blockPos = new BlockPos.Mutable();
                 for (int i = 0; i < localPos.length; i++) {
                     BlockState blockState = blockStates[i];
-
 
                     if (blockState.getBlock() instanceof PolymerBlock) {
 

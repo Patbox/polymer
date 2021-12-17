@@ -34,10 +34,14 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public final class PolymerItemUtils {
-    public static final String VIRTUAL_ITEM_ID = "Polymer$itemId";
+    public static final String POLYMER_ITEM_ID = "Polymer$itemId";
     public static final String REAL_TAG = "Polymer$itemTag";
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
+
+    @Deprecated
+    public static final String VIRTUAL_ITEM_ID = POLYMER_ITEM_ID;
+
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
@@ -85,7 +89,7 @@ public final class PolymerItemUtils {
         ItemStack out = itemStack;
 
         if (itemStack.hasNbt()) {
-            String id = itemStack.getNbt().getString(VIRTUAL_ITEM_ID);
+            String id = itemStack.getNbt().getString(POLYMER_ITEM_ID);
             if (id != null && !id.isEmpty()) {
                 try {
                     Identifier identifier = Identifier.tryParse(id);
@@ -112,7 +116,7 @@ public final class PolymerItemUtils {
     @Nullable
     public static Identifier getPolymerIdentifier(ItemStack itemStack) {
         if (itemStack.hasNbt()) {
-            String id = itemStack.getNbt().getString(VIRTUAL_ITEM_ID);
+            String id = itemStack.getNbt().getString(POLYMER_ITEM_ID);
             if (id != null && !id.isEmpty()) {
                 Identifier identifier = Identifier.tryParse(id);
 
@@ -191,7 +195,7 @@ public final class PolymerItemUtils {
             out.getOrCreateNbt().put(PolymerItemUtils.REAL_TAG, itemStack.getNbt());
         }
 
-        out.getOrCreateNbt().putString(PolymerItemUtils.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
 
         if (cmd != -1) {
             out.getOrCreateNbt().putInt("CustomModelData", cmd);
@@ -220,7 +224,7 @@ public final class PolymerItemUtils {
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
-        out.getOrCreateNbt().putString(PolymerItemUtils.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
         out.getOrCreateNbt().putInt("HideFlags", 127);
 
         NbtList lore = new NbtList();

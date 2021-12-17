@@ -45,9 +45,9 @@ public class PolymerClientProtocol {
     }
 
     public static void sendSyncRequest(ClientPlayNetworkHandler handler) {
-        if (InternalClientRegistry.ENABLED) {
+        if (InternalClientRegistry.enabled) {
             InternalClientRegistry.delayAction(ClientPackets.SYNC_REQUEST, 200, () -> {
-                InternalClientRegistry.SYNC_REQUESTS++;
+                InternalClientRegistry.syncRequests++;
                 PolymerClientUtils.ON_SYNC_REQUEST.invoke(EventRunners.RUN);
                 handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.SYNC_REQUEST_ID, buf(0)));
             });

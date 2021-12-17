@@ -1,12 +1,6 @@
 package eu.pb4.polymer.mixin.item;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
-import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.client.ClientUtils;
-import eu.pb4.polymer.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.impl.networking.ClientPackets;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -33,6 +27,6 @@ public class ItemStackMixin {
     @ModifyArg(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/LiteralText;<init>(Ljava/lang/String;)V", ordinal = 3))
     private String polymer_changeId(String id) {
         ItemStack stack = (ItemStack) (Object) this;
-        return stack.hasNbt() && stack.getNbt().contains(PolymerItemUtils.VIRTUAL_ITEM_ID) ? stack.getNbt().getString(PolymerItemUtils.VIRTUAL_ITEM_ID) : id;
+        return stack.hasNbt() && stack.getNbt().contains(PolymerItemUtils.POLYMER_ITEM_ID) ? stack.getNbt().getString(PolymerItemUtils.POLYMER_ITEM_ID) : id;
     }
 }

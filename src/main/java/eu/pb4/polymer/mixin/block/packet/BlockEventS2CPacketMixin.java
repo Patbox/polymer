@@ -7,11 +7,13 @@ import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
+import net.minecraft.util.collection.IdList;
 import net.minecraft.util.registry.DefaultedRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -37,6 +39,18 @@ public abstract class BlockEventS2CPacketMixin {
         if (ClientUtils.isSingleplayer() && this.block instanceof PolymerBlock virtualBlock && !(this.block instanceof PolymerClientDecoded)) {
             cir.setReturnValue(PolymerBlockUtils.getBlockSafely(virtualBlock, this.block.getDefaultState(), ClientUtils.getPlayer()));
         }
+    }
+
+    @Environment(EnvType.CLIENT)
+    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;get(I)Ljava/lang/Object;"))
+    private Object polymer_replaceState(DefaultedRegistry instance, int index) {
+        var object = InternalClientRegistry.BLOCKS.get(index);
+
+        if (object.realServerBlock() != null) {
+            return object.realServerBlock();
+        }
+
+        return instance.get(index);
     }
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;getRawId(Ljava/lang/Object;)I"))

@@ -1,13 +1,14 @@
 package eu.pb4.polymer.impl.client;
 
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
@@ -27,24 +28,25 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
-    public static boolean STABLE = false;
-    public static boolean ITEMS_MATCH = false;
+    public static boolean stable = false;
+    public static boolean itemsMatch = false;
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
 
-    public static boolean ENABLED = false;
-    public static int SYNC_REQUESTS = 0;
-    public static String SERVER_VERSION = "";
+    public static boolean enabled = false;
+    public static int syncRequests = 0;
+    public static String serverVersion = "";
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
 
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
@@ -58,43 +60,49 @@ public class InternalClientRegistry {
     public static final HashMap<String, ItemGroup> VANILLA_ITEM_GROUPS = new HashMap<>();
 
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPE = new ImplPolymerRegistry<>();
+    public static String debugRegistryInfo = "";
+    public static String debugServerInfo = "";
 
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
-        if (MinecraftClient.getInstance().world != null && STABLE) {
-            var chunk = MinecraftClient.getInstance().world.getChunk(pos);
+        if (MinecraftClient.getInstance().world != null && stable) {
+            var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
+                    ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
+                    ChunkStatus.FULL,
+                    true
+            );
 
-            if (chunk instanceof ClientBlockStorageInterface storage) {
-                return storage.polymer_getClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ());
-            }
+            return ((ClientBlockStorageInterface) chunk).polymer_getClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ());
         }
 
         return ClientPolymerBlock.NONE_STATE;
     }
 
     public static void setBlockAt(BlockPos pos, ClientPolymerBlock.State state) {
-        if (MinecraftClient.getInstance().world != null && STABLE) {
-            var chunk = MinecraftClient.getInstance().world.getChunk(pos);
+        if (MinecraftClient.getInstance().world != null && stable) {
+            var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
+                    ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
+                    ChunkStatus.FULL,
+                    true
+            );
 
-            if (chunk instanceof ClientBlockStorageInterface storage) {
-                storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), state);
-            }
+            ((ClientBlockStorageInterface) chunk).polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), state);
         }
     }
 
     public static void setVersion(String version) {
-        SERVER_VERSION = version;
-        ENABLED = !version.isEmpty();
+        serverVersion = version;
+        enabled = !version.isEmpty();
     }
 
     public static void disable() {
-        DELAYED_ACTIONS.clear();
-        clear();
         setVersion("");
+        clear();
+        DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
-        SYNC_REQUESTS = 0;
-        STABLE = false;
-        ITEMS_MATCH = false;
+        syncRequests = 0;
+        stable = false;
+        itemsMatch = false;
     }
 
     public static BlockState getRealBlockState(int rawPolymerId) {
@@ -108,11 +116,21 @@ public class InternalClientRegistry {
     }
 
     public static void tick() {
-        DELAYED_ACTIONS.object2ObjectEntrySet().removeIf(e -> e.getValue().tryDoing());
+        final var each = DELAYED_ACTIONS.object2ObjectEntrySet().iterator();
+        while (each.hasNext()) {
+            if (each.next().getValue().tryDoing()) {
+                each.remove();
+            }
+        }
+
+        PolymerClientProtocolHandler.tick();
+
+        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + ", S: " + InternalClientRegistry.serverVersion + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
+        debugRegistryInfo = "[Polymer] I: " + InternalClientRegistry.ITEMS.size() + ", IG: " + InternalClientRegistry.ITEM_GROUPS.size() + ", B: " + InternalClientRegistry.BLOCKS.size() + ", BS: " + InternalClientRegistry.BLOCK_STATES.size() + ", E: " + InternalClientRegistry.ENTITY_TYPE.size();
     }
 
     public static void clear() {
-        STABLE = false;
+        stable = false;
 
         BLOCKS.clear();
         BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
@@ -126,12 +144,12 @@ public class InternalClientRegistry {
         for (var group : ItemGroup.GROUPS) {
             ((ClientItemGroupExtension) group).polymer_clearStacks();
         }
-        STABLE = true;
+        stable = true;
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
-        STABLE = false;
+        stable = false;
 
         var array = ItemGroupAccessor.getGROUPS();
 
@@ -163,7 +181,7 @@ public class InternalClientRegistry {
         }
 
         ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
-        STABLE = true;
+        stable = true;
     }
 
     public static int getProtocol(String identifier) {
@@ -171,7 +189,7 @@ public class InternalClientRegistry {
     }
 
     public static void delayAction(String id, int time, Runnable action) {
-        if (ENABLED) {
+        if (enabled) {
             DELAYED_ACTIONS.put(id, new DelayedAction(id, time, action));
         }
     }

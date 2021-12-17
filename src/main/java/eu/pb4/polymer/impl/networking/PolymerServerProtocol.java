@@ -13,11 +13,12 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
+import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.packets.*;
-import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -65,9 +66,10 @@ public class PolymerServerProtocol {
     public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
+        boolean forceAll = version == 0;
 
-        if (version == 0) {
-            var buf = buf(0);
+        if (forceAll || (version == 1 && state.getBlock() instanceof PolymerBlock)) {
+            var buf = buf(version);
 
             buf.writeBlockPos(pos);
             buf.writeVarInt(getRawId(state, player.player));
@@ -80,18 +82,28 @@ public class PolymerServerProtocol {
     public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
+        boolean forceAll = version == 0;
 
-        if (version == 0) {
-            var buf = buf(0);
-
-            buf.writeChunkSectionPos(chunkPos);
-            buf.writeVarInt(positions.length);
+        if (forceAll || version == 1) {
+            var list = new LongArrayList();
 
             for (int i = 0; i < blockStates.length; i++) {
-                buf.writeVarLong(((long) getRawId(blockStates[i], player.player) << 12 | positions[i]));
+                if (forceAll || blockStates[i].getBlock() instanceof PolymerBlock) {
+                    list.add((long) getRawId(blockStates[i], player.player) << 12 | positions[i]);
+                }
             }
 
-            player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE_ID, buf));
+            if (list.size() != 0) {
+                var buf = buf(version);
+                buf.writeChunkSectionPos(chunkPos);
+                buf.writeVarInt(list.size());
+
+                for (var value : list) {
+                    buf.writeVarLong(value);
+                }
+
+                player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE_ID, buf));
+            }
         }
     }
 
@@ -99,14 +111,14 @@ public class PolymerServerProtocol {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
-        if (version == 0) {
+        if (version == 0 || version == 1) {
             var wci = (PolymerBlockPosStorage) chunk;
             if (wci.polymer_hasAny()) {
                 for (var section : chunk.getSectionArray()) {
                     var storage = (PolymerBlockPosStorage) section;
 
                     if (section != null && storage.polymer_hasAny()) {
-                        var buf = buf(0);
+                        var buf = buf(version);
                         var set = storage.polymer_getBackendSet();
                         buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), section.getYOffset() >> 4));
 
@@ -172,6 +184,8 @@ public class PolymerServerProtocol {
                     syncItemGroup(group, player);
                 }
             }
+
+            player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_REBUILD_SEARCH_ID, buf(0)));
         }
 
         version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_BLOCK);

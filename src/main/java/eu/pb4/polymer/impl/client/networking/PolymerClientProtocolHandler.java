@@ -39,6 +39,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +53,23 @@ import java.util.function.Consumer;
 @SuppressWarnings({"unused"})
 @Environment(EnvType.CLIENT)
 public class PolymerClientProtocolHandler {
+    public static volatile int packetsPerSecond = 0;
+
+    private static int currentPacketsPerSecond = 0;
+    private static int ticker = 0;
+
+    public static void tick() {
+        ticker++;
+
+        if (ticker >= 20) {
+            ticker = 0;
+
+            packetsPerSecond = currentPacketsPerSecond;
+            currentPacketsPerSecond = 0;
+        }
+
+    }
+
     public static final HashMap<String, PolymerClientPacketHandler> CUSTOM_PACKETS = new HashMap<>();
 
     public static void handle(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
@@ -66,6 +84,7 @@ public class PolymerClientProtocolHandler {
                 PolymerImpl.LOGGER.error("Invalid " + identifier + " (" + version + ") packet received from server!");
                 PolymerImpl.LOGGER.error(e);
             }
+            currentPacketsPerSecond++;
         }
     }
 
@@ -78,11 +97,11 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.WORLD_ENTITY -> handleEntity(handler, version, buf);
 
             case ServerPackets.SYNC_STARTED -> run(() -> {
-                InternalClientRegistry.STABLE = false;
+                InternalClientRegistry.stable = false;
                 PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
             });
             case ServerPackets.SYNC_FINISHED -> run(() -> {
-                InternalClientRegistry.STABLE = true;
+                InternalClientRegistry.stable = true;
                 PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
             });
             case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
@@ -203,16 +222,20 @@ public class PolymerClientProtocolHandler {
     }
 
     private static boolean handleSetBlock(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
+        if (version == 0 || version == 1) {
             var pos = buf.readBlockPos();
             var id = buf.readVarInt();
             var block = InternalClientRegistry.BLOCK_STATES.get(id);
             if (block != null) {
                 MinecraftClient.getInstance().execute(() -> {
-                    var chunk = handler.getWorld().getChunk(pos);
+                    var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
+                            ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
+                            ChunkStatus.FULL,
+                            false
+                    );
 
-                    if (chunk instanceof ClientBlockStorageInterface storage) {
-                        storage.polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
+                    if (chunk != null) {
+                        ((ClientBlockStorageInterface) chunk).polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
                         PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
 
                         if (block.realServerBlockState() != null && PolymerClientDecoded.checkDecode(block.realServerBlockState().getBlock())) {
@@ -227,7 +250,7 @@ public class PolymerClientProtocolHandler {
     }
 
     private static boolean handleWorldSectionUpdate(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
+        if (version == 0 || version == 1) {
             var sectionPos = buf.readChunkSectionPos();
             var size = buf.readVarInt();
 
@@ -241,17 +264,21 @@ public class PolymerClientProtocolHandler {
             }
 
             MinecraftClient.getInstance().execute(() -> {
-                var chunk = handler.getWorld().getChunk(sectionPos.getX(), sectionPos.getZ());
+                var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
+                        sectionPos.getX(), sectionPos.getZ(),
+                        ChunkStatus.FULL,
+                        false
+                );
+
                 int flags = Block.NOTIFY_ALL | Block.FORCE_STATE | Block.SKIP_LIGHTING_UPDATES;
                 if (chunk != null) {
                     var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
                     if (section instanceof ClientBlockStorageInterface storage) {
-                        boolean hasPalette = storage.polymer_hasClientPalette();
                         var mutableBlockPos = new BlockPos.Mutable(0, 0, 0);
                         for (int i = 0; i < size; i++) {
                             var pos = blockPos[i];
                             var block = states[i];
-                            if (block != null && (hasPalette || block != ClientPolymerBlock.NONE_STATE)) {
+                            if (block != null) {
                                 var x = ChunkSectionPos.unpackLocalX(pos);
                                 var y = ChunkSectionPos.unpackLocalY(pos);
                                 var z = ChunkSectionPos.unpackLocalZ(pos);
@@ -369,7 +396,7 @@ public class PolymerClientProtocolHandler {
 
             MinecraftClient.getInstance().execute(() -> {
 
-                InternalClientRegistry.ITEMS_MATCH = InternalClientRegistry.getProtocol(ServerPackets.SYNC_ITEM) >= 2;
+                InternalClientRegistry.itemsMatch = InternalClientRegistry.getProtocol(ServerPackets.SYNC_ITEM) >= 2;
                 PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
                 PolymerClientProtocol.sendTooltipContext(handler);
                 PolymerClientProtocol.sendSyncRequest(handler);

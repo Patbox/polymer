@@ -116,7 +116,7 @@ dependencies {
 
     //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
 
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:7.0.337"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:7.1.356"
 
     modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
         exclude(group: "com.terraformersmc")
