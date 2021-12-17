@@ -34,7 +34,7 @@ public final class PolymerPacketUtils {
         return buf.writeVarInt(version);
     }
 
-    public static boolean sendPacket(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf packetByteBuf) {
+    public static boolean sendPacket(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf packetByteBuf) {
         var packetName = MAP_S2C.get(identifier);
         if (packetName == null) {
             packetName = PolymerImplUtils.id("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
