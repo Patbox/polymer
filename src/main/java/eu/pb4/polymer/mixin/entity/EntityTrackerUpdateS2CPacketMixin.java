@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.entity.PolymerTrackedDataHandler;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import net.fabricmc.api.EnvType;
@@ -92,9 +93,9 @@ public class EntityTrackerUpdateS2CPacketMixin {
     private void polymer_replaceItemsWithPolymerOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
         if (MinecraftClient.getInstance().getServer() != null && this.trackedValues != null) {
             List<DataTracker.Entry<?>> list = new ArrayList<>();
-            ServerPlayerEntity player = PolymerUtils.getPlayer();
+            ServerPlayerEntity player = ClientUtils.getPlayer();
 
-            for (DataTracker.Entry<?> entry : cir.getReturnValue()) {
+            for (var entry : cir.getReturnValue()) {
                 if (entry.get() instanceof ItemStack stack) {
                     if (entry.getData() == PolymerTrackedDataHandler.CUSTOM_ITEM_FRAME_STACK) {
                         var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayer());

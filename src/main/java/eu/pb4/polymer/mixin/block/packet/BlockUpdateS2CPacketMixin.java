@@ -48,7 +48,7 @@ public class BlockUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getState", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
-        if (this.state.getBlock() instanceof PolymerBlock virtualBlock && !(this.state.getBlock() instanceof PolymerClientDecoded)) {
+        if (this.state.getBlock() instanceof PolymerBlock virtualBlock && !PolymerClientDecoded.checkDecode(this.state.getBlock())) {
             if (this.polymer_cachedBlockState == null) {
                 this.polymer_cachedBlockState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer());
             }

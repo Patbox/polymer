@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.client.rendering;
 
 import eu.pb4.polymer.api.client.PolymerKeepModel;
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.impl.client.rendering.NullEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.entity.Entity;
@@ -20,8 +21,8 @@ public class EntityRenderDispatcherMixin {
 
     @Inject(method = "getRenderer", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceEntityRenderer(Entity entity, CallbackInfoReturnable<EntityRenderer<?>> cir) {
-        if (entity instanceof PolymerEntity polymerEntity && !PolymerKeepModel.is(entity)) {
-            cir.setReturnValue(this.renderers.get(polymerEntity.getPolymerEntityType()));
+        if (PolymerKeepModel.useServerModel(entity)) {
+            cir.setReturnValue(NullEntityRenderer.INSTANCE);
         }
     }
 }

@@ -57,6 +57,11 @@ public final class PolymerPacketUtils {
     }
 
     public static int getSupportedVersion(ServerPlayNetworkHandler handler, Identifier identifier) {
-        return ((PolymerNetworkHandlerExtension) handler).polymer_getSupportedVersion(MAP_S2C.get(identifier).getPath());
+        var packetName = MAP_S2C.get(identifier);
+        if (packetName == null) {
+            packetName = PolymerImplUtils.id("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
+            MAP_S2C.put(identifier, packetName);
+        }
+        return ((PolymerNetworkHandlerExtension) handler).polymer_getSupportedVersion(packetName.getPath());
     }
 }

@@ -1,5 +1,7 @@
 package eu.pb4.polymer.impl.client;
 
+import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
@@ -35,6 +37,8 @@ import org.jetbrains.annotations.ApiStatus;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
@@ -107,9 +111,12 @@ public class InternalClientRegistry {
 
     public static BlockState getRealBlockState(int rawPolymerId) {
         var state = InternalClientRegistry.BLOCK_STATES.get(rawPolymerId);
-
-        if (state != null && state.realServerBlockState() != null && PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
-            return state.realServerBlockState();
+        if (state != null && state.realServerBlockState() != null) {
+            if (PolymerClientDecoded.checkDecode(state.realServerBlockState().getBlock())) {
+                return state.realServerBlockState();
+            } else {
+                return PolymerBlockUtils.getPolymerBlockState(state.realServerBlockState(), ClientUtils.getPlayer());
+            }
         }
 
         return Blocks.AIR.getDefaultState();

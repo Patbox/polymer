@@ -135,9 +135,6 @@ public final class PolymerUtils {
             }
 
             PolymerNetworkHandlerExtension.of(player.networkHandler).polymer_delayAction("polymer:reload/send_chunks/0", 1, () -> nestedSend(player, 0, toSend));
-
-
-
         });
     }
 

@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.client.PolymerKeepModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.render.block.BlockModels;
 import net.minecraft.client.util.ModelIdentifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +27,6 @@ public class BlockModelsMixin {
 
     @ModifyVariable(method = "getModel", at = @At("HEAD"), require = 0)
     private BlockState polymer_replaceBlockState(BlockState state) {
-        return state.getBlock() instanceof PolymerBlock block && !PolymerKeepModel.is(block) ? PolymerBlockUtils.getBlockStateSafely(block, state) : state;
+        return state.getBlock() instanceof PolymerBlock block && !PolymerKeepModel.is(block) ? Blocks.AIR.getDefaultState() : state;
     }
 }
