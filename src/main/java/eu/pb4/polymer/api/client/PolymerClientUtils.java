@@ -7,6 +7,7 @@ import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientEntityExtension;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
+import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.ServerPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,6 +30,7 @@ import java.util.function.BiConsumer;
 public final class PolymerClientUtils {
     private PolymerClientUtils() {
     }
+
     private static final Map<Identifier, String> MAP_S2C = new HashMap<>();
     private static final Map<Identifier, Identifier> MAP_C2S = new HashMap<>();
 
@@ -92,7 +94,7 @@ public final class PolymerClientUtils {
         return true;
     }
 
-    public static boolean registerPacket(Identifier identifier, PolymerClientPacketHandler handler, int... supportedVersions) {
+    public static boolean registerPacketHandler(Identifier identifier, PolymerClientPacketHandler handler, int... supportedVersions) {
         if (!MAP_S2C.containsKey(identifier)) {
             var packet = "custom/" + identifier.getNamespace() + "/" + identifier.getPath();
             MAP_S2C.put(identifier, packet);
@@ -104,7 +106,17 @@ public final class PolymerClientUtils {
         return false;
     }
 
+    public static boolean registerClientPacket(Identifier identifier, int... supportedVersions) {
+        ClientPackets.register("custom/" + identifier.getNamespace() + "/" + identifier.getPath(), supportedVersions);
+        return true;
+    }
+
     public static int getSupportedVersion(Identifier identifier) {
         return InternalClientRegistry.getProtocol("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
+    }
+
+    @Deprecated
+    public static boolean registerPacket(Identifier identifier, PolymerClientPacketHandler handler, int... supportedVersions) {
+        return registerPacketHandler(identifier, handler, supportedVersions);
     }
 }

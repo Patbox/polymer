@@ -1,6 +1,5 @@
 package eu.pb4.polymer.mixin.client;
 
-import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -12,19 +11,20 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
-import net.minecraft.network.packet.s2c.play.KeepAliveS2CPacket;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPlayNetworkHandler.class)
-public class ClientPlayNetworkHandlerMixin {
+public abstract class ClientPlayNetworkHandlerMixin {
+
+    @Shadow public abstract ClientWorld getWorld();
 
     @Inject(method = "onGameJoin", at = @At("TAIL"))
     private void polymer_sendHandshake(GameJoinS2CPacket packet, CallbackInfo ci) {
@@ -54,7 +54,6 @@ public class ClientPlayNetworkHandlerMixin {
     private void polymer_removeOldPolymerBlock(BlockUpdateS2CPacket packet, CallbackInfo ci) {
         // This should be overriden by next polymer packet anyway
         // Thanks to it there is no need to send vanilla updates!
-
         InternalClientRegistry.setBlockAt(packet.getPos(), ClientPolymerBlock.NONE_STATE);
     }
 

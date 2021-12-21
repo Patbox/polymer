@@ -20,12 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class PacketByteBufMixin {
     @ModifyVariable(method = "writeItemStack", at = @At("HEAD"), ordinal = 0)
     private ItemStack polymer_replaceWithVanillaItem(ItemStack itemStack) {
-        var player = PolymerUtils.getPlayer();
-        if (player != null) {
-            return PolymerItemUtils.getPolymerItemStack(itemStack, player);
-        } else {
-            return itemStack;
-        }
+        return PolymerItemUtils.getPolymerItemStack(itemStack, PolymerUtils.getPlayer());
+
     }
 
     @Environment(EnvType.SERVER)

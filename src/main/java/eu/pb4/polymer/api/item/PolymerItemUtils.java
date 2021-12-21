@@ -63,7 +63,7 @@ public final class PolymerItemUtils {
      * @param player    Player being send to
      * @return Client side ItemStack
      */
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, ServerPlayerEntity player) {
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {

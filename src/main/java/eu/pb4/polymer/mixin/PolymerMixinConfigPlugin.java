@@ -28,9 +28,9 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
         var name = mixinClassName.substring(PACKAGE_ROOT.length()).replace("client.", "");
 
         if (name.startsWith(COMPAT_PACKAGE)) {
-            name = name.substring(COMPAT_PACKAGE.length());
+            var tmp = name.split("\\.");
 
-            var type = name.split("_")[0];
+            var type = tmp[tmp.length - 1].split("_")[0];
 
 
             return switch (type) {
@@ -40,6 +40,7 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
                 case "rei" -> CompatStatus.REI;
                 case "lithium" -> CompatStatus.LITHIUM;
                 case "armor" -> PolymerImpl.USE_ALT_ARMOR_HANDLER;
+                case "ip" -> CompatStatus.IMMERSIVE_PORTALS;
                 default -> true;
             };
         }

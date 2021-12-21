@@ -14,7 +14,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import javax.imageio.ImageIO;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 

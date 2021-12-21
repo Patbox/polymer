@@ -17,4 +17,7 @@ public class CompatStatus {
     public static final boolean OPTIBAD = PolymerImpl.isModLoaded("optifabric");
 
     public static final boolean REQUIRE_ALT_ARMOR_HANDLER = IRIS || CANVAS || OPTIBAD;
+
+    public static final boolean IMMERSIVE_PORTALS = PolymerImpl.isModLoaded("imm_ptl_core");
+
 }

@@ -58,6 +58,7 @@ allprojects {
         maven { url "https://maven.shedaniel.me/" }
         maven { url "https://maven.bai.lol" }
         maven { url = "https://maven.ryanliptak.com/" }
+        maven { url = "https://api.modrinth.com/maven" }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 
         mavenLocal()
@@ -112,7 +113,7 @@ dependencies {
 
     modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.1'
 
-    modCompileOnly "mcp.mobius.waila:wthit:fabric-3.10.1"
+    modCompileOnly "mcp.mobius.waila:wthit:fabric-4.4.0"
 
     //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
 
@@ -130,6 +131,9 @@ dependencies {
 
     modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
     modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+
+    modCompileOnly ('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:1.18-SNAPSHOT')
+    modCompileOnly ('com.github.qouteall.ImmersivePortalsMod:q_misc_util:1.18-SNAPSHOT')
 
     //modRuntimeOnly "com.github.arthurbambou:Server-Translations:1.18-SNAPSHOT"
 

@@ -4,6 +4,7 @@ import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
+import eu.pb4.polymer.impl.networking.ServerPackets;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
@@ -44,7 +45,7 @@ public final class PolymerPacketUtils {
         return true;
     }
 
-    public static boolean registerPacket(Identifier identifier, PolymerServerPacketHandler handler, int... supportedVersions) {
+    public static boolean registerPacketHandler(Identifier identifier, PolymerServerPacketHandler handler, int... supportedVersions) {
         if (!MAP_C2S.containsKey(identifier)) {
             var packet = "custom/" + identifier.getNamespace() + "/" + identifier.getPath();
             MAP_C2S.put(identifier, packet);
@@ -56,6 +57,11 @@ public final class PolymerPacketUtils {
         return false;
     }
 
+    public static boolean registerServerPacket(Identifier identifier, int... supportedVersions) {
+        ServerPackets.register("custom/" + identifier.getNamespace() + "/" + identifier.getPath(), supportedVersions);
+        return true;
+    }
+
     public static int getSupportedVersion(ServerPlayNetworkHandler handler, Identifier identifier) {
         var packetName = MAP_S2C.get(identifier);
         if (packetName == null) {
@@ -63,5 +69,10 @@ public final class PolymerPacketUtils {
             MAP_S2C.put(identifier, packetName);
         }
         return ((PolymerNetworkHandlerExtension) handler).polymer_getSupportedVersion(packetName.getPath());
+    }
+
+    @Deprecated
+    public static boolean registerPacket(Identifier identifier, PolymerServerPacketHandler handler, int... supportedVersions) {
+        return registerPacketHandler(identifier, handler, supportedVersions);
     }
 }

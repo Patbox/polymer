@@ -3,6 +3,7 @@ package eu.pb4.polymer.impl.client.compat;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import mcp.mobius.waila.api.*;
@@ -38,6 +39,36 @@ public class WthitCompatibility implements IWailaPlugin {
 
         registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.HEAD, Entity.class, 1000);
         registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.TAIL, Entity.class, 1000);
+
+        registrar.addEventListener(OtherOverrides.INSTANCE);
+    }
+
+    private static class OtherOverrides implements IEventListener {
+        public static final OtherOverrides INSTANCE = new OtherOverrides();
+
+        @Override
+        public @Nullable String getHoveredItemModName(ItemStack stack, IPluginConfig config) {
+            if (PolymerItemUtils.isPolymerServerItem(stack) || !ClientUtils.isClientSide()) {
+                return null;
+            }
+
+            var id = PolymerItemUtils.getPolymerIdentifier(stack);
+
+            if (id != null) {
+                String modName = null;
+                var regBlock = Registry.ITEM.get(id);
+                if (regBlock != null) {
+                    modName = IModInfo.get(regBlock).getName();
+                }
+
+                if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
+                    modName = "Server (" + id.getNamespace() + ")";
+                }
+
+                return modName;
+            }
+            return null;
+        }
     }
 
     private static class BlockOverride implements IBlockComponentProvider {

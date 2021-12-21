@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
@@ -56,8 +57,12 @@ public final class PolymerUtils {
     public static ServerPlayerEntity getPlayer() {
         ServerPlayerEntity player = PacketContext.get().getTarget();
 
-        if (player == null && FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            player = ClientUtils.getPlayer();
+        if (player == null) {
+            player = PolymerImplUtils.playerTargetHack.get();
+
+            if (player == null && FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                player = ClientUtils.getPlayer();
+            }
         }
 
         return player;
