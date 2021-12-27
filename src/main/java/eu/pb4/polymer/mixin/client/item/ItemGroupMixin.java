@@ -32,7 +32,6 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Shadow public abstract String getName();
 
-    @Shadow @Final public static ItemGroup SEARCH;
     @Unique private List<ItemStack> polymer_items = new ArrayList<>();
 
     @Inject(method = "<init>", at = @At("TAIL"))

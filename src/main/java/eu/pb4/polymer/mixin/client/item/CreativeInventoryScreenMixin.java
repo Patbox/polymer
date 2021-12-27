@@ -29,8 +29,6 @@ import java.util.Collection;
 @Mixin(CreativeInventoryScreen.class)
 public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScreen<CreativeInventoryScreen.CreativeScreenHandler> {
 
-    @Shadow private TextFieldWidget searchBox;
-
     public CreativeInventoryScreenMixin(CreativeInventoryScreen.CreativeScreenHandler screenHandler, PlayerInventory playerInventory, Text text) {
         super(screenHandler, playerInventory, text);
     }
@@ -58,7 +56,7 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
         return oldGroup;
     }
 
-    @Inject(method = "search", at = @At("TAIL"))
+    /*@Inject(method = "search", at = @At("TAIL"))
     private void polymer_hideServerPolymerItems(CallbackInfo ci) {
         this.handler.itemList.removeIf((i) -> PolymerItemUtils.isPolymerServerItem(i));
 
@@ -83,5 +81,5 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
                 }
             }
         }
-    }
+    }*/
 }

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.entity;
 
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.packet.s2c.play.MobSpawnS2CPacket;
 import net.minecraft.util.math.Vec3d;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = MobSpawnS2CPacket.class, priority = 500)
-public class MobSpawnS2CPacketMixin {
+public class MobSpawnS2CPacketMixin implements PlayerAwarePacket {
     @Shadow @Mutable
     private int entityTypeId;
 

@@ -9,6 +9,7 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.entity.PolymerTrackedDataHandler;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
-public class EntityTrackerUpdateS2CPacketMixin {
+public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
     @Shadow
     @Mutable
     private List<DataTracker.Entry<?>> trackedValues;

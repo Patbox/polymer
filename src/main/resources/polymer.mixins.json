@@ -64,6 +64,7 @@
     "other.EntityStatusEffectS2CPacketMixin",
     "other.IdListMixin",
     "other.ItemGroupAccessor",
+    "other.PacketMarkPlayerAwareMixin",
     "other.PalettedContainerAccessor",
     "other.PlayerManagerMixin",
     "other.RemoveEntityStatusEffectS2CPacketMixin",

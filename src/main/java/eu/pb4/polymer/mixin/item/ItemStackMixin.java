@@ -1,6 +1,8 @@
 package eu.pb4.polymer.mixin.item;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.other.PolymerTooltipContext;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -19,7 +21,7 @@ import java.util.List;
 public class ItemStackMixin {
     @Inject(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/item/TooltipContext;isAdvanced()Z", ordinal = 2), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_dontMultiplyIds(@Nullable PlayerEntity player, TooltipContext context, CallbackInfoReturnable<List<Text>> cir, List<Text> list) {
-        if (PolymerItemUtils.isPolymerServerItem((ItemStack) (Object) this)) {
+        if (context instanceof PolymerTooltipContext) {
             cir.setReturnValue(list);
         }
     }

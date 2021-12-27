@@ -24,30 +24,32 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.SetCameraEntityS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -95,6 +97,17 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
     public static TestBowItem BOW_1 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow");
     public static TestBowItem BOW_2 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow2");
+
+    public static Item CAMERA_ITEM = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_DOOR) {
+        @Override
+        public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
+            if (user instanceof ServerPlayerEntity serverPlayer) {
+                serverPlayer.networkHandler.sendPacket(new SetCameraEntityS2CPacket(entity));
+            }
+
+            return super.useOnEntity(stack, user, entity, hand);
+        }
+    };
 
     public static Enchantment ENCHANTMENT;
 
@@ -172,6 +185,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "spawn_egg"), TEST_ENTITY_EGG);
         Registry.register(Registry.ITEM, new Identifier("test", "food"), TEST_FOOD);
         Registry.register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
+        Registry.register(Registry.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
 
         STILL_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "fluid"), new TestFluid.Still());
         FLOWING_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "flowing_fluid"), new TestFluid.Flowing());

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.entity;
 
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntitySetHeadYawS2CPacket.class)
-public class EntitySetHeadYawS2CPacketMixin {
+public class EntitySetHeadYawS2CPacketMixin implements PlayerAwarePacket {
     @Shadow @Mutable
     private byte headYaw;
 

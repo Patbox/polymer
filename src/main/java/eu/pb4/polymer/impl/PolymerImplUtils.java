@@ -12,6 +12,8 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
@@ -21,6 +23,15 @@ public class PolymerImplUtils {
     public static final Text[] ICON;
     public static ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
     private static ItemStack NO_TEXTURE;
+
+    public static void setPlayer(ServerPlayerEntity player) {
+        playerTargetHack.set(player);
+    }
+
+    @Nullable
+    public static ServerPlayerEntity getPlayer() {
+        return playerTargetHack.get();
+    }
 
 
     public static Predicate<ServerCommandSource> permission(String path, int operatorLevel) {

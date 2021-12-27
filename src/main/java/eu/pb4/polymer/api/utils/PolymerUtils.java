@@ -7,10 +7,12 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.other.PolymerTooltipContext;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -171,7 +173,7 @@ public final class PolymerUtils {
      * Returns current TooltipContext of player,
      */
     public static TooltipContext getTooltipContext(@Nullable ServerPlayerEntity player) {
-        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? TooltipContext.Default.ADVANCED : TooltipContext.Default.NORMAL;
+        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.NORMAL;
     }
 
     /**
@@ -222,5 +224,25 @@ public final class PolymerUtils {
         skullOwner.putIntArray("Id", new int[]{0, 0, 0, 0});
 
         return skullOwner;
+    }
+
+    /**
+     * Allows to execute code with selected player being returned for {@link PolymerUtils#getPlayer()}
+     * calls. Useful for custom packets using writeItemStack and similar methods.
+     *
+     * @param player
+     * @param runnable
+     */
+    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
+        var oldPlayer = PolymerImplUtils.getPlayer();
+        var oldTarget = PacketContext.get().getTarget();
+
+        PolymerImplUtils.setPlayer(player);
+        PacketContext.setReadContext(player.networkHandler);
+
+        runnable.run();
+
+        PolymerImplUtils.setPlayer(oldPlayer);
+        PacketContext.setReadContext(oldTarget != null ? oldTarget.networkHandler : null);
     }
 }

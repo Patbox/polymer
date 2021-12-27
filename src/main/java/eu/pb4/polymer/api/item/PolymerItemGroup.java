@@ -8,12 +8,15 @@ import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * An server side item group that can be synchronized with polymer clients
@@ -32,8 +35,10 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
     public static List<ItemStack> items = new ArrayList<>();
     private final Text name;
     private final Identifier identifier;
-    private final boolean sync;
-    private ItemStack icon = ItemStack.EMPTY;
+    private boolean sync;
+    private ItemStack icon = PolymerImplUtils.getNoTextureItem().copy();
+    private Consumer<DefaultedList<ItemStack>> customAppend = null;
+
     private PolymerItemGroup(Identifier id, Text name, boolean sync) {
         super(0, id.toString());
         this.identifier = id;
@@ -80,6 +85,16 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
         return this;
     }
 
+    public PolymerItemGroup setSync(boolean value) {
+        this.sync = value;
+        return this;
+    }
+
+    public PolymerItemGroup setCustomAppend(Consumer<DefaultedList<ItemStack>> itemListConsumer) {
+        this.customAppend = itemListConsumer;
+        return this;
+    }
+
     @Override
     public ItemStack createIcon() {
         return this.icon;
@@ -92,6 +107,15 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
 
     public Identifier getId() {
         return this.identifier;
+    }
+
+    @Override
+    public void appendStacks(DefaultedList<ItemStack> stacks) {
+        if (this.customAppend == null) {
+            super.appendStacks(stacks);
+        } else {
+            this.customAppend.accept(stacks);
+        }
     }
 
     @Override

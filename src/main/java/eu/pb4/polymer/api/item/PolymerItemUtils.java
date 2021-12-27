@@ -7,6 +7,7 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
+import eu.pb4.polymer.impl.other.PolymerTooltipContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;

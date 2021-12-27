@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.entity;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import net.minecraft.entity.Entity;

@@ -6,6 +6,7 @@ import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;

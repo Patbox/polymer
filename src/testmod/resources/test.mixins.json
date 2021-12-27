@@ -6,6 +6,7 @@
   "mixins": [
     "AECAccessor",
     "EntityAccessor",
+    "ServerPlayNetworkHandlerMixin",
     "VillagerEntityAccessor"
   ],
   "injectors": {

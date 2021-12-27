@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.compat.immersive_portals;
 import eu.pb4.polymer.api.block.PlayerAwarePolymerBlock;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.IPAttachedPacket;
+import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import eu.pb4.polymer.impl.networking.BlockInfoUtil;
 import eu.pb4.polymer.mixin.block.packet.BlockUpdateS2CPacketAccessor;
 import eu.pb4.polymer.mixin.block.packet.ChunkDeltaUpdateS2CPacketAccessor;
@@ -64,7 +65,7 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
 
     @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("TAIL"))
     private Packet<?> polymer_patchPackets(Packet<?> packet) {
-        if (packet instanceof IPAttachedPacket attachedPacket && attachedPacket.polymer_ip_getAttachedPacket() != null && attachedPacket.polymer_ip_getAttachedDimension() != null) {
+        if (packet instanceof IPAttachedPacket attachedPacket && attachedPacket.polymer_ip_getAttachedPacket() instanceof PlayerAwarePacket && attachedPacket.polymer_ip_getAttachedDimension() != null) {
             IPCommonNetwork.withForceRedirect(this.player.getServer().getWorld(attachedPacket.polymer_ip_getAttachedDimension()), () -> {
                 PolymerImplUtils.playerTargetHack.set(this.getPlayer());
                 BlockInfoUtil.sendFromPacket(attachedPacket.polymer_ip_getAttachedPacket(), (ServerPlayNetworkHandler) (Object) this);

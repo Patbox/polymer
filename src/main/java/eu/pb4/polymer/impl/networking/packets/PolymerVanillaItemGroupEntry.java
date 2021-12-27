@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking.packets;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.minecraft.item.ItemGroup;
@@ -20,7 +21,7 @@ public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> st
 
         for (var item : list) {
             var polymerItem = PolymerItemUtils.getPolymerItemStack(item, handler.player);
-            if (polymerItem != item) {
+            if (polymerItem != item || polymerItem.getItem() instanceof PolymerObject) {
                 stacks.add(polymerItem);
             }
         }

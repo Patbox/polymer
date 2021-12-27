@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.block.packet;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WorldEventS2CPacket.class)
-public class WorldEventS2CPacketMixin {
+public class WorldEventS2CPacketMixin implements PlayerAwarePacket {
 
     @Shadow @Final private int eventId;
 

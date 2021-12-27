@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.item.packet;
 
 import eu.pb4.polymer.api.item.PolymerRecipe;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
-public abstract class SynchronizeRecipesS2CPacketMixin {
+public abstract class SynchronizeRecipesS2CPacketMixin implements PlayerAwarePacket {
     @Unique List<Recipe<?>> rewrittenRecipes = null;
 
     @Final @Shadow @Mutable private List<Recipe<?>> recipes;
