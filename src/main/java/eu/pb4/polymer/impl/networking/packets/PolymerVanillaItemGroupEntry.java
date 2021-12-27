@@ -20,9 +20,8 @@ public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> st
         group.appendStacks(list);
 
         for (var item : list) {
-            var polymerItem = PolymerItemUtils.getPolymerItemStack(item, handler.player);
-            if (polymerItem != item || polymerItem.getItem() instanceof PolymerObject) {
-                stacks.add(polymerItem);
+            if (PolymerItemUtils.isPolymerServerItem(item)) {
+                stacks.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
             }
         }
 
