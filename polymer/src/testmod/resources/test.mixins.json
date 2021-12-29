@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "eu.pb4.polymertest.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "AECAccessor",
+    "EntityAccessor",
+    "ServerPlayNetworkHandlerMixin",
+    "VillagerEntityAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

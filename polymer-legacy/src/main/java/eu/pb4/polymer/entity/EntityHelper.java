@@ -1,8 +1,6 @@
 package eu.pb4.polymer.entity;
 
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
-import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;

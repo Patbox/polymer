@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-client-extensions",
+  "version": "${version}",
+  "name": "Polymer Client Extensions",
+  "description": "Polymer extension/addon for things that can't be done server side, but should be",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer"
+  },
+  "license": "LGPLv3",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
+  }
+}

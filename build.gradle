@@ -11,39 +11,17 @@ apply plugin: 'fabric-loom'
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version + "+" + project.minecraft_version
+archivesBaseName = "polymer-all"
+version = project.all_version + "+" + project.minecraft_version
 group = project.maven_group
-
-sourceSets {
-    testmod {
-        runtimeClasspath += main.runtimeClasspath
-        compileClasspath += main.compileClasspath
-    }
-}
-
-loom {
-    runs {
-        testmodClient {
-            client()
-            ideConfigGenerated project.rootProject == project
-            name = "Test Mod Client"
-            source sourceSets.testmod
-        }
-        testmodServer {
-            server()
-            ideConfigGenerated project.rootProject == project
-            name = "Test Mod Server"
-            source sourceSets.testmod
-        }
-    }
-
-    accessWidenerPath = file("src/main/resources/polymer.accesswidener")
-}
 
 
 allprojects {
     apply plugin: 'fabric-loom'
+
+    tasks.withType(JavaCompile).configureEach {
+        it.options.release = 17
+    }
 
     repositories {
         // Add repositories to retrieve artifacts from in here.
@@ -93,57 +71,17 @@ allprojects {
     }
 }
 
+dependencies {
+    include(project(":polymer"))
+    //include(project(":polymer-client-extensions"))
+}
+
 processResources {
     inputs.property "version", project.version
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
-}
-
-dependencies {
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-    //modRuntime "supercoder79:databreaker:0.2.7"
-
-    modCompileOnly 'com.github.CaffeineMC:lithium-fabric:dace2004'
-
-    modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.1'
-
-    modCompileOnly "mcp.mobius.waila:wthit:fabric-4.4.0"
-
-    //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
-
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:7.1.356"
-
-    modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
-        exclude(group: "com.terraformersmc")
-        exclude(group: "io.github.prospector")
-        exclude(group: "io.github.prospector")
-        exclude(group: "net.fabricmc")
-    }
-
-    modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
-    modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
-
-    modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
-    modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
-
-    modCompileOnly ('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:1.18-SNAPSHOT')
-    modCompileOnly ('com.github.qouteall.ImmersivePortalsMod:q_misc_util:1.18-SNAPSHOT')
-
-    //modRuntimeOnly "com.github.arthurbambou:Server-Translations:1.18-SNAPSHOT"
-
-    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-    // You may need to force-disable transitiveness on them.
-
-    runtimeOnly project(":polymer-legacy")
-    include project(":polymer-legacy")
-
-    testmodImplementation sourceSets.main.output
 }
 
 jar {
@@ -168,7 +106,6 @@ void setupRepositories(RepositoryHandler repositories) {
     }
 }
 
-// configure the maven publication
 
 curseforge {
     if (System.getenv("CURSEFORGE")) {
@@ -194,7 +131,7 @@ curseforge {
     }
 }
 
-task publishModrinth (type: TaskModrinthUpload) {
+task publishModrinth(type: TaskModrinthUpload) {
     onlyIf {
         System.getenv("MODRINTH") // Only attempt to run this task if the MODRINTH variable is set, otherwise SKIP it
     }
@@ -215,8 +152,11 @@ remapJar {
 publishModrinth.mustRunAfter remapJar
 project.tasks.curseforge.mustRunAfter remapJar
 
+// configure the maven publication
+
 allprojects {
     apply plugin: 'maven-publish'
+
     afterEvaluate {
         publishing {
             publications {

@@ -4,7 +4,6 @@
 build/
 out/
 classes/
-
 # eclipse
 
 *.launch
@@ -32,3 +31,4 @@ bin/
 
 run/
 /run-*/
+polymer-client-extensions/

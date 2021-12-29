@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "polymer",
+  "id": "polymer-all",
   "version": "${version}",
-  "name": "Polymer",
-  "description": "Library for creation of better server side content!",
+  "name": "Polymer (Packed)",
+  "description": "Set of libraries for creation of better server driven content!",
   "authors": [
     "Patbox"
   ],
@@ -19,37 +19,13 @@
   "license": "LGPLv3",
   "icon": "assets/icon.png",
   "environment": "*",
-  "accessWidener": "polymer.accesswidener",
-  "entrypoints": {
-    "main": [
-      "eu.pb4.polymer.impl.PolymerMod"
-    ],
-    "client": [
-      "eu.pb4.polymer.impl.PolymerMod"
-    ],
-    "rei": [
-      "eu.pb4.polymer.impl.client.compat.ReiCompatibility"
-    ],
-    "appleskin": [
-      "eu.pb4.polymer.impl.client.compat.AppleSkinCompatibility"
-    ]
-  },
-  "mixins": [
-    "polymer.mixins.json"
-  ],
-
   "depends": {
     "minecraft": ">=1.18.1 <1.19",
     "fabricloader": ">=0.12.0"
   },
   "custom": {
     "modmenu": {
-      "badges": [ "library" ],
       "discord": "https://pb4.eu/discord"
-    },
-    "waila:plugins": {
-      "id": "polymer:main",
-      "initializer": "eu.pb4.polymer.impl.client.compat.WthitCompatibility"
     }
   }
 }

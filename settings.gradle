@@ -12,5 +12,9 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'polymer'
+rootProject.name = 'polymer-all'
+
+include 'polymer'
 include 'polymer-legacy'
+//include 'polymer-client-extensions'
+

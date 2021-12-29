@@ -2,16 +2,13 @@ package eu.pb4.polymer.entity;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.api.entity.PolymerEntity;
-import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.interfaces.VirtualObject;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
