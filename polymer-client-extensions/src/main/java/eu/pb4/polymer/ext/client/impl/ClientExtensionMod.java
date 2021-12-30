@@ -9,6 +9,6 @@ public class ClientExtensionMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		CEProtocolServer.initialize();
+		CEServerProtocol.initialize();
 	}
 }

@@ -62,6 +62,11 @@ public final class PolymerClientUtils {
      * This event is run after receiving an Polymer block update
      */
     public static final SimpleEvent<BiConsumer<BlockPos, ClientPolymerBlock.State>> ON_BLOCK_UPDATE = new SimpleEvent<>();
+    /**
+     * This event is run when Polymer functionality is disabled (good for clearing)
+    */
+    public static final SimpleEvent<Runnable> ON_DISABLE = new SimpleEvent<>();
+
 
     public static ClientPolymerBlock.State getPolymerStateAt(BlockPos pos) {
         return InternalClientRegistry.getBlockAt(pos);

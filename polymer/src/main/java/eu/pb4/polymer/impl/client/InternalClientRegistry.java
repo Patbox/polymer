@@ -107,6 +107,7 @@ public class InternalClientRegistry {
         syncRequests = 0;
         stable = false;
         itemsMatch = false;
+        PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
     }
 
     public static BlockState getRealBlockState(int rawPolymerId) {

@@ -1,300 +1,40 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.api.block.SimplePolymerBlock;
-import eu.pb4.polymer.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
-import eu.pb4.polymer.api.other.PolymerSoundEvent;
-import eu.pb4.polymer.api.other.PolymerStat;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymertest.mixin.EntityAccessor;
+import eu.pb4.polymer.ext.client.api.PolymerClientExtensions;
+import eu.pb4.polymer.impl.PolymerImpl;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.SetCameraEntityS2CPacket;
-import net.minecraft.potion.Potion;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.StatFormatter;
-import net.minecraft.stat.Stats;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static net.minecraft.server.command.CommandManager.literal;
+import javax.imageio.ImageIO;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Base64;
 
 public class TestMod implements ModInitializer, ClientModInitializer {
-    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(
-            new Identifier("polymer", "test"),
-            new TranslatableText("testmod.itemgroup").formatted(Formatting.AQUA));
-
-    public static final PolymerItemGroup ITEM_GROUP_2 = PolymerItemGroup.createPrivate(
-            new Identifier("polymer", "test2"),
-            new TranslatableText("testmod.itemgroup2").formatted(Formatting.AQUA));
-    public static Block FLUID_BLOCK;
-    public static TestFluid.Flowing FLOWING_FLUID;
-    public static TestFluid.Still STILL_FLUID;
-    public static BucketItem FLUID_BUCKET;
-
-    public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
-    public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
-    public static Block BLOCK = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
-    public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings().group(ITEM_GROUP), Items.STONE);
-    public static Block BLOCK_PLAYER = new TestPerPlayerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f));
-    public static BlockItem BLOCK_PLAYER_ITEM = new PolymerBlockItem(BLOCK_PLAYER, new FabricItemSettings().group(ITEM_GROUP), Items.WHITE_CARPET);
-    public static Block BLOCK_CLIENT = new TestClientBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 3).strength(2f));
-    public static BlockItem BLOCK_CLIENT_ITEM = new TestClientBlockItem(BLOCK_CLIENT, new FabricItemSettings().group(ITEM_GROUP));
-    public static Block BLOCK_FENCE = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE);
-    public static BlockItem BLOCK_FENCE_ITEM = new PolymerBlockItem(BLOCK_FENCE, new FabricItemSettings().group(ITEM_GROUP), Items.NETHER_BRICK_FENCE);
-    public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
-    public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new FabricItemSettings().group(ITEM_GROUP), Items.TNT);
-    public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
-    public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new FabricItemSettings().group(ITEM_GROUP));
-    public static TestPickaxeItem PICKAXE = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings().group(ITEM_GROUP));
-    public static TestHelmetItem HELMET = new TestHelmetItem(new FabricItemSettings().group(ITEM_GROUP));
-    public static Block WRAPPED_BLOCK = new SimplePolymerBlock(AbstractBlock.Settings.copy(BLOCK), BLOCK);
-    public static Block SELF_REFERENCE_BLOCK = new SelfReferenceBlock(AbstractBlock.Settings.copy(Blocks.STONE));
-    public static Item WRAPPED_ITEM = new SimplePolymerItem(new FabricItemSettings().group(ITEM_GROUP), ITEM);
-
-    public static Block WEAK_GLASS_BLOCK = new WeakGlassBlock(AbstractBlock.Settings.copy(Blocks.GLASS));
-    public static Item WEAK_GLASS_BLOCK_ITEM = new PolymerBlockItem(WEAK_GLASS_BLOCK, new Item.Settings(), Items.GLASS);
-
-    public static TestBowItem BOW_1 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow");
-    public static TestBowItem BOW_2 = new TestBowItem(new FabricItemSettings().group(ITEM_GROUP), "bow2");
-
-    public static Item CAMERA_ITEM = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_DOOR) {
-        @Override
-        public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-            if (user instanceof ServerPlayerEntity serverPlayer) {
-                serverPlayer.networkHandler.sendPacket(new SetCameraEntityS2CPacket(entity));
-            }
-
-            return super.useOnEntity(stack, user, entity, hand);
-        }
-    };
-
-    public static Enchantment ENCHANTMENT;
-
-    public static Identifier CUSTOM_STAT;
-
-    public static final RecipeType<TestRecipe> TEST_RECIPE_TYPE = RecipeType.register("test:test");
-    public static final RecipeSerializer<TestRecipe> TEST_RECIPE_SERIALIZER = new TestRecipe.Serializer();
-
-    public static final StatusEffect STATUS_EFFECT = new TestStatusEffect();
-    public static final StatusEffect STATUS_EFFECT_2 = new Test2StatusEffect();
-    public static final Potion POTION = new Potion(new StatusEffectInstance(STATUS_EFFECT, 300));
-    public static final Potion POTION_2 = new Potion(new StatusEffectInstance(STATUS_EFFECT_2, 300));
-    public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT, 600));
-    public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT_2, 600));
-
-    public static final EntityType<TestEntity> ENTITY = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
-    public static final EntityType<TestEntity2> ENTITY_2 = FabricEntityTypeBuilder.<TestEntity2>create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
-
-    public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings().group(ITEM_GROUP));
-    public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
-    public static final Item TEST_FOOD_2 = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(1).saturationModifier(2).build()), Items.CAKE);
-
-    public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(new Identifier("polymertest", "ghosthurt"), SoundEvents.ENTITY_GHAST_HURT);
-
-    public static SimplePolymerItem ICE_ITEM = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.SNOWBALL, (player, hand) -> {
-        var tracker = new DataTracker(null);
-        tracker.startTracking(EntityAccessor.getFROZEN_TICKS(), Integer.MAX_VALUE);
-        player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(player.getId(), tracker, true));
-
-        var attributes = player.getAttributes().getAttributesToSend();
-        var tmp = new EntityAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED, (x) -> {});
-        tmp.setBaseValue(player.getAttributeBaseValue(EntityAttributes.GENERIC_MOVEMENT_SPEED));
-        tmp.addPersistentModifier(new EntityAttributeModifier(UUID.fromString("1eaf83ff-7207-4596-b37a-d7a07b3ec4cf"), "Powder snow slow", 0.05d, EntityAttributeModifier.Operation.ADDITION));
-        attributes.add(tmp);
-
-        player.networkHandler.sendPacket(new EntityAttributesS2CPacket(player.getId(), attributes));
-    });
-
-    private void regArmor(EquipmentSlot slot, String main, String id) {
-        Registry.register(Registry.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
-    }
 
     @Override
     public void onInitialize() {
-        ITEM_GROUP.setIcon(new ItemStack(TATER_BLOCK_ITEM));
-        PolymerRPUtils.addAssetSource("apolymertest");
-        PolymerRPUtils.requestArmor(new Identifier("polymertest", "shulker"));
-        //PolymerRPUtils.markAsRequired();
-        //PolymerRPUtils.addModAsAssetsSource("promenade");
-
-        Registry.register(Registry.ITEM, new Identifier("test", "item"), ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block"), BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "block"), BLOCK_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block_client"), BLOCK_CLIENT);
-        Registry.register(Registry.ITEM, new Identifier("test", "block_client"), BLOCK_CLIENT_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block_player"), BLOCK_PLAYER);
-        Registry.register(Registry.ITEM, new Identifier("test", "block_player"), BLOCK_PLAYER_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block_fence"), BLOCK_FENCE);
-        Registry.register(Registry.ITEM, new Identifier("test", "block_fence"), BLOCK_FENCE_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block2"), BLOCK_2);
-        Registry.register(Registry.ITEM, new Identifier("test", "block2"), BLOCK_ITEM_2);
-        Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), TATER_BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), TATER_BLOCK_ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), PICKAXE);
-        Registry.register(Registry.ITEM, new Identifier("test", "helmet"), HELMET);
-        Registry.register(Registry.ITEM, new Identifier("test", "bow1"), BOW_1);
-        Registry.register(Registry.ITEM, new Identifier("test", "bow2"), BOW_2);
-        Registry.register(Registry.BLOCK, new Identifier("test", "wrapped_block"), WRAPPED_BLOCK);
-        Registry.register(Registry.BLOCK, new Identifier("test", "self_block"), SELF_REFERENCE_BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "wrapped_item"), WRAPPED_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK_ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "ice_item"), ICE_ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "spawn_egg"), TEST_ENTITY_EGG);
-        Registry.register(Registry.ITEM, new Identifier("test", "food"), TEST_FOOD);
-        Registry.register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
-        Registry.register(Registry.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
-
-        STILL_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "fluid"), new TestFluid.Still());
-        FLOWING_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "flowing_fluid"), new TestFluid.Flowing());
-        FLUID_BUCKET = Registry.register(Registry.ITEM, new Identifier("test", "fluid_bucket"),
-                new TestBucketItem(STILL_FLUID, new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1), Items.LAVA_BUCKET));
-        FLUID_BLOCK = Registry.register(Registry.BLOCK, new Identifier("test", "fluid_block"), new TestFluidBlock(STILL_FLUID, FabricBlockSettings.copy(Blocks.WATER).build()));
-
-        regArmor(EquipmentSlot.HEAD, "shulker", "helmet");
-        regArmor(EquipmentSlot.CHEST, "shulker", "chestplate");
-        regArmor(EquipmentSlot.LEGS, "shulker", "leggings");
-        regArmor(EquipmentSlot.FEET, "shulker", "boots");
-
-        regArmor(EquipmentSlot.HEAD, "titan", "helmet");
-        regArmor(EquipmentSlot.CHEST, "titan", "chestplate");
-        regArmor(EquipmentSlot.LEGS, "titan", "leggings");
-        regArmor(EquipmentSlot.FEET, "titan", "boots");
-
-        ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
-
-        CUSTOM_STAT = PolymerStat.registerStat("test:custom_stat", StatFormatter.DEFAULT);
-
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier("test", "test"), TEST_RECIPE_SERIALIZER);
-
-        Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
-        Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
-        Registry.register(Registry.POTION, new Identifier("test", "potion"), POTION);
-        Registry.register(Registry.POTION, new Identifier("test", "potion2"), POTION_2);
-        Registry.register(Registry.POTION, new Identifier("test", "long_potion"), LONG_POTION);
-        Registry.register(Registry.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
-
-        Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
-        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes());
-
-        Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), ENTITY_2);
-        FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
-
-        PolymerEntityUtils.registerType(ENTITY, ENTITY_2);
-
-        PolymerItemUtils.ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
-
-        PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original, virtual, player) -> {
-            if (original.hasNbt() && original.getNbt().contains("Test", NbtElement.STRING_TYPE)) {
-                ItemStack out = new ItemStack(Items.DIAMOND_SWORD, virtual.getCount());
-                out.setNbt(virtual.getNbt());
-                out.setCustomName(new LiteralText("TEST VALUE: " + original.getNbt().getString("Test")).formatted(Formatting.WHITE));
-                return out;
-            }
-            return virtual;
-        });
+        var path = PolymerImpl.getGameDir().resolve("test_logo.png");
 
 
-
-        CommandRegistrationCallback.EVENT.register((d, b) -> {
-            d.register(literal("test")
-                    .executes((ctx) -> {
-                        try {
-                            ctx.getSource().sendFeedback(new LiteralText("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        return 0;
-                    })
-            );
-            d.register(literal("incrementStat")
-                    .executes((ctx) -> {
-                        ctx.getSource().getPlayer().incrementStat(CUSTOM_STAT);
-                        ctx.getSource().sendFeedback(new LiteralText("Stat now: " + ctx.getSource().getPlayer().getStatHandler().getStat(Stats.CUSTOM, CUSTOM_STAT)), false);
-
-                        return 1;
-                    })
-            );
-        });
-
-
-        AtomicBoolean atomicBoolean = new AtomicBoolean(true);
-
-        CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test2").executes((ctx) -> {
+        if (path.toFile().exists()) {
             try {
-                var player = ctx.getSource().getPlayer();
-                if (atomicBoolean.get()) {
-                    PolymerSyncUtils.sendCreativeTab(ITEM_GROUP_2, player.networkHandler);
-                } else {
-                    PolymerSyncUtils.removeCreativeTab(ITEM_GROUP_2, player.networkHandler);
-                }
-                PolymerSyncUtils.rebuildCreativeSearch(player.networkHandler);
-                atomicBoolean.set(!atomicBoolean.get());
+                var bufferedImage = ImageIO.read(Files.newInputStream(path));
+
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "PNG", byteArrayOutputStream);
+                byte[] bs = Base64.getEncoder().encode(byteArrayOutputStream.toByteArray());
+                var image = new String(bs, StandardCharsets.UTF_8);
+
+                PolymerSyncUtils.ON_SYNC_CUSTOM.register((handler, bool) -> {
+                    PolymerClientExtensions.setReloadScreen(handler, 0x225522, 0x88FF88, PolymerClientExtensions.ReloadLogoOverride.ICON, image);
+                });
             } catch (Exception e) {
-                e.printStackTrace();
+                // noop
             }
-
-            return 0;
-        })));
-
-        PolymerItemGroup.LIST_EVENT.register((p, s) -> {
-            if (atomicBoolean.get()) {
-                s.add(ITEM_GROUP_2);
-            }
-        });
-
-        var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
-        System.out.println(id);
-        System.out.println(Block.STATE_IDS.get(id));
-
-        /*var iter = new AtomicInteger();
-        ServerTickEvents.END_SERVER_TICK.register((s) -> {
-            for (var player : s.getPlayerManager().getPlayerList()) {
-                player.sendMessage(new LiteralText(iter.toString()), true);
-                for (int i = 0; i < 30; i++) {
-                    PolymerSyncUtils.synchronizePolymerRegistries(player.networkHandler);
-                }
-                iter.incrementAndGet();
-            }
-        });*/
+        }
     }
 
     @Override

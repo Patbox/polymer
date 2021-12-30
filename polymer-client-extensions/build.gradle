@@ -1,25 +1,11 @@
 archivesBaseName = "polymer-client-extensions"
 version = rootProject.client_ext_version + "+" + rootProject.minecraft_version
 
-dependencies {
-    compileOnly(project(':polymer'))
-
-    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-}
 
 sourceSets {
     testmod {
         runtimeClasspath += main.runtimeClasspath
         compileClasspath += main.compileClasspath
-    }
-}
-
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
     }
 }
 
@@ -29,7 +15,7 @@ loom {
             client()
             ideConfigGenerated project.rootProject == project
             name = "PCE Test Mod Client"
-          source sourceSets.testmod
+            source sourceSets.testmod
         }
         testmodServer {
             server()
@@ -37,5 +23,28 @@ loom {
             name = "PCE Test Mod Server"
             source sourceSets.testmod
         }
+    }
+}
+
+dependencies {
+    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+
+    implementation(project(path: ':polymer', configuration: 'namedElements'))
+    modImplementation "xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1"
+    modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
+
+    modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+    modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+
+    testmodImplementation sourceSets.main.output
+}
+
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
     }
 }
