@@ -165,6 +165,7 @@ public class PolymerServerProtocol {
         var entries = new ArrayList<BufferWritable>();
         if (version != -1) {
             PolymerImplUtils.setPlayer(handler.player);
+            PolymerSyncUtils.BEFORE_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
             for (var entry : Registry.ITEM) {
                 if (entry instanceof PolymerItem obj && obj.shouldSyncWithPolymerClient(handler.player)) {
                     entries.add(PolymerItemEntry.of(entry, handler));
@@ -178,10 +179,13 @@ public class PolymerServerProtocol {
             if (entries.size() != 0) {
                 sendSync(handler, ServerPackets.SYNC_ITEM_ID, version, entries);
             }
+            PolymerSyncUtils.AFTER_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
             PolymerImplUtils.setPlayer(null);
         }
 
         if (fullSync) {
+            PolymerSyncUtils.BEFORE_ITEM_GROUP_SYNC.invoke((listener) -> listener.accept(handler, true));
+
             syncVanillaItemGroups(handler);
 
             for (var group : InternalServerRegistry.ITEM_GROUPS) {
@@ -189,12 +193,15 @@ public class PolymerServerProtocol {
                     syncItemGroup(group, handler);
                 }
             }
+            PolymerSyncUtils.AFTER_ITEM_GROUP_SYNC.invoke((listener) -> listener.accept(handler, true));
 
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_REBUILD_SEARCH_ID, buf(0)));
         }
 
         version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_BLOCK);
         if (version != -1) {
+            PolymerSyncUtils.BEFORE_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+
             for (var entry : Registry.BLOCK) {
                 if (entry instanceof PolymerBlock obj && obj.shouldSyncWithPolymerClient(handler.player)) {
                     entries.add(PolymerBlockEntry.of(entry));
@@ -208,9 +215,12 @@ public class PolymerServerProtocol {
             if (entries.size() != 0) {
                 sendSync(handler, ServerPackets.SYNC_BLOCK_ID, version, entries);
             }
+            PolymerSyncUtils.AFTER_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
         }
         version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_BLOCKSTATE);
         if (version != -1) {
+            PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+
             var list = ((NetworkIdList) Block.STATE_IDS).polymer_getInternalList().getOffsetList();
             for (BlockState entry : list) {
                 if (entry != null && ((PolymerObject) entry.getBlock()).shouldSyncWithPolymerClient(handler.player)) {
@@ -225,10 +235,13 @@ public class PolymerServerProtocol {
             if (entries.size() != 0) {
                 sendSync(handler, ServerPackets.SYNC_BLOCKSTATE_ID, version, entries);
             }
+            PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
         }
 
         version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ENTITY);
         if (version != -1) {
+            PolymerSyncUtils.BEFORE_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+
             for (var entry : Registry.ENTITY_TYPE) {
                 var internalEntity = InternalEntityHelpers.getEntity(entry);
                 if (entry != null && internalEntity instanceof PolymerEntity obj && obj.shouldSyncWithPolymerClient(handler.player)) {
@@ -243,6 +256,7 @@ public class PolymerServerProtocol {
             if (entries.size() != 0) {
                 sendSync(handler, ServerPackets.SYNC_ENTITY_ID, version, entries);
             }
+            PolymerSyncUtils.AFTER_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
         }
 
         PolymerSyncUtils.ON_SYNC_CUSTOM.invoke((c) -> c.accept(handler, fullSync));

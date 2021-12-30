@@ -1,6 +1,7 @@
 package eu.pb4.polymer.api.networking;
 
 import eu.pb4.polymer.api.item.PolymerItemGroup;
+import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
@@ -12,6 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class PolymerSyncUtils {
+
     private PolymerSyncUtils() {
     }
 
@@ -31,7 +33,16 @@ public final class PolymerSyncUtils {
      * This event is run after Polymer registry sync
      */
     public static final SimpleEvent<Consumer<ServerPlayNetworkHandler>> ON_SYNC_FINISHED = new SimpleEvent<>();
-
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> BEFORE_BLOCK_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_BLOCK_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> BEFORE_BLOCK_STATE_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_BLOCK_STATE_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> BEFORE_ITEM_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_ITEM_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> BEFORE_ITEM_GROUP_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_ITEM_GROUP_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> BEFORE_ENTITY_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_ENTITY_SYNC = new SimpleEvent<>();
 
     /**
      * Resends synchronization packets to player if their client supports that

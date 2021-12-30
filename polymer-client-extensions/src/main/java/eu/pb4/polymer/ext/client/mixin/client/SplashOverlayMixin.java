@@ -6,6 +6,7 @@ import eu.pb4.polymer.ext.client.api.PolymerClientExtensions;
 import eu.pb4.polymer.ext.client.impl.client.CERegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -25,6 +26,14 @@ public class SplashOverlayMixin {
     @Unique
     private float pce_theLetterH = 0;
 
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    private void pce_cancelIfDisabled(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        if (CERegistry.customReloadLogo && CERegistry.customReloadMode == PolymerClientExtensions.ReloadLogoOverride.REMOVE_SCREEN) {
+            this.client.setOverlay(null);
+            ci.cancel();
+        }
+    }
+
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
     private Identifier pce_replaceLogo(Identifier vanilla) {
         if (CERegistry.customReloadLogo) {
@@ -40,20 +49,35 @@ public class SplashOverlayMixin {
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V"), index = 3)
     private float pce_catchH(float h) {
         this.pce_theLetterH = h;
-        return h;
+        return CERegistry.customReloadLogo && CERegistry.customReloadMode == PolymerClientExtensions.ReloadLogoOverride.FULL_SCREEN ? 0 : h;
     }
+
+    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/SplashOverlay;fill(Lnet/minecraft/client/util/math/MatrixStack;IIIII)V"), index = 4)
+    private int pce_removeColor(int vanilla) {
+        return CERegistry.customReloadLogo && CERegistry.customReloadMode == PolymerClientExtensions.ReloadLogoOverride.FULL_SCREEN ? 0 : vanilla;
+    }
+
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;disableBlend()V"))
     private void pce_drawBackground(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (CERegistry.customReloadLogo && CERegistry.customReloadMode == PolymerClientExtensions.ReloadLogoOverride.FULL_SCREEN) {
             int width = this.client.getWindow().getScaledWidth();
             int height = this.client.getWindow().getScaledHeight();
+
+            int texWidth = CERegistry.customReloadTextureWidth;
+            int texHeight = CERegistry.customReloadTextureHeight;
+
+            float scale = Math.max(((float) height) / texHeight, ((float) width) / texWidth);
+
+            texWidth = (int) (texWidth * scale);
+            texHeight = (int) (texHeight * scale);
+
             RenderSystem.setShaderTexture(0, CERegistry.RELOAD_LOGO_IDENTIFIER);
             RenderSystem.enableBlend();
             RenderSystem.blendEquation(32774);
             RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.pce_theLetterH);
-            DrawableHelper.drawTexture(matrices, 0, 0, 0, 0, 0, width, height, width, height);
+            DrawableHelper.drawTexture(matrices, (width - texWidth) / 2, (height - texHeight) / 2, 0, 0, 0, texWidth, texHeight, texWidth, texHeight);
             RenderSystem.defaultBlendFunc();
             RenderSystem.disableBlend();
         }
