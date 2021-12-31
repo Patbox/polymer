@@ -25,9 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockUpdateS2CPacketMixin implements PlayerAwarePacket {
     @Shadow private BlockState state;
 
-    @Environment(EnvType.CLIENT)
-    @Unique private BlockState polymer_cachedBlockState = null;
-
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
         return PolymerBlockUtils.getPolymerBlockState(state, PolymerUtils.getPlayer());
@@ -48,12 +45,6 @@ public class BlockUpdateS2CPacketMixin implements PlayerAwarePacket {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getState", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
-        if (this.state.getBlock() instanceof PolymerBlock virtualBlock && !PolymerClientDecoded.checkDecode(this.state.getBlock())) {
-            if (this.polymer_cachedBlockState == null) {
-                this.polymer_cachedBlockState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PolymerUtils.getPlayer());
-            }
-
-            cir.setReturnValue(this.polymer_cachedBlockState);
-        }
+        cir.setReturnValue(PolymerBlockUtils.getPolymerBlockState(this.state, PolymerUtils.getPlayer()));
     }
 }

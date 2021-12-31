@@ -62,7 +62,7 @@ public class CEToastImpl implements Toast {
             this.textureRenderWidth = -1;
             this.textIdentifier = null;
         }
-        this.lastUpdate = System.currentTimeMillis();
+        this.lastUpdate = -1;
     }
 
     public Toast.Visibility draw(MatrixStack matrices, ToastManager manager, long startTime) {
@@ -106,13 +106,20 @@ public class CEToastImpl implements Toast {
         return TEXTURE_TOASTS;
     }
 
-    public static final void cleanUp(MinecraftClient client) {
+    public static final void update(MinecraftClient client) {
         var now = System.currentTimeMillis();
         for (var toast : TEXTURE_TOASTS.toArray(new CEToastImpl[0])) {
-            if (now - toast.lastUpdate > 10000) {
+            if (toast.lastUpdate != -1 && now - toast.lastUpdate > 2000) {
                 TEXTURE_TOASTS.remove(toast);
                 client.getTextureManager().destroyTexture(toast.textIdentifier);
             }
         }
+    }
+
+    public static final void removeAll(MinecraftClient client) {
+        for (var toast : TEXTURE_TOASTS.toArray(new CEToastImpl[0])) {
+            client.getTextureManager().destroyTexture(toast.textIdentifier);
+        }
+        TEXTURE_TOASTS.clear();
     }
 }

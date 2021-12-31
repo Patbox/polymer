@@ -13,10 +13,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -102,6 +104,7 @@ public final class PolymerBlockUtils {
      * @param player      Possible target player
      * @return Client side BlockState
      */
+
     public static BlockState getPolymerBlockState(BlockState state, @Nullable ServerPlayerEntity player) {
         return state.getBlock() instanceof PolymerBlock polymerBlock ? getBlockStateSafely(polymerBlock, state, player) : state;
     }
@@ -167,6 +170,10 @@ public final class PolymerBlockUtils {
      */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState) {
         return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE);
+    }
+
+    public static Block getPolymerBlock(Block block, @Nullable ServerPlayerEntity player) {
+        return block instanceof PolymerBlock polymerBlock ? getBlockSafely(polymerBlock, block.getDefaultState(),  player) : block;
     }
 
     /**

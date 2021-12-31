@@ -45,8 +45,8 @@ public abstract class PlayerActionResponseS2CPacketMixin implements PlayerAwareP
     @Environment(EnvType.CLIENT)
     @Inject(method = "state", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
-        if (this.state.getBlock() instanceof PolymerBlock virtualBlock && !PolymerClientDecoded.checkDecode(virtualBlock)) {
-            cir.setReturnValue(PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, ClientUtils.getPlayer()));
+        if (!PolymerClientDecoded.checkDecode(this.state.getBlock())) {
+            cir.setReturnValue(PolymerBlockUtils.getPolymerBlockState(state, ClientUtils.getPlayer()));
         }
     }
 }

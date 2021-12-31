@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "apolymertest",
+  "id": "apolymertestpce",
   "version": "${version}",
 
   "name": "test",
@@ -17,14 +17,14 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "eu.pb4.polymertest.TestMod"
+      "eu.pb4.polymertestpce.TestMod"
     ],
     "client": [
-      "eu.pb4.polymertest.TestMod"
+      "eu.pb4.polymertestpce.TestMod"
     ]
   },
   "mixins": [
-    "test.mixins.json"
+    "test2.mixins.json"
   ],
 
   "depends": {

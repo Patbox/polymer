@@ -1,4 +1,4 @@
-package eu.pb4.polymertest;
+package eu.pb4.polymertestpce;
 
 import com.mojang.brigadier.CommandDispatcher;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;

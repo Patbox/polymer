@@ -73,7 +73,7 @@ allprojects {
 
 dependencies {
     include(project(":polymer"))
-    include(project(":polymer-client-extensions"))
+    //include(project(":polymer-client-extensions"))
 }
 
 processResources {

@@ -4,9 +4,9 @@
   "package": "eu.pb4.polymer.ext.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-
   ],
   "client": [
+    "client.ClientPlayerEntityMixin",
     "client.SplashOverlayMixin"
   ],
   "injectors": {

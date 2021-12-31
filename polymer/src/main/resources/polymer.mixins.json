@@ -17,6 +17,7 @@
     "block.packet.ChunkDataS2CPacketMixin",
     "block.packet.ChunkDeltaUpdateS2CPacketAccessor",
     "block.packet.ChunkDeltaUpdateS2CPacketMixin",
+    "block.packet.ParticleS2CPacketMixin",
     "block.packet.PlayerActionResponseS2CPacketMixin",
     "block.packet.ServerPlayNetworkHandlerMixin",
     "block.packet.StateAccessor",

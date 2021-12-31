@@ -38,6 +38,7 @@ dependencies {
     modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
 
     testmodImplementation sourceSets.main.output
+    testmodImplementation project(":polymer").sourceSets.testmod.output
 }
 
 

@@ -33,8 +33,8 @@ public abstract class BlockEventS2CPacketMixin implements PlayerAwarePacket {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getBlock", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceBlockClient(CallbackInfoReturnable<Block> cir) {
-        if (ClientUtils.isSingleplayer() && this.block instanceof PolymerBlock virtualBlock && !(this.block instanceof PolymerClientDecoded)) {
-            cir.setReturnValue(PolymerBlockUtils.getBlockSafely(virtualBlock, this.block.getDefaultState(), ClientUtils.getPlayer()));
+        if (ClientUtils.isSingleplayer() && !(PolymerClientDecoded.checkDecode(this.block))) {
+            cir.setReturnValue(PolymerBlockUtils.getPolymerBlock(block, ClientUtils.getPlayer()));
         }
     }
 
@@ -52,9 +52,6 @@ public abstract class BlockEventS2CPacketMixin implements PlayerAwarePacket {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;getRawId(Ljava/lang/Object;)I"))
     private Object polymer_replaceBlockLocal(Object block) {
-        if (block instanceof PolymerBlock virtualBlock) {
-            return PolymerBlockUtils.getBlockSafely(virtualBlock, ((Block) block).getDefaultState(), PolymerUtils.getPlayer());
-        }
-        return block;
+        return PolymerBlockUtils.getPolymerBlock((Block) block, PolymerUtils.getPlayer());
     }
 }
