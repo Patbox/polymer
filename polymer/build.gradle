@@ -76,6 +76,7 @@ dependencies {
     runtimeOnly project(":polymer-legacy")
     include project(":polymer-legacy")
 
+    include project(":polymer-oldpatch")
     testmodImplementation sourceSets.main.output
 }
 

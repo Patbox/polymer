@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.compat;
+package eu.pb4.polymer.patch;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Pseudo
 @Mixin(RegistrySyncManager.class)
-public class fabricSync_RegistrySyncManagerMixin {
+public class RegistrySyncManagerMixin {
 
-    @Redirect(method = "createAndPopulateRegistryMap", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), require = 0)
+    @Redirect(method = "toTag", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), require = 0)
     private static Identifier polymer_skipVirtualObjects(Registry<Object> registry, Object obj, boolean isClientSync) {
         if (isClientSync
                 && (obj instanceof PolymerObject

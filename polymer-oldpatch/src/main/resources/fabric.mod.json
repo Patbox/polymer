@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-oldpatch",
+  "version": "0.0.1",
+  "name": "Polymer (Old Patch)",
+  "description": "Registry sync patch for fabric api 0.45.0 and older",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer"
+  },
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "depends": {
+    "fabric-registry-sync-v0": "<0.9.0"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "deprecated"
+      ],
+      "parent": {
+        "id": "polymer"
+      }
+    }
+  }
+}
