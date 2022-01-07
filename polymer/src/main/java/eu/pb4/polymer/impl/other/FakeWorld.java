@@ -1,7 +1,10 @@
 package eu.pb4.polymer.impl.other;
 
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
+import eu.pb4.polymer.mixin.other.WorldAccessor;
+import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,11 +22,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.OverworldBiomeCreator;
+import net.minecraft.world.biome.source.BiomeAccess;
+import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -36,9 +43,7 @@ import net.minecraft.world.tick.QueryableTickScheduler;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -85,7 +90,36 @@ public final class FakeWorld extends World {
 
     static {
         try {
-            INSTANCE = new FakeWorld(new FakeWorldProperties(), null, DimensionTypeAccessor.polymer_getOverworld(), null, false, true, 1);
+            World world;
+
+            try {
+                world = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
+                var accessor = (WorldAccessor) world;
+                accessor.polymer_setBiomeAccess(new BiomeAccess(world, 1l));
+                accessor.polymer_setBorder(new WorldBorder());
+                accessor.polymer_setDebugWorld(true);
+                accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
+                accessor.polymer_setProperties(new FakeWorldProperties());
+                accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
+                accessor.polymer_setThread(Thread.currentThread());
+                accessor.polymer_setRandom(new Random());
+                accessor.polymer_setBlockEntityTickers(new ArrayList<>());
+                accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
+
+            } catch (Exception e) {
+                PolymerImpl.LOGGER.warn("Creating fake world with unsafe failed... Time for plan B");
+                world = new FakeWorld(
+                        new FakeWorldProperties(),
+                        RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
+                        DimensionTypeAccessor.polymer_getOverworld(),
+                        () -> new ProfilerSystem(() -> 0l, () -> 0, false),
+                        false,
+                        true,
+                        1
+                );
+            }
+
+            INSTANCE = world;
         } catch (Exception e1) {
             PolymerImpl.LOGGER.error("Couldn't initiate fake world! See logs below!");
             throw e1;

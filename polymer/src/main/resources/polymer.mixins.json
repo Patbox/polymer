@@ -73,7 +73,8 @@
     "other.ServerPlayerEntityMixin",
     "other.ServerPlayNetworkHandlerMixin",
     "other.StatisticsS2CPacketMixin",
-    "other.TagGroupMixin"
+    "other.TagGroupMixin",
+    "other.WorldAccessor"
   ],
   "client": [
     "client.ClientPlayNetworkHandlerMixin",
