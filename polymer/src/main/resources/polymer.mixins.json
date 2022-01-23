@@ -72,6 +72,7 @@
     "other.ServerLoginNetworkHandlerMixin",
     "other.ServerPlayerEntityMixin",
     "other.ServerPlayNetworkHandlerMixin",
+    "other.SimpleRegistryMixin",
     "other.StatisticsS2CPacketMixin",
     "other.TagGroupMixin",
     "other.WorldAccessor"

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.impl.interfaces.ServerChunkManagerInterface;
@@ -32,7 +33,12 @@ public class TACSMixin {
     private void polymer_catchPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
         PolymerImplUtils.playerTargetHack.set(player);
         var value = cachedDataPacket.getValue();
-        if (value != null && ((ChunkDataS2CPacketInterface) value).polymer_hasPlayerDependentBlocks()) {
+        var playerMapper = BlockMapper.getFrom(player);
+        if (value != null && (
+                ((ChunkDataS2CPacketInterface) value).polymer_hasPlayerDependentBlocks()
+                || ((ChunkDataS2CPacketInterface) value).polymer_getMapper() != playerMapper
+                || playerMapper != BlockMapper.createDefault()
+        )) {
             cachedDataPacket.setValue(null);
         }
     }

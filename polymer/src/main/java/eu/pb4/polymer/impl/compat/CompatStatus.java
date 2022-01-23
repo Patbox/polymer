@@ -3,7 +3,12 @@ package eu.pb4.polymer.impl.compat;
 import eu.pb4.polymer.impl.PolymerImpl;
 
 public class CompatStatus {
-    public static final boolean FABRIC_SYNC = PolymerImpl.isModLoaded("fabric-registry-sync-v0") && !PolymerImpl.isModLoaded("polymer-oldpatch");
+    public static final boolean POLYMER_OLD_PATCH = PolymerImpl.isModLoaded("polymer-oldpatch");
+    public static final boolean POLYMER_LEGACY = PolymerImpl.isModLoaded("polymer-legacy");
+    public static final boolean POLYMER_BLOCKS = PolymerImpl.isModLoaded("polymer-blocks");
+    public static final boolean POLYMER_CLIENT_EXT = PolymerImpl.isModLoaded("polymer-client-extensions");
+
+    public static final boolean FABRIC_SYNC = PolymerImpl.isModLoaded("fabric-registry-sync-v0") && !POLYMER_OLD_PATCH;
     public static final boolean FABRIC_PERMISSION_API_V0 = PolymerImpl.isModLoaded("fabric-permissions-api-v0");
 
     public static final boolean POLYMC = PolymerImpl.isModLoaded("polymc");

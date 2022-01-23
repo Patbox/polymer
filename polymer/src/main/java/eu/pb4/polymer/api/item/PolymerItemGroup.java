@@ -12,9 +12,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * An server side item group that can be synchronized with polymer clients
@@ -30,12 +29,12 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
      * Even called on synchronization of PolymerItemGroups
      */
     public static final SimpleEvent<ItemGroupEventListener> LIST_EVENT = new SimpleEvent<>();
-    public static List<ItemStack> items = new ArrayList<>();
     private final Text name;
     private final Identifier identifier;
     private boolean sync;
     private ItemStack icon = PolymerImplUtils.getNoTextureItem().copy();
     private Consumer<DefaultedList<ItemStack>> customAppend = null;
+    private Supplier<ItemStack> cachedIcon;
 
     private PolymerItemGroup(Identifier id, Text name, boolean sync) {
         super(0, id.toString());
@@ -48,6 +47,10 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
      * Creates new ItemGroup
      */
     public static PolymerItemGroup create(Identifier id, Text name, ItemStack icon) {
+        return create(id, name).setIcon(() -> icon);
+    }
+
+    public static PolymerItemGroup create(Identifier id, Text name, Supplier<ItemStack> icon) {
         return create(id, name).setIcon(icon);
     }
 
@@ -74,7 +77,17 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
     /**
      * Sets icon of ItemGroup
      */
+    public PolymerItemGroup setIcon(Supplier<ItemStack> stack) {
+        this.cachedIcon = stack;
+        this.icon = null;
+        return this;
+    }
+
+    /**
+     * Sets icon of ItemGroup
+     */
     public PolymerItemGroup setIcon(ItemStack stack) {
+        this.cachedIcon = null;
         if (stack.isEmpty()) {
             this.icon = PolymerImplUtils.getNoTextureItem().copy();
         } else {
@@ -95,6 +108,11 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
 
     @Override
     public ItemStack createIcon() {
+        if (this.cachedIcon != null) {
+            this.icon = this.cachedIcon.get();
+            this.cachedIcon = null;
+        }
+
         return this.icon;
     }
 

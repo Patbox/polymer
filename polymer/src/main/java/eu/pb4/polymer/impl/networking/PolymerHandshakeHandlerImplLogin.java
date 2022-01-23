@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -30,6 +31,7 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     private String polymerVersion = "";
     private Object2IntMap<String> protocolVersions = null;
     private Object2LongMap<String> lastUpdate = new Object2LongOpenHashMap<>();
+    private BlockMapper blockMapper = BlockMapper.createDefault();
 
     public PolymerHandshakeHandlerImplLogin(MinecraftServer server, ServerPlayerEntity player, ClientConnection connection,
                                             Consumer<PolymerHandshakeHandlerImplLogin> continueJoining) {
@@ -79,6 +81,16 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
         return false;
     }
 
+    @Override
+    public BlockMapper getBlockMapper() {
+        return this.blockMapper;
+    }
+
+    @Override
+    public void setBlockMapper(BlockMapper mapper) {
+        this.blockMapper = mapper;
+    }
+
     public ServerPlayerEntity getPlayer() {
         return this.player;
     }
@@ -98,6 +110,8 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
         for (var entry : this.lastUpdate.keySet()) {
             polymerHandler.polymer_savePacketTime(entry);
         }
+
+        polymerHandler.polymer_setBlockMapper(this.blockMapper);
     }
 
     @Override

@@ -7,6 +7,8 @@ import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.other.PolymerStat;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
@@ -15,10 +17,7 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
+import net.minecraft.block.*;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -49,6 +48,9 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -267,6 +269,42 @@ public class TestMod implements ModInitializer, ClientModInitializer {
                     PolymerSyncUtils.removeCreativeTab(ITEM_GROUP_2, player.networkHandler);
                 }
                 PolymerSyncUtils.rebuildCreativeSearch(player.networkHandler);
+                atomicBoolean.set(!atomicBoolean.get());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return 0;
+        })));
+        AtomicBoolean mapper = new AtomicBoolean(false);
+
+        CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("mapperswitch").executes((ctx) -> {
+            try {
+                var player = ctx.getSource().getPlayer();
+                if (atomicBoolean.get()) {
+                    BlockMapper.set(player.networkHandler, BlockMapper.createDefault());
+                } else {
+                    var list = new ArrayList<BlockState>();
+                    Block.STATE_IDS.forEach(list::add);
+                    var copy = new ArrayList<>(list);
+
+                    var map = new IdentityHashMap<BlockState, BlockState>();
+                    var random = new Random();
+                    for (var entry : list) {
+                        BlockState state;
+                        if (entry.isAir()) {
+                            state = entry;
+                            copy.remove(entry);
+                        } else {
+                            state = copy.remove(random.nextInt(copy.size()));
+                        }
+
+                        map.put(entry, state);
+                    }
+
+                    BlockMapper.set(player.networkHandler, BlockMapper.createMap(map));
+                }
+                PolymerUtils.reloadWorld(player);
                 atomicBoolean.set(!atomicBoolean.get());
             } catch (Exception e) {
                 e.printStackTrace();

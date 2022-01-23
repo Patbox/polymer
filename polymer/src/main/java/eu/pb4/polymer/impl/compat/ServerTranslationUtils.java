@@ -27,6 +27,6 @@ public class ServerTranslationUtils {
             newStack.setNbt(StackNbtLocalizer.localize(newStack, stack.getNbt(), (LocalizationTarget) handler.player));
             return newStack;
         }
-        return stack;
+        return stack.copy();
     }
 }

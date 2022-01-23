@@ -1,13 +1,16 @@
 package eu.pb4.polymer.api.networking;
 
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.networking.PolymerHandshakeHandlerImplLate;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+@ApiStatus.NonExtendable
 public interface PolymerHandshakeHandler {
     void sendPacket(Packet<?> packet);
     void set(String polymerVersion, Object2IntMap<String> protocolVersions);
@@ -25,6 +28,10 @@ public interface PolymerHandshakeHandler {
     MinecraftServer getServer();
 
     boolean shouldUpdateWorld();
+
+    BlockMapper getBlockMapper();
+
+    void setBlockMapper(BlockMapper mapper);
 
     @Nullable
     ServerPlayerEntity getPlayer();

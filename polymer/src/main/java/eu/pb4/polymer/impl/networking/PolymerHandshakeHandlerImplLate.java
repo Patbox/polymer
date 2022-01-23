@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.Packet;
@@ -60,6 +61,16 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     @Override
     public boolean shouldUpdateWorld() {
         return true;
+    }
+
+    @Override
+    public BlockMapper getBlockMapper() {
+        return this.polymerHandler.polymer_getBlockMapper();
+    }
+
+    @Override
+    public void setBlockMapper(BlockMapper mapper) {
+        this.polymerHandler.polymer_setBlockMapper(mapper);
     }
 
     public ServerPlayerEntity getPlayer() {

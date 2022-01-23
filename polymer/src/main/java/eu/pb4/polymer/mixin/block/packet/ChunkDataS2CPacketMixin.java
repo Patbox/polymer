@@ -1,6 +1,8 @@
 package eu.pb4.polymer.mixin.block.packet;
 
-import eu.pb4.polymer.api.block.PlayerAwarePolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.world.chunk.WorldChunk;
@@ -19,13 +21,17 @@ public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
     private WorldChunk polymer_worldChunk;
 
     @Unique
+    private BlockMapper polymer_usedMapper;
+
+    @Unique
     private boolean polymer_hasPlayerDependentBlocks;
 
     @Inject(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/world/chunk/light/LightingProvider;Ljava/util/BitSet;Ljava/util/BitSet;Z)V", at = @At("TAIL"))
     private void polymer_storeWorldChunk(WorldChunk chunk, LightingProvider lightingProvider, BitSet bitSet, BitSet bitSet2, boolean bl, CallbackInfo ci) {
         this.polymer_worldChunk = chunk;
+        this.polymer_usedMapper = BlockMapper.getFrom(PolymerUtils.getPlayer());
         for (var section : chunk.getSectionArray()) {
-            if (section != null && section.hasAny(PlayerAwarePolymerBlock.PLAYER_AWARE_BLOCK_STATE_PREDICATE)) {
+            if (section != null && section.hasAny(PolymerBlockUtils.IS_POLYMER_BLOCK_STATE_PREDICATE)) {
                 this.polymer_hasPlayerDependentBlocks = true;
                 break;
             }
@@ -34,6 +40,11 @@ public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
 
     public WorldChunk polymer_getWorldChunk() {
         return this.polymer_worldChunk;
+    }
+
+    @Override
+    public BlockMapper polymer_getMapper() {
+        return this.polymer_usedMapper;
     }
 
     @Override

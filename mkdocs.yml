@@ -10,6 +10,7 @@ nav:
       - polymer/blocks.md
       - polymer/entities.md
       - polymer/resource-packs.md
+      - polymer/other.md
   - Useful tools:
       - other/server-translation-api.md
 
@@ -43,4 +44,4 @@ plugins:
 extra:
   version:
     provider: mike
-    default: 0.1.x
+    default: 0.2.x

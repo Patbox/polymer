@@ -1,8 +1,10 @@
 package eu.pb4.polymer.impl.interfaces;
 
+import eu.pb4.polymer.api.x.BlockMapper;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
@@ -32,6 +34,12 @@ public interface PolymerNetworkHandlerExtension {
 
     void polymer_delayAction(String identifier, int delay, Runnable action);
 
+    BlockMapper polymer_getBlockMapper();
+    void polymer_setBlockMapper(BlockMapper mapper);
+
+    static PolymerNetworkHandlerExtension of(ServerPlayerEntity player) {
+        return (PolymerNetworkHandlerExtension) player.networkHandler;
+    }
 
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {
         return (PolymerNetworkHandlerExtension) handler;

@@ -37,7 +37,7 @@ Example use:
 Displaying real items with helmet replacement.
 ```
 @Override
-public List<Pair<EquipmentSlot, ItemStack>> ggetPolymerVisibleEquipment(Map<EquipmentSlot, ItemStack> map) {
+public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(Map<EquipmentSlot, ItemStack> map) {
     List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(map.size());
     for (Map.Entry<EquipmentSlot, ItemStack> entry : map.entrySet()) {
         if (entry.getKey() == EquipmentSlot.HEAD) {

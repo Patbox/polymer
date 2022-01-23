@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
@@ -54,12 +55,24 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     private String polymer_version = "";
     @Unique
     private final Object2LongMap<String> polymer_rateLimits = new Object2LongOpenHashMap<>();
+    private BlockMapper polymer_blockMapper = BlockMapper.createDefault();
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
 
     @Shadow
     public abstract ServerPlayerEntity getPlayer();
+
+
+    @Override
+    public BlockMapper polymer_getBlockMapper() {
+        return this.polymer_blockMapper;
+    }
+
+    @Override
+    public void polymer_setBlockMapper(BlockMapper mapper) {
+        this.polymer_blockMapper = mapper;
+    }
 
     @Override
     public boolean polymer_hasResourcePack() {

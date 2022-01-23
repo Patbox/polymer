@@ -9,6 +9,7 @@ import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
@@ -68,6 +69,16 @@ public class Commands {
                     .then(literal("reload-world")
                             .executes((ctx) -> {
                                 PolymerUtils.reloadWorld(ctx.getSource().getPlayer());
+                                return 0;
+                            }))
+                    .then(literal("get-mapper")
+                            .executes((ctx) -> {
+                                ctx.getSource().sendFeedback(new LiteralText(BlockMapper.getFrom(ctx.getSource().getPlayer()).getMapperName()), false);
+                                return 0;
+                            }))
+                    .then(literal("reset-mapper")
+                            .executes((ctx) -> {
+                                BlockMapper.resetMapper(ctx.getSource().getPlayer());
                                 return 0;
                             }))
                     .then(literal("run-sync")

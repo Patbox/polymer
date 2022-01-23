@@ -1,6 +1,8 @@
 package eu.pb4.polymer.api.block;
 
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
+import eu.pb4.polymer.api.x.BlockMapper;
+import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
@@ -18,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -49,6 +50,23 @@ public final class PolymerBlockUtils {
      */
     public static void registerBlockEntity(BlockEntityType<?>... types) {
         BLOCK_ENTITY_TYPES.addAll(Arrays.asList(types));
+
+        var reg = (RegistryExtension) Registry.BLOCK_ENTITY_TYPE;
+        if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
+            reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
+            for (var entry : Registry.BLOCK_ENTITY_TYPE.getEntries()) {
+                if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
+                    continue;
+                }
+
+                if (BLOCK_ENTITY_TYPES.contains(entry.getValue())) {
+                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_POLYMER);
+                } else {
+                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_REGULAR_MODS);
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -104,9 +122,12 @@ public final class PolymerBlockUtils {
      * @param player      Possible target player
      * @return Client side BlockState
      */
-
     public static BlockState getPolymerBlockState(BlockState state, @Nullable ServerPlayerEntity player) {
-        return state.getBlock() instanceof PolymerBlock polymerBlock ? getBlockStateSafely(polymerBlock, state, player) : state;
+        return BlockMapper.getFrom(player).toClientSideState(state, player);
+    }
+
+    public static Block getPolymerBlock(Block block, @Nullable ServerPlayerEntity player) {
+        return BlockMapper.getFrom(player).toClientSideBlock(block, player);
     }
 
     /**
@@ -170,10 +191,6 @@ public final class PolymerBlockUtils {
      */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState) {
         return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE);
-    }
-
-    public static Block getPolymerBlock(Block block, @Nullable ServerPlayerEntity player) {
-        return block instanceof PolymerBlock polymerBlock ? getBlockSafely(polymerBlock, block.getDefaultState(),  player) : block;
     }
 
     /**

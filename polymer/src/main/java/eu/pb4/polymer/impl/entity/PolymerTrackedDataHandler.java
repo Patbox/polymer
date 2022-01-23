@@ -27,21 +27,6 @@ public interface PolymerTrackedDataHandler<T> extends TrackedDataHandler<T> {
             }
 
             buf.writeItemStack(polymerStack);
-            /*// Todo: remove that when STA is fixed
-            if (polymerStack.isEmpty()) {
-                buf.writeBoolean(false);
-            } else {
-                buf.writeBoolean(true);
-                Item item = polymerStack.getItem();
-                buf.writeVarInt(Item.getRawId(item));
-                buf.writeByte(polymerStack.getCount());
-                NbtCompound nbtCompound = null;
-                if (item.isDamageable() || item.isNbtSynced()) {
-                    nbtCompound = polymerStack.getNbt();
-                }
-
-                buf.writeNbt(nbtCompound);
-            }*/
         }
 
         public ItemStack read(PacketByteBuf packetByteBuf) {

@@ -25,7 +25,7 @@ If you have a server and polymer based mods you are using include a resource pac
 to additionally use this mod: https://github.com/aws404/polypack-host
 
 ## For mod developers:
-All information about usage can be found at https://polymer.pb4.eu/!
+All information about usage can be found at https://polymer.pb4.eu/0.2.x/!
 
 ## What this library/mod doesn't do
 This mod doesn't convert existing mods to server side ones. While it's possible to do so with manual coding,

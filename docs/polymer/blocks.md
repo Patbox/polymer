@@ -21,7 +21,10 @@ For most basic uses, there are default implementation of `PolymerBlock`:
 ### Selecting base visual block type.
 To change base block, you need to override `Block getPolymerBlock(BlockState)` method.
 
-Both of these methods can't return null. They can also point to other VirtualBlock instances, but keep
+You can also override `Block getPolymerBlock(ServerPlayerEntity, BlockState)` to replace blocks per player,
+however keep in mind they should ideally have same collisions.
+
+Both of these methods can't return null. They can also point to other PolymerBlock instances, but keep
 in mind to make validation if it's configurable by user!
 
 Example use:
@@ -30,13 +33,19 @@ Making block look like a diamond
 ```
 @Override
 public Block getPolymerBlock(BlockState state) {
-    return Blocks.DIAMOND_BLOCK;
+    return Blocks.BARRIER;
+}
+
+public Block getPolymerBlock(ServerPlayerEntity player, BlockState state) {
+    return Something.isRedTeam(player) ? Blocks.RED_WOOL : Blocks.BLUE_WOOL;
 }
 ```
 
 ### Changing client-side and collision BlockStates
 If you want to change what BlockState will be used for server side collision 
 and client side you need to override `BlockState getPolymerBlockState(BlockState state)` method.
+You can also override `BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state)` for player context,
+similar to `getPolymerBlock`.
 You can return other BlockState of PolymerBlock, but keep in mind you can only nest them
 up to 32!
 
@@ -62,15 +71,8 @@ Example use:
 Sending data required to render player head with skin
 ```
 @Override
-public void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) {
-    NbtCompound main = new NbtCompound();
-    NbtCompound skullOwner = SomeHelper.getSkullOwnerFor(this);
-    main.putString("id", "minecraft:skull");
-    main.put("SkullOwner", skullOwner);
-    main.putInt("x", pos.getX());
-    main.putInt("y", pos.getY());
-    main.putInt("z", pos.getZ());    
-    player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos.toImmutable(), 4, main));
+public void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) { 
+    player.networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos.toImmutable()));
 }
 ```
 
@@ -107,4 +109,4 @@ While it's supported, please limit creation of VirtualBlock light sources. Becau
 handles light updates on server/client, these can be little laggy (as it needs to be sent updates every time light changes) and not perfect, 
 as client is emulating light by itself.
 
-Similarly, client recalculates some BlockStates, which can cause some desyncs. 
+Similarly, client recalculates some BlockStates, which can cause some desyncs.

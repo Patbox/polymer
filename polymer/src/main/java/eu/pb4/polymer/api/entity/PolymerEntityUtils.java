@@ -1,6 +1,7 @@
 package eu.pb4.polymer.api.entity;
 
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
@@ -8,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -19,7 +21,7 @@ public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
     }
 
-    private static final HashSet<EntityType<?>> ENTITY_IDENTIFIERS = new HashSet<>();
+    private static final HashSet<EntityType<?>> ENTITY_TYPES = new HashSet<>();
 
     /**
      * Allows to get next free entity id you can use for networking
@@ -36,7 +38,24 @@ public final class PolymerEntityUtils {
      * @param types Entity Types
      */
     public static void registerType(EntityType<?>... types) {
-        ENTITY_IDENTIFIERS.addAll(Arrays.asList(types));
+        ENTITY_TYPES.addAll(Arrays.asList(types));
+
+        var reg = (RegistryExtension) Registry.ENTITY_TYPE;
+        if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
+            reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
+            for (var entry : Registry.ENTITY_TYPE.getEntries()) {
+                if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
+                    continue;
+                }
+
+                if (ENTITY_TYPES.contains(entry.getValue())) {
+                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_POLYMER);
+                } else {
+                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_REGULAR_MODS);
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -45,7 +64,7 @@ public final class PolymerEntityUtils {
      * @param type EntityType
      */
     public static boolean isRegisteredEntityType(EntityType<?> type) {
-        return ENTITY_IDENTIFIERS.contains(type);
+        return ENTITY_TYPES.contains(type);
     }
 
 

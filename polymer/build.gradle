@@ -68,8 +68,6 @@ dependencies {
     modCompileOnly('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:1.18-SNAPSHOT')
     modCompileOnly('com.github.qouteall.ImmersivePortalsMod:q_misc_util:1.18-SNAPSHOT')
 
-    //modRuntimeOnly "com.github.arthurbambou:Server-Translations:1.18-SNAPSHOT"
-
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
 

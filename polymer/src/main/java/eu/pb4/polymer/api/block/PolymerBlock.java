@@ -19,7 +19,16 @@ public interface PolymerBlock extends PolymerObject {
     Block getPolymerBlock(BlockState state);
 
     /**
-     * Main method used for replacing BlockStates on client
+     * Returns block used on client for player
+     *
+     * @return Vanilla (or other) Block instance
+     */
+    default Block getPolymerBlock(ServerPlayerEntity player, BlockState state) {
+        return this.getPolymerBlock(state);
+    }
+
+    /**
+     * Generic method used for replacing BlockStates in case of no player context
      * It also controls some server side things like collisions
      *
      * @param state Server side/real BlockState
@@ -27,6 +36,18 @@ public interface PolymerBlock extends PolymerObject {
      */
     default BlockState getPolymerBlockState(BlockState state) {
         return this.getPolymerBlock(state).getDefaultState();
+    }
+
+    /**
+     * Main method used for replacing BlockStates for players
+     * Keep in mind you should ideally use blocks with the same hitbox as generic/non-player ones!
+     *
+     * @param player Player viewing it
+     * @param state Server side BlocksState
+     * @return Client side BlockState
+     */
+    default BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state) {
+        return this.getPolymerBlockState(state);
     }
 
     /**
@@ -39,9 +60,7 @@ public interface PolymerBlock extends PolymerObject {
      *            in case of using in packets, as it's reused for other positions!
      * @param blockState Real BlockState of block
      */
-    default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) {
-
-    }
+    default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) { }
 
     /**
      * You can override this method in case of issues with light updates of this block. In most cases it's not needed.

@@ -32,7 +32,7 @@ Example use:
 Changing client-side item to diamond
 ```
 @Override
-public Item getVirtualItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
     return itemStack.getCount() > 32 ? Items.DIAMOND_BLOCK : Items.DIAMOND;
 }
 ```
@@ -78,6 +78,12 @@ public int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayer
 }
 ```
 
+## Item Groups support
+You can create server side Item Groups, which will be later synced with Polymer-compatible clients.
+They also allow you to create server side Creative categories, that are accessible via `/polymer creative` command.
+
+To create, it, you just need to call one of provided `PolymerItemGroup.create(Identifier, Text, [Supplier<ItemStack>])` 
+static method. Then you can use it like regular ItemGroup.
 
 ## Manipulation of non-polymer items
 Sometimes, you might want to manipulate other vanilla/modded items without implementing
