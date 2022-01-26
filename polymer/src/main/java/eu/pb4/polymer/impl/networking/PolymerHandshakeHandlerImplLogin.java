@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
+import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
@@ -32,6 +33,7 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     private Object2IntMap<String> protocolVersions = null;
     private Object2LongMap<String> lastUpdate = new Object2LongOpenHashMap<>();
     private BlockMapper blockMapper = BlockMapper.createDefault();
+    private boolean hasPack = false;
 
     public PolymerHandshakeHandlerImplLogin(MinecraftServer server, ServerPlayerEntity player, ClientConnection connection,
                                             Consumer<PolymerHandshakeHandlerImplLogin> continueJoining) {
@@ -115,6 +117,11 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     }
 
     @Override
+    public boolean getPackStatus() {
+        return this.hasPack;
+    }
+
+    @Override
     public void onCustomPayload(CustomPayloadC2SPacket packet) {
         var data = packet.getData();
         if (packet.getChannel().equals(ClientPackets.HANDSHAKE_ID)) {
@@ -128,6 +135,16 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
 
         if (packet.getId() == MAGIC_VALUE) {
             this.continueJoining.accept(this);
+        }
+    }
+
+    @Override
+    public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
+        if (PolymerRPUtils.shouldCheckByDefault()) {
+            this.hasPack = switch (packet.getStatus()) {
+                case ACCEPTED, SUCCESSFULLY_LOADED -> true;
+                case DECLINED, FAILED_DOWNLOAD -> false;
+            };
         }
     }
 
@@ -237,11 +254,6 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
 
     @Override
     public void onSpectatorTeleport(SpectatorTeleportC2SPacket packet) {
-
-    }
-
-    @Override
-    public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
 
     }
 

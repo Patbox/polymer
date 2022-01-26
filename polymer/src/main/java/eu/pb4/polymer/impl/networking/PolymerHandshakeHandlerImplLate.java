@@ -85,4 +85,9 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     public void apply(ServerPlayNetworkHandler handler) {
         // No need to apply, as it's send late anyway!
     }
+
+    @Override
+    public boolean getPackStatus() {
+        return this.polymerHandler.polymer_hasResourcePack();
+    }
 }

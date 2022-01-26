@@ -1,12 +1,12 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.api.block.PlayerAwarePolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class TestPerPlayerBlock extends Block implements PlayerAwarePolymerBlock {
+public class TestPerPlayerBlock extends Block implements PolymerBlock {
     public TestPerPlayerBlock(Settings settings) {
         super(settings);
     }

@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.compat.immersive_portals;
 
-import eu.pb4.polymer.api.block.PlayerAwarePolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.IPAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
@@ -38,7 +38,7 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
         if (packet instanceof IPAttachedPacket attachedPacket && !attachedPacket.polymer_ip_shouldSkip() && attachedPacket.polymer_ip_getAttachedPacket() != null && attachedPacket.polymer_ip_getAttachedDimension() != null) {
             var realPacket = attachedPacket.polymer_ip_getAttachedPacket();
             if ((realPacket instanceof BlockUpdateS2CPacket blockUpdate
-                    && ((BlockUpdateS2CPacketAccessor) blockUpdate).polymer_getState().getBlock() instanceof PlayerAwarePolymerBlock)
+                    && ((BlockUpdateS2CPacketAccessor) blockUpdate).polymer_getState().getBlock() instanceof PolymerBlock)
                     || (realPacket instanceof ChunkDeltaUpdateS2CPacket blockUpdate2 && this.polymer_op_containsPlayerAware(blockUpdate2))
             ) {
                 PolymerImplUtils.playerTargetHack.set(this.getPlayer());
@@ -54,7 +54,7 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
     @Unique
     private final boolean polymer_op_containsPlayerAware(ChunkDeltaUpdateS2CPacket states) {
         for (var i : ((ChunkDeltaUpdateS2CPacketAccessor) states).polymer_getBlockStates()) {
-            if (i.getBlock() instanceof PlayerAwarePolymerBlock) {
+            if (i.getBlock() instanceof PolymerBlock) {
                 return true;
             }
         }

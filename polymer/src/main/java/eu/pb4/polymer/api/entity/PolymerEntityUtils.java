@@ -10,7 +10,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.util.registry.Registry;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -103,7 +102,6 @@ public final class PolymerEntityUtils {
     /**
      * @return Creates PlayerEntity spawn packet, that can be used by VirtualEntities
      */
-    @Nullable
     public static PlayerSpawnS2CPacket createPlayerSpawnPacket(int entityId, UUID uuid, double x, double y, double z, float yaw, float pitch) {
         try {
             PlayerSpawnS2CPacket packet = (PlayerSpawnS2CPacket) UnsafeAccess.UNSAFE.allocateInstance(PlayerSpawnS2CPacket.class);
@@ -124,7 +122,6 @@ public final class PolymerEntityUtils {
     /**
      * @return Creates PlayerEntity spawn packet, that can be used by VirtualEntities
      */
-    @Nullable
     public static PlayerSpawnS2CPacket createPlayerSpawnPacket(Entity entity) {
         return createPlayerSpawnPacket(entity.getId(), entity.getUuid(), entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
     }

@@ -80,7 +80,9 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static Block BLOCK_FENCE = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE);
     public static BlockItem BLOCK_FENCE_ITEM = new PolymerBlockItem(BLOCK_FENCE, new FabricItemSettings().group(ITEM_GROUP), Items.NETHER_BRICK_FENCE);
     public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
+    public static Block BLOCK_3 = new Test3Block(AbstractBlock.Settings.of(Material.STONE).strength(2f));
     public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new FabricItemSettings().group(ITEM_GROUP), Items.TNT);
+    public static BlockItem BLOCK_ITEM_3 = new PolymerBlockItem(BLOCK_3, new FabricItemSettings().group(ITEM_GROUP), Items.COBWEB);
     public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
     public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new FabricItemSettings().group(ITEM_GROUP));
     public static TestPickaxeItem PICKAXE = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings().group(ITEM_GROUP));
@@ -167,6 +169,8 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         Registry.register(Registry.ITEM, new Identifier("test", "block_fence"), BLOCK_FENCE_ITEM);
         Registry.register(Registry.BLOCK, new Identifier("test", "block2"), BLOCK_2);
         Registry.register(Registry.ITEM, new Identifier("test", "block2"), BLOCK_ITEM_2);
+        Registry.register(Registry.BLOCK, new Identifier("test", "block3"), BLOCK_3);
+        Registry.register(Registry.ITEM, new Identifier("test", "block3"), BLOCK_ITEM_3);
         Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), TATER_BLOCK);
         Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), TATER_BLOCK_ITEM);
         Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), PICKAXE);

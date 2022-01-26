@@ -8,6 +8,4 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Experimental
 @Deprecated
-public interface PlayerAwarePolymerBlock extends PolymerBlock {
-
-}
+public interface PlayerAwarePolymerBlock extends PolymerBlock { }

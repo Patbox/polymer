@@ -41,4 +41,6 @@ public interface PolymerHandshakeHandler {
     }
 
     void apply(ServerPlayNetworkHandler handler);
+
+    boolean getPackStatus();
 }
