@@ -2,17 +2,13 @@ package eu.pb4.polymer.ext.client.impl.client;
 
 import eu.pb4.polymer.ext.client.api.PolymerClientExtensions;
 import eu.pb4.polymer.ext.client.impl.CEServerProtocol;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-
-import java.io.ByteArrayInputStream;
 
 @Environment(EnvType.CLIENT)
 public class CEClientProtocol {
@@ -79,7 +75,7 @@ public class CEClientProtocol {
             var text = buf.readText();
 
             var type = buf.readByte();
-            var stack = type == 1 ? buf.readItemStack() : null;
+            var stack = type == 1 ? PolymerImplUtils.readStack(buf) : null;
             var data = type == 2 ? buf.readByteArray() : null;
 
             client.execute(() -> {

@@ -158,19 +158,21 @@ allprojects {
     apply plugin: 'maven-publish'
 
     afterEvaluate {
-        publishing {
-            publications {
-                mavenJava(MavenPublication) {
-                    groupId = rootProject.maven_group
-                    artifactId = project.archivesBaseName
-                    version = project.version
+        if (!project.version.equals("0.0.0-alpha.0")) {
+            publishing {
+                publications {
+                    mavenJava(MavenPublication) {
+                        groupId = rootProject.maven_group
+                        artifactId = project.archivesBaseName
+                        version = project.version
 
-                    from components.java
+                        from components.java
+                    }
+
                 }
 
+                setupRepositories(repositories)
             }
-
-            setupRepositories(repositories)
         }
     }
 }

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -18,6 +19,8 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
         this.server = server;
         this.handler = handler;
         this.polymerHandler = PolymerNetworkHandlerExtension.of(handler);
+
+        PolymerSyncUtils.PREPARE_HANDSHAKE.invoke((c -> c.accept(this)));
     }
 
     public void sendPacket(Packet<?> packet) {

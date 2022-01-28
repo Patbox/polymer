@@ -8,6 +8,7 @@ import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
@@ -194,7 +195,7 @@ public class PolymerClientProtocolHandler {
                 var size = buf.readVarInt();
 
                 for (int i = 0; i < size; i++) {
-                    groupAccess.polymer_addStack(buf.readItemStack());
+                    groupAccess.polymer_addStack(PolymerImplUtils.readStack(buf));
                 }
             }
             return true;
@@ -312,13 +313,13 @@ public class PolymerClientProtocolHandler {
         if (version == 0) {
             var id = buf.readIdentifier();
             var name = buf.readText();
-            var icon = buf.readItemStack();
+            var icon = PolymerImplUtils.readStack(buf);
 
             var size = buf.readVarInt();
 
             var stacks = new ArrayList<ItemStack>();
             for (int i = 0; i < size; i++) {
-                stacks.add(buf.readItemStack());
+                stacks.add(PolymerImplUtils.readStack(buf));
             }
 
             MinecraftClient.getInstance().execute(() -> {

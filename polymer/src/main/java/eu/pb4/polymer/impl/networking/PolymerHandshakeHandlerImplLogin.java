@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
+import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
@@ -45,6 +46,8 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
         this.connection.setState(NetworkState.PLAY);
         ((TempPlayerLoginAttachments) player).polymer_setHandshakeHandler(this);
         this.connection.send(new KeepAliveS2CPacket(MAGIC_VALUE));
+
+        PolymerSyncUtils.PREPARE_HANDSHAKE.invoke((c) -> c.accept(this));
     }
 
     public void sendPacket(Packet<?> packet) {

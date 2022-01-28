@@ -1,7 +1,6 @@
 package eu.pb4.polymer.api.networking;
 
 import eu.pb4.polymer.api.item.PolymerItemGroup;
-import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
@@ -43,6 +42,7 @@ public final class PolymerSyncUtils {
     public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_ITEM_GROUP_SYNC = new SimpleEvent<>();
     public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> BEFORE_ENTITY_SYNC = new SimpleEvent<>();
     public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_ENTITY_SYNC = new SimpleEvent<>();
+    public static final SimpleEvent<Consumer<PolymerHandshakeHandler>> PREPARE_HANDSHAKE = new SimpleEvent<>();
 
     /**
      * Resends synchronization packets to player if their client supports that

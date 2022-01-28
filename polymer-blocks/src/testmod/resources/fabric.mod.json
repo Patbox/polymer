@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "apolymertestblocks",
+  "version": "${version}",
+
+  "name": "test",
+  "description": "test",
+  "authors": [
+    "Me!"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/Polymer"
+  },
+
+  "license": "LGPLv3",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["eu.pb4.blocktest.TestInitializer"]
+  },
+
+  "depends": {
+
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

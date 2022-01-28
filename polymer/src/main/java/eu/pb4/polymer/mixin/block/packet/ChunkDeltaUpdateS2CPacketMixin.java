@@ -7,6 +7,7 @@ import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,6 +23,6 @@ public class ChunkDeltaUpdateS2CPacketMixin implements PlayerAwarePacket {
     @Environment(EnvType.CLIENT)
     @ModifyArg(method = "visitUpdates", at = @At(value = "INVOKE", target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer_replaceBlockStateOnClient(Object state) {
-        return PolymerBlockUtils.getPolymerBlockState((BlockState) state, ClientUtils.getPlayer());
+        return state == null ? Blocks.AIR.getDefaultState() : PolymerBlockUtils.getPolymerBlockState((BlockState) state, ClientUtils.getPlayer());
     }
 }

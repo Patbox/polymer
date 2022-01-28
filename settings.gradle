@@ -15,6 +15,7 @@ pluginManagement {
 rootProject.name = 'polymer-all'
 
 include 'polymer'
+include 'polymer-blocks'
 include 'polymer-legacy'
 include 'polymer-client-extensions'
 include 'polymer-oldpatch'

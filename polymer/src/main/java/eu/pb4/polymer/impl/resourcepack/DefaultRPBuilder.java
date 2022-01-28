@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.api.resourcepack.PolymerArmorModel;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
+import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -13,9 +14,9 @@ import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -32,6 +33,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -40,6 +42,7 @@ import java.util.zip.ZipOutputStream;
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = PolymerImpl.GSON;
+
 
     private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/060dd014d59c90d723db87f9c9cedb511f374a71/client.jar";
 
@@ -50,6 +53,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private ZipFile clientJar = null;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
+    public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
 
 
     public DefaultRPBuilder(Path outputPath) {
@@ -222,6 +226,31 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
+    public byte[] getData(String path) {
+        return this.fileMap.get(path);
+    }
+
+    @Nullable
+    public byte[] getDataOrVanilla(String path) {
+        if (this.fileMap.containsKey(path)) {
+            return this.fileMap.get(path);
+        } else {
+            try {
+                var entry = this.clientJar.getEntry(path);
+
+                if (entry != null) {
+                    InputStream stream = this.clientJar.getInputStream(entry);
+
+                    return stream.readAllBytes();
+                }
+            } catch (Exception e) {
+                PolymerImpl.LOGGER.warn(e);
+            }
+        }
+        return null;
+    }
+
+    @Override
     public CompletableFuture<Boolean> buildResourcePack() {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -266,6 +295,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 this.clientJar = new ZipFile(clientJarPath.toFile());
 
+                this.buildEvent.invoke((c) -> c.accept(credits));
+
                 boolean bool = true;
                 {
                     var jsonObject = new JsonObject();
@@ -293,12 +324,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             baseModelPath = "assets/" + itemId.getNamespace() + "/models/item/" + itemId.getPath() + ".json";
                         }
 
-                        if (this.fileMap.containsKey(baseModelPath)) {
-                            modelObject = JsonParser.parseString(new String(this.fileMap.get(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
-                        } else {
-                            InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(baseModelPath));
-                            modelObject = JsonParser.parseString(IOUtils.toString(stream, StandardCharsets.UTF_8.name())).getAsJsonObject();
-                        }
+                        modelObject = JsonParser.parseString(new String(this.getDataOrVanilla(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
 
                         JsonArray jsonArray = new JsonArray();
 

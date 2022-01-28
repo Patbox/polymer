@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-blocks-ext",
+  "version": "${version}",
+  "name": "Polymer Blocks",
+  "description": "Polymer extension adding support for textured blocks!",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer"
+  },
+  "license": "LGPLv3",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "entrypoints": {
+  },
+  "mixins": [
+    "polymer-blocks.mixins.json"
+  ],
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
+  }
+}

@@ -3,6 +3,7 @@ package eu.pb4.polymer.impl.networking.packets;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.mixin.item.MiningToolItemAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
@@ -77,9 +78,9 @@ public record PolymerItemEntry(
 
     public static PolymerItemEntry read(PacketByteBuf buf, int version) {
         return switch (version) {
-            case 0 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), buf.readItemStack(), 0, 0, NOT_TOOL, 0);
-            case 1 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), buf.readItemStack(), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
-            case 2 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), buf.readItemStack(), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
+            case 0 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), 0, 0, NOT_TOOL, 0);
+            case 1 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
+            case 2 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
             default -> null;
         };
     }

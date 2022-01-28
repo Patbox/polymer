@@ -52,7 +52,6 @@ public interface PolymerEntity extends PolymerObject {
      */
     default void modifyTrackedData(List<DataTracker.Entry<?>> data) {}
 
-
     /**
      * This method allows to modify position of entity on client
      * @param vec3d Real position

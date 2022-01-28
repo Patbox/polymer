@@ -3,8 +3,10 @@ package eu.pb4.polymer.impl;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -52,6 +54,18 @@ public class PolymerImplUtils {
             NO_TEXTURE.setCustomName(LiteralText.EMPTY);
         }
         return NO_TEXTURE;
+    }
+
+    public static ItemStack readStack(PacketByteBuf buf) {
+        if (!buf.readBoolean()) {
+            return ItemStack.EMPTY;
+        } else {
+            int i = buf.readVarInt();
+            int j = buf.readByte();
+            ItemStack itemStack = new ItemStack(Item.byRawId(i), j);
+            itemStack.setNbt(buf.readNbt());
+            return itemStack;
+        }
     }
 
     static {
