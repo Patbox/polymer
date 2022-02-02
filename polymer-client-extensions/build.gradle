@@ -34,7 +34,7 @@ dependencies {
     modImplementation "xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1"
     modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
 
-    modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+    modLocalRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
     modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
 
     testmodImplementation sourceSets.main.output

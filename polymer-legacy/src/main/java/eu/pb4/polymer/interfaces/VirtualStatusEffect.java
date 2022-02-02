@@ -12,4 +12,9 @@ public interface VirtualStatusEffect extends PolymerStatusEffect, VirtualObject 
     default StatusEffect getVirtualStatusEffect() {
         return this.getPolymerStatusEffect();
     }
+
+    @Override
+    default StatusEffect getPolymerStatusEffect() {
+        return this.getVirtualStatusEffect();
+    }
 }

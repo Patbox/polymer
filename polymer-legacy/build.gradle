@@ -2,7 +2,7 @@ archivesBaseName = "polymer-legacy"
 version = "0.1.9" + "+" + rootProject.version
 
 dependencies {
-    compileOnly(project(':polymer'))
+    compileOnly project(':polymer')
 }
 
 processResources {
