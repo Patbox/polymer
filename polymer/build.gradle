@@ -42,13 +42,13 @@ dependencies {
 
     //modRuntime "supercoder79:databreaker:0.2.7"
 
-    modCompileOnly ('com.github.CaffeineMC:lithium-fabric:dace2004')
+    modCompileOnly ('com.github.CaffeineMC:lithium-fabric:mc1.18.1-0.7.7')
 
-    modCompileOnly ('com.github.TheEpicBlock:PolyMc:3.3.1')
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:3.3.3')
 
     modCompileOnly ("mcp.mobius.waila:wthit:fabric-4.4.0")
 
-    //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
+    //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.3'
 
     modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.408")
     modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.408")
