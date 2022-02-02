@@ -37,21 +37,21 @@ processResources {
 dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
     //modRuntime "supercoder79:databreaker:0.2.7"
 
-    modCompileOnly 'com.github.CaffeineMC:lithium-fabric:dace2004'
+    modCompileOnly ('com.github.CaffeineMC:lithium-fabric:dace2004')
 
-    modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.1'
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:3.3.1')
 
-    modCompileOnly "mcp.mobius.waila:wthit:fabric-4.4.0"
+    modCompileOnly ("mcp.mobius.waila:wthit:fabric-4.4.0")
 
     //modRuntime 'com.github.TheEpicBlock:PolyMc:3.3.1'
 
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.408"
-    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:7.2.408"
+    modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.408")
+    modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.408")
 
 
     modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
@@ -62,10 +62,10 @@ dependencies {
     }
 
     modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
-    modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
+    modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-    modRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
-    modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+    modCompileOnly("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
+    modLocalRuntime("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
 
     modCompileOnly('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:1.18-SNAPSHOT')
     modCompileOnly('com.github.qouteall.ImmersivePortalsMod:q_misc_util:1.18-SNAPSHOT')
@@ -73,7 +73,7 @@ dependencies {
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
 
-    runtimeOnly project(":polymer-legacy")
+    modRuntimeOnly project(":polymer-legacy")
     include project(":polymer-legacy")
 
     include project(":polymer-oldpatch")
