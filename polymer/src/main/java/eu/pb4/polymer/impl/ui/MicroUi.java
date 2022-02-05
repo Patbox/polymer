@@ -28,7 +28,7 @@ public class MicroUi {
     private final int lines;
     private Text title = LiteralText.EMPTY;
     private final ScreenHandlerType<?> type;
-    private final int size;
+    protected final int size;
 
     public MicroUi(int lines) {
         this.size = lines * 9;
@@ -54,6 +54,8 @@ public class MicroUi {
         return this;
     }
 
+    protected void tick() {}
+
     public void open(ServerPlayerEntity player) {
         player.openHandledScreen(new NamedScreenHandlerFactory() {
             @Override
@@ -69,8 +71,20 @@ public class MicroUi {
         });
     }
 
+    public MicroUi slot(int index, ItemStack stack) {
+        return slot(index, stack, PlayerClickAction.NOOP);
+    }
+
+    public MicroUi clear() {
+        for (int i = 0; i < this.size; i++) {
+            this.elements[i] = null;
+        }
+        return this;
+    }
+
     @FunctionalInterface
     public interface PlayerClickAction {
+        PlayerClickAction NOOP = (a, b, c, d) -> {};
         void onClick(ServerPlayerEntity player, int slotIndex, int button, SlotActionType actionType);
     }
 
@@ -114,6 +128,12 @@ public class MicroUi {
             } else {
                 super.onSlotClick(slotIndex, button, actionType, player);
             }
+        }
+
+        @Override
+        public void sendContentUpdates() {
+            MicroUi.this.tick();
+            super.sendContentUpdates();
         }
     }
 

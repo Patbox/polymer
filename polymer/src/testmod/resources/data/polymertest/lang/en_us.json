@@ -5,5 +5,6 @@
   "effect.test.effect": "Test Effect",
   "testmod.itemgroup": "Test Mod Item Group",
   "item.test.item": "test",
-  "enchantment.test.enchantment": "TestEnch"
+  "enchantment.test.enchantment": "TestEnch",
+  "stat.test.custom_stat": "Test Stat"
 }

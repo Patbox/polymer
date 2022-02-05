@@ -33,8 +33,12 @@ public class ReiCompatibility implements REIClientPlugin {
 
     @Override
     public void registerItemComparators(ItemComparatorRegistry registry) {
-        for (var item : Registry.ITEM) {
-            registry.register(ITEM_STACK_ENTRY_COMPARATOR, item);
+        try {
+            registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
+        } catch (Throwable e) {
+            for (var item : Registry.ITEM) {
+                registry.register(ITEM_STACK_ENTRY_COMPARATOR, item);
+            }
         }
     }
 

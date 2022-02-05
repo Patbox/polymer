@@ -39,9 +39,6 @@ public final class PolymerItemUtils {
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
 
-    @Deprecated
-    public static final String VIRTUAL_ITEM_ID = POLYMER_ITEM_ID;
-
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
@@ -250,7 +247,7 @@ public final class PolymerItemUtils {
                 out.getNbt().putInt("Damage", (int) ((((double) dmg) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
             }
 
-            if (itemStack.hasEnchantments()) {
+            if (itemStack.hasGlint()) {
                 out.addEnchantment(Enchantments.VANISHING_CURSE, 0);
             }
 
@@ -297,7 +294,7 @@ public final class PolymerItemUtils {
             for (Text t : tooltip) {
                 lore.add(NbtString.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // Fallback for mods that require client side methods
             MutableText name = itemStack.getName().shallowCopy();
 

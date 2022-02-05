@@ -43,6 +43,8 @@ All your code that interacts with Polymer should:
 * [Blocks](/polymer/blocks)
 * [Entities](/polymer/entities)
 * [Resource Packs](/polymer/resource-packs)
+* [Other custom features](/polymer/other)
+* [(Optional) Client Side features](/polymer/client-side)
 
 Other useful tools/projects compatible with Polymer
 

@@ -97,6 +97,7 @@ public class PolymerClientProtocolHandler {
                 InternalClientRegistry.stable = false;
                 PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
             });
+            case ServerPackets.SYNC_INFO -> handleSyncInfo(handler, version, buf);
             case ServerPackets.SYNC_FINISHED -> run(() -> {
                 InternalClientRegistry.stable = true;
                 PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
@@ -135,6 +136,14 @@ public class PolymerClientProtocolHandler {
                 yield false;
             }
         };
+    }
+
+    private static boolean handleSyncInfo(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version >= 0) {
+            InternalClientRegistry.blockOffset = buf.readVarInt();
+        }
+
+        return true;
     }
 
     @Nullable

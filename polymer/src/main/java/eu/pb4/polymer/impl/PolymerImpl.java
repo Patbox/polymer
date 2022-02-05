@@ -7,6 +7,7 @@ import eu.pb4.polymer.impl.compat.CompatStatus;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.Version;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -150,5 +151,13 @@ public final class PolymerImpl {
 
     public static Path getGameDir() {
         return LOADER.getGameDir();
+    }
+
+    public static boolean isOlderThan(String version) {
+        try {
+            return CONTAINER.getMetadata().getVersion().compareTo(Version.parse(version)) < 0;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

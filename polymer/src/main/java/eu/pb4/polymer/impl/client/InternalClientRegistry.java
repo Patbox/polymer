@@ -21,7 +21,10 @@ import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -39,7 +42,9 @@ import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
@@ -53,6 +58,7 @@ public class InternalClientRegistry {
     public static boolean enabled = false;
     public static int syncRequests = 0;
     public static String serverVersion = "";
+    public static boolean isClientOutdated = false;
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
 
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
@@ -68,6 +74,7 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPE = new ImplPolymerRegistry<>();
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";
+    public static int blockOffset = -1;
 
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
@@ -98,6 +105,7 @@ public class InternalClientRegistry {
 
     public static void setVersion(String version) {
         serverVersion = version;
+        isClientOutdated = version.isEmpty() ? false : PolymerImpl.isOlderThan(version);
         enabled = !version.isEmpty();
     }
 
@@ -107,6 +115,7 @@ public class InternalClientRegistry {
         DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
+        blockOffset = -1;
         stable = false;
         itemsMatch = false;
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
@@ -135,7 +144,7 @@ public class InternalClientRegistry {
 
         PolymerClientProtocolHandler.tick();
 
-        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + ", S: " + InternalClientRegistry.serverVersion + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
+        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (§6Outdated!§r)" : "") + ", S: " + InternalClientRegistry.serverVersion + " | BSO: " + blockOffset + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
         debugRegistryInfo = "[Polymer] I: " + InternalClientRegistry.ITEMS.size() + ", IG: " + InternalClientRegistry.ITEM_GROUPS.size() + ", B: " + InternalClientRegistry.BLOCKS.size() + ", BS: " + InternalClientRegistry.BLOCK_STATES.size() + ", E: " + InternalClientRegistry.ENTITY_TYPE.size();
 
         TICK.invoke(Runnable::run);

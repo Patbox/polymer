@@ -2,6 +2,10 @@ package eu.pb4.polymer.api.other;
 
 import eu.pb4.polymer.api.utils.PolymerObject;
 import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.Nullable;
 
 public interface PolymerStatusEffect extends PolymerObject {
 
@@ -13,5 +17,12 @@ public interface PolymerStatusEffect extends PolymerObject {
      */
     default StatusEffect getPolymerStatusEffect() {
         return null;
+    }
+
+    @Nullable
+    default ItemStack getPolymerIcon(ServerPlayerEntity player) {
+        var icon = Items.POTION.getDefaultStack();
+        icon.getOrCreateNbt().putInt("CustomPotionColor", ((StatusEffect) this).getColor());
+        return icon;
     }
 }

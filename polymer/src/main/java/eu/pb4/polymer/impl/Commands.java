@@ -7,7 +7,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
+import eu.pb4.polymer.api.other.PolymerStat;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.compat.CompatStatus;
@@ -15,15 +17,30 @@ import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.impl.ui.CreativeTabUi;
+import eu.pb4.polymer.impl.ui.PotionUi;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.screen.LecternScreenHandler;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.stat.Stats;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,6 +64,14 @@ public class Commands {
                 .then(literal("generate")
                         .requires(PolymerImplUtils.permission("command.generate", 3))
                         .executes(Commands::generate))
+                .then(literal("stats")
+                    .requires(PolymerImplUtils.permission("command.stats", 0))
+                    .executes(Commands::stats)
+                )
+                .then(literal("effects")
+                        .requires(PolymerImplUtils.permission("command.effects", 0))
+                        .executes(Commands::effects)
+                )
                 .then(literal("creative")
                         .requires(PolymerImplUtils.permission("command.creative", 0))
                         .then(argument("itemGroup", IdentifierArgumentType.identifier())
@@ -64,6 +89,7 @@ public class Commands {
 
         if (PolymerImpl.DEVELOPER_MODE) {
             command.then(literal("dev")
+                    .requires(PolymerImplUtils.permission("command.dev", 0))
                     .then(literal("item-client")
                             .executes(Commands::itemClient))
                     .then(literal("reload-world")
@@ -112,6 +138,93 @@ public class Commands {
         }
 
         dispatcher.register(command);
+    }
+
+    private static int effects(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        new PotionUi(context.getSource().getPlayer());
+        return 1;
+    }
+
+    private static int stats(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayer();
+
+        var list = new NbtList();
+
+        int line = 0;
+        MutableText text = null;
+
+        for (var statId : Registry.CUSTOM_STAT) {
+            if (statId instanceof PolymerObject) {
+                var stat =  Stats.CUSTOM.getOrCreateStat(statId);
+
+                if (text == null) {
+                    text = new LiteralText("");
+                }
+
+                var statVal = player.getStatHandler().getStat(stat);
+
+                text.append(PolymerStat.getName(statId)).append(new LiteralText(": ").formatted(Formatting.GRAY)).append(new LiteralText( stat.format(statVal) + "\n").formatted(Formatting.DARK_GRAY));
+                line++;
+
+                if (line == 13) {
+                    list.add(NbtString.of(Text.Serializer.toJson(text)));
+                    text = null;
+                    line = 0;
+                }
+            }
+        }
+
+        if (text != null) {
+            list.add(NbtString.of(Text.Serializer.toJson(text)));
+        }
+
+        var stack = new ItemStack(Items.WRITTEN_BOOK);
+        stack.getOrCreateNbt().put("pages", list);
+        stack.getOrCreateNbt().putString("title", "/polymer starts");
+        stack.getOrCreateNbt().putString("author", player.getGameProfile().getName());
+
+
+
+        player.openHandledScreen(new NamedScreenHandlerFactory() {
+            @Override
+            public Text getDisplayName() {
+                return LiteralText.EMPTY;
+            }
+
+            @Nullable
+            @Override
+            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+                var lectern = new LecternScreenHandler(syncId) {
+                    @Override
+                    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean canInsertIntoSlot(Slot slot) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onButtonClick(PlayerEntity player, int id) {
+                        if (id == 3) {
+                            return false;
+                        } else {
+                            return super.onButtonClick(player, id);
+                        }
+                    }
+
+                    @Override
+                    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+                        // noop
+                    }
+                };
+                lectern.getSlot(0).setStack(stack);
+                return lectern;
+            }
+        });
+
+        return 1;
     }
 
     private static int about(CommandContext<ServerCommandSource> context) {

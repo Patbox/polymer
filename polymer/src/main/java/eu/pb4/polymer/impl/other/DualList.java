@@ -18,23 +18,20 @@ import java.util.*;
 public final class DualList<T> implements List<T> {
     private final ArrayList<T> firstArrayList;
     private final ArrayList<T> offsetArrayList;
-    private final int offset;
 
-    public DualList(int sizeA, int sizeB, int offset) {
+    public DualList(int sizeA, int sizeB) {
         this.firstArrayList = new ArrayList<>(sizeA);
         this.offsetArrayList = new ArrayList<>(sizeB);
-        this.offset = offset;
     }
 
-    public DualList(ArrayList<T> listA, ArrayList<T> listB, int offset) {
+    public DualList(ArrayList<T> listA, ArrayList<T> listB) {
         this.firstArrayList = listA;
         this.offsetArrayList = listB;
-        this.offset = offset;
     }
     @Deprecated
     @Override
     public int size() {
-        return this.offsetArrayList.isEmpty() ? this.firstArrayList.size() : this.offset + this.offsetArrayList.size();
+        return this.offsetArrayList.isEmpty() ? this.firstArrayList.size() : this.firstArrayList.size() + this.offsetArrayList.size();
     }
 
     @Override
@@ -136,11 +133,11 @@ public final class DualList<T> implements List<T> {
     }
 
     public ArrayList<T> getArrayForIndex(int index) {
-        return index < this.offset ? this.firstArrayList : this.offsetArrayList;
+        return index < this.firstArrayList.size() ? this.firstArrayList : this.offsetArrayList;
     }
 
     public int normalizeIndex(int index) {
-        return index < this.offset ? index : index - this.offset;
+        return index < this.firstArrayList.size() ? index : index - this.firstArrayList.size();
     }
 
     @Override
@@ -181,13 +178,13 @@ public final class DualList<T> implements List<T> {
     @Override
     public int indexOf(Object o) {
         int i = this.firstArrayList.indexOf(o);
-        return i == -1 ? i : this.offsetArrayList.indexOf(o) + this.offset;
+        return i == -1 ? i : this.offsetArrayList.indexOf(o) + this.firstArrayList.size();
     }
 
     @Override
     public int lastIndexOf(Object o) {
         int i = this.firstArrayList.lastIndexOf(o);
-        return i == -1 ? i : this.offsetArrayList.lastIndexOf(o) + this.offset;
+        return i == -1 ? i : this.offsetArrayList.lastIndexOf(o) + this.firstArrayList.size();
     }
 
     @NotNull

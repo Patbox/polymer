@@ -159,6 +159,15 @@ public class PolymerServerProtocol {
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_CLEAR_ID, buf(version)));
         }
 
+        version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_INFO);
+        if (version == 0) {
+            var buf = buf(version);
+
+            buf.writeVarInt(PolymerBlockUtils.getBlockStateOffset()); // Polymer initial block id
+
+            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_INFO_ID, buf));
+        }
+
 
         version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM);
 
@@ -371,11 +380,11 @@ public class PolymerServerProtocol {
     }
 
     public static int getRawId(BlockState state, ServerPlayerEntity player) {
-        return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.shouldSyncWithPolymerClient(player) ? Block.STATE_IDS.getRawId(state) - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1 : 0;
+        return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.shouldSyncWithPolymerClient(player) ? Block.STATE_IDS.getRawId(state) - PolymerBlockUtils.getBlockStateOffset() + 1 : 0;
     }
 
     @Nullable
     public static BlockState getBlockState(int id) {
-        return Block.STATE_IDS.get(id + PolymerBlockUtils.BLOCK_STATE_OFFSET - 1);
+        return Block.STATE_IDS.get(id + PolymerBlockUtils.getBlockStateOffset() - 1);
     }
 }

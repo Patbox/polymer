@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.client;
 
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -28,7 +29,7 @@ public abstract class DebugHudMixin {
     @Shadow @Final private MinecraftClient client;
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymer_replaceString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
+    private void polymer_replaceBlockString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.enabled && InternalClientRegistry.stable) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
@@ -44,6 +45,19 @@ public abstract class DebugHudMixin {
                 }
                 list.add("");
                 list.add(Formatting.UNDERLINE + "Targeted Client Block: " + blockPos.getX() + ", " + blockPos.getY() + ", " + blockPos.getZ());
+            }
+        }
+    }
+
+    @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 12), locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void polymer_replaceEntityString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
+        if (this.client.targetedEntity != null && InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+            var type = PolymerClientUtils.getEntityType(this.client.targetedEntity);
+
+            if (type != null) {
+                list.add(type.identifier().toString());
+                list.add("");
+                list.add(Formatting.UNDERLINE + "Targeted Client Entity");
             }
         }
     }

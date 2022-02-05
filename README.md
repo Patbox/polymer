@@ -25,7 +25,7 @@ If you have a server and polymer based mods you are using include a resource pac
 to additionally use this mod: https://github.com/aws404/polypack-host
 
 ## For mod developers:
-All information about usage can be found at https://polymer.pb4.eu/0.2.x/!
+All information about usage can be found at https://polymer.pb4.eu!
 
 ## What this library/mod doesn't do
 This mod doesn't convert existing mods to server side ones. While it's possible to do so with manual coding,
@@ -33,13 +33,13 @@ for that you might want to use [PolyMC](https://github.com/TheEpicBlock/PolyMc) 
 need to use regular mods on the client (for example with a modpack).
 
 ## Commands
-
 - `/polymer` - Display about
 - `/polymer creative` - Opens list of Polymer/Server-Side creative tabs (Available to anyone with creative)
 - `/polymer generate` - Generates polymer resourcepack as `<server/client directory>/polymer-resourcepack.zip`
 
-## Download:
-
+## Download
 - [Modrinth](https://modrinth.com/mod/polymer)
 - [Curseforge](https://www.curseforge.com/minecraft/mc-mods/polymer)
 - [Github Releases](https://github.com/Patbox/polymer/releases)
+
+### [Check list of known mods using Polymer](MODS.md)

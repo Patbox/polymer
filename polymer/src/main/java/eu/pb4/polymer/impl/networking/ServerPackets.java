@@ -18,6 +18,8 @@ public class ServerPackets {
     public static final Identifier HANDSHAKE_ID = id(HANDSHAKE);
     public static final String SYNC_STARTED = "sync/started";
     public static final Identifier SYNC_STARTED_ID = id(SYNC_STARTED);
+    public static final String SYNC_INFO = "sync/info";
+    public static final Identifier SYNC_INFO_ID = id(SYNC_INFO);
     public static final String SYNC_FINISHED = "sync/finished";
     public static final Identifier SYNC_FINISHED_ID = id(SYNC_FINISHED);
     public static final String SYNC_BLOCK = "sync/blocks";
@@ -71,6 +73,7 @@ public class ServerPackets {
     static {
         register(HANDSHAKE, 0);
         register(SYNC_STARTED, 0);
+        register(SYNC_INFO, 0);
         register(SYNC_FINISHED, 0);
         register(SYNC_BLOCK, 0);
         register(SYNC_BLOCKSTATE, 0);

@@ -41,7 +41,3 @@ markdown_extensions:
   - admonition
 plugins:
   - search
-extra:
-  version:
-    provider: mike
-    default: 0.2.x

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.entity;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -49,8 +50,8 @@ public class EntitySpawnS2CPacketMixin implements PlayerAwarePacket {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEntityData", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceClientData(CallbackInfoReturnable<Integer> cir) {
-        if (this.entityTypeId == EntityType.FALLING_BLOCK && this.entityData >= PolymerBlockUtils.BLOCK_STATE_OFFSET) {
-            var state = InternalClientRegistry.getRealBlockState(this.entityData - PolymerBlockUtils.BLOCK_STATE_OFFSET + 1);
+        if (this.entityTypeId == EntityType.FALLING_BLOCK && this.entityData >= PolymerClientUtils.getBlockStateOffset()) {
+            var state = InternalClientRegistry.getRealBlockState(this.entityData - PolymerClientUtils.getBlockStateOffset() + 1);
             cir.setReturnValue(Block.getRawIdFromState(state));
         }
     }

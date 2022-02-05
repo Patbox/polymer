@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.client;
 
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
@@ -123,5 +124,9 @@ public final class PolymerClientUtils {
     @Deprecated
     public static boolean registerPacket(Identifier identifier, PolymerClientPacketHandler handler, int... supportedVersions) {
         return registerPacketHandler(identifier, handler, supportedVersions);
+    }
+
+    public static int getBlockStateOffset() {
+        return InternalClientRegistry.blockOffset != -1 ? InternalClientRegistry.blockOffset : PolymerBlockUtils.getBlockStateOffset();
     }
 }

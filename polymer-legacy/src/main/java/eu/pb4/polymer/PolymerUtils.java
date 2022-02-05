@@ -1,6 +1,5 @@
 package eu.pb4.polymer;
 
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -12,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 @Deprecated
 public class PolymerUtils {
     public static final String ID = eu.pb4.polymer.api.utils.PolymerUtils.ID;
-    public static final int BLOCK_STATE_OFFSET = PolymerBlockUtils.BLOCK_STATE_OFFSET;
 
     @Nullable
     public static ServerPlayerEntity getPlayer() {

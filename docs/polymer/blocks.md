@@ -81,7 +81,7 @@ public void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, 
 usage of player heads as a block. To modify texture, you just need to override 
 `String getPolymerSkinValue(BlockState state)` which should return texture value.
 
-To generate it you can use websites like ttps://mineskin.org/.
+To generate it you can use websites like https://mineskin.org/.
 
 Additionally, you can override `BlockState getPolymerBlockState(BlockState state)` 
 to change rotation of Player Head Block.
