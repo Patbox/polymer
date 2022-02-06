@@ -15,8 +15,8 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
-import eu.pb4.polymer.impl.interfaces.NetworkIdList;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.packets.*;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -230,7 +230,7 @@ public class PolymerServerProtocol {
         if (version != -1) {
             PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
-            var list = ((NetworkIdList) Block.STATE_IDS).polymer_getInternalList().getOffsetList();
+            var list = ((PolymerIdList) Block.STATE_IDS).polymer_getPolymerStates();
             for (BlockState entry : list) {
                 if (entry != null && ((PolymerObject) entry.getBlock()).shouldSyncWithPolymerClient(handler.player)) {
                     entries.add(PolymerBlockStateEntry.of(entry, handler));

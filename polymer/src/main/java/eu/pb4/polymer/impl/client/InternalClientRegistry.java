@@ -13,7 +13,7 @@ import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
-import eu.pb4.polymer.impl.interfaces.NetworkIdList;
+import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
@@ -157,7 +157,7 @@ public class InternalClientRegistry {
         BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
         ITEMS.clear();
         ITEM_GROUPS.clear();
-        ((NetworkIdList) BLOCK_STATES).polymer_clear();
+        ((PolymerIdList) BLOCK_STATES).polymer_clear();
 
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 

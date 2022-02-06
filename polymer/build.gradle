@@ -53,7 +53,6 @@ dependencies {
     modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.422")
     modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")
 
-
     modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
         exclude(group: "com.terraformersmc")
         exclude(group: "io.github.prospector")

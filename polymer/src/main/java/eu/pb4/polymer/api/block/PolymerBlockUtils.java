@@ -2,7 +2,7 @@ package eu.pb4.polymer.api.block;
 
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.x.BlockMapper;
-import eu.pb4.polymer.impl.interfaces.NetworkIdList;
+import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -31,7 +31,7 @@ public final class PolymerBlockUtils {
     public static final int NESTED_DEFAULT_DISTANCE = 32;
 
     public static int getBlockStateOffset() {
-        return ((NetworkIdList) Block.STATE_IDS).polymer_getInternalList().getMainList().size();
+        return ((PolymerIdList) Block.STATE_IDS).polymer_getOffset();
     }
 
     public static final Predicate<BlockState> IS_POLYMER_BLOCK_STATE_PREDICATE = state -> state.getBlock() instanceof PolymerBlock;
