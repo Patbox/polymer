@@ -285,7 +285,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("mapperswitch").executes((ctx) -> {
             try {
                 var player = ctx.getSource().getPlayer();
-                if (atomicBoolean.get()) {
+                if (mapper.get()) {
                     BlockMapper.set(player.networkHandler, BlockMapper.createDefault());
                 } else {
                     var list = new ArrayList<BlockState>();
@@ -309,7 +309,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
                     BlockMapper.set(player.networkHandler, BlockMapper.createMap(map));
                 }
                 PolymerUtils.reloadWorld(player);
-                atomicBoolean.set(!atomicBoolean.get());
+                mapper.set(!atomicBoolean.get());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -323,9 +323,9 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             }
         });
 
-        var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
-        System.out.println(id);
-        System.out.println(Block.STATE_IDS.get(id));
+        //var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
+        //System.out.println(id);
+        //System.out.println(Block.STATE_IDS.get(id));
 
         /*var iter = new AtomicInteger();
         ServerTickEvents.END_SERVER_TICK.register((s) -> {

@@ -13,10 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 
 @Mixin(IdList.class)
@@ -71,7 +68,26 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     }
 
     @Inject(method = "get", at = @At("HEAD"))
-    private void polymer_initLazy(int index, CallbackInfoReturnable<@Nullable T> cir) {
+    private void polymer_onGet(int index, CallbackInfoReturnable<@Nullable T> cir) {
+        this.polymer_initLazy();
+    }
+
+    @Inject(method = "getRawId", at = @At("HEAD"))
+    private void polymer_onGetId(T entry, CallbackInfoReturnable<Integer> cir) {
+        this.polymer_initLazy();
+    }
+
+    @Inject(method = "size", at = @At("HEAD"))
+    private void polymer_onSize(CallbackInfoReturnable<Integer> cir) {
+        this.polymer_initLazy();
+    }
+
+    @Inject(method = "iterator", at = @At("HEAD"))
+    private void polymer_onIterator(CallbackInfoReturnable<Iterator<T>> cir) {
+        this.polymer_initLazy();
+    }
+
+    private void polymer_initLazy() {
         if (this.polymer_locked) {
             this.polymer_offset = this.nextId;
             this.polymer_locked = false;
