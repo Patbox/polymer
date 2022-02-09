@@ -19,6 +19,9 @@
   "mixins": [
     "polymer-blocks.mixins.json"
   ],
+  "breaks": {
+    "polymc": "*"
+  },
   "custom": {
     "modmenu": {
       "badges": [

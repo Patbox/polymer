@@ -85,6 +85,7 @@ subprojects {
 
 dependencies {
     include(project(":polymer"))
+    include(project(":polymer-blocks"))
     //include(project(":polymer-client-extensions"))
 }
 

@@ -33,7 +33,7 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     private String polymerVersion = "";
     private Object2IntMap<String> protocolVersions = null;
     private Object2LongMap<String> lastUpdate = new Object2LongOpenHashMap<>();
-    private BlockMapper blockMapper = BlockMapper.createDefault();
+    private BlockMapper blockMapper;
     private boolean hasPack = false;
 
     public PolymerHandshakeHandlerImplLogin(MinecraftServer server, ServerPlayerEntity player, ClientConnection connection,
@@ -46,6 +46,7 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
         this.connection.setState(NetworkState.PLAY);
         ((TempPlayerLoginAttachments) player).polymer_setHandshakeHandler(this);
         this.connection.send(new KeepAliveS2CPacket(MAGIC_VALUE));
+        this.blockMapper = BlockMapper.getDefault(player);
 
         PolymerSyncUtils.PREPARE_HANDSHAKE.invoke((c) -> c.accept(this));
     }

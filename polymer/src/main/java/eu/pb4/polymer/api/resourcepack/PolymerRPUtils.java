@@ -5,33 +5,25 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Utilities allowing creation of single, polymer mod compatible resource pack
+ * Global utilities allowing creation of single, polymer mod compatible resource pack
  */
 public final class PolymerRPUtils {
     private PolymerRPUtils() {
     }
 
-    public static final SimpleEvent<Consumer<PolymerRPBuilder>> RESOURCE_PACK_CREATION_EVENT = new SimpleEvent<>();
-    private static final Object2ObjectMap<Item, List<PolymerModelData>> ITEMS = new Object2ObjectArrayMap<>();
-    private static final Set<String> MOD_IDS = new HashSet<>();
-    private static final IntSet TAKEN_ARMOR_COLORS = new IntOpenHashSet();
-    private static final Map<Identifier, PolymerArmorModel> ARMOR_MODEL_MAP = new HashMap<>();
-    private static int ARMOR_VAL = 0;
-    private static final int CMD_OFFSET = PolymerImpl.FORCE_CUSTOM_MODEL_DATA_OFFSET ? 100000 : 1;
+    private static final ResourcePackCreator INSTANCE = new ResourcePackCreator(PolymerImpl.FORCE_CUSTOM_MODEL_DATA_OFFSET ? 100000 : 1);
+
+    public static final SimpleEvent<Consumer<PolymerRPBuilder>> RESOURCE_PACK_CREATION_EVENT = INSTANCE.creationEvent;
     private static boolean REQUIRED = PolymerImpl.FORCE_RESOURCE_PACK_SERVER;
     private static boolean DEFAULT_CHECK = true;
 
@@ -43,15 +35,7 @@ public final class PolymerRPUtils {
      * @return PolymerModelData with data about this model
      */
     public static PolymerModelData requestModel(Item vanillaItem, Identifier modelPath) {
-        List<PolymerModelData> cmdInfoList = ITEMS.get(vanillaItem);
-        if (cmdInfoList == null) {
-            cmdInfoList = new ArrayList<>();
-            ITEMS.put(vanillaItem, cmdInfoList);
-        }
-
-        PolymerModelData cmdInfo = new PolymerModelData(vanillaItem, cmdInfoList.size() + CMD_OFFSET, modelPath);
-        cmdInfoList.add(cmdInfo);
-        return cmdInfo;
+        return INSTANCE.requestModel(vanillaItem, modelPath);
     }
 
     /**
@@ -61,17 +45,7 @@ public final class PolymerRPUtils {
      * @return PolymerArmorModel with data about this model
      */
     public static PolymerArmorModel requestArmor(Identifier modelPath) {
-        if (ARMOR_MODEL_MAP.containsKey(modelPath)) {
-            return ARMOR_MODEL_MAP.get(modelPath);
-        } else {
-            ARMOR_VAL++;
-            int color = 0xFFFFFF - ARMOR_VAL * 2;
-            var model = new PolymerArmorModel(color, modelPath);
-
-            ARMOR_MODEL_MAP.put(modelPath, model);
-            TAKEN_ARMOR_COLORS.add(color);
-            return model;
-        }
+        return INSTANCE.requestArmor(modelPath);
     }
 
     /**
@@ -80,19 +54,14 @@ public final class PolymerRPUtils {
      * @param modId Id of mods used as a source
      */
     public static boolean addAssetSource(String modId) {
-        if (PolymerImpl.isModLoaded(modId)) {
-            MOD_IDS.add(modId);
-            return true;
-        }
-
-        return false;
+        return INSTANCE.addAssetSource(modId);
     }
 
     /**
      * Allows to check if there are any provided resources
      */
     public static boolean shouldGenerate() {
-        return ITEMS.values().size() > 0 || MOD_IDS.size() > 0 || ARMOR_MODEL_MAP.size() > 0;
+        return !INSTANCE.isEmpty();
     }
 
     /**
@@ -134,7 +103,7 @@ public final class PolymerRPUtils {
      * Returns true if color is taken
      */
     public static boolean isColorTaken(int color) {
-        return TAKEN_ARMOR_COLORS.contains(color & 0xFFFFFF);
+        return INSTANCE.isColorTaken(color);
     }
 
     /**
@@ -145,7 +114,7 @@ public final class PolymerRPUtils {
      * @return An unmodifiable list of models
      */
     public static List<PolymerModelData> getModelsFor(Item item) {
-        return Collections.unmodifiableList(ITEMS.getOrDefault(item, Collections.emptyList()));
+        return INSTANCE.getModelsFor(item);
     }
 
     public static void disableDefaultCheck() {
@@ -162,39 +131,24 @@ public final class PolymerRPUtils {
 
     public static boolean build(Path output) {
         try {
-            boolean successful = true;
-
-            Path possibleInput = PolymerImpl.getGameDir().resolve("polymer-resourcepack-input");
-
-            var builder = new DefaultRPBuilder(output);
-
-            RESOURCE_PACK_CREATION_EVENT.invoke((x) -> x.accept(builder));
-
-            for (String modId : MOD_IDS) {
-                successful = builder.copyModAssets(modId) && successful;
-            }
-
-            if (possibleInput.toFile().exists()) {
-                builder.copyFromPath(possibleInput);
-            }
-
-            for (var cmdInfoList : ITEMS.values()) {
-                for (PolymerModelData cmdInfo : cmdInfoList) {
-                    builder.addCustomModelData(cmdInfo);
-                }
-            }
-
-            for (var armor : ARMOR_MODEL_MAP.values()) {
-                builder.addArmorModel(armor);
-            }
-
-            successful = builder.buildResourcePack().get() && successful;
-
-            return successful;
+            return INSTANCE.build(output);
         } catch (Exception e) {
             PolymerImpl.LOGGER.error("Couldn't create resource pack!");
             e.printStackTrace();
             return false;
         }
+    }
+
+    static {
+        INSTANCE.creationEvent.register((builder) -> {
+            Path possibleInput = PolymerImpl.getGameDir().resolve("polymer-resourcepack-input");
+            if (possibleInput.toFile().exists()) {
+                builder.copyFromPath(possibleInput);
+            }
+        });
+    }
+
+    public static ResourcePackCreator getInstance() {
+        return INSTANCE;
     }
 }

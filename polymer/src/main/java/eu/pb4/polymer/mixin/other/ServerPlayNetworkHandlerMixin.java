@@ -13,12 +13,14 @@ import eu.pb4.polymer.impl.other.ScheduledPacket;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -55,13 +57,19 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     private String polymer_version = "";
     @Unique
     private final Object2LongMap<String> polymer_rateLimits = new Object2LongOpenHashMap<>();
-    private BlockMapper polymer_blockMapper = BlockMapper.createDefault();
+    private BlockMapper polymer_blockMapper;
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
 
     @Shadow
     public abstract ServerPlayerEntity getPlayer();
+
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void polymer_setMapper(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+        this.polymer_blockMapper = BlockMapper.getDefault(player);
+    }
 
 
     @Override

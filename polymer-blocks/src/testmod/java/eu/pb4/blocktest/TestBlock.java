@@ -1,5 +1,6 @@
 package eu.pb4.blocktest;
 
+import eu.pb4.polymer.ext.blocks.api.BlockModelType;
 import eu.pb4.polymer.ext.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.ext.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.ext.blocks.api.PolymerTexturedBlock;
@@ -10,7 +11,7 @@ import net.minecraft.util.Identifier;
 public class TestBlock extends Block implements PolymerTexturedBlock {
     private final BlockState polymerBlockState;
 
-    public TestBlock(Settings settings, PolymerBlockResourceUtils.Type type, String modelId) {
+    public TestBlock(Settings settings, BlockModelType type, String modelId) {
         super(settings);
 
         this.polymerBlockState = PolymerBlockResourceUtils.requestBlock(
