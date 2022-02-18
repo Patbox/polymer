@@ -48,7 +48,7 @@ dependencies {
 
     modCompileOnly ("mcp.mobius.waila:wthit:fabric-4.4.0")
 
-    modLocalRuntime 'com.github.TheEpicBlock:PolyMc:3.3.3'
+    //modLocalRuntime 'com.github.TheEpicBlock:PolyMc:3.3.3'
     //modLocalRuntime 'maven.modrinth:mo-blocks-fabric:0.10.3b'
 
     modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.422")
