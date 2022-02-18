@@ -15,9 +15,7 @@ import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class BlockResourceCreator {
     private final Map<BlockModelType, List<BlockState>> states;
@@ -103,7 +101,9 @@ public final class BlockResourceCreator {
 
                 var variants = new JsonObject();
 
-                for (var entries : baseEntry.getValue().entrySet()) {
+                var values = new ArrayList<>(baseEntry.getValue().entrySet());
+                values.sort(Comparator.comparing(e -> e.getKey()));
+                for (var entries : values) {
                     variants.add(entries.getKey(), entries.getValue());
                 }
 
