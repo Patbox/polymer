@@ -1,5 +1,7 @@
 package eu.pb4.polymer.api.utils;
 
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
@@ -12,11 +14,14 @@ import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -25,9 +30,15 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.zip.ZipFile;
 
 /**
  * General use case utils that can be useful in multiple situations
@@ -35,6 +46,8 @@ import java.util.List;
 public final class PolymerUtils {
     private PolymerUtils() {
     }
+    private final static String CLIENT_SHA1 = "7e46fb47609401970e2818989fa584fd467cd036";
+    private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/" + CLIENT_SHA1 + "/client.jar";
 
     public static final String ID = "polymer";
     public static final String NO_TEXTURE_HEAD_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGUyY2UzMzcyYTNhYzk3ZmRkYTU2MzhiZWYyNGIzYmM0OWY0ZmFjZjc1MWZlOWNhZDY0NWYxNWE3ZmI4Mzk3YyJ9fX0=";
@@ -243,5 +256,39 @@ public final class PolymerUtils {
 
         PolymerImplUtils.setPlayer(oldPlayer);
         PacketContext.setReadContext(oldTarget != null ? oldTarget.networkHandler : null);
+    }
+
+    @Nullable
+    public static ZipFile getClientJar() {
+        try {
+            Path clientJarPath;
+            if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+                clientJarPath = PolymerImpl.getGameDir().resolve("polymer_cache/client_jars/" + CLIENT_SHA1 + ".jar");
+            } else {
+                var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+                clientJarPath = Path.of(clientFile);
+            }
+
+            if (!clientJarPath.toFile().exists()) {
+                Files.createDirectories(clientJarPath.getParent());
+                PolymerImpl.LOGGER.info("Downloading vanilla client jar...");
+                URL url = new URL(CLIENT_URL);
+                URLConnection connection = url.openConnection();
+                InputStream is = connection.getInputStream();
+                Files.copy(is, clientJarPath);
+            }
+
+            return new ZipFile(clientJarPath.toFile());
+        } catch (Exception e) {
+            PolymerImpl.LOGGER.error("Couldn't retrieve client jar!", e);
+            return null;
+        }
+    }
+
+    public static boolean isServerOnly(Object obj) {
+        return obj instanceof PolymerObject
+                || (obj instanceof EntityType<?> type && PolymerEntityUtils.isRegisteredEntityType(type))
+                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isRegisteredBlockEntity(typeBE));
+
     }
 }

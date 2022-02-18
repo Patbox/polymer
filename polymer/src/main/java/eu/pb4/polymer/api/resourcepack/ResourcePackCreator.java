@@ -7,9 +7,12 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +29,8 @@ public final class ResourcePackCreator {
     private final Map<Identifier, PolymerArmorModel> armorModelMap = new HashMap<>();
     private final int cmdOffset;
     private int armorColor = 0;
+    private String packDescription = null;
+    private byte[] packIcon = null;
 
     public static final ResourcePackCreator create() {
         return new ResourcePackCreator(0);
@@ -106,6 +111,34 @@ public final class ResourcePackCreator {
         return Collections.unmodifiableList(items.getOrDefault(item, Collections.emptyList()));
     }
 
+    /**
+     * Sets pack description
+     *
+     * @param description new description
+     */
+    public void setPackDescription(String description) {
+        this.packDescription = description;
+    }
+
+    @Nullable
+    public String getPackDescription() {
+        return this.packDescription;
+    }
+
+    /**
+     * Sets icon of pack
+     *
+     * @param packIcon bytes representing png image of icon
+     */
+    public void setPackIcon(byte[] packIcon) {
+        this.packIcon = packIcon;
+    }
+
+    @Nullable
+    public byte[] getPackIcon() {
+        return packIcon;
+    }
+
     public boolean isEmpty() {
         return this.items.values().size() <= 0 || this.modIds.size() <= 0 || this.armorModelMap.size() <= 0;
     }
@@ -115,19 +148,35 @@ public final class ResourcePackCreator {
 
         var builder = new DefaultRPBuilder(output);
 
+
+        if (this.packDescription != null) {
+            builder.addData("pack.mcmeta", ("" +
+                    "{\n" +
+                    "   \"pack\":{\n" +
+                    "      \"pack_format\":" + SharedConstants.RESOURCE_PACK_VERSION + ",\n" +
+                    "      \"description\":\"Server resource pack\"\n" +
+                    "   }\n" +
+                    "}\n").getBytes(StandardCharsets.UTF_8));
+        }
+
+
+        if (this.packIcon != null) {
+            builder.addData("pack.png", this.packIcon);
+        }
+
         this.creationEvent.invoke((x) -> x.accept(builder));
 
-        for (String modId : modIds) {
+        for (String modId : this.modIds) {
             successful = builder.copyModAssets(modId) && successful;
         }
         
-        for (var cmdInfoList : items.values()) {
+        for (var cmdInfoList : this.items.values()) {
             for (PolymerModelData cmdInfo : cmdInfoList) {
                 builder.addCustomModelData(cmdInfo);
             }
         }
 
-        for (var armor : armorModelMap.values()) {
+        for (var armor : this.armorModelMap.values()) {
             builder.addArmorModel(armor);
         }
 

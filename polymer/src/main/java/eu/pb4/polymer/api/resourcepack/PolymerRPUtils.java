@@ -3,13 +3,17 @@ package eu.pb4.polymer.api.resourcepack;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.compat.CompatStatus;
+import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
@@ -141,10 +145,25 @@ public final class PolymerRPUtils {
 
     static {
         INSTANCE.creationEvent.register((builder) -> {
-            Path possibleInput = PolymerImpl.getGameDir().resolve("polymer-resourcepack-input");
-            if (possibleInput.toFile().exists()) {
-                builder.copyFromPath(possibleInput);
+            Path path = PolymerImpl.getGameDir().resolve("polymer-resourcepack-input");
+            if (path.toFile().exists()) {
+                builder.copyFromPath(path);
             }
+
+            if (CompatStatus.POLYMC) {
+                try {
+                    Files.createDirectories(path);
+                    PolyMcHelpers.createResources("polymc-generated");
+                    var polyPath = FabricLoader.getInstance().getGameDir().resolve("polymc-generated").toAbsolutePath();
+                    if (polyPath.toFile().exists()) {
+                        builder.copyFromPath(polyPath);
+                    }
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+
         });
     }
 

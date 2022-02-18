@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
@@ -13,8 +14,6 @@ import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
-import eu.pb4.polymer.impl.compat.CompatStatus;
-import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.impl.ui.CreativeTabListUi;
@@ -47,7 +46,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -167,10 +165,7 @@ public class Commands {
                     .then(literal("item-client")
                             .executes(Commands::itemClient))
                     .then(literal("dump")
-                            .executes((ctx) -> dumpRegistries(ctx, false))
-                            .then(literal("toFile")
-                                    .executes((ctx) -> dumpRegistries(ctx, true))
-                            )
+                            .executes((ctx) -> dumpRegistries(ctx, true))
                     )
                     .then(literal("reload-world")
                             .executes((ctx) -> {
@@ -258,11 +253,13 @@ public class Commands {
                     }
 
                     for (var entry : reg) {
-                        msg.accept("" + reg.getRawId(entry) + " | " + reg.getId(entry).toString() + " | Polymer? " + (entry instanceof PolymerObject));
+                        msg.accept("" + reg.getRawId(entry) + " | " + reg.getId(entry).toString() + " | Polymer? " + PolymerUtils.isServerOnly(entry));
                     }
                 }
                 msg.accept("");
                 msg.accept("== BlockStates");
+                msg.accept("");
+                msg.accept("= Offset: " + PolymerBlockUtils.getBlockStateOffset());
                 msg.accept("");
 
                 for (var state : Block.STATE_IDS) {
@@ -423,17 +420,6 @@ public class Commands {
 
     public static int generate(CommandContext<ServerCommandSource> context) {
         context.getSource().sendFeedback(new LiteralText("Starting resource pack generation..."), true);
-
-        try {
-            if (CompatStatus.POLYMC) {
-                Path path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack-input");
-                path.toFile().mkdirs();
-                PolyMcHelpers.createResources(path);
-            }
-        } catch (Exception e) {
-            // noop
-        }
-
         boolean success = PolymerRPUtils.build(FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip"));
 
         if (success) {

@@ -7,4 +7,5 @@ public enum BlockModelType {
     VINES_BLOCK,
     PLANT_BLOCK,
     KELP_BLOCK,
+    CACTUS_BLOCK,
 }

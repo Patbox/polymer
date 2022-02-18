@@ -5,22 +5,24 @@ import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
     }
 
-    private static final HashSet<EntityType<?>> ENTITY_TYPES = new HashSet<>();
+    private static final Set<EntityType<?>> ENTITY_TYPES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
 
     /**
      * Allows to get next free entity id you can use for networking

@@ -16,11 +16,11 @@ public class DefaultModelData {
     public static final Map<BlockState, BlockState> SPECIAL_REMAPS = new HashMap<>();
     public static final Map<BlockState, PolymerBlockModel[]> MODELS = new HashMap<>();
 
-
     static {
         generateDefault(BlockModelType.FULL_BLOCK, Blocks.NOTE_BLOCK);
         generateDefault(BlockModelType.TRANSPARENT_BLOCK, Blocks.OAK_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES);
         generateDefault(BlockModelType.KELP_BLOCK, Blocks.KELP);
+        generateDefault(BlockModelType.CACTUS_BLOCK, Blocks.CACTUS);
 
         {
             var farmland = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier("minecraft:block/farmland"))};

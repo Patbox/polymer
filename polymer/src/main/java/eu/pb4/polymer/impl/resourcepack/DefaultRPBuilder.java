@@ -4,17 +4,15 @@ import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.api.resourcepack.PolymerArmorModel;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +20,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -44,7 +40,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = PolymerImpl.GSON;
 
 
-    private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/060dd014d59c90d723db87f9c9cedb511f374a71/client.jar";
 
     private final Map<Item, JsonArray> models = new HashMap<>();
     private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
@@ -92,7 +87,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         try {
             Files.walkFileTree(basePath, new FileVisitor<>() {
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -108,12 +103,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -135,7 +130,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 Path assets = container.getPath("assets");
                 Files.walkFileTree(assets, new FileVisitor<>() {
                     @Override
-                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                         return FileVisitResult.CONTINUE;
                     }
 
@@ -151,12 +146,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     }
 
                     @Override
-                    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) {
                         return FileVisitResult.CONTINUE;
                     }
 
                     @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
                         return FileVisitResult.CONTINUE;
                     }
                 });
@@ -277,23 +272,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
                 credits.add("");
 
-                Path clientJarPath;
-                if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
-                    clientJarPath = FabricLoader.getInstance().getGameDir().resolve("assets_client.jar");
-                } else {
-                    var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-                    clientJarPath = Path.of(clientFile);
-                }
-
-                if (!clientJarPath.toFile().exists()) {
-                    PolymerImpl.LOGGER.info("Downloading vanilla client jar...");
-                    URL url = new URL(CLIENT_URL);
-                    URLConnection connection = url.openConnection();
-                    InputStream is = connection.getInputStream();
-                    Files.copy(is, clientJarPath);
-                }
-
-                this.clientJar = new ZipFile(clientJarPath.toFile());
+                this.clientJar = PolymerUtils.getClientJar();
 
                 this.buildEvent.invoke((c) -> c.accept(credits));
 
@@ -346,21 +325,21 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     credits.add("Armor texture support is based on https://github.com/Ancientkingg/fancyPants");
                     credits.add("");
 
-                    var list = new ArrayList<Triple<Integer, BufferedImage[], ArmorTextureMetadata[]>>();
+                    var list = new ArrayList<ArmorData>();
 
-                    int[] width = new int[]{64, 64};
-                    int[] height = new int[]{32, 32};
+                    int globalScale = 1;
 
                     var armorDataMap = new HashMap<Integer, String>();
 
                     for (var entry : this.armors) {
                         armorDataMap.put(entry.value(), entry.modelPath().toString());
                         try {
-                            var a = new BufferedImage[2];
-                            var b = new ArmorTextureMetadata[2];
-                            BufferedImage bi = null;
+                            var images = new BufferedImage[2];
+                            var metadata = new ArmorTextureMetadata[2];
 
                             for (int i = 0; i <= 1; i++) {
+                                BufferedImage bi = null;
+
                                 {
                                     var path = "assets/" + entry.modelPath().getNamespace() + "/textures/models/armor/" + entry.modelPath().getPath() + "_layer_" + (i + 1) + ".png";
                                     var data = this.fileMap.get(path);
@@ -378,12 +357,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                                         bi = ImageIO.read(new ByteArrayInputStream(data));
                                     }
 
-                                    if (bi != null) {
-                                        height[i] = Math.max(height[i], bi.getHeight());
-                                        width[i] += bi.getWidth();
-                                    }
-
-                                    a[i] = bi;
+                                    images[i] = bi;
                                 }
                                 {
                                     var path = "assets/" + entry.modelPath().getNamespace() + "/textures/models/armor/" + entry.modelPath().getPath() + "_layer_" + (i + 1) + ".polymer.json";
@@ -392,19 +366,28 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                                     if (data != null) {
                                         int finalI = i;
                                         ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(data))).result()
-                                                .ifPresentOrElse((r) -> b[finalI] = r.getFirst(), () -> b[finalI] = ArmorTextureMetadata.DEFAULT);
+                                                .ifPresentOrElse((r) -> metadata[finalI] = r.getFirst(), () -> metadata[finalI] = ArmorTextureMetadata.DEFAULT);
                                     } else {
-                                        b[i] = ArmorTextureMetadata.DEFAULT;
+                                        metadata[i] = ArmorTextureMetadata.DEFAULT;
+                                    }
+                                    var scaleTest1 = (double) globalScale / metadata[i].scale();
+                                    if (scaleTest1 != Math.floor(scaleTest1)) {
+                                        var scaleTest2 = (double) metadata[i].scale() / globalScale;
+                                        if (scaleTest2 != Math.floor(scaleTest2)) {
+                                            globalScale *= metadata[i].scale();
+                                        } else {
+                                            globalScale = metadata[i].scale();
+                                        }
                                     }
                                 }
                             }
-
-                            list.add(Triple.of(entry.value(), a, b));
+                            list.add(new ArmorData(entry.modelPath(), entry.value(), images, metadata));
                         } catch (Exception e) {
                             PolymerImpl.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
                             e.printStackTrace();
                         }
                     }
+                    list.sort(Comparator.comparing(e -> -e.color()));
 
                     this.fileMap.put("assets/polymer/armors.json", GSON.toJson(armorDataMap).getBytes(StandardCharsets.UTF_8));
                     this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_1.png")).readAllBytes());
@@ -412,20 +395,47 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2.png")).readAllBytes());
                     this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2_overlay.png")).readAllBytes());
 
+                    int[] width = new int[]{ 64 * globalScale, 64 * globalScale };
+                    int[] height = new int[]{ 32 * globalScale, 32 * globalScale };
+
+                    for (var entry : new ArrayList<>(list)) {
+                        for (int i = 0; i <= 1; i++) {
+                            var image = entry.images()[i];
+                            var metadata = entry.metadata()[i];
+
+                            if (image != null) {
+                                var scale = globalScale / metadata.scale();
+                                var newHeight = image.getHeight() * scale;
+                                var newWidth = image.getWidth() * scale;
+
+                                var check = (double) newWidth / (64 * globalScale);
+                                if (check != Math.floor(check)) {
+                                    PolymerImpl.LOGGER.warn("Invalid texture size for armor " + entry.identifier() + " (" + i + ")! Skipping...");
+                                    list.remove(entry);
+                                    continue;
+                                }
+
+                                height[i] = Math.max(height[i], newHeight);
+                                width[i] += newWidth;
+                            }
+
+                        }
+                    }
 
                     var image = new BufferedImage[]{new BufferedImage(width[0], height[0], BufferedImage.TYPE_INT_ARGB), new BufferedImage(width[1], height[1], BufferedImage.TYPE_INT_ARGB)};
-                    int[] cWidth = new int[]{64, 64};
+
+                    int[] cWidth = new int[]{64 * globalScale, 64 * globalScale};
 
                     var graphics = new Graphics[]{image[0].getGraphics(), image[1].getGraphics()};
 
                     for (int i = 0; i <= 1; i++) {
                         {
                             var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png")));
-                            graphics[i].drawImage(tex, 0, 0, null);
+                            graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                         }
                         {
                             var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png")));
-                            graphics[i].drawImage(tex, 0, 0, null);
+                            graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                         }
                         graphics[i].setColor(Color.WHITE);
                         graphics[i].drawRect(0, 1, 0, 0);
@@ -433,11 +443,16 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                     for (var entry : list) {
                         for (int i = 0; i <= 1; i++) {
-                            var metadata = entry.getRight()[i];
+                            var metadata = entry.metadata()[i];
+                            var scale = globalScale / metadata.scale();
+                            var tmpImage = entry.images()[i];
 
-                            graphics[i].drawImage(entry.getMiddle()[i], cWidth[i], 0, null);
+                            if (tmpImage == null) {
+                                continue;
+                            }
+                            graphics[i].drawImage(tmpImage, cWidth[i], 0, tmpImage.getWidth() * scale, tmpImage.getHeight() * scale, null);
 
-                            graphics[i].setColor(new Color(entry.getLeft() | 0xFF000000));
+                            graphics[i].setColor(new Color(entry.color() | 0xFF000000));
                             graphics[i].drawRect(cWidth[i], 0, 0, 0);
 
                             if ((metadata.frames() != 0 && metadata.animationSpeed() != 0) || metadata.interpolate()) {
@@ -450,7 +465,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                                 graphics[i].drawRect(cWidth[i] + 2, 0, 0, 0);
                             }
 
-                            cWidth[i] += entry.getMiddle()[i].getWidth();
+                            cWidth[i] += tmpImage.getWidth() * scale;
                         }
                     }
 
@@ -472,7 +487,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     for (String string : new String[]{"fsh", "json", "vsh"}) {
                         this.fileMap.put(
                                 "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string,
-                                Files.readAllBytes(getPolymerPath("base-armor/rendertype_armor_cutout_no_cull." + string))
+                                Files.readString(getPolymerPath("base-armor/rendertype_armor_cutout_no_cull." + string))
+                                        .replace("${polymer_texture_resolution}", "" + (16 * globalScale))
+                                        .getBytes(StandardCharsets.UTF_8)
                         );
                     }
 
@@ -505,7 +522,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
 
                     {
-                        for (var path : fileMap.keySet().toArray(new String[0])) {
+                        for (var path : this.fileMap.keySet().toArray(new String[0])) {
                             var split = new ArrayList<>(List.of(path.split("/")));
                             while (split.size() > 1) {
                                 split.remove(split.size() - 1);
@@ -516,8 +533,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         }
                     }
 
-                    for (var entry : fileMap.entrySet()) {
-                        outputStream.putNextEntry(new ZipEntry(entry.getKey()));
+                    var sorted = new ArrayList<>(this.fileMap.entrySet());
+                    sorted.sort(Comparator.comparing(e -> e.getKey()));
+                    for (var entry : sorted) {
+                        var zipEntry = new ZipEntry(entry.getKey());
+                        zipEntry.setTime(0);
+                        outputStream.putNextEntry(zipEntry);
                         var value = entry.getValue();
                         if (value != null) {
                             outputStream.write(entry.getValue());
@@ -536,4 +557,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             }
         });
     }
+
+
+    private record ArmorData(Identifier identifier, int color, BufferedImage[] images, ArmorTextureMetadata[] metadata) {}
 }

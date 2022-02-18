@@ -199,10 +199,13 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         regArmor(EquipmentSlot.LEGS, "shulker", "leggings");
         regArmor(EquipmentSlot.FEET, "shulker", "boots");
 
+        regArmor(EquipmentSlot.CHEST, "tater", "chestplate");
         regArmor(EquipmentSlot.HEAD, "titan", "helmet");
         regArmor(EquipmentSlot.CHEST, "titan", "chestplate");
         regArmor(EquipmentSlot.LEGS, "titan", "leggings");
         regArmor(EquipmentSlot.FEET, "titan", "boots");
+        regArmor(EquipmentSlot.HEAD, "titan2", "helmet");
+        regArmor(EquipmentSlot.CHEST, "titan2", "chestplate");
 
         ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 

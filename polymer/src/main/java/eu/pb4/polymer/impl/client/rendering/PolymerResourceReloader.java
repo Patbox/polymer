@@ -52,10 +52,10 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
         }, prepareExecutor).thenCompose(synchronizer::whenPrepared).thenAcceptAsync(v -> {
             if (PolymerImpl.USE_ALT_ARMOR_HANDLER) {
                 for (var id : InternalClientRegistry.ARMOR_TEXTURES_1.values()) {
-                    this.manager.registerTexture(id, new AnimatedResourceTexture(id));
+                    this.manager.registerTexture(id, new PolymerArmorResourceTexture(id));
                 }
                 for (var id : InternalClientRegistry.ARMOR_TEXTURES_2.values()) {
-                    this.manager.registerTexture(id, new AnimatedResourceTexture(id));
+                    this.manager.registerTexture(id, new PolymerArmorResourceTexture(id));
                 }
             }
         });

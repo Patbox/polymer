@@ -36,7 +36,7 @@ public final class PolymerImpl {
     public static final String DESCRIPTION = CONTAINER.getMetadata().getDescription();
     public static final String[] CONTRIBUTORS;
     public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString().split("\\+")[0];
-    public static final String GITHUB_URL = CONTAINER.getMetadata().getContact().get("sources").orElse("http://invalid-page");
+    public static final String GITHUB_URL = CONTAINER.getMetadata().getContact().get("sources").orElse("https://pb4.eu");
 
     public static final ServerConfig SERVER_CONFIG = loadConfig("server", ServerConfig.class);
 

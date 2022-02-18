@@ -6,7 +6,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.nio.file.Path;
 import java.util.List;
 
 import static net.minecraft.server.command.CommandManager.literal;
@@ -14,11 +13,11 @@ import static net.minecraft.server.command.CommandManager.literal;
 @ApiStatus.Internal
 @SuppressWarnings({"deprecation", "unchecked"})
 public class PolyMcHelpers {
-    public static void createResources(Path path) {
+    public static void createResources(String path) {
 
         io.github.theepicblock.polymc.impl.resource.ResourcePackGenerator.generate(
                 io.github.theepicblock.polymc.PolyMc.getMainMap(),
-                path.toString(),
+                path,
                 new io.github.theepicblock.polymc.impl.misc.logging.ErrorTrackerWrapper(
                         io.github.theepicblock.polymc.PolyMc.LOGGER)
         );

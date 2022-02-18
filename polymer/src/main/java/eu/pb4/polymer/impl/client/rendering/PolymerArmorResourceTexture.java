@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 import java.io.IOException;
 
-public class AnimatedResourceTexture extends ResourceTexture implements TextureTickListener {
+public class PolymerArmorResourceTexture extends ResourceTexture implements TextureTickListener {
     public int width = -1;
     public int height = -1;
     public int index = 0;
@@ -24,7 +24,7 @@ public class AnimatedResourceTexture extends ResourceTexture implements TextureT
     private int nextIndex;
     private long startingTime;
 
-    public AnimatedResourceTexture(Identifier location) {
+    public PolymerArmorResourceTexture(Identifier location) {
         super(location);
     }
 
