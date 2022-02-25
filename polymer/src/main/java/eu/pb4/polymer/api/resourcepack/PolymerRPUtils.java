@@ -129,6 +129,10 @@ public final class PolymerRPUtils {
         return DEFAULT_CHECK;
     }
 
+    public static void ignoreNextDefaultCheck(ServerPlayerEntity player) {
+        ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setIgnoreNext();
+    }
+
     public static PolymerRPBuilder createBuilder(Path output) {
         return new DefaultRPBuilder(output);
     }

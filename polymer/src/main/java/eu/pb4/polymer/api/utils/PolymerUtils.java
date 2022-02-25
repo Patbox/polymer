@@ -139,7 +139,9 @@ public final class PolymerUtils {
 
             for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
                 var tracker = tacsAccess.polymer_getEntityTrackers().get(e.getId());
-                tracker.stopTracking(player);
+                if (tracker != null) {
+                    tracker.stopTracking(player);
+                }
             }
 
             var toSend = new ArrayList<WorldChunk>();

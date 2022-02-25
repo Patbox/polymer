@@ -42,7 +42,8 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
 
     @Unique
     private final Object2ObjectMap<String, DelayedAction> polymer_delayedActions = new Object2ObjectArrayMap<>();
-
+    @Unique
+    private final Object2LongMap<String> polymer_rateLimits = new Object2LongOpenHashMap<>();
     @Shadow
     public ServerPlayerEntity player;
     @Shadow
@@ -52,11 +53,11 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Unique
     private boolean polymer_hasResourcePack = false;
     @Unique
+    private boolean polymer_ignoreNextStatus = false;
+    @Unique
     private ArrayList<ScheduledPacket> polymer_scheduledPackets = new ArrayList<>();
     @Unique
     private String polymer_version = "";
-    @Unique
-    private final Object2LongMap<String> polymer_rateLimits = new Object2LongOpenHashMap<>();
     private BlockMapper polymer_blockMapper;
 
     @Shadow
@@ -182,13 +183,18 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
 
     @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
     private void polymer_changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
-        if (PolymerRPUtils.shouldCheckByDefault()) {
-            this.polymer_setResourcePack(switch (packet.getStatus()) {
-                case ACCEPTED, SUCCESSFULLY_LOADED -> true;
-                case DECLINED, FAILED_DOWNLOAD -> false;
-            });
+        if (PolymerRPUtils.shouldCheckByDefault() && packet.getStatus() != ResourcePackStatusC2SPacket.Status.ACCEPTED) {
+            if (this.polymer_ignoreNextStatus == false) {
+                this.polymer_setResourcePack(switch (packet.getStatus()) {
+                    case SUCCESSFULLY_LOADED -> true;
+                    case DECLINED, FAILED_DOWNLOAD, ACCEPTED -> false;
+                });
+            }
+
+            this.polymer_ignoreNextStatus = false;
         }
     }
+
 
     @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("HEAD"))
     private Packet<?> polymer_replacePacket(Packet<?> packet) {
@@ -223,5 +229,10 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         ) {
             ci.cancel();
         }
+    }
+
+    @Override
+    public void polymer_setIgnoreNext() {
+        this.polymer_ignoreNextStatus = true;
     }
 }

@@ -44,4 +44,6 @@ public interface PolymerNetworkHandlerExtension {
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {
         return (PolymerNetworkHandlerExtension) handler;
     }
+
+    void polymer_setIgnoreNext();
 }
