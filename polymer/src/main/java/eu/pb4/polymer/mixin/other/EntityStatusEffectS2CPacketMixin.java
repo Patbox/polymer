@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityStatusEffectS2CPacket.class)
 public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExtension {
 
-    @Mutable @Shadow @Final private byte effectId;
+    @Mutable @Shadow @Final private int effectId;
 
     @Unique private StatusEffect polymer_effect = null;
 
@@ -24,7 +24,7 @@ public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExten
         if (Registry.STATUS_EFFECT.get(this.effectId) instanceof PolymerStatusEffect virtualEffect && virtualEffect.getPolymerStatusEffect() != null) {
             this.polymer_effect = virtualEffect.getPolymerStatusEffect();
 
-            this.effectId = (byte) (StatusEffect.getRawId(virtualEffect.getPolymerStatusEffect()) & 255);
+            this.effectId = StatusEffect.getRawId(virtualEffect.getPolymerStatusEffect());
         }
     }
 

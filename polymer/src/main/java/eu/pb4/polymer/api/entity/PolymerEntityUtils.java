@@ -44,7 +44,7 @@ public final class PolymerEntityUtils {
         var reg = (RegistryExtension) Registry.ENTITY_TYPE;
         if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
             reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
-            for (var entry : Registry.ENTITY_TYPE.getEntries()) {
+            for (var entry : Registry.ENTITY_TYPE.getEntrySet()) {
                 if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
                     continue;
                 }

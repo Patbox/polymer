@@ -60,7 +60,7 @@ public final class PolymerBlockUtils {
         var reg = (RegistryExtension) Registry.BLOCK_ENTITY_TYPE;
         if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
             reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
-            for (var entry : Registry.BLOCK_ENTITY_TYPE.getEntries()) {
+            for (var entry : Registry.BLOCK_ENTITY_TYPE.getEntrySet()) {
                 if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
                     continue;
                 }

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "polymertest:test_block_etc"
+    }
+  }
+}

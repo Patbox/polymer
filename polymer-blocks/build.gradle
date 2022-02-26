@@ -34,8 +34,8 @@ dependencies {
     modImplementation "xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1"
     modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
 
-    modLocalRuntime "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
-    modCompileOnly "fr.catcore:server-translations-api:1.4.8+1.18-pre1"
+    //modLocalRuntime "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
+    //modCompileOnly "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
 
     modCompileOnly 'com.github.TheEpicBlock:PolyMc:3.3.3'
     //modRuntimeOnly 'com.github.TheEpicBlock:PolyMc:3.3.3'

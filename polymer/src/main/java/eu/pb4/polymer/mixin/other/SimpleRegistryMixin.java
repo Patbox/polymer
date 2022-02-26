@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.other;
 import com.mojang.serialization.Lifecycle;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,9 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class SimpleRegistryMixin<T> implements RegistryExtension {
     @Unique
     private Status polymer_status = Status.VANILLA_ONLY;
-
-    @Inject(method = "set(ILnet/minecraft/util/registry/RegistryKey;Ljava/lang/Object;Lcom/mojang/serialization/Lifecycle;Z)Ljava/lang/Object;", at = @At("TAIL"))
-    private <V extends T> void polymer_storeStatus(int rawId, RegistryKey<T> key, V entry, Lifecycle lifecycle, boolean checkDuplicateKeys, CallbackInfoReturnable<V> cir) {
+    @Inject(method = "set(ILnet/minecraft/util/registry/RegistryKey;Ljava/lang/Object;Lcom/mojang/serialization/Lifecycle;Z)Lnet/minecraft/util/registry/RegistryEntry;", at = @At("TAIL"))
+    private <V extends T> void polymer_storeStatus(int rawId, RegistryKey<T> key, T entry, Lifecycle lifecycle, boolean checkDuplicateKeys, CallbackInfoReturnable<RegistryEntry<T>> cir) {
         if (key.getValue().getNamespace().equals("minecraft")) {
             return;
         }

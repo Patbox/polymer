@@ -75,7 +75,7 @@
     "other.ServerPlayNetworkHandlerMixin",
     "other.SimpleRegistryMixin",
     "other.StatisticsS2CPacketMixin",
-    "other.TagGroupMixin",
+    "other.TagPacketSerializerMixin",
     "other.WorldAccessor"
   ],
   "client": [

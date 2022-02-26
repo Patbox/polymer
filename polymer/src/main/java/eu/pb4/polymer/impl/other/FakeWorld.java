@@ -16,18 +16,16 @@ import net.minecraft.recipe.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.tag.TagManager;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.OverworldBiomeCreator;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
@@ -52,7 +50,7 @@ import java.util.function.Supplier;
 public final class FakeWorld extends World {
     public static final World INSTANCE;
     static final Scoreboard SCOREBOARD = new Scoreboard();
-    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.create();
+    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.createAndLoad();
     static final Biome BIOME = OverworldBiomeCreator.createTheVoid();
     static final RecipeManager RECIPE_MANAGER = new RecipeManager();
     static final ChunkManager CHUNK_MANAGER = new ChunkManager() {
@@ -63,7 +61,7 @@ public final class FakeWorld extends World {
         }
 
         @Override
-        public void tick(BooleanSupplier booleanSupplier) {
+        public void tick(BooleanSupplier shouldKeepTicking, boolean tickChunks) {
 
         }
 
@@ -111,7 +109,7 @@ public final class FakeWorld extends World {
                 world = new FakeWorld(
                         new FakeWorldProperties(),
                         RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
-                        DimensionTypeAccessor.polymer_getOverworld(),
+                        new RegistryEntry.Direct<>(DimensionTypeAccessor.polymer_getOverworld()),
                         () -> new ProfilerSystem(() -> 0l, () -> 0, false),
                         false,
                         true,
@@ -182,7 +180,7 @@ public final class FakeWorld extends World {
         }
     };
 
-    protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
+    protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed);
     }
 
@@ -244,11 +242,6 @@ public final class FakeWorld extends World {
     }
 
     @Override
-    public TagManager getTagManager() {
-        return TagManager.EMPTY;
-    }
-
-    @Override
     protected EntityLookup<Entity> getEntityLookup() {
         return ENTITY_LOOKUP;
     }
@@ -294,8 +287,8 @@ public final class FakeWorld extends World {
     }
 
     @Override
-    public Biome getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return BIOME;
+    public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
+        return BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
     }
 
 

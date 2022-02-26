@@ -52,8 +52,8 @@ dependencies {
     //modLocalRuntime 'maven.modrinth:mo-blocks-fabric:0.10.3b'
 
     modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.422")
-    modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")
-    modLocalRuntime ("com.sk89q.worldedit:worldedit-fabric-mc1.18.1:7.2.9")
+    //modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")
+    //modLocalRuntime ("com.sk89q.worldedit:worldedit-fabric-mc1.18.1:7.2.9")
 
     modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
         exclude(group: "com.terraformersmc")
@@ -65,8 +65,10 @@ dependencies {
     modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
     modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-    modCompileOnly("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
-    modLocalRuntime("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
+    modLocalRuntime "fr.catcore:api:1.4.9+1.18.2-rc1"
+    modCompileOnly "fr.catcore:api:1.4.9+1.18.2-rc1"
+    //modCompileOnly("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
+    //modLocalRuntime("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
 
     modCompileOnly('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:1.18-SNAPSHOT')
     modCompileOnly('com.github.qouteall.ImmersivePortalsMod:q_misc_util:1.18-SNAPSHOT')
@@ -76,7 +78,6 @@ dependencies {
 
     include project(":polymer-legacy")
 
-    include project(":polymer-oldpatch")
     testmodImplementation sourceSets.main.output
 }
 

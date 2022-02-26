@@ -18,5 +18,3 @@ include 'polymer'
 include 'polymer-blocks'
 include 'polymer-legacy'
 include 'polymer-client-extensions'
-include 'polymer-oldpatch'
-
