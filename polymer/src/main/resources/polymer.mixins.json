@@ -30,7 +30,6 @@
     "compat.fabricSync_RegistrySyncManagerMixin",
     "compat.lithium_BlockPaletteMixin",
     "compat.polymc_BlockPolyGeneratorMixin",
-    "compat.polymc_BlockStateManagerAccessor",
     "compat.immersive_portals.ip_ChunkDataSyncManagerMixin",
     "compat.immersive_portals.ip_CustomPayloadS2CPacket",
     "compat.immersive_portals.ip_IPNetworkingMixin",

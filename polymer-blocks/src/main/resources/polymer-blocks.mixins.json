@@ -4,9 +4,7 @@
   "package": "eu.pb4.polymer.ext.blocks.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "polymc.BlockPolyGeneratorMixin",
-    "polymc.PolyRegistryMixin",
-    "polymc.ResourcePackGeneratorMixin"
+    "polymc.PolyRegistryMixin"
   ],
   "client": [
   ],

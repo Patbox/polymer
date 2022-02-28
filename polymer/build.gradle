@@ -44,11 +44,11 @@ dependencies {
 
     modCompileOnly ('com.github.CaffeineMC:lithium-fabric:mc1.18.1-0.7.7')
 
-    modCompileOnly ('com.github.TheEpicBlock:PolyMc:3.3.3')
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:4.0.0')
 
     modCompileOnly ("mcp.mobius.waila:wthit:fabric-4.4.0")
 
-    //modLocalRuntime 'com.github.TheEpicBlock:PolyMc:3.3.3'
+    //modLocalRuntime 'com.github.TheEpicBlock:PolyMc:4.0.0'
     //modLocalRuntime 'maven.modrinth:mo-blocks-fabric:0.10.3b'
 
     modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.422")
