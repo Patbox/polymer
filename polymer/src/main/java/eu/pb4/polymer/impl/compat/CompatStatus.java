@@ -1,28 +1,31 @@
 package eu.pb4.polymer.impl.compat;
 
-import eu.pb4.polymer.impl.PolymerImpl;
+import net.fabricmc.loader.api.FabricLoader;
 
-public class CompatStatus {
-    public static final boolean POLYMER_OLD_PATCH = PolymerImpl.isModLoaded("polymer-oldpatch");
-    public static final boolean POLYMER_LEGACY = PolymerImpl.isModLoaded("polymer-legacy");
-    public static final boolean POLYMER_BLOCKS = PolymerImpl.isModLoaded("polymer-blocks");
-    public static final boolean POLYMER_CLIENT_EXT = PolymerImpl.isModLoaded("polymer-client-extensions");
+public final class CompatStatus {
+    private static final FabricLoader LOADER = FabricLoader.getInstance();
 
-    public static final boolean FABRIC_SYNC = PolymerImpl.isModLoaded("fabric-registry-sync-v0") && !POLYMER_OLD_PATCH;
-    public static final boolean FABRIC_PERMISSION_API_V0 = PolymerImpl.isModLoaded("fabric-permissions-api-v0");
 
-    public static final boolean POLYMC = PolymerImpl.isModLoaded("polymc");
-    public static final boolean LITHIUM = PolymerImpl.isModLoaded("lithium");
+    public static final boolean POLYMER_OLD_PATCH = LOADER.isModLoaded("polymer-oldpatch");
+    public static final boolean POLYMER_LEGACY = LOADER.isModLoaded("polymer-legacy");
+    public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
+    public static final boolean POLYMER_CLIENT_EXT = LOADER.isModLoaded("polymer-client-extensions");
 
-    public static final boolean WTHIT = PolymerImpl.isModLoaded("wthit");
-    public static final boolean REI = PolymerImpl.isModLoaded("roughlyenoughitems");
+    public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0") && !POLYMER_OLD_PATCH;
+    public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
 
-    public static final boolean IRIS = PolymerImpl.isModLoaded("iris");
-    public static final boolean CANVAS = PolymerImpl.isModLoaded("canvas");
-    public static final boolean OPTIBAD = PolymerImpl.isModLoaded("optifabric");
+    public static final boolean POLYMC = LOADER.isModLoaded("polymc");
+    public static final boolean LITHIUM = LOADER.isModLoaded("lithium");
+
+    public static final boolean WTHIT = LOADER.isModLoaded("wthit");
+    public static final boolean REI = LOADER.isModLoaded("roughlyenoughitems");
+
+    public static final boolean IRIS = LOADER.isModLoaded("iris");
+    public static final boolean CANVAS = LOADER.isModLoaded("canvas");
+    public static final boolean OPTIBAD = LOADER.isModLoaded("optifabric");
 
     public static final boolean REQUIRE_ALT_ARMOR_HANDLER = IRIS || CANVAS || OPTIBAD;
 
-    public static final boolean IMMERSIVE_PORTALS = PolymerImpl.isModLoaded("imm_ptl_core");
+    public static final boolean IMMERSIVE_PORTALS = LOADER.isModLoaded("imm_ptl_core");
 
 }

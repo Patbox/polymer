@@ -2,6 +2,7 @@ package eu.pb4.polymer.impl.entity;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.other.FakeWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -23,7 +24,7 @@ import java.util.Map;
 @SuppressWarnings({"unused", "unchecked"})
 public class InternalEntityHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
-    private static final PigEntity PIG = new PigEntity(EntityType.PIG, eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);
+    private static final PigEntity PIG = new PigEntity(EntityType.PIG, FakeWorld.INSTANCE);
 
     public static List<DataTracker.Entry<?>> getExampleTrackedDataOfEntityType(EntityType<?> type) {
         return getEntity(type).getDataTracker().getAllEntries();
@@ -46,11 +47,10 @@ public class InternalEntityHelpers {
 
         if (entity == null) {
             try {
-                entity = type.create(eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);
-            } catch (Exception e) {
+                entity = type.create(FakeWorld.INSTANCE);
+            } catch (Throwable e) {
                 if (PolymerImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
-                    PolymerImpl.LOGGER.warn(String.format("Couldn't create template entity of %s (%s)... Defaulting to empty", Registry.ENTITY_TYPE.getId(type), type.getBaseClass().toString()));
-                    PolymerImpl.LOGGER.warn(e);
+                    PolymerImpl.LOGGER.warn(String.format("Couldn't create template entity of %s (%s)... Defaulting to empty", Registry.ENTITY_TYPE.getId(type), type.getBaseClass().toString()), e);
                 }
                 entity = FakeEntity.INSTANCE;
             }
@@ -69,7 +69,7 @@ public class InternalEntityHelpers {
     }
 
     static {
-        EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(eu.pb4.polymer.impl.other.FakeWorld.INSTANCE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "NPC")) {
+        EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
             @Override
             public boolean isSpectator() {
                 return false;

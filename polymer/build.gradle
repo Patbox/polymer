@@ -50,6 +50,7 @@ dependencies {
 
     //modLocalRuntime 'com.github.TheEpicBlock:PolyMc:4.0.0'
     //modLocalRuntime 'maven.modrinth:mo-blocks-fabric:0.10.3b'
+    //modLocalRuntime 'maven.modrinth:copperstuff:1.0.0'
 
     modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.422")
     //modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")

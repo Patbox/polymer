@@ -43,8 +43,7 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                             InternalClientRegistry.ARMOR_TEXTURES_2.put(key, tex2);
                         }
                     } catch (Exception e) {
-                        PolymerImpl.LOGGER.warn("Invalid armors.json file!");
-                        PolymerImpl.LOGGER.warn(e);
+                        PolymerImpl.LOGGER.warn("Invalid armors.json file! {}", e);
                     }
                 }
             }

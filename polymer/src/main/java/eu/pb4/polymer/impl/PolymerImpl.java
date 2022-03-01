@@ -2,6 +2,7 @@ package eu.pb4.polymer.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.logging.LogUtils;
 import eu.pb4.polymer.impl.client.ClientConfig;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import net.fabricmc.api.EnvType;
@@ -9,8 +10,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -25,7 +25,7 @@ public final class PolymerImpl {
     private PolymerImpl() {
     }
 
-    public static final Logger LOGGER = LogManager.getLogger("Polymer");
+    public static final Logger LOGGER = LogUtils.getLogger();
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     public static final Gson GSON_PRETTY = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
     private static final FabricLoader LOADER = FabricLoader.getInstance();
@@ -53,6 +53,8 @@ public final class PolymerImpl {
     public static final boolean ADD_NON_POLYMER_CREATIVE_TABS;
 
     static {
+        new CompatStatus();
+
         var list = new ArrayList<String>();
         for (var person : CONTAINER.getMetadata().getAuthors()) {
             list.add(person.getName());

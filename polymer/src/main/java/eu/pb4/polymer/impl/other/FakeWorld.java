@@ -85,46 +85,7 @@ public final class FakeWorld extends World {
             return INSTANCE;
         }
     };
-
-    static {
-        try {
-            World world;
-
-            try {
-                world = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
-                var accessor = (WorldAccessor) world;
-                accessor.polymer_setBiomeAccess(new BiomeAccess(world, 1l));
-                accessor.polymer_setBorder(new WorldBorder());
-                accessor.polymer_setDebugWorld(true);
-                accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
-                accessor.polymer_setProperties(new FakeWorldProperties());
-                accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
-                accessor.polymer_setThread(Thread.currentThread());
-                accessor.polymer_setRandom(new Random());
-                accessor.polymer_setBlockEntityTickers(new ArrayList<>());
-                accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
-
-            } catch (Exception e) {
-                PolymerImpl.LOGGER.warn("Creating fake world with unsafe failed... Time for plan B");
-                world = new FakeWorld(
-                        new FakeWorldProperties(),
-                        RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
-                        new RegistryEntry.Direct<>(DimensionTypeAccessor.polymer_getOverworld()),
-                        () -> new ProfilerSystem(() -> 0l, () -> 0, false),
-                        false,
-                        true,
-                        1
-                );
-            }
-
-            INSTANCE = world;
-        } catch (Exception e1) {
-            PolymerImpl.LOGGER.error("Couldn't initiate fake world! See logs below!");
-            throw e1;
-        }
-    }
-
-    private static EntityLookup<Entity> ENTITY_LOOKUP = new EntityLookup<>() {
+    private static final EntityLookup<Entity> ENTITY_LOOKUP = new EntityLookup<>() {
         @Nullable
         @Override
         public Entity get(int id) {
@@ -157,8 +118,7 @@ public final class FakeWorld extends World {
 
         }
     };
-
-    private static QueryableTickScheduler<?> FAKE_SCHEDULER = new QueryableTickScheduler<Object>() {
+    private static final QueryableTickScheduler<?> FAKE_SCHEDULER = new QueryableTickScheduler<Object>() {
         @Override
         public boolean isTicking(BlockPos pos, Object type) {
             return false;
@@ -179,6 +139,45 @@ public final class FakeWorld extends World {
             return 0;
         }
     };
+
+    static {
+        World world;
+
+        try {
+            try {
+                world = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
+                var accessor = (WorldAccessor) world;
+                accessor.polymer_setBiomeAccess(new BiomeAccess(world, 1l));
+                accessor.polymer_setBorder(new WorldBorder());
+                accessor.polymer_setDebugWorld(true);
+                accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
+                accessor.polymer_setProperties(new FakeWorldProperties());
+                accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
+                accessor.polymer_setThread(Thread.currentThread());
+                accessor.polymer_setRandom(new Random());
+                accessor.polymer_setBlockEntityTickers(new ArrayList<>());
+                accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
+
+            } catch (Throwable e) {
+                PolymerImpl.LOGGER.error("Creating fake world with unsafe failed... Time for plan B", e);
+                world = new FakeWorld(
+                        new FakeWorldProperties(),
+                        RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
+                        new RegistryEntry.Direct<>(DimensionTypeAccessor.polymer_getOverworld()),
+                        () -> new ProfilerSystem(() -> 0l, () -> 0, false),
+                        false,
+                        true,
+                        1
+                );
+            }
+        } catch (Throwable e) {
+            PolymerImpl.LOGGER.error("And it failed again... some mod is really angry at this stuff... setting it to null for now, hopefully it will pass enough", e);
+            world = null;
+        }
+
+
+        INSTANCE = world;
+    }
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed);
@@ -295,28 +294,13 @@ public final class FakeWorld extends World {
     static class FakeWorldProperties implements MutableWorldProperties {
 
         @Override
-        public void setSpawnX(int spawnX) {
-
-        }
-
-        @Override
-        public void setSpawnY(int spawnY) {
-
-        }
-
-        @Override
-        public void setSpawnZ(int spawnZ) {
-
-        }
-
-        @Override
-        public void setSpawnAngle(float angle) {
-
-        }
-
-        @Override
         public int getSpawnX() {
             return 0;
+        }
+
+        @Override
+        public void setSpawnX(int spawnX) {
+
         }
 
         @Override
@@ -325,13 +309,28 @@ public final class FakeWorld extends World {
         }
 
         @Override
+        public void setSpawnY(int spawnY) {
+
+        }
+
+        @Override
         public int getSpawnZ() {
             return 0;
         }
 
         @Override
+        public void setSpawnZ(int spawnZ) {
+
+        }
+
+        @Override
         public float getSpawnAngle() {
             return 0;
+        }
+
+        @Override
+        public void setSpawnAngle(float angle) {
+
         }
 
         @Override

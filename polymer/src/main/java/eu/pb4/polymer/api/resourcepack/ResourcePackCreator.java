@@ -54,7 +54,7 @@ public final class ResourcePackCreator {
             items.put(vanillaItem, cmdInfoList);
         }
 
-        PolymerModelData cmdInfo = new PolymerModelData(vanillaItem, cmdInfoList.size() + cmdOffset, modelPath);
+        PolymerModelData cmdInfo = new PolymerModelData(vanillaItem, cmdInfoList.size() + this.cmdOffset, modelPath);
         cmdInfoList.add(cmdInfo);
         return cmdInfo;
     }

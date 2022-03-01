@@ -111,7 +111,7 @@ public final class BlockResourceCreator {
 
                 builder.addData(baseEntry.getKey(), DefaultRPBuilder.GSON.toJson(modelObject).getBytes(StandardCharsets.UTF_8));
             } catch (Exception e) {
-                PolymerImpl.LOGGER.warn(e);
+                PolymerImpl.LOGGER.warn("Exception occurred while building block model!", e);
             }
         }
 

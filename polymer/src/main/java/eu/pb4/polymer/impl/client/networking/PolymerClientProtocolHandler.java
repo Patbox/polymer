@@ -79,7 +79,7 @@ public class PolymerClientProtocolHandler {
                 }
             } catch (Exception e) {
                 PolymerImpl.LOGGER.error("Invalid " + identifier + " (" + version + ") packet received from server!");
-                PolymerImpl.LOGGER.error(e);
+                PolymerImpl.LOGGER.error(e.toString());
             }
             currentPacketsPerSecond++;
         }

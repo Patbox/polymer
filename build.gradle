@@ -131,7 +131,7 @@ curseforge {
             releaseType = "release"
             changelog = ""
             changelogType = "markdown"
-            addGameVersion "1.18-Snapshot"
+            addGameVersion "1.18.2"
             addGameVersion "Fabric"
             mainArtifact(remapJar)
 
@@ -155,7 +155,7 @@ task publishModrinth(type: TaskModrinthUpload) {
     projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
     versionNumber = "" + version // The version of the mod to upload.
     uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
-    addGameVersion('1.18.2-rc1') // Any minecraft version.
+    addGameVersion('1.18.2') // Any minecraft version.
     addLoader('fabric') // Can be fabric or forge. Modrinth will support liteloader and rift at a later date.
 }
 

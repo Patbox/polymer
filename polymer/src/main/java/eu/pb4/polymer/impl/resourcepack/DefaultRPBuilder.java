@@ -239,7 +239,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     return stream.readAllBytes();
                 }
             } catch (Exception e) {
-                PolymerImpl.LOGGER.warn(e);
+                PolymerImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
             }
         }
         return null;

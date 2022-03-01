@@ -1,11 +1,11 @@
-package eu.pb4.polymer.mixin.compat;
+package eu.pb4.polymer.mixin.compat.polymc;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.impl.compat.polymc.PolymerBlockPoly;
 import io.github.theepicblock.polymc.api.PolyRegistry;
+import io.github.theepicblock.polymc.impl.generator.BlockPolyGenerator;
 import net.minecraft.block.Block;
 import org.spongepowered.asm.mixin.Mixin;
-import io.github.theepicblock.polymc.impl.generator.BlockPolyGenerator;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
