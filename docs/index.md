@@ -1,9 +1,3 @@
-!!! warning ""
-    These docs are written for unstable, in development version!
-    You might want to check https://polymer.pb4.eu/0.1.x/ instead
-    They are also quite incomplete, so you might want to look
-    through api package yourself
-
 # About Polymer
 It's a library for creating server side content, that work for player's without mods or (required) resource packs!
 You can create blocks, items and entities, that not only will work fully on server side (and singleplayer), but also
