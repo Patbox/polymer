@@ -1,4 +1,4 @@
-!!! Warning!
+!!! warning ""
     These docs are written for unstable, in development version!
     You might want to check https://polymer.pb4.eu/0.1.x/ instead
     They are also quite incomplete, so you might want to look
