@@ -2,7 +2,7 @@ name: Deploy MkDocs
 on:
   push:
     branches: [ 'dev/**' ]
-    paths: [ 'docs/**', 'mkdocs.yml' ]
+    paths: [ 'docs/**', 'mkdocs.yml', '.github/workflows/mkdocs-publish.yml' ]
 jobs:
   build:
     runs-on: ubuntu-latest
