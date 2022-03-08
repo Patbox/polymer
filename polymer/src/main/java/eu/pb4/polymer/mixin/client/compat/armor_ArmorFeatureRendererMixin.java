@@ -26,13 +26,15 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> {
     @Inject(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/DyeableArmorItem;getColor(Lnet/minecraft/item/ItemStack;)I"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_changeArmorTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot armorSlot, int light, A model, CallbackInfo ci, ItemStack stack) {
-        int color = ((DyeableArmorItem) stack.getItem()).getColor(stack);
+        if (InternalClientRegistry.hasArmorTextures) {
+            int color = ((DyeableArmorItem) stack.getItem()).getColor(stack);
 
-        if (InternalClientRegistry.ARMOR_TEXTURES_1.containsKey(color)) {
-            boolean usesSecondLayer = armorSlot == EquipmentSlot.LEGS;
-            VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull((usesSecondLayer ? InternalClientRegistry.ARMOR_TEXTURES_2 : InternalClientRegistry.ARMOR_TEXTURES_1).get(color)), false, stack.hasGlint());
-            model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1.0F);
-            ci.cancel();
+            if (InternalClientRegistry.ARMOR_TEXTURES_1.containsKey(color)) {
+                boolean usesSecondLayer = armorSlot == EquipmentSlot.LEGS;
+                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull((usesSecondLayer ? InternalClientRegistry.ARMOR_TEXTURES_2 : InternalClientRegistry.ARMOR_TEXTURES_1).get(color)), false, stack.hasGlint());
+                model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1.0F);
+                ci.cancel();
+            }
         }
     }
 }

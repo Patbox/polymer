@@ -42,8 +42,6 @@ allprojects {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url = "https://maven.enginehub.org/repo/" }
         maven { url = "https://maven.theepicblock.nl"; content { includeGroup("nl.theepicblock") } }
-
-        mavenLocal()
     }
 
     dependencies {

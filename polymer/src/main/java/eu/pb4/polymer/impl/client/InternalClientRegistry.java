@@ -13,6 +13,7 @@ import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
@@ -61,6 +62,7 @@ public class InternalClientRegistry {
     public static boolean isClientOutdated = false;
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
 
+    public static boolean hasArmorTextures = false;
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
 
@@ -118,6 +120,7 @@ public class InternalClientRegistry {
         blockOffset = -1;
         stable = false;
         itemsMatch = false;
+        rebuildSearch();
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
     }
 
@@ -191,13 +194,29 @@ public class InternalClientRegistry {
 
         if (list.size() <= CreativeInventoryScreenAccessor.getSelectedTab()) {
             CreativeInventoryScreenAccessor.setSelectedTab(ItemGroup.BUILDING_BLOCKS.getIndex());
-            try {
-                //noinspection JavaReflectionMemberAccess
-                Field f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
-                f1.setAccessible(true);
-                f1.set(null, 0);
-            } catch (Exception e) {
-                // noop
+
+            if (CompatStatus.FABRIC_ITEM_GROUP) {
+                try {
+                    Field f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
+                    f1.setAccessible(true);
+                    f1.setInt(null, 0);
+                } catch (Exception e) {
+                    // noop
+                }
+            }
+
+            if (CompatStatus.QUILT_ITEM_GROUP) {
+                try {
+                    for (var f1 : CreativeInventoryScreen.class.getDeclaredFields()) {
+                        if (f1.getName().contains("quilt$currentPage")) {
+                            f1.setAccessible(true);
+                            f1.setInt(null, 0);
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    // noop
+                }
             }
         }
 

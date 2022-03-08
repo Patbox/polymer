@@ -6,13 +6,15 @@ public final class CompatStatus {
     private static final FabricLoader LOADER = FabricLoader.getInstance();
 
 
-    public static final boolean POLYMER_OLD_PATCH = LOADER.isModLoaded("polymer-oldpatch");
     public static final boolean POLYMER_LEGACY = LOADER.isModLoaded("polymer-legacy");
     public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
     public static final boolean POLYMER_CLIENT_EXT = LOADER.isModLoaded("polymer-client-extensions");
 
-    public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0") && !POLYMER_OLD_PATCH;
+    public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");
+    public static final boolean FABRIC_ITEM_GROUP = LOADER.isModLoaded("fabric-item-groups-v0");
     public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
+
+    public static final boolean QUILT_ITEM_GROUP = LOADER.isModLoaded("quilt_item_group");
 
     public static final boolean POLYMC = LOADER.isModLoaded("polymc");
     public static final boolean LITHIUM = LOADER.isModLoaded("lithium");
