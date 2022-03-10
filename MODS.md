@@ -41,6 +41,10 @@ without needing to install the mod on your client!
 ## Server Backpacks
 A mod that adds server-side backpacks.
 
+### Links:
+- Github: https://github.com/Oliver-makes-code/server-backpacks
+- Modrinth: https://modrinth.com/mod/servback
+
 ## Simple Villagers
 Having frustrations with villagers? No more!
 
@@ -48,10 +52,6 @@ Having frustrations with villagers? No more!
 - GitHub: https://github.com/samolego/SimpleVillagers
 - Modrinth: https://modrinth.com/mod/simplevillagers
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/simplevillagers
-
-### Links:
-- Github: https://github.com/Oliver-makes-code/server-backpacks
-- Modrinth: https://modrinth.com/mod/servback
 
 ## Universal Graves
 It's a simple, but really customisable grave/death chest mod! 
