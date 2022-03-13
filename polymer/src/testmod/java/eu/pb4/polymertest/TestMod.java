@@ -29,9 +29,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.SetCameraEntityS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -48,10 +46,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.minecraft.server.command.CommandManager.literal;
@@ -71,6 +66,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
     public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5).group(ITEM_GROUP), Items.IRON_HOE);
     public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.DIAMOND_BLOCK);
+    public static SimplePolymerItem ITEM_3 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99).group(ITEM_GROUP), Items.CHAINMAIL_CHESTPLATE);
     public static Block BLOCK = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
     public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings().group(ITEM_GROUP), Items.STONE);
     public static Block BLOCK_PLAYER = new TestPerPlayerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f));
@@ -159,6 +155,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
         Registry.register(Registry.ITEM, new Identifier("test", "item"), ITEM);
         Registry.register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
+        Registry.register(Registry.ITEM, new Identifier("test", "item3"), ITEM_3);
         Registry.register(Registry.BLOCK, new Identifier("test", "block"), BLOCK);
         Registry.register(Registry.ITEM, new Identifier("test", "block"), BLOCK_ITEM);
         Registry.register(Registry.BLOCK, new Identifier("test", "block_client"), BLOCK_CLIENT);

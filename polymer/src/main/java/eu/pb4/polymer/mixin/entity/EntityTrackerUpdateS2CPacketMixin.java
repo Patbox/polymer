@@ -9,21 +9,27 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.entity.PolymerTrackedDataHandler;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -37,10 +43,15 @@ public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
     @Mutable
     private List<DataTracker.Entry<?>> trackedValues;
 
-    @Inject(method = "<init>(ILnet/minecraft/entity/data/DataTracker;Z)V", at = @At("TAIL"))
-    private void polymer_removeInvalidEntries(int id, DataTracker tracker, boolean forceUpdateAll, CallbackInfo ci) {
-        Entity entity = ((DataTrackerAccessor) tracker).getTrackedEntity();
-        List<DataTracker.Entry<?>> entries = new ArrayList<>();
+    @Nullable
+    private List<DataTracker.Entry<?>> polymer_parseEntries() {
+        Entity entity = EntityAttachedPacket.get(this);
+        if (entity == null) {
+            return new ArrayList<>(this.trackedValues);
+        }
+
+        var entries = new ArrayList<DataTracker.Entry<?>>();
+        var player = PolymerUtils.getPlayer();
 
         if (entity instanceof PolymerEntity polymerEntity) {
             List<DataTracker.Entry<?>> legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType()));
@@ -59,7 +70,7 @@ public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
                     }
                 }
 
-                polymerEntity.modifyTrackedData(entries);
+                polymerEntity.modifyTrackedData(entries, player);
                 this.trackedValues = entries;
             } else {
                 if (this.trackedValues != null) {
@@ -70,10 +81,10 @@ public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
                     }
                 }
 
-                polymerEntity.modifyTrackedData(entries);
+                polymerEntity.modifyTrackedData(entries, player);
             }
         } else if (this.trackedValues == null) {
-            return;
+            return null;
         } else {
             entries.addAll(this.trackedValues);
         }
@@ -83,17 +94,24 @@ public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
 
             if (entry.getData() == ItemFrameEntityAccessor.getITEM_STACK() && entry.get() instanceof ItemStack stack) {
                 entries.set(i, new DataTracker.Entry<>(PolymerTrackedDataHandler.CUSTOM_ITEM_FRAME_STACK, stack));
+            } else if (entry.getData() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID()) {
+                entries.set(i, new DataTracker.Entry<>(AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.get()), player))));
             }
         }
 
-        this.trackedValues = entries;
+        return entries;
+    }
+
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/data/DataTracker;entriesToPacket(Ljava/util/List;Lnet/minecraft/network/PacketByteBuf;)V", ordinal = 0))
+    private List<DataTracker.Entry<?>> polymer_replaceWithPolymer(List<DataTracker.Entry<?>> value) {
+        return this.polymer_parseEntries();
     }
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getTrackedValues", at = @At("RETURN"), cancellable = true)
     private void polymer_replaceItemsWithPolymerOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
         if (MinecraftClient.getInstance().getServer() != null && this.trackedValues != null) {
-            List<DataTracker.Entry<?>> list = new ArrayList<>();
+            List<DataTracker.Entry<?>> list = this.polymer_parseEntries();
             ServerPlayerEntity player = ClientUtils.getPlayer();
 
             for (var entry : cir.getReturnValue()) {

@@ -2,9 +2,11 @@ package eu.pb4.polymer.mixin.other;
 
 import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.DynamicPacket;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
+import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
@@ -13,6 +15,7 @@ import eu.pb4.polymer.impl.other.ScheduledPacket;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
@@ -65,7 +68,6 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
 
     @Shadow
     public abstract ServerPlayerEntity getPlayer();
-
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void polymer_setMapper(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
@@ -216,6 +218,12 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                     return new PlaySoundFromEntityS2CPacket(soundEffect, soundPacket.getCategory(), entity, soundPacket.getVolume(), soundPacket.getPitch());
                 }
             }
+        } else if (packet instanceof DynamicPacket dynamicPacket) {
+            var out = dynamicPacket.createPacket((ServerPlayNetworkHandler) (Object) (this), this.player);
+
+            if (out != null) {
+                return out;
+            }
         }
 
         return packet;
@@ -223,9 +231,12 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("HEAD"), cancellable = true)
     private void polymer_skipEffects(Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
-        if ((packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() == PolymerSoundEvent.EMPTY_SOUND)
-                || packet instanceof StatusEffectPacketExtension packet2
-                && (packet2.polymer_getStatusEffect() == null || packet2.polymer_getStatusEffect() instanceof PolymerObject)
+        if (packet instanceof DynamicPacket
+                || (
+                        (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() == PolymerSoundEvent.EMPTY_SOUND)
+                                || packet instanceof StatusEffectPacketExtension packet2
+                                && (packet2.polymer_getStatusEffect() == null || packet2.polymer_getStatusEffect() instanceof PolymerObject)
+                ) || !EntityAttachedPacket.shouldSend(packet, this.player)
         ) {
             ci.cancel();
         }

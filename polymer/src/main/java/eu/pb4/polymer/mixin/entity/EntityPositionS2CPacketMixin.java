@@ -41,4 +41,6 @@ public class EntityPositionS2CPacketMixin implements PlayerAwarePacket {
             this.pitch = (byte)((int)(virtualEntity.getClientSidePitch(entity.getPitch()) * 256.0F / 360.0F));
         }
     }
+
+
 }

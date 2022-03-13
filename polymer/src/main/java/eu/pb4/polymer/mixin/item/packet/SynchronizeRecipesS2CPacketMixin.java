@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.item.packet;
 
 import eu.pb4.polymer.api.item.PolymerRecipe;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -12,6 +13,7 @@ import net.minecraft.recipe.Recipe;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -24,16 +26,15 @@ import java.util.List;
 public abstract class SynchronizeRecipesS2CPacketMixin implements PlayerAwarePacket {
     @Unique List<Recipe<?>> rewrittenRecipes = null;
 
-    @Final @Shadow @Mutable private List<Recipe<?>> recipes;
-
     @Shadow public abstract void write(PacketByteBuf buf);
 
-    @Inject(method = "<init>(Ljava/util/Collection;)V", at = @At("TAIL"))
-    public void polymer_onInit(Collection<Recipe<?>> recipes, CallbackInfo ci) {
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Ljava/util/function/BiConsumer;)V"))
+    public Collection<Recipe<?>> polymer_onWrite(Collection<Recipe<?>> recipes) {
         List<Recipe<?>> list = new ArrayList<>();
+        var player = PolymerUtils.getPlayer();
         for (Recipe<?> recipe : recipes) {
             if (recipe instanceof PolymerRecipe) {
-                Recipe<?> polymerRecipe = ((PolymerRecipe) recipe).getPolymerRecipe(recipe);
+                Recipe<?> polymerRecipe = ((PolymerRecipe) recipe).getPolymerRecipe(recipe, player);
                 if (polymerRecipe != null) {
                     list.add(polymerRecipe);
                 }
@@ -41,7 +42,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements PlayerAwarePac
                 list.add(recipe);
             }
         }
-        this.recipes = list;
+        return list;
     }
 
     /*
