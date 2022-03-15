@@ -1,6 +1,5 @@
 package eu.pb4.polymer.mixin.entity;
 
-import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.MetaConsumer;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
@@ -25,16 +24,6 @@ public abstract class EntityTrackerMixin {
 
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/EntityTrackerEntry;<init>(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/Entity;IZLjava/util/function/Consumer;)V"))
     private Consumer<Packet<?>> polymer_replaceReceiver(Consumer<Packet<?>> receiver) {
-        return new MetaConsumer<>() {
-            @Override
-            public void accept(Packet<?> packet) {
-                EntityTrackerMixin.this.sendToOtherNearbyPlayers(EntityAttachedPacket.set(packet, EntityTrackerMixin.this.entity));
-            }
-
-            @Override
-            public Set<EntityTrackingListener> getAttached() {
-                return EntityTrackerMixin.this.listeners;
-            }
-        };
+        return MetaConsumer.plsFixInDevRemappingFabric((ThreadedAnvilChunkStorage.EntityTracker) (Object) this, this.listeners, this.entity);
     }
 }
