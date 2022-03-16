@@ -20,6 +20,8 @@ dependencies {
 
 For `[TAG]`/polymer version I recommend you checking [this maven](https://maven.nucleoid.xyz/eu/pb4/polymer/).
 
+Latest version: ![version](https://img.shields.io/maven-metadata/v?color=%23579B67&label=&metadataUrl=https://maven.nucleoid.xyz/eu/pb4/polymer/maven-metadata.xml)
+
 ## Before starting
 There are few things you need to keep in mind while using Polymer. 
 All your code that interacts with Polymer should:
@@ -39,6 +41,9 @@ All your code that interacts with Polymer should:
 * [Resource Packs](/polymer/resource-packs)
 * [Other custom features](/polymer/other)
 * [(Optional) Client Side features](/polymer/client-side)
+
+### Extensions
+* [Polymer Textured Blocks](/ext/polymer-blocks)
 
 Other useful tools/projects compatible with Polymer
 
