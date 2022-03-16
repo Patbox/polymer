@@ -18,8 +18,6 @@ import java.util.function.Consumer;
 public abstract class EntityTrackerMixin {
     @Shadow @Final private Set<EntityTrackingListener> listeners;
 
-    @Shadow public abstract void sendToOtherNearbyPlayers(Packet<?> packet);
-
     @Shadow @Final private Entity entity;
 
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/EntityTrackerEntry;<init>(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/Entity;IZLjava/util/function/Consumer;)V"))
