@@ -2,9 +2,9 @@ package eu.pb4.polymer.mixin.client.item.packet;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
@@ -23,9 +23,9 @@ public class EntityEquipmentUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEquipmentList", at = @At("RETURN"), cancellable = true)
     private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<Pair<EquipmentSlot, ItemStack>>> cir) {
-        if (MinecraftClient.getInstance().getServer() != null) {
+        if (ClientUtils.isSingleplayer()) {
             List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>();
-            ServerPlayerEntity player = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+            ServerPlayerEntity player = ClientUtils.getPlayer();
 
             for (Pair<EquipmentSlot, ItemStack> pair : cir.getReturnValue()) {
                 list.add(new Pair<>(pair.getFirst(), PolymerItemUtils.getPolymerItemStack(pair.getSecond(), player)));
