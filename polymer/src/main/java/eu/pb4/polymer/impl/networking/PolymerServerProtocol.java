@@ -332,10 +332,10 @@ public class PolymerServerProtocol {
 
             buf.writeIdentifier(group.getId());
             buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));
-            buf.writeItemStack(ServerTranslationUtils.parseFor(handler, PolymerItemUtils.getPolymerItemStack(group.createIcon(), handler.player)));
+            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, PolymerItemUtils.getPolymerItemStack(group.createIcon(), handler.player)));
             buf.writeVarInt(list.size());
             for (var stack : list) {
-                buf.writeItemStack(ServerTranslationUtils.parseFor(handler, PolymerItemUtils.getPolymerItemStack(stack, handler.player)));
+                PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, PolymerItemUtils.getPolymerItemStack(stack, handler.player)));
             }
 
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_ID, buf));

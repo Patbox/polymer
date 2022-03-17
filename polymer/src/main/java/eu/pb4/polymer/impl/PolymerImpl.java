@@ -46,6 +46,7 @@ public final class PolymerImpl {
     public static final boolean USE_ALT_ARMOR_HANDLER;
     public static final boolean FORCE_RESOURCE_PACK_CLIENT;
     public static final boolean FORCE_RESOURCE_PACK_SERVER;
+    public static final boolean HANDLE_HANDSHAKE_EARLY;
     public static final boolean FORCE_CUSTOM_MODEL_DATA_OFFSET;
     public static final boolean ENABLE_TEMPLATE_ENTITY_WARNINGS;
     public static final int CORE_COMMAND_MINIMAL_OP;
@@ -73,6 +74,7 @@ public final class PolymerImpl {
         FORCE_CUSTOM_MODEL_DATA_OFFSET = SERVER_CONFIG.forcePackOffset || CompatStatus.POLYMC;
         CORE_COMMAND_MINIMAL_OP = SERVER_CONFIG.coreCommandOperatorLevel;
         ADD_NON_POLYMER_CREATIVE_TABS = SERVER_CONFIG.displayNonPolymerCreativeTabs;
+        HANDLE_HANDSHAKE_EARLY = SERVER_CONFIG.handleHandshakeEarly;
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             var clientConfig = loadConfig("client", ClientConfig.class);

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking.packets;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.minecraft.item.ItemGroup;
@@ -32,7 +33,7 @@ public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> st
         buf.writeString(identifier);
         buf.writeVarInt(stacks.size());
         for (var item : stacks) {
-            buf.writeItemStack(ServerTranslationUtils.parseFor(handler, item));
+            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, item));
         }
     }
 }

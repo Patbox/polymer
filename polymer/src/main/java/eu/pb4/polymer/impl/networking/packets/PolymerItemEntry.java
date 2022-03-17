@@ -40,7 +40,7 @@ public record PolymerItemEntry(
 
             buf.writeIdentifier(identifier);
             buf.writeString(itemGroup);
-            buf.writeItemStack(ServerTranslationUtils.parseFor(handler, representation));
+            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, representation));
 
             if (version >= 1) {
                 buf.writeVarInt(foodLevels);

@@ -201,6 +201,13 @@ public final class PolymerItemUtils {
         return out;
     }
 
+    public static int getSafeColor(int inputColor) {
+        if (inputColor % 2 == 1) {
+            return Math.max(0, inputColor - 1);
+        }
+        return inputColor;
+    }
+
     /**
      * This method creates full (vanilla like) representation of ItemStack
      *

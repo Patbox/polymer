@@ -68,6 +68,23 @@ public class PolymerImplUtils {
         }
     }
 
+
+    /**
+     * Why you may ask? Some mods just like to make my life harder by modifying vanilla packet format...
+     * So method above would get invalid data
+     */
+    public static void writeStack(PacketByteBuf buf, ItemStack stack) {
+        if (stack.isEmpty()) {
+            buf.writeBoolean(false);
+        } else {
+            buf.writeBoolean(true);
+            Item item = stack.getItem();
+            buf.writeVarInt(Item.getRawId(item));
+            buf.writeByte(stack.getCount());
+            buf.writeNbt(stack.getNbt());
+        }
+    }
+
     static {
         final String chr = "█";
         var icon = new ArrayList<MutableText>();

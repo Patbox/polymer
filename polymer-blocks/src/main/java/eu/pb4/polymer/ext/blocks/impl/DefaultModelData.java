@@ -135,6 +135,5 @@ public class DefaultModelData {
         }
 
         USABLE_STATES.put(type, list);
-
     }
 }
