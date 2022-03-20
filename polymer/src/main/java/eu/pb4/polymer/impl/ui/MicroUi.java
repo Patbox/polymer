@@ -125,7 +125,7 @@ public class MicroUi {
                 }
                 ((ServerPlayerEntity) player).networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, 0, slotIndex, this.getSlot(slotIndex).getStack()));
                 ((ServerPlayerEntity) player).networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, 0, 0, this.getCursorStack()));
-            } else {
+            } else if (actionType != SlotActionType.QUICK_MOVE) {
                 super.onSlotClick(slotIndex, button, actionType, player);
             }
         }

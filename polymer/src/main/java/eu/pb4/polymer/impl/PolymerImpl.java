@@ -21,7 +21,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
 public final class PolymerImpl {
-
     private PolymerImpl() {
     }
 
@@ -52,6 +51,7 @@ public final class PolymerImpl {
     public static final int CORE_COMMAND_MINIMAL_OP;
     public static final boolean DISPLAY_DEBUG_INFO_CLIENT;
     public static final boolean ADD_NON_POLYMER_CREATIVE_TABS;
+    public static final boolean UNLOCK_SERVER_PACK_CLIENT;
 
     static {
         new CompatStatus();
@@ -82,11 +82,13 @@ public final class PolymerImpl {
             ENABLE_NETWORKING_CLIENT = clientConfig.enableNetworkSync;
             FORCE_RESOURCE_PACK_CLIENT = clientConfig.forceResourcePackByDefault;
             DISPLAY_DEBUG_INFO_CLIENT = clientConfig.displayF3Info;
+            UNLOCK_SERVER_PACK_CLIENT = LOADER.getGameDir().resolve(".polymer_unlock_rp").toFile().exists();
         } else {
             USE_ALT_ARMOR_HANDLER = false;
             ENABLE_NETWORKING_CLIENT = false;
             FORCE_RESOURCE_PACK_CLIENT = false;
             DISPLAY_DEBUG_INFO_CLIENT = false;
+            UNLOCK_SERVER_PACK_CLIENT = false;
         }
     }
 

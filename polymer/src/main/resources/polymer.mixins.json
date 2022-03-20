@@ -83,6 +83,7 @@
     "other.WorldAccessor"
   ],
   "client": [
+    "client.ClientBuiltinResourcePackProviderMixin",
     "client.ClientPlayNetworkHandlerMixin",
     "client.DebugHudMixin",
     "client.GameOptionsMixin",
