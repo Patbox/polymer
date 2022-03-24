@@ -12,6 +12,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -37,7 +38,7 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
     private Supplier<ItemStack> cachedIcon;
 
     private PolymerItemGroup(Identifier id, Text name, boolean sync) {
-        super(0, id.toString());
+        super(0, id.toString().replace(":", "_").toLowerCase(Locale.ROOT));
         this.identifier = id;
         this.name = name;
         this.sync = sync;
