@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.block.packet;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
@@ -22,7 +21,7 @@ public abstract class BlockPaletteMixin {
     @ModifyArg(method = {"writePacket", "getPacketSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
-            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerImplUtils.playerTargetHack.get());
+            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerImplUtils.getPlayer());
         }
         return object;
     }
@@ -30,8 +29,8 @@ public abstract class BlockPaletteMixin {
     @Environment(EnvType.CLIENT)
     @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getOrThrow(I)Ljava/lang/Object;"))
     private Object polymer_replaceState(IndexedIterable<?> instance, int i) {
-        if (instance == Block.STATE_IDS && i >= PolymerClientUtils.getBlockStateOffset()) {
-            return InternalClientRegistry.getRealBlockState(i - PolymerClientUtils.getBlockStateOffset() + 1);
+        if (instance == Block.STATE_IDS) {
+            return InternalClientRegistry.decodeState(i);
         }
 
         return instance.getOrThrow(i);

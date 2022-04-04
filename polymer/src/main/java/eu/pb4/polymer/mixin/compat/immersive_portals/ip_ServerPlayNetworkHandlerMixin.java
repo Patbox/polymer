@@ -41,11 +41,11 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
                     && ((BlockUpdateS2CPacketAccessor) blockUpdate).polymer_getState().getBlock() instanceof PolymerBlock)
                     || (realPacket instanceof ChunkDeltaUpdateS2CPacket blockUpdate2 && this.polymer_op_containsPlayerAware(blockUpdate2))
             ) {
-                PolymerImplUtils.playerTargetHack.set(this.getPlayer());
+                PolymerImplUtils.setPlayer(this.getPlayer());
                 var newPacket = IPNetworking.createRedirectedMessage(attachedPacket.polymer_ip_getAttachedDimension(), realPacket);
                 ((IPAttachedPacket) newPacket).polymer_ip_setSkip(true);
                 this.sendPacket(newPacket, listener);
-                PolymerImplUtils.playerTargetHack.set(null);
+                PolymerImplUtils.setPlayer(null);
                 ci.cancel();
             }
         }
@@ -65,9 +65,9 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
     private Packet<?> polymer_patchPackets(Packet<?> packet) {
         if (packet instanceof IPAttachedPacket attachedPacket && attachedPacket.polymer_ip_getAttachedPacket() instanceof PlayerAwarePacket && attachedPacket.polymer_ip_getAttachedDimension() != null) {
             IPCommonNetwork.withForceRedirect(this.player.getServer().getWorld(attachedPacket.polymer_ip_getAttachedDimension()), () -> {
-                PolymerImplUtils.playerTargetHack.set(this.getPlayer());
+                PolymerImplUtils.setPlayer(this.getPlayer());
                 BlockInfoUtil.sendFromPacket(attachedPacket.polymer_ip_getAttachedPacket(), (ServerPlayNetworkHandler) (Object) this);
-                PolymerImplUtils.playerTargetHack.set(null);
+                PolymerImplUtils.setPlayer(null);
             });
         }
         return packet;

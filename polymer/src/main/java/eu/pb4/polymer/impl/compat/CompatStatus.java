@@ -12,6 +12,7 @@ public final class CompatStatus {
 
     public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");
     public static final boolean FABRIC_ITEM_GROUP = LOADER.isModLoaded("fabric-item-groups-v0");
+    public static final boolean FABRIC_SCREEN_HANDLER = LOADER.isModLoaded("fabric-screen-handler-api-v1");
     public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
 
     public static final boolean QUILT_ITEM_GROUP = LOADER.isModLoaded("quilt_item_group");

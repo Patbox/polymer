@@ -56,6 +56,9 @@ dependencies {
     //modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")
     //modLocalRuntime ("com.sk89q.worldedit:worldedit-fabric-mc1.18.1:7.2.9")
 
+    //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
+    //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
+
     modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
         exclude(group: "com.terraformersmc")
         exclude(group: "io.github.prospector")

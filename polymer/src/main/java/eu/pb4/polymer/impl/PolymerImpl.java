@@ -2,7 +2,6 @@ package eu.pb4.polymer.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.logging.LogUtils;
 import eu.pb4.polymer.impl.client.ClientConfig;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import net.fabricmc.api.EnvType;
@@ -11,6 +10,7 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -24,10 +24,12 @@ public final class PolymerImpl {
     private PolymerImpl() {
     }
 
-    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LoggerFactory.getLogger("Polymer");
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     public static final Gson GSON_PRETTY = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
     private static final FabricLoader LOADER = FabricLoader.getInstance();
+
+    public static final boolean IS_CLIENT = LOADER.getEnvironmentType() == EnvType.CLIENT;
 
     private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer").get();
     public static final String MOD_ID = CONTAINER.getMetadata().getId();
@@ -76,7 +78,7 @@ public final class PolymerImpl {
         ADD_NON_POLYMER_CREATIVE_TABS = SERVER_CONFIG.displayNonPolymerCreativeTabs;
         HANDLE_HANDSHAKE_EARLY = SERVER_CONFIG.handleHandshakeEarly;
 
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+        if (PolymerImpl.IS_CLIENT) {
             var clientConfig = loadConfig("client", ClientConfig.class);
             USE_ALT_ARMOR_HANDLER = CompatStatus.REQUIRE_ALT_ARMOR_HANDLER || clientConfig.useAlternativeArmorRenderer;
             ENABLE_NETWORKING_CLIENT = clientConfig.enableNetworkSync;

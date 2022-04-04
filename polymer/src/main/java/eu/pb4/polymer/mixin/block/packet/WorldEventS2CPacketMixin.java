@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.block.packet;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
@@ -37,8 +36,8 @@ public class WorldEventS2CPacketMixin implements PlayerAwarePacket {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getData", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceClientData(CallbackInfoReturnable<Integer> cir) {
-        if (this.eventId == WorldEvents.BLOCK_BROKEN && this.data >= PolymerClientUtils.getBlockStateOffset()) {
-            var state = InternalClientRegistry.getRealBlockState(this.data - PolymerClientUtils.getBlockStateOffset() + 1);
+        if (this.eventId == WorldEvents.BLOCK_BROKEN) {
+            var state = InternalClientRegistry.decodeState(this.data);
             cir.setReturnValue(Block.getRawIdFromState(state));
         }
     }

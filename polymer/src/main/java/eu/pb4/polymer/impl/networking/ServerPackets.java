@@ -77,15 +77,15 @@ public class ServerPackets {
         register(SYNC_FINISHED, 0);
         register(SYNC_BLOCK, 0);
         register(SYNC_BLOCKSTATE, 0);
-        register(SYNC_ITEM, 0, 1, 2);
+        register(SYNC_ITEM, 2);
         register(SYNC_ITEM_GROUP, 0);
         register(SYNC_ITEM_GROUP_CLEAR, 0);
         register(SYNC_ITEM_GROUP_REMOVE, 0);
         register(SYNC_ITEM_GROUP_VANILLA, 0);
         register(SYNC_ENTITY, 0);
         register(SYNC_CLEAR, 0);
-        register(WORLD_SET_BLOCK_UPDATE, 0, 1);
-        register(WORLD_CHUNK_SECTION_UPDATE, 0, 1);
+        register(WORLD_SET_BLOCK_UPDATE, 1);
+        register(WORLD_CHUNK_SECTION_UPDATE, 1);
         register(WORLD_ENTITY, 0);
     }
 }

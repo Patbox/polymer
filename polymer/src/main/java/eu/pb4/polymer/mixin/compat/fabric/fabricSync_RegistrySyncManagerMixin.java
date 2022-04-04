@@ -1,4 +1,4 @@
-package eu.pb4.polymer.mixin.compat;
+package eu.pb4.polymer.mixin.compat.fabric;
 
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;

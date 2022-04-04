@@ -83,13 +83,12 @@ public class PolymerServerProtocol {
     public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
-        boolean forceAll = version == 0;
 
-        if (forceAll || version == 1) {
+        if (version == 1) {
             var list = new LongArrayList();
 
             for (int i = 0; i < blockStates.length; i++) {
-                if (forceAll || blockStates[i].getBlock() instanceof PolymerBlock) {
+                if (blockStates[i].getBlock() instanceof PolymerBlock) {
                     list.add((long) getRawId(blockStates[i], player.player) << 12 | positions[i]);
                 }
             }
@@ -112,7 +111,7 @@ public class PolymerServerProtocol {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
-        if (version == 0 || version == 1) {
+        if (version == 1) {
             var wci = (PolymerBlockPosStorage) chunk;
             if (wci.polymer_hasAny()) {
                 for (var section : chunk.getSectionArray()) {

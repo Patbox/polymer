@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
+import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
@@ -28,11 +29,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.search.SearchManager;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -41,6 +44,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -53,7 +57,6 @@ import java.util.function.Predicate;
 public class InternalClientRegistry {
     public static final SimpleEvent<Runnable> TICK = new SimpleEvent<>();
     public static boolean stable = false;
-    public static boolean itemsMatch = false;
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
 
     public static boolean enabled = false;
@@ -77,7 +80,6 @@ public class InternalClientRegistry {
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";
     public static int blockOffset = -1;
-
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
         if (MinecraftClient.getInstance().world != null && stable) {
@@ -119,11 +121,11 @@ public class InternalClientRegistry {
         syncRequests = 0;
         blockOffset = -1;
         stable = false;
-        itemsMatch = false;
         rebuildSearch();
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
     }
 
+    @Nullable
     public static BlockState getRealBlockState(int rawPolymerId) {
         var state = InternalClientRegistry.BLOCK_STATES.get(rawPolymerId);
         if (state != null && state.realServerBlockState() != null) {
@@ -134,7 +136,31 @@ public class InternalClientRegistry {
             }
         }
 
-        return Blocks.AIR.getDefaultState();
+        return null;
+    }
+
+    public static BlockState decodeState(int rawId) {
+        BlockState state;
+        if (rawId >= PolymerClientUtils.getBlockStateOffset()) {
+            state = InternalClientRegistry.getRealBlockState(rawId - PolymerClientUtils.getBlockStateOffset() + 1);
+        } else {
+            state = Block.STATE_IDS.get(rawId);
+        }
+
+        if (state == null) {
+            errorDecode(rawId);
+            return Blocks.AIR.getDefaultState();
+        }
+
+        return state;
+    }
+
+    private static void errorDecode(int rawId) {
+        PolymerImpl.LOGGER.error("Invalid BlockState ID (" + rawId + ")! Couldn't match it with any existing state!");
+        var stack = Thread.currentThread().getStackTrace();
+        if (stack.length > 3) {
+            PolymerImpl.LOGGER.error("Caused by: " + stack[3].toString());
+        }
     }
 
     public static void tick() {
@@ -264,5 +290,17 @@ public class InternalClientRegistry {
 
         a.reload();
         b.reload();
+    }
+
+    public static Item decodeItem(int id) {
+        if (InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+            var item = InternalClientRegistry.ITEMS.get(id);
+
+            if (item != null && item.realServerItem() instanceof PolymerItem) {
+                return item.realServerItem();
+            }
+        }
+
+        return Item.byRawId(id);
     }
 }

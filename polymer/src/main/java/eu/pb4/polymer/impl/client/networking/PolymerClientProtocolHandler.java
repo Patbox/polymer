@@ -373,8 +373,6 @@ public class PolymerClientProtocolHandler {
             }
 
             MinecraftClient.getInstance().execute(() -> {
-
-                InternalClientRegistry.itemsMatch = InternalClientRegistry.getProtocol(ServerPackets.SYNC_ITEM) >= 2;
                 PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
                 PolymerClientProtocol.sendTooltipContext(handler);
                 PolymerClientProtocol.sendSyncRequest(handler);

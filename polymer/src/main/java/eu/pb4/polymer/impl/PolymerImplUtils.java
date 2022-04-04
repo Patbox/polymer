@@ -1,8 +1,15 @@
 package eu.pb4.polymer.impl;
 
+import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.compat.CompatStatus;
+import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -14,76 +21,21 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class PolymerImplUtils {
     public static final Text[] ICON;
-    public static ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
+    private static final ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
     private static ItemStack NO_TEXTURE;
-
-    public static void setPlayer(ServerPlayerEntity player) {
-        playerTargetHack.set(player);
-    }
-
-    @Nullable
-    public static ServerPlayerEntity getPlayer() {
-        return playerTargetHack.get();
-    }
-
-
-    public static Predicate<ServerCommandSource> permission(String path, int operatorLevel) {
-        if (CompatStatus.FABRIC_PERMISSION_API_V0) {
-            return Permissions.require("polymer." + path, operatorLevel);
-        } else {
-            return source -> source.hasPermissionLevel(operatorLevel);
-        }
-    }
-
-    public static Identifier id(String path) {
-        return new Identifier(PolymerUtils.ID, path);
-    }
-
-    public static ItemStack getNoTextureItem() {
-        if (NO_TEXTURE == null) {
-            NO_TEXTURE = Items.PLAYER_HEAD.getDefaultStack();
-            NO_TEXTURE.getOrCreateNbt().put("SkullOwner", PolymerUtils.createSkullOwner(PolymerUtils.NO_TEXTURE_HEAD_VALUE));
-            NO_TEXTURE.setCustomName(LiteralText.EMPTY);
-        }
-        return NO_TEXTURE;
-    }
-
-    public static ItemStack readStack(PacketByteBuf buf) {
-        if (!buf.readBoolean()) {
-            return ItemStack.EMPTY;
-        } else {
-            int i = buf.readVarInt();
-            int j = buf.readByte();
-            ItemStack itemStack = new ItemStack(Item.byRawId(i), j);
-            itemStack.setNbt(buf.readNbt());
-            return itemStack;
-        }
-    }
-
-
-    /**
-     * Why you may ask? Some mods just like to make my life harder by modifying vanilla packet format...
-     * So method above would get invalid data
-     */
-    public static void writeStack(PacketByteBuf buf, ItemStack stack) {
-        if (stack.isEmpty()) {
-            buf.writeBoolean(false);
-        } else {
-            buf.writeBoolean(true);
-            Item item = stack.getItem();
-            buf.writeVarInt(Item.getRawId(item));
-            buf.writeByte(stack.getCount());
-            buf.writeNbt(stack.getNbt());
-        }
-    }
 
     static {
         final String chr = "█";
@@ -116,5 +68,182 @@ public class PolymerImplUtils {
         }
 
         ICON = icon.toArray(new Text[0]);
+    }
+
+    @Nullable
+    public static ServerPlayerEntity getPlayer() {
+        return playerTargetHack.get();
+    }
+
+    public static void setPlayer(ServerPlayerEntity player) {
+        playerTargetHack.set(player);
+    }
+
+    public static Predicate<ServerCommandSource> permission(String path, int operatorLevel) {
+        if (CompatStatus.FABRIC_PERMISSION_API_V0) {
+            return Permissions.require("polymer." + path, operatorLevel);
+        } else {
+            return source -> source.hasPermissionLevel(operatorLevel);
+        }
+    }
+
+    public static Identifier id(String path) {
+        return new Identifier(PolymerUtils.ID, path);
+    }
+
+    public static ItemStack getNoTextureItem() {
+        if (NO_TEXTURE == null) {
+            NO_TEXTURE = Items.PLAYER_HEAD.getDefaultStack();
+            NO_TEXTURE.getOrCreateNbt().put("SkullOwner", PolymerUtils.createSkullOwner(PolymerUtils.NO_TEXTURE_HEAD_VALUE));
+            NO_TEXTURE.setCustomName(LiteralText.EMPTY);
+        }
+        return NO_TEXTURE;
+    }
+
+    public static ItemStack readStack(PacketByteBuf buf) {
+        if (!buf.readBoolean()) {
+            return ItemStack.EMPTY;
+        } else {
+            int i = buf.readVarInt();
+            int j = buf.readByte();
+            ItemStack itemStack = new ItemStack(decodeItem(i), j);
+            itemStack.setNbt(buf.readNbt());
+            return itemStack;
+        }
+    }
+
+    public static Item decodeItem(int rawId) {
+        if (PolymerImpl.IS_CLIENT) {
+            return InternalClientRegistry.decodeItem(rawId);
+        } else {
+            return Item.byRawId(rawId);
+        }
+    }
+
+    /**
+     * Why you may ask? Some mods just like to make my life harder by modifying vanilla packet format...
+     * So method above would get invalid data
+     */
+    public static void writeStack(PacketByteBuf buf, ItemStack stack) {
+        if (stack.isEmpty()) {
+            buf.writeBoolean(false);
+        } else {
+            buf.writeBoolean(true);
+            Item item = stack.getItem();
+            buf.writeVarInt(Item.getRawId(item));
+            buf.writeByte(stack.getCount());
+            buf.writeNbt(stack.getNbt());
+        }
+    }
+
+    public static void dumpRegistry() {
+        BufferedWriter writer = null;
+        try {
+
+            writer = new BufferedWriter(new FileWriter("./polymer-dump-" + FabricLoader.getInstance().getEnvironmentType().name().toLowerCase(Locale.ROOT) + ".txt"));
+            BufferedWriter finalWriter = writer;
+            Consumer<String> msg = (str) -> {
+                try {
+                    finalWriter.write(str);
+                    finalWriter.newLine();
+                } catch (Exception e) {
+                    // Silence;
+                }
+            };
+
+
+            {
+                msg.accept("== Vanilla Registries");
+                for (var reg : ((Registry<Registry<Object>>) Registry.REGISTRIES)) {
+                    msg.accept("");
+                    msg.accept("== Registry: " + ((Registry<Object>) (Object) Registry.REGISTRIES).getId(reg).toString());
+                    msg.accept("");
+                    if (reg instanceof RegistryExtension regEx) {
+                        msg.accept("= Status: " + regEx.polymer_getStatus().name());
+                        msg.accept("");
+                    }
+
+                    for (var entry : reg) {
+                        msg.accept("" + reg.getRawId(entry) + " | " + reg.getId(entry).toString() + " | Polymer? " + PolymerUtils.isServerOnly(entry));
+                    }
+                }
+                msg.accept("");
+                msg.accept("== BlockStates");
+                msg.accept("");
+                msg.accept("= Offset: " + PolymerBlockUtils.getBlockStateOffset());
+                msg.accept("");
+
+                for (var state : Block.STATE_IDS) {
+                    msg.accept(Block.STATE_IDS.getRawId(state) + " | " + state.toString() + " | Polymer? " + (state.getBlock() instanceof PolymerBlock));
+                }
+            }
+
+            {
+                msg.accept("");
+                msg.accept("== Polymer Registries");
+                msg.accept("");
+                var reg = InternalServerRegistry.ITEM_GROUPS;
+
+                msg.accept("== Registry: ItemGroup");
+                msg.accept("");
+
+                for (var entry : reg) {
+                    msg.accept(reg.getRawId(entry) + " | " + reg.getId(entry));
+                }
+
+                if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                    msg.accept("");
+                    msg.accept("== Registry: Block (Client)");
+                    msg.accept("");
+
+                    for (var entry : InternalClientRegistry.BLOCKS) {
+                        msg.accept(InternalClientRegistry.BLOCKS.getRawId(entry) + " | " + InternalClientRegistry.BLOCKS.getId(entry));
+                    }
+
+                    msg.accept("");
+                    msg.accept("== Registry: BlockState (Client)");
+                    msg.accept("");
+
+                    for (var entry : InternalClientRegistry.BLOCK_STATES) {
+                        msg.accept(InternalClientRegistry.BLOCK_STATES.getRawId(entry) + " | " + entry.block().identifier());
+                    }
+
+                    msg.accept("");
+                    msg.accept("== Registry: Item (Client)");
+                    msg.accept("");
+
+                    for (var entry : InternalClientRegistry.ITEMS) {
+                        msg.accept(InternalClientRegistry.ITEMS.getRawId(entry) + " | " + InternalClientRegistry.ITEMS.getId(entry));
+                    }
+
+                    msg.accept("");
+                    msg.accept("== Registry: EntityType (Client)");
+                    msg.accept("");
+
+                    for (var entry : InternalClientRegistry.ENTITY_TYPE) {
+                        msg.accept(InternalClientRegistry.ENTITY_TYPE.getRawId(entry) + " | " + InternalClientRegistry.ENTITY_TYPE.getId(entry));
+                    }
+
+
+                    msg.accept("");
+                    msg.accept("== Registry: ItemGroup (Client)");
+                    msg.accept("");
+
+                    for (var entry : InternalClientRegistry.ITEM_GROUPS) {
+                        msg.accept(InternalClientRegistry.ITEM_GROUPS.getRawId(entry) + " | " + InternalClientRegistry.ITEM_GROUPS.getId(entry));
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (writer != null) {
+            try {
+                writer.close();
+            } catch (Exception e) {
+            }
+        }
     }
 }

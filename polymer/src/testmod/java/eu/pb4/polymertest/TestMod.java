@@ -9,14 +9,18 @@ import eu.pb4.polymer.api.other.PolymerStat;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
+import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
@@ -29,7 +33,9 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.SetCameraEntityS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -40,10 +46,7 @@ import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.*;
 import net.minecraft.util.registry.Registry;
 
 import java.util.*;
@@ -126,6 +129,8 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static final Item TEST_FOOD_2 = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(1).saturationModifier(2).build()), Items.CAKE);
 
     public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(new Identifier("polymertest", "ghosthurt"), SoundEvents.ENTITY_GHAST_HURT);
+    
+    private static final Map<Registry<?>, List<Pair<Identifier, ?>>> REG_CACHE = new HashMap<>();
 
     public static SimplePolymerItem ICE_ITEM = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.SNOWBALL, (player, hand) -> {
         var tracker = new DataTracker(null);
@@ -142,7 +147,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     });
 
     private void regArmor(EquipmentSlot slot, String main, String id) {
-        Registry.register(Registry.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
+        register(Registry.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
     }
 
     @Override
@@ -153,43 +158,49 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         //PolymerRPUtils.markAsRequired();
         //PolymerRPUtils.addModAsAssetsSource("promenade");
 
-        Registry.register(Registry.ITEM, new Identifier("test", "item"), ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
-        Registry.register(Registry.ITEM, new Identifier("test", "item3"), ITEM_3);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block"), BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "block"), BLOCK_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block_client"), BLOCK_CLIENT);
-        Registry.register(Registry.ITEM, new Identifier("test", "block_client"), BLOCK_CLIENT_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block_player"), BLOCK_PLAYER);
-        Registry.register(Registry.ITEM, new Identifier("test", "block_player"), BLOCK_PLAYER_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block_fence"), BLOCK_FENCE);
-        Registry.register(Registry.ITEM, new Identifier("test", "block_fence"), BLOCK_FENCE_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block2"), BLOCK_2);
-        Registry.register(Registry.ITEM, new Identifier("test", "block2"), BLOCK_ITEM_2);
-        Registry.register(Registry.BLOCK, new Identifier("test", "block3"), BLOCK_3);
-        Registry.register(Registry.ITEM, new Identifier("test", "block3"), BLOCK_ITEM_3);
-        Registry.register(Registry.BLOCK, new Identifier("test", "potato_block"), TATER_BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "potato_block"), TATER_BLOCK_ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "pickaxe"), PICKAXE);
-        Registry.register(Registry.ITEM, new Identifier("test", "helmet"), HELMET);
-        Registry.register(Registry.ITEM, new Identifier("test", "bow1"), BOW_1);
-        Registry.register(Registry.ITEM, new Identifier("test", "bow2"), BOW_2);
-        Registry.register(Registry.BLOCK, new Identifier("test", "wrapped_block"), WRAPPED_BLOCK);
-        Registry.register(Registry.BLOCK, new Identifier("test", "self_block"), SELF_REFERENCE_BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "wrapped_item"), WRAPPED_ITEM);
-        Registry.register(Registry.BLOCK, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK);
-        Registry.register(Registry.ITEM, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK_ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "ice_item"), ICE_ITEM);
-        Registry.register(Registry.ITEM, new Identifier("test", "spawn_egg"), TEST_ENTITY_EGG);
-        Registry.register(Registry.ITEM, new Identifier("test", "food"), TEST_FOOD);
-        Registry.register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
-        Registry.register(Registry.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
+        register(Registry.ITEM, new Identifier("test", "item"), ITEM);
+        register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
+        register(Registry.ITEM, new Identifier("test", "item3"), ITEM_3);
+        register(Registry.BLOCK, new Identifier("test", "block"), BLOCK);
+        register(Registry.ITEM, new Identifier("test", "block"), BLOCK_ITEM);
+        register(Registry.BLOCK, new Identifier("test", "block_client"), BLOCK_CLIENT);
+        register(Registry.ITEM, new Identifier("test", "block_client"), BLOCK_CLIENT_ITEM);
+        register(Registry.BLOCK, new Identifier("test", "block_player"), BLOCK_PLAYER);
+        register(Registry.ITEM, new Identifier("test", "block_player"), BLOCK_PLAYER_ITEM);
+        register(Registry.BLOCK, new Identifier("test", "block_fence"), BLOCK_FENCE);
+        register(Registry.ITEM, new Identifier("test", "block_fence"), BLOCK_FENCE_ITEM);
+        register(Registry.BLOCK, new Identifier("test", "block2"), BLOCK_2);
+        register(Registry.ITEM, new Identifier("test", "block2"), BLOCK_ITEM_2);
+        register(Registry.BLOCK, new Identifier("test", "block3"), BLOCK_3);
+        register(Registry.ITEM, new Identifier("test", "block3"), BLOCK_ITEM_3);
+        register(Registry.BLOCK, new Identifier("test", "potato_block"), TATER_BLOCK);
+        register(Registry.ITEM, new Identifier("test", "potato_block"), TATER_BLOCK_ITEM);
+        register(Registry.ITEM, new Identifier("test", "pickaxe"), PICKAXE);
+        register(Registry.ITEM, new Identifier("test", "helmet"), HELMET);
+        register(Registry.ITEM, new Identifier("test", "bow1"), BOW_1);
+        register(Registry.ITEM, new Identifier("test", "bow2"), BOW_2);
+        register(Registry.BLOCK, new Identifier("test", "wrapped_block"), WRAPPED_BLOCK);
+        register(Registry.BLOCK, new Identifier("test", "self_block"), SELF_REFERENCE_BLOCK);
+        register(Registry.ITEM, new Identifier("test", "wrapped_item"), WRAPPED_ITEM);
+        register(Registry.BLOCK, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK);
+        register(Registry.ITEM, new Identifier("test", "weak_glass"), WEAK_GLASS_BLOCK_ITEM);
+        register(Registry.ITEM, new Identifier("test", "ice_item"), ICE_ITEM);
+        register(Registry.ITEM, new Identifier("test", "spawn_egg"), TEST_ENTITY_EGG);
+        register(Registry.ITEM, new Identifier("test", "food"), TEST_FOOD);
+        register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
+        register(Registry.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
 
-        STILL_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "fluid"), new TestFluid.Still());
-        FLOWING_FLUID = Registry.register(Registry.FLUID, new Identifier("test", "flowing_fluid"), new TestFluid.Flowing());
-        FLUID_BUCKET = Registry.register(Registry.ITEM, new Identifier("test", "fluid_bucket"),
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+            var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);
+            register(Registry.BLOCK, new Identifier("test", "server_block"), t);
+            register(Registry.ITEM, new Identifier("test", "server_block"), new PolymerBlockItem(t, new Item.Settings(), Items.TINTED_GLASS));
+        }
+
+        STILL_FLUID = register(Registry.FLUID, new Identifier("test", "fluid"), new TestFluid.Still());
+        FLOWING_FLUID = register(Registry.FLUID, new Identifier("test", "flowing_fluid"), new TestFluid.Flowing());
+        FLUID_BUCKET = register(Registry.ITEM, new Identifier("test", "fluid_bucket"),
                 new TestBucketItem(STILL_FLUID, new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1), Items.LAVA_BUCKET));
-        FLUID_BLOCK = Registry.register(Registry.BLOCK, new Identifier("test", "fluid_block"), new TestFluidBlock(STILL_FLUID, FabricBlockSettings.copy(Blocks.WATER)));
+        FLUID_BLOCK = register(Registry.BLOCK, new Identifier("test", "fluid_block"), new TestFluidBlock(STILL_FLUID, FabricBlockSettings.copy(Blocks.WATER)));
 
         regArmor(EquipmentSlot.HEAD, "shulker", "helmet");
         regArmor(EquipmentSlot.CHEST, "shulker", "chestplate");
@@ -204,23 +215,23 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         regArmor(EquipmentSlot.HEAD, "titan2", "helmet");
         regArmor(EquipmentSlot.CHEST, "titan2", "chestplate");
 
-        ENCHANTMENT = Registry.register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
+        ENCHANTMENT = register(Registry.ENCHANTMENT, new Identifier("test", "enchantment"), new TestEnchantment());
 
         CUSTOM_STAT = PolymerStat.registerStat("test:custom_stat", StatFormatter.DEFAULT);
 
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier("test", "test"), TEST_RECIPE_SERIALIZER);
+        register(Registry.RECIPE_SERIALIZER, new Identifier("test", "test"), TEST_RECIPE_SERIALIZER);
 
-        Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
-        Registry.register(Registry.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
-        Registry.register(Registry.POTION, new Identifier("test", "potion"), POTION);
-        Registry.register(Registry.POTION, new Identifier("test", "potion2"), POTION_2);
-        Registry.register(Registry.POTION, new Identifier("test", "long_potion"), LONG_POTION);
-        Registry.register(Registry.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
+        register(Registry.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
+        register(Registry.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
+        register(Registry.POTION, new Identifier("test", "potion"), POTION);
+        register(Registry.POTION, new Identifier("test", "potion2"), POTION_2);
+        register(Registry.POTION, new Identifier("test", "long_potion"), LONG_POTION);
+        register(Registry.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
 
-        Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
+        register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
         FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes());
 
-        Registry.register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), ENTITY_2);
+        register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), ENTITY_2);
         FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
 
         PolymerEntityUtils.registerType(ENTITY, ENTITY_2);
@@ -337,6 +348,25 @@ public class TestMod implements ModInitializer, ClientModInitializer {
                 iter.incrementAndGet();
             }
         });*/
+
+
+        for (var entry : REG_CACHE.entrySet()) {
+            Collections.shuffle(entry.getValue());
+
+            for (var e : entry.getValue()) {
+                Registry.register((Registry<Object>) entry.getKey(), e.getLeft(), e.getRight());
+            }
+        }
+
+
+        if (PolymerImpl.IS_CLIENT) {
+            InternalClientRegistry.decodeState(-1);
+        }
+    }
+    
+    public static <B, T extends B> T register(Registry<B> registry, Identifier id, T obj) {
+        REG_CACHE.computeIfAbsent(registry, (r) -> new ArrayList<>()).add(new Pair<>(id, obj));
+        return obj;
     }
 
     @Override

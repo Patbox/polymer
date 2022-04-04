@@ -17,12 +17,12 @@ import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 public class ip_IPNetworkingMixin {
     @Inject(method = "sendRedirectedMessage", at = @At("HEAD"))
     private static void polymer_setPlayerNow(ServerPlayerEntity player, RegistryKey<World> dimension, Packet packet, CallbackInfo ci) {
-        PolymerImplUtils.playerTargetHack.set(player);
+        PolymerImplUtils.setPlayer(player);
     }
 
     @Inject(method = "sendRedirectedMessage", at = @At("TAIL"))
     private static void polymer_resetPlayerNow(ServerPlayerEntity player, RegistryKey<World> dimension, Packet packet, CallbackInfo ci) {
-        PolymerImplUtils.playerTargetHack.set(null);
+        PolymerImplUtils.setPlayer(null);
     }
 
     @Inject(method = "createRedirectedMessage", at = @At("RETURN"))

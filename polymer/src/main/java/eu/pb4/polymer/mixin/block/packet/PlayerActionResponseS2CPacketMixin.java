@@ -2,7 +2,6 @@ package eu.pb4.polymer.mixin.block.packet;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
-import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -35,11 +34,7 @@ public abstract class PlayerActionResponseS2CPacketMixin implements PlayerAwareP
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
     private static Object polymer_replaceState(IdList instance, int index) {
-        if (index >= PolymerClientUtils.getBlockStateOffset()) {
-            return InternalClientRegistry.getRealBlockState(index - PolymerClientUtils.getBlockStateOffset() + 1);
-        }
-
-        return instance.get(index);
+        return InternalClientRegistry.decodeState(index);
     }
 
     @Environment(EnvType.CLIENT)
