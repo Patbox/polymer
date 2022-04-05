@@ -37,7 +37,7 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
           CURSEFORGE: ${{ secrets.CURSEFORGE }}
           MODRINTH: ${{ secrets.MODRINTH }}
-
+          CHANGELOG: ${{ github.event.release.body }}
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0
         with:

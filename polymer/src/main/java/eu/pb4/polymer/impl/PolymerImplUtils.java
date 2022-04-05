@@ -136,11 +136,12 @@ public class PolymerImplUtils {
         }
     }
 
-    public static void dumpRegistry() {
+    @Nullable
+    public static String dumpRegistry() {
         BufferedWriter writer = null;
         try {
-
-            writer = new BufferedWriter(new FileWriter("./polymer-dump-" + FabricLoader.getInstance().getEnvironmentType().name().toLowerCase(Locale.ROOT) + ".txt"));
+            var path = "./polymer-dump-" + FabricLoader.getInstance().getEnvironmentType().name().toLowerCase(Locale.ROOT) + ".txt";
+            writer = new BufferedWriter(new FileWriter(path));
             BufferedWriter finalWriter = writer;
             Consumer<String> msg = (str) -> {
                 try {
@@ -235,6 +236,12 @@ public class PolymerImplUtils {
                 }
             }
 
+            try {
+                writer.close();
+            } catch (Exception e) {
+            }
+
+            return path;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -245,5 +252,6 @@ public class PolymerImplUtils {
             } catch (Exception e) {
             }
         }
+        return null;
     }
 }

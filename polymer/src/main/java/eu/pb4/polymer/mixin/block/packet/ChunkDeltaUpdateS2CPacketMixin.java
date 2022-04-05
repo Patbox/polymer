@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.block.packet;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
@@ -25,5 +26,11 @@ public class ChunkDeltaUpdateS2CPacketMixin implements PlayerAwarePacket {
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
     private Object polymer_replaceState(IdList instance, int index) {
         return InternalClientRegistry.decodeState(index);
+    }
+
+    @Environment(EnvType.CLIENT)
+    @ModifyArg(method = "visitUpdates", at = @At(value = "INVOKE", target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
+    private Object polymer_replaceState(Object obj) {
+        return PolymerBlockUtils.getPolymerBlockState((BlockState) obj, ClientUtils.getPlayer());
     }
 }

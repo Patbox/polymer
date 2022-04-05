@@ -23,8 +23,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.visitor.NbtTextFormatter;
 import net.minecraft.screen.LecternScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
@@ -137,6 +139,15 @@ public class Commands {
                         .requires(PolymerImplUtils.permission("command.effects", 0))
                         .executes(Commands::effects)
                 )
+                .then(literal("client-item")
+                        .requires(PolymerImplUtils.permission("command.client-item", 3))
+                        .executes(Commands::displayClientItem)
+                        .then(literal("get").executes(Commands::getClientItem))
+                )
+                .then(literal("export-registry")
+                        .requires(PolymerImplUtils.permission("command.export-registry", 3))
+                        .executes(Commands::dumpRegistries)
+                )
                 .then(literal("creative")
                         .requires(PolymerImplUtils.permission("command.creative", 0))
                         .then(argument("itemGroup", IdentifierArgumentType.identifier())
@@ -155,11 +166,6 @@ public class Commands {
         if (PolymerImpl.DEVELOPER_MODE) {
             command.then(literal("dev")
                     .requires(PolymerImplUtils.permission("command.dev", 3))
-                    .then(literal("item-client")
-                            .executes(Commands::itemClient))
-                    .then(literal("dump")
-                            .executes(Commands::dumpRegistries)
-                    )
                     .then(literal("reload-world")
                             .executes((ctx) -> {
                                 PolymerUtils.reloadWorld(ctx.getSource().getPlayer());
@@ -215,8 +221,12 @@ public class Commands {
     }
 
     private static int dumpRegistries(CommandContext<ServerCommandSource> context) {
-        PolymerImplUtils.dumpRegistry();
-        context.getSource().sendFeedback(new LiteralText("Done"), false);
+        var path = PolymerImplUtils.dumpRegistry();
+        if (path != null) {
+            context.getSource().sendFeedback(new LiteralText("Exported registry state as " + path), false);
+        } else {
+            context.getSource().sendError(new LiteralText("Couldn't export registry!"));
+        }
         return 0;
     }
 
@@ -333,11 +343,23 @@ public class Commands {
         }
     }
 
-    private static int itemClient(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
         var itemStack = player.getMainHandStack();
 
-        context.getSource().sendFeedback(new LiteralText(PolymerItemUtils.getPolymerItemStack(itemStack, player).getOrCreateNbt().toString()), false);
+        context.getSource().sendFeedback((new NbtTextFormatter("", 3)).apply(PolymerItemUtils.getPolymerItemStack(itemStack, player).writeNbt(new NbtCompound())), false);
+
+        return 1;
+    }
+
+    private static int getClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayer();
+
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player);
+        stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
+        stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
+        player.giveItemStack(stack.copy());
+        context.getSource().sendFeedback(new LiteralText("Given client representation to player"), true);
 
         return 1;
     }

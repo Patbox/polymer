@@ -128,7 +128,7 @@ curseforge {
         project {
             id = "551890"
             releaseType = "release"
-            changelog = ""
+            changelog = System.getenv("CHANGELOG")
             changelogType = "markdown"
             addGameVersion "1.18.2"
             addGameVersion "Fabric"
@@ -155,6 +155,7 @@ if (System.getenv("MODRINTH")) {
         versionNumber = "" + version // The version of the mod to upload.
         uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
         gameVersions = [((String) project.minecraft_version)]
+        changelog = System.getenv("CHANGELOG")
         loaders = ["fabric"]
     }
 
