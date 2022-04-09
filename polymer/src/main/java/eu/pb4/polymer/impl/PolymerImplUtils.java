@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
+import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -28,6 +29,7 @@ import javax.imageio.ImageIO;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -193,12 +195,13 @@ public class PolymerImplUtils {
                 }
 
                 if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-                    msg.accept("");
-                    msg.accept("== Registry: Block (Client)");
-                    msg.accept("");
-
-                    for (var entry : InternalClientRegistry.BLOCKS) {
-                        msg.accept(InternalClientRegistry.BLOCKS.getRawId(entry) + " | " + InternalClientRegistry.BLOCKS.getId(entry));
+                    for (var reg2 : ((Collection<ImplPolymerRegistry<Object>>) (Object) InternalClientRegistry.REGISTRIES)) {
+                        msg.accept("");
+                        msg.accept("== Registry: " + reg2.getName() + " (Client)");
+                        msg.accept("");
+                        for (var entry : reg2) {
+                            msg.accept(reg2.getRawId(entry) + " | " + reg2.getId(entry));
+                        }
                     }
 
                     msg.accept("");
@@ -207,31 +210,6 @@ public class PolymerImplUtils {
 
                     for (var entry : InternalClientRegistry.BLOCK_STATES) {
                         msg.accept(InternalClientRegistry.BLOCK_STATES.getRawId(entry) + " | " + entry.block().identifier());
-                    }
-
-                    msg.accept("");
-                    msg.accept("== Registry: Item (Client)");
-                    msg.accept("");
-
-                    for (var entry : InternalClientRegistry.ITEMS) {
-                        msg.accept(InternalClientRegistry.ITEMS.getRawId(entry) + " | " + InternalClientRegistry.ITEMS.getId(entry));
-                    }
-
-                    msg.accept("");
-                    msg.accept("== Registry: EntityType (Client)");
-                    msg.accept("");
-
-                    for (var entry : InternalClientRegistry.ENTITY_TYPE) {
-                        msg.accept(InternalClientRegistry.ENTITY_TYPE.getRawId(entry) + " | " + InternalClientRegistry.ENTITY_TYPE.getId(entry));
-                    }
-
-
-                    msg.accept("");
-                    msg.accept("== Registry: ItemGroup (Client)");
-                    msg.accept("");
-
-                    for (var entry : InternalClientRegistry.ITEM_GROUPS) {
-                        msg.accept(InternalClientRegistry.ITEM_GROUPS.getRawId(entry) + " | " + InternalClientRegistry.ITEM_GROUPS.getId(entry));
                     }
                 }
             }

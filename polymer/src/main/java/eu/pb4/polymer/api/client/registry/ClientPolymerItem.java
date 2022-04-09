@@ -20,8 +20,8 @@ public record ClientPolymerItem(
         float saturation,
         Identifier miningTool,
         int miningLevel,
-        @Nullable Item realServerItem
-) {
+        @Nullable Item registryEntry
+) implements ClientPolymerEntry<Item> {
 
     public ClientPolymerItem(
             Identifier identifier,
@@ -33,6 +33,12 @@ public record ClientPolymerItem(
             int miningLevel
     ) {
         this(identifier, visualStack, itemGroup, foodValue, saturation, miningTool, miningLevel, null);
+    }
+
+    @Deprecated
+    @Nullable
+    public Item realServerItem() {
+        return this.registryEntry;
     }
 
     public static final PolymerRegistry<ClientPolymerItem> REGISTRY = InternalClientRegistry.ITEMS;

@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.client.PolymerClientPacketHandler;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
+import eu.pb4.polymer.api.client.registry.ClientPolymerEntry;
 import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
@@ -16,10 +17,7 @@ import eu.pb4.polymer.impl.client.interfaces.ClientEntityExtension;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.ServerPackets;
-import eu.pb4.polymer.impl.networking.packets.PolymerBlockEntry;
-import eu.pb4.polymer.impl.networking.packets.PolymerBlockStateEntry;
-import eu.pb4.polymer.impl.networking.packets.PolymerEntityEntry;
-import eu.pb4.polymer.impl.networking.packets.PolymerItemEntry;
+import eu.pb4.polymer.impl.networking.packets.*;
 import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -119,7 +117,14 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.SYNC_BLOCKSTATE -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
                     (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
             case ServerPackets.SYNC_ENTITY -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
-                    (entry) -> InternalClientRegistry.ENTITY_TYPE.set(entry.identifier(), new ClientPolymerEntityType(entry.identifier(), entry.name())));
+                    (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registry.ENTITY_TYPE.get(entry.identifier()))));
+            case ServerPackets.SYNC_VILLAGER_PROFESSION -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                    (entry) -> InternalClientRegistry.VILLAGER_PROFESSIONS.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.VILLAGER_PROFESSION.get(entry.id()))));
+            case ServerPackets.SYNC_BLOCK_ENTITY -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                    (entry) -> InternalClientRegistry.BLOCK_ENTITY.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.BLOCK_ENTITY_TYPE.get(entry.id()))));
+            case ServerPackets.SYNC_STATUS_EFFECT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                    (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.STATUS_EFFECT.get(entry.id()))));
+
             case ServerPackets.SYNC_ITEM_GROUP -> handleItemGroupSync(handler, version, buf);
             case ServerPackets.SYNC_ITEM_GROUP_CLEAR -> run(() -> InternalClientRegistry.clearTabs(i -> true));
             case ServerPackets.SYNC_ITEM_GROUP_REMOVE -> handleItemGroupRemove(handler, version, buf);
@@ -148,7 +153,7 @@ public class PolymerClientProtocolHandler {
 
     @Nullable
     private static BlockState blockStateOrNull(Map<String, String> states, ClientPolymerBlock clientPolymerBlock) {
-        if (clientPolymerBlock.realServerBlock() != null) {
+        if (clientPolymerBlock.registryEntry() != null) {
             var path = new StringBuilder(clientPolymerBlock.identifier().toString());
 
             if (!states.isEmpty()) {

@@ -10,22 +10,28 @@ import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public record PolymerEntityEntry(Identifier identifier, Text name) implements BufferWritable {
+public record PolymerEntityEntry(Identifier identifier, int rawId, Text name) implements BufferWritable {
     public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeIdentifier(identifier);
+        if (version > 0) {
+            buf.writeVarInt(this.rawId);
+        }
         buf.writeText(ServerTranslationUtils.parseFor(handler, name));
     }
 
     public static PolymerEntityEntry of(EntityType<?> entityType) {
         return new PolymerEntityEntry(
                 Registry.ENTITY_TYPE.getId(entityType),
+                Registry.ENTITY_TYPE.getRawId(entityType),
                 entityType.getName()
         );
     }
 
     public static PolymerEntityEntry read(PacketByteBuf buf, int version) {
         if (version == 0) {
-            return new PolymerEntityEntry(buf.readIdentifier(), buf.readText());
+            return new PolymerEntityEntry(buf.readIdentifier(), -1, buf.readText());
+        } else if (version == 1) {
+            return new PolymerEntityEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText());
         }
         return null;
     }

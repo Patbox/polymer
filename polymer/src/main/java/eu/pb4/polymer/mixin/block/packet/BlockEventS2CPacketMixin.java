@@ -1,6 +1,5 @@
 package eu.pb4.polymer.mixin.block.packet;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -43,8 +42,8 @@ public abstract class BlockEventS2CPacketMixin implements PlayerAwarePacket {
     private Object polymer_replaceState(DefaultedRegistry instance, int index) {
         var object = InternalClientRegistry.BLOCKS.get(index);
 
-        if (object.realServerBlock() != null) {
-            return object.realServerBlock();
+        if (object.registryEntry() != null) {
+            return object.registryEntry();
         }
 
         return instance.get(index);

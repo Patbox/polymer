@@ -1,14 +1,19 @@
 package eu.pb4.polymer.mixin.other;
 
 import eu.pb4.polymer.api.other.PolymerStatusEffect;
+import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
 import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityStatusEffectS2CPacket.class)
@@ -26,6 +31,12 @@ public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExten
 
             this.effectId = StatusEffect.getRawId(virtualEffect.getPolymerStatusEffect());
         }
+    }
+
+    @Environment(EnvType.CLIENT)
+    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readVarInt()I", ordinal = 1))
+    private int polymer_remapEffect(PacketByteBuf instance) {
+        return StatusEffect.getRawId(InternalClientRegistry.decodeStatusEffect(instance.readVarInt()));
     }
 
     @Override

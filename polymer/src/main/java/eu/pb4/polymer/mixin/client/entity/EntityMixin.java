@@ -35,7 +35,7 @@ public abstract class EntityMixin implements ClientEntityExtension {
     @Inject(method = "getName", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceName(CallbackInfoReturnable<Text> cir) {
         if (this.polymer_client_entityId != null && this.getCustomName() == null) {
-            var type = InternalClientRegistry.ENTITY_TYPE.get(this.polymer_client_entityId);
+            var type = InternalClientRegistry.ENTITY_TYPES.get(this.polymer_client_entityId);
 
             if (type != null) {
                 cir.setReturnValue(type.name());

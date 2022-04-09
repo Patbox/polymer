@@ -22,18 +22,30 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     private final Map<T, Identifier> identifierMap = new HashMap<>();
     private final T defaultValue;
     private final Identifier defaultIdentifier;
+    private final String name;
+    private final String shortName;
 
     private int currentId = 0;
 
-    public ImplPolymerRegistry() {
-        this(null, null);
+    public ImplPolymerRegistry(String name, String shortName) {
+        this(name, shortName, null, null);
     }
-    public ImplPolymerRegistry(@Nullable Identifier defaultIdentifier, @Nullable T defaultValue) {
+    public ImplPolymerRegistry(String name, String shortName, @Nullable Identifier defaultIdentifier, @Nullable T defaultValue) {
+        this.name = name;
+        this.shortName = shortName;
         this.defaultValue = defaultValue;
         this.defaultIdentifier = defaultIdentifier;
 
         this.rawIdMap.defaultReturnValue(this.defaultValue);
         this.entryIdMap.defaultReturnValue(-1);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getShortName() {
+        return shortName;
     }
 
     @Override
@@ -62,10 +74,6 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     }
 
     public void set(Identifier identifier, int rawId, T entry) {
-        if (rawId == -1) {
-            rawId = this.currentId;
-        }
-
         this.entryMap.put(identifier, entry);
         this.identifierMap.put(entry, identifier);
         this.rawIdMap.put(rawId, entry);

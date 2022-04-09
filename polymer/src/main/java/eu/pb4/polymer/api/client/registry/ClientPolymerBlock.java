@@ -19,7 +19,7 @@ import java.util.Map;
 
 @ApiStatus.Experimental
 @Environment(EnvType.CLIENT)
-public record ClientPolymerBlock(Identifier identifier, int numId, Text name, BlockState defaultBlockState, @Nullable Block realServerBlock) {
+public record ClientPolymerBlock(Identifier identifier, int numId, Text name, BlockState defaultBlockState, @Nullable Block registryEntry) implements ClientPolymerEntry<Block> {
     public static final ClientPolymerBlock NONE = new ClientPolymerBlock(PolymerImplUtils.id("none"), 0, LiteralText.EMPTY, Blocks.AIR.getDefaultState());
     public static final State NONE_STATE = new State(Collections.emptyMap(), NONE);
 
@@ -29,9 +29,20 @@ public record ClientPolymerBlock(Identifier identifier, int numId, Text name, Bl
 
     public static final PolymerRegistry<ClientPolymerBlock> REGISTRY = InternalClientRegistry.BLOCKS;
 
-    public record State(Map<String, String> states, ClientPolymerBlock block, @Nullable BlockState realServerBlockState) {
+    @Deprecated
+    public Block realServerBlock() {
+        return this.registryEntry;
+    }
+
+    public record State(Map<String, String> states, ClientPolymerBlock block, @Nullable BlockState blockState) {
         public State(Map<String, String> states, ClientPolymerBlock block) {
             this(states, block, null);
+        }
+
+        @Deprecated
+        @Nullable
+        public BlockState realServerBlockState() {
+            return this.blockState;
         }
     }
 }

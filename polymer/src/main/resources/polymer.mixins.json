@@ -92,6 +92,7 @@
     "client.MinecraftClientMixin",
     "client.ReloadableResourceManagerImplMixin",
     "client.ResourcePackManagerMixin",
+    "client.block.BlockEntityUpdateS2CPacketMixin",
     "client.block.ChunkSectionMixin",
     "client.block.EmptyChunkMixin",
     "client.block.WorldChunkMixin",

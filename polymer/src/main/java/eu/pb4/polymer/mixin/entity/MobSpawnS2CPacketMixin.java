@@ -3,17 +3,17 @@ package eu.pb4.polymer.mixin.entity;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.MobSpawnS2CPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
-import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,6 +44,9 @@ public class MobSpawnS2CPacketMixin implements PlayerAwarePacket {
     @Shadow @Mutable
     private byte headYaw;
 
+    @Mutable
+    @Shadow @Final private int entityTypeId;
+
     @Inject(method = "<init>(Lnet/minecraft/entity/LivingEntity;)V", at = @At(value = "TAIL"))
     private void polymer_replaceWithPolymer(LivingEntity entity, CallbackInfo ci) {
         if (entity instanceof PolymerEntity ve) {
@@ -64,6 +67,12 @@ public class MobSpawnS2CPacketMixin implements PlayerAwarePacket {
         } else {
             return value;
         }
+    }
+
+    @Environment(EnvType.CLIENT)
+    @Inject(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At("TAIL"))
+    private void polymer_replaceWithPolymerSync(PacketByteBuf buf, CallbackInfo ci) {
+        this.entityTypeId = Registry.ENTITY_TYPE.getRawId(InternalClientRegistry.decodeEntity(this.entityTypeId));
     }
 
     @Environment(EnvType.CLIENT)
