@@ -1,10 +1,12 @@
 package eu.pb4.polymer.mixin.item;
 
-import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.*;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Wearable;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
@@ -85,7 +87,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         if (stack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, stack, this.player);
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
-                this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand()));
+                this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand(), -1));
             }
         }
     }

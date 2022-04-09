@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.Unique;
         EntityS2CPacket.class,
         EntitySpawnS2CPacket.class,
         EntityTrackerUpdateS2CPacket.class,
-        MobSpawnS2CPacket.class,
         EntitySetHeadYawS2CPacket.class,
         EntityEquipmentUpdateS2CPacket.class
 })

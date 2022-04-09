@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(targets = "net/minecraft/entity/data/TrackedDataHandlerRegistry$9")
+@Mixin(targets = "net/minecraft/entity/data/TrackedDataHandlerRegistry$6")
 public class TrackedDataHandlerRegistryVillagerDataMixin {
     @Redirect(method = "write(Lnet/minecraft/network/PacketByteBuf;Lnet/minecraft/village/VillagerData;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/village/VillagerData;getProfession()Lnet/minecraft/village/VillagerProfession;"))
     private VillagerProfession polymer_replaceWithPolymer(VillagerData instance) {

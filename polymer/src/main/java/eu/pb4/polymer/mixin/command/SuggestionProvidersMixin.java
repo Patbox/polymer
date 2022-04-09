@@ -20,7 +20,7 @@ public class SuggestionProvidersMixin {
     /**
      * Makes sure that client always asks for entity completions
      */
-    @Inject(method = "computeName", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
+    @Inject(method = "computeId", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
     private static void polymer_onComputeName(SuggestionProvider<CommandSource> provider, CallbackInfoReturnable<Identifier> cir) {
         if (cir.getReturnValue().getPath().equals("summonable_entities")) {
             cir.setReturnValue(ASK_SERVER_NAME);

@@ -18,13 +18,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldEvents;
-import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -40,11 +38,14 @@ public abstract class ServerPlayerInteractionManagerMixin {
     private int tickCounter;
     @Shadow
     private int startMiningTime;
+
+    @Shadow public abstract void finishMining(BlockPos pos, int sequence, String reason);
+
+    @Unique
+    private int polymer_sequence = 0;
+
     @Unique
     private int blockBreakingCooldown;
-
-    @Shadow
-    public abstract void finishMining(BlockPos pos, PlayerActionC2SPacket.Action action, String reason);
 
     @Inject(method = "continueMining", at = @At("TAIL"))
     private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
@@ -59,7 +60,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
             if (f >= 1.0F) {
                 this.blockBreakingCooldown = 5;
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
-                this.finishMining(pos, PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, "destroyed");
+                this.finishMining(pos, this.polymer_sequence, "destroyed");
 
                 if (!(state.getBlock() instanceof AbstractFireBlock)) {
                     this.world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, pos, Block.getRawIdFromState(state));
@@ -81,7 +82,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
-    private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
+    private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
+        this.polymer_sequence = sequence;
         var state = this.player.getWorld().getBlockState(pos);
         if (this.polymer_shouldMineServerSide(pos, state)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
@@ -102,7 +104,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
-    private void polymer_enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
+    private void polymer_enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         if (this.polymer_shouldMineServerSide(pos, this.player.getWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.startMiningTime += blockBreakingCooldown;
@@ -111,7 +113,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "finishMining", at = @At("HEAD"))
-    private void polymer_clearEffects(BlockPos pos, PlayerActionC2SPacket.Action action, String reason, CallbackInfo ci) {
+    private void polymer_clearEffects(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
         this.polymer_clearMiningEffect();
     }
 
@@ -126,9 +128,5 @@ public abstract class ServerPlayerInteractionManagerMixin {
             StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
             this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
         }
-    }
-
-    @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)
-    private void polymer_noOneCaresAboutMismatch(Logger logger, String message, Object p0, Object p1) {
     }
 }

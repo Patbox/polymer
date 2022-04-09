@@ -2,7 +2,6 @@ package eu.pb4.polymer.impl.other;
 
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
-import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
 import eu.pb4.polymer.mixin.other.WorldAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.ObjectIterators;
@@ -20,6 +19,8 @@ import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.AbstractRandom;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.*;
@@ -34,6 +35,7 @@ import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.dimension.DimensionTypes;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.OrderedTick;
@@ -41,7 +43,10 @@ import net.minecraft.world.tick.QueryableTickScheduler;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -154,7 +159,7 @@ public final class FakeWorld extends World {
                 accessor.polymer_setProperties(new FakeWorldProperties());
                 accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
                 accessor.polymer_setThread(Thread.currentThread());
-                accessor.polymer_setRandom(new Random());
+                accessor.polymer_setRandom(AbstractRandom.create());
                 accessor.polymer_setBlockEntityTickers(new ArrayList<>());
                 accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
 
@@ -163,7 +168,7 @@ public final class FakeWorld extends World {
                 world = new FakeWorld(
                         new FakeWorldProperties(),
                         RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
-                        new RegistryEntry.Direct<>(DimensionTypeAccessor.polymer_getOverworld()),
+                        BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD),
                         () -> new ProfilerSystem(() -> 0l, () -> 0, false),
                         false,
                         true,
@@ -180,11 +185,21 @@ public final class FakeWorld extends World {
     }
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
-        super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed);
+        super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed, 0);
     }
 
     @Override
     public void updateListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
+
+    }
+
+    @Override
+    public void playSound(@Nullable PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch, long seed) {
+
+    }
+
+    @Override
+    public void playSoundFromEntity(@Nullable PlayerEntity except, Entity entity, SoundEvent sound, SoundCategory category, float volume, float pitch, long seed) {
 
     }
 
@@ -262,6 +277,11 @@ public final class FakeWorld extends World {
 
     @Override
     public void syncWorldEvent(@Nullable PlayerEntity player, int eventId, BlockPos pos, int data) {
+
+    }
+
+    @Override
+    public void emitGameEvent(@Nullable Entity entity, GameEvent event, Vec3d pos) {
 
     }
 

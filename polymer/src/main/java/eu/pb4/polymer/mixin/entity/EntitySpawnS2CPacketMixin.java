@@ -13,8 +13,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.util.registry.DefaultedRegistry;
+import net.minecraft.util.collection.IndexedIterable;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,7 +34,7 @@ public class EntitySpawnS2CPacketMixin implements PlayerAwarePacket {
 
     @Shadow @Final private int entityData;
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;getRawId(Ljava/lang/Object;)I"))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
     private Object polymer_replaceWithPolymer(@Nullable Object value) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity polymerEntity && value == ((Entity) polymerEntity).getType()) {
             return polymerEntity.getPolymerEntityType(PolymerUtils.getPlayer());
@@ -51,12 +52,12 @@ public class EntitySpawnS2CPacketMixin implements PlayerAwarePacket {
     }
 
     @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;get(I)Ljava/lang/Object;"))
-    private Object polymer_replaceWithPolymer(DefaultedRegistry instance, int index) {
-        return InternalClientRegistry.decodeEntity(index);
+    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;"))
+    private Object polymer_replaceWithPolymer(PacketByteBuf instance, IndexedIterable<?> registry) {
+        return InternalClientRegistry.decodeEntity(instance.readVarInt());
     }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeInt(I)Lio/netty/buffer/ByteBuf;", ordinal = 0))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 0))
     private int polymer_replaceValue(int data) {
         if (this.entityTypeId == EntityType.FALLING_BLOCK) {
             return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId(data), PolymerUtils.getPlayer()));

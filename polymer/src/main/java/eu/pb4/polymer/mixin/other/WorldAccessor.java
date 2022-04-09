@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
+import net.minecraft.util.math.random.AbstractRandom;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.MutableWorldProperties;
@@ -12,7 +13,6 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 @Mixin(World.class)
@@ -47,7 +47,7 @@ public interface WorldAccessor {
 
     @Mutable
     @Accessor("random")
-    void polymer_setRandom(Random random);
+    void polymer_setRandom(AbstractRandom random);
 
     @Mutable
     @Accessor("blockEntityTickers")

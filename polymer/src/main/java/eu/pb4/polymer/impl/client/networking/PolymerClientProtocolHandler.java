@@ -171,9 +171,9 @@ public class PolymerClientProtocolHandler {
             }
 
             try {
-                var parsed = new BlockArgumentParser(new StringReader(path.toString()), false).parse(true);
+                var parsed = BlockArgumentParser.block(Registry.BLOCK, new StringReader(path.toString()), false);
 
-                return parsed.getBlockState();
+                return parsed.blockState();
             } catch (Exception e) {
                 // noop
             }

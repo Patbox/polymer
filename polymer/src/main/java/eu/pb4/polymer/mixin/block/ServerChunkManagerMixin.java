@@ -1,8 +1,8 @@
 package eu.pb4.polymer.mixin.block;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.impl.interfaces.ServerChunkManagerInterface;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.impl.interfaces.ServerChunkManagerInterface;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
@@ -27,7 +27,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
 
 @Mixin(ServerChunkManager.class)
 public abstract class ServerChunkManagerMixin implements ServerChunkManagerInterface {
@@ -49,7 +51,6 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
     @Shadow @Final private ServerLightingProvider lightingProvider;
 
-    @Shadow @Final private ServerChunkManager.MainThreadExecutor mainThreadExecutor;
     @Unique
     private final Object2LongMap<ChunkSectionPos> polymer_lastUpdates = new Object2LongArrayMap<>();
     @Unique

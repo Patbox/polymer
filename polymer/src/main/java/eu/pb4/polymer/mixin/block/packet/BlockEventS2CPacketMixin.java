@@ -9,8 +9,9 @@ import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
-import net.minecraft.util.registry.DefaultedRegistry;
+import net.minecraft.util.collection.IndexedIterable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,18 +39,19 @@ public abstract class BlockEventS2CPacketMixin implements PlayerAwarePacket {
     }
 
     @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;get(I)Ljava/lang/Object;"))
-    private Object polymer_replaceState(DefaultedRegistry instance, int index) {
+    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;"))
+    private Object polymer_replaceState(PacketByteBuf instance, IndexedIterable<Object> registry) {
+        var index = instance.readVarInt();
         var object = InternalClientRegistry.BLOCKS.get(index);
 
         if (object.registryEntry() != null) {
             return object.registryEntry();
         }
 
-        return instance.get(index);
+        return registry.get(index);
     }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/DefaultedRegistry;getRawId(Ljava/lang/Object;)I"))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
     private Object polymer_replaceBlockLocal(Object block) {
         return PolymerBlockUtils.getPolymerBlock((Block) block, PolymerUtils.getPlayer());
     }

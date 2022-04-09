@@ -25,7 +25,8 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
             if (PolymerImpl.USE_ALT_ARMOR_HANDLER) {
                 InternalClientRegistry.ARMOR_TEXTURES_1.clear();
                 InternalClientRegistry.ARMOR_TEXTURES_2.clear();
-                if (manager.containsResource(POLYMER_ARMOR_ID)) {
+                var polymerArmor = manager.getResource(POLYMER_ARMOR_ID);
+                if (polymerArmor.isPresent()) {
                     InternalClientRegistry.hasArmorTextures = true;
                     ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", new Identifier("textures/models/armor/vanilla_leather_layer_1.png"));
                     ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", new Identifier("textures/models/armor/vanilla_leather_layer_1_overlay.png"));
@@ -34,7 +35,7 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
 
 
                     try {
-                        HashMap<String, String> data = DefaultRPBuilder.GSON.fromJson(new String(manager.getResource(POLYMER_ARMOR_ID).getInputStream().readAllBytes()), HashMap.class);
+                        HashMap<String, String> data = DefaultRPBuilder.GSON.fromJson(new String(polymerArmor.get().getInputStream().readAllBytes()), HashMap.class);
 
                         for (var entry : data.entrySet()) {
                             var id = new Identifier(entry.getValue());

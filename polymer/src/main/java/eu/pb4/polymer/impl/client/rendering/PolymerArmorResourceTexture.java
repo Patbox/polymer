@@ -35,8 +35,9 @@ public class PolymerArmorResourceTexture extends ResourceTexture implements Text
 
         var id = new Identifier(this.location.getNamespace(), this.location.getPath().substring(0, (this.location.getPath().length() - 3)) + "polymer.json");
 
-        if (manager.containsResource(id)) {
-            ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(manager.getResource(id).getInputStream().readAllBytes()))).result()
+        var res = manager.getResource(id);
+        if (res.isPresent()) {
+            ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(res.get().getInputStream().readAllBytes()))).result()
                     .ifPresentOrElse((r) -> this.metadata = r.getFirst(), () -> this.metadata = ArmorTextureMetadata.DEFAULT);
         }
 

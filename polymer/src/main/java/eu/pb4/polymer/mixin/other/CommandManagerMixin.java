@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.other;
 
 import com.mojang.brigadier.CommandDispatcher;
 import eu.pb4.polymer.impl.Commands;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import org.spongepowered.asm.mixin.Final;
@@ -17,8 +18,8 @@ public abstract class CommandManagerMixin {
     @Final
     private CommandDispatcher<ServerCommandSource> dispatcher;
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V"), method = "<init>")
-    private void polymer_addCommand(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void polymer_addCommand(CommandManager.RegistrationEnvironment environment, CommandRegistryAccess commandRegistryAccess, CallbackInfo ci) {
         Commands.register(this.dispatcher);
     }
 }

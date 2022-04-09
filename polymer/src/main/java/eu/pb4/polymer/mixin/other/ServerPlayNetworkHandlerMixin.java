@@ -15,7 +15,6 @@ import eu.pb4.polymer.impl.other.ScheduledPacket;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
@@ -204,18 +203,18 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
             var soundEffect = polymerSoundEvent.getSoundEffectFor(this.player);
 
             if (soundEffect instanceof PolymerSoundEvent outEffect) {
-                return new PlaySoundIdS2CPacket(outEffect.getId(), soundPacket.getCategory(), new Vec3d(soundPacket.getX(), soundPacket.getY(), soundPacket.getZ()), soundPacket.getVolume(), soundPacket.getPitch());
+                return new PlaySoundIdS2CPacket(outEffect.getId(), soundPacket.getCategory(), new Vec3d(soundPacket.getX(), soundPacket.getY(), soundPacket.getZ()), soundPacket.getVolume(), soundPacket.getPitch(), soundPacket.getSeed());
             } else if (soundEffect != null) {
-                return new PlaySoundS2CPacket(soundEffect, soundPacket.getCategory(), soundPacket.getX(), soundPacket.getY(), soundPacket.getZ(), soundPacket.getVolume(), soundPacket.getPitch());
+                return new PlaySoundS2CPacket(soundEffect, soundPacket.getCategory(), soundPacket.getX(), soundPacket.getY(), soundPacket.getZ(), soundPacket.getVolume(), soundPacket.getPitch(), soundPacket.getSeed());
             }
         } else if (packet instanceof PlaySoundFromEntityS2CPacket soundPacket && soundPacket.getSound() instanceof PolymerSoundEvent polymerSoundEvent) {
             var soundEffect = polymerSoundEvent.getSoundEffectFor(this.player);
             var entity = this.player.getWorld().getEntityById(soundPacket.getEntityId());
             if (entity != null) {
                 if (soundEffect instanceof PolymerSoundEvent outEffect) {
-                    return new PlaySoundIdS2CPacket(outEffect.getId(), soundPacket.getCategory(), entity.getPos(), soundPacket.getVolume(), soundPacket.getPitch());
+                    return new PlaySoundIdS2CPacket(outEffect.getId(), soundPacket.getCategory(), entity.getPos(), soundPacket.getVolume(), soundPacket.getPitch(), soundPacket.getSeed());
                 } else if (soundEffect != null) {
-                    return new PlaySoundFromEntityS2CPacket(soundEffect, soundPacket.getCategory(), entity, soundPacket.getVolume(), soundPacket.getPitch());
+                    return new PlaySoundFromEntityS2CPacket(soundEffect, soundPacket.getCategory(), entity, soundPacket.getVolume(), soundPacket.getPitch(), soundPacket.getSeed());
                 }
             }
         } else if (packet instanceof DynamicPacket dynamicPacket) {

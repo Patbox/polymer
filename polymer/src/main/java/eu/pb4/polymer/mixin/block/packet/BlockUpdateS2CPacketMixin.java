@@ -7,8 +7,9 @@ import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.util.collection.IdList;
+import net.minecraft.util.collection.IndexedIterable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,16 +22,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockUpdateS2CPacketMixin implements PlayerAwarePacket {
     @Shadow private BlockState state;
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
-    private BlockState polymer_replaceWithVirtualBlockState(BlockState state) {
-        return PolymerBlockUtils.getPolymerBlockState(state, PolymerUtils.getPlayer());
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
+    private Object polymer_replaceWithVirtualBlockState(Object state) {
+        return PolymerBlockUtils.getPolymerBlockState((BlockState) state, PolymerUtils.getPlayer());
     }
 
 
     @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
-    private Object polymer_replaceState(IdList instance, int index) {
-        return InternalClientRegistry.decodeState(index);
+    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;"))
+    private Object polymer_replaceState(PacketByteBuf instance, IndexedIterable<?> registry) {
+        return InternalClientRegistry.decodeState(instance.readVarInt());
     }
 
 
