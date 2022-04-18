@@ -61,7 +61,7 @@ public interface PolymerEntity extends PolymerObject {
     }
 
     /**
-     * Allows to send packets before entity's spawn packet, useful for Player Entities
+     * Allows sending packets before entity's spawn packet, useful for Player Entities
      */
     default void onBeforeSpawnPacket(Consumer<Packet<?>> packetConsumer) {}
 
@@ -116,7 +116,7 @@ public interface PolymerEntity extends PolymerObject {
     }
 
     /**
-     * Allows to disable sending packets to player
+     * Allows disabling sending packets to player
      * @param player
      * @return true to allow, false to disable
      */

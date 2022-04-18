@@ -19,6 +19,10 @@ public interface PolymerStatusEffect extends PolymerObject {
         return null;
     }
 
+    default StatusEffect getPolymerStatusEffect(ServerPlayerEntity player) {
+        return getPolymerStatusEffect();
+    }
+
     @Nullable
     default ItemStack getPolymerIcon(ServerPlayerEntity player) {
         var icon = Items.POTION.getDefaultStack();
