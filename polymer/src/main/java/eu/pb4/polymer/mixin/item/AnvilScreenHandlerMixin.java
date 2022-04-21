@@ -1,11 +1,13 @@
 package eu.pb4.polymer.mixin.item;
 
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.AnvilScreenHandler;
 import net.minecraft.screen.ForgingScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,8 +20,6 @@ import java.util.Objects;
 @Mixin(AnvilScreenHandler.class)
 public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 
-    private String originalItemName;
-
     @Shadow private String newItemName;
 
     public AnvilScreenHandlerMixin(@Nullable ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
@@ -28,14 +28,14 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
     
     @Inject(method = "setNewItemName", at = @At("HEAD"), cancellable = true)
     private void polymer_ignoreIncorrectAnvilInput(String newItemName, CallbackInfo ci) {
-        if (this.originalItemName == null) {
-            this.originalItemName = newItemName;
-        }
-
-        if (this.getSlot(0).getStack().getItem() instanceof PolymerObject && !this.getSlot(0).getStack().hasCustomName() && Objects.equals(newItemName, this.originalItemName)) {
-            this.newItemName = null;
-            this.updateResult();
-            ci.cancel();
+        if (this.player instanceof ServerPlayerEntity serverPlayer) {
+            var stack = this.getSlot(0).getStack();
+            if (stack.getItem() instanceof PolymerObject && !stack.hasCustomName()
+                    && Objects.equals(newItemName, ServerTranslationUtils.parseFor(serverPlayer.networkHandler, stack.getName()).getString())) {
+                this.newItemName = null;
+                this.updateResult();
+                ci.cancel();
+            }
         }
     }
 }

@@ -253,9 +253,7 @@ public class InternalClientRegistry {
 
         PolymerClientProtocolHandler.tick();
 
-        // I hate legacy text, but it's an only way to format debug screen!
-        // Without replacing it that is
-        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (§6Outdated!§r)" : "") + ", S: " + InternalClientRegistry.serverVersion + " | BSO: " + blockOffset + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
+        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (Outdated)" : "") + ", S: " + InternalClientRegistry.serverVersion + " | BSO: " + blockOffset + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
 
         var regInfo = new StringBuilder();
         regInfo.append("[Polymer] ");
@@ -306,7 +304,7 @@ public class InternalClientRegistry {
                 posOffset++;
                 ITEM_GROUPS.remove(group);
                 ((ItemGroupAccessor) array[i]).setIndex(0);
-            } else {
+            } else if (array[i] != null) {
                 ((ItemGroupAccessor) array[i]).setIndex(i - posOffset);
                 list.add(array[i]);
             }

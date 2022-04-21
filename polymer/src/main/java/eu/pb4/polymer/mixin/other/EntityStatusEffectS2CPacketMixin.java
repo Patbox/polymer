@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.other;
 
 import eu.pb4.polymer.api.other.PolymerStatusEffect;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
 import net.fabricmc.api.EnvType;
@@ -13,6 +14,7 @@ import net.minecraft.util.collection.IndexedIterable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -24,13 +26,25 @@ public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExten
     @Unique private StatusEffect polymer_effect = null;
 
     @Inject(method = "<init>(ILnet/minecraft/entity/effect/StatusEffectInstance;)V", at = @At("TAIL"))
-    public void polymer_onWrite(int entityId, StatusEffectInstance effect, CallbackInfo ci) {
+    public void polymer_onInit(int entityId, StatusEffectInstance effect, CallbackInfo ci) {
         this.polymer_effect = effect.getEffectType();
         if (this.effectId instanceof PolymerStatusEffect virtualEffect && virtualEffect.getPolymerStatusEffect() != null) {
             this.polymer_effect = virtualEffect.getPolymerStatusEffect();
+    }
 
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
+    public int polymer_onWrite(int value) {
+        if (Registry.STATUS_EFFECT.get(this.effectId) instanceof PolymerStatusEffect virtualEffect) {
+            var effect = virtualEffect.getPolymerStatusEffect(PolymerUtils.getPlayer());
+
+            if (effect != null) {
+                return StatusEffect.getRawId(effect);
+            } else {
+                return 0;
+            }
             this.effectId = virtualEffect.getPolymerStatusEffect();
         }
+        return value;
     }
 
     @Environment(EnvType.CLIENT)

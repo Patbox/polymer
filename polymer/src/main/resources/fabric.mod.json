@@ -32,6 +32,9 @@
     ],
     "appleskin": [
       "eu.pb4.polymer.impl.client.compat.AppleSkinCompatibility"
+    ],
+    "polymc": [
+      "eu.pb4.polymer.impl.compat.polymc.PolyMcEntrypoint"
     ]
   },
   "mixins": [

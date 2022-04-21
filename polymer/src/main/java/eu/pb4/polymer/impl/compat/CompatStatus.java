@@ -16,6 +16,7 @@ public final class CompatStatus {
     public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
 
     public static final boolean QUILT_ITEM_GROUP = LOADER.isModLoaded("quilt_item_group");
+    public static final boolean QUILT_REGISTRY = LOADER.isModLoaded("quilt_registry");
 
     public static final boolean POLYMC = LOADER.isModLoaded("polymc");
     public static final boolean LITHIUM = LOADER.isModLoaded("lithium");
