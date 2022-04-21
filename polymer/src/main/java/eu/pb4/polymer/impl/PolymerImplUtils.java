@@ -17,7 +17,6 @@ import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -46,7 +45,7 @@ public class PolymerImplUtils {
             var source = ImageIO.read(PolymerImpl.getJarPath("assets/icon_ingame.png").toUri().toURL());
 
             for (int y = 0; y < source.getHeight(); y++) {
-                var base = new LiteralText("");
+                var base = Text.empty();
                 int line = 0;
                 int color = source.getRGB(0, y) & 0xFFFFFF;
                 for (int x = 0; x < source.getWidth(); x++) {
@@ -55,18 +54,18 @@ public class PolymerImplUtils {
                     if (color == colorPixel) {
                         line++;
                     } else {
-                        base.append(new LiteralText(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
+                        base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
                         color = colorPixel;
                         line = 1;
                     }
                 }
 
-                base.append(new LiteralText(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
+                base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
                 icon.add(base);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            icon.add(new LiteralText("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));
+            icon.add(Text.literal("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));
         }
 
         ICON = icon.toArray(new Text[0]);
@@ -97,7 +96,7 @@ public class PolymerImplUtils {
         if (NO_TEXTURE == null) {
             NO_TEXTURE = Items.PLAYER_HEAD.getDefaultStack();
             NO_TEXTURE.getOrCreateNbt().put("SkullOwner", PolymerUtils.createSkullOwner(PolymerUtils.NO_TEXTURE_HEAD_VALUE));
-            NO_TEXTURE.setCustomName(LiteralText.EMPTY);
+            NO_TEXTURE.setCustomName(Text.empty());
         }
         return NO_TEXTURE;
     }

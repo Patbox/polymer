@@ -14,8 +14,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SkullItem;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -112,9 +112,9 @@ public class WthitCompatibility implements IWailaPlugin {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != ClientPolymerBlock.NONE_STATE) {
                 IWailaConfig.Formatting formatting = IWailaConfig.get().getFormatting();
-                tooltip.set(WailaConstants.OBJECT_NAME_TAG, new LiteralText(formatting.formatBlockName(block.block().name().getString())));
+                tooltip.set(WailaConstants.OBJECT_NAME_TAG, Text.literal(formatting.formatBlockName(block.block().name().getString())));
                 if (config.getBoolean(WailaConstants.CONFIG_SHOW_REGISTRY)) {
-                    tooltip.set(WailaConstants.REGISTRY_NAME_TAG, new LiteralText(formatting.formatRegistryName(block.block().identifier().toString())));
+                    tooltip.set(WailaConstants.REGISTRY_NAME_TAG, Text.literal(formatting.formatRegistryName(block.block().identifier().toString())));
                 }
             }
         }
@@ -126,8 +126,8 @@ public class WthitCompatibility implements IWailaPlugin {
                 if (block != ClientPolymerBlock.NONE_STATE) {
                     for (var state : block.states().entrySet()) {
                         var value = state.getValue();
-                        var valueText = new LiteralText(value).setStyle(Style.EMPTY.withColor(value.equals("true") ? Formatting.GREEN : value.equals("false") ? Formatting.RED : Formatting.RESET));
-                        tooltip.addPair(new LiteralText(state.getKey()), valueText);
+                        var valueText = Text.literal(value).setStyle(Style.EMPTY.withColor(value.equals("true") ? Formatting.GREEN : value.equals("false") ? Formatting.RED : Formatting.RESET));
+                        tooltip.addPair(Text.literal(state.getKey()), valueText);
                     }
                 }
             }
@@ -144,7 +144,7 @@ public class WthitCompatibility implements IWailaPlugin {
                         modName = "Server";
                     }
 
-                    tooltip.set(WailaConstants.MOD_NAME_TAG, new LiteralText(IWailaConfig.get().getFormatting().formatModName(modName)));
+                    tooltip.set(WailaConstants.MOD_NAME_TAG, Text.literal(IWailaConfig.get().getFormatting().formatModName(modName)));
                 }
             }
         }
@@ -163,7 +163,7 @@ public class WthitCompatibility implements IWailaPlugin {
 
                     if (id != null) {
                         IWailaConfig.Formatting formatting = IWailaConfig.get().getFormatting();
-                        tooltip.set(WailaConstants.REGISTRY_NAME_TAG, new LiteralText(formatting.formatRegistryName(id)));
+                        tooltip.set(WailaConstants.REGISTRY_NAME_TAG, Text.literal(formatting.formatRegistryName(id)));
                     }
                 }
             }
@@ -187,7 +187,7 @@ public class WthitCompatibility implements IWailaPlugin {
                             modName = "Server";
                         }
 
-                        tooltip.set(WailaConstants.MOD_NAME_TAG, new LiteralText(IWailaConfig.get().getFormatting().formatModName(modName)));
+                        tooltip.set(WailaConstants.MOD_NAME_TAG, Text.literal(IWailaConfig.get().getFormatting().formatModName(modName)));
                     }
                 }
             }
@@ -213,7 +213,7 @@ public class WthitCompatibility implements IWailaPlugin {
                         modName = "Server";
                     }
 
-                    tooltip.set(WailaConstants.MOD_NAME_TAG, new LiteralText(IWailaConfig.get().getFormatting().formatModName(modName)));
+                    tooltip.set(WailaConstants.MOD_NAME_TAG, Text.literal(IWailaConfig.get().getFormatting().formatModName(modName)));
                 }
             }
         }

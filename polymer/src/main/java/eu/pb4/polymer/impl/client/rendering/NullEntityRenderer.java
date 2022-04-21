@@ -16,7 +16,7 @@ public class NullEntityRenderer extends EntityRenderer<Entity> {
     public static final EntityRenderer<Entity> INSTANCE = new NullEntityRenderer();
 
     private NullEntityRenderer() {
-        super(new EntityRendererFactory.Context(null, null, null, null, null));
+        super(new EntityRendererFactory.Context(null, null, null, null, null, null, null));
     }
 
 

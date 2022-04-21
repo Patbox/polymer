@@ -6,7 +6,7 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class CreativeTabListUi extends MicroUi {
 
     public CreativeTabListUi(ServerPlayerEntity player) {
         super(6);
-        this.title(new LiteralText("Creative Item Groups"));
+        this.title(Text.literal("Creative Item Groups"));
         this.items = new ArrayList<>();
         if (PolymerImpl.ADD_NON_POLYMER_CREATIVE_TABS) {
             for (var group : ItemGroup.GROUPS) {

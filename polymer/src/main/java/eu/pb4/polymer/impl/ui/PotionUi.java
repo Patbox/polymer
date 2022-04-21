@@ -5,8 +5,8 @@ import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 
@@ -16,7 +16,7 @@ public class PotionUi extends MicroUi {
 
     public PotionUi(ServerPlayerEntity player) {
         super(6);
-        this.title(new LiteralText("Status Effects"));
+        this.title(Text.literal("Status Effects"));
         this.player = player;
         this.drawUi();
 
@@ -40,9 +40,9 @@ public class PotionUi extends MicroUi {
                 icon = Items.POTION.getDefaultStack();
                 icon.getOrCreateNbt().putInt("CustomPotionColor", effectInstance.getEffectType().getColor());
             }
-            icon.setCustomName(new LiteralText("").setStyle(Style.EMPTY.withItalic(false))
+            icon.setCustomName(Text.empty().setStyle(Style.EMPTY.withItalic(false))
                     .append(effectInstance.getEffectType().getName())
-                    .append(new LiteralText(" (" + StatusEffectUtil.durationToString(effectInstance, 1.0F) + ")").formatted(Formatting.GRAY))
+                    .append(Text.literal(" (" + StatusEffectUtil.durationToString(effectInstance, 1.0F) + ")").formatted(Formatting.GRAY))
             );
 
             icon.getNbt().putInt("HideFlags", 127);

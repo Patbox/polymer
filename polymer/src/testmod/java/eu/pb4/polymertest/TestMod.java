@@ -44,8 +44,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.registry.Registry;
 
@@ -57,11 +56,11 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class TestMod implements ModInitializer, ClientModInitializer {
     public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(
             new Identifier("polymer", "test"),
-            new TranslatableText("testmod.itemgroup").formatted(Formatting.AQUA));
+            Text.translatable("testmod.itemgroup").formatted(Formatting.AQUA));
 
     public static final PolymerItemGroup ITEM_GROUP_2 = PolymerItemGroup.createPrivate(
             new Identifier("polymer", "test2"),
-            new TranslatableText("testmod.itemgroup2").formatted(Formatting.AQUA));
+            Text.translatable("testmod.itemgroup2").formatted(Formatting.AQUA));
     public static Block FLUID_BLOCK;
     public static TestFluid.Flowing FLOWING_FLUID;
     public static TestFluid.Still STILL_FLUID;
@@ -242,7 +241,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             if (original.hasNbt() && original.getNbt().contains("Test", NbtElement.STRING_TYPE)) {
                 ItemStack out = new ItemStack(Items.DIAMOND_SWORD, virtual.getCount());
                 out.setNbt(virtual.getNbt());
-                out.setCustomName(new LiteralText("TEST VALUE: " + original.getNbt().getString("Test")).formatted(Formatting.WHITE));
+                out.setCustomName(Text.literal("TEST VALUE: " + original.getNbt().getString("Test")).formatted(Formatting.WHITE));
                 return out;
             }
             return virtual;
@@ -254,7 +253,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             d.register(literal("test")
                     .executes((ctx) -> {
                         try {
-                            ctx.getSource().sendFeedback(new LiteralText("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
+                            ctx.getSource().sendFeedback(Text.literal("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -265,7 +264,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             d.register(literal("incrementStat")
                     .executes((ctx) -> {
                         ctx.getSource().getPlayer().incrementStat(CUSTOM_STAT);
-                        ctx.getSource().sendFeedback(new LiteralText("Stat now: " + ctx.getSource().getPlayer().getStatHandler().getStat(Stats.CUSTOM, CUSTOM_STAT)), false);
+                        ctx.getSource().sendFeedback(Text.literal("Stat now: " + ctx.getSource().getPlayer().getStatHandler().getStat(Stats.CUSTOM, CUSTOM_STAT)), false);
 
                         return 1;
                     })

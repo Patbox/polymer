@@ -87,7 +87,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         if (stack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, stack, this.player);
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
-                this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand(), -1));
+                this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand(), 0));
             }
         }
     }

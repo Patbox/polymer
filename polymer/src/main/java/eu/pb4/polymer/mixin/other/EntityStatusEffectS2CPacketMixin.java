@@ -8,6 +8,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
 import net.minecraft.util.collection.IndexedIterable;
@@ -30,21 +31,21 @@ public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExten
         this.polymer_effect = effect.getEffectType();
         if (this.effectId instanceof PolymerStatusEffect virtualEffect && virtualEffect.getPolymerStatusEffect() != null) {
             this.polymer_effect = virtualEffect.getPolymerStatusEffect();
+        }
     }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
-    public int polymer_onWrite(int value) {
-        if (Registry.STATUS_EFFECT.get(this.effectId) instanceof PolymerStatusEffect virtualEffect) {
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V", ordinal = 0))
+    public Object polymer_onWrite(Object object) {
+        if (object instanceof PolymerStatusEffect virtualEffect) {
             var effect = virtualEffect.getPolymerStatusEffect(PolymerUtils.getPlayer());
 
             if (effect != null) {
-                return StatusEffect.getRawId(effect);
+                return effect;
             } else {
-                return 0;
+                return StatusEffects.UNLUCK;
             }
-            this.effectId = virtualEffect.getPolymerStatusEffect();
         }
-        return value;
+        return object;
     }
 
     @Environment(EnvType.CLIENT)

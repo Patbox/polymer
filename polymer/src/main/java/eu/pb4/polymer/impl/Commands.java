@@ -62,24 +62,24 @@ public class Commands {
         var output = new ArrayList<Text>();
 
         try {
-            about.add(new LiteralText("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, PolymerImpl.GITHUB_URL))));
-            about.add(new LiteralText("Version: ").setStyle(Style.EMPTY.withColor(0xf7e1a7))
-                    .append(new LiteralText(PolymerImpl.VERSION).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
+            about.add(Text.literal("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, PolymerImpl.GITHUB_URL))));
+            about.add(Text.literal("Version: ").setStyle(Style.EMPTY.withColor(0xf7e1a7))
+                    .append(Text.literal(PolymerImpl.VERSION).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
 
             aboutBasic.addAll(about);
-            aboutBasic.add(LiteralText.EMPTY);
+            aboutBasic.add(Text.empty());
             aboutBasic.add(Text.of(PolymerImpl.DESCRIPTION));
 
-            about.add(new LiteralText("")
-                    .append(new LiteralText("Contributors")
+            about.add(Text.literal("")
+                    .append(Text.literal("Contributors")
                             .setStyle(Style.EMPTY.withColor(Formatting.AQUA)
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                            new LiteralText(String.join("\n", PolymerImpl.CONTRIBUTORS))
+                                            Text.literal(String.join("\n", PolymerImpl.CONTRIBUTORS))
                                     ))
                             ))
                     .append("")
                     .setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-            about.add(LiteralText.EMPTY);
+            about.add(Text.empty());
 
             var desc = new ArrayList<>(List.of(PolymerImpl.DESCRIPTION.split(" ")));
 
@@ -89,13 +89,13 @@ public class Commands {
                     (descPart.isEmpty() ? descPart : descPart.append(" ")).append(desc.remove(0));
 
                     if (descPart.length() > 16) {
-                        about.add(new LiteralText(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                        about.add(Text.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
                         descPart = new StringBuilder();
                     }
                 }
 
                 if (descPart.length() > 0) {
-                    about.add(new LiteralText(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                    about.add(Text.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
                 }
             }
 
@@ -114,7 +114,7 @@ public class Commands {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            var invalid = new LiteralText("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
+            var invalid = Text.literal("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
 
             output.add(invalid);
             about.add(invalid);
@@ -174,7 +174,7 @@ public class Commands {
                     )
                     .then(literal("get-mapper")
                             .executes((ctx) -> {
-                                ctx.getSource().sendFeedback(new LiteralText(BlockMapper.getFrom(ctx.getSource().getPlayer()).getMapperName()), false);
+                                ctx.getSource().sendFeedback(Text.literal(BlockMapper.getFrom(ctx.getSource().getPlayer()).getMapperName()), false);
                                 return 0;
                             })
                     )
@@ -191,9 +191,9 @@ public class Commands {
                             }))
                     .then(literal("protocol-info")
                             .executes((ctx) -> {
-                                ctx.getSource().sendFeedback(new LiteralText("Protocol supported by your client:"), false);
+                                ctx.getSource().sendFeedback(Text.literal("Protocol supported by your client:"), false);
                                 for (var entry : PolymerNetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer_getSupportMap().object2IntEntrySet()) {
-                                    ctx.getSource().sendFeedback(new LiteralText("- " + entry.getKey() + " = " + entry.getIntValue()), false);
+                                    ctx.getSource().sendFeedback(Text.literal("- " + entry.getKey() + " = " + entry.getIntValue()), false);
                                 }
                                 return 0;
                             })
@@ -203,14 +203,14 @@ public class Commands {
                                     .executes((ctx) -> {
                                         var status = ctx.getArgument("status", Boolean.class);
                                         PolymerRPUtils.setPlayerStatus(ctx.getSource().getPlayer(), status);
-                                        ctx.getSource().sendFeedback(new LiteralText("New resource pack status: " + status), false);
+                                        ctx.getSource().sendFeedback(Text.literal("New resource pack status: " + status), false);
                                         return 0;
                                     }))
                     )
                     .then(literal("get-pack-status")
                             .executes((ctx) -> {
                                 var status = PolymerRPUtils.hasPack(ctx.getSource().getPlayer());
-                                ctx.getSource().sendFeedback(new LiteralText("Resource pack status: " + status), false);
+                                ctx.getSource().sendFeedback(Text.literal("Resource pack status: " + status), false);
                                 return 0;
                             })
                     )
@@ -223,9 +223,9 @@ public class Commands {
     private static int dumpRegistries(CommandContext<ServerCommandSource> context) {
         var path = PolymerImplUtils.dumpRegistry();
         if (path != null) {
-            context.getSource().sendFeedback(new LiteralText("Exported registry state as " + path), false);
+            context.getSource().sendFeedback(Text.literal("Exported registry state as " + path), false);
         } else {
-            context.getSource().sendError(new LiteralText("Couldn't export registry!"));
+            context.getSource().sendError(Text.literal("Couldn't export registry!"));
         }
         return 0;
     }
@@ -248,12 +248,12 @@ public class Commands {
                 var stat = Stats.CUSTOM.getOrCreateStat(statId);
 
                 if (text == null) {
-                    text = new LiteralText("");
+                    text = Text.literal("");
                 }
 
                 var statVal = player.getStatHandler().getStat(stat);
 
-                text.append(PolymerStat.getName(statId)).append(new LiteralText(": ").formatted(Formatting.GRAY)).append(new LiteralText(stat.format(statVal) + "\n").formatted(Formatting.DARK_GRAY));
+                text.append(PolymerStat.getName(statId)).append(Text.literal(": ").formatted(Formatting.GRAY)).append(Text.literal(stat.format(statVal) + "\n").formatted(Formatting.DARK_GRAY));
                 line++;
 
                 if (line == 13) {
@@ -277,7 +277,7 @@ public class Commands {
         player.openHandledScreen(new NamedScreenHandlerFactory() {
             @Override
             public Text getDisplayName() {
-                return LiteralText.EMPTY;
+                return Text.empty();
             }
 
             @Nullable
@@ -359,19 +359,19 @@ public class Commands {
         stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
         stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
         player.giveItemStack(stack.copy());
-        context.getSource().sendFeedback(new LiteralText("Given client representation to player"), true);
+        context.getSource().sendFeedback(Text.literal("Given client representation to player"), true);
 
         return 1;
     }
 
     public static int generate(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(new LiteralText("Starting resource pack generation..."), true);
+        context.getSource().sendFeedback(Text.literal("Starting resource pack generation..."), true);
         boolean success = PolymerRPUtils.build(FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip"));
 
         if (success) {
-            context.getSource().sendFeedback(new LiteralText("Resource pack created successfully! You can find it in game folder as polymer-resourcepack.zip"), true);
+            context.getSource().sendFeedback(Text.literal("Resource pack created successfully! You can find it in game folder as polymer-resourcepack.zip"), true);
         } else {
-            context.getSource().sendError(new LiteralText("Found issues while creating resource pack! See logs above for more detail!"));
+            context.getSource().sendError(Text.literal("Found issues while creating resource pack! See logs above for more detail!"));
         }
 
         return 0;

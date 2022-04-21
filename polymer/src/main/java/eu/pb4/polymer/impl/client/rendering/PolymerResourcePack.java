@@ -9,7 +9,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.resource.*;
 import net.minecraft.resource.metadata.PackResourceMetadata;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,11 +26,6 @@ public class PolymerResourcePack extends ZipResourcePack {
         super(file);
     }
 
-    @Override
-    public String getName() {
-        return ClientUtils.PACK_ID;
-    }
-
     @Nullable
     public static PolymerResourcePack setup() {
         Path outputPath = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip");
@@ -42,6 +37,11 @@ public class PolymerResourcePack extends ZipResourcePack {
         }
     }
 
+    @Override
+    public String getName() {
+        return ClientUtils.PACK_ID;
+    }
+
     public static class Provider implements ResourcePackProvider {
         @Override
         public void register(Consumer<ResourcePackProfile> profileAdder, ResourcePackProfile.Factory factory) {
@@ -50,10 +50,10 @@ public class PolymerResourcePack extends ZipResourcePack {
 
                 if (pack != null) {
                     profileAdder.accept(factory.create(pack.getName(),
-                            new TranslatableText("text.polymer.resource_pack.name"),
+                            Text.translatable("text.polymer.resource_pack.name"),
                             PolymerRPUtils.isRequired() || PolymerImpl.FORCE_RESOURCE_PACK_CLIENT,
                             () -> pack,
-                            new PackResourceMetadata(new TranslatableText("text.polymer.resource_pack.description" + (PolymerRPUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION),
+                            new PackResourceMetadata(Text.translatable("text.polymer.resource_pack.description" + (PolymerRPUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION),
                             ResourcePackProfile.InsertionPosition.TOP,
                             ResourcePackSource.PACK_SOURCE_BUILTIN
                     ));

@@ -11,7 +11,6 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class MicroUi {
     private final UiElement[] elements;
     private final int lines;
-    private Text title = LiteralText.EMPTY;
+    private Text title = Text.empty();
     private final ScreenHandlerType<?> type;
     protected final int size;
 

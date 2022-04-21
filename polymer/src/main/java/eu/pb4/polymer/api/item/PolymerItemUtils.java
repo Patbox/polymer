@@ -20,7 +20,6 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -299,7 +298,7 @@ public final class PolymerItemUtils {
             }
 
             for (Text t : tooltip) {
-                lore.add(NbtString.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
+                lore.add(NbtString.of(Text.Serializer.toJson(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
             }
         } catch (Throwable e) {
             // Fallback for mods that require client side methods for tooltips

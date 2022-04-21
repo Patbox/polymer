@@ -5,7 +5,6 @@ import eu.pb4.polymer.api.resourcepack.PolymerModelData;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -26,8 +25,8 @@ public class TestPickaxeItem extends PickaxeItem implements PolymerItem {
 
     @Override
     public void modifyClientTooltip(List<Text> tooltip, ItemStack stack, ServerPlayerEntity player) {
-        tooltip.add(0, new LiteralText("Hello"));
-        tooltip.add(new LiteralText("World!"));
+        tooltip.add(0, Text.literal("Hello"));
+        tooltip.add(Text.literal("World!"));
     }
 
     @Override
