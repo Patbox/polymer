@@ -98,7 +98,7 @@ public final class PolymerUtils {
         if (!PolymerImpl.IS_CLIENT) {
             return false;
         } else {
-            return ClientUtils.isClientSide();
+            return ClientUtils.isClientThread();
         }
     }
 

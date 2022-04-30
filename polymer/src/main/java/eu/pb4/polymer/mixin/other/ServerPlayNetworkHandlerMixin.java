@@ -69,7 +69,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     public abstract ServerPlayerEntity getPlayer();
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void polymer_setMapper(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    private void polymer_setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         this.polymer_blockMapper = BlockMapper.getDefault(player);
     }
 

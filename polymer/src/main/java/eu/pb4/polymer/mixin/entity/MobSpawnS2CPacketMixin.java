@@ -5,7 +5,6 @@ import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
-import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.LivingEntity;
@@ -24,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = MobSpawnS2CPacket.class, priority = 500)
-public class MobSpawnS2CPacketMixin implements PlayerAwarePacket {
+public class MobSpawnS2CPacketMixin {
 
     @Shadow @Mutable
     private double x;

@@ -243,7 +243,7 @@ public class PolymerServerProtocol {
                         entries.add(val);
                     }
 
-                    if (entries.size() > 40) {
+                    if (entries.size() > 100) {
                         sendSync(handler, packetId, version, entries);
                     }
                 }

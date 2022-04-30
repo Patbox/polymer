@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.entity;
 
 import eu.pb4.polymer.api.entity.PolymerEntity;
-import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.util.math.Vec3d;
@@ -13,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityPositionS2CPacket.class)
-public class EntityPositionS2CPacketMixin implements PlayerAwarePacket {
+public class EntityPositionS2CPacketMixin {
 
     @Shadow @Mutable
     private double x;

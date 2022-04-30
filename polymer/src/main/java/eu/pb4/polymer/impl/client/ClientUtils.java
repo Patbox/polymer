@@ -25,7 +25,7 @@ public class ClientUtils {
                 : null;
     }
 
-    public static boolean isClientSide() {
+    public static boolean isClientThread() {
         return MinecraftClient.getInstance().isOnThread();
     }
 }

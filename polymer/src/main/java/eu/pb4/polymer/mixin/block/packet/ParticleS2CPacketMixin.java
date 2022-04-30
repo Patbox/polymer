@@ -1,6 +1,5 @@
 package eu.pb4.polymer.mixin.block.packet;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;

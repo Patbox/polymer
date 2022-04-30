@@ -318,7 +318,7 @@ public class InternalClientRegistry {
                     Field f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
                     f1.setAccessible(true);
                     f1.setInt(null, 0);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     // noop
                 }
             }
@@ -332,7 +332,7 @@ public class InternalClientRegistry {
                             break;
                         }
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     // noop
                 }
             }

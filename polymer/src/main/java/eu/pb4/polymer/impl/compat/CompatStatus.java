@@ -1,14 +1,15 @@
 package eu.pb4.polymer.impl.compat;
 
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public final class CompatStatus {
     private static final FabricLoader LOADER = FabricLoader.getInstance();
 
 
     public static final boolean POLYMER_LEGACY = LOADER.isModLoaded("polymer-legacy");
     public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
-    public static final boolean POLYMER_CLIENT_EXT = LOADER.isModLoaded("polymer-client-extensions");
 
     public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");
     public static final boolean FABRIC_ITEM_GROUP = LOADER.isModLoaded("fabric-item-groups-v0");
@@ -20,6 +21,7 @@ public final class CompatStatus {
 
     public static final boolean POLYMC = LOADER.isModLoaded("polymc");
     public static final boolean LITHIUM = LOADER.isModLoaded("lithium");
+    public static final boolean DISGUISELIB = LOADER.isModLoaded("disguiselib");
 
     public static final boolean WTHIT = LOADER.isModLoaded("wthit");
     public static final boolean REI = LOADER.isModLoaded("roughlyenoughitems");
