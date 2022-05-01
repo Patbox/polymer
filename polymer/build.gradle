@@ -44,16 +44,23 @@ dependencies {
 
     modCompileOnly ('com.github.CaffeineMC:lithium-fabric:mc1.18.1-0.7.7')
 
-    modCompileOnly ('com.github.TheEpicBlock:PolyMc:3.3.3')
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:4.0.0')
 
     modCompileOnly ("mcp.mobius.waila:wthit:fabric-4.4.0")
 
-    //modLocalRuntime 'com.github.TheEpicBlock:PolyMc:3.3.3'
+    //modLocalRuntime 'com.github.TheEpicBlock:PolyMc:4.0.0'
     //modLocalRuntime 'maven.modrinth:mo-blocks-fabric:0.10.3b'
+    //modLocalRuntime 'maven.modrinth:copperstuff:1.0.0'
 
     modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.422")
-    modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")
-    modLocalRuntime ("com.sk89q.worldedit:worldedit-fabric-mc1.18.1:7.2.9")
+    //modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")
+    //modLocalRuntime ("com.sk89q.worldedit:worldedit-fabric-mc1.18.1:7.2.9")
+
+    //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
+    //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
+
+    modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
+
 
     modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
         exclude(group: "com.terraformersmc")
@@ -62,21 +69,22 @@ dependencies {
         exclude(group: "net.fabricmc")
     }
 
-    modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
+    modImplementation include("xyz.nucleoid:packet-tweaker:0.3.0+1.18.2")
     modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-    modCompileOnly("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
-    modLocalRuntime("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
+    modLocalRuntime "fr.catcore:api:1.4.9+1.18.2-rc1"
+    modCompileOnly "fr.catcore:api:1.4.9+1.18.2-rc1"
+    //modCompileOnly("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
+    //modLocalRuntime("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
 
-    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:1.18-SNAPSHOT')
-    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:q_misc_util:1.18-SNAPSHOT')
+    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.2.6-1.18')
+    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.2.6-1.18')
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
 
     include project(":polymer-legacy")
 
-    include project(":polymer-oldpatch")
     testmodImplementation sourceSets.main.output
 }
 
@@ -86,3 +94,10 @@ jar {
     }
 }
 
+
+afterEvaluate {
+    // Disable the gen sources task on sub projects
+    genSourcesWithFernFlower.enabled = true
+    genSourcesWithCfr.enabled = false
+    unpickJar.enabled = true
+}

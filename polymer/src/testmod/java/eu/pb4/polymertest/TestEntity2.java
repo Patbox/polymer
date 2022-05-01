@@ -20,7 +20,6 @@ import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class TestEntity2 extends CreeperEntity implements PolymerEntity {
@@ -28,13 +27,9 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
         super(entityEntityType, world);
     }
 
-    public TestEntity2(World world) {
-        super(TestMod.ENTITY_2, world);
-    }
-
     @Override
-    public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(Map<EquipmentSlot, ItemStack> map) {
-        List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(map.size());
+    public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(List<Pair<EquipmentSlot, ItemStack> > oldList) {
+        List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(2);
         list.add(Pair.of(EquipmentSlot.MAINHAND, Items.DIAMOND.getDefaultStack()));
         list.add(Pair.of(EquipmentSlot.HEAD, TestMod.TATER_BLOCK_ITEM.getDefaultStack()));
         return list;

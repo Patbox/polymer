@@ -36,11 +36,13 @@ class FakeEntity extends Entity {
     }
 
     static {
+        FakeEntity entity;
         try {
-            INSTANCE = new FakeEntity(EntityType.PIG, eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);
-        } catch (Exception e1) {
-            PolymerImpl.LOGGER.error("Couldn't initiate base template entity! See logs below!");
-            throw e1;
+            entity = new FakeEntity(EntityType.PIG, eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);
+        } catch (Throwable e1) {
+            PolymerImpl.LOGGER.error("Couldn't initiate base template entity! It's super bad and it might crash soon!", e1);
+            entity = null;
         }
+        INSTANCE = entity;
     }
 }

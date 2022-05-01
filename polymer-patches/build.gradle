@@ -1,0 +1,31 @@
+archivesBaseName = "polymer-patches"
+version = rootProject.mod_patches_version + "+" + rootProject.minecraft_version
+group = rootProject.maven_group
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+dependencies {
+
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+
+    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
+    // You may need to force-disable transitiveness on them.
+
+    //modCompileOnly "curse.maven:dankstorage-400619:3681398"
+
+    implementation(project(path: ':polymer', configuration: 'namedElements'))
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+

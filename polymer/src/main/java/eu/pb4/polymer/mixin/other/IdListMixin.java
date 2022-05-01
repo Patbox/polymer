@@ -28,12 +28,16 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     @Unique private HashSet<BlockState> polymer_states = new HashSet<>();
     @Unique private boolean polymer_isPolymerAware;
     @Unique private boolean polymer_locked = true;
-    @Unique private int polymer_offset = -1;
+    @Unique private int polymer_offset = Integer.MAX_VALUE;
     @Unique private boolean polymer_hasPolymer = false;
 
     @Inject(method = "set", at = @At("HEAD"), cancellable = true)
     private <T> void polymer_moveToEnd(T value, int id, CallbackInfo ci) {
         if (this.polymer_isPolymerAware && value instanceof BlockState blockState) {
+            if (this.idMap.containsKey(value)) {
+                ci.cancel();
+            }
+
             if (blockState.getBlock() instanceof PolymerBlock) {
                 this.polymer_states.add(blockState);
 
@@ -42,11 +46,7 @@ public abstract class IdListMixin<T> implements PolymerIdList {
                     ci.cancel();
                 } else {
                     this.polymer_hasPolymer = true;
-                    if (this.polymer_offset == -1) {
-                        this.polymer_offset = id;
-                    } else {
-                        this.polymer_offset = Math.min(this.polymer_offset, id);
-                    }
+                    this.polymer_offset = Math.min(this.polymer_offset, id);
                 }
             }
 
@@ -111,7 +111,8 @@ public abstract class IdListMixin<T> implements PolymerIdList {
         this.idMap.clear();
         this.list.clear();
         this.polymer_lazyList.clear();
-        this.polymer_offset = -1;
+        this.polymer_states.clear();
+        this.polymer_offset = Integer.MAX_VALUE;
         this.polymer_hasPolymer = false;
         this.polymer_locked = true;
         this.nextId = 0;

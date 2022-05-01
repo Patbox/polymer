@@ -5,8 +5,8 @@ import eu.pb4.polymer.api.networking.PolymerServerPacketHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
@@ -39,8 +39,7 @@ public class PolymerServerProtocolHandler {
                 version = buf.readVarInt();
                 handle(handler, identifier.getPath(), version, buf);
             } catch (Exception e) {
-                PolymerImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()));
-                PolymerImpl.LOGGER.error(e);
+                PolymerImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)! {}", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
             }
         }
     }

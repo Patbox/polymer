@@ -31,7 +31,7 @@ public class TACSMixin {
 
     @Inject(method = "sendChunkDataPackets", at = @At("HEAD"), require = 0)
     private void polymer_catchPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
-        PolymerImplUtils.playerTargetHack.set(player);
+        PolymerImplUtils.setPlayer(player);
         var value = cachedDataPacket.getValue();
         var playerMapper = BlockMapper.getFrom(player);
         if (value != null && (
@@ -45,7 +45,7 @@ public class TACSMixin {
 
     @Inject(method = "sendChunkDataPackets", at = @At("TAIL"), require = 0)
     private void polymer_clearPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
-        PolymerImplUtils.playerTargetHack.set(null);
+        PolymerImplUtils.setPlayer(null);
     }
 
     @Inject(method = "method_18843", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;setLoadedToWorld(Z)V", shift = At.Shift.AFTER))

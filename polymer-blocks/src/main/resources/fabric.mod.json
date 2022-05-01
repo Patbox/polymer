@@ -15,6 +15,9 @@
   "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
+    "polymc": [
+      "eu.pb4.polymer.ext.blocks.impl.PolyMcResourceEntrypoint"
+    ]
   },
   "mixins": [
     "polymer-blocks.mixins.json"

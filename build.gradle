@@ -1,10 +1,9 @@
 plugins {
     id 'fabric-loom' version '0.11-SNAPSHOT'
     id("io.github.juuxel.loom-quiltflower") version "1.6.0"
-    id "com.modrinth.minotaur" version "1.2.1"
+    id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
-import com.modrinth.minotaur.TaskModrinthUpload
 
 apply plugin: 'fabric-loom'
 
@@ -41,8 +40,9 @@ allprojects {
         maven { url = "https://api.modrinth.com/maven" }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url = "https://maven.enginehub.org/repo/" }
-
-        mavenLocal()
+        maven { url = "https://maven.theepicblock.nl"; content { includeGroup("nl.theepicblock") } }
+        maven { url = 'https://maven.wispforest.io/' }
+        maven { url "https://cursemaven.com" }
     }
 
     dependencies {
@@ -128,9 +128,9 @@ curseforge {
         project {
             id = "551890"
             releaseType = "release"
-            changelog = ""
+            changelog = System.getenv("CHANGELOG")
             changelogType = "markdown"
-            addGameVersion "1.18.1"
+            addGameVersion "1.18.2"
             addGameVersion "Fabric"
             mainArtifact(remapJar)
 
@@ -143,28 +143,27 @@ curseforge {
     options {
         forgeGradleIntegration = false
     }
+    remapJar {
+        finalizedBy project.tasks.curseforge
+    }
 }
 
-task publishModrinth(type: TaskModrinthUpload) {
-    onlyIf {
-        System.getenv("MODRINTH") // Only attempt to run this task if the MODRINTH variable is set, otherwise SKIP it
+if (System.getenv("MODRINTH")) {
+    modrinth {
+        token = System.getenv("MODRINTH")
+        projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
+        versionNumber = "" + version // The version of the mod to upload.
+        uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
+        gameVersions = [((String) project.minecraft_version)]
+        changelog = System.getenv("CHANGELOG")
+        loaders = ["fabric"]
     }
 
-    token = System.getenv("MODRINTH")
-    projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
-    versionNumber = "" + version // The version of the mod to upload.
-    uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
-    addGameVersion('1.18.1') // Any minecraft version.
-    addLoader('fabric') // Can be fabric or forge. Modrinth will support liteloader and rift at a later date.
+    remapJar {
+        finalizedBy project.tasks.modrinth
+    }
 }
 
-remapJar {
-    finalizedBy publishModrinth
-    finalizedBy project.tasks.curseforge
-}
-
-publishModrinth.mustRunAfter remapJar
-project.tasks.curseforge.mustRunAfter remapJar
 
 // configure the maven publication
 

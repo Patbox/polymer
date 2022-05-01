@@ -34,12 +34,14 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
 
             return switch (type) {
                 case "fabricSync" -> CompatStatus.FABRIC_SYNC;
+                case "fabricSH" -> CompatStatus.FABRIC_SCREEN_HANDLER;
                 case "polymc" -> CompatStatus.POLYMC;
                 case "wthit" -> CompatStatus.WTHIT;
                 case "rei" -> CompatStatus.REI;
                 case "lithium" -> CompatStatus.LITHIUM;
                 case "armor" -> PolymerImpl.USE_ALT_ARMOR_HANDLER;
                 case "ip" -> CompatStatus.IMMERSIVE_PORTALS;
+                case "quiltReg" -> CompatStatus.QUILT_REGISTRY;
                 default -> true;
             };
         }

@@ -22,7 +22,7 @@ public class TestItem extends SimplePolymerItem {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-        context.getWorld().setBlockState(context.getBlockPos(), Registry.BLOCK.getRandom(this.random).getDefaultState());
+        context.getWorld().setBlockState(context.getBlockPos(), Registry.BLOCK.getRandom(this.random).get().value().getDefaultState());
         return super.useOnBlock(context);
     }
 

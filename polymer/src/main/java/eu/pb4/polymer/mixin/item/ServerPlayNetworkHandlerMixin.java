@@ -2,10 +2,9 @@ package eu.pb4.polymer.mixin.item;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.item.PolymerItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.*;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
@@ -43,13 +42,28 @@ public abstract class ServerPlayNetworkHandlerMixin {
     public abstract void onPlayerInteractItem(PlayerInteractItemC2SPacket packet);
 
     @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
-    private void polymer_resendToolIfItsBlockClientSide(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
+    private void polymer_resendToolOnPlace(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
-        if (itemStack.getItem() instanceof PolymerItem virtualItem) {
-            var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, this.player);
+        if (itemStack.getItem() instanceof PolymerItem polymerItem) {
+            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player);
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
+            }
+        }
+    }
+
+    @Inject(method = "onPlayerInteractItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
+    private void polymer_resendToolOnUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
+        ItemStack itemStack = this.player.getStackInHand(packet.getHand());
+
+        if (itemStack.getItem() instanceof PolymerItem polymerItem) {
+            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player);
+            if (data.item() instanceof Wearable) {
+                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
+
+                var slot = MobEntity.getPreferredEquipmentSlot(new ItemStack(data.item()));
+                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), 8 - slot.getEntitySlotId(), this.player.getEquippedStack(slot)));
             }
         }
     }
@@ -67,7 +81,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
 
         ItemStack stack = this.player.getStackInHand(packet.getHand());
-        Item item = stack.getItem();
 
         if (stack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, stack, this.player);

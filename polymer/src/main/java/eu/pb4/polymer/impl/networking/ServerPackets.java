@@ -24,10 +24,16 @@ public class ServerPackets {
     public static final Identifier SYNC_FINISHED_ID = id(SYNC_FINISHED);
     public static final String SYNC_BLOCK = "sync/blocks";
     public static final Identifier SYNC_BLOCK_ID = id(SYNC_BLOCK);
+    public static final String SYNC_BLOCK_ENTITY = "sync/block_entities";
+    public static final Identifier SYNC_BLOCK_ENTITY_ID = id(SYNC_BLOCK_ENTITY);
     public static final String SYNC_ITEM = "sync/items";
     public static final Identifier SYNC_ITEM_ID = id(SYNC_ITEM);
     public static final String SYNC_ENTITY = "sync/entities";
     public static final Identifier SYNC_ENTITY_ID = id(SYNC_ENTITY);
+    public static final String SYNC_STATUS_EFFECT = "sync/status_effect";
+    public static final Identifier SYNC_STATUS_EFFECT_ID = id(SYNC_STATUS_EFFECT);
+    public static final String SYNC_VILLAGER_PROFESSION = "sync/villager_profession";
+    public static final Identifier SYNC_VILLAGER_PROFESSION_ID = id(SYNC_VILLAGER_PROFESSION);
     public static final String SYNC_ITEM_GROUP = "sync/item_groups";
     public static final Identifier SYNC_ITEM_GROUP_ID = id(SYNC_ITEM_GROUP);
     public static final String SYNC_ITEM_GROUP_REMOVE = "sync/item_group/remove";
@@ -76,16 +82,19 @@ public class ServerPackets {
         register(SYNC_INFO, 0);
         register(SYNC_FINISHED, 0);
         register(SYNC_BLOCK, 0);
+        register(SYNC_BLOCK_ENTITY, 0);
         register(SYNC_BLOCKSTATE, 0);
-        register(SYNC_ITEM, 0, 1, 2);
+        register(SYNC_ITEM, 2);
+        register(SYNC_VILLAGER_PROFESSION, 0);
         register(SYNC_ITEM_GROUP, 0);
         register(SYNC_ITEM_GROUP_CLEAR, 0);
         register(SYNC_ITEM_GROUP_REMOVE, 0);
         register(SYNC_ITEM_GROUP_VANILLA, 0);
-        register(SYNC_ENTITY, 0);
+        register(SYNC_ENTITY, 0, 1);
+        register(SYNC_STATUS_EFFECT, 0);
         register(SYNC_CLEAR, 0);
-        register(WORLD_SET_BLOCK_UPDATE, 0, 1);
-        register(WORLD_CHUNK_SECTION_UPDATE, 0, 1);
+        register(WORLD_SET_BLOCK_UPDATE, 1);
+        register(WORLD_CHUNK_SECTION_UPDATE, 1);
         register(WORLD_ENTITY, 0);
     }
 }

@@ -32,6 +32,9 @@
     ],
     "appleskin": [
       "eu.pb4.polymer.impl.client.compat.AppleSkinCompatibility"
+    ],
+    "polymc": [
+      "eu.pb4.polymer.impl.compat.polymc.PolyMcEntrypoint"
     ]
   },
   "mixins": [
@@ -39,7 +42,7 @@
   ],
 
   "depends": {
-    "minecraft": ">=1.18.1 <1.19",
+    "minecraft": ">=1.18.2-rc.1 <1.19",
     "fabricloader": ">=0.12.0"
   },
   "custom": {

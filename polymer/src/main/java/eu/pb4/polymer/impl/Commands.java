@@ -4,8 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import eu.pb4.polymer.api.block.PolymerBlock;
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
@@ -15,20 +13,20 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
-import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.impl.ui.PotionUi;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.visitor.NbtTextFormatter;
 import net.minecraft.screen.LecternScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
@@ -44,13 +42,10 @@ import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -144,6 +139,15 @@ public class Commands {
                         .requires(PolymerImplUtils.permission("command.effects", 0))
                         .executes(Commands::effects)
                 )
+                .then(literal("client-item")
+                        .requires(PolymerImplUtils.permission("command.client-item", 3))
+                        .executes(Commands::displayClientItem)
+                        .then(literal("get").executes(Commands::getClientItem))
+                )
+                .then(literal("export-registry")
+                        .requires(PolymerImplUtils.permission("command.export-registry", 3))
+                        .executes(Commands::dumpRegistries)
+                )
                 .then(literal("creative")
                         .requires(PolymerImplUtils.permission("command.creative", 0))
                         .then(argument("itemGroup", IdentifierArgumentType.identifier())
@@ -162,11 +166,6 @@ public class Commands {
         if (PolymerImpl.DEVELOPER_MODE) {
             command.then(literal("dev")
                     .requires(PolymerImplUtils.permission("command.dev", 3))
-                    .then(literal("item-client")
-                            .executes(Commands::itemClient))
-                    .then(literal("dump")
-                            .executes((ctx) -> dumpRegistries(ctx, true))
-                    )
                     .then(literal("reload-world")
                             .executes((ctx) -> {
                                 PolymerUtils.reloadWorld(ctx.getSource().getPlayer());
@@ -221,78 +220,13 @@ public class Commands {
         dispatcher.register(command);
     }
 
-    private static int dumpRegistries(CommandContext<ServerCommandSource> context, boolean toFile) {
-        BufferedWriter writer = null;
-        try {
-            Consumer<String> msg;
-
-            if (toFile) {
-                writer = new BufferedWriter(new FileWriter("./polymer-dump.txt"));
-                BufferedWriter finalWriter = writer;
-                msg = (str) -> {
-                    try {
-                        finalWriter.write(str);
-                        finalWriter.newLine();
-                    } catch (Exception e) {
-                        // Silence;
-                    }
-                };
-            } else {
-                msg = (str) -> context.getSource().sendFeedback(Text.of(str), false);
-            }
-
-            {
-                msg.accept("== Vanilla Registries");
-                for (var reg : ((Registry<Registry<Object>>) Registry.REGISTRIES)) {
-                    msg.accept("");
-                    msg.accept("== Registry: " + ((Registry<Object>) (Object) Registry.REGISTRIES).getId(reg).toString());
-                    msg.accept("");
-                    if (reg instanceof RegistryExtension regEx) {
-                        msg.accept("= Status: " + regEx.polymer_getStatus().name());
-                        msg.accept("");
-                    }
-
-                    for (var entry : reg) {
-                        msg.accept("" + reg.getRawId(entry) + " | " + reg.getId(entry).toString() + " | Polymer? " + PolymerUtils.isServerOnly(entry));
-                    }
-                }
-                msg.accept("");
-                msg.accept("== BlockStates");
-                msg.accept("");
-                msg.accept("= Offset: " + PolymerBlockUtils.getBlockStateOffset());
-                msg.accept("");
-
-                for (var state : Block.STATE_IDS) {
-                    msg.accept(Block.STATE_IDS.getRawId(state) + " | " + state.toString() + " | Polymer? " + (state.getBlock() instanceof PolymerBlock));
-                }
-            }
-
-            {
-                msg.accept("");
-                msg.accept("== Polymer Registries");
-                msg.accept("");
-                var reg = InternalServerRegistry.ITEM_GROUPS;
-
-                msg.accept("== Registry: ItemGroup");
-
-                for (var entry : reg) {
-                    msg.accept(reg.getRawId(entry) + " | " + reg.getId(entry));
-                }
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static int dumpRegistries(CommandContext<ServerCommandSource> context) {
+        var path = PolymerImplUtils.dumpRegistry();
+        if (path != null) {
+            context.getSource().sendFeedback(new LiteralText("Exported registry state as " + path), false);
+        } else {
+            context.getSource().sendError(new LiteralText("Couldn't export registry!"));
         }
-
-        if (writer != null) {
-            try {
-                writer.close();
-            } catch (Exception e) {
-            }
-        }
-
-
         return 0;
     }
 
@@ -409,11 +343,23 @@ public class Commands {
         }
     }
 
-    private static int itemClient(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
         var itemStack = player.getMainHandStack();
 
-        context.getSource().sendFeedback(new LiteralText(PolymerItemUtils.getPolymerItemStack(itemStack, player).getOrCreateNbt().toString()), false);
+        context.getSource().sendFeedback((new NbtTextFormatter("", 3)).apply(PolymerItemUtils.getPolymerItemStack(itemStack, player).writeNbt(new NbtCompound())), false);
+
+        return 1;
+    }
+
+    private static int getClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayer();
+
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player);
+        stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
+        stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
+        player.giveItemStack(stack.copy());
+        context.getSource().sendFeedback(new LiteralText("Given client representation to player"), true);
 
         return 1;
     }

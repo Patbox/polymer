@@ -201,6 +201,13 @@ public final class PolymerItemUtils {
         return out;
     }
 
+    public static int getSafeColor(int inputColor) {
+        if (inputColor % 2 == 1) {
+            return Math.max(0, inputColor - 1);
+        }
+        return inputColor;
+    }
+
     /**
      * This method creates full (vanilla like) representation of ItemStack
      *
@@ -295,12 +302,17 @@ public final class PolymerItemUtils {
                 lore.add(NbtString.of(Text.Serializer.toJson(new LiteralText("").append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
             }
         } catch (Throwable e) {
-            // Fallback for mods that require client side methods
-            MutableText name = itemStack.getName().shallowCopy();
+            // Fallback for mods that require client side methods for tooltips
+            try {
+                MutableText name = itemStack.getName().shallowCopy();
 
-            if (!out.getName().equals(name)) {
-                name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
-                out.setCustomName(name);
+                if (!out.getName().equals(name)) {
+                    name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
+                    out.setCustomName(name);
+                }
+            } catch (Throwable e2) {
+                // Fallback for mods that can't even handle names correctly...
+                // Do nothing and hope for the best™
             }
         }
         var outNbt = out.getOrCreateNbt();

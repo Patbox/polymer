@@ -12,7 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
@@ -41,7 +40,7 @@ public record PolymerItemEntry(
 
             buf.writeIdentifier(identifier);
             buf.writeString(itemGroup);
-            buf.writeItemStack(ServerTranslationUtils.parseFor(handler, representation));
+            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, representation));
 
             if (version >= 1) {
                 buf.writeVarInt(foodLevels);
@@ -71,15 +70,13 @@ public record PolymerItemEntry(
                 PolymerItemUtils.getPolymerItemStack(item.getDefaultStack(), handler.player),
                 food != null ? food.getHunger() : 0,
                 food != null ? food.getSaturationModifier() : 0,
-                toolItem != null ? ((MiningToolItemAccessor) toolItem).getEffectiveBlocks() instanceof Tag.Identified tag ? tag.getId() : NOT_TOOL : NOT_TOOL,
+                toolItem != null ? ((MiningToolItemAccessor) toolItem).getEffectiveBlocks().id() : NOT_TOOL,
                 toolItem != null  ? toolItem.getMaterial().getMiningLevel() : 0
         );
     }
 
     public static PolymerItemEntry read(PacketByteBuf buf, int version) {
         return switch (version) {
-            case 0 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), 0, 0, NOT_TOOL, 0);
-            case 1 -> new PolymerItemEntry(-1, buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
             case 2 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
             default -> null;
         };

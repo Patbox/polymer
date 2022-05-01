@@ -41,7 +41,8 @@ public class ip_CustomPayloadS2CPacket implements IPAttachedPacket {
     }
 
     @Override
-    public void polymer_ip_setSkip(boolean value) {
+    public CustomPayloadS2CPacket polymer_ip_setSkip(boolean value) {
         this.polymer_ip_skip = value;
+        return ((CustomPayloadS2CPacket) (Object) this);
     }
 }

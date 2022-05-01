@@ -12,8 +12,6 @@ import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.other.PolymerTooltipContext;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
@@ -72,9 +70,9 @@ public final class PolymerUtils {
         ServerPlayerEntity player = PacketContext.get().getTarget();
 
         if (player == null) {
-            player = PolymerImplUtils.playerTargetHack.get();
+            player = PolymerImplUtils.getPlayer();
 
-            if (player == null && FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            if (player == null && PolymerImpl.IS_CLIENT) {
                 player = ClientUtils.getPlayer();
             }
         }
@@ -86,7 +84,7 @@ public final class PolymerUtils {
      * Returns true, if server is running in singleplayer
      */
     public static boolean isSingleplayer() {
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+        if (!PolymerImpl.IS_CLIENT) {
             return false;
         } else {
             return ClientUtils.isSingleplayer();
@@ -97,15 +95,15 @@ public final class PolymerUtils {
      * Returns true, if code is running on logical client side (not server/singleplayer server)
      */
     public static boolean isOnClientSide() {
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+        if (!PolymerImpl.IS_CLIENT) {
             return false;
         } else {
-            return ClientUtils.isClientSide();
+            return ClientUtils.isClientThread();
         }
     }
 
     public static boolean isOnPlayerNetworking() {
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+        if (!PolymerImpl.IS_CLIENT) {
             return getPlayer() != null;
         } else {
             return getPlayer() != null || ClientUtils.isSingleplayer();
@@ -264,7 +262,7 @@ public final class PolymerUtils {
     public static ZipFile getClientJar() {
         try {
             Path clientJarPath;
-            if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+            if (!PolymerImpl.IS_CLIENT) {
                 clientJarPath = PolymerImpl.getGameDir().resolve("polymer_cache/client_jars/" + CLIENT_SHA1 + ".jar");
             } else {
                 var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();

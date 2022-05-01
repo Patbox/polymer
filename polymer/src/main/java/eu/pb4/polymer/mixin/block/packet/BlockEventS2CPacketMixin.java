@@ -1,12 +1,10 @@
 package eu.pb4.polymer.mixin.block.packet;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -22,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BlockEventS2CPacket.class)
-public abstract class BlockEventS2CPacketMixin implements PlayerAwarePacket {
+public abstract class BlockEventS2CPacketMixin {
     @Shadow
     @Mutable
     private Block block;
@@ -43,8 +41,8 @@ public abstract class BlockEventS2CPacketMixin implements PlayerAwarePacket {
     private Object polymer_replaceState(DefaultedRegistry instance, int index) {
         var object = InternalClientRegistry.BLOCKS.get(index);
 
-        if (object.realServerBlock() != null) {
-            return object.realServerBlock();
+        if (object.registryEntry() != null) {
+            return object.registryEntry();
         }
 
         return instance.get(index);

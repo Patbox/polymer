@@ -3,8 +3,8 @@ package eu.pb4.polymer.mixin.client.item;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
-import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.ClientUtils;
+import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import net.fabricmc.api.EnvType;
@@ -49,7 +49,7 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Inject(method = "appendStacks", at = @At("TAIL"))
     private void polymer_appendStacks(DefaultedList<ItemStack> stacks, CallbackInfo ci) {
-        if (ClientUtils.isClientSide()) {
+        if (ClientUtils.isClientThread()) {
             stacks.removeIf((s) -> PolymerItemUtils.isPolymerServerItem(s));
             if (((Object) this) == ItemGroup.SEARCH) {
                 for (var group : ItemGroup.GROUPS) {

@@ -20,6 +20,11 @@ public final class PolymerBlockResourceUtils {
         return CREATOR.requestBlock(type, model);
     }
 
+    @Nullable
+    public static BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
+        return CREATOR.requestBlock(type, model);
+    }
+
     public static int getBlocksLeft(BlockModelType type) {
         return CREATOR.getBlocksLeft(type);
     }

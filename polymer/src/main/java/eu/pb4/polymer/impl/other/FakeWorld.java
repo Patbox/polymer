@@ -16,18 +16,16 @@ import net.minecraft.recipe.RecipeManager;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.tag.TagManager;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.OverworldBiomeCreator;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
@@ -52,7 +50,7 @@ import java.util.function.Supplier;
 public final class FakeWorld extends World {
     public static final World INSTANCE;
     static final Scoreboard SCOREBOARD = new Scoreboard();
-    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.create();
+    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.createAndLoad();
     static final Biome BIOME = OverworldBiomeCreator.createTheVoid();
     static final RecipeManager RECIPE_MANAGER = new RecipeManager();
     static final ChunkManager CHUNK_MANAGER = new ChunkManager() {
@@ -63,7 +61,7 @@ public final class FakeWorld extends World {
         }
 
         @Override
-        public void tick(BooleanSupplier booleanSupplier) {
+        public void tick(BooleanSupplier shouldKeepTicking, boolean tickChunks) {
 
         }
 
@@ -87,46 +85,7 @@ public final class FakeWorld extends World {
             return INSTANCE;
         }
     };
-
-    static {
-        try {
-            World world;
-
-            try {
-                world = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
-                var accessor = (WorldAccessor) world;
-                accessor.polymer_setBiomeAccess(new BiomeAccess(world, 1l));
-                accessor.polymer_setBorder(new WorldBorder());
-                accessor.polymer_setDebugWorld(true);
-                accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
-                accessor.polymer_setProperties(new FakeWorldProperties());
-                accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
-                accessor.polymer_setThread(Thread.currentThread());
-                accessor.polymer_setRandom(new Random());
-                accessor.polymer_setBlockEntityTickers(new ArrayList<>());
-                accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
-
-            } catch (Exception e) {
-                PolymerImpl.LOGGER.warn("Creating fake world with unsafe failed... Time for plan B");
-                world = new FakeWorld(
-                        new FakeWorldProperties(),
-                        RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
-                        DimensionTypeAccessor.polymer_getOverworld(),
-                        () -> new ProfilerSystem(() -> 0l, () -> 0, false),
-                        false,
-                        true,
-                        1
-                );
-            }
-
-            INSTANCE = world;
-        } catch (Exception e1) {
-            PolymerImpl.LOGGER.error("Couldn't initiate fake world! See logs below!");
-            throw e1;
-        }
-    }
-
-    private static EntityLookup<Entity> ENTITY_LOOKUP = new EntityLookup<>() {
+    private static final EntityLookup<Entity> ENTITY_LOOKUP = new EntityLookup<>() {
         @Nullable
         @Override
         public Entity get(int id) {
@@ -159,8 +118,7 @@ public final class FakeWorld extends World {
 
         }
     };
-
-    private static QueryableTickScheduler<?> FAKE_SCHEDULER = new QueryableTickScheduler<Object>() {
+    private static final QueryableTickScheduler<?> FAKE_SCHEDULER = new QueryableTickScheduler<Object>() {
         @Override
         public boolean isTicking(BlockPos pos, Object type) {
             return false;
@@ -182,7 +140,46 @@ public final class FakeWorld extends World {
         }
     };
 
-    protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
+    static {
+        World world;
+
+        try {
+            try {
+                world = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
+                var accessor = (WorldAccessor) world;
+                accessor.polymer_setBiomeAccess(new BiomeAccess(world, 1l));
+                accessor.polymer_setBorder(new WorldBorder());
+                accessor.polymer_setDebugWorld(true);
+                accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
+                accessor.polymer_setProperties(new FakeWorldProperties());
+                accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
+                accessor.polymer_setThread(Thread.currentThread());
+                accessor.polymer_setRandom(new Random());
+                accessor.polymer_setBlockEntityTickers(new ArrayList<>());
+                accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
+
+            } catch (Throwable e) {
+                PolymerImpl.LOGGER.error("Creating fake world with unsafe failed... Time for plan B", e);
+                world = new FakeWorld(
+                        new FakeWorldProperties(),
+                        RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
+                        new RegistryEntry.Direct<>(DimensionTypeAccessor.polymer_getOverworld()),
+                        () -> new ProfilerSystem(() -> 0l, () -> 0, false),
+                        false,
+                        true,
+                        1
+                );
+            }
+        } catch (Throwable e) {
+            PolymerImpl.LOGGER.error("And it failed again... some mod is really angry at this stuff... setting it to null for now, hopefully it will pass enough", e);
+            world = null;
+        }
+
+
+        INSTANCE = world;
+    }
+
+    protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed);
     }
 
@@ -244,11 +241,6 @@ public final class FakeWorld extends World {
     }
 
     @Override
-    public TagManager getTagManager() {
-        return TagManager.EMPTY;
-    }
-
-    @Override
     protected EntityLookup<Entity> getEntityLookup() {
         return ENTITY_LOOKUP;
     }
@@ -294,36 +286,21 @@ public final class FakeWorld extends World {
     }
 
     @Override
-    public Biome getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return BIOME;
+    public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
+        return BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
     }
 
 
     static class FakeWorldProperties implements MutableWorldProperties {
 
         @Override
-        public void setSpawnX(int spawnX) {
-
-        }
-
-        @Override
-        public void setSpawnY(int spawnY) {
-
-        }
-
-        @Override
-        public void setSpawnZ(int spawnZ) {
-
-        }
-
-        @Override
-        public void setSpawnAngle(float angle) {
-
-        }
-
-        @Override
         public int getSpawnX() {
             return 0;
+        }
+
+        @Override
+        public void setSpawnX(int spawnX) {
+
         }
 
         @Override
@@ -332,13 +309,28 @@ public final class FakeWorld extends World {
         }
 
         @Override
+        public void setSpawnY(int spawnY) {
+
+        }
+
+        @Override
         public int getSpawnZ() {
             return 0;
         }
 
         @Override
+        public void setSpawnZ(int spawnZ) {
+
+        }
+
+        @Override
         public float getSpawnAngle() {
             return 0;
+        }
+
+        @Override
+        public void setSpawnAngle(float angle) {
+
         }
 
         @Override

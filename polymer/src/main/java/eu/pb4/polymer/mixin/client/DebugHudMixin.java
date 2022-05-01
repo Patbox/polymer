@@ -49,7 +49,7 @@ public abstract class DebugHudMixin {
         }
     }
 
-    @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 12), locals = LocalCapture.CAPTURE_FAILSOFT)
+    @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 9), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_replaceEntityString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
         if (this.client.targetedEntity != null && InternalClientRegistry.enabled && InternalClientRegistry.stable) {
             var type = PolymerClientUtils.getEntityType(this.client.targetedEntity);

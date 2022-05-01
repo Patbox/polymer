@@ -20,10 +20,12 @@ public class ClientUtils {
     }
 
     public static ServerPlayerEntity getPlayer() {
-        return MinecraftClient.getInstance().getServer() != null && MinecraftClient.getInstance().player != null ? MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid()) : null;
+        return MinecraftClient.getInstance().getServer() != null && MinecraftClient.getInstance().player != null
+                ? MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid())
+                : null;
     }
 
-    public static boolean isClientSide() {
+    public static boolean isClientThread() {
         return MinecraftClient.getInstance().isOnThread();
     }
 }

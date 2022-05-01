@@ -18,7 +18,19 @@ public interface PolymerObject {
         return true;
     }
 
+    /**
+     * Allows to mark it to still send it to supported clients (for client optional setups)
+     * Currently used for tags
+     */
+    default boolean canSendServerEntry(ServerPlayerEntity player) {
+        return false;
+    }
+
     static boolean is(Object obj) {
         return obj instanceof PolymerObject;
+    }
+
+    static boolean canSendServerEntry(Object obj, ServerPlayerEntity player) {
+        return !(obj instanceof PolymerObject pol && !pol.canSendServerEntry(player));
     }
 }

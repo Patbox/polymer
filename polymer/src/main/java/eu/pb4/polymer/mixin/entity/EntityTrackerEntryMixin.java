@@ -2,8 +2,9 @@ package eu.pb4.polymer.mixin.entity;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
+import eu.pb4.polymer.impl.interfaces.MetaConsumer;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
-import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -16,6 +17,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.EntityTrackingListener;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,10 +31,16 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @Mixin(EntityTrackerEntry.class)
-public class EntityTrackerEntryMixin {
+public abstract class EntityTrackerEntryMixin {
     @Shadow
     @Final
     private Entity entity;
+    @Shadow @Final private Consumer<Packet<?>> receiver;
+
+    @ModifyVariable(method = "sendPackets", at = @At("HEAD"))
+    private Consumer<Packet<?>> polymer_packetWrap(Consumer<Packet<?>> packetConsumer) {
+        return (packet) -> packetConsumer.accept(EntityAttachedPacket.set(packet, this.entity));
+    }
 
     @SuppressWarnings("unchecked")
     @ModifyVariable(method = "sendPackets", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/attribute/AttributeContainer;getAttributesToSend()Ljava/util/Collection;"))
@@ -66,29 +75,30 @@ public class EntityTrackerEntryMixin {
         }
     }
 
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void polymer_tick(CallbackInfo ci) {
+        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {
+            polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet((Set<EntityTrackingListener>) receiver.getAttached()));
+        }
+    }
+
     @Inject(method = "sendPackets", at = @At("TAIL"))
     private void polymer_modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity virtualEntity) {
+        if (this.entity instanceof PolymerEntity) {
             try {
                 if (this.entity instanceof LivingEntity livingEntity) {
-                    Map<EquipmentSlot, ItemStack> map = new HashMap<>();
+                    var list = new ArrayList<Pair<EquipmentSlot, ItemStack>>();
 
                     for (EquipmentSlot slot : EquipmentSlot.values()) {
                         ItemStack stack = livingEntity.getEquippedStack(slot);
                         if (!stack.isEmpty()) {
-                            map.put(slot, stack);
+                            list.add(new Pair<>(slot, stack));
                         }
                     }
 
-                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getPolymerVisibleEquipment(map);
-                    if (!list.isEmpty()) {
-                        sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
-                    }
+                    sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
                 } else {
-                    List<Pair<EquipmentSlot, ItemStack>> list = virtualEntity.getPolymerVisibleEquipment(Collections.emptyMap());
-                    if (!list.isEmpty()) {
-                        sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), list));
-                    }
+                    sender.accept(new EntityEquipmentUpdateS2CPacket(this.entity.getId(), new ArrayList<>()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

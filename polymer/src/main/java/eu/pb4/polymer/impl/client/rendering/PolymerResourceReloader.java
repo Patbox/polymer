@@ -25,12 +25,14 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
             if (PolymerImpl.USE_ALT_ARMOR_HANDLER) {
                 InternalClientRegistry.ARMOR_TEXTURES_1.clear();
                 InternalClientRegistry.ARMOR_TEXTURES_2.clear();
-                ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().clear();
-                ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", new Identifier("textures/models/armor/vanilla_leather_layer_1.png"));
-                ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", new Identifier("textures/models/armor/vanilla_leather_layer_1_overlay.png"));
-                ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2.png", new Identifier("textures/models/armor/vanilla_leather_layer_2.png"));
-                ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2_overlay.png", new Identifier("textures/models/armor/vanilla_leather_layer_2_overlay.png"));
                 if (manager.containsResource(POLYMER_ARMOR_ID)) {
+                    InternalClientRegistry.hasArmorTextures = true;
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", new Identifier("textures/models/armor/vanilla_leather_layer_1.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", new Identifier("textures/models/armor/vanilla_leather_layer_1_overlay.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2.png", new Identifier("textures/models/armor/vanilla_leather_layer_2.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2_overlay.png", new Identifier("textures/models/armor/vanilla_leather_layer_2_overlay.png"));
+
+
                     try {
                         HashMap<String, String> data = DefaultRPBuilder.GSON.fromJson(new String(manager.getResource(POLYMER_ARMOR_ID).getInputStream().readAllBytes()), HashMap.class);
 
@@ -43,9 +45,15 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                             InternalClientRegistry.ARMOR_TEXTURES_2.put(key, tex2);
                         }
                     } catch (Exception e) {
-                        PolymerImpl.LOGGER.warn("Invalid armors.json file!");
-                        PolymerImpl.LOGGER.warn(e);
+                        PolymerImpl.LOGGER.warn("Invalid armors.json file! {}", e);
                     }
+                } else {
+                    InternalClientRegistry.hasArmorTextures = false;
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", new Identifier("textures/models/armor/leather_layer_1.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", new Identifier("textures/models/armor/leather_layer_1_overlay.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2.png", new Identifier("textures/models/armor/leather_layer_2.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2_overlay.png", new Identifier("textures/models/armor/leather_layer_2_overlay.png"));
+
                 }
             }
             return null;

@@ -4,8 +4,8 @@ import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.impl.client.rendering.PolymerResourceReloader;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
+import eu.pb4.polymer.impl.client.rendering.PolymerResourceReloader;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +13,7 @@ import net.minecraft.client.RunArgs;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.resource.ReloadableResourceManagerImpl;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -40,9 +40,9 @@ public abstract class MinecraftClientMixin {
     @Nullable
     public abstract ClientPlayNetworkHandler getNetworkHandler();
 
-    @Shadow @Final private ReloadableResourceManager resourceManager;
-
     @Shadow @Final private TextureManager textureManager;
+
+    @Shadow @Final private ReloadableResourceManagerImpl resourceManager;
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;initFont(Z)V"))
     private void polymer_registerCustom(RunArgs args, CallbackInfo ci) {

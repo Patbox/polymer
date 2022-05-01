@@ -48,7 +48,7 @@ public class WthitCompatibility implements IWailaPlugin {
 
         @Override
         public @Nullable String getHoveredItemModName(ItemStack stack, IPluginConfig config) {
-            if (PolymerItemUtils.isPolymerServerItem(stack) || !ClientUtils.isClientSide()) {
+            if (PolymerItemUtils.isPolymerServerItem(stack) || !ClientUtils.isClientThread()) {
                 return null;
             }
 

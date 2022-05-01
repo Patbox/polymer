@@ -9,6 +9,7 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
@@ -23,7 +24,7 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
     }
 
     @Override
-    public Recipe<?> getPolymerRecipe(Recipe<?> input) {
+    public Recipe<?> getPolymerRecipe(Recipe<?> input, ServerPlayerEntity player) {
         return PolymerRecipe.createStonecuttingRecipe(input);
     }
 

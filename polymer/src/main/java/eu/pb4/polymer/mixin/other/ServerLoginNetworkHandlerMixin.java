@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.networking.PolymerHandshakeHandlerImplLogin;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
@@ -25,7 +26,7 @@ public abstract class ServerLoginNetworkHandlerMixin {
 
     @Inject(method = "addToServer", at = @At("HEAD"), cancellable = true)
     private void polymer_prePlayHandshakeHackfest(ServerPlayerEntity player, CallbackInfo ci) {
-        if (!this.polymer_passPlayer) {
+        if (!this.polymer_passPlayer && PolymerImpl.ENABLE_NETWORKING_SERVER && PolymerImpl.HANDLE_HANDSHAKE_EARLY) {
             new PolymerHandshakeHandlerImplLogin(this.server, player, this.connection, (self) -> {
                 this.polymer_passPlayer = true;
                 this.addToServer(player);

@@ -18,7 +18,7 @@ For most basic uses, there are default implementation of `PolymerBlock`:
 * `PolymerHeadBlock` - It's an interface (!), that has basic implementation of player head based blocks, you still need to apply it to your Block class,
 * `SimplePolymerBlock` - Same as vanilla `Block`.
 
-### Selecting base visual block type.
+### Selecting base polymer block type.
 To change base block, you need to override `Block getPolymerBlock(BlockState)` method.
 
 You can also override `Block getPolymerBlock(ServerPlayerEntity, BlockState)` to replace blocks per player,
@@ -96,6 +96,9 @@ public String getPolymerSkinValue(BlockState state) {
 }
 ```
 
+### Textured, non-player-head blocks
+See [Polymer Textured Blocks extension](/ext/polymer-blocks) for more informations
+
 ## Using BlockEntities
 The only thing you need to do to remove BlockEntity from being sent to client is registering its BlockEntityType with `PolymerBlockUtils.registerBlockEntity(BlockEntityType types)`.
 
@@ -105,7 +108,7 @@ If you want to get client-friendly representation of block, you need to call
 method. It should return block safe to use (or air in case of failure).
 
 ## Limitations
-While it's supported, please limit creation of VirtualBlock light sources. Because of how Minecraft
+While it's supported, please limit creation of PolymerBlock light sources. Because of how Minecraft
 handles light updates on server/client, these can be little laggy (as it needs to be sent updates every time light changes) and not perfect, 
 as client is emulating light by itself.
 

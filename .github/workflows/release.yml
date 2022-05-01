@@ -37,22 +37,9 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
           CURSEFORGE: ${{ secrets.CURSEFORGE }}
           MODRINTH: ${{ secrets.MODRINTH }}
-
+          CHANGELOG: ${{ github.event.release.body }}
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0
         with:
           files: 'build/libs/*.jar;!build/libs/*-sources.jar;!build/libs/*-dev.jar'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up python 3
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      - name: Install mkdocs
-        run: pip install mkdocs-material
-      - name: Setup doc deploy
-        run: |
-          git config --global user.name Docs deploy
-          git config --global user.email docs@dummy.bot.com
-      - name: Deploy docs
-        run: mkdocs gh-deploy --force

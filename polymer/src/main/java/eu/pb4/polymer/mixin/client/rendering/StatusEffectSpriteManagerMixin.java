@@ -15,6 +15,6 @@ import java.util.stream.Stream;
 public class StatusEffectSpriteManagerMixin {
     @Inject(method = "getSprites", at = @At("RETURN"), cancellable = true)
     private void polymer_skipPolymerEntries(CallbackInfoReturnable<Stream<Identifier>> cir) {
-        cir.setReturnValue(cir.getReturnValue().filter((id) -> !PolymerKeepModel.useServerModel(Registry.STATUS_EFFECT.get(id))));
+        cir.setReturnValue(cir.getReturnValue().filter((id) -> PolymerKeepModel.useClientModel(Registry.STATUS_EFFECT.get(id))));
     }
 }

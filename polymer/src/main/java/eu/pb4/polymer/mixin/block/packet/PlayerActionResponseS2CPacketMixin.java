@@ -2,11 +2,9 @@ package eu.pb4.polymer.mixin.block.packet;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
-import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -22,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerActionResponseS2CPacket.class)
-public abstract class PlayerActionResponseS2CPacketMixin implements PlayerAwarePacket {
+public abstract class PlayerActionResponseS2CPacketMixin {
     @Shadow @Final private BlockState state;
 
     @Shadow public abstract BlockState state();
@@ -35,11 +33,7 @@ public abstract class PlayerActionResponseS2CPacketMixin implements PlayerAwareP
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
     private static Object polymer_replaceState(IdList instance, int index) {
-        if (index >= PolymerClientUtils.getBlockStateOffset()) {
-            return InternalClientRegistry.getRealBlockState(index - PolymerClientUtils.getBlockStateOffset() + 1);
-        }
-
-        return instance.get(index);
+        return InternalClientRegistry.decodeState(index);
     }
 
     @Environment(EnvType.CLIENT)

@@ -39,8 +39,6 @@ import java.util.zip.ZipOutputStream;
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = PolymerImpl.GSON;
 
-
-
     private final Map<Item, JsonArray> models = new HashMap<>();
     private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
     private final List<PolymerArmorModel> armors = new ArrayList<>();
@@ -127,34 +125,36 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             ModContainer container = mod.get();
             this.modsList.add(container);
             try {
-                Path assets = container.getPath("assets");
-                Files.walkFileTree(assets, new FileVisitor<>() {
-                    @Override
-                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                        return FileVisitResult.CONTINUE;
-                    }
+                for (var rootPaths : container.getRootPaths()) {
+                    Path assets = rootPaths.resolve("assets");
+                    Files.walkFileTree(assets, new FileVisitor<>() {
+                        @Override
+                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                            return FileVisitResult.CONTINUE;
+                        }
 
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        var relative = assets.relativize(file);
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                            var relative = assets.relativize(file);
 
-                        var bytes = Files.readAllBytes(file);
+                            var bytes = Files.readAllBytes(file);
 
-                        fileMap.put("assets/" + relative.toString().replace("\\", "/"), bytes);
+                            fileMap.put("assets/" + relative.toString().replace("\\", "/"), bytes);
 
-                        return FileVisitResult.CONTINUE;
-                    }
+                            return FileVisitResult.CONTINUE;
+                        }
 
-                    @Override
-                    public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                        return FileVisitResult.CONTINUE;
-                    }
+                        @Override
+                        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                            return FileVisitResult.CONTINUE;
+                        }
 
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
+                        @Override
+                        public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
 
                 return true;
             } catch (Exception e) {
@@ -239,7 +239,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     return stream.readAllBytes();
                 }
             } catch (Exception e) {
-                PolymerImpl.LOGGER.warn(e);
+                PolymerImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
             }
         }
         return null;

@@ -10,11 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Mixin(Entity.class)
 public interface EntityAccessor {
     @Accessor
-    static TrackedData<Integer> getFROZEN_TICKS() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Accessor
     static AtomicInteger getCURRENT_ID() {
         throw new UnsupportedOperationException();
     }

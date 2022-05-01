@@ -45,6 +45,14 @@ A mod that adds server-side backpacks.
 - Github: https://github.com/Oliver-makes-code/server-backpacks
 - Modrinth: https://modrinth.com/mod/servback
 
+## Simple Villagers
+Having frustrations with villagers? No more!
+
+### Links:
+- GitHub: https://github.com/samolego/SimpleVillagers
+- Modrinth: https://modrinth.com/mod/simplevillagers
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/simplevillagers
+
 ## Universal Graves
 It's a simple, but really customisable grave/death chest mod! 
 You can customise as you like, by modifying message, blocks and hologram texts, 

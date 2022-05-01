@@ -11,6 +11,8 @@ nav:
       - polymer/entities.md
       - polymer/resource-packs.md
       - polymer/other.md
+  - Using Polymer Extensions:
+      - ext/polymer-blocks.md
   - Useful tools:
       - other/server-translation-api.md
 
