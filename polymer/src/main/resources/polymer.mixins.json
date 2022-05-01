@@ -42,6 +42,7 @@
     "entity.DataTrackerAccessor",
     "entity.EntityAccessor",
     "entity.EntityAttachedPacketsMixin",
+    "entity.EntityAttributesS2CPacketMixin",
     "entity.EntityPositionS2CPacketMixin",
     "entity.EntitySetHeadYawS2CPacketMixin",
     "entity.EntitySpawnS2CPacketMixin",

@@ -229,7 +229,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registry.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
 
         register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
-        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes());
+        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes().add(EntityAttributes.GENERIC_LUCK));
 
         register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), ENTITY_2);
         FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
