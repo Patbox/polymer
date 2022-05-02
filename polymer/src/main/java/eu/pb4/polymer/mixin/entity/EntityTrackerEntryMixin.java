@@ -29,10 +29,7 @@ import java.util.function.Consumer;
 
 @Mixin(EntityTrackerEntry.class)
 public abstract class EntityTrackerEntryMixin {
-    @Shadow
-    @Final
-    private Entity entity;
-
+    @Shadow @Final private Entity entity;
     @Shadow @Final private Consumer<Packet<?>> receiver;
 
     @ModifyVariable(method = "sendPackets", at = @At("HEAD"))
