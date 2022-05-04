@@ -121,8 +121,9 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT, 600));
     public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT_2, 600));
 
-    public static final EntityType<TestEntity> ENTITY = FabricEntityTypeBuilder.<TestEntity>create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
-    public static final EntityType<TestEntity2> ENTITY_2 = FabricEntityTypeBuilder.<TestEntity2>create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
+    public static final EntityType<TestEntity> ENTITY = FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
+    public static final EntityType<TestEntity2> ENTITY_2 = FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
+    public static final EntityType<TestEntity3> ENTITY_3 = FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, TestEntity3::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
 
     public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings().group(ITEM_GROUP));
     public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().group(ITEM_GROUP).food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
@@ -229,12 +230,15 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registry.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
 
         register(Registry.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
-        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes());
+        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes().add(EntityAttributes.GENERIC_LUCK));
 
         register(Registry.ENTITY_TYPE, new Identifier("test", "entity2"), ENTITY_2);
         FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
 
-        PolymerEntityUtils.registerType(ENTITY, ENTITY_2);
+        register(Registry.ENTITY_TYPE, new Identifier("test", "entity3"), ENTITY_3);
+        FabricDefaultAttributeRegistry.register(ENTITY_3, TestEntity3.createMobAttributes().add(EntityAttributes.HORSE_JUMP_STRENGTH));
+
+        PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3);
 
         PolymerItemUtils.ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
 

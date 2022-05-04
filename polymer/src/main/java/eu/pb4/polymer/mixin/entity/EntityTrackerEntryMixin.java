@@ -14,7 +14,6 @@ import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.EntityTrackingListener;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,30 +22,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
 import java.util.function.Consumer;
 
-@SuppressWarnings({"removal"})
 @Mixin(EntityTrackerEntry.class)
 public abstract class EntityTrackerEntryMixin {
-    @Shadow
-    @Final
-    private Entity entity;
-
+    @Shadow @Final private Entity entity;
     @Shadow @Final private Consumer<Packet<?>> receiver;
 
     @ModifyVariable(method = "sendPackets", at = @At("HEAD"))
     private Consumer<Packet<?>> polymer_packetWrap(Consumer<Packet<?>> packetConsumer) {
         return (packet) -> packetConsumer.accept(EntityAttachedPacket.set(packet, this.entity));
     }
-
-    /*@ModifyVariable(method = "sendPackets", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/attribute/AttributeContainer;getAttributesToSend()Ljava/util/Collection;"))
-    private Collection<EntityAttributeInstance> polymer_sendAttributesOnlyForLivingVirtual(Collection<EntityAttributeInstance> attributes) {
-        if (this.entity instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType())) {
-            return Collections.emptyList();
-        }
-        return attributes;
-    }*/
 
     @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/Packet;"))
     private void polymer_sendPacketsBeforeSpawning(Consumer<Packet<?>> sender, CallbackInfo ci) {
