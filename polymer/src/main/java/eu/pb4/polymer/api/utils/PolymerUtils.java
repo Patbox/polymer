@@ -94,12 +94,17 @@ public final class PolymerUtils {
     /**
      * Returns true, if code is running on logical client side (not server/singleplayer server)
      */
-    public static boolean isOnClientSide() {
+    public static boolean isOnClientThread() {
         if (!PolymerImpl.IS_CLIENT) {
             return false;
         } else {
             return ClientUtils.isClientThread();
         }
+    }
+
+    @Deprecated
+    public static boolean isOnClientSide() {
+        return isOnClientThread();
     }
 
     public static boolean isOnPlayerNetworking() {

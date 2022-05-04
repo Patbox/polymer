@@ -37,7 +37,7 @@ public class PacketByteBufMixin {
     private void polymer_replaceWithRealItemClient(CallbackInfoReturnable<ItemStack> cir, int rawId) {
         ItemStack stack = cir.getReturnValue();
 
-        if (InternalClientRegistry.enabled && InternalClientRegistry.stable && rawId != 0 && stack.getItem() == Items.AIR) {
+        if (InternalClientRegistry.enabled && rawId != 0 && stack.getItem() == Items.AIR) {
             var item = InternalClientRegistry.ITEMS.get(rawId);
 
             if (item != null) {

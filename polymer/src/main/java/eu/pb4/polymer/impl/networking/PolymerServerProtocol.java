@@ -17,6 +17,7 @@ import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.impl.networking.packets.*;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
@@ -34,11 +35,9 @@ import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static eu.pb4.polymer.api.networking.PolymerPacketUtils.buf;
@@ -65,16 +64,19 @@ public class PolymerServerProtocol {
         handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.HANDSHAKE_ID, buf));
     }
 
+    public static void sendDisable(PolymerHandshakeHandler handler) {
+        handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.DISABLE_ID, buf(0)));
+    }
+
     public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
-        boolean forceAll = version == 0;
 
-        if (forceAll || (version == 1 && state.getBlock() instanceof PolymerBlock)) {
+        if (state.getBlock() instanceof PolymerBlock) {
             var buf = buf(version);
 
             buf.writeBlockPos(pos);
-            buf.writeVarInt(getRawId(state, player.player));
+            buf.writeVarInt(version == 1 ? getRawLegacyStateId(state, player.player) : Block.STATE_IDS.getRawId(state));
 
             player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_SET_BLOCK_UPDATE_ID, buf));
         }
@@ -90,7 +92,7 @@ public class PolymerServerProtocol {
 
             for (int i = 0; i < blockStates.length; i++) {
                 if (blockStates[i].getBlock() instanceof PolymerBlock) {
-                    list.add((long) getRawId(blockStates[i], player.player) << 12 | positions[i]);
+                    list.add(((long) (version == 1 ? getRawLegacyStateId(blockStates[i], player.player) : Block.STATE_IDS.getRawId(blockStates[i]))) << 12 | positions[i]);
                 }
             }
 
@@ -112,7 +114,7 @@ public class PolymerServerProtocol {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
-        if (version == 1) {
+        if (version == 1 || version == 2) {
             var wci = (PolymerBlockPosStorage) chunk;
             if (wci.polymer_hasAny()) {
                 for (var section : chunk.getSectionArray()) {
@@ -131,8 +133,8 @@ public class PolymerServerProtocol {
                             int x = ChunkSectionPos.unpackLocalX(pos);
                             int y = ChunkSectionPos.unpackLocalY(pos);
                             int z = ChunkSectionPos.unpackLocalZ(pos);
-
-                            buf.writeVarLong(((long) getRawId(section.getBlockState(x, y, z), player.player) << 12 | pos));
+                            var state = section.getBlockState(x, y, z);
+                            buf.writeVarLong((((long) (version == 1 ? getRawLegacyStateId(state, player.player) : Block.STATE_IDS.getRawId(state))) << 12 | pos));
                         }
 
                         player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE_ID, buf));
@@ -197,7 +199,7 @@ public class PolymerServerProtocol {
 
 
         PolymerSyncUtils.BEFORE_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_ENTITY_ID, Registry.ENTITY_TYPE, true, (type, handlerx) -> {
+        sendSync(handler, ServerPackets.SYNC_ENTITY_ID, Registry.ENTITY_TYPE, true, (type, handlerx, versionx) -> {
             var internalEntity = InternalEntityHelpers.getEntity(type);
             if (type != null && internalEntity instanceof PolymerEntity obj && obj.shouldSyncWithPolymerClient(handler.player)) {
                 return PolymerEntityEntry.of(type);
@@ -213,7 +215,7 @@ public class PolymerServerProtocol {
         sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT_ID, Registry.STATUS_EFFECT, false,
                 entry -> new IdValueEntry(Registry.STATUS_EFFECT.getRawId(entry), Registry.STATUS_EFFECT.getId(entry)));
 
-        sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY_ID, Registry.BLOCK_ENTITY_TYPE, true, (type, handlerx) -> {
+        sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY_ID, Registry.BLOCK_ENTITY_TYPE, true, (type, handlerx, versionx) -> {
             if (type != null && PolymerBlockUtils.isRegisteredBlockEntity(type)) {
                 return new IdValueEntry(Registry.BLOCK_ENTITY_TYPE.getRawId(type), Registry.BLOCK_ENTITY_TYPE.getId(type));
             }
@@ -227,34 +229,6 @@ public class PolymerServerProtocol {
 
         handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_FINISHED_ID, buf(0)));
     }
-
-    private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, Function<T, BufferWritable> writableFunction) {
-        sendSync(handler, packetId, iterable, bypassPolymerCheck, (a, b) -> writableFunction.apply(a));
-    }
-
-    private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, BiFunction<T, ServerPlayNetworkHandler, BufferWritable> writableFunction) {
-        var version = PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(packetId.getPath());
-        if (version != -1) {
-            var entries = new ArrayList<BufferWritable>();
-            for (var entry : iterable) {
-                if (bypassPolymerCheck || entry instanceof PolymerObject obj && obj.shouldSyncWithPolymerClient(handler.player)) {
-                    var val = writableFunction.apply(entry, handler);
-                    if (val != null) {
-                        entries.add(val);
-                    }
-
-                    if (entries.size() > 100) {
-                        sendSync(handler, packetId, version, entries);
-                    }
-                }
-            }
-
-            if (entries.size() != 0) {
-                sendSync(handler, packetId, version, entries);
-            }
-        }
-    }
-
 
     public static void sendCreativeSyncPackets(ServerPlayNetworkHandler handler) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
@@ -359,12 +333,54 @@ public class PolymerServerProtocol {
         entries.clear();
     }
 
-    public static int getRawId(BlockState state, ServerPlayerEntity player) {
+    private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, Function<T, BufferWritable> writableFunction) {
+        sendSync(handler, packetId, iterable, bypassPolymerCheck, (a, b, c) -> writableFunction.apply(a));
+    }
+
+    private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, BufferWritableCreator<T> writableFunction) {
+        var version = PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(packetId.getPath());
+
+        if (iterable instanceof RegistryExtension) {
+            iterable = ((RegistryExtension<T>) iterable).polymer_getEntries();
+        }
+
+        if (version != -1) {
+            var entries = new ArrayList<BufferWritable>();
+            for (var entry : iterable) {
+                if (bypassPolymerCheck || entry instanceof PolymerObject obj && obj.shouldSyncWithPolymerClient(handler.player)) {
+                    var val = writableFunction.serialize(entry, handler, version);
+                    if (val != null) {
+                        entries.add(val);
+                    }
+
+                    if (entries.size() > 100) {
+                        sendSync(handler, packetId, version, entries);
+                    }
+                }
+            }
+
+            if (entries.size() != 0) {
+                sendSync(handler, packetId, version, entries);
+            }
+        }
+    }
+
+    public static void sendDebugValidateStatesPackets(ServerPlayNetworkHandler handler) {
+        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
+        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.DEBUG_VALIDATE_STATES);
+
+        if (version != -1) {
+            sendSync(handler, ServerPackets.DEBUG_VALIDATE_STATES_ID, Block.STATE_IDS, true, DebugBlockStateEntry::of);
+        }
+    }
+
+    // Remove this at some point. It's required only for older protocol compatibility
+    @Deprecated
+    public static int getRawLegacyStateId(BlockState state, ServerPlayerEntity player) {
         return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.shouldSyncWithPolymerClient(player) ? Block.STATE_IDS.getRawId(state) - PolymerBlockUtils.getBlockStateOffset() + 1 : 0;
     }
 
-    @Nullable
-    public static BlockState getBlockState(int id) {
-        return Block.STATE_IDS.get(id + PolymerBlockUtils.getBlockStateOffset() - 1);
+    public interface BufferWritableCreator<T> {
+        BufferWritable serialize(T object, ServerPlayNetworkHandler handler, int version);
     }
 }

@@ -361,6 +361,11 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
         if (PolymerImpl.IS_CLIENT) {
             InternalClientRegistry.decodeState(-1);
+            InternalClientRegistry.decodeStatusEffect(-1);
+            InternalClientRegistry.decodeItem(-1);
+            InternalClientRegistry.decodeVillagerProfession(-1);
+            InternalClientRegistry.decodeEntity(-1);
+            InternalClientRegistry.decodeBlockEntityType(-1);
         }
     }
     

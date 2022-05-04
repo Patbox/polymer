@@ -102,6 +102,7 @@
     "client.item.CreativeInventoryScreenMixin",
     "client.item.IdentifierSearchableContainerMixin",
     "client.item.ItemGroupMixin",
+    "client.item.ItemStackMixin",
     "client.item.packet.ClickSlotC2SPacketMixin",
     "client.item.packet.CreativeInventoryActionC2SPacketMixin",
     "client.item.packet.EntityEquipmentUpdateS2CPacketMixin",

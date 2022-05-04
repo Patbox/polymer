@@ -28,7 +28,8 @@ public record PolymerItemEntry(
         int foodLevels,
         float saturation,
         Identifier miningTool,
-        int miningLevel
+        int miningLevel,
+        int stackSize
 ) implements BufferWritable {
     public static final Identifier NOT_TOOL = id("not_tool");
 
@@ -38,20 +39,24 @@ public record PolymerItemEntry(
                 buf.writeVarInt(this.numId);
             }
 
-            buf.writeIdentifier(identifier);
-            buf.writeString(itemGroup);
-            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, representation));
+            buf.writeIdentifier(this.identifier);
+            buf.writeString(this.itemGroup);
+            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, this.representation));
 
             if (version >= 1) {
-                buf.writeVarInt(foodLevels);
-                buf.writeFloat(saturation);
-                buf.writeIdentifier(miningTool);
-                buf.writeVarInt(miningLevel);
+                buf.writeVarInt(this.foodLevels);
+                buf.writeFloat(this.saturation);
+                buf.writeIdentifier(this.miningTool);
+                buf.writeVarInt(this.miningLevel);
+            }
+
+            if (version >= 3) {
+                buf.writeVarInt(this.stackSize);
             }
         }
     }
 
-    public static PolymerItemEntry of(Item item, ServerPlayNetworkHandler handler) {
+    public static PolymerItemEntry of(Item item, ServerPlayNetworkHandler handler, int version) {
         var group = item.getGroup();
 
         var groupIdentifier = group != null
@@ -71,13 +76,15 @@ public record PolymerItemEntry(
                 food != null ? food.getHunger() : 0,
                 food != null ? food.getSaturationModifier() : 0,
                 toolItem != null ? ((MiningToolItemAccessor) toolItem).getEffectiveBlocks().id() : NOT_TOOL,
-                toolItem != null  ? toolItem.getMaterial().getMiningLevel() : 0
+                toolItem != null  ? toolItem.getMaterial().getMiningLevel() : 0,
+                item.getMaxCount()
         );
     }
 
     public static PolymerItemEntry read(PacketByteBuf buf, int version) {
         return switch (version) {
-            case 2 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt());
+            case 3 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), buf.readVarInt());
+            case 2 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), -1);
             default -> null;
         };
     }

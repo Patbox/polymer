@@ -16,6 +16,8 @@ public class ServerPackets {
     public static final Map<String, int[]> REGISTRY = new HashMap<>();
     public static final String HANDSHAKE = "handshake";
     public static final Identifier HANDSHAKE_ID = id(HANDSHAKE);
+    public static final String DISABLE = "disable";
+    public static final Identifier DISABLE_ID = id(DISABLE);
     public static final String SYNC_STARTED = "sync/started";
     public static final Identifier SYNC_STARTED_ID = id(SYNC_STARTED);
     public static final String SYNC_INFO = "sync/info";
@@ -55,6 +57,9 @@ public class ServerPackets {
     public static final String WORLD_ENTITY = "world/entity";
     public static final Identifier WORLD_ENTITY_ID = id(WORLD_ENTITY);
 
+    public static final String DEBUG_VALIDATE_STATES = "debug/validate_states";
+    public static final Identifier DEBUG_VALIDATE_STATES_ID = id(DEBUG_VALIDATE_STATES);
+
 
     public static final int getBestSupported(String identifier, int[] ver) {
 
@@ -78,13 +83,14 @@ public class ServerPackets {
 
     static {
         register(HANDSHAKE, 0);
+        register(DISABLE, 0);
         register(SYNC_STARTED, 0);
         register(SYNC_INFO, 0);
         register(SYNC_FINISHED, 0);
         register(SYNC_BLOCK, 0);
         register(SYNC_BLOCK_ENTITY, 0);
-        register(SYNC_BLOCKSTATE, 0);
-        register(SYNC_ITEM, 2);
+        register(SYNC_BLOCKSTATE, 0, 1);
+        register(SYNC_ITEM, 2, 3);
         register(SYNC_VILLAGER_PROFESSION, 0);
         register(SYNC_ITEM_GROUP, 0);
         register(SYNC_ITEM_GROUP_CLEAR, 0);
@@ -93,8 +99,9 @@ public class ServerPackets {
         register(SYNC_ENTITY, 0, 1);
         register(SYNC_STATUS_EFFECT, 0);
         register(SYNC_CLEAR, 0);
-        register(WORLD_SET_BLOCK_UPDATE, 1);
-        register(WORLD_CHUNK_SECTION_UPDATE, 1);
+        register(WORLD_SET_BLOCK_UPDATE, 1, 2);
+        register(WORLD_CHUNK_SECTION_UPDATE, 1, 2);
         register(WORLD_ENTITY, 0);
+        register(DEBUG_VALIDATE_STATES, 0);
     }
 }

@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.block.packet;
 
-import eu.pb4.polymer.impl.networking.BlockInfoUtil;
+import eu.pb4.polymer.impl.networking.BlockPacketUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.Packet;
@@ -21,7 +21,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("TAIL"))
     private void polymer_catchBlockUpdates(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo cb) {
         try {
-            BlockInfoUtil.sendFromPacket(packet, (ServerPlayNetworkHandler) (Object) this);
+            BlockPacketUtil.sendFromPacket(packet, (ServerPlayNetworkHandler) (Object) this);
         } catch (Exception e) {
             e.printStackTrace();
         }

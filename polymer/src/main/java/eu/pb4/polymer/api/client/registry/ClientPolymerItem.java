@@ -20,8 +20,22 @@ public record ClientPolymerItem(
         float saturation,
         Identifier miningTool,
         int miningLevel,
+        int stackSize,
         @Nullable Item registryEntry
 ) implements ClientPolymerEntry<Item> {
+
+    public ClientPolymerItem(
+            Identifier identifier,
+            ItemStack visualStack,
+            String itemGroup,
+            int foodValue,
+            float saturation,
+            Identifier miningTool,
+            int miningLevel,
+            @Nullable Item registryEntry
+    ) {
+        this(identifier, visualStack, itemGroup, foodValue, saturation, miningTool, miningLevel, -1, registryEntry);
+    }
 
     public ClientPolymerItem(
             Identifier identifier,

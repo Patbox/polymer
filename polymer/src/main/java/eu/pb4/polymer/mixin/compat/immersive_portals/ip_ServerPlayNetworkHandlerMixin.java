@@ -2,7 +2,7 @@ package eu.pb4.polymer.mixin.compat.immersive_portals;
 
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.IPAttachedPacket;
-import eu.pb4.polymer.impl.networking.BlockInfoUtil;
+import eu.pb4.polymer.impl.networking.BlockPacketUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.Packet;
@@ -48,7 +48,7 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
         if (packet instanceof IPAttachedPacket attachedPacket && attachedPacket.polymer_ip_getAttachedDimension() != null) {
             IPCommonNetwork.withForceRedirect(this.player.getServer().getWorld(attachedPacket.polymer_ip_getAttachedDimension()), () -> {
                 PolymerImplUtils.setPlayer(this.getPlayer());
-                BlockInfoUtil.sendFromPacket(attachedPacket.polymer_ip_getAttachedPacket(), (ServerPlayNetworkHandler) (Object) this);
+                BlockPacketUtil.sendFromPacket(attachedPacket.polymer_ip_getAttachedPacket(), (ServerPlayNetworkHandler) (Object) this);
                 PolymerImplUtils.setPlayer(null);
             });
         }

@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.WorldChunk;
 
-public class BlockInfoUtil {
+public class BlockPacketUtil {
     public static void sendFromPacket(Packet<?> packet, ServerPlayNetworkHandler handler) {
         if (packet instanceof BlockUpdateS2CPacket blockUpdatePacket) {
             BlockState blockState = ((BlockUpdateS2CPacketAccessor) blockUpdatePacket).polymer_getState();
@@ -58,7 +58,10 @@ public class BlockInfoUtil {
                     ((PolymerBlock) blockState.getBlock()).onPolymerBlockSend(handler.player, blockPos, blockState);
                 }
             }
-
         }
+    }
+
+    public static void splitChunkDelta(ServerPlayNetworkHandler handler, ChunkDeltaUpdateS2CPacket cPacket) {
+        cPacket.visitUpdates((blockPos, blockState) -> handler.sendPacket(new BlockUpdateS2CPacket(blockPos.toImmutable(), blockState)));
     }
 }

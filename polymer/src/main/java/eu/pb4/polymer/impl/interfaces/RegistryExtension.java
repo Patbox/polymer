@@ -1,9 +1,13 @@
 package eu.pb4.polymer.impl.interfaces;
 
-public interface RegistryExtension {
+import java.util.List;
+
+public interface RegistryExtension<T> {
     Status polymer_getStatus();
     void polymer_setStatus(Status status);
     boolean polymer_updateStatus(Status status);
+
+    List<T> polymer_getEntries();
 
     enum Status {
         VANILLA_ONLY(0),

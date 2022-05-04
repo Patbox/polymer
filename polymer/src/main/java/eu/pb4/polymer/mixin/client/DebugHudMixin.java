@@ -30,11 +30,11 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_replaceBlockString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
-        if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+        if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.enabled) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
             var worldState = this.client.world.getBlockState(blockPos);
-            if (block != ClientPolymerBlock.NONE_STATE && block.realServerBlockState() != worldState) {
+            if (block != ClientPolymerBlock.NONE_STATE && block.blockState() != worldState) {
                 list.add(block.block().identifier().toString());
                 for (var entry : block.states().entrySet()) {
                     list.add(entry.getKey() + ": " + switch (entry.getValue()) {
@@ -51,7 +51,7 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 9), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_replaceEntityString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
-        if (this.client.targetedEntity != null && InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+        if (this.client.targetedEntity != null && InternalClientRegistry.enabled) {
             var type = PolymerClientUtils.getEntityType(this.client.targetedEntity);
 
             if (type != null) {

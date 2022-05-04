@@ -126,6 +126,7 @@ public final class PolymerClientUtils {
         return registerPacketHandler(identifier, handler, supportedVersions);
     }
 
+    @Deprecated
     public static int getBlockStateOffset() {
         return InternalClientRegistry.blockOffset != -1 ? InternalClientRegistry.blockOffset : PolymerBlockUtils.getBlockStateOffset();
     }

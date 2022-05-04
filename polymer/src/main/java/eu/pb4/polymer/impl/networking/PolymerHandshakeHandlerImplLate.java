@@ -93,4 +93,9 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     public boolean getPackStatus() {
         return this.polymerHandler.polymer_hasResourcePack();
     }
+
+    @Override
+    public void reset() {
+        this.polymerHandler.polymer_resetSupported();
+    }
 }

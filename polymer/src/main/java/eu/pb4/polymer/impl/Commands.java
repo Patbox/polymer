@@ -13,6 +13,7 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.impl.ui.PotionUi;
@@ -35,9 +36,11 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stats;
+import net.minecraft.state.property.Property;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -148,6 +151,10 @@ public class Commands {
                         .requires(PolymerImplUtils.permission("command.export-registry", 3))
                         .executes(Commands::dumpRegistries)
                 )
+                .then(literal("target-block")
+                        .requires(PolymerImplUtils.permission("command.target-block", 3))
+                        .executes(Commands::targetBlock)
+                )
                 .then(literal("creative")
                         .requires(PolymerImplUtils.permission("command.creative", 0))
                         .then(argument("itemGroup", IdentifierArgumentType.identifier())
@@ -197,6 +204,11 @@ public class Commands {
                                 }
                                 return 0;
                             })
+                    ).then(literal("validate_states")
+                            .executes((ctx) -> {
+                                PolymerServerProtocol.sendDebugValidateStatesPackets(ctx.getSource().getPlayer().networkHandler);
+                                return 0;
+                            })
                     )
                     .then(literal("set-pack-status")
                             .then(argument("status", BoolArgumentType.bool())
@@ -218,6 +230,36 @@ public class Commands {
         }
 
         dispatcher.register(command);
+    }
+
+    private static int targetBlock(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var raycast = (BlockHitResult) context.getSource().getPlayer().raycast(10, 0, true);
+
+        var builder = new StringBuilder();
+        var state = context.getSource().getWorld().getBlockState(raycast.getBlockPos());
+
+        builder.append(Registry.BLOCK.getId(state.getBlock()));
+
+        if (!state.getBlock().getStateManager().getProperties().isEmpty()) {
+            builder.append("[");
+            var iterator = state.getBlock().getStateManager().getProperties().iterator();
+
+            while (iterator.hasNext()) {
+                var property = iterator.next();
+                builder.append(property.getName());
+                builder.append("=");
+                builder.append(((Property) (Object) property).name(state.get(property)));
+
+                if (iterator.hasNext()) {
+                    builder.append(",");
+                }
+            }
+            builder.append("]");
+        }
+
+        context.getSource().sendFeedback(new LiteralText(builder.toString()), false);
+
+        return 0;
     }
 
     private static int dumpRegistries(CommandContext<ServerCommandSource> context) {
