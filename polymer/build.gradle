@@ -72,13 +72,11 @@ dependencies {
     modImplementation include("xyz.nucleoid:packet-tweaker:0.3.0+1.18.2")
     modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-    modLocalRuntime "fr.catcore:api:1.4.9+1.18.2-rc1"
-    modCompileOnly "fr.catcore:api:1.4.9+1.18.2-rc1"
-    //modCompileOnly("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
-    //modLocalRuntime("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
+    modCompileOnly("fr.catcore:server-translations-api:1.4.12+1.18.2")
+    modLocalRuntime("fr.catcore:server-translations-api:1.4.12+1.18.2")
 
-    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.2.6-1.18')
-    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.2.6-1.18')
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.3.7-1.18'
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.3.7-1.18'
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.

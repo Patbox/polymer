@@ -156,7 +156,7 @@ if (System.getenv("MODRINTH")) {
         uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
         gameVersions = [((String) project.minecraft_version)]
         changelog = System.getenv("CHANGELOG")
-        loaders = ["fabric"]
+        loaders = ["fabric", "quilt"]
     }
 
     remapJar {
