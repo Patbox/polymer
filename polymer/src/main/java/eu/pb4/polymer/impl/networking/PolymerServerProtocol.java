@@ -165,7 +165,7 @@ public class PolymerServerProtocol {
         if (version == 0) {
             var buf = buf(version);
 
-            buf.writeVarInt(PolymerBlockUtils.getBlockStateOffset()); // Polymer initial block id
+            buf.writeVarInt(PolymerImplUtils.getBlockStateOffset());
 
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_INFO_ID, buf));
         }
@@ -377,7 +377,7 @@ public class PolymerServerProtocol {
     // Remove this at some point. It's required only for older protocol compatibility
     @Deprecated
     public static int getRawLegacyStateId(BlockState state, ServerPlayerEntity player) {
-        return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.shouldSyncWithPolymerClient(player) ? Block.STATE_IDS.getRawId(state) - PolymerBlockUtils.getBlockStateOffset() + 1 : 0;
+        return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.shouldSyncWithPolymerClient(player) ? Block.STATE_IDS.getRawId(state) - PolymerImplUtils.getBlockStateOffset() + 1 : 0;
     }
 
     public interface BufferWritableCreator<T> {

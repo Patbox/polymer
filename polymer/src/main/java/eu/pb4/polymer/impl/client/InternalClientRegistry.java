@@ -162,6 +162,12 @@ public class InternalClientRegistry {
     }
 
     public static BlockState decodeState(int rawId) {
+        if (Block.STATE_IDS.size() == 0) {
+            // States broke by something, it seems to happen after game crash...
+            // Should limit log spam caused by it
+            return Blocks.AIR.getDefaultState();
+        }
+
         BlockState state;
 
         if (legacyBlockState) {
@@ -346,7 +352,7 @@ public class InternalClientRegistry {
         ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
     }
 
-    public static int getProtocol(String identifier) {
+    public static int getClientProtocolVer(String identifier) {
         return CLIENT_PROTOCOL.getOrDefault(identifier, -1);
     }
 

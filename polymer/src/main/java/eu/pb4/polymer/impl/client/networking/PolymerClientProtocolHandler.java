@@ -115,8 +115,12 @@ public class PolymerClientProtocolHandler {
                                     entry.stackSize(),
                                     Registry.ITEM.get(entry.identifier())
                             )));
-            case ServerPackets.SYNC_BLOCKSTATE -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
-                    (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
+            case ServerPackets.SYNC_BLOCKSTATE -> {
+                InternalClientRegistry.legacyBlockState = version == 0;
+
+                yield handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
+                        (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
+            }
             case ServerPackets.SYNC_ENTITY -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
                     (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registry.ENTITY_TYPE.get(entry.identifier()))));
             case ServerPackets.SYNC_VILLAGER_PROFESSION -> handleGenericSync(handler, version, buf, IdValueEntry::read,
@@ -306,7 +310,6 @@ public class PolymerClientProtocolHandler {
                         false
                 );
 
-                int flags = Block.NOTIFY_ALL | Block.FORCE_STATE | Block.SKIP_LIGHTING_UPDATES;
                 if (chunk != null) {
                     var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
                     if (section instanceof ClientBlockStorageInterface storage) {
@@ -403,7 +406,6 @@ public class PolymerClientProtocolHandler {
             }
 
             MinecraftClient.getInstance().execute(() -> {
-                InternalClientRegistry.legacyBlockState = InternalClientRegistry.getProtocol(ServerPackets.SYNC_BLOCKSTATE) == 0;
                 PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
                 PolymerClientProtocol.sendTooltipContext(handler);
                 PolymerClientProtocol.sendSyncRequest(handler);

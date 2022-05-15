@@ -13,7 +13,6 @@ import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.util.registry.Registry;
 
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -36,9 +35,7 @@ public class ReiCompatibility implements REIClientPlugin {
         try {
             registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
         } catch (Throwable e) {
-            for (var item : Registry.ITEM) {
-                registry.register(ITEM_STACK_ENTRY_COMPARATOR, item);
-            }
+            // no one cares
         }
     }
 

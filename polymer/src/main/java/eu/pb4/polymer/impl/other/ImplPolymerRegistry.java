@@ -96,7 +96,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return this.entryMap.values().iterator();
+        return this.rawIdMap.values().iterator();
     }
 
     public Iterable<Identifier> ids() {
@@ -108,14 +108,14 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
         return () -> this.entryMap.entrySet().iterator();
     }
 
-    public void remove(T group) {
-        if (this.identifierMap.containsKey(group)) {
-            var id = this.identifierMap.get(group);
-            var rawId = this.entryIdMap.getInt(group);
+    public void remove(T entry) {
+        if (this.identifierMap.containsKey(entry)) {
+            var id = this.identifierMap.get(entry);
+            var rawId = this.entryIdMap.getInt(entry);
             this.rawIdMap.remove(rawId);
             this.entryMap.remove(id);
-            this.entryIdMap.removeInt(group);
-            this.identifierMap.remove(group);
+            this.entryIdMap.removeInt(entry);
+            this.identifierMap.remove(entry);
         }
     }
 }

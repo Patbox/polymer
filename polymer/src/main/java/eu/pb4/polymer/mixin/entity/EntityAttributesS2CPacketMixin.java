@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.entity;
 
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import net.minecraft.entity.EntityType;
@@ -12,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public abstract class EntityAttributesS2CPacketMixin {
      */
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;"))
     private int polymer_replaceWithPolymer(int input) {
-        if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType())) {
+        if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayer()))) {
             return -1;
         }
         return input;
@@ -34,12 +36,19 @@ public abstract class EntityAttributesS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Ljava/util/function/BiConsumer;)V", ordinal = 0))
     private Collection<EntityAttributesS2CPacket.Entry> polymer_replaceWithPolymer(Collection<EntityAttributesS2CPacket.Entry> value) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity) {
-            if (!InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType())) {
+            var type = entity.getPolymerEntityType(PolymerUtils.getPlayer());
+            if (!InternalEntityHelpers.isLivingEntity(type)) {
                 return List.of();
             }
 
-            DefaultAttributeContainer vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) entity.getPolymerEntityType());
-            return value.stream().filter(entry -> vanillaContainer.has(entry.getId())).toList();
+            DefaultAttributeContainer vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) type);
+            List<EntityAttributesS2CPacket.Entry> list = new ArrayList<>();
+            for (EntityAttributesS2CPacket.Entry entry : value) {
+                if (vanillaContainer.has(entry.getId())) {
+                    list.add(entry);
+                }
+            }
+            return list;
         }
 
         return value;
