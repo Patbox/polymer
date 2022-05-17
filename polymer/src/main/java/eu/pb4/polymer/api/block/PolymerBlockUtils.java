@@ -2,7 +2,9 @@ package eu.pb4.polymer.api.block;
 
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.x.BlockMapper;
-import eu.pb4.polymer.impl.interfaces.PolymerIdList;
+import eu.pb4.polymer.impl.PolymerImplUtils;
+import eu.pb4.polymer.impl.compat.CompatStatus;
+import eu.pb4.polymer.impl.compat.QuiltRegistryUtils;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -32,10 +34,6 @@ public final class PolymerBlockUtils {
 
     public static final int NESTED_DEFAULT_DISTANCE = 32;
 
-    public static int getBlockStateOffset() {
-        return ((PolymerIdList) Block.STATE_IDS).polymer_getOffset();
-    }
-
     public static final Predicate<BlockState> IS_POLYMER_BLOCK_STATE_PREDICATE = state -> state.getBlock() instanceof PolymerBlock;
 
     /**
@@ -56,6 +54,12 @@ public final class PolymerBlockUtils {
      */
     public static void registerBlockEntity(BlockEntityType<?>... types) {
         BLOCK_ENTITY_TYPES.addAll(Arrays.asList(types));
+
+        if (CompatStatus.QUILT_REGISTRY) {
+            for (var type : types) {
+                QuiltRegistryUtils.markAsOptional(Registry.BLOCK_ENTITY_TYPE, type);
+            }
+        }
 
         var reg = (RegistryExtension) Registry.BLOCK_ENTITY_TYPE;
         if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
@@ -270,5 +274,17 @@ public final class PolymerBlockUtils {
     @FunctionalInterface
     public interface MineEventListener {
         boolean onBlockMine(ServerPlayerEntity player, BlockPos pos, BlockState state);
+    }
+
+    /**
+     * It is used mostly internally and honestly you don't really need it.
+     * Do not use this method to check if states are managed by polymer or not.
+     *
+     * Additionally, it might stop working at some point/depending on platform when
+     * offsetting becomes useless. It's implementation detail after all.
+     */
+    @Deprecated
+    public static int getBlockStateOffset() {
+        return PolymerImplUtils.getBlockStateOffset();
     }
 }

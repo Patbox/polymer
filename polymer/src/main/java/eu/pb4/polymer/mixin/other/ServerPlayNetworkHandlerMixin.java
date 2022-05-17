@@ -6,9 +6,11 @@ import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.DynamicPacket;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.x.BlockMapper;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
+import eu.pb4.polymer.impl.networking.BlockPacketUtil;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.ScheduledPacket;
@@ -19,6 +21,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
@@ -60,6 +63,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     private ArrayList<ScheduledPacket> polymer_scheduledPackets = new ArrayList<>();
     @Unique
     private String polymer_version = "";
+    @Unique
     private BlockMapper polymer_blockMapper;
 
     @Shadow
@@ -69,7 +73,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     public abstract ServerPlayerEntity getPlayer();
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void polymer_setMapper(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    private void polymer_setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         this.polymer_blockMapper = BlockMapper.getDefault(player);
     }
 
@@ -123,6 +127,11 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Override
     public void polymer_savePacketTime(String packet) {
         this.polymer_rateLimits.put(packet, System.currentTimeMillis());
+    }
+
+    @Override
+    public void polymer_resetSupported() {
+        this.polymer_protocolMap.clear();
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -237,6 +246,11 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                                 && ((packet2.polymer_getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerStatusEffect(this.player) == null))
                 ) || !EntityAttachedPacket.shouldSend(packet, this.player)
         ) {
+            ci.cancel();
+        }
+
+        if (PolymerImpl.DONT_USE_BLOCK_DELTA_PACKET && packet instanceof ChunkDeltaUpdateS2CPacket cPacket) {
+            BlockPacketUtil.splitChunkDelta((ServerPlayNetworkHandler) (Object) this, cPacket);
             ci.cancel();
         }
     }

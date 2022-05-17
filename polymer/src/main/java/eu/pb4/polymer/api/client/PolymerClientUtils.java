@@ -118,7 +118,7 @@ public final class PolymerClientUtils {
     }
 
     public static int getSupportedVersion(Identifier identifier) {
-        return InternalClientRegistry.getProtocol("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
+        return InternalClientRegistry.getClientProtocolVer("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
     }
 
     @Deprecated
@@ -126,6 +126,10 @@ public final class PolymerClientUtils {
         return registerPacketHandler(identifier, handler, supportedVersions);
     }
 
+    /**
+     * This method will stop working at some point, as I decided to stop offsetting BlockState ids in protocol.
+     */
+    @Deprecated
     public static int getBlockStateOffset() {
         return InternalClientRegistry.blockOffset != -1 ? InternalClientRegistry.blockOffset : PolymerBlockUtils.getBlockStateOffset();
     }

@@ -9,10 +9,7 @@ import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.NetworkThreadUtils;
-import net.minecraft.network.Packet;
+import net.minecraft.network.*;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.KeepAliveS2CPacket;
@@ -21,6 +18,8 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler, ServerPlayPacketListener {
@@ -35,6 +34,7 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     private Object2LongMap<String> lastUpdate = new Object2LongOpenHashMap<>();
     private BlockMapper blockMapper;
     private boolean hasPack = false;
+    private Collection<CustomPayloadC2SPacket> storedPackets = new ArrayList<>();
 
     public PolymerHandshakeHandlerImplLogin(MinecraftServer server, ServerPlayerEntity player, ClientConnection connection,
                                             Consumer<PolymerHandshakeHandlerImplLogin> continueJoining) {
@@ -118,6 +118,11 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
         }
 
         polymerHandler.polymer_setBlockMapper(this.blockMapper);
+
+        for (var packet : this.storedPackets) {
+            packet.apply(handler);
+        }
+        this.storedPackets.clear();
     }
 
     @Override
@@ -126,10 +131,17 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     }
 
     @Override
+    public void reset() {
+        this.protocolVersions.clear();
+    }
+
+    @Override
     public void onCustomPayload(CustomPayloadC2SPacket packet) {
         var data = packet.getData();
         if (packet.getChannel().equals(ClientPackets.HANDSHAKE_ID)) {
             PolymerServerProtocolHandler.handleHandshake(this, data.readVarInt(), data);
+        } else {
+            this.storedPackets.add(new CustomPayloadC2SPacket(packet.getChannel(), new PacketByteBuf(packet.getData().copy())));
         }
     }
 
@@ -368,7 +380,10 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
 
     @Override
     public void onDisconnected(Text reason) {
-
+        for (var packets : this.storedPackets) {
+            packets.getData().release();
+        }
+        this.storedPackets.clear();
     }
 
     @Override

@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.item;
 
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
@@ -16,7 +17,6 @@ import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -76,10 +76,20 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
     private void polymer_updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
-        BlockPos base = packet.getBlockHitResult().getBlockPos().offset(packet.getBlockHitResult().getSide());
 
-        for (Direction direction : Direction.values()) {
-            this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(this.player.world, base.offset(direction)));
+        if (PolymerImpl.RESEND_BLOCKS_AROUND_CLICK) {
+            var base = packet.getBlockHitResult().getBlockPos();
+            for (Direction direction : Direction.values()) {
+                var pos = base.offset(direction);
+                var state = player.world.getBlockState(pos);
+                player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
+                /*if (state.hasBlockEntity()) {
+                    var be = player.getWorld().getBlockEntity(pos);
+                    if (be != null) {
+                        player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
+                    }
+                }*/
+            }
         }
 
         ItemStack stack = this.player.getStackInHand(packet.getHand());

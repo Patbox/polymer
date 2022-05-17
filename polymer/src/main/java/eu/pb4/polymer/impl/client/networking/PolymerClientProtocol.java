@@ -55,7 +55,7 @@ public class PolymerClientProtocol {
     }
 
     public static void sendPickBlock(ClientPlayNetworkHandler handler, BlockPos pos) {
-        if (InternalClientRegistry.getProtocol(ClientPackets.WORLD_PICK_BLOCK) == 0) {
+        if (InternalClientRegistry.getClientProtocolVer(ClientPackets.WORLD_PICK_BLOCK) == 0) {
             var buf = buf(0);
             buf.writeBlockPos(pos);
             buf.writeBoolean(Screen.hasControlDown());
@@ -64,7 +64,7 @@ public class PolymerClientProtocol {
     }
 
     public static void sendTooltipContext(ClientPlayNetworkHandler handler) {
-        if (InternalClientRegistry.getProtocol(ClientPackets.CHANGE_TOOLTIP) == 0) {
+        if (InternalClientRegistry.getClientProtocolVer(ClientPackets.CHANGE_TOOLTIP) == 0) {
             InternalClientRegistry.delayAction(ClientPackets.CHANGE_TOOLTIP, 200, () -> {
                 var buf = buf(0);
                 buf.writeBoolean(MinecraftClient.getInstance().options.advancedItemTooltips);
@@ -74,7 +74,7 @@ public class PolymerClientProtocol {
     }
 
     public static void sendPickEntity(ClientPlayNetworkHandler handler, int id) {
-        if (InternalClientRegistry.getProtocol(ClientPackets.WORLD_PICK_ENTITY) == 0) {
+        if (InternalClientRegistry.getClientProtocolVer(ClientPackets.WORLD_PICK_ENTITY) == 0) {
             var buf = buf(0);
             buf.writeVarInt(id);
             buf.writeBoolean(Screen.hasControlDown());

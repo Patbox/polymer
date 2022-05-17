@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.Unique;
 public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
     @Unique
     private boolean polymer_requireWorldReload;
+
+    @Unique
     private PolymerHandshakeHandler polymer_handshakeHandler;
 
     @Override

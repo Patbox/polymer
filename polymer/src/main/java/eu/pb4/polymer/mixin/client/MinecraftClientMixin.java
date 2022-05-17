@@ -75,7 +75,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
     private void polymer_pickBlock(CallbackInfo ci) {
-        if (InternalClientRegistry.enabled && InternalClientRegistry.stable && this.getNetworkHandler() != null && this.crosshairTarget != null) {
+        if (InternalClientRegistry.enabled && this.getNetworkHandler() != null && this.crosshairTarget != null) {
             switch (this.crosshairTarget.getType()) {
                 case BLOCK -> {
                     var pos = ((BlockHitResult) this.crosshairTarget).getBlockPos();

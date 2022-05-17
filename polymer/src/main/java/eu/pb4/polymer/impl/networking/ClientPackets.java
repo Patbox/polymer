@@ -13,6 +13,8 @@ public class ClientPackets {
     public static final Map<String, int[]> REGISTRY = new HashMap<>();
     public static final String HANDSHAKE = "handshake";
     public static final Identifier HANDSHAKE_ID = id(HANDSHAKE);
+    public static final String DISABLE = "disable";
+    public static final Identifier DISABLE_ID = id(DISABLE);
     public static final String SYNC_REQUEST = "sync/request";
     public static final Identifier SYNC_REQUEST_ID = id(SYNC_REQUEST);
     public static final String WORLD_PICK_BLOCK = "world/pick_block";
@@ -43,6 +45,7 @@ public class ClientPackets {
 
     static {
         register(HANDSHAKE, 0);
+        register(DISABLE, 0);
         register(WORLD_PICK_BLOCK, 0);
         register(WORLD_PICK_ENTITY, 0);
         register(CHANGE_TOOLTIP, 0);

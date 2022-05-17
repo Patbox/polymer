@@ -46,4 +46,6 @@ public interface PolymerNetworkHandlerExtension {
     }
 
     void polymer_setIgnoreNext();
+
+    void polymer_resetSupported();
 }

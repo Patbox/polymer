@@ -20,8 +20,6 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
         super(entityEntityType, world);
     }
 
-    public TestEntity(World world) { super(TestMod.ENTITY, world); }
-
     @Override
     public EntityType<?> getPolymerEntityType() {
         return EntityType.VILLAGER;

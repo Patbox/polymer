@@ -1,5 +1,7 @@
 package eu.pb4.polymer.api.entity;
 
+import eu.pb4.polymer.impl.compat.CompatStatus;
+import eu.pb4.polymer.impl.compat.QuiltRegistryUtils;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
@@ -40,6 +42,12 @@ public final class PolymerEntityUtils {
      */
     public static void registerType(EntityType<?>... types) {
         ENTITY_TYPES.addAll(Arrays.asList(types));
+
+        if (CompatStatus.QUILT_REGISTRY) {
+            for (var type : types) {
+                QuiltRegistryUtils.markAsOptional(Registry.ENTITY_TYPE, type);
+            }
+        }
 
         var reg = (RegistryExtension) Registry.ENTITY_TYPE;
         if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {

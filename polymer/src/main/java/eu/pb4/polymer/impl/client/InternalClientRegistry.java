@@ -59,13 +59,14 @@ import java.util.function.Predicate;
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
     public static final SimpleEvent<Runnable> TICK = new SimpleEvent<>();
-    public static boolean stable = false;
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
 
     public static boolean enabled = false;
     public static int syncRequests = 0;
     public static String serverVersion = "";
     public static boolean isClientOutdated = false;
+    @Deprecated
+    public static boolean legacyBlockState = false;
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
 
     public static boolean hasArmorTextures = false;
@@ -99,10 +100,11 @@ public class InternalClientRegistry {
 
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";
+    @Deprecated
     public static int blockOffset = -1;
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
-        if (MinecraftClient.getInstance().world != null && stable) {
+        if (MinecraftClient.getInstance().world != null) {
             var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
                     ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
                     ChunkStatus.FULL,
@@ -116,7 +118,7 @@ public class InternalClientRegistry {
     }
 
     public static void setBlockAt(BlockPos pos, ClientPolymerBlock.State state) {
-        if (MinecraftClient.getInstance().world != null && stable) {
+        if (MinecraftClient.getInstance().world != null) {
             var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
                     ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
                     ChunkStatus.FULL,
@@ -139,8 +141,8 @@ public class InternalClientRegistry {
         DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
+        legacyBlockState = false;
         blockOffset = -1;
-        stable = false;
         rebuildSearch();
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
     }
@@ -160,13 +162,27 @@ public class InternalClientRegistry {
     }
 
     public static BlockState decodeState(int rawId) {
-        BlockState state;
-        if (rawId >= PolymerClientUtils.getBlockStateOffset()) {
-            state = InternalClientRegistry.getRealBlockState(rawId - PolymerClientUtils.getBlockStateOffset() + 1);
-        } else {
-            state = Block.STATE_IDS.get(rawId);
+        if (Block.STATE_IDS.size() == 0) {
+            // States broke by something, it seems to happen after game crash...
+            // Should limit log spam caused by it
+            return Blocks.AIR.getDefaultState();
         }
 
+        BlockState state;
+
+        if (legacyBlockState) {
+            if (rawId >= PolymerClientUtils.getBlockStateOffset()) {
+                state = InternalClientRegistry.getRealBlockState(rawId - PolymerClientUtils.getBlockStateOffset() + 1);
+            } else {
+                state = Block.STATE_IDS.get(rawId);
+            }
+        } else {
+            state = InternalClientRegistry.getRealBlockState(rawId);
+
+            if (state == null) {
+                state = Block.STATE_IDS.get(rawId);
+            }
+        }
         if (state == null) {
             errorDecode(rawId, "BlockState ID");
             return Blocks.AIR.getDefaultState();
@@ -176,7 +192,7 @@ public class InternalClientRegistry {
     }
 
     public static Item decodeItem(int id) {
-        if (InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+        if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.ITEMS.get(id);
 
             if (item != null && item.registryEntry() != null) {
@@ -188,7 +204,7 @@ public class InternalClientRegistry {
     }
 
     public static BlockEntityType<?> decodeBlockEntityType(int id) {
-        if (InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+        if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.BLOCK_ENTITY.get(id);
 
             if (item != null && item.registryEntry() != null) {
@@ -200,7 +216,7 @@ public class InternalClientRegistry {
     }
 
     public static StatusEffect decodeStatusEffect(int id) {
-        if (InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+        if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.STATUS_EFFECT.get(id);
 
             if (item != null && item.registryEntry() != null) {
@@ -212,7 +228,7 @@ public class InternalClientRegistry {
     }
 
     public static EntityType<?> decodeEntity(int id) {
-        if (InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+        if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.ENTITY_TYPES.get(id);
 
             if (item != null && item.registryEntry() != null) {
@@ -224,7 +240,7 @@ public class InternalClientRegistry {
     }
 
     public static VillagerProfession decodeVillagerProfession(int id) {
-        if (InternalClientRegistry.enabled && InternalClientRegistry.stable) {
+        if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.VILLAGER_PROFESSIONS.get(id);
 
             if (item != null && item.registryEntry() != null) {
@@ -253,7 +269,7 @@ public class InternalClientRegistry {
 
         PolymerClientProtocolHandler.tick();
 
-        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (Outdated)" : "") + ", S: " + InternalClientRegistry.serverVersion + " | BSO: " + blockOffset + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
+        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (Outdated)" : "") + ", S: " + InternalClientRegistry.serverVersion + (legacyBlockState ? "| Legacy BSO: " + blockOffset : "") + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
 
         var regInfo = new StringBuilder();
         regInfo.append("[Polymer] ");
@@ -272,8 +288,6 @@ public class InternalClientRegistry {
     }
 
     public static void clear() {
-        stable = false;
-
         for (var reg : REGISTRIES) {
             reg.clear();
         }
@@ -286,13 +300,10 @@ public class InternalClientRegistry {
         for (var group : ItemGroup.GROUPS) {
             ((ClientItemGroupExtension) group).polymer_clearStacks();
         }
-        stable = true;
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
-        stable = false;
-
         var array = ItemGroupAccessor.getGROUPS();
 
         var list = new ArrayList<ItemGroup>();
@@ -318,7 +329,7 @@ public class InternalClientRegistry {
                     Field f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
                     f1.setAccessible(true);
                     f1.setInt(null, 0);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     // noop
                 }
             }
@@ -332,17 +343,16 @@ public class InternalClientRegistry {
                             break;
                         }
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     // noop
                 }
             }
         }
 
         ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
-        stable = true;
     }
 
-    public static int getProtocol(String identifier) {
+    public static int getClientProtocolVer(String identifier) {
         return CLIENT_PROTOCOL.getOrDefault(identifier, -1);
     }
 
@@ -373,7 +383,7 @@ public class InternalClientRegistry {
             }
 
             if (stacks != null) {
-                for (var stack : stacks) {
+                for (var stack : new ArrayList<>(stacks)) {
                     a.add(stack);
                     b.add(stack);
                 }

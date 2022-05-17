@@ -41,6 +41,7 @@ public final class PolymerImpl {
 
     public static final ServerConfig SERVER_CONFIG = loadConfig("server", ServerConfig.class);
 
+    private static final boolean FORCE_DEVELOPER_MODE = false;
     public static final boolean DEVELOPER_MODE;
     public static final boolean ENABLE_NETWORKING_SERVER;
     public static final boolean ENABLE_NETWORKING_CLIENT;
@@ -54,6 +55,8 @@ public final class PolymerImpl {
     public static final boolean DISPLAY_DEBUG_INFO_CLIENT;
     public static final boolean ADD_NON_POLYMER_CREATIVE_TABS;
     public static final boolean UNLOCK_SERVER_PACK_CLIENT;
+    public static final boolean RESEND_BLOCKS_AROUND_CLICK;
+    public static final boolean DONT_USE_BLOCK_DELTA_PACKET;
 
     static {
         new CompatStatus();
@@ -71,12 +74,14 @@ public final class PolymerImpl {
 
         ENABLE_NETWORKING_SERVER = SERVER_CONFIG.enableNetworkSync;
         ENABLE_TEMPLATE_ENTITY_WARNINGS = SERVER_CONFIG.enableTemplateEntityWarnings;
-        DEVELOPER_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || SERVER_CONFIG.enableDevUtils;
+        DEVELOPER_MODE = LOADER.isDevelopmentEnvironment() || SERVER_CONFIG.enableDevUtils || FORCE_DEVELOPER_MODE;
         FORCE_RESOURCE_PACK_SERVER = SERVER_CONFIG.markResourcePackAsForcedByDefault;
         FORCE_CUSTOM_MODEL_DATA_OFFSET = SERVER_CONFIG.forcePackOffset || CompatStatus.POLYMC;
         CORE_COMMAND_MINIMAL_OP = SERVER_CONFIG.coreCommandOperatorLevel;
         ADD_NON_POLYMER_CREATIVE_TABS = SERVER_CONFIG.displayNonPolymerCreativeTabs;
         HANDLE_HANDSHAKE_EARLY = SERVER_CONFIG.handleHandshakeEarly;
+        RESEND_BLOCKS_AROUND_CLICK = SERVER_CONFIG.sendBlocksAroundClicked;
+        DONT_USE_BLOCK_DELTA_PACKET = SERVER_CONFIG.disableChunkDeltaUpdatePacket;
 
         if (PolymerImpl.IS_CLIENT) {
             var clientConfig = loadConfig("client", ClientConfig.class);

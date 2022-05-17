@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.compat.immersive_portals;
 
 import eu.pb4.polymer.impl.PolymerImplUtils;
-import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.impl.compat.IPAttachedPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.q_misc_util.Helper;
 
 import java.util.function.Supplier;
 
@@ -30,11 +29,7 @@ public class ip_ChunkDataSyncManagerMixin {
 
     @Redirect(method = "onChunkProvidedDeferred", at = @At(value = "INVOKE", target = "Lqouteall/q_misc_util/Helper;cached(Ljava/util/function/Supplier;)Ljava/util/function/Supplier;", ordinal = 0))
     private Supplier<?> polymer_setPlayerLambda(Supplier<?> supplier, WorldChunk chunk) {
-        if (((PolymerBlockPosStorage) chunk).polymer_hasAny()) {
-            return supplier;
-        }
-
-        return Helper.cached(supplier);
+        return () -> ((IPAttachedPacket) supplier.get()).polymer_ip_setSkip(true);
     }
 
     @Inject(method = "lambda$onChunkProvidedDeferred$1", at = @At("HEAD"))

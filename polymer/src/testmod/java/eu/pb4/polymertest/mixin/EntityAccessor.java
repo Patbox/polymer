@@ -13,4 +13,9 @@ public interface EntityAccessor {
     static TrackedData<Integer> getFROZEN_TICKS() {
         throw new UnsupportedOperationException();
     }
+
+    @Accessor
+    static TrackedData<Boolean> getNO_GRAVITY() {
+        throw new UnsupportedOperationException();
+    }
 }

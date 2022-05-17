@@ -2,6 +2,7 @@ package eu.pb4.polymer.impl.entity;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.other.FakeWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -10,11 +11,13 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.disguiselib.api.EntityDisguise;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +45,16 @@ public class InternalEntityHelpers {
         return getEntity(type) instanceof MobEntity;
     }
 
+    public static boolean canPatchTrackedData(ServerPlayerEntity player, Entity entity) {
+        if (CompatStatus.DISGUISELIB) {
+            if (((EntityDisguise) entity).isDisguised() && !((EntityDisguise) player).hasTrueSight()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static Entity getEntity(EntityType<?> type) {
         Entity entity = EXAMPLE_ENTITIES.get(type);
 
@@ -49,8 +62,18 @@ public class InternalEntityHelpers {
             try {
                 entity = type.create(FakeWorld.INSTANCE);
             } catch (Throwable e) {
+                var id = Registry.ENTITY_TYPE.getId(type);
                 if (PolymerImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
-                    PolymerImpl.LOGGER.warn(String.format("Couldn't create template entity of %s (%s)... Defaulting to empty", Registry.ENTITY_TYPE.getId(type), type.getBaseClass().toString()), e);
+                    PolymerImpl.LOGGER.warn(String.format(
+                            "Couldn't create template entity of %s (%s)... Defaulting to empty. %s",
+                            id,
+                            type.getBaseClass().toString(),
+                            id != null && id.getNamespace().equals("minecraft") ? "This might cause problems!" : "Don't worry, this shouldn't cause problems!"
+                    ));
+
+                    if (id != null && id.getNamespace().equals("minecraft")) {
+                        e.printStackTrace();
+                    }
                 }
                 entity = FakeEntity.INSTANCE;
             }

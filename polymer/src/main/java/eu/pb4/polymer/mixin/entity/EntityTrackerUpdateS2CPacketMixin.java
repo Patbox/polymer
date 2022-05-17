@@ -8,9 +8,7 @@ import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
-import eu.pb4.polymer.impl.entity.PolymerTrackedDataHandler;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
-import eu.pb4.polymer.impl.interfaces.PlayerAwarePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -35,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
-public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
+public class EntityTrackerUpdateS2CPacketMixin {
 
     @Shadow
     @Final
@@ -51,7 +49,7 @@ public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
         var entries = new ArrayList<DataTracker.Entry<?>>();
         var player = PolymerUtils.getPlayer();
 
-        if (entity instanceof PolymerEntity polymerEntity) {
+        if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player, entity)) {
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
             if (legalTrackedData.size() > 0) {
@@ -88,7 +86,13 @@ public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
             var entry = entries.get(i);
 
             if (entry.getData() == ItemFrameEntityAccessor.getITEM_STACK() && entry.get() instanceof ItemStack stack) {
-                entries.set(i, new DataTracker.Entry<>(PolymerTrackedDataHandler.CUSTOM_ITEM_FRAME_STACK, stack));
+                var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayer());
+
+                if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
+                    polymerStack.removeCustomName();
+                }
+
+                entries.set(i, new DataTracker.Entry<>(ItemFrameEntityAccessor.getITEM_STACK(), stack));
             } else if (entry.getData() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID()) {
                 entries.set(i, new DataTracker.Entry<>(AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.get()), player))));
             }
@@ -112,20 +116,9 @@ public class EntityTrackerUpdateS2CPacketMixin implements PlayerAwarePacket {
 
             for (int i = 0; i < list.size(); i++) {
                 var entry = list.get(i);
-                if (entry.get() instanceof ItemStack stack) {
-                    if (entry.getData() == PolymerTrackedDataHandler.CUSTOM_ITEM_FRAME_STACK) {
-                        var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayer());
-
-                        if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
-                            polymerStack.removeCustomName();
-                        }
-                        list.set(i, new DataTracker.Entry(ItemFrameEntityAccessor.getITEM_STACK(), polymerStack));
-                    } else {
-                        list.set(i, new DataTracker.Entry(entry.getData(), PolymerItemUtils.getPolymerItemStack(stack, player)));
-                    }
-                } else if (entry.get() instanceof Optional<?> optionalO && optionalO.isPresent()
+                if (entry.get() instanceof Optional<?> optionalO && optionalO.isPresent()
                         && optionalO.get() instanceof BlockState state && state.getBlock() instanceof PolymerBlock polymerBlock) {
-                    list.set(i, new DataTracker.Entry(entry.getData(), Optional.of(PolymerBlockUtils.getBlockStateSafely(polymerBlock, state))));
+                    list.set(i, new DataTracker.Entry(entry.getData(), Optional.of(PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player))));
                 }
             }
 

@@ -59,6 +59,9 @@ dependencies {
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
 
+    modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
+
+
     modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.17.1-2.2.0:api") {
         exclude(group: "com.terraformersmc")
         exclude(group: "io.github.prospector")
@@ -66,16 +69,14 @@ dependencies {
         exclude(group: "net.fabricmc")
     }
 
-    modImplementation include("xyz.nucleoid:packet-tweaker:0.2.0+1.18-pre1")
+    modImplementation include("xyz.nucleoid:packet-tweaker:0.3.0+1.18.2")
     modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-    //modLocalRuntime "fr.catcore:api:1.4.9+1.18.2-rc1"
-    modCompileOnly "fr.catcore:api:1.4.9+1.18.2-rc1"
-    //modCompileOnly("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
-    //modLocalRuntime("fr.catcore:server-translations-api:1.4.9+1.18.2-rc1")
+    modCompileOnly("fr.catcore:server-translations-api:1.4.12+1.18.2")
+    //modLocalRuntime("fr.catcore:server-translations-api:1.4.12+1.18.2")
 
-    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.2.5-1.18')
-    modCompileOnly('com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.2.5-1.18')
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.3.7-1.18'
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.3.7-1.18'
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.

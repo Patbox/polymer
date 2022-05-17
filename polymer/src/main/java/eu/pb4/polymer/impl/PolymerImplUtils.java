@@ -1,10 +1,10 @@
 package eu.pb4.polymer.impl;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.compat.CompatStatus;
+import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -172,7 +172,7 @@ public class PolymerImplUtils {
                 msg.accept("");
                 msg.accept("== BlockStates");
                 msg.accept("");
-                msg.accept("= Offset: " + PolymerBlockUtils.getBlockStateOffset());
+                msg.accept("= Offset: " + PolymerImplUtils.getBlockStateOffset());
                 msg.accept("");
 
                 for (var state : Block.STATE_IDS) {
@@ -230,5 +230,9 @@ public class PolymerImplUtils {
             }
         }
         return null;
+    }
+
+    public static int getBlockStateOffset() {
+        return ((PolymerIdList) Block.STATE_IDS).polymer_getOffset();
     }
 }

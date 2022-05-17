@@ -48,6 +48,7 @@ public class PolymerServerProtocolHandler {
     private static void handle(ServerPlayNetworkHandler handler, String packet, int version, PacketByteBuf buf) {
         switch (packet) {
             case ClientPackets.HANDSHAKE -> handleHandshake(PolymerHandshakeHandler.of(handler), version, buf);
+            case ClientPackets.DISABLE -> handleDisable(PolymerHandshakeHandler.of(handler), version, buf);
             case ClientPackets.SYNC_REQUEST -> handleSyncRequest(handler, version, buf);
             case ClientPackets.WORLD_PICK_BLOCK -> handlePickBlock(handler, version, buf);
             case ClientPackets.WORLD_PICK_ENTITY -> handlePickEntity(handler, version, buf);
@@ -59,6 +60,10 @@ public class PolymerServerProtocolHandler {
                 }
             }
         }
+    }
+
+    private static void handleDisable(PolymerHandshakeHandler handler, int version, PacketByteBuf buf) {
+        handler.reset();
     }
 
     private static void handleTooltipChange(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {

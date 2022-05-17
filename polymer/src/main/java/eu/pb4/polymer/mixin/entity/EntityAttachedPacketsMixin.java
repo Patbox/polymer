@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.Unique;
         EntitySpawnS2CPacket.class,
         EntityTrackerUpdateS2CPacket.class,
         EntitySetHeadYawS2CPacket.class,
-        EntityEquipmentUpdateS2CPacket.class
+        EntityEquipmentUpdateS2CPacket.class,
+        EntityAttributesS2CPacket.class
 })
 public class EntityAttachedPacketsMixin implements EntityAttachedPacket {
     @Unique

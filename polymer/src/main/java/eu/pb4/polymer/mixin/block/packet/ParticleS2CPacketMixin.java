@@ -1,6 +1,5 @@
 package eu.pb4.polymer.mixin.block.packet;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -27,13 +26,13 @@ public class ParticleS2CPacketMixin {
 
     @Redirect(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/particle/ParticleEffect;write(Lnet/minecraft/network/PacketByteBuf;)V"))
     private void polymer_modifyParticle(ParticleEffect instance, PacketByteBuf buf) {
-        polymer_remap(instance).write(buf);
+        this.polymer_remap(instance).write(buf);
     }
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getParameters", at = @At("HEAD"), cancellable = true)
     private void polymer_modifyClient(CallbackInfoReturnable<ParticleEffect> cir) {
-        cir.setReturnValue(polymer_remap(this.parameters));
+        cir.setReturnValue(this.polymer_remap(this.parameters));
     }
 
 
