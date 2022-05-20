@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.entity;
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.api.entity.PolymerVillagerProfession;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -19,6 +20,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.village.VillagerData;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -95,6 +97,8 @@ public class EntityTrackerUpdateS2CPacketMixin {
                 entries.set(i, new DataTracker.Entry<>(ItemFrameEntityAccessor.getITEM_STACK(), stack));
             } else if (entry.getData() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID()) {
                 entries.set(i, new DataTracker.Entry<>(AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.get()), player))));
+            } else if (entry.getData() == VillagerEntityAccessor.getVILLAGER_DATA() && entry.get() instanceof VillagerData data && data.getProfession() instanceof PolymerVillagerProfession polymerProf) {
+                entries.set(i, new DataTracker.Entry<>(VillagerEntityAccessor.getVILLAGER_DATA(), new VillagerData(data.getType(), polymerProf.getPolymerProfession(player), data.getLevel())));
             }
         }
 

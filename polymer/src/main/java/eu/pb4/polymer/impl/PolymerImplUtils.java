@@ -11,12 +11,14 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.state.property.Property;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -138,6 +140,31 @@ public class PolymerImplUtils {
         }
     }
 
+    public static String getAsString(BlockState state) {
+        var builder = new StringBuilder();
+
+        builder.append(Registry.BLOCK.getId(state.getBlock()));
+
+        if (!state.getEntries().isEmpty()) {
+            builder.append("[");
+            var iterator = state.getEntries().entrySet().iterator();
+
+            while (iterator.hasNext()) {
+                var entry = iterator.next();
+                builder.append(entry.getKey().getName());
+                builder.append("=");
+                builder.append(((Property) entry.getKey()).name(entry.getValue()));
+
+                if (iterator.hasNext()) {
+                    builder.append(",");
+                }
+            }
+            builder.append("]");
+        }
+
+        return builder.toString();
+    }
+
     @Nullable
     public static String dumpRegistry() {
         BufferedWriter writer = null;
@@ -177,7 +204,7 @@ public class PolymerImplUtils {
                 msg.accept("");
 
                 for (var state : Block.STATE_IDS) {
-                    msg.accept(Block.STATE_IDS.getRawId(state) + " | " + state.toString() + " | Polymer? " + (state.getBlock() instanceof PolymerBlock));
+                    msg.accept(Block.STATE_IDS.getRawId(state) + " | " + getAsString(state) + " | Polymer? " + (state.getBlock() instanceof PolymerBlock));
                 }
             }
 

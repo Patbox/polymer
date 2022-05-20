@@ -366,8 +366,8 @@ public class InternalClientRegistry {
         var a = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TOOLTIP);
         var b = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TAG);
 
-        ((MutableSearchableContainer) a).polymer_removeIf((s) -> s instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null));
-        ((MutableSearchableContainer) b).polymer_removeIf((s) -> s instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null));
+        ((MutableSearchableContainer) a).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
+        ((MutableSearchableContainer) b).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
 
         for (var group : ItemGroup.GROUPS) {
             if (group == ItemGroup.SEARCH) {
@@ -383,7 +383,7 @@ public class InternalClientRegistry {
             }
 
             if (stacks != null) {
-                for (var stack : new ArrayList<>(stacks)) {
+                for (var stack : stacks.toArray(new ItemStack[0])) {
                     a.add(stack);
                     b.add(stack);
                 }
@@ -392,5 +392,9 @@ public class InternalClientRegistry {
 
         a.reload();
         b.reload();
+    }
+
+    private static boolean isPolymerItemStack(Object o) {
+        return o instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null);
     }
 }
