@@ -12,7 +12,6 @@ import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
-import eu.pb4.polymer.impl.client.interfaces.MutableSearchableContainer;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
@@ -35,7 +34,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.client.search.SearchManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
@@ -52,7 +50,10 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
@@ -363,8 +364,8 @@ public class InternalClientRegistry {
     }
 
     public static void rebuildSearch() {
-        var a = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TOOLTIP);
-        var b = MinecraftClient.getInstance().getSearchableContainer(SearchManager.ITEM_TAG);
+        /*var a = MinecraftClient.getInstance().getSearchProvider(SearchManager.ITEM_TOOLTIP);
+        var b = MinecraftClient.getInstance().getSearchProvider(SearchManager.ITEM_TAG);
 
         ((MutableSearchableContainer) a).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
         ((MutableSearchableContainer) b).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
@@ -391,7 +392,7 @@ public class InternalClientRegistry {
         }
 
         a.reload();
-        b.reload();
+        b.reload();*/
     }
 
     private static boolean isPolymerItemStack(Object o) {

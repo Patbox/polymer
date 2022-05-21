@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Mixin(TagPacketSerializer.Serialized.class)
 public class TagPacketSerializerMixin {
-    @ModifyArg(method = "writeBuf", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeMap(Ljava/util/Map;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;)V"))
+    @ModifyArg(method = "writeBuf", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeMap(Ljava/util/Map;Lnet/minecraft/network/PacketByteBuf$PacketWriter;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
     private Map<Identifier, IntList> polymer_skipEntries(Map<Identifier, IntList> value) {
         var map = new HashMap<Identifier, IntList>();
         var player = PolymerUtils.getPlayer();

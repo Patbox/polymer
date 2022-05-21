@@ -31,7 +31,7 @@ import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -156,12 +156,12 @@ public class PolymerClientProtocolHandler {
             var state = Block.STATE_IDS.get(entry.numId());
 
             if (state == null) {
-                chat.addMessage(new LiteralText("Missing BlockState! | " + entry.numId() + " | Server: " + entry.asString()));
+                chat.addMessage(Text.literal("Missing BlockState! | " + entry.numId() + " | Server: " + entry.asString()));
             } else {
                 var debug = DebugBlockStateEntry.of(state, null, 0);
 
                 if (!debug.equals(entry)) {
-                    chat.addMessage(new LiteralText("Mismatched BlockState! | " + entry.numId() + " | Server: " + entry.asString() + " | Client: " + debug.asString()));
+                    chat.addMessage(Text.literal("Mismatched BlockState! | " + entry.numId() + " | Server: " + entry.asString() + " | Client: " + debug.asString()));
                 }
             }
         }

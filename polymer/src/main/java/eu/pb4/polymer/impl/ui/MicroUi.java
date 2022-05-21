@@ -134,6 +134,11 @@ public class MicroUi {
             MicroUi.this.tick();
             super.sendContentUpdates();
         }
+
+        @Override
+        public ItemStack transferSlot(PlayerEntity player, int index) {
+            return ItemStack.EMPTY;
+        }
     }
 
     private record InternalInventory(MicroUi ui) implements Inventory {

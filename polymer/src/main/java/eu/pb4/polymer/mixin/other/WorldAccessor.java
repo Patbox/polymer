@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
-import net.minecraft.util.math.random.AbstractRandom;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.MutableWorldProperties;
@@ -47,7 +47,11 @@ public interface WorldAccessor {
 
     @Mutable
     @Accessor("random")
-    void polymer_setRandom(AbstractRandom random);
+    void polymer_setRandom(Random random);
+
+    @Mutable
+    @Accessor("asyncRandom")
+    void polymer_setAsyncRandom(Random random);
 
     @Mutable
     @Accessor("blockEntityTickers")

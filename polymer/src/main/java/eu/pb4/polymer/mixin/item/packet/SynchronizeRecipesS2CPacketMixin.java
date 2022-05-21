@@ -29,7 +29,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
 
     @Shadow public abstract void write(PacketByteBuf buf);
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Ljava/util/function/BiConsumer;)V"))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
     public Collection<Recipe<?>> polymer_onWrite(Collection<Recipe<?>> recipes) {
         List<Recipe<?>> list = new ArrayList<>();
         var player = PolymerUtils.getPlayer();

@@ -2,7 +2,6 @@ package eu.pb4.polymer.mixin.client;
 
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
-import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import eu.pb4.polymer.impl.client.rendering.PolymerResourceReloader;
@@ -12,9 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -24,10 +21,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.ArrayList;
 
 @Environment(EnvType.CLIENT)
 @Mixin(MinecraftClient.class)
@@ -56,7 +50,7 @@ public abstract class MinecraftClientMixin {
         }
     }
 
-    @ModifyVariable(method = "initializeSearchableContainers", at = @At(value = "STORE"))
+    /*@ModifyVariable(method = "initializeSearchProviders", at = @At(value = "STORE"))
     private DefaultedList<?> polymer_removePolymerItemsFromSearch(DefaultedList<?> og) {
         return new DefaultedList<>(new ArrayList<>(), null) {
             @Override
@@ -66,7 +60,7 @@ public abstract class MinecraftClientMixin {
                 }
             }
         };
-    }
+    }*/
 
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("TAIL"))
     private void polymer_onDisconnect(CallbackInfo ci) {

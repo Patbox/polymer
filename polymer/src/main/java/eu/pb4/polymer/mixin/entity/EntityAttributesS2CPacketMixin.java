@@ -28,7 +28,7 @@ public abstract class EntityAttributesS2CPacketMixin {
      * If the entity is not living, use an invalid entity ID so the client ignores it.
      * No error is printed, packet is just silently ignored.
      */
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;"))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 0))
     private int polymer_replaceWithPolymer(int input) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayer()))) {
             return -1;
@@ -45,7 +45,7 @@ public abstract class EntityAttributesS2CPacketMixin {
     }
 
     @SuppressWarnings("unchecked")
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Ljava/util/function/BiConsumer;)V", ordinal = 0))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V", ordinal = 0))
     private Collection<EntityAttributesS2CPacket.Entry> polymer_replaceWithPolymer(Collection<EntityAttributesS2CPacket.Entry> value) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity) {
             var type = entity.getPolymerEntityType(PolymerUtils.getPlayer());

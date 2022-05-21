@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Environment(EnvType.CLIENT)
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
-    @ModifyArg(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/LiteralText;<init>(Ljava/lang/String;)V", ordinal = 3))
+    @ModifyArg(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Text;literal(Ljava/lang/String;)Lnet/minecraft/text/MutableText;", ordinal = 2))
     private String polymer_changeId(String id) {
         ItemStack stack = (ItemStack) (Object) this;
         return stack.hasNbt() && stack.getNbt().contains(PolymerItemUtils.POLYMER_ITEM_ID) ? stack.getNbt().getString(PolymerItemUtils.POLYMER_ITEM_ID) : id;

@@ -11,6 +11,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -92,7 +93,7 @@ public class InternalEntityHelpers {
     }
 
     static {
-        EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
+        EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato"), new PlayerPublicKey(null)) {
             @Override
             public boolean isSpectator() {
                 return false;

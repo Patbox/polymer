@@ -27,7 +27,7 @@ public abstract class ChunkDeltaUpdateS2CPacketMixin {
     // Just see this issue... https://github.com/ConsistencyPlus/ConsistencyPlus/issues/108
 
     @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"))
+    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"), require = 0)
     private Object polymer_decodeState(IdList instance, int index) {
         return index > 0 ? InternalClientRegistry.decodeState(index) : instance.get(index);
     }

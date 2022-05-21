@@ -20,7 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.AbstractRandom;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.*;
@@ -159,7 +159,8 @@ public final class FakeWorld extends World {
                 accessor.polymer_setProperties(new FakeWorldProperties());
                 accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
                 accessor.polymer_setThread(Thread.currentThread());
-                accessor.polymer_setRandom(AbstractRandom.create());
+                accessor.polymer_setRandom(Random.create());
+                accessor.polymer_setAsyncRandom(Random.createAsync());
                 accessor.polymer_setBlockEntityTickers(new ArrayList<>());
                 accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
 

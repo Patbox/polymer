@@ -9,12 +9,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.random.AbstractRandom;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class TestItem extends SimplePolymerItem {
-    private AbstractRandom random = AbstractRandom.create();
+    private Random random = Random.create();
     public TestItem(Item.Settings settings, Item virtualItem) {
         super(settings, virtualItem);
     }

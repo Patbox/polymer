@@ -257,7 +257,7 @@ public class Commands {
             builder.append("]");
         }
 
-        context.getSource().sendFeedback(new LiteralText(builder.toString()), false);
+        context.getSource().sendFeedback(Text.literal(builder.toString()), false);
 
         return 0;
     }
