@@ -54,7 +54,7 @@
     "entity.ServerPlayNetworkHandlerMixin",
     "entity.ServerWorldAccessor",
     "entity.TrackedDataHandlerRegistryBlockStateMixin",
-    "entity.TrackedDataHandlerRegistryMixin",
+    "entity.VillagerEntityAccessor",
     "item.AnvilScreenHandlerMixin",
     "item.ItemGroupMixin",
     "item.ItemStackContentMixin",
