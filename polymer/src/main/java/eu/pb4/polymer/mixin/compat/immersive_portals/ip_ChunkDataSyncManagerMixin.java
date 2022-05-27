@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.compat.immersive_portals;
 
 import eu.pb4.polymer.impl.PolymerImplUtils;
-import eu.pb4.polymer.impl.compat.IPAttachedPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,7 +28,7 @@ public class ip_ChunkDataSyncManagerMixin {
 
     @Redirect(method = "onChunkProvidedDeferred", at = @At(value = "INVOKE", target = "Lqouteall/q_misc_util/Helper;cached(Ljava/util/function/Supplier;)Ljava/util/function/Supplier;", ordinal = 0))
     private Supplier<?> polymer_setPlayerLambda(Supplier<?> supplier, WorldChunk chunk) {
-        return () -> ((IPAttachedPacket) supplier.get()).polymer_ip_setSkip(true);
+        return supplier;
     }
 
     @Inject(method = "lambda$onChunkProvidedDeferred$1", at = @At("HEAD"))

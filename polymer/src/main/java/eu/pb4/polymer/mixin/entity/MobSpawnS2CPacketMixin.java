@@ -7,6 +7,7 @@ import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.MobSpawnS2CPacket;
@@ -46,6 +47,8 @@ public class MobSpawnS2CPacketMixin {
     @Mutable
     @Shadow @Final private int entityTypeId;
 
+    @Shadow @Final private int id;
+
     @Inject(method = "<init>(Lnet/minecraft/entity/LivingEntity;)V", at = @At(value = "TAIL"))
     private void polymer_replaceWithPolymer(LivingEntity entity, CallbackInfo ci) {
         if (entity instanceof PolymerEntity ve) {
@@ -61,7 +64,7 @@ public class MobSpawnS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer_replaceWithPolymer(int value) {
-        if (EntityAttachedPacket.get(this) instanceof PolymerEntity polymerEntity) {
+        if (EntityAttachedPacket.get(this) instanceof PolymerEntity polymerEntity && ((Entity) polymerEntity).getId() == this.id) {
             return Registry.ENTITY_TYPE.getRawId(polymerEntity.getPolymerEntityType(PolymerUtils.getPlayer()));
         } else {
             return value;

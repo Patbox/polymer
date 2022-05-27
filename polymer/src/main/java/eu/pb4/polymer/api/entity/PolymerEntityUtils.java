@@ -3,6 +3,7 @@ package eu.pb4.polymer.api.entity;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.compat.QuiltRegistryUtils;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
@@ -11,9 +12,12 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -134,5 +138,22 @@ public final class PolymerEntityUtils {
      */
     public static PlayerSpawnS2CPacket createPlayerSpawnPacket(Entity entity) {
         return createPlayerSpawnPacket(entity.getId(), entity.getUuid(), entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
+    }
+
+    public static boolean canHoldEntityContext(Packet<?> packet) {
+        return packet instanceof EntityAttachedPacket;
+    }
+
+    public static <T extends Packet<ClientPlayPacketListener>> T setEntityContext(T packet, Entity entity) {
+        return EntityAttachedPacket.setIfEmpty(packet, entity);
+    }
+
+    public static <T extends Packet<ClientPlayPacketListener>> T forceSetEntityContext(T packet, Entity entity) {
+        return EntityAttachedPacket.set(packet, entity);
+    }
+
+    @Nullable
+    public static Entity getEntityContext(Packet<?> packet) {
+        return EntityAttachedPacket.get(packet);
     }
 }

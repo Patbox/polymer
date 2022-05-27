@@ -15,6 +15,10 @@ public interface EntityAttachedPacket {
         return packet instanceof EntityAttachedPacket e ? e.polymer_getEntity() : null;
     }
 
+    static <T> T setIfEmpty(T packet, Entity entity) {
+        return packet instanceof EntityAttachedPacket e && e.polymer_getEntity() == null ? (T) e.polymer_setEntity(entity) : packet;
+    }
+
     static <T> T set(T packet, Entity entity) {
         return packet instanceof EntityAttachedPacket e ? (T) e.polymer_setEntity(entity) : packet;
     }

@@ -41,10 +41,12 @@ public class EntityTrackerUpdateS2CPacketMixin {
     @Final
     private @Nullable List<DataTracker.Entry<?>> trackedValues;
 
+    @Shadow @Final private int id;
+
     @Nullable
     private List<DataTracker.Entry<?>> polymer_parseEntries() {
         Entity entity = EntityAttachedPacket.get(this);
-        if (entity == null) {
+        if (entity == null || entity.getId() != this.id) {
             return this.trackedValues != null ? new ArrayList<>(this.trackedValues) : null;
         }
 
