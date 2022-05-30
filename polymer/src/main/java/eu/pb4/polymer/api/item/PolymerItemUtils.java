@@ -303,7 +303,7 @@ public final class PolymerItemUtils {
         } catch (Throwable e) {
             // Fallback for mods that require client side methods for tooltips
             try {
-                MutableText name = itemStack.getName().shallowCopy();
+                MutableText name = itemStack.getName().copy();
 
                 if (!out.getName().equals(name)) {
                     name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));

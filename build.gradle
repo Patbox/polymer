@@ -10,10 +10,14 @@ apply plugin: 'fabric-loom'
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
+var isStable = project.is_stable == "true"
+
 archivesBaseName = "polymer-all"
 version = project.all_version + "+" + project.minecraft_version
 group = project.maven_group
 
+
+System.out.println(isStable ? "release" : "beta")
 
 allprojects {
     apply plugin: 'fabric-loom'
@@ -122,7 +126,7 @@ void setupRepositories(RepositoryHandler repositories) {
 
 
 curseforge {
-    if (System.getenv("CURSEFORGE")) {
+    if (isStable && System.getenv("CURSEFORGE")) {
         apiKey = System.getenv("CURSEFORGE")
 
         project {
@@ -153,6 +157,7 @@ if (System.getenv("MODRINTH")) {
         token = System.getenv("MODRINTH")
         projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
         versionNumber = "" + version // The version of the mod to upload.
+        versionType = isStable ? "release" : "beta"
         uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
         gameVersions = [((String) project.minecraft_version)]
         changelog = System.getenv("CHANGELOG")
@@ -171,7 +176,7 @@ allprojects {
     apply plugin: 'maven-publish'
 
     afterEvaluate {
-        if (!project.version.equals("0.0.0-alpha.0")) {
+        if (project.version != "0.0.0-alpha.0") {
             publishing {
                 publications {
                     mavenJava(MavenPublication) {

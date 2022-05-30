@@ -50,7 +50,7 @@ public interface WorldAccessor {
     void polymer_setRandom(Random random);
 
     @Mutable
-    @Accessor("asyncRandom")
+    @Accessor("threadSafeRandom")
     void polymer_setAsyncRandom(Random random);
 
     @Mutable

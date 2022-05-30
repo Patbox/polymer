@@ -106,7 +106,7 @@ public class Commands {
                 int a = 0;
                 for (int i = 0; i < PolymerImplUtils.ICON.length; i++) {
                     if (i == (PolymerImplUtils.ICON.length - about.size() - 1) / 2 + a && a < about.size()) {
-                        output.add(PolymerImplUtils.ICON[i].shallowCopy().append("  ").append(about.get(a++)));
+                        output.add(PolymerImplUtils.ICON[i].copy().append("  ").append(about.get(a++)));
                     } else {
                         output.add(PolymerImplUtils.ICON[i]);
                     }

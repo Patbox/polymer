@@ -45,7 +45,7 @@ public class CreativeTabListUi extends MicroUi {
         for (int i = start; i < end; i++) {
             var itemGroup = this.items.get(i);
             var icon = itemGroup.createIcon().copy();
-            var text = itemGroup.getDisplayName().shallowCopy();
+            var text = itemGroup.getDisplayName().copy();
             if (!text.getStyle().isItalic()) {
                 text.setStyle(text.getStyle().withItalic(false));
             }

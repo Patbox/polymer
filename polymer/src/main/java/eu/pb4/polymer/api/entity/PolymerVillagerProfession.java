@@ -9,5 +9,5 @@ public interface PolymerVillagerProfession extends PolymerObject {
      * Returns villager profession displayed to the client.
      * It should only return vanilla profession, unless you know client understands you custom one
      */
-    VillagerProfession getPolymerProfession(ServerPlayerEntity player);
+    VillagerProfession getPolymerProfession(VillagerProfession profession, ServerPlayerEntity player);
 }

@@ -8,6 +8,7 @@ import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -17,18 +18,18 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.village.VillagerProfession;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
     }
 
     private static final Set<EntityType<?>> ENTITY_TYPES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+
+    private static final Map<VillagerProfession, PolymerVillagerProfession> VILLAGER_PROFESSIONS = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
 
     /**
      * Allows to get next free entity id you can use for networking
@@ -69,6 +70,40 @@ public final class PolymerEntityUtils {
                 }
             }
         }
+    }
+
+    /**
+     * Marks EntityTypes as server-side only
+     *
+     * @param profession VillagerProfession to server side
+     * @param mapper object managing mapping to client compatible one
+     */
+    public static void registerProfession(VillagerProfession profession, PolymerVillagerProfession mapper) {
+        if (CompatStatus.QUILT_REGISTRY) {
+            QuiltRegistryUtils.markAsOptional(Registry.VILLAGER_PROFESSION, profession);
+        }
+
+        var reg = (RegistryExtension) Registry.VILLAGER_PROFESSION;
+        if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
+            reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
+            for (var entry : Registry.VILLAGER_PROFESSION.getEntrySet()) {
+                if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
+                    continue;
+                }
+
+                if (VILLAGER_PROFESSIONS.containsKey(entry.getValue())) {
+                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_POLYMER);
+                } else {
+                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_REGULAR_MODS);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Nullable
+    public static PolymerVillagerProfession getPolymerProfession(VillagerProfession profession) {
+        return VILLAGER_PROFESSIONS.get(profession);
     }
 
     /**

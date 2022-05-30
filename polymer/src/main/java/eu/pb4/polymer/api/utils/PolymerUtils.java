@@ -22,6 +22,7 @@ import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -293,7 +294,8 @@ public final class PolymerUtils {
     public static boolean isServerOnly(Object obj) {
         return obj instanceof PolymerObject
                 || (obj instanceof EntityType<?> type && PolymerEntityUtils.isRegisteredEntityType(type))
-                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isRegisteredBlockEntity(typeBE));
+                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isRegisteredBlockEntity(typeBE))
+                || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
 
     }
 }

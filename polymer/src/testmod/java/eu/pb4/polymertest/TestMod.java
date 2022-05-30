@@ -15,7 +15,7 @@ import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -253,7 +253,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
 
 
-        CommandRegistrationCallback.EVENT.register((d, b) -> {
+        CommandRegistrationCallback.EVENT.register((d, b, c) -> {
             d.register(literal("test")
                     .executes((ctx) -> {
                         try {
@@ -278,7 +278,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
         AtomicBoolean atomicBoolean = new AtomicBoolean(true);
 
-        CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("test2").executes((ctx) -> {
+        CommandRegistrationCallback.EVENT.register((d, b, c) -> d.register(literal("test2").executes((ctx) -> {
             try {
                 var player = ctx.getSource().getPlayer();
                 if (atomicBoolean.get()) {
@@ -296,7 +296,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         })));
         AtomicBoolean mapper = new AtomicBoolean(false);
 
-        CommandRegistrationCallback.EVENT.register((d, b) -> d.register(literal("mapperswitch").executes((ctx) -> {
+        CommandRegistrationCallback.EVENT.register((d, b, c) -> d.register(literal("mapperswitch").executes((ctx) -> {
             try {
                 var player = ctx.getSource().getPlayer();
                 if (mapper.get()) {

@@ -160,7 +160,7 @@ public final class FakeWorld extends World {
                 accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
                 accessor.polymer_setThread(Thread.currentThread());
                 accessor.polymer_setRandom(Random.create());
-                accessor.polymer_setAsyncRandom(Random.createAsync());
+                accessor.polymer_setAsyncRandom(Random.createThreadSafe());
                 accessor.polymer_setBlockEntityTickers(new ArrayList<>());
                 accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
 
