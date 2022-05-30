@@ -21,7 +21,7 @@ public interface MetaConsumer<T, E> extends Consumer<T> {
 
             @Override
             public void accept(Packet<?> packet) {
-                entityTracker.sendToOtherNearbyPlayers(EntityAttachedPacket.set(packet, entity));
+                entityTracker.sendToOtherNearbyPlayers(EntityAttachedPacket.setIfEmpty(packet, entity));
             }
         };
     }

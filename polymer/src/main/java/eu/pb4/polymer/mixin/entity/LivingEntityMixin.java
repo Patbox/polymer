@@ -15,7 +15,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyArg(method = "sendEquipmentChanges(Ljava/util/Map;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerChunkManager;sendToOtherNearbyPlayers(Lnet/minecraft/entity/Entity;Lnet/minecraft/network/Packet;)V"))
     private Packet<?> polymer_addPlayerContext(Packet<?> packet) {
-        return EntityAttachedPacket.set(packet, this);
+        return EntityAttachedPacket.setIfEmpty(packet, this);
     }
 
     public LivingEntityMixin(EntityType<?> type, World world) {

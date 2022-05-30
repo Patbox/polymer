@@ -2,6 +2,7 @@ package eu.pb4.polymer.impl.client.compat;
 
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
@@ -32,16 +33,20 @@ public class ReiCompatibility implements REIClientPlugin {
 
     @Override
     public void registerItemComparators(ItemComparatorRegistry registry) {
-        try {
-            registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
-        } catch (Throwable e) {
-            // no one cares
+        if (PolymerImpl.ENABLE_REI) {
+            try {
+                registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
+            } catch (Throwable e) {
+                // no one cares
+            }
         }
     }
 
     public static void registerEvents() {
-        PolymerClientUtils.ON_CLEAR.register(() -> EntryRegistry.getInstance().removeEntryIf(SHOULD_REMOVE));
-        PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
+        if (PolymerImpl.ENABLE_REI) {
+            PolymerClientUtils.ON_CLEAR.register(() -> EntryRegistry.getInstance().removeEntryIf(SHOULD_REMOVE));
+            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
+        }
     }
 
     private static void update(EntryRegistry registry) {

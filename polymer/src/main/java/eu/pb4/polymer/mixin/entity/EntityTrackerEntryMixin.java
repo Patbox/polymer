@@ -34,7 +34,7 @@ public abstract class EntityTrackerEntryMixin {
 
     @ModifyVariable(method = "sendPackets", at = @At("HEAD"))
     private Consumer<Packet<?>> polymer_packetWrap(Consumer<Packet<?>> packetConsumer) {
-        return (packet) -> packetConsumer.accept(EntityAttachedPacket.set(packet, this.entity));
+        return (packet) -> packetConsumer.accept(EntityAttachedPacket.setIfEmpty(packet, this.entity));
     }
 
     @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/Packet;"))

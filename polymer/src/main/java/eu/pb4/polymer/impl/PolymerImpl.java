@@ -8,6 +8,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.metadata.CustomValue;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class PolymerImpl {
     private PolymerImpl() {
@@ -28,6 +31,7 @@ public final class PolymerImpl {
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     public static final Gson GSON_PRETTY = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
     private static final FabricLoader LOADER = FabricLoader.getInstance();
+    public static final boolean DEV_ENV = LOADER.isDevelopmentEnvironment();
 
     public static final boolean IS_CLIENT = LOADER.getEnvironmentType() == EnvType.CLIENT;
 
@@ -58,6 +62,9 @@ public final class PolymerImpl {
     public static final boolean RESEND_BLOCKS_AROUND_CLICK;
     public static final boolean DONT_USE_BLOCK_DELTA_PACKET;
 
+    public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
+
+    public static final boolean ENABLE_REI;
     static {
         new CompatStatus();
 
@@ -71,10 +78,9 @@ public final class PolymerImpl {
 
         CONTRIBUTORS = list.toArray(new String[0]);
 
-
         ENABLE_NETWORKING_SERVER = SERVER_CONFIG.enableNetworkSync;
         ENABLE_TEMPLATE_ENTITY_WARNINGS = SERVER_CONFIG.enableTemplateEntityWarnings;
-        DEVELOPER_MODE = LOADER.isDevelopmentEnvironment() || SERVER_CONFIG.enableDevUtils || FORCE_DEVELOPER_MODE;
+        DEVELOPER_MODE = DEV_ENV || SERVER_CONFIG.enableDevUtils || FORCE_DEVELOPER_MODE;
         FORCE_RESOURCE_PACK_SERVER = SERVER_CONFIG.markResourcePackAsForcedByDefault;
         FORCE_CUSTOM_MODEL_DATA_OFFSET = SERVER_CONFIG.forcePackOffset || CompatStatus.POLYMC;
         CORE_COMMAND_MINIMAL_OP = SERVER_CONFIG.coreCommandOperatorLevel;
@@ -82,6 +88,31 @@ public final class PolymerImpl {
         HANDLE_HANDSHAKE_EARLY = SERVER_CONFIG.handleHandshakeEarly;
         RESEND_BLOCKS_AROUND_CLICK = SERVER_CONFIG.sendBlocksAroundClicked;
         DONT_USE_BLOCK_DELTA_PACKET = SERVER_CONFIG.disableChunkDeltaUpdatePacket;
+        ENABLE_REI = SERVER_CONFIG.reiCompatibility;
+
+        if (configDir().resolve("mixins.json").toFile().isFile()) {
+            for (var mixin : loadConfig("mixins", MixinOverrideConfig.class).disabledMixins) {
+                DISABLED_MIXINS.put(mixin, new DisabledMixinReason("Config file (polymer/mixins.json)", "User/config specified, unknown reason"));
+            }
+        }
+
+        for (var mods : LOADER.getAllMods()) {
+            var meta = mods.getMetadata();
+            var customValue = meta.getCustomValue("polymer:disable_mixin");
+
+            if (customValue instanceof CustomValue.CvArray cvArray) {
+                for (var value : cvArray) {
+                    DISABLED_MIXINS.put(value.getAsString(),
+                            new DisabledMixinReason(meta.getName() + " (" + meta.getId() + ")", "Unknown reason! I hope author knew what they were doing.."));
+                }
+            } else if (customValue instanceof CustomValue.CvObject cvObject) {
+                for (var value : cvObject) {
+                    DISABLED_MIXINS.put(value.getKey(),
+                            new DisabledMixinReason(meta.getName() + " (" + meta.getId() + ")", value.getValue().getAsString()));
+                }
+            }
+        }
+
 
         if (PolymerImpl.IS_CLIENT) {
             var clientConfig = loadConfig("client", ClientConfig.class);
@@ -173,4 +204,7 @@ public final class PolymerImpl {
             return false;
         }
     }
+
+
+    public record DisabledMixinReason(String source, String reason) {};
 }

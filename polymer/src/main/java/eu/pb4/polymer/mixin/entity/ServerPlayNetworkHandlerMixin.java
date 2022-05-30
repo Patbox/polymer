@@ -28,7 +28,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     private Packet<?> polymer_skipEffects(Packet<?> packet) {
 
         if (packet instanceof EntityEquipmentUpdateS2CPacket original && EntityAttachedPacket.get(original) instanceof PolymerEntity polymerEntity) {
-            return EntityAttachedPacket.set(
+            return EntityAttachedPacket.setIfEmpty(
                     new EntityEquipmentUpdateS2CPacket(((Entity) polymerEntity).getId(), polymerEntity.getPolymerVisibleEquipment(original.getEquipmentList(), this.getPlayer())),
                     (Entity) polymerEntity
             );
