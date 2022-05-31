@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class PolymerImpl {
+
     private PolymerImpl() {
     }
 
@@ -61,6 +62,8 @@ public final class PolymerImpl {
     public static final boolean UNLOCK_SERVER_PACK_CLIENT;
     public static final boolean RESEND_BLOCKS_AROUND_CLICK;
     public static final boolean DONT_USE_BLOCK_DELTA_PACKET;
+    public static final boolean LOG_SYNC_TIME;
+
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
 
@@ -89,6 +92,7 @@ public final class PolymerImpl {
         RESEND_BLOCKS_AROUND_CLICK = SERVER_CONFIG.sendBlocksAroundClicked;
         DONT_USE_BLOCK_DELTA_PACKET = SERVER_CONFIG.disableChunkDeltaUpdatePacket;
         ENABLE_REI = SERVER_CONFIG.reiCompatibility;
+        LOG_SYNC_TIME = DEVELOPER_MODE || SERVER_CONFIG.logHandshakeTime;
 
         if (configDir().resolve("mixins.json").toFile().isFile()) {
             for (var mixin : loadConfig("mixins", MixinOverrideConfig.class).disabledMixins) {

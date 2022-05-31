@@ -1,8 +1,14 @@
 package eu.pb4.polymer.impl.interfaces;
 
+import net.minecraft.util.registry.Registry;
+
 import java.util.List;
 
 public interface RegistryExtension<T> {
+    static <T> List<T> getPolymerEntries(Registry<T> registry) {
+        return ((RegistryExtension<T>) registry).polymer_getEntries();
+    }
+
     Status polymer_getStatus();
     void polymer_setStatus(Status status);
     boolean polymer_updateStatus(Status status);

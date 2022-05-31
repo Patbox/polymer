@@ -68,7 +68,7 @@ public abstract class MinecraftClientMixin {
         };
     }
 
-    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("TAIL"))
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V"))
     private void polymer_onDisconnect(CallbackInfo ci) {
         InternalClientRegistry.disable();
     }

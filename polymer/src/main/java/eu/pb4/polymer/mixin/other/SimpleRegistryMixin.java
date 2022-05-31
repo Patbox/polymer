@@ -84,6 +84,7 @@ public abstract class SimpleRegistryMixin<T> extends Registry<T> implements Regi
 
     @Override
     public boolean polymer_updateStatus(Status status) {
+        this.polymer_objects = null;
         if (status.canReplace(this.polymer_status)) {
             this.polymer_status = status;
             return true;
