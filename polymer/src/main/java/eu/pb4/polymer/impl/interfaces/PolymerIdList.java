@@ -8,6 +8,7 @@ import java.util.Collection;
 @ApiStatus.Internal
 public interface PolymerIdList {
     void polymer_enableLazyBlockStates();
+    void polymer_setIgnoreCalls(boolean value);
     Collection<BlockState> polymer_getPolymerStates();
     int polymer_getOffset();
     void polymer_clear();

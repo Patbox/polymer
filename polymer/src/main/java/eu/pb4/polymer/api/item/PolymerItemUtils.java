@@ -35,6 +35,8 @@ import java.util.function.Predicate;
 public final class PolymerItemUtils {
     public static final String POLYMER_ITEM_ID = "Polymer$itemId";
     public static final String REAL_TAG = "Polymer$itemTag";
+    public static final String ITEM_FRAME_NAME_TAG = "Polymer$itemName";
+
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
 

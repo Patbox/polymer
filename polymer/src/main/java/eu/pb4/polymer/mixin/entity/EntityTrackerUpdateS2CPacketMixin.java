@@ -84,17 +84,25 @@ public class EntityTrackerUpdateS2CPacketMixin {
             entries.addAll(this.trackedValues);
         }
 
-        for (int i = 0; i < entries.size(); i++) {
+        final var size = entries.size();
+        for (int i = 0; i < size; i++) {
             var entry = entries.get(i);
 
             if (entry.getData() == ItemFrameEntityAccessor.getITEM_STACK() && entry.get() instanceof ItemStack stack) {
                 var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayer());
 
                 if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
-                    polymerStack.removeCustomName();
+                    var nbtCompound = polymerStack.getSubNbt("display");
+                    if (nbtCompound != null) {
+                        var name = nbtCompound.get("Name");
+                        if (name != null) {
+                            polymerStack.getNbt().put(PolymerItemUtils.ITEM_FRAME_NAME_TAG, name);
+                        }
+                        nbtCompound.remove("Name");
+                    }
                 }
 
-                entries.set(i, new DataTracker.Entry<>(ItemFrameEntityAccessor.getITEM_STACK(), stack));
+                entries.set(i, new DataTracker.Entry<>(ItemFrameEntityAccessor.getITEM_STACK(), polymerStack));
             } else if (entry.getData() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID()) {
                 entries.set(i, new DataTracker.Entry<>(AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.get()), player))));
             }

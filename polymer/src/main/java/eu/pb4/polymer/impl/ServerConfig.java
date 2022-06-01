@@ -23,6 +23,11 @@ public class ServerConfig {
     public String _c10b = "and replace it with multiple regular block update ones.";
     public String _c10c = "See this issue if you are curious: https://github.com/ConsistencyPlus/ConsistencyPlus/issues/108";
     public boolean disableChunkDeltaUpdatePacket = false;
+    public String _c11 = "Makes polymer report time it's handshake took";
+    public boolean logHandshakeTime = false;
+    public String _c12 = "Enables logging of BlockState ids rebuilds";
+    public boolean logBlockStateRebuilds = true;
+
     public String _cm1 = "Enables compatibility with REI mod";
     public boolean reiCompatibility = true;
 }

@@ -30,12 +30,14 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     @Unique private boolean polymer_locked = true;
     @Unique private int polymer_offset = Integer.MAX_VALUE;
     @Unique private boolean polymer_hasPolymer = false;
+    @Unique private boolean polymer_initializeLazy = true;
 
     @Inject(method = "add", at = @At("HEAD"), cancellable = true)
     private void polymer_moveToEnd(T value, CallbackInfo ci) {
         if (this.polymer_isPolymerAware && value instanceof BlockState blockState) {
             if (this.idMap.containsKey(value)) {
                 ci.cancel();
+                return;
             }
 
             if (blockState.getBlock() instanceof PolymerBlock) {
@@ -52,21 +54,23 @@ public abstract class IdListMixin<T> implements PolymerIdList {
             }
 
             if (this.polymer_hasPolymer && !(blockState.getBlock() instanceof PolymerBlock) && this.polymer_offset <= this.nextId) {
-                PolymerImpl.LOGGER.warn("Rebuilding BlockStates! Someone accessed BlockStates ids too early...");
-                var builder = new StringBuilder();
-                var line = 0;
-                for (var stackTrace : Thread.currentThread().getStackTrace()) {
-                    if (line > 0) {
-                        builder.append("\t").append(stackTrace.toString()).append("\n");
+                if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {
+                    PolymerImpl.LOGGER.warn("Rebuilding BlockStates! Someone accessed BlockStates ids too early...");
+                    var builder = new StringBuilder();
+                    var line = 0;
+                    for (var stackTrace : Thread.currentThread().getStackTrace()) {
+                        if (line > 0) {
+                            builder.append("\t").append(stackTrace.toString()).append("\n");
+                        }
+                        if (line > 24) {
+                            break;
+                        }
+                        line++;
                     }
-                    if (line > 24) {
-                        break;
-                    }
-                    line++;
+                    PolymerImpl.LOGGER.warn("Called by:\n" + builder);
                 }
-                PolymerImpl.LOGGER.warn("Called by:\n" + builder);
-
                 var copy = new ArrayList<>(this.list);
+
                 this.polymer_clear();
                 for (var entry : copy) {
                     if (entry != null) {
@@ -103,7 +107,7 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     }
 
     private void polymer_initLazy() {
-        if (this.polymer_locked) {
+        if (this.polymer_locked && this.polymer_initializeLazy) {
             this.polymer_offset = this.nextId;
             this.polymer_locked = false;
             ((List<T>) this.polymer_lazyList).forEach(this::add);
@@ -114,6 +118,11 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     @Override
     public void polymer_enableLazyBlockStates() {
         this.polymer_isPolymerAware = true;
+    }
+
+    @Override
+    public void polymer_setIgnoreCalls(boolean value) {
+        this.polymer_initializeLazy = !value;
     }
 
     @Override

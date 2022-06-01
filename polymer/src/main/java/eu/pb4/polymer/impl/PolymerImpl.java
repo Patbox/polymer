@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class PolymerImpl {
+
     private PolymerImpl() {
     }
 
@@ -61,6 +62,10 @@ public final class PolymerImpl {
     public static final boolean UNLOCK_SERVER_PACK_CLIENT;
     public static final boolean RESEND_BLOCKS_AROUND_CLICK;
     public static final boolean DONT_USE_BLOCK_DELTA_PACKET;
+    public static final boolean LOG_SYNC_TIME;
+    public static final boolean LOG_BLOCKSTATE_REBUILDS;
+    public static final boolean LOG_INVALID_SERVER_IDS_CLIENT;
+
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
 
@@ -89,6 +94,8 @@ public final class PolymerImpl {
         RESEND_BLOCKS_AROUND_CLICK = SERVER_CONFIG.sendBlocksAroundClicked;
         DONT_USE_BLOCK_DELTA_PACKET = SERVER_CONFIG.disableChunkDeltaUpdatePacket;
         ENABLE_REI = SERVER_CONFIG.reiCompatibility;
+        LOG_SYNC_TIME = DEVELOPER_MODE || SERVER_CONFIG.logHandshakeTime;
+        LOG_BLOCKSTATE_REBUILDS = SERVER_CONFIG.logBlockStateRebuilds;
 
         if (configDir().resolve("mixins.json").toFile().isFile()) {
             for (var mixin : loadConfig("mixins", MixinOverrideConfig.class).disabledMixins) {
@@ -121,12 +128,14 @@ public final class PolymerImpl {
             FORCE_RESOURCE_PACK_CLIENT = clientConfig.forceResourcePackByDefault;
             DISPLAY_DEBUG_INFO_CLIENT = clientConfig.displayF3Info;
             UNLOCK_SERVER_PACK_CLIENT = LOADER.getGameDir().resolve(".polymer_unlock_rp").toFile().exists();
+            LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
         } else {
             USE_ALT_ARMOR_HANDLER = false;
             ENABLE_NETWORKING_CLIENT = false;
             FORCE_RESOURCE_PACK_CLIENT = false;
             DISPLAY_DEBUG_INFO_CLIENT = false;
             UNLOCK_SERVER_PACK_CLIENT = false;
+            LOG_INVALID_SERVER_IDS_CLIENT = false;
         }
     }
 

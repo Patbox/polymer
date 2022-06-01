@@ -253,10 +253,12 @@ public class InternalClientRegistry {
     }
 
     private static void errorDecode(int rawId, String type) {
-        PolymerImpl.LOGGER.error("Invalid " + type + " (" + rawId + ")! Couldn't match it with any existing value!");
-        var stack = Thread.currentThread().getStackTrace();
-        if (stack.length > 3) {
-            PolymerImpl.LOGGER.error("Caused by: " + stack[3].toString());
+        if (PolymerImpl.LOG_INVALID_SERVER_IDS_CLIENT) {
+            PolymerImpl.LOGGER.error("Invalid " + type + " (" + rawId + ")! Couldn't match it with any existing value!");
+            var stack = Thread.currentThread().getStackTrace();
+            if (stack.length > 3) {
+                PolymerImpl.LOGGER.error("Caused by: " + stack[3].toString());
+            }
         }
     }
 
