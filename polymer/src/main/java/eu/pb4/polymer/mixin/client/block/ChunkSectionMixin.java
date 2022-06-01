@@ -1,12 +1,12 @@
 package eu.pb4.polymer.mixin.client.block;
 
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
-import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.mixin.other.PalettedContainerAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
+import net.minecraft.class_7522;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkSection;
@@ -34,8 +34,8 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
         this.polymer_createContainers();
     }
 
-    @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/world/chunk/PalettedContainer;)V", at = @At("TAIL"))
-    private void polymer_init2(int chunkPos, PalettedContainer<BlockState> blockStateContainer, PalettedContainer<Biome> biomeContainer, CallbackInfo ci) {
+    @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/class_7522;)V", at = @At("TAIL"))
+    private void polymer_init2(int chunkPos, PalettedContainer blockStateContainer, class_7522 arg, CallbackInfo ci) {
         this.polymer_createContainers();
     }
 
