@@ -25,6 +25,9 @@ public class ServerConfig {
     public boolean disableChunkDeltaUpdatePacket = false;
     public String _c11 = "Makes polymer report time it's handshake took";
     public boolean logHandshakeTime = false;
+    public String _c12 = "Enables logging of BlockState ids rebuilds";
+    public boolean logBlockStateRebuilds = true;
+
     public String _cm1 = "Enables compatibility with REI mod";
     public boolean reiCompatibility = true;
 }

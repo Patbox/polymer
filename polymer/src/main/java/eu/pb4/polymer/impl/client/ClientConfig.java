@@ -9,4 +9,6 @@ public class ClientConfig {
     public boolean useAlternativeArmorRenderer = false;
     public String _c4 = "Toggles visibility of F3 debug info";
     public boolean displayF3Info = true;
+    public String _c5 = "Enables logging of invalid registry ids (BlockStates, Blocks, Items, etc) sent by server";
+    public boolean logInvalidServerEntryIds = true;
 }
