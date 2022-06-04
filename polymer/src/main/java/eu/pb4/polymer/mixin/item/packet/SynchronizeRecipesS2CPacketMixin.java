@@ -58,23 +58,24 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
     private void polymer_replaceRecipesOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
-        if (this.polymer_clientRewrittenRecipes == null && ClientUtils.isSingleplayer()) {
-            this.polymer_clientRewrittenRecipes = new ArrayList<>();
+        if (ClientUtils.isSingleplayer()) {
+            if (this.polymer_clientRewrittenRecipes == null) {
+                this.polymer_clientRewrittenRecipes = new ArrayList<>();
 
-            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 
-            for (var recipe : this.recipes) {
-                buf.clear();
-                try {
-                    ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).write(buf, recipe);
-                    this.polymer_clientRewrittenRecipes.add(recipe.getSerializer().read(recipe.getId(), buf));
-                } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
-                    this.polymer_clientRewrittenRecipes.add(recipe);
+                for (var recipe : this.recipes) {
+                    buf.clear();
+                    try {
+                        ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).write(buf, recipe);
+                        this.polymer_clientRewrittenRecipes.add(recipe.getSerializer().read(recipe.getId(), buf));
+                    } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
+                        this.polymer_clientRewrittenRecipes.add(recipe);
+                    }
                 }
             }
+            cir.setReturnValue(this.polymer_clientRewrittenRecipes);
         }
-
-        cir.setReturnValue(this.polymer_clientRewrittenRecipes);
     }
 
 
