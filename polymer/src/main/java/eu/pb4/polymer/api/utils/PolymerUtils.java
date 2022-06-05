@@ -45,8 +45,8 @@ import java.util.zip.ZipFile;
 public final class PolymerUtils {
     private PolymerUtils() {
     }
-    private final static String CLIENT_SHA1 = "7e46fb47609401970e2818989fa584fd467cd036";
-    private final static String CLIENT_URL = "https://launcher.mojang.com/v1/objects/" + CLIENT_SHA1 + "/client.jar";
+    private final static String SAFE_CLIENT_SHA1 = "a984bc5036a9f0ace8da1040614996abcda5f2ad";
+    private final static String SAFE_CLIENT_URL = "https://launcher.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
 
     public static final String ID = "polymer";
     public static final String NO_TEXTURE_HEAD_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGUyY2UzMzcyYTNhYzk3ZmRkYTU2MzhiZWYyNGIzYmM0OWY0ZmFjZjc1MWZlOWNhZDY0NWYxNWE3ZmI4Mzk3YyJ9fX0=";
@@ -269,7 +269,7 @@ public final class PolymerUtils {
         try {
             Path clientJarPath;
             if (!PolymerImpl.IS_CLIENT) {
-                clientJarPath = PolymerImpl.getGameDir().resolve("polymer_cache/client_jars/" + CLIENT_SHA1 + ".jar");
+                clientJarPath = PolymerImpl.getGameDir().resolve("polymer_cache/client_jars/" + SAFE_CLIENT_SHA1 + ".jar");
             } else {
                 var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
                 clientJarPath = Path.of(clientFile);
@@ -278,7 +278,7 @@ public final class PolymerUtils {
             if (!clientJarPath.toFile().exists()) {
                 Files.createDirectories(clientJarPath.getParent());
                 PolymerImpl.LOGGER.info("Downloading vanilla client jar...");
-                URL url = new URL(CLIENT_URL);
+                URL url = new URL(SAFE_CLIENT_URL);
                 URLConnection connection = url.openConnection();
                 InputStream is = connection.getInputStream();
                 Files.copy(is, clientJarPath);
