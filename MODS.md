@@ -39,7 +39,7 @@ without needing to install the mod on your client!
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/interdimensional
 
 ## Lightning Podoboo
-Makes fire created by natural lightning cosmetic, meaning no blocks are destroyed from bad weather.
+Makes fire created by natural lightning cosmetic, meaning no blocks are destroyed from bad weather.  
 Keep the `doFireTick` gamerule enabled without worrying about random fire destroying your builds or nearby trees!
 
 ### Links
