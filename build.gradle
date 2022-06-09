@@ -134,8 +134,9 @@ curseforge {
             releaseType = "release"
             changelog = System.getenv("CHANGELOG")
             changelogType = "markdown"
-            addGameVersion "1.18.2"
+            addGameVersion "1.19"
             addGameVersion "Fabric"
+            addGameVersion "Quilt"
             mainArtifact(remapJar)
 
             afterEvaluate {

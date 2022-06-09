@@ -46,15 +46,9 @@ dependencies {
 
     modCompileOnly ('com.github.TheEpicBlock:PolyMc:4.0.0')
 
-    modCompileOnly ("mcp.mobius.waila:wthit:fabric-4.4.0")
+    modCompileOnly modLocalRuntime("mcp.mobius.waila:wthit:fabric-5.1.3")
 
-    //modLocalRuntime 'com.github.TheEpicBlock:PolyMc:4.0.0'
-    //modLocalRuntime 'maven.modrinth:mo-blocks-fabric:0.10.3b'
-    //modLocalRuntime 'maven.modrinth:copperstuff:1.0.0'
-
-    modCompileOnly ("me.shedaniel:RoughlyEnoughItems-api-fabric:7.2.422")
-    //modLocalRuntime ("me.shedaniel:RoughlyEnoughItems-fabric:7.2.422")
-    //modLocalRuntime ("com.sk89q.worldedit:worldedit-fabric-mc1.18.1:7.2.9")
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.0.472"
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
@@ -72,8 +66,8 @@ dependencies {
     modImplementation include("xyz.nucleoid:packet-tweaker:0.3.0+1.18.2")
     modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-    modCompileOnly("fr.catcore:server-translations-api:1.4.12+1.18.2")
-    //modLocalRuntime("fr.catcore:server-translations-api:1.4.12+1.18.2")
+    modCompileOnly("fr.catcore:server-translations-api:1.4.14+1.19-rc2")
+    modLocalRuntime("fr.catcore:server-translations-api:1.4.14+1.19-rc2")
 
     modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.3.7-1.18'
     modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.3.7-1.18'

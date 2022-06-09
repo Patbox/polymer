@@ -7,6 +7,9 @@ import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import mcp.mobius.waila.api.*;
+import mcp.mobius.waila.api.component.EmptyComponent;
+import mcp.mobius.waila.api.component.ItemComponent;
+import mcp.mobius.waila.api.component.PairComponent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -32,7 +35,6 @@ public class WthitCompatibility implements IWailaPlugin {
         registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.BODY, Block.class, 1000);
         registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.TAIL, Block.class, 1000);
         registrar.addOverride(BlockOverride.INSTANCE, Block.class, 1000);
-        registrar.addDisplayItem(BlockOverride.INSTANCE, Block.class, 500);
 
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.HEAD, ItemEntity.class, 1000);
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.TAIL, ItemEntity.class, 1000);
@@ -84,7 +86,7 @@ public class WthitCompatibility implements IWailaPlugin {
         }
 
         @Override
-        public ItemStack getDisplayItem(IBlockAccessor accessor, IPluginConfig config) {
+        public ITooltipComponent getIcon(IBlockAccessor accessor, IPluginConfig config) {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != ClientPolymerBlock.NONE_STATE) {
                 BlockState state = accessor.getWorld().getBlockState(accessor.getPosition());
@@ -102,19 +104,19 @@ public class WthitCompatibility implements IWailaPlugin {
                     }
                 }
 
-                return itemStack;
+                return new ItemComponent(itemStack);
             }
-            return ItemStack.EMPTY;
+            return EmptyComponent.INSTANCE;
         }
 
         @Override
         public void appendHead(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != ClientPolymerBlock.NONE_STATE) {
-                IWailaConfig.Formatting formatting = IWailaConfig.get().getFormatting();
-                tooltip.set(WailaConstants.OBJECT_NAME_TAG, Text.literal(formatting.formatBlockName(block.block().name().getString())));
+                var formatting = IWailaConfig.get().getFormatter();
+                tooltip.setLine(WailaConstants.OBJECT_NAME_TAG, formatting.blockName(block.block().name().getString()));
                 if (config.getBoolean(WailaConstants.CONFIG_SHOW_REGISTRY)) {
-                    tooltip.set(WailaConstants.REGISTRY_NAME_TAG, Text.literal(formatting.formatRegistryName(block.block().identifier().toString())));
+                    tooltip.setLine(WailaConstants.REGISTRY_NAME_TAG, formatting.registryName(block.block().identifier().toString()));
                 }
             }
         }
@@ -127,7 +129,7 @@ public class WthitCompatibility implements IWailaPlugin {
                     for (var state : block.states().entrySet()) {
                         var value = state.getValue();
                         var valueText = Text.literal(value).setStyle(Style.EMPTY.withColor(value.equals("true") ? Formatting.GREEN : value.equals("false") ? Formatting.RED : Formatting.RESET));
-                        tooltip.addPair(Text.literal(state.getKey()), valueText);
+                        tooltip.addLine(new PairComponent(Text.literal(state.getKey()), valueText));
                     }
                 }
             }
@@ -144,7 +146,7 @@ public class WthitCompatibility implements IWailaPlugin {
                         modName = "Server";
                     }
 
-                    tooltip.set(WailaConstants.MOD_NAME_TAG, Text.literal(IWailaConfig.get().getFormatting().formatModName(modName)));
+                    tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
                 }
             }
         }
@@ -162,8 +164,8 @@ public class WthitCompatibility implements IWailaPlugin {
                     var id = PolymerItemUtils.getPolymerIdentifier(stack);
 
                     if (id != null) {
-                        IWailaConfig.Formatting formatting = IWailaConfig.get().getFormatting();
-                        tooltip.set(WailaConstants.REGISTRY_NAME_TAG, Text.literal(formatting.formatRegistryName(id)));
+                        var formatting = IWailaConfig.get().getFormatter();
+                        tooltip.setLine(WailaConstants.REGISTRY_NAME_TAG, formatting.registryName(id));
                     }
                 }
             }
@@ -187,7 +189,7 @@ public class WthitCompatibility implements IWailaPlugin {
                             modName = "Server";
                         }
 
-                        tooltip.set(WailaConstants.MOD_NAME_TAG, Text.literal(IWailaConfig.get().getFormatting().formatModName(modName)));
+                        tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
                     }
                 }
             }
@@ -197,6 +199,19 @@ public class WthitCompatibility implements IWailaPlugin {
 
     private static final class EntityOverride implements IEntityComponentProvider {
         public static final EntityOverride INSTANCE = new EntityOverride();
+
+        @Override
+        public void appendHead(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
+            if (config.getBoolean(WailaConstants.CONFIG_SHOW_REGISTRY)) {
+
+                var entity = accessor.getEntity();
+                var type = PolymerClientUtils.getEntityType(entity);
+                if (type != null) {
+                    var formatting = IWailaConfig.get().getFormatter();
+                    tooltip.setLine(WailaConstants.REGISTRY_NAME_TAG, formatting.registryName(type.identifier()));
+                }
+            }
+        }
 
         @Override
         public void appendTail(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
@@ -213,7 +228,7 @@ public class WthitCompatibility implements IWailaPlugin {
                         modName = "Server";
                     }
 
-                    tooltip.set(WailaConstants.MOD_NAME_TAG, Text.literal(IWailaConfig.get().getFormatting().formatModName(modName)));
+                    tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
                 }
             }
         }

@@ -27,7 +27,7 @@
     "client": [
       "eu.pb4.polymer.impl.PolymerMod"
     ],
-    "rei": [
+    "rei_client": [
       "eu.pb4.polymer.impl.client.compat.ReiCompatibility"
     ],
     "appleskin": [

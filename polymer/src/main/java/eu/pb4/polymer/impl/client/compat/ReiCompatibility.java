@@ -13,7 +13,6 @@ import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
 import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -22,10 +21,10 @@ public class ReiCompatibility implements REIClientPlugin {
     private static final Predicate<? extends EntryStack<?>> SHOULD_REMOVE = (x) -> x.getValue() instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null);
 
     private static final EntryComparator<ItemStack> ITEM_STACK_ENTRY_COMPARATOR = (c, i) -> {
-        var nbt = i.getNbt();
+        var polymerId = PolymerItemUtils.getPolymerIdentifier(i);
 
-        if (nbt != null && nbt.contains(PolymerItemUtils.POLYMER_ITEM_ID, NbtElement.STRING_TYPE)) {
-            return nbt.getString(PolymerItemUtils.POLYMER_ITEM_ID).hashCode();
+        if (polymerId != null) {
+            return polymerId.hashCode();
         }
 
         return 0;
@@ -44,6 +43,7 @@ public class ReiCompatibility implements REIClientPlugin {
 
     public static void registerEvents() {
         if (PolymerImpl.ENABLE_REI) {
+            PolymerImpl.LOGGER.info("Polymer's REI integration enabled... through it might be not fully working (REI bug)");
             PolymerClientUtils.ON_CLEAR.register(() -> EntryRegistry.getInstance().removeEntryIf(SHOULD_REMOVE));
             PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
         }
@@ -52,6 +52,7 @@ public class ReiCompatibility implements REIClientPlugin {
     private static void update(EntryRegistry registry) {
         try {
             registry.removeEntryIf(SHOULD_REMOVE);
+
             for (var group : ItemGroup.GROUPS) {
                 if (group == ItemGroup.SEARCH) {
                     continue;

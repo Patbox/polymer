@@ -9,12 +9,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public class TestInitializer implements ModInitializer {
-    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(new Identifier("test/textured_blocks"), new LiteralText("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
+    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(new Identifier("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
 
     @Override
     public void onInitialize() {
