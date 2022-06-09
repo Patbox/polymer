@@ -19,10 +19,6 @@
   "license": "LGPLv3",
   "icon": "assets/icon.png",
   "environment": "*",
-  "depends": {
-    "minecraft": ">=1.18.1 <1.19",
-    "fabricloader": ">=0.12.0"
-  },
   "custom": {
     "modmenu": {
       "discord": "https://pb4.eu/discord"
