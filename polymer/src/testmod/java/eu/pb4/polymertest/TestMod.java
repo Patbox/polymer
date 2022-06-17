@@ -83,6 +83,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static BlockItem BLOCK_ITEM_3 = new PolymerBlockItem(BLOCK_3, new FabricItemSettings().group(ITEM_GROUP), Items.COBWEB);
     public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
     public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new FabricItemSettings().group(ITEM_GROUP));
+    public static BlockItem TATER_BLOCK_ITEM2 = new PolymerBlockItem(TATER_BLOCK, new FabricItemSettings().group(ITEM_GROUP), Items.RAW_IRON_BLOCK);
     public static TestPickaxeItem PICKAXE = new TestPickaxeItem(ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings().group(ITEM_GROUP));
     public static TestHelmetItem HELMET = new TestHelmetItem(new FabricItemSettings().group(ITEM_GROUP));
     public static Block WRAPPED_BLOCK = new SimplePolymerBlock(AbstractBlock.Settings.copy(BLOCK), BLOCK);
@@ -175,6 +176,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registry.ITEM, new Identifier("test", "block3"), BLOCK_ITEM_3);
         register(Registry.BLOCK, new Identifier("test", "potato_block"), TATER_BLOCK);
         register(Registry.ITEM, new Identifier("test", "potato_block"), TATER_BLOCK_ITEM);
+        register(Registry.ITEM, new Identifier("test", "potato_block2"), TATER_BLOCK_ITEM2);
         register(Registry.ITEM, new Identifier("test", "pickaxe"), PICKAXE);
         register(Registry.ITEM, new Identifier("test", "helmet"), HELMET);
         register(Registry.ITEM, new Identifier("test", "bow1"), BOW_1);

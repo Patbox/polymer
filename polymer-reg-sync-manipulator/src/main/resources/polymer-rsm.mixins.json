@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "eu.pb4.polymer.rsm.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "SimpleRegistryMixin",
+    "fabric.fabricSync_RegistrySyncManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

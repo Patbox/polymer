@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.compat;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
 import net.fabricmc.api.EnvType;
@@ -20,7 +21,7 @@ public class lithium_BlockPaletteMixin {
     @ModifyArg(method = {"writePacket", "getPacketSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
-            return PolymerBlockUtils.getPolymerBlockState(blockState);
+            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerUtils.getPlayer());
         }
         return object;
     }

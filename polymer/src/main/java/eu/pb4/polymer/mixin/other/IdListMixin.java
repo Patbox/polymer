@@ -6,6 +6,7 @@ import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.IdList;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,6 +32,7 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     @Unique private int polymer_offset = Integer.MAX_VALUE;
     @Unique private boolean polymer_hasPolymer = false;
     @Unique private boolean polymer_initializeLazy = true;
+    @Unique private boolean polymer_reorderLock = false;
 
     @Inject(method = "add", at = @At("HEAD"), cancellable = true)
     private void polymer_moveToEnd(T value, CallbackInfo ci) {
@@ -54,27 +56,31 @@ public abstract class IdListMixin<T> implements PolymerIdList {
             }
 
             if (this.polymer_hasPolymer && !(blockState.getBlock() instanceof PolymerBlock) && this.polymer_offset <= this.nextId) {
-                if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {
-                    PolymerImpl.LOGGER.warn("Rebuilding BlockStates! Someone accessed BlockStates ids too early...");
-                    var builder = new StringBuilder();
-                    var line = 0;
-                    for (var stackTrace : Thread.currentThread().getStackTrace()) {
-                        if (line > 0) {
-                            builder.append("\t").append(stackTrace.toString()).append("\n");
+                if (this.polymer_reorderLock) {
+                    PolymerImpl.LOGGER.warn("Someone registered BlockStates while StateList is locked! Related block: " + Registry.BLOCK.getId(blockState.getBlock()));
+                } else {
+                    if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {
+                        PolymerImpl.LOGGER.warn("Rebuilding BlockStates! Someone accessed BlockStates ids too early...");
+                        var builder = new StringBuilder();
+                        var line = 0;
+                        for (var stackTrace : Thread.currentThread().getStackTrace()) {
+                            if (line > 0) {
+                                builder.append("\t").append(stackTrace.toString()).append("\n");
+                            }
+                            if (line > 24) {
+                                break;
+                            }
+                            line++;
                         }
-                        if (line > 24) {
-                            break;
-                        }
-                        line++;
+                        PolymerImpl.LOGGER.warn("Called by:\n" + builder);
                     }
-                    PolymerImpl.LOGGER.warn("Called by:\n" + builder);
-                }
-                var copy = new ArrayList<>(this.list);
+                    var copy = new ArrayList<>(this.list);
 
-                this.polymer_clear();
-                for (var entry : copy) {
-                    if (entry != null) {
-                        this.add(entry);
+                    this.polymer_clear();
+                    for (var entry : copy) {
+                        if (entry != null) {
+                            this.add(entry);
+                        }
                     }
                 }
             }
@@ -128,6 +134,16 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     @Override
     public int polymer_getOffset() {
         return this.polymer_offset;
+    }
+
+    @Override
+    public void polymer_setReorderLock(boolean value) {
+        this.polymer_reorderLock = value;
+    }
+
+    @Override
+    public boolean polymer_getReorderLock() {
+        return this.polymer_reorderLock;
     }
 
     @Override

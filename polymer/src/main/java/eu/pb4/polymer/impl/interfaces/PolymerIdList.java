@@ -12,4 +12,7 @@ public interface PolymerIdList {
     Collection<BlockState> polymer_getPolymerStates();
     int polymer_getOffset();
     void polymer_clear();
+
+    void polymer_setReorderLock(boolean value);
+    boolean polymer_getReorderLock();
 }

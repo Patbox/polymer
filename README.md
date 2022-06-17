@@ -10,7 +10,7 @@ This library/mod includes few small utilities that can be useful for playing on 
 
 Few things it does on the client:
 
-- Added compatibility with mods like Roughly Enough Items and WTHIT
+- Added compatibility to multiple client mods (Roughly Enough Items, Just Enough Items, WTHIT, Jade, AppleSkin*)
 - Correct information on F3 debug screen
 - Full support for item picking
 - Creative item tabs

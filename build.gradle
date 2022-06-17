@@ -35,18 +35,19 @@ allprojects {
         // for more information about repositories.
 
         maven { url "https://jitpack.io" }
-        maven { url = "https://maven.nucleoid.xyz/" }
-        maven { url = "https://api.modrinth.com/maven" }
-        maven { url = "https://maven.gegy.dev/" }
+        maven { url "https://maven.nucleoid.xyz/" }
+        maven { url "https://api.modrinth.com/maven" }
+        maven { url "https://maven.gegy.dev/" }
         maven { url "https://maven.shedaniel.me/" }
         maven { url "https://maven.bai.lol" }
-        maven { url = "https://maven.ryanliptak.com/" }
-        maven { url = "https://api.modrinth.com/maven" }
+        maven { url "https://maven.ryanliptak.com/" }
+        maven { url "https://api.modrinth.com/maven" }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-        maven { url = "https://maven.enginehub.org/repo/" }
-        maven { url = "https://maven.theepicblock.nl"; content { includeGroup("nl.theepicblock") } }
-        maven { url = 'https://maven.wispforest.io/' }
+        maven { url "https://maven.enginehub.org/repo/" }
+        maven { url "https://maven.theepicblock.nl"; content { includeGroup("nl.theepicblock") } }
+        maven { url 'https://maven.wispforest.io/' }
         maven { url "https://cursemaven.com" }
+        maven { url "https://dvs1.progwml6.com/files/maven/" }
     }
 
     dependencies {

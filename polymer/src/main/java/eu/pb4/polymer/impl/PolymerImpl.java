@@ -69,7 +69,6 @@ public final class PolymerImpl {
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
 
-    public static final boolean ENABLE_REI;
     static {
         new CompatStatus();
 
@@ -93,7 +92,6 @@ public final class PolymerImpl {
         HANDLE_HANDSHAKE_EARLY = SERVER_CONFIG.handleHandshakeEarly;
         RESEND_BLOCKS_AROUND_CLICK = SERVER_CONFIG.sendBlocksAroundClicked;
         DONT_USE_BLOCK_DELTA_PACKET = SERVER_CONFIG.disableChunkDeltaUpdatePacket;
-        ENABLE_REI = SERVER_CONFIG.reiCompatibility;
         LOG_SYNC_TIME = DEVELOPER_MODE || SERVER_CONFIG.logHandshakeTime;
         LOG_BLOCKSTATE_REBUILDS = SERVER_CONFIG.logBlockStateRebuilds;
 

@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import eu.pb4.polymer.ext.blocks.api.PolymerBlockModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Property;
-import net.minecraft.util.registry.Registry;
 
 import java.util.Collections;
 import java.util.Map;
@@ -34,9 +33,6 @@ public class PolymerBlocksInternal {
     }
 
     public static String generateStateName(BlockState state) {
-
-        var id = Registry.BLOCK.getId(state.getBlock());
-
         var stringBuilder = new StringBuilder();
 
         var iterator = state.getEntries().entrySet().iterator();

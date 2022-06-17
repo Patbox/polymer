@@ -12,6 +12,7 @@ public final class CompatStatus {
     public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
 
     public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");
+    public static final boolean FABRIC_FLUID_RENDERERING = LOADER.isModLoaded("fabric-rendering-fluids-v1");
     public static final boolean FABRIC_ITEM_GROUP = LOADER.isModLoaded("fabric-item-groups-v0");
     public static final boolean FABRIC_SCREEN_HANDLER = LOADER.isModLoaded("fabric-screen-handler-api-v1");
     public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
@@ -24,7 +25,9 @@ public final class CompatStatus {
     public static final boolean DISGUISELIB = LOADER.isModLoaded("disguiselib");
 
     public static final boolean WTHIT = LOADER.isModLoaded("wthit");
+    public static final boolean JADE = LOADER.isModLoaded("jade");
     public static final boolean REI = LOADER.isModLoaded("roughlyenoughitems");
+    public static final boolean JEI = LOADER.isModLoaded("jei");
 
     public static final boolean IRIS = LOADER.isModLoaded("iris");
     public static final boolean CANVAS = LOADER.isModLoaded("canvas");

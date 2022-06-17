@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl;
 
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.impl.client.compat.FabricFluids;
 import eu.pb4.polymer.impl.client.compat.ReiCompatibility;
 import eu.pb4.polymer.impl.client.rendering.PolymerResourcePack;
 import eu.pb4.polymer.impl.compat.CompatStatus;
@@ -26,6 +27,10 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 		PolymerResourcePack.setup();
 		if (CompatStatus.REI) {
 			ReiCompatibility.registerEvents();
+		}
+
+		if (CompatStatus.FABRIC_FLUID_RENDERERING) {
+			FabricFluids.register();
 		}
 	}
 }

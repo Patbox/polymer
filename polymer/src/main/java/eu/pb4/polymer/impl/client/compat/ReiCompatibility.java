@@ -2,7 +2,6 @@ package eu.pb4.polymer.impl.client.compat;
 
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
-import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
@@ -30,23 +29,10 @@ public class ReiCompatibility implements REIClientPlugin {
         return 0;
     };
 
-    @Override
-    public void registerItemComparators(ItemComparatorRegistry registry) {
-        if (PolymerImpl.ENABLE_REI) {
-            try {
-                registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
-            } catch (Throwable e) {
-                // no one cares
-            }
-        }
-    }
-
     public static void registerEvents() {
-        if (PolymerImpl.ENABLE_REI) {
-            PolymerImpl.LOGGER.info("Polymer's REI integration enabled... through it might be not fully working (REI bug)");
-            PolymerClientUtils.ON_CLEAR.register(() -> EntryRegistry.getInstance().removeEntryIf(SHOULD_REMOVE));
-            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
-        }
+        PolymerClientUtils.ON_CLEAR.register(() -> EntryRegistry.getInstance().removeEntryIf(SHOULD_REMOVE));
+        PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
+
     }
 
     private static void update(EntryRegistry registry) {
@@ -75,5 +61,15 @@ public class ReiCompatibility implements REIClientPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void registerItemComparators(ItemComparatorRegistry registry) {
+        try {
+            registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
+        } catch (Throwable e) {
+            // no one cares
+        }
+
     }
 }

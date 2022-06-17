@@ -3,10 +3,8 @@ package eu.pb4.polymer.api.block;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.PolymerImplUtils;
-import eu.pb4.polymer.impl.compat.CompatStatus;
-import eu.pb4.polymer.impl.compat.QuiltRegistryUtils;
-import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
@@ -55,27 +53,8 @@ public final class PolymerBlockUtils {
     public static void registerBlockEntity(BlockEntityType<?>... types) {
         BLOCK_ENTITY_TYPES.addAll(Arrays.asList(types));
 
-        if (CompatStatus.QUILT_REGISTRY) {
-            for (var type : types) {
-                QuiltRegistryUtils.markAsOptional(Registry.BLOCK_ENTITY_TYPE, type);
-            }
-        }
-
-        var reg = (RegistryExtension) Registry.BLOCK_ENTITY_TYPE;
-        if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
-            reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
-            for (var entry : Registry.BLOCK_ENTITY_TYPE.getEntrySet()) {
-                if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
-                    continue;
-                }
-
-                if (BLOCK_ENTITY_TYPES.contains(entry.getValue())) {
-                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_POLYMER);
-                } else {
-                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_REGULAR_MODS);
-                    return;
-                }
-            }
+        for (var type : types) {
+            RegistrySyncUtils.setServerEntry(Registry.BLOCK_ENTITY_TYPE, type);
         }
     }
 

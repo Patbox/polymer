@@ -3,6 +3,7 @@ package eu.pb4.polymer.impl.networking;
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.mixin.block.packet.BlockUpdateS2CPacketAccessor;
 import eu.pb4.polymer.mixin.block.packet.ChunkDeltaUpdateS2CPacketAccessor;
 import net.minecraft.block.BlockState;
@@ -23,9 +24,11 @@ public class BlockPacketUtil {
             PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
 
             if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
-                polymerBlock.onPolymerBlockSend(handler.player, pos.mutableCopy(), blockState);
-            }
+                PolymerNetworkHandlerExtension.of(handler).polymer_delayAction("BlockPacketUtil|BlockUpdate|" + pos.toShortString(), 10,
+                        () -> polymerBlock.onPolymerBlockSend(handler.player, pos.mutableCopy(), blockState));
 
+                //polymerBlock.onPolymerBlockSend(handler.player, pos.mutableCopy(), blockState);
+            }
         } else if (packet instanceof ChunkDataS2CPacket) {
             WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer_getWorldChunk();
             PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;

@@ -9,6 +9,7 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.other.FakeWorld;
 import eu.pb4.polymer.impl.other.PolymerTooltipContext;
 import eu.pb4.polymer.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
@@ -23,6 +24,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.VillagerProfession;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -262,6 +264,10 @@ public final class PolymerUtils {
 
         PolymerImplUtils.setPlayer(oldPlayer);
         PacketContext.setReadContext(oldTarget != null ? oldTarget.networkHandler : null);
+    }
+
+    public static World getFakeWorld() {
+        return FakeWorld.INSTANCE;
     }
 
     @Nullable

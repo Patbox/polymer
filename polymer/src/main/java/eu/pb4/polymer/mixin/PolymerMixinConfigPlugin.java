@@ -58,6 +58,7 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
                 case "wthit" -> CompatStatus.WTHIT;
                 case "rei" -> CompatStatus.REI;
                 case "lithium" -> CompatStatus.LITHIUM;
+                case "jei" -> CompatStatus.JEI;
                 case "armor" -> PolymerImpl.USE_ALT_ARMOR_HANDLER;
                 case "ip" -> CompatStatus.IMMERSIVE_PORTALS;
                 case "quiltReg" -> CompatStatus.QUILT_REGISTRY;

@@ -1,12 +1,10 @@
 package eu.pb4.polymer.api.entity;
 
-import eu.pb4.polymer.impl.compat.CompatStatus;
-import eu.pb4.polymer.impl.compat.QuiltRegistryUtils;
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
-import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
@@ -48,27 +46,8 @@ public final class PolymerEntityUtils {
     public static void registerType(EntityType<?>... types) {
         ENTITY_TYPES.addAll(Arrays.asList(types));
 
-        if (CompatStatus.QUILT_REGISTRY) {
-            for (var type : types) {
-                QuiltRegistryUtils.markAsOptional(Registry.ENTITY_TYPE, type);
-            }
-        }
-
-        var reg = (RegistryExtension) Registry.ENTITY_TYPE;
-        if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
-            reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
-            for (var entry : Registry.ENTITY_TYPE.getEntrySet()) {
-                if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
-                    continue;
-                }
-
-                if (ENTITY_TYPES.contains(entry.getValue())) {
-                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_POLYMER);
-                } else {
-                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_REGULAR_MODS);
-                    return;
-                }
-            }
+        for (var type : types) {
+            RegistrySyncUtils.setServerEntry(Registry.ENTITY_TYPE, type);
         }
     }
 
@@ -79,26 +58,8 @@ public final class PolymerEntityUtils {
      * @param mapper object managing mapping to client compatible one
      */
     public static void registerProfession(VillagerProfession profession, PolymerVillagerProfession mapper) {
-        if (CompatStatus.QUILT_REGISTRY) {
-            QuiltRegistryUtils.markAsOptional(Registry.VILLAGER_PROFESSION, profession);
-        }
-
-        var reg = (RegistryExtension) Registry.VILLAGER_PROFESSION;
-        if (reg.polymer_getStatus() == RegistryExtension.Status.WITH_REGULAR_MODS) {
-            reg.polymer_setStatus(RegistryExtension.Status.VANILLA_ONLY);
-            for (var entry : Registry.VILLAGER_PROFESSION.getEntrySet()) {
-                if (entry.getKey().getValue().getNamespace().equals("minecraft")) {
-                    continue;
-                }
-
-                if (VILLAGER_PROFESSIONS.containsKey(entry.getValue())) {
-                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_POLYMER);
-                } else {
-                    reg.polymer_updateStatus(RegistryExtension.Status.WITH_REGULAR_MODS);
-                    return;
-                }
-            }
-        }
+        VILLAGER_PROFESSIONS.put(profession, mapper);
+        RegistrySyncUtils.setServerEntry(Registry.VILLAGER_PROFESSION, profession);
     }
 
     @Nullable

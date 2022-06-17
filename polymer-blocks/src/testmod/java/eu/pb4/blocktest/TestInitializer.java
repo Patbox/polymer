@@ -25,7 +25,7 @@ public class TestInitializer implements ModInitializer {
         register(BlockModelType.TRANSPARENT_BLOCK, "block/chair");
         register(BlockModelType.FARMLAND_BLOCK, "block/copper_block");
         register(BlockModelType.VINES_BLOCK, "block/table");
-        register(BlockModelType.PLANT_BLOCK, "block/steel_block");
+        register(BlockModelType.BIOME_PLANT_BLOCK, "block/steel_block");
         register(BlockModelType.KELP_BLOCK, "block/titan_ore_nether");
     }
 

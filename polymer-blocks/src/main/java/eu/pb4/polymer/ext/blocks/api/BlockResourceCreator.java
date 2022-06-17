@@ -11,6 +11,9 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.LeavesBlock;
+import net.minecraft.block.Waterloggable;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,7 +68,20 @@ public final class BlockResourceCreator {
             this.registerEvent();
             var state = states.remove(0);
             models.put(state, model);
-            this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS.getOrDefault(state, state.getBlock().getDefaultState()));
+
+
+            if (state.getBlock() instanceof Waterloggable) {
+                this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS
+                        .getOrDefault(state, (state.getBlock() instanceof LeavesBlock
+                                ? state.getBlock().getDefaultState().with(LeavesBlock.PERSISTENT, true) : state.getBlock().getDefaultState()).with(Properties.WATERLOGGED, state.get(Properties.WATERLOGGED)))
+                );
+            } else {
+                this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS
+                        .getOrDefault(state, state.getBlock() instanceof LeavesBlock
+                                ? state.getBlock().getDefaultState().with(LeavesBlock.PERSISTENT, true) : state.getBlock().getDefaultState())
+                );
+            }
+
             return state;
         }
         return null;

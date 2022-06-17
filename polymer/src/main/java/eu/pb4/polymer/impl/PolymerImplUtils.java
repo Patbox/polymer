@@ -2,13 +2,16 @@ package eu.pb4.polymer.impl;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
-import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
+import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -32,6 +35,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -39,6 +43,8 @@ public class PolymerImplUtils {
     public static final Text[] ICON;
     private static final ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
     private static ItemStack NO_TEXTURE;
+
+    public static final SimpleEvent<BiConsumer<Registry<Object>, Object>> ON_REGISTERED = new SimpleEvent<>();
 
     static {
         final String chr = "█";
@@ -187,8 +193,13 @@ public class PolymerImplUtils {
                     msg.accept("");
                     msg.accept("== Registry: " + ((Registry<Object>) (Object) Registry.REGISTRIES).getId(reg).toString());
                     msg.accept("");
-                    if (reg instanceof RegistryExtension regEx) {
-                        msg.accept("= Status: " + regEx.polymer_getStatus().name());
+                    if (reg instanceof RegistrySyncExtension regEx) {
+                        msg.accept("= Status: " + regEx.polymerRSM_getStatus().name());
+                        msg.accept("");
+                    }
+
+                    if (CompatStatus.FABRIC_SYNC) {
+                        msg.accept("= Synced: " + RegistryAttributeHolder.get(reg).hasAttribute(RegistryAttribute.SYNCED));
                         msg.accept("");
                     }
 
@@ -199,7 +210,9 @@ public class PolymerImplUtils {
                 msg.accept("");
                 msg.accept("== BlockStates");
                 msg.accept("");
-                msg.accept("= Offset: " + PolymerImplUtils.getBlockStateOffset());
+                msg.accept("= Polymer Starts: " + PolymerImplUtils.getBlockStateOffset());
+                msg.accept("");
+                msg.accept("= Vanilla ChunkDeltaUpdateS2CPacket broken: " + (PolymerImplUtils.getBlockStateOffset() >= 524288));
                 msg.accept("");
 
                 for (var state : Block.STATE_IDS) {
@@ -261,5 +274,17 @@ public class PolymerImplUtils {
 
     public static int getBlockStateOffset() {
         return ((PolymerIdList) Block.STATE_IDS).polymer_getOffset();
+    }
+
+    public static void setStateIdsLock(boolean value) {
+        ((PolymerIdList) Block.STATE_IDS).polymer_setReorderLock(value);
+    }
+
+    public static boolean getStateIdsLock(boolean value) {
+        return ((PolymerIdList) Block.STATE_IDS).polymer_getReorderLock();
+    }
+
+    public static void invokeRegistered(Registry<Object> ts, Object entry) {
+        ON_REGISTERED.invoke((a) -> a.accept(ts, entry));
     }
 }

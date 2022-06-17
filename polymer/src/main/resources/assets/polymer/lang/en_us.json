@@ -4,6 +4,7 @@
   "text.polymer.resource_pack.description.required": "Resource pack for polymer-based mods.",
   "itemGroup.polymer.server_items": "Server items",
   "text.polymer.server_items": "Server item",
-  "text.polymer.server": "Server"
-
+  "text.polymer.server": "Server",
+  "config.jade.plugin_polymer.blockstate": "Enable blocks",
+  "config.jade.plugin_polymer.entities": "Enable entities"
 }
