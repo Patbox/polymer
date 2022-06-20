@@ -24,7 +24,7 @@ public class ServerTranslationUtils {
     public static ItemStack parseFor(ServerPlayNetworkHandler handler, ItemStack stack) {
         if (IS_PRESENT) {
             var newStack = stack.copy();
-            newStack.setNbt(StackNbtLocalizer.localize(newStack, stack.getNbt(), (LocalizationTarget) handler.player));
+            newStack.setNbt(StackNbtLocalizer.localize(newStack, newStack.getNbt(), (LocalizationTarget) handler.player));
             return newStack;
         }
         return stack.copy();

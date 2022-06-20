@@ -37,7 +37,7 @@ public abstract class KeyboardMixin {
 
     @Inject(method = "processF3", at = @At("TAIL"), cancellable = true)
     private void polymer_processF3(int key, CallbackInfoReturnable<Boolean> cir) {
-        if (key == GLFW.GLFW_KEY_KP_4 && PolymerImpl.DEVELOPER_MODE) {
+        if (key == GLFW.GLFW_KEY_0 && PolymerImpl.DEVELOPER_MODE) {
             PolymerImplUtils.dumpRegistry();
             this.debugLog("Dumped Polymer Client registry!");
             cir.setReturnValue(true);

@@ -4,23 +4,21 @@ import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerManager.class)
 public class PlayerManagerMixin {
-    @ModifyVariable(method = "onPlayerConnect", at = @At(value = "STORE"), require = 0)
-    private ServerPlayNetworkHandler polymer_setupHandler(ServerPlayNetworkHandler handler, ClientConnection connection, ServerPlayerEntity player) {
+    @Inject(method = "onPlayerConnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/CustomPayloadS2CPacket;<init>(Lnet/minecraft/util/Identifier;Lnet/minecraft/network/PacketByteBuf;)V", shift = At.Shift.AFTER))
+    private void polymer_setupHandler(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         var handshake = ((TempPlayerLoginAttachments) player).polymer_getAndRemoveHandshakeHandler();
 
         if (handshake != null) {
-            handshake.apply(handler);
-            PolymerServerProtocol.sendSyncPackets(handler, false);
+            handshake.apply(player.networkHandler);
+            PolymerServerProtocol.sendSyncPackets(player.networkHandler, false);
         }
-
-        return handler;
     }
 }

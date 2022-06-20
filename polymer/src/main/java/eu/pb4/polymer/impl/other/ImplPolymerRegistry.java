@@ -3,33 +3,36 @@ package eu.pb4.polymer.impl.other;
 import eu.pb4.polymer.api.utils.PolymerRegistry;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 @ApiStatus.Internal
 public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
-    private final Map<Identifier, T> entryMap = new HashMap<>();
+    private final Map<Identifier, T> entryMap = new Object2ObjectOpenHashMap<>();
     private final Int2ObjectMap<T> rawIdMap = new Int2ObjectOpenHashMap<>();
     private final Object2IntMap<T> entryIdMap = new Object2IntOpenHashMap<>();
-    private final Map<T, Identifier> identifierMap = new HashMap<>();
+    private final Map<T, Identifier> identifierMap = new Object2ObjectOpenHashMap<>();
+    private final Map<Identifier, Set<T>> tags = new Object2ObjectOpenHashMap<>();
     private final T defaultValue;
     private final Identifier defaultIdentifier;
     private final String name;
     private final String shortName;
 
     private int currentId = 0;
+    private Map<T, Set<Identifier>> entryTags = new Object2ObjectOpenHashMap<>();;
 
     public ImplPolymerRegistry(String name, String shortName) {
         this(name, shortName, null, null);
     }
+
     public ImplPolymerRegistry(String name, String shortName, @Nullable Identifier defaultIdentifier, @Nullable T defaultValue) {
         this.name = name;
         this.shortName = shortName;
@@ -56,6 +59,13 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     @Override
     public T get(int id) {
         return this.rawIdMap.get(id);
+    }
+
+
+    @Nullable
+    @Override
+    public T getDirect(Identifier identifier) {
+        return this.entryMap.get(identifier);
     }
 
     @Override
@@ -108,6 +118,36 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
         return () -> this.entryMap.entrySet().iterator();
     }
 
+    @Override
+    public Set<T> getTag(Identifier tag) {
+        var x = this.tags.get(tag);
+        return x != null ? x : Collections.emptySet();
+    }
+
+    @Override
+    public Collection<Identifier> getTags() {
+        return this.tags.keySet();
+    }
+
+    @Override
+    public Collection<Identifier> getTagsOf(T entry) {
+        var list = this.entryTags.get(entry);
+        return list == null ? Collections.emptySet() : list;
+    }
+
+    public void createTag(Identifier tag, IntList ids) {
+        var set = new HashSet<T>();
+        ids.forEach((id) -> {
+            var obj = this.rawIdMap.get(id);
+            if (obj != null) {
+                set.add(obj);
+                this.entryTags.computeIfAbsent(obj, (x) -> new HashSet<>()).add(tag);
+            }
+        });
+
+        this.tags.put(tag, set);
+    }
+
     public void remove(T entry) {
         if (this.identifierMap.containsKey(entry)) {
             var id = this.identifierMap.get(entry);
@@ -116,6 +156,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
             this.entryMap.remove(id);
             this.entryIdMap.removeInt(entry);
             this.identifierMap.remove(entry);
+            this.entryTags.remove(entry);
         }
     }
 }

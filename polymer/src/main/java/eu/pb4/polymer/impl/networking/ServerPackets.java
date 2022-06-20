@@ -46,6 +46,8 @@ public class ServerPackets {
     public static final Identifier SYNC_ITEM_GROUP_CLEAR_ID = id(SYNC_ITEM_GROUP_CLEAR);
     public static final String SYNC_BLOCKSTATE = "sync/blockstate";
     public static final Identifier SYNC_BLOCKSTATE_ID = id(SYNC_BLOCKSTATE);
+    public static final String SYNC_TAGS = "sync/tags";
+    public static final Identifier SYNC_TAGS_ID = id(SYNC_TAGS);
     public static final String SYNC_REBUILD_SEARCH = "sync/rebuild_search";
     public static final Identifier SYNC_REBUILD_SEARCH_ID = id(SYNC_REBUILD_SEARCH);
     public static final String SYNC_CLEAR = "sync/clear_all";
@@ -98,6 +100,7 @@ public class ServerPackets {
         register(SYNC_ITEM_GROUP_VANILLA, 0);
         register(SYNC_ENTITY, 0, 1);
         register(SYNC_STATUS_EFFECT, 0);
+        register(SYNC_TAGS, 0);
         register(SYNC_CLEAR, 0);
         register(WORLD_SET_BLOCK_UPDATE, 1, 2);
         register(WORLD_CHUNK_SECTION_UPDATE, 1, 2);

@@ -39,6 +39,9 @@
     "jei_mod_plugin": [
       "eu.pb4.polymer.impl.client.compat.JeiCompatibility"
     ],
+    "emi": [
+      "eu.pb4.polymer.impl.client.compat.EmiCompatibility"
+    ],
     "polymc": [
       "eu.pb4.polymer.impl.compat.polymc.PolyMcEntrypoint"
     ]

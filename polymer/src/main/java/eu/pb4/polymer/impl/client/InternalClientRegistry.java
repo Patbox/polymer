@@ -88,6 +88,7 @@ public class InternalClientRegistry {
     public static final HashMap<String, ItemGroup> VANILLA_ITEM_GROUPS = new HashMap<>();
     public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, ITEM_GROUPS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
+    public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId();
 
     private static Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMap() {
         var map = new HashMap<Registry<?>, ImplPolymerRegistry<?>>();
@@ -96,8 +97,21 @@ public class InternalClientRegistry {
         map.put(Registry.ITEM, ITEMS);
         map.put(Registry.STATUS_EFFECT, STATUS_EFFECT);
         map.put(Registry.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
+        map.put(Registry.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
         return (Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
+
+    private static Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMapId() {
+        var map = new HashMap<Identifier, ImplPolymerRegistry<?>>();
+        map.put(Registry.BLOCK.getKey().getValue(), BLOCKS);
+        map.put(Registry.ENTITY_TYPE.getKey().getValue(), ENTITY_TYPES);
+        map.put(Registry.ITEM.getKey().getValue(), ITEMS);
+        map.put(Registry.STATUS_EFFECT.getKey().getValue(), STATUS_EFFECT);
+        map.put(Registry.VILLAGER_PROFESSION.getKey().getValue(), VILLAGER_PROFESSIONS);
+        map.put(Registry.BLOCK_ENTITY_TYPE.getKey().getValue(), BLOCK_ENTITY);
+        return (Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
+    }
+
 
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";

@@ -42,31 +42,34 @@ public class JeiCompatibility implements IModPlugin {
     }
 
     private static void update(IIngredientManager manager) {
-        try {
-            var list = manager.getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(SHOULD_REMOVE).toList();
-            if (list.size() > 0) {
-                manager.removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, list);
+        synchronized (manager) {
+
+            try {
+                var list = manager.getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(SHOULD_REMOVE).toList();
+                if (list.size() > 0) {
+                    manager.removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, list);
+                }
+
+                for (var group : ItemGroup.GROUPS) {
+                    if (group == ItemGroup.SEARCH) {
+                        continue;
+                    }
+
+                    Collection<ItemStack> stacks;
+
+                    if (group instanceof InternalClientItemGroup clientItemGroup) {
+                        stacks = clientItemGroup.getStacks();
+                    } else {
+                        stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
+                    }
+
+                    if (stacks != null && !stacks.isEmpty()) {
+                        manager.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, stacks);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            for (var group : ItemGroup.GROUPS) {
-                if (group == ItemGroup.SEARCH) {
-                    continue;
-                }
-
-                Collection<ItemStack> stacks;
-
-                if (group instanceof InternalClientItemGroup clientItemGroup) {
-                    stacks = clientItemGroup.getStacks();
-                } else {
-                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                }
-
-                if (stacks != null && !stacks.isEmpty()) {
-                    manager.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, stacks);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

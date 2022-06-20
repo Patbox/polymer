@@ -7,10 +7,8 @@ import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.impl.other.DeferredRegistryEntry;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraft.tag.TagKey;
+import net.minecraft.util.registry.*;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,11 +19,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Mixin(SimpleRegistry.class)
 public abstract class SimpleRegistryMixin<T> extends Registry<T> implements RegistryExtension<T> {
     @Shadow public abstract RegistryEntry<T> add(RegistryKey<T> key, T entry, Lifecycle lifecycle);
 
+    @Shadow private volatile Map<TagKey<T>, RegistryEntryList.Named<T>> tagToEntryList;
     @Nullable
     @Unique
     private List<T> polymer_objects = null;
@@ -79,5 +79,10 @@ public abstract class SimpleRegistryMixin<T> extends Registry<T> implements Regi
         }
 
         return this.polymer_objects;
+    }
+
+    @Override
+    public Map<TagKey<T>, RegistryEntryList.Named<T>> polymer_getTagsInternal() {
+        return this.tagToEntryList;
     }
 }

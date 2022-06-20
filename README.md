@@ -10,11 +10,11 @@ This library/mod includes few small utilities that can be useful for playing on 
 
 Few things it does on the client:
 
-- Added compatibility to multiple client mods (Roughly Enough Items, Just Enough Items, WTHIT, Jade, AppleSkin*)
+- Added compatibility to multiple client side mods ([EMI](https://modrinth.com/mod/emi), [Just Enough Items](https://www.curseforge.com/minecraft/mc-mods/jei), [Roughly Enough Items](https://modrinth.com/mod/roughly-enough-items), [WTHIT](https://modrinth.com/mod/wthit), [Jade](https://www.curseforge.com/minecraft/mc-mods/jade), [AppleSkin](https://modrinth.com/mod/appleskin))
 - Correct information on F3 debug screen
-- Full support for item picking
-- Creative item tabs
-- Fixes for server resource pack while using Canvas or Iris
+- Full support for Polymer item picking
+- Creative item tabs synced with server
+- Fixes for server resource pack while using [Canvas or Iris](https://github.com/IrisShaders/Iris/issues/1042)
 
 ## For server owners/mod pack makers:
 Any mod using this library shouldn't be required on the client side! However, as stated above, there

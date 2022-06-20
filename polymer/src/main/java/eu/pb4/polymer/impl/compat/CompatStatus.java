@@ -28,6 +28,7 @@ public final class CompatStatus {
     public static final boolean JADE = LOADER.isModLoaded("jade");
     public static final boolean REI = LOADER.isModLoaded("roughlyenoughitems");
     public static final boolean JEI = LOADER.isModLoaded("jei");
+    public static final boolean EMI = LOADER.isModLoaded("emi");
 
     public static final boolean IRIS = LOADER.isModLoaded("iris");
     public static final boolean CANVAS = LOADER.isModLoaded("canvas");

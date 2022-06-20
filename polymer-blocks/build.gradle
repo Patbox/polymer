@@ -37,8 +37,8 @@ dependencies {
     //modLocalRuntime "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
     //modCompileOnly "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
 
-    modCompileOnly 'com.github.TheEpicBlock:PolyMc:4.0.0'
-    //modRuntimeOnly 'com.github.TheEpicBlock:PolyMc:4.0.0'
+    //modCompileOnly 'nl.theepicblock:PolyMc:PolyMc:5.1.0+1.19'
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.1.0')
 
     testmodImplementation sourceSets.main.output
     testmodImplementation project(":polymer").sourceSets.testmod.output

@@ -1,6 +1,16 @@
 # Mods using Polymer
 Some mods/ports using Polymer, ordered alphabetically
 
+## ComputerCraft: Restitched with Polymer
+This is a port of CC: Restitched (which by itself is port of CC: Tweaked, continuation of original ComputerCraft), 
+modified in a way to allow nearly all functionality of regular version to work purely server side 
+(Vanilla client can join servers using it and have all functionality!). 
+It still requires server to run on Fabric or Quilt, so keep that in mind!
+
+### Links:
+- Github: https://github.com/PolymerPorts/cc-restitched
+- Modrinth: https://modrinth.com/mod/cc-polymer
+
 ## FabricAutoCrafter
 This mod adds a new block, the AutoCrafter. 
 It allows you to put items in the crafting table and get an output. 
@@ -52,6 +62,13 @@ A mod that adds server-side backpacks.
 ### Links:
 - Github: https://github.com/Oliver-makes-code/server-backpacks
 - Modrinth: https://modrinth.com/mod/servback
+
+## TaterCart
+This mod changes minecart physics (with option to toggle it per minecart 
+for people who need vanilla physics) and adds multiple new one with their own functionality!
+### Links:
+- Github: https://github.com/Patbox/TaterCart
+- Modrinth: https://modrinth.com/mod/tatercart
 
 ## Simple Villagers
 Having frustrations with villagers? No more!

@@ -44,17 +44,20 @@ dependencies {
 
     modCompileOnly ('com.github.CaffeineMC:lithium-fabric:mc1.19-0.8.0')
 
-    modCompileOnly ('com.github.TheEpicBlock:PolyMc:4.0.0')
+    //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.1.0')
+
 
     modCompileOnly /*modRuntimeOnly*/("curse.maven:jade-324717:3828126")
     modCompileOnly "mcp.mobius.waila:wthit:fabric-5.1.3"
 
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.0.472"
+    modCompileOnly modLocalRuntime("dev.emi:emi:0.2.0+1.19") { transitive = false; }
 
 
-    //modCompileOnlyApi modRuntimeOnly("mezz.jei:jei-1.19-common:11.0.0.206")
-    //modCompileOnlyApi modRuntimeOnly("mezz.jei:jei-1.19-fabric:11.0.0.206")
-    modCompileOnlyApi /*modRuntimeOnly*/("curse.maven:jei-238222:3835405")
+    //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
+    //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")
+    modCompileOnly /*modLocalRuntime*/("curse.maven:jei-238222:3835405")
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")

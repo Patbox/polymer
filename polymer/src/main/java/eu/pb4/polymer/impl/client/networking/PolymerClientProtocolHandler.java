@@ -130,6 +130,7 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.SYNC_STATUS_EFFECT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
                     (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.STATUS_EFFECT.get(entry.id()))));
 
+            case ServerPackets.SYNC_TAGS -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag);
             case ServerPackets.SYNC_ITEM_GROUP -> handleItemGroupSync(handler, version, buf);
             case ServerPackets.SYNC_ITEM_GROUP_CLEAR -> run(() -> InternalClientRegistry.clearTabs(i -> true));
             case ServerPackets.SYNC_ITEM_GROUP_REMOVE -> handleItemGroupRemove(handler, version, buf);
@@ -147,6 +148,15 @@ public class PolymerClientProtocolHandler {
                 yield false;
             }
         };
+    }
+
+    private static void registerTag(PolymerTagEntry tagEntry) {
+            var reg = InternalClientRegistry.BY_VANILLA_ID.get(tagEntry.registry());
+            if (reg != null) {
+                for (var tag : tagEntry.tags()) {
+                    reg.createTag(tag.id(), tag.ids());
+                }
+            }
     }
 
     private static void handleDebugValidateStates(DebugBlockStateEntry entry) {

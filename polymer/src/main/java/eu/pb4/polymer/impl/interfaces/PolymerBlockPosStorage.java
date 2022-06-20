@@ -21,6 +21,7 @@ public interface PolymerBlockPosStorage {
 
     void polymer_setPolymer(int x, int y, int z);
     void polymer_removePolymer(int x, int y, int z);
+
     boolean polymer_getPolymer(int x, int y, int z);
 
     boolean polymer_hasAny();

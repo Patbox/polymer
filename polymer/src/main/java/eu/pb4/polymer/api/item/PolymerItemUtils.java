@@ -125,6 +125,17 @@ public final class PolymerItemUtils {
         return null;
     }
 
+    @Nullable
+    public static NbtCompound getPolymerNbt(ItemStack itemStack) {
+        if (getPolymerIdentifier(itemStack) != null) {
+            if (itemStack.getNbt().contains(REAL_TAG, NbtElement.COMPOUND_TYPE)) {
+                return itemStack.getNbt().getCompound(REAL_TAG);
+            }
+        }
+
+        return null;
+    }
+
     public static boolean isPolymerServerItem(ItemStack itemStack) {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;

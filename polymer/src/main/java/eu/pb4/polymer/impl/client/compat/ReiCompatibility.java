@@ -30,36 +30,39 @@ public class ReiCompatibility implements REIClientPlugin {
     };
 
     public static void registerEvents() {
-        PolymerClientUtils.ON_CLEAR.register(() -> EntryRegistry.getInstance().removeEntryIf(SHOULD_REMOVE));
+        PolymerClientUtils.ON_CLEAR.register(() -> update(EntryRegistry.getInstance()));
         PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
 
     }
 
     private static void update(EntryRegistry registry) {
-        try {
-            registry.removeEntryIf(SHOULD_REMOVE);
+        synchronized (registry) {
+            try {
+                registry.removeEntryIf(SHOULD_REMOVE);
 
-            for (var group : ItemGroup.GROUPS) {
-                if (group == ItemGroup.SEARCH) {
-                    continue;
-                }
+                for (var group : ItemGroup.GROUPS) {
+                    if (group == ItemGroup.SEARCH) {
+                        continue;
+                    }
 
-                Collection<ItemStack> stacks;
+                    Collection<ItemStack> stacks;
 
-                if (group instanceof InternalClientItemGroup clientItemGroup) {
-                    stacks = clientItemGroup.getStacks();
-                } else {
-                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                }
+                    if (group instanceof InternalClientItemGroup clientItemGroup) {
+                        stacks = clientItemGroup.getStacks();
+                    } else {
+                        stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
+                    }
 
-                if (stacks != null) {
-                    for (var stack : stacks) {
-                        registry.addEntry(EntryStack.of(VanillaEntryTypes.ITEM, stack));
+                    if (stacks != null) {
+                        for (var stack : stacks) {
+                            registry.addEntry(EntryStack.of(VanillaEntryTypes.ITEM, stack));
+                        }
                     }
                 }
+
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

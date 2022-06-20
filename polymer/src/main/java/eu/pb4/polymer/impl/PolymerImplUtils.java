@@ -9,7 +9,6 @@ import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
@@ -233,13 +232,22 @@ public class PolymerImplUtils {
                     msg.accept(reg.getRawId(entry) + " | " + reg.getId(entry));
                 }
 
-                if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                if (PolymerImpl.IS_CLIENT) {
                     for (var reg2 : ((Collection<ImplPolymerRegistry<Object>>) (Object) InternalClientRegistry.REGISTRIES)) {
                         msg.accept("");
                         msg.accept("== Registry: " + reg2.getName() + " (Client)");
                         msg.accept("");
                         for (var entry : reg2) {
                             msg.accept(reg2.getRawId(entry) + " | " + reg2.getId(entry));
+                        }
+                        msg.accept("");
+                        msg.accept("=== Tags:");
+                        msg.accept("");
+                        for (var tag : reg2.getTags()) {
+                            msg.accept(tag + " | :");
+                            for (var entry : reg2.getTag(tag)) {
+                                msg.accept("  " + reg2.getId(entry));
+                            }
                         }
                     }
 

@@ -169,7 +169,7 @@ public class PolymerServerProtocol {
         }
 
         PolymerSyncUtils.BEFORE_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_ITEM_ID, RegistryExtension.getPolymerEntries(Registry.ITEM), true, PolymerItemEntry::of);
+        sendSync(handler, ServerPackets.SYNC_ITEM_ID, RegistryExtension.getPolymerEntries(Registry.ITEM), false, PolymerItemEntry::of);
         PolymerSyncUtils.AFTER_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         if (fullSync) {
@@ -188,28 +188,31 @@ public class PolymerServerProtocol {
         }
 
         PolymerSyncUtils.BEFORE_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCK_ID, RegistryExtension.getPolymerEntries(Registry.BLOCK), true, PolymerBlockEntry::of);
+        sendSync(handler, ServerPackets.SYNC_BLOCK_ID, RegistryExtension.getPolymerEntries(Registry.BLOCK), false, PolymerBlockEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE_ID, ((PolymerIdList) Block.STATE_IDS).polymer_getPolymerStates(), true, PolymerBlockStateEntry::of);
+        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE_ID, ((PolymerIdList) Block.STATE_IDS).polymer_getPolymerStates(), false, PolymerBlockStateEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
         PolymerSyncUtils.BEFORE_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_ENTITY_ID, RegistryExtension.getPolymerEntries(Registry.ENTITY_TYPE), true, PolymerEntityEntry::of);
+        sendSync(handler, ServerPackets.SYNC_ENTITY_ID, RegistryExtension.getPolymerEntries(Registry.ENTITY_TYPE), false, PolymerEntityEntry::of);
         PolymerSyncUtils.AFTER_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
-        sendSync(handler, ServerPackets.SYNC_VILLAGER_PROFESSION_ID, RegistryExtension.getPolymerEntries(Registry.VILLAGER_PROFESSION), true,
+        sendSync(handler, ServerPackets.SYNC_VILLAGER_PROFESSION_ID, RegistryExtension.getPolymerEntries(Registry.VILLAGER_PROFESSION), false,
                 entry -> new IdValueEntry(Registry.VILLAGER_PROFESSION.getRawId(entry), Registry.VILLAGER_PROFESSION.getId(entry)));
 
-        sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT_ID, RegistryExtension.getPolymerEntries(Registry.STATUS_EFFECT), true,
+        sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT_ID, RegistryExtension.getPolymerEntries(Registry.STATUS_EFFECT), false,
                 entry -> new IdValueEntry(Registry.STATUS_EFFECT.getRawId(entry), Registry.STATUS_EFFECT.getId(entry)));
 
-        sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY_ID, RegistryExtension.getPolymerEntries(Registry.BLOCK_ENTITY_TYPE), true,
+        sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY_ID, RegistryExtension.getPolymerEntries(Registry.BLOCK_ENTITY_TYPE), false,
                 type -> new IdValueEntry(Registry.BLOCK_ENTITY_TYPE.getRawId(type), Registry.BLOCK_ENTITY_TYPE.getId(type)));
 
+        if (fullSync) {
+            sendSync(handler, ServerPackets.SYNC_TAGS_ID, (Registry<Registry<Object>>) Registry.REGISTRIES, true, PolymerTagEntry::of);
+        }
 
         PolymerSyncUtils.ON_SYNC_CUSTOM.invoke((c) -> c.accept(handler, fullSync));
 
@@ -333,14 +336,14 @@ public class PolymerServerProtocol {
     private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, BufferWritableCreator<T> writableFunction) {
         var version = PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(packetId.getPath());
 
-        if (iterable instanceof RegistryExtension) {
+        if (iterable instanceof RegistryExtension && !bypassPolymerCheck) {
             iterable = ((RegistryExtension<T>) iterable).polymer_getEntries();
         }
 
         if (version != -1) {
             var entries = new ArrayList<BufferWritable>();
             for (var entry : iterable) {
-                if (bypassPolymerCheck || entry instanceof PolymerObject obj && obj.shouldSyncWithPolymerClient(handler.player)) {
+                if (!(entry instanceof PolymerObject obj && !obj.shouldSyncWithPolymerClient(handler.player))) {
                     var val = writableFunction.serialize(entry, handler, version);
                     if (val != null) {
                         entries.add(val);

@@ -64,6 +64,6 @@ public class ChunkSectionMixin implements PolymerBlockPosStorage {
 
     @Override
     public boolean polymer_hasAny() {
-        return this.polymer_blocks.size() != 0;
+        return !this.polymer_blocks.isEmpty();
     }
 }
