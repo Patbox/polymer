@@ -75,8 +75,8 @@ dependencies {
     modCompileOnly("fr.catcore:server-translations-api:1.4.12+1.18.2")
     modLocalRuntime("fr.catcore:server-translations-api:1.4.12+1.18.2")
 
-    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.3.7-1.18'
-    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.3.7-1.18'
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v1.4.8-1.18'
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:q_misc_util:v1.4.8-1.18'
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.

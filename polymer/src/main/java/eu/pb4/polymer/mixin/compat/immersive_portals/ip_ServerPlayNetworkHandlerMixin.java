@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.compat.immersive_portals;
 
 import eu.pb4.polymer.impl.PolymerImplUtils;
-import eu.pb4.polymer.impl.compat.IPAttachedPacket;
 import eu.pb4.polymer.impl.networking.BlockPacketUtil;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -10,7 +9,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
+import qouteall.imm_ptl.core.ducks.IECustomPayloadPacket;
+import qouteall.imm_ptl.core.network.PacketRedirection;
 
 @Mixin(value = ServerPlayNetworkHandler.class)
 public abstract class ip_ServerPlayNetworkHandlerMixin {
@@ -18,10 +18,10 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
 
     @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("TAIL"))
     private Packet<?> polymer_sendRequiredPackets(Packet<?> packet) {
-        if (packet instanceof IPAttachedPacket attachedPacket && attachedPacket.polymer_ip_getAttachedWorld() != null && attachedPacket.polymer_ip_getAttachedPacket() != null) {
-            IPCommonNetwork.withForceRedirect(this.player.getServer().getWorld(attachedPacket.polymer_ip_getAttachedWorld()), () -> {
+        if (packet instanceof IECustomPayloadPacket attachedPacket && attachedPacket.ip_getRedirectedPacket() != null && attachedPacket.ip_getRedirectedDimension() != null) {
+            PacketRedirection.withForceRedirect(this.player.getServer().getWorld(attachedPacket.ip_getRedirectedDimension()), () -> {
                 PolymerImplUtils.setPlayer(this.player);
-                BlockPacketUtil.sendFromPacket(attachedPacket.polymer_ip_getAttachedPacket(), (ServerPlayNetworkHandler) (Object) this);
+                BlockPacketUtil.sendFromPacket(attachedPacket.ip_getRedirectedPacket(), (ServerPlayNetworkHandler) (Object) this);
                 PolymerImplUtils.setPlayer(null);
             });
         }

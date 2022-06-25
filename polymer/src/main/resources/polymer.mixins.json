@@ -31,8 +31,6 @@
     "compat.fabric.fabricSync_RegistrySyncManagerMixin",
     "compat.fabric.fabricSync_StateIdTrackerMixin",
     "compat.immersive_portals.ip_ChunkDataSyncManagerMixin",
-    "compat.immersive_portals.ip_CustomPayloadS2CPacket",
-    "compat.immersive_portals.ip_IPNetworkingMixin",
     "compat.immersive_portals.ip_ServerPlayNetworkHandlerMixin",
     "compat.polymc.polymc_ArmorColorManagerMixin",
     "compat.polymc.polymc_BlockPolyGeneratorMixin",
