@@ -33,7 +33,7 @@ public class ReiCompatibility implements REIClientPlugin {
 
     @Override
     public void registerItemComparators(ItemComparatorRegistry registry) {
-        if (PolymerImpl.ENABLE_REI) {
+        if (PolymerImpl.ENABLE_REI && PolymerImpl.IS_CLIENT) {
             try {
                 registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
             } catch (Throwable e) {
@@ -43,8 +43,8 @@ public class ReiCompatibility implements REIClientPlugin {
     }
 
     public static void registerEvents() {
-        if (PolymerImpl.ENABLE_REI) {
-            PolymerClientUtils.ON_CLEAR.register(() -> EntryRegistry.getInstance().removeEntryIf(SHOULD_REMOVE));
+        if (PolymerImpl.ENABLE_REI && PolymerImpl.IS_CLIENT) {
+            PolymerClientUtils.ON_CLEAR.register(() -> update(EntryRegistry.getInstance()));
             PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
         }
     }
@@ -71,7 +71,7 @@ public class ReiCompatibility implements REIClientPlugin {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
