@@ -86,7 +86,7 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
 
     @Override
     public void apply(ServerPlayNetworkHandler handler) {
-        // No need to apply, as it's send late anyway!
+        // No need to apply, as it applies by default!
     }
 
     @Override
@@ -97,5 +97,10 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     @Override
     public void reset() {
         this.polymerHandler.polymer_resetSupported();
+    }
+
+    @Override
+    public void setPackStatus(boolean status) {
+        this.polymerHandler.polymer_setResourcePack(status);
     }
 }

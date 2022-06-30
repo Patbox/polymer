@@ -129,6 +129,8 @@ public class PolymerClientProtocolHandler {
                     (entry) -> InternalClientRegistry.BLOCK_ENTITY.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.BLOCK_ENTITY_TYPE.get(entry.id()))));
             case ServerPackets.SYNC_STATUS_EFFECT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
                     (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.STATUS_EFFECT.get(entry.id()))));
+            case ServerPackets.SYNC_ENCHANTMENT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                    (entry) -> InternalClientRegistry.ENCHANTMENT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.ENCHANTMENT.get(entry.id()))));
 
             case ServerPackets.SYNC_TAGS -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag);
             case ServerPackets.SYNC_ITEM_GROUP -> handleItemGroupSync(handler, version, buf);

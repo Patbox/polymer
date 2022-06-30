@@ -16,6 +16,7 @@ import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -84,7 +85,8 @@ public class EmiCompatibility implements EmiPlugin {
 
         @Override
         public Identifier getId() {
-            return PolymerItemUtils.getPolymerIdentifier(this.getItemStack());
+            var id = PolymerItemUtils.getPolymerIdentifier(this.getItemStack());
+            return  id != null ? id : Registry.ITEM.getId(this.getItemStack().getItem());
         }
 
         @Override
@@ -98,7 +100,7 @@ public class EmiCompatibility implements EmiPlugin {
 
         @Override
         public boolean isEqual(EmiStack stack) {
-            if (this.getId().equals(PolymerItemUtils.getPolymerIdentifier(stack.getItemStack()))) {
+            if (this.getId() != null && this.getId().equals(PolymerItemUtils.getPolymerIdentifier(stack.getItemStack()))) {
                 return super.isEqual(stack);
             }
 

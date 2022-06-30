@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.other;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.networking.PolymerHandshakeHandlerImplLogin;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.listener.PacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,6 +30,7 @@ public abstract class ServerLoginNetworkHandlerMixin {
         if (!this.polymer_passPlayer && PolymerImpl.ENABLE_NETWORKING_SERVER && PolymerImpl.HANDLE_HANDSHAKE_EARLY) {
             new PolymerHandshakeHandlerImplLogin(this.server, player, this.connection, (self) -> {
                 this.polymer_passPlayer = true;
+                this.connection.setPacketListener((PacketListener) this);
                 this.addToServer(player);
             });
             ci.cancel();

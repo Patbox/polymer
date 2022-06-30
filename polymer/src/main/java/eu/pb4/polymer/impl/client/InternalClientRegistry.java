@@ -34,6 +34,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
@@ -84,9 +85,10 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntry<VillagerProfession>> VILLAGER_PROFESSIONS = new ImplPolymerRegistry<>("villager_profession", "VP");
     public static final ImplPolymerRegistry<ClientPolymerEntry<BlockEntityType<?>>> BLOCK_ENTITY = new ImplPolymerRegistry<>("block_entity", "BE");
     public static final ImplPolymerRegistry<ClientPolymerEntry<StatusEffect>> STATUS_EFFECT = new ImplPolymerRegistry<>("status_effect", "SE");
+    public static final ImplPolymerRegistry<ClientPolymerEntry<Enchantment>> ENCHANTMENT = new ImplPolymerRegistry<>("enchantment", "EN");
 
     public static final HashMap<String, ItemGroup> VANILLA_ITEM_GROUPS = new HashMap<>();
-    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, ITEM_GROUPS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS);
+    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, ITEM_GROUPS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, ENCHANTMENT);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
     public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId();
 
@@ -98,6 +100,7 @@ public class InternalClientRegistry {
         map.put(Registry.STATUS_EFFECT, STATUS_EFFECT);
         map.put(Registry.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
         map.put(Registry.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
+        map.put(Registry.ENCHANTMENT, ENCHANTMENT);
         return (Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
@@ -109,6 +112,7 @@ public class InternalClientRegistry {
         map.put(Registry.STATUS_EFFECT.getKey().getValue(), STATUS_EFFECT);
         map.put(Registry.VILLAGER_PROFESSION.getKey().getValue(), VILLAGER_PROFESSIONS);
         map.put(Registry.BLOCK_ENTITY_TYPE.getKey().getValue(), BLOCK_ENTITY);
+        map.put(Registry.ENCHANTMENT.getKey().getValue(), ENCHANTMENT);
         return (Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
@@ -216,6 +220,18 @@ public class InternalClientRegistry {
         }
 
         return Item.byRawId(id);
+    }
+
+    public static Enchantment decodeEnchantment(int id) {
+        if (InternalClientRegistry.enabled) {
+            var item = InternalClientRegistry.ENCHANTMENT.get(id);
+
+            if (item != null && item.registryEntry() != null) {
+                return item.registryEntry();
+            }
+        }
+
+        return Enchantment.byRawId(id);
     }
 
     public static BlockEntityType<?> decodeBlockEntityType(int id) {

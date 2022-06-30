@@ -30,6 +30,8 @@ public class ServerPackets {
     public static final Identifier SYNC_BLOCK_ENTITY_ID = id(SYNC_BLOCK_ENTITY);
     public static final String SYNC_ITEM = "sync/items";
     public static final Identifier SYNC_ITEM_ID = id(SYNC_ITEM);
+    public static final String SYNC_ENCHANTMENT = "sync/enchantments";
+    public static final Identifier SYNC_ENCHANTMENT_ID = id(SYNC_ENCHANTMENT);
     public static final String SYNC_ENTITY = "sync/entities";
     public static final Identifier SYNC_ENTITY_ID = id(SYNC_ENTITY);
     public static final String SYNC_STATUS_EFFECT = "sync/status_effect";
@@ -93,6 +95,7 @@ public class ServerPackets {
         register(SYNC_BLOCK_ENTITY, 0);
         register(SYNC_BLOCKSTATE, 0, 1);
         register(SYNC_ITEM, 2, 3);
+        register(SYNC_ENCHANTMENT, 0);
         register(SYNC_VILLAGER_PROFESSION, 0);
         register(SYNC_ITEM_GROUP, 0);
         register(SYNC_ITEM_GROUP_CLEAR, 0);

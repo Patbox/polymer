@@ -7,6 +7,7 @@ public interface TempPlayerLoginAttachments {
     boolean polymer_getWorldReload();
 
     PolymerHandshakeHandler polymer_getAndRemoveHandshakeHandler();
+    PolymerHandshakeHandler polymer_getHandshakeHandler();
 
     void polymer_setHandshakeHandler(PolymerHandshakeHandler handler);
 }

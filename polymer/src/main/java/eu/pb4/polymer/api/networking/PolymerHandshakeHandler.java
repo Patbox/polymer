@@ -45,4 +45,6 @@ public interface PolymerHandshakeHandler {
     boolean getPackStatus();
 
     void reset();
+
+    void setPackStatus(boolean status);
 }

@@ -2,6 +2,7 @@ package eu.pb4.polymer.api.item;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.other.PolymerEnchantment;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -66,7 +67,7 @@ public final class PolymerItemUtils {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {
             return item.getPolymerItemStack(itemStack, player);
-        } else if (isPolymerServerItem(itemStack)) {
+        } else if (shouldPolymerConvert(itemStack, player)) {
             return createItemStack(itemStack, player);
         }
 
@@ -135,8 +136,11 @@ public final class PolymerItemUtils {
 
         return null;
     }
-
     public static boolean isPolymerServerItem(ItemStack itemStack) {
+        return shouldPolymerConvert(itemStack, null);
+    }
+
+    private static boolean shouldPolymerConvert(ItemStack itemStack, ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;
         }
@@ -150,6 +154,10 @@ public final class PolymerItemUtils {
                     Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
+                        if (ench instanceof PolymerEnchantment polymerEnchantment && polymerEnchantment.getPolymerEnchantment(player) == ench) {
+                            continue;
+                        }
+
                         return true;
                     }
                 }
@@ -160,6 +168,10 @@ public final class PolymerItemUtils {
                     Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
+                        if (ench instanceof PolymerEnchantment polymerEnchantment && polymerEnchantment.getPolymerEnchantment(player) == ench) {
+                            continue;
+                        }
+
                         return true;
                     }
                 }
@@ -267,7 +279,7 @@ public final class PolymerItemUtils {
             }
 
             if (itemStack.hasGlint()) {
-                out.addEnchantment(Enchantments.VANISHING_CURSE, 0);
+                out.addEnchantment(Enchantments.UNBREAKING, 0);
             }
 
             if (itemStack.getItem() instanceof PotionItem) {

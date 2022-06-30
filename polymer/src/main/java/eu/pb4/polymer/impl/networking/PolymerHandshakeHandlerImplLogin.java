@@ -136,6 +136,11 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     }
 
     @Override
+    public void setPackStatus(boolean status) {
+        this.hasPack = status;
+    }
+
+    @Override
     public void onCustomPayload(CustomPayloadC2SPacket packet) {
         var data = packet.getData();
         if (packet.getChannel().equals(ClientPackets.HANDSHAKE_ID)) {

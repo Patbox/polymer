@@ -6,6 +6,7 @@ import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
@@ -90,7 +91,11 @@ public final class PolymerRPUtils {
      * @return True if player has a server resourcepack
      */
     public static boolean hasPack(@Nullable ServerPlayerEntity player) {
-        return player != null && (((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack() || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded())));
+        return player != null && (
+                (player.networkHandler != null && (((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack())
+                || (((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler() != null && ((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler().getPackStatus())
+                || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded())))
+        );
     }
 
     /**
@@ -100,7 +105,13 @@ public final class PolymerRPUtils {
      * @param status true if player has resource pack, otherwise false
      */
     public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
-        ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setResourcePack(status);
+        if (player.networkHandler != null) {
+            ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setResourcePack(status);
+        }
+
+        if (((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler() != null) {
+            ((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler().setPackStatus(status);
+        }
     }
 
     /**
