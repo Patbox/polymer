@@ -32,7 +32,6 @@ public class ReiCompatibility implements REIClientPlugin {
     public static void registerEvents() {
         PolymerClientUtils.ON_CLEAR.register(() -> update(EntryRegistry.getInstance()));
         PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
-
     }
 
     private static void update(EntryRegistry registry) {
