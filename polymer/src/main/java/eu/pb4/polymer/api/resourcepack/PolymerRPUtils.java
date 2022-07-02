@@ -168,11 +168,7 @@ public final class PolymerRPUtils {
             if (CompatStatus.POLYMC) {
                 try {
                     Files.createDirectories(path);
-                    PolyMcHelpers.createResources("polymc-generated");
-                    var polyPath = FabricLoader.getInstance().getGameDir().resolve("polymc-generated").toAbsolutePath();
-                    if (polyPath.toFile().exists()) {
-                        builder.copyFromPath(polyPath);
-                    }
+                    PolyMcHelpers.importPolyMcResources(builder);
                 } catch(Exception e){
                     e.printStackTrace();
                 }

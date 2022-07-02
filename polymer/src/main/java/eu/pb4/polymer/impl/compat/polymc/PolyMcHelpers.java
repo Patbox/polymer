@@ -1,11 +1,15 @@
 package eu.pb4.polymer.impl.compat.polymc;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import eu.pb4.polymer.api.resourcepack.PolymerRPBuilder;
 import eu.pb4.polymer.impl.Commands;
+import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import static net.minecraft.server.command.CommandManager.literal;
@@ -13,15 +17,28 @@ import static net.minecraft.server.command.CommandManager.literal;
 @ApiStatus.Internal
 @SuppressWarnings({"deprecation", "unchecked"})
 public class PolyMcHelpers {
-    public static void createResources(String path) {
+    public static void importPolyMcResources(PolymerRPBuilder builder) {
+        // Generate PolyMc's resource pack
+        var pack = io.github.theepicblock.polymc.PolyMc.getMapForResourceGen().generateResourcePack(io.github.theepicblock.polymc.PolyMc.LOGGER);
+        if (pack == null) return;
 
-        io.github.theepicblock.polymc.impl.resource.ResourcePackGenerator.generate(
-                io.github.theepicblock.polymc.PolyMc.getMainMap(),
-                path,
-                new io.github.theepicblock.polymc.impl.misc.logging.ErrorTrackerWrapper(
-                        io.github.theepicblock.polymc.PolyMc.LOGGER)
-        );
+        // Directly write each of PolyMc's assets to a byte array in memory. This prevents the need to write it to disk
+        pack.forEachAsset((namespace, path, asset) -> {
+            try {
+                // Write regular file
+                var data = new ByteArrayOutputStream();
+                asset.writeToStream(data, pack.getGson());
+                builder.addData(String.format("assets/%s/%s", namespace, path), data.toByteArray());
+
+                // (optionally) write metafile
+                asset.writeMetaToStream(() -> new PolymerRPOutputStream(String.format("assets/%s/%s.mcmeta", namespace, path), builder), pack.getGson());
+            } catch (IOException e) {
+                PolymerImpl.LOGGER.error("Error importing " + namespace + ":" + path + " from PolyMc");
+                e.printStackTrace();
+            }
+        });
     }
+
 
     public static void overrideCommand(MinecraftServer server) {
         var dispatcher = server.getCommandManager().getDispatcher();
@@ -31,5 +48,21 @@ public class PolyMcHelpers {
         dispatcher.register((LiteralArgumentBuilder<ServerCommandSource>) dispatcher.findNode(List.of("polymc"))
                 .createBuilder().then(generateNode.then(literal("resources").executes(Commands::generate)))
         );
+    }
+
+    public static class PolymerRPOutputStream extends ByteArrayOutputStream {
+        private final String path;
+        private final PolymerRPBuilder builder;
+
+        public PolymerRPOutputStream(String path, PolymerRPBuilder builder) {
+            this.path = path;
+            this.builder = builder;
+        }
+
+        @Override
+        public void close() throws IOException {
+            builder.addData(path, this.toByteArray());
+            super.close();
+        }
     }
 }
