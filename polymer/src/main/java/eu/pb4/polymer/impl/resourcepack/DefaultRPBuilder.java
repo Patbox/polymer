@@ -81,7 +81,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
-    public boolean copyFromPath(Path basePath) {
+    public boolean copyFromPath(Path basePath, boolean override) {
         try {
             Files.walkFileTree(basePath, new FileVisitor<>() {
                 @Override
@@ -92,11 +92,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     var relative = basePath.relativize(file);
+                    var path = relative.toString().replace("\\", "/");
+                    if (override || !fileMap.containsKey(path)) {
+                        var bytes = Files.readAllBytes(file);
 
-                    var bytes = Files.readAllBytes(file);
-
-                    fileMap.put(relative.toString().replace("\\", "/"), bytes);
-
+                        fileMap.put(path, bytes);
+                    }
                     return FileVisitResult.CONTINUE;
                 }
 

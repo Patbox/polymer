@@ -69,7 +69,7 @@ public class PolymerServerProtocol {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
-        if (state.getBlock() instanceof PolymerBlock) {
+        if (state.getBlock() instanceof PolymerBlock && version > -1) {
             var buf = buf(version);
 
             buf.writeBlockPos(pos);

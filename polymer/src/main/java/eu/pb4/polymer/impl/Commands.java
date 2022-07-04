@@ -40,6 +40,7 @@ import net.minecraft.state.property.Property;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
@@ -58,6 +59,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class Commands {
     private static final Text[] ABOUT_PLAYER;
     private static final Text[] ABOUT_COLORLESS;
+    private static volatile boolean alreadyGeneration = false;
 
     static {
         var about = new ArrayList<Text>();
@@ -131,9 +133,9 @@ public class Commands {
         var command = literal("polymer")
                 .requires(PolymerImplUtils.permission("command.core", PolymerImpl.CORE_COMMAND_MINIMAL_OP))
                 .executes(Commands::about)
-                .then(literal("generate")
+                .then(literal("generate-pack")
                         .requires(PolymerImplUtils.permission("command.generate", 3))
-                        .executes(Commands::generate))
+                        .executes(Commands::generateResources))
                 .then(literal("stats")
                         .requires(PolymerImplUtils.permission("command.stats", 0))
                         .executes(Commands::stats)
@@ -248,7 +250,7 @@ public class Commands {
                 var property = iterator.next();
                 builder.append(property.getName());
                 builder.append("=");
-                builder.append(((Property) (Object) property).name(state.get(property)));
+                builder.append(((Property) property).name(state.get(property)));
 
                 if (iterator.hasNext()) {
                     builder.append(",");
@@ -406,16 +408,33 @@ public class Commands {
         return 1;
     }
 
-    public static int generate(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(Text.literal("Starting resource pack generation..."), true);
-        boolean success = PolymerRPUtils.build(FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip"));
-
-        if (success) {
-            context.getSource().sendFeedback(Text.literal("Resource pack created successfully! You can find it in game folder as polymer-resourcepack.zip"), true);
+    public static int generateResources(CommandContext<ServerCommandSource> context) {
+        if (alreadyGeneration) {
+            context.getSource().sendFeedback(Text.literal("Pack is already generating! Wait for it to finish..."), true);
         } else {
-            context.getSource().sendError(Text.literal("Found issues while creating resource pack! See logs above for more detail!"));
-        }
+            alreadyGeneration = true;
 
+            Util.getIoWorkerExecutor().execute(() -> {
+                context.getSource().sendFeedback(Text.literal("Starting resource pack generation..."), true);
+                var path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip");
+                boolean success = PolymerRPUtils.build(path);
+
+                context.getSource().getServer().execute(() -> {
+                    if (success) {
+                        context.getSource().sendFeedback(
+                                Text.literal("Resource pack created successfully! You can find it in game folder as ")
+                                .append(Text.literal("polymer-resourcepack.zip")
+                                        .setStyle(Style.EMPTY.withUnderline(true).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(path.toAbsolutePath().toString()))))),
+                                true
+                        );
+                    } else {
+                        context.getSource().sendError(Text.literal("Found issues while creating resource pack! See logs above for more detail!"));
+                    }
+                });
+
+                alreadyGeneration = false;
+            });
+        }
         return 0;
     }
 }

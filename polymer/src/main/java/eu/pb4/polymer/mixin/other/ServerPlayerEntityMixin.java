@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.other;
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.impl.interfaces.ScreenHandlerPlayerContext;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
     @Unique
@@ -18,6 +21,8 @@ public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
 
     @Unique
     private PolymerHandshakeHandler polymer_handshakeHandler;
+    @Unique
+    private List<CustomPayloadC2SPacket> polymer_latePackets;
 
     @Override
     public void polymer_setWorldReload(boolean value) {
@@ -39,6 +44,16 @@ public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
     @Override
     public PolymerHandshakeHandler polymer_getHandshakeHandler() {
         return this.polymer_handshakeHandler;
+    }
+
+    @Override
+    public void polymer_setLatePackets(List<CustomPayloadC2SPacket> packets) {
+        this.polymer_latePackets = packets;
+    }
+
+    @Override
+    public List<CustomPayloadC2SPacket> polymer_getLatePackets() {
+        return this.polymer_latePackets;
     }
 
     @Override

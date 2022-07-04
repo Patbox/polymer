@@ -8,7 +8,6 @@ import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -149,8 +148,12 @@ public final class PolymerRPUtils {
     }
 
     public static boolean build(Path output) {
+        return build(output, (s) -> {});
+    }
+
+    public static boolean build(Path output, Consumer<String> status) {
         try {
-            return INSTANCE.build(output);
+            return INSTANCE.build(output, status);
         } catch (Exception e) {
             PolymerImpl.LOGGER.error("Couldn't create resource pack!");
             e.printStackTrace();
@@ -160,8 +163,8 @@ public final class PolymerRPUtils {
 
     static {
         INSTANCE.creationEvent.register((builder) -> {
-            Path path = PolymerImpl.getGameDir().resolve("polymer-resourcepack-input");
-            if (path.toFile().exists()) {
+            Path path = PolymerImpl.getGameDir().resolve("polymer/source_assets");
+            if (Files.isDirectory(path)) {
                 builder.copyFromPath(path);
             }
 
@@ -173,8 +176,13 @@ public final class PolymerRPUtils {
                     e.printStackTrace();
                 }
             }
+        });
 
-
+        INSTANCE.afterInitialCreationEvent.register((builder) -> {
+            Path path = PolymerImpl.getGameDir().resolve("polymer/override_assets");
+            if (Files.isDirectory(path)) {
+                builder.copyFromPath(path);
+            }
         });
     }
 

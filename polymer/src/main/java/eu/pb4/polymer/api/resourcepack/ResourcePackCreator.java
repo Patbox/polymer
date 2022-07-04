@@ -5,8 +5,7 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
@@ -23,7 +22,9 @@ import java.util.function.Consumer;
  */
 public final class ResourcePackCreator {
     public final SimpleEvent<Consumer<PolymerRPBuilder>> creationEvent = new SimpleEvent<>();
-    private final Object2ObjectMap<Item, List<PolymerModelData>> items = new Object2ObjectArrayMap<>();
+    public final SimpleEvent<Consumer<PolymerRPBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
+    private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenHashMap<>();
+    private final Map<Item, Map<Identifier, PolymerModelData>> itemsMap = new Object2ObjectOpenHashMap<>();
     private final Set<String> modIds = new HashSet<>();
     private final IntSet takenArmorColors = new IntOpenHashSet();
     private final Map<Identifier, PolymerArmorModel> armorModelMap = new HashMap<>();
@@ -32,7 +33,7 @@ public final class ResourcePackCreator {
     private String packDescription = null;
     private byte[] packIcon = null;
 
-    public static final ResourcePackCreator create() {
+    public static ResourcePackCreator create() {
         return new ResourcePackCreator(0);
     }
 
@@ -48,15 +49,18 @@ public final class ResourcePackCreator {
      * @return PolymerModelData with data about this model
      */
     public PolymerModelData requestModel(Item vanillaItem, Identifier modelPath) {
-        List<PolymerModelData> cmdInfoList = items.get(vanillaItem);
-        if (cmdInfoList == null) {
-            cmdInfoList = new ArrayList<>();
-            items.put(vanillaItem, cmdInfoList);
-        }
+        var map = this.itemsMap.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
 
-        PolymerModelData cmdInfo = new PolymerModelData(vanillaItem, cmdInfoList.size() + this.cmdOffset, modelPath);
-        cmdInfoList.add(cmdInfo);
-        return cmdInfo;
+        if (map.containsKey(modelPath)) {
+            return map.get(modelPath);
+        } else {
+            var cmdInfoList = this.items.computeIfAbsent(vanillaItem, (x) -> new ArrayList<>());
+
+            var cmdInfo = new PolymerModelData(vanillaItem, cmdInfoList.size() + this.cmdOffset, modelPath);
+            cmdInfoList.add(cmdInfo);
+            map.put(modelPath, cmdInfo);
+            return cmdInfo;
+        }
     }
 
     /**
@@ -66,15 +70,15 @@ public final class ResourcePackCreator {
      * @return PolymerArmorModel with data about this model
      */
     public PolymerArmorModel requestArmor(Identifier modelPath) {
-        if (armorModelMap.containsKey(modelPath)) {
-            return armorModelMap.get(modelPath);
+        if (this.armorModelMap.containsKey(modelPath)) {
+            return this.armorModelMap.get(modelPath);
         } else {
-            armorColor++;
+            this.armorColor++;
             int color = 0xFFFFFF - armorColor * 2;
             var model = new PolymerArmorModel(color, modelPath);
 
-            armorModelMap.put(modelPath, model);
-            takenArmorColors.add(color);
+            this.armorModelMap.put(modelPath, model);
+            this.takenArmorColors.add(color);
             return model;
         }
     }
@@ -144,10 +148,14 @@ public final class ResourcePackCreator {
     }
 
     public boolean build(Path output) throws ExecutionException, InterruptedException {
+        return build(output, (s) -> {});
+    }
+
+    public boolean build(Path output, Consumer<String> status) throws ExecutionException, InterruptedException {
         boolean successful = true;
 
         var builder = new DefaultRPBuilder(output);
-
+        status.accept("action:created_builder");
 
         if (this.packDescription != null) {
             builder.addData("pack.mcmeta", ("" +
@@ -164,24 +172,39 @@ public final class ResourcePackCreator {
             builder.addData("pack.png", this.packIcon);
         }
 
+        status.accept("action:creation_event_start");
         this.creationEvent.invoke((x) -> x.accept(builder));
+        status.accept("action:creation_event_finish");
 
         for (String modId : this.modIds) {
+            status.accept("action:copy_mod_start/" + modId);
             successful = builder.copyModAssets(modId) && successful;
+            status.accept("action:copy_mod_end/" + modId);
+
         }
         
         for (var cmdInfoList : this.items.values()) {
+            status.accept("action:custom_model_data_start");
             for (PolymerModelData cmdInfo : cmdInfoList) {
                 builder.addCustomModelData(cmdInfo);
             }
+            status.accept("action:add_custom_model_data_finish");
         }
 
+        status.accept("action:custom_armors_start");
         for (var armor : this.armorModelMap.values()) {
             builder.addArmorModel(armor);
         }
+        status.accept("action:custom_armors_finish");
 
+        status.accept("action:late_creation_event_start");
+        this.afterInitialCreationEvent.invoke((x) -> x.accept(builder));
+        status.accept("action:late_creation_event_finish");
+
+        status.accept("action:build");
         successful = builder.buildResourcePack().get() && successful;
 
+        status.accept("action:done");
         return successful;
     }
 }

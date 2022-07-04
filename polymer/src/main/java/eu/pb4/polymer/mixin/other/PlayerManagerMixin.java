@@ -20,5 +20,14 @@ public class PlayerManagerMixin {
             handshake.apply(player.networkHandler);
             PolymerServerProtocol.sendSyncPackets(player.networkHandler, false);
         }
+
+        var packets = ((TempPlayerLoginAttachments) player).polymer_getLatePackets();
+        if (packets != null) {
+            ((TempPlayerLoginAttachments) player).polymer_setLatePackets(null);
+            for (var packet : packets) {
+                packet.apply(player.networkHandler);
+            }
+        }
+
     }
 }

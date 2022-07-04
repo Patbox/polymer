@@ -61,6 +61,7 @@
     "item.packet.SynchronizeRecipesS2CPacketAccessor",
     "item.packet.SynchronizeRecipesS2CPacketMixin",
     "other.BootstrapMixin",
+    "other.ClientConnectionMixin",
     "other.CommandManagerMixin",
     "other.CustomPayloadS2CPacketAccessor",
     "other.EnchantmentScreenHandlerMixin",

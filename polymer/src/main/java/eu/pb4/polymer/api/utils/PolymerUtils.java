@@ -47,7 +47,7 @@ import java.util.zip.ZipFile;
 public final class PolymerUtils {
     private PolymerUtils() {
     }
-    private final static String SAFE_CLIENT_SHA1 = "a984bc5036a9f0ace8da1040614996abcda5f2ad";
+    private final static String SAFE_CLIENT_SHA1 = "c0898ec7c6a5a2eaa317770203a1554260699994";
     private final static String SAFE_CLIENT_URL = "https://launcher.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
 
     public static final String ID = "polymer";
@@ -275,13 +275,18 @@ public final class PolymerUtils {
         try {
             Path clientJarPath;
             if (!PolymerImpl.IS_CLIENT) {
+                // Old location, to replaced with new one
                 clientJarPath = PolymerImpl.getGameDir().resolve("polymer_cache/client_jars/" + SAFE_CLIENT_SHA1 + ".jar");
+
+                if (!Files.exists(clientJarPath)) {
+                    clientJarPath = PolymerImpl.getGameDir().resolve("polymer/cached_client_jars/" + SAFE_CLIENT_SHA1 + ".jar");
+                }
             } else {
                 var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
                 clientJarPath = Path.of(clientFile);
             }
 
-            if (!clientJarPath.toFile().exists()) {
+            if (!Files.exists(clientJarPath)) {
                 Files.createDirectories(clientJarPath.getParent());
                 PolymerImpl.LOGGER.info("Downloading vanilla client jar...");
                 URL url = new URL(SAFE_CLIENT_URL);

@@ -4,7 +4,9 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.chunk.WorldChunk;
 
 /**
  * Interface used for creation of server side blocks
@@ -61,6 +63,9 @@ public interface PolymerBlock extends PolymerObject {
      * @param blockState Real BlockState of block
      */
     default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) { }
+
+    default void onBlockAddedToChunk(ServerWorld world, WorldChunk chunk, BlockState state) {}
+    default void onBlockRemovedFromChunk(ServerWorld world, WorldChunk chunk, BlockState state) {}
 
     /**
      * You can override this method in case of issues with light updates of this block. In most cases it's not needed.

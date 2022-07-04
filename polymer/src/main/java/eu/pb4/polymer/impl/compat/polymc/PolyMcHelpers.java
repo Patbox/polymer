@@ -46,7 +46,7 @@ public class PolyMcHelpers {
                 = dispatcher.findNode(List.of("polymc", "generate")).createBuilder();
 
         dispatcher.register((LiteralArgumentBuilder<ServerCommandSource>) dispatcher.findNode(List.of("polymc"))
-                .createBuilder().then(generateNode.then(literal("resources").executes(Commands::generate)))
+                .createBuilder().then(generateNode.then(literal("resources").executes(Commands::generateResources)))
         );
     }
 

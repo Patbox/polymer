@@ -9,7 +9,10 @@ import java.nio.file.Path;
 public interface PolymerRPBuilder {
     boolean addData(String path, byte[] data);
     boolean copyModAssets(String modId);
-    boolean copyFromPath(Path path);
+    default boolean copyFromPath(Path path) {
+        return this.copyFromPath(path, true);
+    }
+    boolean copyFromPath(Path path, boolean override);
     boolean addCustomModelData(PolymerModelData itemModel);
     boolean addArmorModel(PolymerArmorModel model);
     @Nullable
