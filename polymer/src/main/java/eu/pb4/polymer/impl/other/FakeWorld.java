@@ -27,11 +27,11 @@ import net.minecraft.util.registry.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.OverworldBiomeCreator;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
+import net.minecraft.world.chunk.ChunkProvider;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
@@ -56,9 +56,10 @@ public final class FakeWorld extends World {
     public static final World INSTANCE;
     static final Scoreboard SCOREBOARD = new Scoreboard();
     static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.createAndLoad();
-    static final Biome BIOME = OverworldBiomeCreator.createTheVoid();
     static final RecipeManager RECIPE_MANAGER = new RecipeManager();
     static final ChunkManager CHUNK_MANAGER = new ChunkManager() {
+        private LightingProvider lightingProvider = null;
+
         @Nullable
         @Override
         public Chunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
@@ -82,7 +83,22 @@ public final class FakeWorld extends World {
 
         @Override
         public LightingProvider getLightingProvider() {
-            return null;
+            if (this.lightingProvider == null) {
+                this.lightingProvider = new LightingProvider(new ChunkProvider() {
+                    @Nullable
+                    @Override
+                    public BlockView getChunk(int chunkX, int chunkZ) {
+                        return null;
+                    }
+
+                    @Override
+                    public BlockView getWorld() {
+                        return INSTANCE;
+                    }
+                }, false, false);
+            }
+
+            return this.lightingProvider;
         }
 
         @Override
@@ -158,6 +174,8 @@ public final class FakeWorld extends World {
                 accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
                 accessor.polymer_setProperties(new FakeWorldProperties());
                 accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
+                accessor.polymer_setDimensionKey(DimensionTypes.OVERWORLD);
+                accessor.polymer_setDimensionEntry(BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD));
                 accessor.polymer_setThread(Thread.currentThread());
                 accessor.polymer_setRandom(Random.create());
                 accessor.polymer_setAsyncRandom(Random.createThreadSafe());

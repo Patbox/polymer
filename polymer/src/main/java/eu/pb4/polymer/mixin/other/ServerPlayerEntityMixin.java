@@ -23,6 +23,8 @@ public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
     private PolymerHandshakeHandler polymer_handshakeHandler;
     @Unique
     private List<CustomPayloadC2SPacket> polymer_latePackets;
+    @Unique
+    private boolean polymer_forceRespawnPacket;
 
     @Override
     public void polymer_setWorldReload(boolean value) {
@@ -59,6 +61,16 @@ public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
     @Override
     public void polymer_setHandshakeHandler(PolymerHandshakeHandler handler) {
         this.polymer_handshakeHandler = handler;
+    }
+
+    @Override
+    public void polymer_setForceRespawnPacket() {
+        this.polymer_forceRespawnPacket = true;
+    }
+
+    @Override
+    public boolean polymer_getForceRespawnPacket() {
+        return this.polymer_forceRespawnPacket;
     }
 
     @Inject(method = "onScreenHandlerOpened", at = @At("HEAD"))

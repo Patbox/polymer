@@ -2,12 +2,14 @@ package eu.pb4.polymer.mixin.other;
 
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -44,6 +46,14 @@ public interface WorldAccessor {
     @Mutable
     @Accessor("registryKey")
     void polymer_setRegistryKey(RegistryKey<World> registryKey);
+
+    @Mutable
+    @Accessor("dimension")
+    void polymer_setDimensionKey(RegistryKey<DimensionType> dimension);
+
+    @Mutable
+    @Accessor("dimensionEntry")
+    void polymer_setDimensionEntry(RegistryEntry<DimensionType> dimensionEntry);
 
     @Mutable
     @Accessor("random")

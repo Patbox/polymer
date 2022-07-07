@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.resourcepack;
 
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
@@ -8,6 +9,7 @@ import eu.pb4.polymer.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -22,6 +24,8 @@ import java.util.function.Consumer;
  * Global utilities allowing creation of single, polymer mod compatible resource pack
  */
 public final class PolymerRPUtils {
+    public static final Path DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip").toAbsolutePath().normalize();
+
     private PolymerRPUtils() {
     }
 
@@ -106,6 +110,7 @@ public final class PolymerRPUtils {
     public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
         if (player.networkHandler != null) {
             ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setResourcePack(status);
+            PolymerUtils.reloadWorld(player);
         }
 
         if (((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler() != null) {

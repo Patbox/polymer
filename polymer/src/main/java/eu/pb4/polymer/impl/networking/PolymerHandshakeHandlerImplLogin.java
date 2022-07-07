@@ -91,6 +91,8 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
             polymerHandler.polymer_savePacketTime(entry);
         }
 
+        polymerHandler.polymer_setResourcePack(this.hasPack);
+
         polymerHandler.polymer_setBlockMapper(this.blockMapper);
     }
 

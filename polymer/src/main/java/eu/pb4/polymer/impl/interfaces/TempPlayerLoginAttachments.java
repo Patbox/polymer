@@ -15,4 +15,7 @@ public interface TempPlayerLoginAttachments {
     List<CustomPayloadC2SPacket> polymer_getLatePackets();
 
     void polymer_setHandshakeHandler(PolymerHandshakeHandler handler);
+
+    void polymer_setForceRespawnPacket();
+    boolean polymer_getForceRespawnPacket();
 }

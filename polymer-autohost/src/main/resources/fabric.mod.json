@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-autohost",
+  "version": "${version}",
+  "name": "Polymer Auto Host",
+  "description": "Automatically host polymer resource packs",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer"
+  },
+  "license": "LGPLv3",
+  "icon": "assets/icon.png",
+  "environment": "server",
+  "mixins": [
+    "polymer-autohost.mixins.json"
+  ]
+}

@@ -96,7 +96,6 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Override
     public void polymer_setResourcePack(boolean value) {
         this.polymer_hasResourcePack = value;
-        PolymerUtils.reloadWorld(this.getPlayer());
     }
 
     @Override

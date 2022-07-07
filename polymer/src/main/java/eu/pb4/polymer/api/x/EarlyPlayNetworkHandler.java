@@ -2,6 +2,7 @@ package eu.pb4.polymer.api.x;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.networking.EarlyConnectionMagic;
 import io.netty.util.internal.UnstableApi;
 import net.minecraft.network.ClientConnection;
@@ -11,7 +12,9 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.KeepAliveS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -43,12 +46,12 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     private final EarlyConnectionMagic.ContextImpl context;
     private final Identifier identifier;
 
-    private long lastRespose = 0;
+    private volatile long lastRespose = 0;
 
-    private int keepAliveSent = 0;
-    private int keepAliveReceived = 0;
-    private boolean canContinue = true;
-    private boolean alreadyContinued;
+    private volatile int keepAliveSent = 0;
+    private volatile int keepAliveReceived = 0;
+    private volatile boolean canContinue = true;
+    private volatile boolean alreadyContinued;
 
     public EarlyPlayNetworkHandler(Identifier identifier, Context context) {
         this.context = (EarlyConnectionMagic.ContextImpl) context;
@@ -80,12 +83,15 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     }
 
+    protected void forceRespawnPacket() {
+        ((TempPlayerLoginAttachments) this.getPlayer()).polymer_setForceRespawnPacket();
+    }
+
     @Override
     public final void onKeepAlive(KeepAliveC2SPacket packet) {
         this.lastRespose = -20;
         this.keepAliveReceived++;
         if (this.canContinue) {
-            this.sendKeepAlive();
             this.handleKeepAlive(packet.getId());
         } else if (!this.alreadyContinued && this.keepAliveReceived >= this.keepAliveSent) {
             this.alreadyContinued = true;
@@ -95,6 +101,14 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     public final void sendPacket(Packet<?> packet) {
         this.context.connection().send(packet);
+
+        if (packet instanceof GameJoinS2CPacket packet1) {
+            if (((TempPlayerLoginAttachments) this.getPlayer()).polymer_getForceRespawnPacket()) {
+                this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), false, packet1.lastDeathLocation()));
+            }
+
+            this.forceRespawnPacket();
+        }
     }
 
     public final void sendKeepAlive(long value) {
@@ -110,6 +124,8 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     public final void tickInternal() {
         if (this.lastRespose++ == 1200) {
             this.disconnect(Text.translatable("multiplayer.disconnect.slow_login"));
+        } else if (this.lastRespose == 20) {
+            this.sendKeepAlive();
         }
 
         this.tick();
@@ -159,10 +175,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     public final void continueJoining() {
         if (this.canContinue) {
             this.canContinue = false;
-
-            if (!this.alreadyContinued && this.keepAliveReceived >= this.keepAliveSent) {
-                this.continueJoining();
-            }
+            this.sendKeepAlive();
         }
     }
 

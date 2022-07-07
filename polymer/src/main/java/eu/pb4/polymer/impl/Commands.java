@@ -17,7 +17,6 @@ import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.impl.ui.PotionUi;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -416,15 +415,14 @@ public class Commands {
 
             Util.getIoWorkerExecutor().execute(() -> {
                 context.getSource().sendFeedback(Text.literal("Starting resource pack generation..."), true);
-                var path = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip");
-                boolean success = PolymerRPUtils.build(path);
+                boolean success = PolymerRPUtils.build(PolymerRPUtils.DEFAULT_PATH);
 
                 context.getSource().getServer().execute(() -> {
                     if (success) {
                         context.getSource().sendFeedback(
                                 Text.literal("Resource pack created successfully! You can find it in game folder as ")
                                 .append(Text.literal("polymer-resourcepack.zip")
-                                        .setStyle(Style.EMPTY.withUnderline(true).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(path.toAbsolutePath().toString()))))),
+                                        .setStyle(Style.EMPTY.withUnderline(true).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(PolymerRPUtils.DEFAULT_PATH.toAbsolutePath().toString()))))),
                                 true
                         );
                     } else {
