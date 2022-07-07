@@ -21,8 +21,11 @@ Any mod using this library shouldn't be required on the client side! However, as
 are few small quality of life things added with it. So you might want to recommend it or include with
 your mod pack.
 
-If you have a server and polymer based mods you are using include a resource pack, you might want 
-to additionally use this mod: https://github.com/aws404/polypack-host
+If you have a server and polymer based mods you are using include a resource pack, you might want since version 0.2.5
+"packed/all" version of polymer contains AutoHost module, allowing you to setup automatic building and sending of packs
+to clients.
+
+If you use 1.18.x or older, use this instead: https://github.com/aws404/polypack-host
 
 ## For mod developers:
 All information about usage can be found at https://polymer.pb4.eu!
