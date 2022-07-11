@@ -13,16 +13,14 @@ import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Optional;
 
 public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     private final boolean required;
 
-    private static final WorldChunk FAKE_CHUNK = new WorldChunk(PolymerUtils.getFakeWorld(), ChunkPos.ORIGIN);
+    //private static final WorldChunk FAKE_CHUNK = new WorldChunk(PolymerUtils.getFakeWorld(), ChunkPos.ORIGIN);
     private static final ArmorStandEntity FAKE_ENTITY = new ArmorStandEntity(EntityType.ARMOR_STAND, PolymerUtils.getFakeWorld());
 
     public ResourcePackNetworkHandler(Context context) {
@@ -38,7 +36,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
             var server = this.getServer();
             this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty()));
 
-            this.sendPacket(new ChunkDataS2CPacket(FAKE_CHUNK, PolymerUtils.getFakeWorld().getLightingProvider(), null, null, true));
+            //this.sendPacket(new ChunkDataS2CPacket(FAKE_CHUNK, PolymerUtils.getFakeWorld().getLightingProvider(), null, null, true));
             this.sendPacket(FAKE_ENTITY.createSpawnPacket());
             this.sendPacket(new EntityTrackerUpdateS2CPacket(FAKE_ENTITY.getId(), FAKE_ENTITY.getDataTracker(), true));
             this.sendPacket(new SetCameraEntityS2CPacket(FAKE_ENTITY));

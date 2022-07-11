@@ -9,7 +9,6 @@ import com.sun.net.httpserver.HttpServer;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.server.MinecraftServer;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpStatus;
 
 import javax.annotation.Nullable;
@@ -90,7 +89,7 @@ public class WebServer {
                     exchange.getResponseHeaders().add("Content-Type", "application/zip");
                     exchange.sendResponseHeaders(HttpStatus.SC_OK, size);
 
-                    IOUtils.copy(input, output);
+                    input.transferTo(output);
                     output.flush();
                 }
             }
