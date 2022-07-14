@@ -1,5 +1,7 @@
 package eu.pb4.polymer.impl.client;
 
+import eu.pb4.polymer.impl.PolymerImpl;
+
 public class ClientConfig {
     public String _c1 = "Forces resource pack by default";
     public boolean forceResourcePackByDefault = false;
@@ -11,4 +13,6 @@ public class ClientConfig {
     public boolean displayF3Info = true;
     public String _c5 = "Enables logging of invalid registry ids (BlockStates, Blocks, Items, etc) sent by server";
     public boolean logInvalidServerEntryIds = true;
+    public String _c6 = "Disables Polymer's QoL changes that effects non-visual things";
+    public boolean disableNonVisualQualityOfLifeChanges = PolymerImpl.DEV_ENV;
 }

@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.client;
 
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocol;
 import eu.pb4.polymer.impl.client.rendering.PolymerResourceReloader;
@@ -69,7 +70,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
     private void polymer_pickBlock(CallbackInfo ci) {
-        if (InternalClientRegistry.enabled && this.getNetworkHandler() != null && this.crosshairTarget != null) {
+        if (PolymerImpl.CHANGING_QOL_CLIENT && InternalClientRegistry.enabled && this.getNetworkHandler() != null && this.crosshairTarget != null) {
             switch (this.crosshairTarget.getType()) {
                 case BLOCK -> {
                     var pos = ((BlockHitResult) this.crosshairTarget).getBlockPos();

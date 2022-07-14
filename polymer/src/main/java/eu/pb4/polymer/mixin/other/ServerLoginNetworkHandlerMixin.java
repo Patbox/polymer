@@ -18,6 +18,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
+
 @Mixin(ServerLoginNetworkHandler.class)
 public abstract class ServerLoginNetworkHandlerMixin {
     @Shadow @Final private MinecraftServer server;
@@ -26,6 +28,7 @@ public abstract class ServerLoginNetworkHandlerMixin {
     @Shadow protected abstract void addToServer(ServerPlayerEntity player);
 
     @Shadow private @Nullable GameProfile profile;
+    @Shadow private ServerLoginNetworkHandler.State state;
     @Unique
     private boolean polymer_passPlayer = false;
 
@@ -37,12 +40,35 @@ public abstract class ServerLoginNetworkHandlerMixin {
                     this.polymer_passPlayer = true;
                     this.connection.setPacketListener((PacketListener) this);
 
-                    var oldPlayer = this.server.getPlayerManager().getPlayer(this.profile.getId());
-                    if (oldPlayer != null) {
-                        oldPlayer.networkHandler.disconnect(Text.translatable("multiplayer.disconnect.duplicate_login"));
-                        this.server.getPlayerManager().remove(oldPlayer);
-                    } else {
-                        this.addToServer(player);
+                    if (this.connection.isOpen()) {
+                        var oldPlayer = this.server.getPlayerManager().getPlayer(this.profile.getId());
+                        if (oldPlayer != null) {
+                            this.state = ServerLoginNetworkHandler.State.DELAY_ACCEPT;
+
+                            var list = new ArrayList<ServerPlayerEntity>();
+
+                            var pm = this.server.getPlayerManager();
+                            for(int i = 0; i < pm.getPlayerList().size(); ++i) {
+                                var existingPlayer = pm.getPlayerList().get(i);
+                                if (existingPlayer.getUuid().equals(profile.getId())) {
+                                    list.add(existingPlayer);
+                                }
+                            }
+
+                            if (oldPlayer != null && !list.contains(oldPlayer)) {
+                                list.add(oldPlayer);
+                            }
+
+                            for (var playerKick : list) {
+                                if (playerKick.networkHandler.connection.isOpen()) {
+                                    playerKick.networkHandler.disconnect(Text.translatable("multiplayer.disconnect.duplicate_login"));
+                                } else {
+                                    playerKick.networkHandler.onDisconnected(Text.translatable("multiplayer.disconnect.duplicate_login"));
+                                }
+                            }
+                        } else {
+                            this.addToServer(player);
+                        }
                     }
                 }
             });

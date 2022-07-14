@@ -115,14 +115,36 @@ public final class PolymerItemUtils {
     @Nullable
     public static Identifier getPolymerIdentifier(ItemStack itemStack) {
         if (itemStack.hasNbt()) {
-            String id = itemStack.getNbt().getString(POLYMER_ITEM_ID);
-            if (id != null && !id.isEmpty()) {
-                Identifier identifier = Identifier.tryParse(id);
-
-                return identifier;
-            }
+            return getIdentifierFrom(itemStack.getNbt(), POLYMER_ITEM_ID);
         }
 
+        return null;
+    }
+
+    /**
+     * Returns stored identifier of Polymer/other supported server mod ItemStack. If it's invalid, null is returned instead.
+     */
+    @Nullable
+    public static Identifier getServerIdentifier(ItemStack itemStack) {
+        if (itemStack.hasNbt()) {
+            var id = getIdentifierFrom(itemStack.getNbt(), POLYMER_ITEM_ID);
+
+            if (id == null) {
+                id = getIdentifierFrom(itemStack.getNbt(), "PolyMcId");
+            }
+
+            return id;
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private static Identifier getIdentifierFrom(NbtCompound compound, String nbtKey) {
+        String id = compound.getString(nbtKey);
+        if (id != null && !id.isEmpty()) {
+            return Identifier.tryParse(id);
+        }
         return null;
     }
 

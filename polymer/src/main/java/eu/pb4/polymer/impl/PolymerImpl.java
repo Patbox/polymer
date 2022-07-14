@@ -65,6 +65,7 @@ public final class PolymerImpl {
     public static final boolean LOG_SYNC_TIME;
     public static final boolean LOG_BLOCKSTATE_REBUILDS;
     public static final boolean LOG_INVALID_SERVER_IDS_CLIENT;
+    public static final boolean CHANGING_QOL_CLIENT;
 
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
@@ -127,6 +128,7 @@ public final class PolymerImpl {
             DISPLAY_DEBUG_INFO_CLIENT = clientConfig.displayF3Info;
             UNLOCK_SERVER_PACK_CLIENT = LOADER.getGameDir().resolve(".polymer_unlock_rp").toFile().exists();
             LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
+            CHANGING_QOL_CLIENT = !clientConfig.disableNonVisualQualityOfLifeChanges;
         } else {
             USE_ALT_ARMOR_HANDLER = false;
             ENABLE_NETWORKING_CLIENT = false;
@@ -134,6 +136,7 @@ public final class PolymerImpl {
             DISPLAY_DEBUG_INFO_CLIENT = false;
             UNLOCK_SERVER_PACK_CLIENT = false;
             LOG_INVALID_SERVER_IDS_CLIENT = false;
+            CHANGING_QOL_CLIENT = false;
         }
     }
 

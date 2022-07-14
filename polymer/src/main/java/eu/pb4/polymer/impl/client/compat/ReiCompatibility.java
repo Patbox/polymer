@@ -17,10 +17,10 @@ import java.util.Collection;
 import java.util.function.Predicate;
 
 public class ReiCompatibility implements REIClientPlugin {
-    private static final Predicate<? extends EntryStack<?>> SHOULD_REMOVE = (x) -> x.getValue() instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null);
+    private static final Predicate<? extends EntryStack<?>> SHOULD_REMOVE = (x) -> x.getValue() instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null);
 
     private static final EntryComparator<ItemStack> ITEM_STACK_ENTRY_COMPARATOR = (c, i) -> {
-        var polymerId = PolymerItemUtils.getPolymerIdentifier(i);
+        var polymerId = PolymerItemUtils.getServerIdentifier(i);
 
         if (polymerId != null) {
             return polymerId.hashCode();

@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.function.Predicate;
 
 public class EmiCompatibility implements EmiPlugin {
-    private static final Predicate<EmiStack> SHOULD_REMOVE = (stack) -> (PolymerItemUtils.isPolymerServerItem(stack.getItemStack()) || PolymerItemUtils.getPolymerIdentifier(stack.getItemStack()) != null || PolymerUtils.isServerOnly(stack.getEntry().getValue()));
+    private static final Predicate<EmiStack> SHOULD_REMOVE = (stack) -> (PolymerItemUtils.isPolymerServerItem(stack.getItemStack()) || PolymerItemUtils.getServerIdentifier(stack.getItemStack()) != null || PolymerUtils.isServerOnly(stack.getEntry().getValue()));
 
     static {
         if (PolymerImpl.IS_CLIENT) {

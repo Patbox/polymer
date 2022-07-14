@@ -54,7 +54,7 @@ public class WthitCompatibility implements IWailaPlugin {
                 return null;
             }
 
-            var id = PolymerItemUtils.getPolymerIdentifier(stack);
+            var id = PolymerItemUtils.getServerIdentifier(stack);
 
             if (id != null) {
                 String modName = null;
@@ -161,7 +161,7 @@ public class WthitCompatibility implements IWailaPlugin {
 
                 var stack = accessor.<ItemEntity>getEntity().getStack();
                 if (stack.hasNbt()) {
-                    var id = PolymerItemUtils.getPolymerIdentifier(stack);
+                    var id = PolymerItemUtils.getServerIdentifier(stack);
 
                     if (id != null) {
                         var formatting = IWailaConfig.get().getFormatter();
@@ -177,7 +177,7 @@ public class WthitCompatibility implements IWailaPlugin {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
                 var stack = accessor.<ItemEntity>getEntity().getStack();
                 if (stack.hasNbt()) {
-                    var id = PolymerItemUtils.getPolymerIdentifier(stack);
+                    var id = PolymerItemUtils.getServerIdentifier(stack);
                     if (id != null) {
                         String modName = null;
                         var regBlock = Registry.ITEM.get(id);

@@ -108,6 +108,7 @@
     "client.item.packet.InventoryS2CPacketMixin",
     "client.item.packet.ScreenHandlerSlotUpdateS2CPacketMixin",
     "client.item.packet.SetTradeOffersS2CPacketMixin",
+    "client.rendering.AbstractInventoryScreenMixin",
     "client.rendering.ArmorFeatureRendererAccessor",
     "client.rendering.BlockModelsMixin",
     "client.rendering.BuiltinModelItemRendererMixin",

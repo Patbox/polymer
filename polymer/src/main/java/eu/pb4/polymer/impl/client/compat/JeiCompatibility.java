@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 public class JeiCompatibility implements IModPlugin {
     private static final Identifier ID = new Identifier("polymer", "jei_plugin");
 
-    private static final Predicate<ItemStack> SHOULD_REMOVE = (stack) -> (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null);
+    private static final Predicate<ItemStack> SHOULD_REMOVE = (stack) -> (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null);
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
@@ -31,7 +31,7 @@ public class JeiCompatibility implements IModPlugin {
     }
 
     public static boolean areSamePolymerItem(ItemStack a, ItemStack b) {
-        return Objects.equals(PolymerItemUtils.getPolymerIdentifier(a), PolymerItemUtils.getPolymerIdentifier(a));
+        return Objects.equals(PolymerItemUtils.getServerIdentifier(a), PolymerItemUtils.getServerIdentifier(a));
     }
 
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {

@@ -33,13 +33,15 @@ public class PolymerServerProtocolHandler {
 
     public static void handle(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
         if (PolymerImpl.ENABLE_NETWORKING_SERVER) {
+            boolean versionRead = false;
             int version = -1;
 
             try {
                 version = buf.readVarInt();
+                versionRead = true;
                 handle(handler, identifier.getPath(), version, buf);
-            } catch (Exception e) {
-                PolymerImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)! {}", identifier, version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
+            } catch (Throwable e) {
+                PolymerImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)! {}", identifier, versionRead ? "Unknown" : version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
             }
         }
     }

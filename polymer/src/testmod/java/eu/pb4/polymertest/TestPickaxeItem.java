@@ -3,7 +3,10 @@ package eu.pb4.polymertest;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ToolMaterial;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -12,10 +15,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class TestPickaxeItem extends PickaxeItem implements PolymerItem {
-    private final PolymerModelData model = PolymerRPUtils.requestModel(Items.WOODEN_PICKAXE, new Identifier("polymertest", "item/pickaxe"));
+    private final PolymerModelData model;
 
-    public TestPickaxeItem(ToolMaterial material, int attackDamage, float attackSpeed, Settings settings) {
+    public TestPickaxeItem(Item polymerItem, ToolMaterial material, int attackDamage, float attackSpeed, Settings settings) {
         super(material, attackDamage, attackSpeed, settings);
+        this.model = PolymerRPUtils.requestModel(polymerItem, new Identifier("polymertest", "item/pickaxe"));
     }
 
     @Override

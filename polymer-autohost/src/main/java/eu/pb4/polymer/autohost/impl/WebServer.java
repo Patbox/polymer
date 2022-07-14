@@ -54,6 +54,7 @@ public class WebServer {
         try {
             hash = com.google.common.io.Files.asByteSource(PolymerRPUtils.DEFAULT_PATH.toFile()).hash(Hashing.sha1()).toString();
             size = Files.size(PolymerRPUtils.DEFAULT_PATH);
+            lastUpdate = Files.getLastModifiedTime(PolymerRPUtils.DEFAULT_PATH).toMillis();
             WebServer.fullAddress = WebServer.baseAddress + WebServer.hash + ".zip";
         } catch (Exception e) {
             hash = "";
@@ -77,7 +78,6 @@ public class WebServer {
             if (Files.exists(PolymerRPUtils.DEFAULT_PATH)) {
                 var updateTime = Files.getLastModifiedTime(PolymerRPUtils.DEFAULT_PATH).toMillis();
                 if (updateTime > lastUpdate) {
-                    lastUpdate = updateTime;
                     updateHash();
                 }
 
