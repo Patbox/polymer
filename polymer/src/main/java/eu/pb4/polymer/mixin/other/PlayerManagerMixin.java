@@ -27,7 +27,11 @@ public class PlayerManagerMixin {
         if (packets != null) {
             ((TempPlayerLoginAttachments) player).polymer_setLatePackets(null);
             for (var packet : packets) {
-                packet.apply(player.networkHandler);
+                try {
+                    packet.apply(player.networkHandler);
+                } catch (Throwable e) {
+
+                }
             }
         }
 

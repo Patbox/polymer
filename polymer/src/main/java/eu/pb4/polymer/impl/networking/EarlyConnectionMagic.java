@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class EarlyConnectionMagic {
     private static final List<Function<EarlyPlayNetworkHandler.Context, EarlyPlayNetworkHandler>> CONSTRUCTORS = new ArrayList<>();
 
-    public static void handle(ServerPlayerEntity player, MinecraftServer server, ClientConnection connection, Runnable finish) {
+    public static void handle(ServerPlayerEntity player, MinecraftServer server, ClientConnection connection, Consumer<ContextImpl> finish) {
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
         if (iterator.hasNext()) {
@@ -25,7 +25,7 @@ public class EarlyConnectionMagic {
                 if (iterator.hasNext()) {
                     iterator.next().apply(c);
                 } else {
-                    finish.run();
+                    finish.accept(c);
                 }
             });
 
@@ -50,6 +50,6 @@ public class EarlyConnectionMagic {
             ServerPlayerEntity player,
             ClientConnection connection,
             List<CustomPayloadC2SPacket> storedPackets,
-            Consumer<EarlyPlayNetworkHandler.Context> continueRunning
+            Consumer<ContextImpl> continueRunning
     ) implements EarlyPlayNetworkHandler.Context {}
 }

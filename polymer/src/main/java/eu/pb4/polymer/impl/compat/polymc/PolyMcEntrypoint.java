@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.compat.polymc;
 
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
+import eu.pb4.polymer.api.item.PolymerItem;
 import io.github.theepicblock.polymc.api.PolyRegistry;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
@@ -12,6 +13,12 @@ public class PolyMcEntrypoint implements io.github.theepicblock.polymc.api.PolyM
         for (var entityType : Registry.ENTITY_TYPE) {
             if (PolymerEntityUtils.isRegisteredEntityType(entityType)) {
                 registry.registerEntityPoly(entityType, (info, entity) -> null);
+            }
+        }
+
+        for (var item : Registry.ITEM) {
+            if (item instanceof PolymerItem) {
+                registry.registerItemPoly(item, (x, y, z) -> x.copy());
             }
         }
     }
