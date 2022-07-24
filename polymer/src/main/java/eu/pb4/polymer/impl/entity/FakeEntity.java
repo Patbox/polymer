@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.entity;
 
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.other.FakeWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
@@ -38,10 +39,15 @@ class FakeEntity extends Entity {
     static {
         FakeEntity entity;
         try {
-            entity = new FakeEntity(EntityType.PIG, eu.pb4.polymer.impl.other.FakeWorld.INSTANCE);
+            entity = new FakeEntity(EntityType.PIG, FakeWorld.INSTANCE_UNSAFE);
         } catch (Throwable e1) {
-            PolymerImpl.LOGGER.error("Couldn't initiate base template entity! It's super bad and it might crash soon!", e1);
-            entity = null;
+            PolymerImpl.LOGGER.error("Couldn't initiate base template entity... trying again with a different method.", e1);
+            try {
+                entity = new FakeEntity(EntityType.PIG, FakeWorld.INSTANCE_REGULAR);
+            } catch (Throwable e2) {
+                PolymerImpl.LOGGER.error("Couldn't initiate base template entity! It's super bad and it might crash soon!", e2);
+                entity = null;
+            }
         }
         INSTANCE = entity;
     }

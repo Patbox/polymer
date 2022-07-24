@@ -54,10 +54,13 @@ import java.util.function.Supplier;
 @ApiStatus.Internal
 public final class FakeWorld extends World {
     public static final World INSTANCE;
+
+    public static final World INSTANCE_UNSAFE;
+    public static final World INSTANCE_REGULAR;
     static final Scoreboard SCOREBOARD = new Scoreboard();
     static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.createAndLoad();
     static final RecipeManager RECIPE_MANAGER = new RecipeManager();
-    static final ChunkManager CHUNK_MANAGER = new ChunkManager() {
+    final ChunkManager chunkManager = new ChunkManager() {
         private LightingProvider lightingProvider = null;
 
         @Nullable
@@ -93,7 +96,7 @@ public final class FakeWorld extends World {
 
                     @Override
                     public BlockView getWorld() {
-                        return INSTANCE;
+                        return FakeWorld.this;
                     }
                 }, false, false);
             }
@@ -103,7 +106,7 @@ public final class FakeWorld extends World {
 
         @Override
         public BlockView getWorld() {
-            return INSTANCE;
+            return FakeWorld.this;
         }
     };
     private static final EntityLookup<Entity> ENTITY_LOOKUP = new EntityLookup<>() {
@@ -162,45 +165,50 @@ public final class FakeWorld extends World {
     };
 
     static {
-        World world;
+        World worldUnsafe, worldDefault;
 
         try {
-            try {
-                world = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
-                var accessor = (WorldAccessor) world;
-                accessor.polymer_setBiomeAccess(new BiomeAccess(world, 1l));
-                accessor.polymer_setBorder(new WorldBorder());
-                accessor.polymer_setDebugWorld(true);
-                accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
-                accessor.polymer_setProperties(new FakeWorldProperties());
-                accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
-                accessor.polymer_setDimensionKey(DimensionTypes.OVERWORLD);
-                accessor.polymer_setDimensionEntry(BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD));
-                accessor.polymer_setThread(Thread.currentThread());
-                accessor.polymer_setRandom(Random.create());
-                accessor.polymer_setAsyncRandom(Random.createThreadSafe());
-                accessor.polymer_setBlockEntityTickers(new ArrayList<>());
-                accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
+            worldUnsafe = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
+            var accessor = (WorldAccessor) worldUnsafe;
+            accessor.polymer_setBiomeAccess(new BiomeAccess(worldUnsafe, 1l));
+            accessor.polymer_setBorder(new WorldBorder());
+            accessor.polymer_setDebugWorld(true);
+            accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
+            accessor.polymer_setProperties(new FakeWorldProperties());
+            accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
+            accessor.polymer_setDimensionKey(DimensionTypes.OVERWORLD);
+            accessor.polymer_setDimensionEntry(BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD));
+            accessor.polymer_setThread(Thread.currentThread());
+            accessor.polymer_setRandom(Random.create());
+            accessor.polymer_setAsyncRandom(Random.createThreadSafe());
+            accessor.polymer_setBlockEntityTickers(new ArrayList<>());
+            accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
 
-            } catch (Throwable e) {
-                PolymerImpl.LOGGER.error("Creating fake world with unsafe failed... Time for plan B", e);
-                world = new FakeWorld(
-                        new FakeWorldProperties(),
-                        RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
-                        BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD),
-                        () -> new ProfilerSystem(() -> 0l, () -> 0, false),
-                        false,
-                        true,
-                        1
-                );
-            }
         } catch (Throwable e) {
-            PolymerImpl.LOGGER.error("And it failed again... some mod is really angry at this stuff... setting it to null for now, hopefully it will pass enough", e);
-            world = null;
+            PolymerImpl.LOGGER.error("Creating fake world with unsafe failed...", e);
+            worldUnsafe = null;
+        }
+
+        try {
+            worldDefault = new FakeWorld(
+                    new FakeWorldProperties(),
+                    RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
+                    BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD),
+                    () -> new ProfilerSystem(() -> 0l, () -> 0, false),
+                    false,
+                    true,
+                    1
+            );
+        } catch (Throwable e) {
+            PolymerImpl.LOGGER.error("Creating fake world in regular way failed...", e);
+            worldDefault = null;
         }
 
 
-        INSTANCE = world;
+        INSTANCE_UNSAFE = worldUnsafe;
+        INSTANCE_REGULAR = worldDefault;
+
+        INSTANCE = worldUnsafe != null ? worldUnsafe : worldDefault;
     }
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
@@ -291,7 +299,7 @@ public final class FakeWorld extends World {
 
     @Override
     public ChunkManager getChunkManager() {
-        return CHUNK_MANAGER;
+        return chunkManager;
     }
 
     @Override

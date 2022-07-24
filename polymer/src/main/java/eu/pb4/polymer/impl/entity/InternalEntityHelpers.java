@@ -9,7 +9,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -28,7 +27,38 @@ import java.util.Map;
 @SuppressWarnings({"unused", "unchecked"})
 public class InternalEntityHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
-    private static final PigEntity PIG = new PigEntity(EntityType.PIG, FakeWorld.INSTANCE);
+
+    static {
+        try {
+            EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_UNSAFE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato"), new PlayerPublicKey(null)) {
+                @Override
+                public boolean isSpectator() {
+                    return false;
+                }
+
+                @Override
+                public boolean isCreative() {
+                    return false;
+                }
+            });
+        } catch (Throwable e) {
+            try {
+                EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_REGULAR, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato"), new PlayerPublicKey(null)) {
+                    @Override
+                    public boolean isSpectator() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isCreative() {
+                        return false;
+                    }
+                });
+            } catch (Throwable e2) {
+
+            }
+        }
+    }
 
     public static List<DataTracker.Entry<?>> getExampleTrackedDataOfEntityType(EntityType<?> type) {
         return getEntity(type).getDataTracker().getAllEntries();
@@ -48,9 +78,7 @@ public class InternalEntityHelpers {
 
     public static boolean canPatchTrackedData(ServerPlayerEntity player, Entity entity) {
         if (CompatStatus.DISGUISELIB) {
-            if (((EntityDisguise) entity).isDisguised() && !((EntityDisguise) player).hasTrueSight()) {
-                return false;
-            }
+            return !((EntityDisguise) entity).isDisguised() || ((EntityDisguise) player).hasTrueSight();
         }
 
         return true;
@@ -61,22 +89,29 @@ public class InternalEntityHelpers {
 
         if (entity == null) {
             try {
-                entity = type.create(FakeWorld.INSTANCE);
+                entity = type.create(FakeWorld.INSTANCE_UNSAFE);
             } catch (Throwable e) {
-                var id = Registry.ENTITY_TYPE.getId(type);
-                if (PolymerImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
-                    PolymerImpl.LOGGER.warn(String.format(
-                            "Couldn't create template entity of %s (%s)... Defaulting to empty. %s",
-                            id,
-                            type.getBaseClass().toString(),
-                            id != null && id.getNamespace().equals("minecraft") ? "This might cause problems!" : "Don't worry, this shouldn't cause problems!"
-                    ));
+                try {
+                    entity = type.create(FakeWorld.INSTANCE_REGULAR);
+                } catch (Throwable e2) {
+                    var id = Registry.ENTITY_TYPE.getId(type);
+                    if (PolymerImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
+                        PolymerImpl.LOGGER.warn(String.format(
+                                "Couldn't create template entity of %s... Defaulting to empty. %s",
+                                id,
+                                id != null && id.getNamespace().equals("minecraft") ? "This might cause problems!" : "Don't worry, this shouldn't cause problems!"
+                        ));
 
-                    if (id != null && id.getNamespace().equals("minecraft")) {
-                        e.printStackTrace();
+                        if (id != null && id.getNamespace().equals("minecraft")) {
+                            PolymerImpl.LOGGER.warn("First error:");
+                            e.printStackTrace();
+                            PolymerImpl.LOGGER.warn("Second error:");
+                            e2.printStackTrace();
+                        }
                     }
+                    entity = FakeEntity.INSTANCE;
                 }
-                entity = FakeEntity.INSTANCE;
+
             }
             EXAMPLE_ENTITIES.put(type, entity);
         }
@@ -86,25 +121,5 @@ public class InternalEntityHelpers {
 
     public static Entity getFakeEntity() {
         return FakeEntity.INSTANCE;
-    }
-
-    public static PigEntity getTacticalPig() {
-        return PIG;
-    }
-
-    static {
-        EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato"), new PlayerPublicKey(null)) {
-            @Override
-            public boolean isSpectator() {
-                return false;
-            }
-
-            @Override
-            public boolean isCreative() {
-                return false;
-            }
-        });
-
-        EXAMPLE_ENTITIES.put(EntityType.PIG, PIG);
     }
 }

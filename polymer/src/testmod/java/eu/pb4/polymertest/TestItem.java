@@ -30,4 +30,9 @@ public class TestItem extends SimplePolymerItem {
         user.sendMessage(Text.literal("Use!" + hand), false);
         return super.use(world, user, hand);
     }
+
+    @Override
+    public boolean hasGlint(ItemStack stack) {
+        return true;
+    }
 }

@@ -388,9 +388,11 @@ public class Commands {
 
     private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
-        var itemStack = player.getMainHandStack();
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player);
+        stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
+        stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
 
-        context.getSource().sendFeedback((new NbtTextFormatter("", 3)).apply(PolymerItemUtils.getPolymerItemStack(itemStack, player).writeNbt(new NbtCompound())), false);
+        context.getSource().sendFeedback((new NbtTextFormatter("", 3)).apply(stack.writeNbt(new NbtCompound())), false);
 
         return 1;
     }

@@ -9,7 +9,7 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -300,8 +300,31 @@ public final class PolymerItemUtils {
                 out.getNbt().putInt("Damage", (int) ((((double) dmg) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
             }
 
-            if (itemStack.hasGlint()) {
-                out.addEnchantment(Enchantments.UNBREAKING, 0);
+            if (itemStack.hasEnchantments()) {
+                var list = new NbtList();
+                for (var enchNbt : itemStack.getEnchantments()) {
+                    var ench = Registry.ENCHANTMENT.get(EnchantmentHelper.getIdFromNbt((NbtCompound) enchNbt));
+
+                    if (ench instanceof PolymerEnchantment polyEnch) {
+                        var possible = polyEnch.getPolymerEnchantment(player);
+
+                        if (possible != null) {
+                            list.add(EnchantmentHelper.createNbt(Registry.ENCHANTMENT.getId(possible), EnchantmentHelper.getLevelFromNbt((NbtCompound) enchNbt)));
+                        }
+                    } else if (!(ench instanceof PolymerObject)) {
+                        list.add(enchNbt.copy());
+                    }
+                }
+
+                if (list.isEmpty()) {
+                    list.add(new NbtCompound());
+                }
+
+                out.getNbt().put(ItemStack.ENCHANTMENTS_KEY, list);
+            } else if (itemStack.hasGlint()) {
+                var list = new NbtList();
+                list.add(new NbtCompound());
+                out.getNbt().put(ItemStack.ENCHANTMENTS_KEY, list);
             }
 
             if (itemStack.getItem() instanceof PotionItem) {
@@ -320,6 +343,12 @@ public final class PolymerItemUtils {
 
             if (canPlaceOn != null) {
                 out.getNbt().put("CanPlaceOn", canPlaceOn);
+            }
+        } else {
+            if (itemStack.hasGlint()) {
+                var list = new NbtList();
+                list.add(new NbtCompound());
+                out.getNbt().put(ItemStack.ENCHANTMENTS_KEY, list);
             }
         }
 
