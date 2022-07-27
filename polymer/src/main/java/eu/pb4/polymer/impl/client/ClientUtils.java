@@ -1,8 +1,11 @@
 package eu.pb4.polymer.impl.client;
 
+import eu.pb4.polymer.api.client.PolymerKeepModel;
+import eu.pb4.polymer.api.item.PolymerItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -27,5 +30,16 @@ public class ClientUtils {
 
     public static boolean isClientThread() {
         return MinecraftClient.getInstance().isOnThread();
+    }
+
+    public static ItemStack getRenderingStack(ItemStack stack) {
+        if (stack.getItem() instanceof VirtualClientItem virtualItem) {
+            var og = stack;
+
+            stack = virtualItem.getPolymerEntry().visualStack().copy();
+            stack.setCount(og.getCount());
+        }
+
+        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, ClientUtils.getPlayer()) : stack;
     }
 }

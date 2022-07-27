@@ -25,6 +25,7 @@ import java.util.Map;
 
 public final class PolymerImpl {
 
+
     private PolymerImpl() {
     }
 
@@ -66,6 +67,7 @@ public final class PolymerImpl {
     public static final boolean LOG_BLOCKSTATE_REBUILDS;
     public static final boolean LOG_INVALID_SERVER_IDS_CLIENT;
     public static final boolean CHANGING_QOL_CLIENT;
+    public static final boolean USE_UNSAFE_ITEMS_CLIENT;
 
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
@@ -129,6 +131,7 @@ public final class PolymerImpl {
             UNLOCK_SERVER_PACK_CLIENT = LOADER.getGameDir().resolve(".polymer_unlock_rp").toFile().exists();
             LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
             CHANGING_QOL_CLIENT = !clientConfig.disableNonVisualQualityOfLifeChanges;
+            USE_UNSAFE_ITEMS_CLIENT = clientConfig.experimentalModdedContainerSupport;
         } else {
             USE_ALT_ARMOR_HANDLER = false;
             ENABLE_NETWORKING_CLIENT = false;
@@ -137,6 +140,7 @@ public final class PolymerImpl {
             UNLOCK_SERVER_PACK_CLIENT = false;
             LOG_INVALID_SERVER_IDS_CLIENT = false;
             CHANGING_QOL_CLIENT = false;
+            USE_UNSAFE_ITEMS_CLIENT = false;
         }
     }
 

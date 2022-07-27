@@ -11,7 +11,6 @@ import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.*;
 
 import javax.imageio.ImageIO;
-import java.io.IOException;
 
 @Pseudo
 @Mixin(value = ArmorColorManager.class, remap = false)
@@ -53,7 +52,7 @@ public class polymc_ArmorColorManagerMixin {
 
                     // Write the modded armor textures standalone
                     pack.setTexture("minecraft", texturePath, moddedResources.getTexture("minecraft", texturePath));
-                } catch (IOException e) {
+                } catch (Throwable e) {
                     logger.error("Couldn't read armor texture " + material.getName() + " (layer #" + layer + ")");
                     e.printStackTrace();
                 }

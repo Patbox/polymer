@@ -38,15 +38,14 @@ import java.util.zip.ZipOutputStream;
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = PolymerImpl.GSON;
-
+    public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
     private final Map<Item, JsonArray> models = new HashMap<>();
     private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
     private final List<PolymerArmorModel> armors = new ArrayList<>();
     private final Path outputPath;
-    private ZipFile clientJar = null;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
-    public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
+    private ZipFile clientJar = null;
 
 
     public DefaultRPBuilder(Path outputPath) {
@@ -383,7 +382,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                                 }
                             }
                             list.add(new ArmorData(entry.modelPath(), entry.value(), images, metadata));
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             PolymerImpl.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
                             e.printStackTrace();
                         }
@@ -396,8 +395,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2.png")).readAllBytes());
                     this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2_overlay.png")).readAllBytes());
 
-                    int[] width = new int[]{ 64 * globalScale, 64 * globalScale };
-                    int[] height = new int[]{ 32 * globalScale, 32 * globalScale };
+                    int[] width = new int[]{64 * globalScale, 64 * globalScale};
+                    int[] height = new int[]{32 * globalScale, 32 * globalScale};
 
                     for (var entry : new ArrayList<>(list)) {
                         for (int i = 0; i <= 1; i++) {
@@ -429,60 +428,66 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                     var graphics = new Graphics[]{image[0].getGraphics(), image[1].getGraphics()};
 
-                    for (int i = 0; i <= 1; i++) {
-                        {
-                            var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png")));
-                            graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
-                        }
-                        {
-                            var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png")));
-                            graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
-                        }
-                        graphics[i].setColor(Color.WHITE);
-                        graphics[i].drawRect(0, 1, 0, 0);
-                    }
-
-                    for (var entry : list) {
+                    try {
                         for (int i = 0; i <= 1; i++) {
-                            var metadata = entry.metadata()[i];
-                            var scale = globalScale / metadata.scale();
-                            var tmpImage = entry.images()[i];
-
-                            if (tmpImage == null) {
-                                continue;
+                            {
+                                var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png")));
+                                graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
-                            graphics[i].drawImage(tmpImage, cWidth[i], 0, tmpImage.getWidth() * scale, tmpImage.getHeight() * scale, null);
-
-                            graphics[i].setColor(new Color(entry.color() | 0xFF000000));
-                            graphics[i].drawRect(cWidth[i], 0, 0, 0);
-
-                            if ((metadata.frames() != 0 && metadata.animationSpeed() != 0) || metadata.interpolate()) {
-                                graphics[i].setColor(new Color(metadata.frames(), metadata.animationSpeed(), metadata.interpolate() ? 1 : 0));
-                                graphics[i].drawRect(cWidth[i] + 1, 0, 0, 0);
+                            {
+                                var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png")));
+                                graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
+                            graphics[i].setColor(Color.WHITE);
+                            graphics[i].drawRect(0, 1, 0, 0);
+                        }
 
-                            if (metadata.emissivity() != 0) {
-                                graphics[i].setColor(new Color(metadata.emissivity(), 0, 0));
-                                graphics[i].drawRect(cWidth[i] + 2, 0, 0, 0);
+
+                        for (var entry : list) {
+                            for (int i = 0; i <= 1; i++) {
+                                var metadata = entry.metadata()[i];
+                                var scale = globalScale / metadata.scale();
+                                var tmpImage = entry.images()[i];
+
+                                if (tmpImage == null) {
+                                    continue;
+                                }
+                                graphics[i].drawImage(tmpImage, cWidth[i], 0, tmpImage.getWidth() * scale, tmpImage.getHeight() * scale, null);
+
+                                graphics[i].setColor(new Color(entry.color() | 0xFF000000));
+                                graphics[i].drawRect(cWidth[i], 0, 0, 0);
+
+                                if ((metadata.frames() != 0 && metadata.animationSpeed() != 0) || metadata.interpolate()) {
+                                    graphics[i].setColor(new Color(metadata.frames(), metadata.animationSpeed(), metadata.interpolate() ? 1 : 0));
+                                    graphics[i].drawRect(cWidth[i] + 1, 0, 0, 0);
+                                }
+
+                                if (metadata.emissivity() != 0) {
+                                    graphics[i].setColor(new Color(metadata.emissivity(), 0, 0));
+                                    graphics[i].drawRect(cWidth[i] + 2, 0, 0, 0);
+                                }
+
+                                cWidth[i] += tmpImage.getWidth() * scale;
                             }
-
-                            cWidth[i] += tmpImage.getWidth() * scale;
                         }
-                    }
 
-                    for (int i = 0; i <= 1; i++) {
-                        graphics[i].dispose();
+                        for (int i = 0; i <= 1; i++) {
+                            graphics[i].dispose();
 
-                        {
-                            var out = new ByteArrayOutputStream();
-                            ImageIO.write(image[i], "png", out);
-                            this.fileMap.put("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png", out.toByteArray());
+                            {
+                                var out = new ByteArrayOutputStream();
+                                ImageIO.write(image[i], "png", out);
+                                this.fileMap.put("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png", out.toByteArray());
+                            }
+                            {
+                                var out = new ByteArrayOutputStream();
+                                ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "png", out);
+                                this.fileMap.put("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png", out.toByteArray());
+                            }
                         }
-                        {
-                            var out = new ByteArrayOutputStream();
-                            ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "png", out);
-                            this.fileMap.put("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png", out.toByteArray());
-                        }
+                    } catch (Throwable e) {
+                        PolymerImpl.LOGGER.error("Error occurred when creating armor texture!");
+                        e.printStackTrace();
                     }
 
                     for (String string : new String[]{"fsh", "json", "vsh"}) {
@@ -560,5 +565,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
 
-    private record ArmorData(Identifier identifier, int color, BufferedImage[] images, ArmorTextureMetadata[] metadata) {}
+    private record ArmorData(Identifier identifier, int color, BufferedImage[] images,
+                             ArmorTextureMetadata[] metadata) {
+    }
 }

@@ -8,6 +8,7 @@ import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
+import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
@@ -70,7 +71,7 @@ public class PolymerImplUtils {
                 base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
                 icon.add(base);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             icon.add(Text.literal("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));
         }
@@ -294,5 +295,14 @@ public class PolymerImplUtils {
 
     public static void invokeRegistered(Registry<Object> ts, Object entry) {
         ON_REGISTERED.invoke((a) -> a.accept(ts, entry));
+    }
+
+    public static <T> T createUnsafe(Class<T> tClass) {
+        try {
+            return (T) UnsafeAccess.UNSAFE.allocateInstance(tClass);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

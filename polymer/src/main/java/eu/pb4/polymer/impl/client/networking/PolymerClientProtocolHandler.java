@@ -36,6 +36,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -103,18 +104,22 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
                     (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registry.BLOCK.get(entry.identifier()))));
             case ServerPackets.SYNC_ITEM -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
-                    (entry) -> InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
-                            new ClientPolymerItem(
-                                    entry.identifier(),
-                                    entry.representation(),
-                                    entry.itemGroup(),
-                                    entry.foodLevels(),
-                                    entry.saturation(),
-                                    entry.miningTool(),
-                                    entry.miningLevel(),
-                                    entry.stackSize(),
-                                    Registry.ITEM.get(entry.identifier())
-                            )));
+                    (entry) -> {
+                        var regEntry = Registry.ITEM.getEntry(RegistryKey.of(Registry.ITEM_KEY, entry.identifier()));
+
+                        InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
+                                new ClientPolymerItem(
+                                        entry.identifier(),
+                                        entry.representation(),
+                                        entry.itemGroup(),
+                                        entry.foodLevels(),
+                                        entry.saturation(),
+                                        entry.miningTool(),
+                                        entry.miningLevel(),
+                                        entry.stackSize(),
+                                        regEntry.isPresent() ? regEntry.get().value() : null
+                                ));
+                    });
             case ServerPackets.SYNC_BLOCKSTATE -> {
                 InternalClientRegistry.legacyBlockState = version == 0;
 

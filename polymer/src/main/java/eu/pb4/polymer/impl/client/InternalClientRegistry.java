@@ -22,10 +22,7 @@ import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -62,6 +59,7 @@ import java.util.function.Predicate;
 public class InternalClientRegistry {
     public static final SimpleEvent<Runnable> TICK = new SimpleEvent<>();
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
+    private static final Map<ClientPolymerItem, VirtualClientItem> VIRTUAL_ITEM_CACHE = new Object2ObjectOpenHashMap<>();
 
     public static boolean enabled = false;
     public static int syncRequests = 0;
@@ -213,13 +211,16 @@ public class InternalClientRegistry {
     public static Item decodeItem(int id) {
         if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.ITEMS.get(id);
-
-            if (item != null && item.registryEntry() != null) {
-                return item.registryEntry();
+            if (item != null) {
+                if (item.registryEntry() != null) {
+                    return item.registryEntry();
+                } else if (PolymerImpl.USE_UNSAFE_ITEMS_CLIENT) {
+                    return VIRTUAL_ITEM_CACHE.computeIfAbsent(item, VirtualClientItem::of);
+                }
             }
         }
 
-        return Item.byRawId(id);
+        return Registry.ITEM.get(id);
     }
 
     public static Enchantment decodeEnchantment(int id) {
@@ -324,6 +325,8 @@ public class InternalClientRegistry {
         for (var reg : REGISTRIES) {
             reg.clear();
         }
+
+        VIRTUAL_ITEM_CACHE.clear();
 
         BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
         ((PolymerIdList) BLOCK_STATES).polymer_clear();

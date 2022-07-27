@@ -15,4 +15,6 @@ public class ClientConfig {
     public boolean logInvalidServerEntryIds = true;
     public String _c6 = "Disables Polymer's QoL changes that effects non-visual things";
     public boolean disableNonVisualQualityOfLifeChanges = PolymerImpl.DEV_ENV;
+    public String _c7 = "Enables experimental support for less standard modded containers, allowing them to display polymer items";
+    public boolean experimentalModdedContainerSupport = true;
 }
