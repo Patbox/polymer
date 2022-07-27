@@ -16,7 +16,7 @@ import qouteall.imm_ptl.core.network.PacketRedirection;
 public abstract class ip_ServerPlayNetworkHandlerMixin {
     @Shadow public ServerPlayerEntity player;
 
-    @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("TAIL"))
+    @ModifyVariable(method = "method_14369", at = @At("TAIL"))
     private Packet<?> polymer_sendRequiredPackets(Packet<?> packet) {
         if (packet instanceof IECustomPayloadPacket attachedPacket && attachedPacket.ip_getRedirectedPacket() != null && attachedPacket.ip_getRedirectedDimension() != null) {
             PacketRedirection.withForceRedirect(this.player.getServer().getWorld(attachedPacket.ip_getRedirectedDimension()), () -> {

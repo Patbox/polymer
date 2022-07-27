@@ -14,9 +14,8 @@ import eu.pb4.polymer.impl.networking.BlockPacketUtil;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.ScheduledPacket;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.class_7648;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
@@ -29,7 +28,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -133,7 +131,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         this.polymer_protocolMap.clear();
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "method_18784", at = @At("HEAD"))
     private void polymer_sendScheduledPackets(CallbackInfo ci) {
         if (!this.polymer_scheduledPackets.isEmpty()) {
             var array = this.polymer_scheduledPackets;
@@ -205,7 +203,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
 
-    @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("HEAD"))
+    @ModifyVariable(method = "method_14369", at = @At("HEAD"))
     private Packet<?> polymer_replacePacket(Packet<?> packet) {
         if (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() instanceof PolymerSoundEvent polymerSoundEvent) {
             var soundEffect = polymerSoundEvent.getSoundEffectFor(this.player);
@@ -236,8 +234,8 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         return packet;
     }
 
-    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V", at = @At("HEAD"), cancellable = true)
-    private void polymer_skipEffects(Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
+    @Inject(method = "method_14369", at = @At("HEAD"), cancellable = true)
+    private void polymer_skipEffects(Packet<?> packet, class_7648 arg, CallbackInfo ci) {
         if (packet instanceof DynamicPacket
                 || (
                         (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() == PolymerSoundEvent.EMPTY_SOUND)
