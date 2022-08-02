@@ -17,6 +17,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -389,5 +390,10 @@ public class PolymerHandshakeHandlerImplLogin implements PolymerHandshakeHandler
     @Override
     public ClientConnection getConnection() {
         return this.connection;
+    }
+
+    @ApiStatus.Internal
+    public Collection<CustomPayloadC2SPacket> getPackets() {
+        return this.storedPackets;
     }
 }
