@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.resourcepack;
 
+import com.google.gson.JsonObject;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
@@ -8,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +32,7 @@ public final class ResourcePackCreator {
     private final Map<Identifier, PolymerArmorModel> armorModelMap = new HashMap<>();
     private final int cmdOffset;
     private int armorColor = 0;
-    private String packDescription = null;
+    private Text packDescription = null;
     private byte[] packIcon = null;
 
     public static ResourcePackCreator create() {
@@ -121,11 +123,26 @@ public final class ResourcePackCreator {
      * @param description new description
      */
     public void setPackDescription(String description) {
+        this.packDescription = Text.literal(description);
+    }
+
+    /**
+     * Sets pack description
+     *
+     * @param description new description
+     */
+    public void setPackDescription(Text description) {
         this.packDescription = description;
     }
 
     @Nullable
+    @Deprecated
     public String getPackDescription() {
+        return Text.Serializer.toJson(this.packDescription);
+    }
+
+    @Nullable
+    public Text getPackDescriptionText() {
         return this.packDescription;
     }
 
@@ -158,13 +175,14 @@ public final class ResourcePackCreator {
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {
-            builder.addData("pack.mcmeta", ("" +
-                    "{\n" +
-                    "   \"pack\":{\n" +
-                    "      \"pack_format\":" + SharedConstants.RESOURCE_PACK_VERSION + ",\n" +
-                    "      \"description\":\"Server resource pack\"\n" +
-                    "   }\n" +
-                    "}\n").getBytes(StandardCharsets.UTF_8));
+            var obj = new JsonObject();
+
+            var pack = new JsonObject();
+            pack.addProperty("pack_format", SharedConstants.RESOURCE_PACK_VERSION);
+            pack.add("description", Text.Serializer.toJsonTree(this.packDescription));
+
+            obj.add("pack", pack);
+            builder.addData("pack.mcmeta", obj.toString().getBytes(StandardCharsets.UTF_8));
         }
 
 

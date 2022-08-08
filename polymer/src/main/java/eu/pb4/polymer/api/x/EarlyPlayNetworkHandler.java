@@ -5,7 +5,6 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.networking.EarlyConnectionMagic;
 import io.netty.util.internal.UnstableApi;
-import net.minecraft.class_7640;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
@@ -219,7 +218,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     }
 
     @Override
-    public void method_44898(class_7640 arg) {
+    public void onMessageAcknowledgment(MessageAcknowledgmentC2SPacket packet) {
 
     }
 

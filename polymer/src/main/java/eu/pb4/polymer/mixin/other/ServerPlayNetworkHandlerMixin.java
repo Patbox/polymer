@@ -15,9 +15,9 @@ import eu.pb4.polymer.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.ScheduledPacket;
 import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.class_7648;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
@@ -131,7 +131,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         this.polymer_protocolMap.clear();
     }
 
-    @Inject(method = "method_18784", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("HEAD"))
     private void polymer_sendScheduledPackets(CallbackInfo ci) {
         if (!this.polymer_scheduledPackets.isEmpty()) {
             var array = this.polymer_scheduledPackets;
@@ -203,7 +203,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
 
-    @ModifyVariable(method = "method_14369", at = @At("HEAD"))
+    @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/class_7648;)V", at = @At("HEAD"))
     private Packet<?> polymer_replacePacket(Packet<?> packet) {
         if (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() instanceof PolymerSoundEvent polymerSoundEvent) {
             var soundEffect = polymerSoundEvent.getSoundEffectFor(this.player);
@@ -234,8 +234,8 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         return packet;
     }
 
-    @Inject(method = "method_14369", at = @At("HEAD"), cancellable = true)
-    private void polymer_skipEffects(Packet<?> packet, class_7648 arg, CallbackInfo ci) {
+    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"), cancellable = true)
+    private void polymer_skipEffects(Packet<?> packet, PacketCallbacks arg, CallbackInfo ci) {
         if (packet instanceof DynamicPacket
                 || (
                         (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() == PolymerSoundEvent.EMPTY_SOUND)

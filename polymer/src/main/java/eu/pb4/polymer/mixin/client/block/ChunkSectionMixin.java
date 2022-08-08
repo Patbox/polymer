@@ -6,11 +6,11 @@ import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.mixin.other.PalettedContainerAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.class_7522;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
+import net.minecraft.world.chunk.ReadableContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,8 +34,8 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
         this.polymer_createContainers();
     }
 
-    @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/class_7522;)V", at = @At("TAIL"))
-    private void polymer_init2(int chunkPos, PalettedContainer blockStateContainer, class_7522 arg, CallbackInfo ci) {
+    @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/world/chunk/ReadableContainer;)V", at = @At("TAIL"))
+    private void polymer_init2(int chunkPos, PalettedContainer blockStateContainer, ReadableContainer readableContainer, CallbackInfo ci) {
         this.polymer_createContainers();
     }
 

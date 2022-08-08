@@ -49,19 +49,23 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Inject(method = "appendStacks", at = @At("TAIL"))
     private void polymer_appendStacks(DefaultedList<ItemStack> stacks, CallbackInfo ci) {
-        if (ClientUtils.isClientThread()) {
-            stacks.removeIf((s) -> PolymerItemUtils.isPolymerServerItem(s));
-            if (((Object) this) == ItemGroup.SEARCH) {
-                for (var group : ItemGroup.GROUPS) {
-                    if (group instanceof InternalClientItemGroup clientItemGroup) {
-                        stacks.addAll(clientItemGroup.getStacks());
-                    } else {
-                        stacks.addAll(((ClientItemGroupExtension) group).polymer_getStacks());
+        try {
+            if (ClientUtils.isClientThread() && stacks != null) {
+                stacks.removeIf((s) -> PolymerItemUtils.isPolymerServerItem(s));
+                if (((Object) this) == ItemGroup.SEARCH) {
+                    for (var group : ItemGroup.GROUPS) {
+                        if (group instanceof InternalClientItemGroup clientItemGroup && clientItemGroup.getStacks() != null) {
+                            stacks.addAll(clientItemGroup.getStacks());
+                        } else if (((ClientItemGroupExtension) group).polymer_getStacks() != null) {
+                            stacks.addAll(((ClientItemGroupExtension) group).polymer_getStacks());
+                        }
                     }
+                } else if (this.polymer_items != null) {
+                    stacks.addAll(this.polymer_items);
                 }
-            } else {
-                stacks.addAll(this.polymer_items);
             }
+        } catch (Throwable e) {
+
         }
     }
 

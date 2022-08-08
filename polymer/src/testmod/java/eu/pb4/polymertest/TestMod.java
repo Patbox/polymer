@@ -157,6 +157,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         ITEM_GROUP.setIcon(new ItemStack(TATER_BLOCK_ITEM));
         PolymerRPUtils.addAssetSource("apolymertest");
         PolymerRPUtils.requestArmor(new Identifier("polymertest", "shulker"));
+        PolymerRPUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
         //PolymerRPUtils.markAsRequired();
         //PolymerRPUtils.addModAsAssetsSource("promenade");
 
