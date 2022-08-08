@@ -203,7 +203,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
 
-    @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/class_7648;)V", at = @At("HEAD"))
+    @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"))
     private Packet<?> polymer_replacePacket(Packet<?> packet) {
         if (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() instanceof PolymerSoundEvent polymerSoundEvent) {
             var soundEffect = polymerSoundEvent.getSoundEffectFor(this.player);
