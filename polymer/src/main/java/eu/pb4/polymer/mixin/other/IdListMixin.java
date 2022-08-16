@@ -2,6 +2,7 @@ package eu.pb4.polymer.mixin.other;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.block.BlockState;
@@ -114,6 +115,10 @@ public abstract class IdListMixin<T> implements PolymerIdList {
 
     private void polymer_initLazy() {
         if (this.polymer_locked && this.polymer_initializeLazy) {
+            if (StackWalker.getInstance().walk(PolymerImplUtils::shouldSkipStateInitialization)) {
+                return;
+            }
+
             this.polymer_offset = this.nextId;
             this.polymer_locked = false;
             ((List<T>) this.polymer_lazyList).forEach(this::add);

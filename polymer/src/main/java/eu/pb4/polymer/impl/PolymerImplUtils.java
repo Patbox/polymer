@@ -38,6 +38,7 @@ import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class PolymerImplUtils {
     public static final Text[] ICON;
@@ -304,5 +305,13 @@ public class PolymerImplUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static boolean shouldSkipStateInitialization(Stream<StackWalker.StackFrame> s) {
+        if (CompatStatus.QUILT_REGISTRY) {
+            var x = s.skip(3).findFirst();
+            return x.isPresent() && x.get().getMethodName().contains("lambda$onInit");
+        }
+        return false;
     }
 }
