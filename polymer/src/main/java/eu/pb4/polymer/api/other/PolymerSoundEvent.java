@@ -25,6 +25,15 @@ public class PolymerSoundEvent extends SoundEvent implements PolymerObject {
         this.polymerSound = vanillaEvent != null ? vanillaEvent : EMPTY_SOUND;
     }
 
+    public PolymerSoundEvent(Identifier id, float distanceToTravel, @Nullable SoundEvent vanillaEvent) {
+        super(id, distanceToTravel);
+        while (vanillaEvent instanceof PolymerSoundEvent soundEvent) {
+            vanillaEvent = soundEvent.getVanillaPolymerSound();
+        }
+
+        this.polymerSound = vanillaEvent != null ? vanillaEvent : EMPTY_SOUND;
+    }
+
     /**
      * SoundEvent played for players without resource pack
      */

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:stick"
+    },
+    "X": {
+      "item": "test:pickaxe"
+    },
+    "A": {
+      "item": "minecraft:wooden_pickaxe"
+    }
+  },
+  "pattern": [
+    "XAX",
+    " # ",
+    " # "
+  ],
+  "result": {
+    "item": "test:pickaxe2"
+  }
+}

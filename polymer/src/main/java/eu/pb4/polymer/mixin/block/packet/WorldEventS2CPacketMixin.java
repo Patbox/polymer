@@ -1,7 +1,9 @@
 package eu.pb4.polymer.mixin.block.packet;
 
+import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,7 +28,14 @@ public class WorldEventS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeInt(I)Lio/netty/buffer/ByteBuf;", ordinal = 1))
     private int polymer_replaceValue(int data) {
         if (this.eventId == WorldEvents.BLOCK_BROKEN) {
-            return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId(data), PolymerUtils.getPlayer()));
+            var state = Block.getStateFromRawId(data);
+            var player = PolymerUtils.getPlayer();
+
+            if (state.getBlock() instanceof PolymerBlock polymerBlock) {
+                state = polymerBlock.getPolymerBreakEventBlockState(state, player);
+            }
+
+            return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(state, player));
         }
 
         return data;
@@ -37,6 +46,10 @@ public class WorldEventS2CPacketMixin {
     private void polymer_replaceClientData(CallbackInfoReturnable<Integer> cir) {
         if (this.eventId == WorldEvents.BLOCK_BROKEN) {
             var state = InternalClientRegistry.decodeState(this.data);
+            var player = ClientUtils.getPlayer();
+            if (state.getBlock() instanceof PolymerBlock polymerBlock && player != null) {
+                state = polymerBlock.getPolymerBreakEventBlockState(state, player);
+            }
             cir.setReturnValue(Block.getRawIdFromState(state));
         }
     }

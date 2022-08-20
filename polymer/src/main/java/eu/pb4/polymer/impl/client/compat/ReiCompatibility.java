@@ -2,6 +2,7 @@ package eu.pb4.polymer.impl.client.compat;
 
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
@@ -30,38 +31,38 @@ public class ReiCompatibility implements REIClientPlugin {
     };
 
     public static void registerEvents() {
-        PolymerClientUtils.ON_CLEAR.register(() -> update(EntryRegistry.getInstance()));
-        PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
+        if (PolymerImpl.USE_OLD_REI_COMPAT_CLIENT) {
+            PolymerClientUtils.ON_CLEAR.register(() -> update(EntryRegistry.getInstance()));
+            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
+        }
     }
 
     private static void update(EntryRegistry registry) {
-        synchronized (registry) {
-            try {
-                registry.removeEntryIf(SHOULD_REMOVE);
+        try {
+            registry.removeEntryIf(SHOULD_REMOVE);
 
-                for (var group : ItemGroup.GROUPS) {
-                    if (group == ItemGroup.SEARCH) {
-                        continue;
-                    }
-
-                    Collection<ItemStack> stacks;
-
-                    if (group instanceof InternalClientItemGroup clientItemGroup) {
-                        stacks = clientItemGroup.getStacks();
-                    } else {
-                        stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                    }
-
-                    if (stacks != null) {
-                        for (var stack : stacks) {
-                            registry.addEntry(EntryStack.of(VanillaEntryTypes.ITEM, stack));
-                        }
-                    }
+            for (var group : ItemGroup.GROUPS) {
+                if (group == ItemGroup.SEARCH) {
+                    continue;
                 }
 
-            } catch (Throwable e) {
-                e.printStackTrace();
+                Collection<ItemStack> stacks;
+
+                if (group instanceof InternalClientItemGroup clientItemGroup) {
+                    stacks = clientItemGroup.getStacks();
+                } else {
+                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
+                }
+
+                if (stacks != null) {
+                    for (var stack : stacks) {
+                        registry.addEntry(EntryStack.of(VanillaEntryTypes.ITEM, stack));
+                    }
+                }
             }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
@@ -70,8 +71,20 @@ public class ReiCompatibility implements REIClientPlugin {
         try {
             registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
         } catch (Throwable e) {
-            // no one cares
+            e.printStackTrace();
         }
+    }
 
+    @Override
+    public void registerEntries(EntryRegistry registry) {
+        if (PolymerImpl.USE_OLD_REI_COMPAT_CLIENT) {
+            update(registry);
+        } else {
+            try {
+                registry.removeEntryIf(SHOULD_REMOVE);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

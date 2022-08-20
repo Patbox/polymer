@@ -53,13 +53,14 @@ dependencies {
     modCompileOnly /*modRuntimeOnly*/("curse.maven:jade-324717:3828126")
     modCompileOnly "mcp.mobius.waila:wthit:fabric-5.1.3"
 
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.0.472"
-    modCompileOnly modLocalRuntime("dev.emi:emi:0.2.0+1.19") { transitive = false; }
+    //modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.1.530"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:9.1.530"
+    modCompileOnly /*modLocalRuntime*/("dev.emi:emi:0.3.3+1.19")
 
 
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")
-    modCompileOnly /*modLocalRuntime*/("curse.maven:jei-238222:3835405")
+    modCompileOnly /*modLocalRuntime*/("curse.maven:jei-238222:3928387")
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")

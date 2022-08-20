@@ -9,6 +9,10 @@ public final class RegistrySyncUtils {
     private RegistrySyncUtils() {}
 
     public static <T> boolean isServerEntry(Registry<T> registry, T entry) {
+        if (QuiltRegistryUtils.isOptional(registry, entry)) {
+            return true;
+        }
+
         if (registry instanceof RegistrySyncExtension<?>) {
             return ((RegistrySyncExtension<T>) registry).polymerRSM_isServerEntry(entry);
         } else {

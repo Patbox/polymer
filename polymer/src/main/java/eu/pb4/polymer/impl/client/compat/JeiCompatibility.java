@@ -43,7 +43,6 @@ public class JeiCompatibility implements IModPlugin {
 
     private static void update(IIngredientManager manager) {
         synchronized (manager) {
-
             try {
                 var list = manager.getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(SHOULD_REMOVE).toList();
                 if (list.size() > 0) {
@@ -67,7 +66,7 @@ public class JeiCompatibility implements IModPlugin {
                         manager.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, stacks);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }

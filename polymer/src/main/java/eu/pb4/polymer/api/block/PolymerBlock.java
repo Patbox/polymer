@@ -72,4 +72,14 @@ public interface PolymerBlock extends PolymerObject {
      * @param blockState
      */
     default boolean forceLightUpdates(BlockState blockState) { return false; }
+
+    /**
+     * Overrides breaking particle used by the block
+     * @param state
+     * @param player
+     * @return
+     */
+    default BlockState getPolymerBreakEventBlockState(BlockState state, ServerPlayerEntity player) {
+        return state;
+    }
 }

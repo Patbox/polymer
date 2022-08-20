@@ -17,6 +17,7 @@
     "block.packet.ChunkDataS2CPacketMixin",
     "block.packet.ChunkDeltaUpdateS2CPacketAccessor",
     "block.packet.ChunkDeltaUpdateS2CPacketMixin",
+    "block.packet.PalettedContainerDataMixin",
     "block.packet.ParticleS2CPacketMixin",
     "block.packet.ServerPlayNetworkHandlerMixin",
     "block.packet.StateAccessor",
@@ -80,7 +81,6 @@
     "other.WorldAccessor"
   ],
   "client": [
-    "client.ClientBuiltinResourcePackProviderMixin",
     "client.ClientPlayNetworkHandlerMixin",
     "client.DebugHudMixin",
     "client.EnchantmentScreenMixin",

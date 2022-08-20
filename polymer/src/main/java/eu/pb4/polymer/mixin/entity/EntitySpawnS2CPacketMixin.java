@@ -75,7 +75,7 @@ public class EntitySpawnS2CPacketMixin {
         return InternalClientRegistry.decodeEntity(instance.readVarInt());
     }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 0))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer_replaceValue(int data) {
         if (this.entityTypeId == EntityType.FALLING_BLOCK) {
             return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId(data), PolymerUtils.getPlayer()));

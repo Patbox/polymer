@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Direction;
 
 public class TestBlock extends Block implements PolymerBlock {
@@ -20,5 +21,10 @@ public class TestBlock extends Block implements PolymerBlock {
     @Override
     public BlockState getPolymerBlockState(BlockState state) {
         return Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP);
+    }
+
+    @Override
+    public BlockState getPolymerBreakEventBlockState(BlockState state, ServerPlayerEntity player) {
+        return Blocks.GRASS.getDefaultState();
     }
 }
