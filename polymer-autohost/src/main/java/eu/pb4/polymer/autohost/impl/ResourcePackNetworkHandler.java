@@ -19,6 +19,7 @@ import java.util.Optional;
 
 public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     private final boolean required;
+    private final boolean velocityCompat;
 
     //private static final WorldChunk FAKE_CHUNK = new WorldChunk(PolymerUtils.getFakeWorld(), ChunkPos.ORIGIN);
     private static final ArmorStandEntity FAKE_ENTITY = new ArmorStandEntity(EntityType.ARMOR_STAND, PolymerUtils.getFakeWorld());
@@ -27,6 +28,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         super(PolymerImplUtils.id("auto_host_resourcepack"), context);
 
         this.required = AutoHost.config.require || PolymerRPUtils.isRequired();
+        this.velocityCompat = AutoHost.config.velocityCompat;
 
         var player = this.getPlayer();
 
@@ -52,13 +54,23 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
             case ACCEPTED -> PolymerRPUtils.setPlayerStatus(this.getPlayer(), true);
             case SUCCESSFULLY_LOADED -> {
                 PolymerRPUtils.setPlayerStatus(this.getPlayer(), true);
-                this.sendPacket(new PlayPingS2CPacket(0));
+                if (velocityCompat) {
+                    this.sendKeepAlive();
+                    this.continueJoining();
+                } else {
+                    this.sendPacket(new PlayPingS2CPacket(0));
+                }
             }
             case DECLINED, FAILED_DOWNLOAD -> {
                 if (this.required) {
                     this.disconnect(Text.translatable("multiplayer.texturePrompt.failure.line1"));
                 } else {
-                    this.sendPacket(new PlayPingS2CPacket(0));
+                    if (velocityCompat) {
+                        this.sendKeepAlive();
+                        this.continueJoining();
+                    } else {
+                        this.sendPacket(new PlayPingS2CPacket(0));
+                    }
                 }
             }
         }
@@ -66,7 +78,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
 
     @Override
     public void onPong(PlayPongC2SPacket packet) {
-        if (packet.getParameter() == 0) {
+        if (packet.getParameter() == 0 && !velocityCompat) {
             this.sendKeepAlive();
             this.continueJoining();
         }

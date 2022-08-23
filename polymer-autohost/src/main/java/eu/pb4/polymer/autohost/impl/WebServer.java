@@ -109,5 +109,7 @@ public class WebServer {
         public JsonElement message = new JsonPrimitive("This server uses resource pack to enhance gameplay with custom textures and models. It might be unplayable without them.");
         public String _c6 = "Disconnect message in case of failure";
         public JsonElement disconnectMessage = new JsonPrimitive("Couldn't apply server resourcepack!");
+        public String _c7 = "Enables velocity compatibility (will join player to world on load or decline instantly without ping)";
+        public boolean velocityCompat = false;
     }
 }
