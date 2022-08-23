@@ -20,6 +20,7 @@ import java.util.Optional;
 public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     private final boolean required;
     private final boolean velocityCompat;
+    private final int timeoutAge;
 
     //private static final WorldChunk FAKE_CHUNK = new WorldChunk(PolymerUtils.getFakeWorld(), ChunkPos.ORIGIN);
     private static final ArmorStandEntity FAKE_ENTITY = new ArmorStandEntity(EntityType.ARMOR_STAND, PolymerUtils.getFakeWorld());
@@ -31,6 +32,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         this.velocityCompat = AutoHost.config.velocityCompat;
 
         var player = this.getPlayer();
+        timeoutAge = player.age + AutoHost.config.forceJoinTicks;
 
         if (PolymerRPUtils.hasPack(player)) {
             this.continueJoining();
@@ -79,6 +81,15 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     @Override
     public void onPong(PlayPongC2SPacket packet) {
         if (packet.getParameter() == 0 && !velocityCompat) {
+            this.sendKeepAlive();
+            this.continueJoining();
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.getPlayer().age > this.timeoutAge) {
             this.sendKeepAlive();
             this.continueJoining();
         }

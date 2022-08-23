@@ -111,5 +111,7 @@ public class WebServer {
         public JsonElement disconnectMessage = new JsonPrimitive("Couldn't apply server resourcepack!");
         public String _c7 = "Enables velocity compatibility (will join player to world on load or decline instantly without ping)";
         public boolean velocityCompat = false;
+        public String _c8 = "Time (in ticks) before the player is force-joined into the world if the resourcepack load packets fail";
+        public int forceJoinTicks = 100;
     }
 }
