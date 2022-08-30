@@ -120,12 +120,8 @@ public class PolymerClientProtocolHandler {
                                         regEntry.isPresent() ? regEntry.get().value() : null
                                 ));
                     });
-            case ServerPackets.SYNC_BLOCKSTATE -> {
-                InternalClientRegistry.legacyBlockState = version == 0;
-
-                yield handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
+            case ServerPackets.SYNC_BLOCKSTATE -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
                         (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
-            }
             case ServerPackets.SYNC_ENTITY -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
                     (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registry.ENTITY_TYPE.get(entry.identifier()))));
             case ServerPackets.SYNC_VILLAGER_PROFESSION -> handleGenericSync(handler, version, buf, IdValueEntry::read,
@@ -279,7 +275,7 @@ public class PolymerClientProtocolHandler {
     }
 
     private static boolean handleSetBlock(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 1 || version == 2) {
+        if (version == 2) {
             var pos = buf.readBlockPos();
             var id = buf.readVarInt();
             var block = InternalClientRegistry.BLOCK_STATES.get(id);
@@ -307,7 +303,7 @@ public class PolymerClientProtocolHandler {
     }
 
     private static boolean handleWorldSectionUpdate(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 1 || version == 2) {
+        if (version == 2) {
             var sectionPos = buf.readChunkSectionPos();
             var size = buf.readVarInt();
 

@@ -93,20 +93,20 @@ public class ServerPackets {
         register(SYNC_FINISHED, 0);
         register(SYNC_BLOCK, 0);
         register(SYNC_BLOCK_ENTITY, 0);
-        register(SYNC_BLOCKSTATE, 0, 1);
-        register(SYNC_ITEM, 2, 3);
+        register(SYNC_BLOCKSTATE, 1);
+        register(SYNC_ITEM, 3);
         register(SYNC_ENCHANTMENT, 0);
         register(SYNC_VILLAGER_PROFESSION, 0);
         register(SYNC_ITEM_GROUP, 0);
         register(SYNC_ITEM_GROUP_CLEAR, 0);
         register(SYNC_ITEM_GROUP_REMOVE, 0);
         register(SYNC_ITEM_GROUP_VANILLA, 0);
-        register(SYNC_ENTITY, 0, 1);
+        register(SYNC_ENTITY, 1);
         register(SYNC_STATUS_EFFECT, 0);
         register(SYNC_TAGS, 0);
         register(SYNC_CLEAR, 0);
-        register(WORLD_SET_BLOCK_UPDATE, 1, 2);
-        register(WORLD_CHUNK_SECTION_UPDATE, 1, 2);
+        register(WORLD_SET_BLOCK_UPDATE, 2);
+        register(WORLD_CHUNK_SECTION_UPDATE, 2);
         register(WORLD_ENTITY, 0);
         register(DEBUG_VALIDATE_STATES, 0);
     }

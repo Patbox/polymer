@@ -13,6 +13,7 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -39,7 +40,7 @@ public class EmiCompatibility implements EmiPlugin {
     }
 
     private static void update(EmiRegistry registry) {
-        if (registry == null) {
+        if (registry == null || MinecraftClient.getInstance().world == null) {
             return;
         }
         synchronized (registry) {
