@@ -31,6 +31,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.client.search.SearchManager;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
@@ -38,6 +39,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -48,10 +50,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
@@ -381,35 +380,50 @@ public class InternalClientRegistry {
     }
 
     public static void rebuildSearch() {
-        /*var a = MinecraftClient.getInstance().getSearchProvider(SearchManager.ITEM_TOOLTIP);
-        var b = MinecraftClient.getInstance().getSearchProvider(SearchManager.ITEM_TAG);
+        try {
+            var list = DefaultedList.<ItemStack>of();
 
-        ((MutableSearchableContainer) a).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
-        ((MutableSearchableContainer) b).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
+            var wrap = new DefaultedList<>(list, ItemStack.EMPTY) {
+                @Override
+                public boolean add(ItemStack stack) {
+                    return !PolymerItemUtils.isPolymerServerItem(stack) && super.add(stack);
+                }
 
-        for (var group : ItemGroup.GROUPS) {
-            if (group == ItemGroup.SEARCH) {
-                continue;
+                @Override
+                public void add(int index, ItemStack element) {
+                    if (!PolymerItemUtils.isPolymerServerItem(element)) {
+                        super.add(index, element);
+                    }
+                }
+            };
+
+            for (var item : Registry.ITEM) {
+                item.appendStacks(ItemGroup.SEARCH, wrap);
             }
 
-            Collection<ItemStack> stacks;
+            for (var group : ItemGroup.GROUPS) {
+                if (group == ItemGroup.SEARCH) {
+                    continue;
+                }
 
-            if (group instanceof InternalClientItemGroup clientItemGroup) {
-                stacks = clientItemGroup.getStacks();
-            } else {
-                stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-            }
+                Collection<ItemStack> stacks;
 
-            if (stacks != null) {
-                for (var stack : stacks.toArray(new ItemStack[0])) {
-                    a.add(stack);
-                    b.add(stack);
+                if (group instanceof InternalClientItemGroup clientItemGroup) {
+                    stacks = clientItemGroup.getStacks();
+                } else {
+                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
+                }
+
+                if (stacks != null) {
+                    list.addAll(stacks);
                 }
             }
-        }
 
-        a.reload();
-        b.reload();*/
+            MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TOOLTIP, list);
+            MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TAG, list);
+        } catch (Throwable throwable) {
+
+        }
     }
 
     private static boolean isPolymerItemStack(Object o) {

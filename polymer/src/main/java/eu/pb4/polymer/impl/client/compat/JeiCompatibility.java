@@ -10,7 +10,6 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -43,9 +42,6 @@ public class JeiCompatibility implements IModPlugin {
     }
 
     private static void update(IIngredientManager manager) {
-        if (MinecraftClient.getInstance().world == null) {
-            return;
-        }
         synchronized (manager) {
             try {
                 var list = manager.getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(SHOULD_REMOVE).toList();

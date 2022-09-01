@@ -60,20 +60,24 @@ public abstract class IdListMixin<T> implements PolymerIdList {
                 if (this.polymer_reorderLock) {
                     PolymerImpl.LOGGER.warn("Someone registered BlockStates while StateList is locked! Related block: " + Registry.BLOCK.getId(blockState.getBlock()));
                 } else {
+
                     if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {
-                        PolymerImpl.LOGGER.warn("Rebuilding BlockStates! Someone accessed BlockStates ids too early...");
-                        var builder = new StringBuilder();
-                        var line = 0;
-                        for (var stackTrace : Thread.currentThread().getStackTrace()) {
-                            if (line > 0) {
-                                builder.append("\t").append(stackTrace.toString()).append("\n");
+                        var trace = Thread.currentThread().getStackTrace();
+                        if (PolymerImplUtils.shouldLogStateRebuild(trace)) {
+                            PolymerImpl.LOGGER.warn("Rebuilding BlockStates! Someone accessed BlockStates ids too early...");
+                            var builder = new StringBuilder();
+                            var line = 0;
+                            for (var stackTrace : Thread.currentThread().getStackTrace()) {
+                                if (line > 0) {
+                                    builder.append("\t").append(stackTrace.toString()).append("\n");
+                                }
+                                if (line > 24) {
+                                    break;
+                                }
+                                line++;
                             }
-                            if (line > 24) {
-                                break;
-                            }
-                            line++;
+                            PolymerImpl.LOGGER.warn("Called by:\n" + builder);
                         }
-                        PolymerImpl.LOGGER.warn("Called by:\n" + builder);
                     }
                     var copy = new ArrayList<>(this.list);
 

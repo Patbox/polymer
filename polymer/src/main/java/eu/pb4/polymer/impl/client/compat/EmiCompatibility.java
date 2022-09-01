@@ -27,8 +27,16 @@ public class EmiCompatibility implements EmiPlugin {
 
     static {
         if (PolymerImpl.IS_CLIENT) {
-            PolymerClientUtils.ON_CLEAR.register(() -> EmiReloadManager.reload());
-            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> EmiReloadManager.reload());
+            PolymerClientUtils.ON_CLEAR.register(() -> {
+                if (MinecraftClient.getInstance().world != null) {
+                    EmiReloadManager.reload();
+                }
+            });
+            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> {
+                if (MinecraftClient.getInstance().world != null) {
+                    EmiReloadManager.reload();
+                }
+            });
         }
     }
 
@@ -40,7 +48,7 @@ public class EmiCompatibility implements EmiPlugin {
     }
 
     private static void update(EmiRegistry registry) {
-        if (registry == null || MinecraftClient.getInstance().world == null) {
+        if (registry == null) {
             return;
         }
         synchronized (registry) {
