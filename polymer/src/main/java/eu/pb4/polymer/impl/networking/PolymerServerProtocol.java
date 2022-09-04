@@ -24,7 +24,6 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -73,7 +72,7 @@ public class PolymerServerProtocol {
             var buf = buf(version);
 
             buf.writeBlockPos(pos);
-            buf.writeVarInt(version == 1 ? getRawLegacyStateId(state, player.player) : Block.STATE_IDS.getRawId(state));
+            buf.writeVarInt(Block.STATE_IDS.getRawId(state));
 
             player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_SET_BLOCK_UPDATE_ID, buf));
         }
@@ -83,12 +82,12 @@ public class PolymerServerProtocol {
     public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
 
-        if (version == 1 || version == 2) {
+        if (version >= -1) {
             var list = new LongArrayList();
 
             for (int i = 0; i < blockStates.length; i++) {
                 if (blockStates[i].getBlock() instanceof PolymerBlock) {
-                    list.add(((long) (version == 1 ? getRawLegacyStateId(blockStates[i], player.player) : Block.STATE_IDS.getRawId(blockStates[i]))) << 12 | positions[i]);
+                    list.add(((long) Block.STATE_IDS.getRawId(blockStates[i])) << 12 | positions[i]);
                 }
             }
 
@@ -110,7 +109,7 @@ public class PolymerServerProtocol {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
-        if (version == 1 || version == 2) {
+        if (version == 2) {
             var wci = (PolymerBlockPosStorage) chunk;
             if (wci.polymer_hasAny()) {
                 for (var section : chunk.getSectionArray()) {
@@ -130,7 +129,7 @@ public class PolymerServerProtocol {
                             int y = ChunkSectionPos.unpackLocalY(pos);
                             int z = ChunkSectionPos.unpackLocalZ(pos);
                             var state = section.getBlockState(x, y, z);
-                            buf.writeVarLong((((long) (version == 1 ? getRawLegacyStateId(state, player.player) : Block.STATE_IDS.getRawId(state))) << 12 | pos));
+                            buf.writeVarLong((((long) Block.STATE_IDS.getRawId(state)) << 12 | pos));
                         }
 
                         player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE_ID, buf));
@@ -370,12 +369,6 @@ public class PolymerServerProtocol {
         if (version != -1) {
             sendSync(handler, ServerPackets.DEBUG_VALIDATE_STATES_ID, Block.STATE_IDS, true, DebugBlockStateEntry::of);
         }
-    }
-
-    // Remove this at some point. It's required only for older protocol compatibility
-    @Deprecated
-    public static int getRawLegacyStateId(BlockState state, ServerPlayerEntity player) {
-        return state.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.shouldSyncWithPolymerClient(player) ? Block.STATE_IDS.getRawId(state) - PolymerImplUtils.getBlockStateOffset() + 1 : 0;
     }
 
     public interface BufferWritableCreator<T> {

@@ -31,6 +31,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.client.search.SearchManager;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
@@ -38,6 +39,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -48,47 +50,40 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
     public static final SimpleEvent<Runnable> TICK = new SimpleEvent<>();
-    private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
-    private static final Map<ClientPolymerItem, VirtualClientItem> VIRTUAL_ITEM_CACHE = new Object2ObjectOpenHashMap<>();
-
-    public static boolean enabled = false;
-    public static int syncRequests = 0;
-    public static String serverVersion = "";
-    public static boolean isClientOutdated = false;
-    @Deprecated
-    public static boolean legacyBlockState = false;
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
-
-    public static boolean hasArmorTextures = false;
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
-
-    public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B",  ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
+    public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
-
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>("item", "I");
     public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>("item_group", "IG");
-
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPES = new ImplPolymerRegistry<>("entity_type", "E");
     public static final ImplPolymerRegistry<ClientPolymerEntry<VillagerProfession>> VILLAGER_PROFESSIONS = new ImplPolymerRegistry<>("villager_profession", "VP");
     public static final ImplPolymerRegistry<ClientPolymerEntry<BlockEntityType<?>>> BLOCK_ENTITY = new ImplPolymerRegistry<>("block_entity", "BE");
     public static final ImplPolymerRegistry<ClientPolymerEntry<StatusEffect>> STATUS_EFFECT = new ImplPolymerRegistry<>("status_effect", "SE");
     public static final ImplPolymerRegistry<ClientPolymerEntry<Enchantment>> ENCHANTMENT = new ImplPolymerRegistry<>("enchantment", "EN");
-
     public static final HashMap<String, ItemGroup> VANILLA_ITEM_GROUPS = new HashMap<>();
     public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, ITEM_GROUPS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, ENCHANTMENT);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
     public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId();
+    private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
+    private static final Map<ClientPolymerItem, VirtualClientItem> VIRTUAL_ITEM_CACHE = new Object2ObjectOpenHashMap<>();
+    public static boolean enabled = false;
+    public static int syncRequests = 0;
+    public static String serverVersion = "";
+    public static boolean isClientOutdated = false;
+    public static boolean hasArmorTextures = false;
+    public static String debugRegistryInfo = "";
+    public static String debugServerInfo = "";
+    @Deprecated
+    public static int blockOffset = -1;
 
     private static Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMap() {
         var map = new HashMap<Registry<?>, ImplPolymerRegistry<?>>();
@@ -114,12 +109,6 @@ public class InternalClientRegistry {
         return (Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
-
-    public static String debugRegistryInfo = "";
-    public static String debugServerInfo = "";
-    @Deprecated
-    public static int blockOffset = -1;
-
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
         if (MinecraftClient.getInstance().world != null) {
             var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
@@ -142,13 +131,15 @@ public class InternalClientRegistry {
                     true
             );
 
-            ((ClientBlockStorageInterface) chunk).polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), state);
+            if (chunk != null) {
+                ((ClientBlockStorageInterface) chunk).polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), state);
+            }
         }
     }
 
     public static void setVersion(String version) {
         serverVersion = version;
-        isClientOutdated = version.isEmpty() ? false : PolymerImpl.isOlderThan(version);
+        isClientOutdated = !version.isEmpty() && PolymerImpl.isOlderThan(version);
         enabled = !version.isEmpty();
     }
 
@@ -158,7 +149,6 @@ public class InternalClientRegistry {
         DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
-        legacyBlockState = false;
         blockOffset = -1;
         rebuildSearch();
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
@@ -185,21 +175,12 @@ public class InternalClientRegistry {
             return Blocks.AIR.getDefaultState();
         }
 
-        BlockState state;
+        BlockState state = InternalClientRegistry.getRealBlockState(rawId);
 
-        if (legacyBlockState) {
-            if (rawId >= PolymerClientUtils.getBlockStateOffset()) {
-                state = InternalClientRegistry.getRealBlockState(rawId - PolymerClientUtils.getBlockStateOffset() + 1);
-            } else {
-                state = Block.STATE_IDS.get(rawId);
-            }
-        } else {
-            state = InternalClientRegistry.getRealBlockState(rawId);
-
-            if (state == null) {
-                state = Block.STATE_IDS.get(rawId);
-            }
+        if (state == null) {
+            state = Block.STATE_IDS.get(rawId);
         }
+
         if (state == null) {
             errorDecode(rawId, "BlockState ID");
             return Blocks.AIR.getDefaultState();
@@ -303,7 +284,7 @@ public class InternalClientRegistry {
 
         PolymerClientProtocolHandler.tick();
 
-        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (Outdated)" : "") + ", S: " + InternalClientRegistry.serverVersion + (legacyBlockState ? "| Legacy BSO: " + blockOffset : "") + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
+        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (Outdated)" : "") + ", S: " + InternalClientRegistry.serverVersion + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
 
         var regInfo = new StringBuilder();
         regInfo.append("[Polymer] ");
@@ -399,35 +380,50 @@ public class InternalClientRegistry {
     }
 
     public static void rebuildSearch() {
-        /*var a = MinecraftClient.getInstance().getSearchProvider(SearchManager.ITEM_TOOLTIP);
-        var b = MinecraftClient.getInstance().getSearchProvider(SearchManager.ITEM_TAG);
+        try {
+            var list = DefaultedList.<ItemStack>of();
 
-        ((MutableSearchableContainer) a).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
-        ((MutableSearchableContainer) b).polymer_removeIf(InternalClientRegistry::isPolymerItemStack);
+            var wrap = new DefaultedList<>(list, ItemStack.EMPTY) {
+                @Override
+                public boolean add(ItemStack stack) {
+                    return !PolymerItemUtils.isPolymerServerItem(stack) && super.add(stack);
+                }
 
-        for (var group : ItemGroup.GROUPS) {
-            if (group == ItemGroup.SEARCH) {
-                continue;
+                @Override
+                public void add(int index, ItemStack element) {
+                    if (!PolymerItemUtils.isPolymerServerItem(element)) {
+                        super.add(index, element);
+                    }
+                }
+            };
+
+            for (var item : Registry.ITEM) {
+                item.appendStacks(ItemGroup.SEARCH, wrap);
             }
 
-            Collection<ItemStack> stacks;
+            for (var group : ItemGroup.GROUPS) {
+                if (group == ItemGroup.SEARCH) {
+                    continue;
+                }
 
-            if (group instanceof InternalClientItemGroup clientItemGroup) {
-                stacks = clientItemGroup.getStacks();
-            } else {
-                stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-            }
+                Collection<ItemStack> stacks;
 
-            if (stacks != null) {
-                for (var stack : stacks.toArray(new ItemStack[0])) {
-                    a.add(stack);
-                    b.add(stack);
+                if (group instanceof InternalClientItemGroup clientItemGroup) {
+                    stacks = clientItemGroup.getStacks();
+                } else {
+                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
+                }
+
+                if (stacks != null) {
+                    list.addAll(stacks);
                 }
             }
-        }
 
-        a.reload();
-        b.reload();*/
+            MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TOOLTIP, list);
+            MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TAG, list);
+        } catch (Throwable throwable) {
+
+        }
     }
 
     private static boolean isPolymerItemStack(Object o) {

@@ -84,7 +84,6 @@ public record PolymerItemEntry(
     public static PolymerItemEntry read(PacketByteBuf buf, int version) {
         return switch (version) {
             case 3 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), buf.readVarInt());
-            case 2 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), -1);
             default -> null;
         };
     }

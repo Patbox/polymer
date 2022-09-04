@@ -314,4 +314,13 @@ public class PolymerImplUtils {
         }
         return false;
     }
+
+    public static boolean shouldLogStateRebuild(StackTraceElement[] trace) {
+        if (trace.length > 4 && trace[4].getClassName().startsWith("org.quiltmc.qsl.registry.impl.sync")) {
+            return false;
+        }
+
+
+        return true;
+    }
 }
