@@ -19,8 +19,6 @@ import java.util.Optional;
 
 public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     private final boolean required;
-    private final boolean velocityCompat;
-    private final int timeoutAge;
 
     //private static final WorldChunk FAKE_CHUNK = new WorldChunk(PolymerUtils.getFakeWorld(), ChunkPos.ORIGIN);
     private static final ArmorStandEntity FAKE_ENTITY = new ArmorStandEntity(EntityType.ARMOR_STAND, PolymerUtils.getFakeWorld());
@@ -29,10 +27,8 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         super(PolymerImplUtils.id("auto_host_resourcepack"), context);
 
         this.required = AutoHost.config.require || PolymerRPUtils.isRequired();
-        this.velocityCompat = AutoHost.config.velocityCompat;
 
         var player = this.getPlayer();
-        timeoutAge = player.age + AutoHost.config.forceJoinTicks;
 
         if (PolymerRPUtils.hasPack(player)) {
             this.continueJoining();
@@ -55,26 +51,14 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         switch (packet.getStatus()) {
             case ACCEPTED -> PolymerRPUtils.setPlayerStatus(this.getPlayer(), true);
             case SUCCESSFULLY_LOADED -> {
-                getServer().sendMessage(Text.literal("Received successfully loaded!"));
                 PolymerRPUtils.setPlayerStatus(this.getPlayer(), true);
-                if (velocityCompat) {
-                    this.sendKeepAlive();
-                    this.continueJoining();
-                } else {
-                    getServer().sendMessage(Text.literal("sending ping!"));
-                    this.sendPacket(new PlayPingS2CPacket(0));
-                }
+                this.sendPacket(new PlayPingS2CPacket(0));
             }
             case DECLINED, FAILED_DOWNLOAD -> {
                 if (this.required) {
                     this.disconnect(Text.translatable("multiplayer.texturePrompt.failure.line1"));
                 } else {
-                    if (velocityCompat) {
-                        this.sendKeepAlive();
-                        this.continueJoining();
-                    } else {
-                        this.sendPacket(new PlayPingS2CPacket(0));
-                    }
+                    this.sendPacket(new PlayPingS2CPacket(0));
                 }
             }
         }
@@ -82,23 +66,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
 
     @Override
     public void onPong(PlayPongC2SPacket packet) {
-        getServer().sendMessage(Text.literal("Received pong: "+packet.getParameter()+", velocityCompat: "+velocityCompat));
-        if (packet.getParameter() == 0 && !velocityCompat) {
-            //this.sendKeepAlive();
-            this.continueJoining();
-            getServer().sendMessage(Text.literal("Continued joining :)"));
-            //this.keepAliveReceived++;
-        }
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (this.getServer().getOverworld().getTime() % 20 == 0) {
-            getServer().sendMessage(Text.literal("Your age: "+getPlayer().age+", timeout: "+timeoutAge+", kaS: "+keepAliveSent+", kaR: "+keepAliveReceived+", alreadyContinued"+alreadyContinued+", canContinue"+canContinue));
-        }
-        if (this.getPlayer().age > this.timeoutAge) {
-            this.sendKeepAlive();
+        if (packet.getParameter() == 0) {
             this.continueJoining();
         }
     }
