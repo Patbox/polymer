@@ -48,10 +48,10 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     private volatile long lastRespose = 0;
 
-    private volatile int keepAliveSent = 0;
-    private volatile int keepAliveReceived = 0;
-    private volatile boolean canContinue = true;
-    private volatile boolean alreadyContinued;
+    protected volatile int keepAliveSent = 0;
+    protected volatile int keepAliveReceived = 0;
+    protected volatile boolean canContinue = true;
+    protected volatile boolean alreadyContinued;
 
     public EarlyPlayNetworkHandler(Identifier identifier, Context context) {
         this.context = (EarlyConnectionMagic.ContextImpl) context;
