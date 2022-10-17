@@ -67,7 +67,6 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     @Override
     public void onPong(PlayPongC2SPacket packet) {
         if (packet.getParameter() == 0) {
-            this.sendKeepAlive();
             this.continueJoining();
         }
     }
