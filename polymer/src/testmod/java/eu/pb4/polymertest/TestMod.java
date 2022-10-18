@@ -39,6 +39,7 @@ import net.minecraft.network.packet.s2c.play.SetCameraEntityS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -46,6 +47,7 @@ import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.registry.Registry;
 
 import java.util.*;
@@ -148,6 +150,27 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         player.networkHandler.sendPacket(new EntityAttributesS2CPacket(player.getId(), attributes));
     });
 
+    public static SimplePolymerItem MARKER_TEST = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.BLAZE_ROD, (player, hand) -> {
+        if (hand == Hand.OFF_HAND) {
+            DebugInfoSender.clearGameTestMarkers(player.getWorld());
+        } else {
+            // Red Blue Green Alpha
+            // Blue Alpha Green Red
+
+            DebugInfoSender.addGameTestMarker(player.getWorld(), player.getBlockPos(), player.getStackInHand(hand).getCount() > 1 ? "Test: " + Math.random() : "",
+                    ColorHelper.Argb.getArgb(0xFF, 0, 0, 0),
+                    Integer.MAX_VALUE);
+
+            DebugInfoSender.addGameTestMarker(player.getWorld(), player.getBlockPos().up(), player.getStackInHand(hand).getCount() > 1 ? "Test: " + Math.random() : "",
+                    ColorHelper.Argb.getArgb(0, 0x22, 0, 0xEE),
+                    Integer.MAX_VALUE);
+
+            DebugInfoSender.addGameTestMarker(player.getWorld(), player.getBlockPos().up(2), player.getStackInHand(hand).getCount() > 1 ? "Test: " + Math.random() : "",
+                    ColorHelper.Argb.getArgb( 0xFF, 0xFF, 0xFF, 0x22),
+                    Integer.MAX_VALUE);
+        }
+    });
+
     private void regArmor(EquipmentSlot slot, String main, String id) {
         register(Registry.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
     }
@@ -194,6 +217,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registry.ITEM, new Identifier("test", "food"), TEST_FOOD);
         register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
         register(Registry.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
+        register(Registry.ITEM, new Identifier("test", "cmarker_test"), MARKER_TEST);
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);
