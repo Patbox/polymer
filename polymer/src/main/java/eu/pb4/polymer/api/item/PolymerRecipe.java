@@ -3,6 +3,8 @@ package eu.pb4.polymer.api.item;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.*;
+import net.minecraft.recipe.book.CookingRecipeCategory;
+import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
 import org.jetbrains.annotations.Nullable;
@@ -65,7 +67,7 @@ public interface PolymerRecipe extends PolymerObject {
      * @return the Vanilla recipe
      */
     static Recipe<?> createBlastingRecipe(Recipe<?> input) {
-        return new BlastingRecipe(input.getId(), "impossible", Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new BlastingRecipe(input.getId(),"impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
     }
 
     /**
@@ -75,7 +77,7 @@ public interface PolymerRecipe extends PolymerObject {
      * @return the Vanilla recipe
      */
     static Recipe<?> createCraftingRecipe(Recipe<?> input) {
-        return new ShapelessRecipe(input.getId(), "impossible", input.getOutput(), DefaultedList.of());
+        return new ShapelessRecipe(input.getId(), "impossible", CraftingRecipeCategory.MISC, input.getOutput(), DefaultedList.of());
     }
 
     /**
@@ -85,7 +87,7 @@ public interface PolymerRecipe extends PolymerObject {
      * @return the Vanilla recipe
      */
     static Recipe<?> createCampfireCookingRecipe(Recipe<?> input) {
-        return new CampfireCookingRecipe(input.getId(), "impossible", Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new CampfireCookingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
     }
 
     /**
@@ -95,7 +97,7 @@ public interface PolymerRecipe extends PolymerObject {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmeltingRecipe(Recipe<?> input) {
-        return new SmeltingRecipe(input.getId(), "impossible", Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new SmeltingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
     }
 
     /**
@@ -115,7 +117,7 @@ public interface PolymerRecipe extends PolymerObject {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmokingRecipe(Recipe<?> input) {
-        return new SmokingRecipe(input.getId(), "impossible", Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new SmokingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
     }
 
     /**

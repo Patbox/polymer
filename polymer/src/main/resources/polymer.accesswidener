@@ -3,3 +3,4 @@ accessWidener v1 named
 accessible class net/minecraft/server/world/ServerChunkManager$MainThreadExecutor
 accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
 accessible class net/minecraft/server/network/ServerLoginNetworkHandler$State
+accessible class net/minecraft/item/ItemGroup$EntriesImpl

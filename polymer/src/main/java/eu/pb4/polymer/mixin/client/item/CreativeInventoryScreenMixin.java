@@ -1,26 +1,21 @@
 package eu.pb4.polymer.mixin.client.item;
 
-import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
-import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collection;
@@ -37,37 +32,14 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
         super(screenHandler, playerInventory, text);
     }
 
-    @ModifyVariable(method = "renderTooltip", at = @At("STORE"), ordinal = 0)
-    private ItemGroup polymer_replaceItemGroup(ItemGroup oldGroup, MatrixStack matrices, ItemStack stack) {
-        var id = PolymerItemUtils.getPolymerIdentifier(stack);
-
-        if (id != null) {
-            var item = ClientPolymerItem.REGISTRY.get(id);
-
-            if (item != null) {
-                var groupId = Identifier.tryParse(item.itemGroup());
-                if (groupId != null) {
-                    var group = InternalClientRegistry.ITEM_GROUPS.get(groupId);
-
-                    if (group != null) {
-                        return group;
-                    }
-                }
-
-                return InternalClientRegistry.VANILLA_ITEM_GROUPS.get(item.itemGroup());
-            }
-        }
-        return oldGroup;
-    }
 
     @Inject(method = "search", at = @At("TAIL"))
     private void polymer_hideServerPolymerItems(CallbackInfo ci) {
-
         if (this.searchBox.getText().isEmpty()) {
             this.handler.itemList.removeIf((i) -> PolymerItemUtils.isPolymerServerItem(i));
 
-            for (var group : ItemGroup.GROUPS) {
-                if (group == ItemGroup.SEARCH) {
+            for (var group : ItemGroups.GROUPS) {
+                if (group == ItemGroups.SEARCH) {
                     continue;
                 }
 

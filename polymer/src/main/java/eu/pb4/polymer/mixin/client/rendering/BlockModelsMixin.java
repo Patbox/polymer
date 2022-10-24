@@ -20,7 +20,7 @@ public class BlockModelsMixin {
     @Inject(method = "getModelId(Lnet/minecraft/block/BlockState;)Lnet/minecraft/client/util/ModelIdentifier;", at = @At("HEAD"), cancellable = true, require = 0)
     private static void polymer_skipVirtualModels(BlockState state, CallbackInfoReturnable<ModelIdentifier> cir) {
         if (PolymerKeepModel.useServerModel(state.getBlock())) {
-            cir.setReturnValue(new ModelIdentifier("minecraft:air"));
+            cir.setReturnValue(new ModelIdentifier("minecraft", "air", ""));
         }
     }
 

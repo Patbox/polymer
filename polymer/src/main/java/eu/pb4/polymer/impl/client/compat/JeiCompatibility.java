@@ -10,7 +10,7 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
@@ -49,8 +49,8 @@ public class JeiCompatibility implements IModPlugin {
                     manager.removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, list);
                 }
 
-                for (var group : ItemGroup.GROUPS) {
-                    if (group == ItemGroup.SEARCH) {
+                for (var group : ItemGroups.GROUPS) {
+                    if (group == ItemGroups.SEARCH) {
                         continue;
                     }
 

@@ -16,9 +16,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.OptionalInt;
 import java.util.Set;
 
 @Mixin(value = SimpleRegistry.class)
@@ -34,14 +32,9 @@ public abstract class SimpleRegistryMixin<T> extends Registry<T> implements Regi
         super(key, lifecycle);
     }
 
-    @Inject(method = "set(ILnet/minecraft/util/registry/RegistryKey;Ljava/lang/Object;Lcom/mojang/serialization/Lifecycle;Z)Lnet/minecraft/util/registry/RegistryEntry;", at = @At("TAIL"))
-    private <V extends T> void polymerRSM_resetStatus(int rawId, RegistryKey<T> key, T entry, Lifecycle lifecycle, boolean checkDuplicateKeys, CallbackInfoReturnable<RegistryEntry<T>> cir) {
+    @Inject(method = "set", at = @At("TAIL"))
+    private <V extends T> void polymerRSM_resetStatus(int rawId, RegistryKey<T> key, T value, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {
         this.polymerRSM_status = null;
-    }
-
-    @Inject(method = "replace", at = @At(value = "INVOKE", target = "Ljava/util/Map;remove(Ljava/lang/Object;)Ljava/lang/Object;", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private <V extends T> void polymerRSM_removeOldEntry(OptionalInt rawId, RegistryKey<T> key, T newEntry, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir, RegistryEntry<T> registryEntry, T object) {
-        this.polymerRSM_entryStatus.removeBoolean(object);
     }
 
     @Override

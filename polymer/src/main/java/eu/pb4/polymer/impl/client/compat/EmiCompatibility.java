@@ -14,7 +14,7 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -55,8 +55,8 @@ public class EmiCompatibility implements EmiPlugin {
             try {
                 EmiStackList.stacks.removeIf(SHOULD_REMOVE);
 
-                for (var group : ItemGroup.GROUPS) {
-                    if (group == ItemGroup.SEARCH) {
+                for (var group : ItemGroups.GROUPS) {
+                    if (group == ItemGroups.SEARCH) {
                         continue;
                     }
 

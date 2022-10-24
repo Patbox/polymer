@@ -43,13 +43,12 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
     private ServerWorld world;
 
     @Shadow
-    public abstract ServerLightingProvider getLightingProvider();
-
-    @Shadow
     @Nullable
     public abstract WorldChunk getWorldChunk(int chunkX, int chunkZ);
 
     @Shadow @Final private ServerLightingProvider lightingProvider;
+
+    @Shadow public abstract ServerLightingProvider getLightingProvider();
 
     @Unique
     private final Object2LongMap<ChunkSectionPos> polymer_lastUpdates = new Object2LongArrayMap<>();

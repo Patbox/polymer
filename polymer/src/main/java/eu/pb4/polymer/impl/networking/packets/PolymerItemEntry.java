@@ -1,12 +1,9 @@
 package eu.pb4.polymer.impl.networking.packets;
 
-import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
-import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.mixin.item.MiningToolItemAccessor;
-import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MiningToolItem;
@@ -23,7 +20,6 @@ import static eu.pb4.polymer.impl.PolymerImplUtils.id;
 public record PolymerItemEntry(
         int numId,
         Identifier identifier,
-        String itemGroup,
         ItemStack representation,
         int foodLevels,
         float saturation,
@@ -34,44 +30,29 @@ public record PolymerItemEntry(
     public static final Identifier NOT_TOOL = id("not_tool");
 
     public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
-        if (version > -1) {
-            if (version >= 2) {
-                buf.writeVarInt(this.numId);
-            }
+        if (version >= 4) {
+            buf.writeVarInt(this.numId);
 
             buf.writeIdentifier(this.identifier);
-            buf.writeString(this.itemGroup);
             PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, this.representation));
 
-            if (version >= 1) {
-                buf.writeVarInt(this.foodLevels);
-                buf.writeFloat(this.saturation);
-                buf.writeIdentifier(this.miningTool);
-                buf.writeVarInt(this.miningLevel);
-            }
+            buf.writeVarInt(this.foodLevels);
+            buf.writeFloat(this.saturation);
+            buf.writeIdentifier(this.miningTool);
+            buf.writeVarInt(this.miningLevel);
 
-            if (version >= 3) {
-                buf.writeVarInt(this.stackSize);
-            }
+            buf.writeVarInt(this.stackSize);
+
         }
     }
 
     public static PolymerItemEntry of(Item item, ServerPlayNetworkHandler handler, int version) {
-        var group = item.getGroup();
-
-        var groupIdentifier = group != null
-                ? group instanceof PolymerItemGroup pGroup
-                ? pGroup.getId().toString()
-                : ((ItemGroupAccessor) group).getId()
-                : InternalServerRegistry.POLYMER_ITEM_GROUP.toString();
-
         var toolItem = item instanceof MiningToolItem x ? x : null;
         var food = item.getFoodComponent();
 
         return new PolymerItemEntry(
                 Item.getRawId(item),
                 Registry.ITEM.getId(item),
-                groupIdentifier,
                 PolymerItemUtils.getPolymerItemStack(item.getDefaultStack(), handler.player),
                 food != null ? food.getHunger() : 0,
                 food != null ? food.getSaturationModifier() : 0,
@@ -83,7 +64,7 @@ public record PolymerItemEntry(
 
     public static PolymerItemEntry read(PacketByteBuf buf, int version) {
         return switch (version) {
-            case 3 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readString(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), buf.readVarInt());
+            case 4 -> new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), PolymerImplUtils.readStack(buf), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), buf.readVarInt());
             default -> null;
         };
     }

@@ -19,7 +19,7 @@ import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.ServerPackets;
 import eu.pb4.polymer.impl.networking.packets.*;
 import eu.pb4.polymer.impl.other.EventRunners;
-import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
+import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,8 +27,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.command.CommandRegistryWrapper;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
@@ -111,7 +113,6 @@ public class PolymerClientProtocolHandler {
                                 new ClientPolymerItem(
                                         entry.identifier(),
                                         entry.representation(),
-                                        entry.itemGroup(),
                                         entry.foodLevels(),
                                         entry.saturation(),
                                         entry.miningTool(),
@@ -213,7 +214,7 @@ public class PolymerClientProtocolHandler {
             }
 
             try {
-                var parsed = BlockArgumentParser.block(Registry.BLOCK, new StringReader(path.toString()), false);
+                var parsed = BlockArgumentParser.block(CommandRegistryWrapper.of(Registry.BLOCK), new StringReader(path.toString()), false);
 
                 return parsed.blockState();
             } catch (Exception e) {
@@ -240,7 +241,7 @@ public class PolymerClientProtocolHandler {
     }
 
     private static boolean handleItemGroupVanillaSync(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
+        if (version == 1) {
             var id = buf.readString();
             ItemGroup group = InternalClientRegistry.VANILLA_ITEM_GROUPS.get(id);
 
@@ -253,6 +254,8 @@ public class PolymerClientProtocolHandler {
                 for (int i = 0; i < size; i++) {
                     groupAccess.polymer_addStack(PolymerImplUtils.readStack(buf));
                 }
+
+                group.clearStacks();
             }
             return true;
         }
@@ -365,7 +368,7 @@ public class PolymerClientProtocolHandler {
     }
 
     private static boolean handleItemGroupSync(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
+        if (version == 1) {
             var id = buf.readIdentifier();
             var name = buf.readText();
             var icon = PolymerImplUtils.readStack(buf);
@@ -380,7 +383,7 @@ public class PolymerClientProtocolHandler {
             MinecraftClient.getInstance().execute(() -> {
                 InternalClientRegistry.clearTabs((t) -> t.getIdentifier().equals(id));
 
-                var array = ItemGroupAccessor.getGROUPS();
+                var array = ItemGroups.GROUPS;
 
                 var newArray = new ItemGroup[array.length + 1];
 
@@ -388,9 +391,11 @@ public class PolymerClientProtocolHandler {
                     System.arraycopy(array, 0, newArray, 0, array.length);
                 }
 
-                ItemGroupAccessor.setGROUPS(newArray);
 
-                var group = new InternalClientItemGroup(array.length, id, id.toString(), name, icon, stacks);
+                var group = new InternalClientItemGroup(array.length, id, name, icon, stacks);
+                newArray[array.length] = group;
+                ItemGroupsAccessor.setGROUPS(newArray);
+
                 InternalClientRegistry.ITEM_GROUPS.set(id, group);
             });
 

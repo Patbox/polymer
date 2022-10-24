@@ -19,12 +19,13 @@ import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
-import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
+import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.mixin.itemgroup.ItemGroupAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -37,6 +38,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -50,7 +52,10 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
@@ -314,14 +319,15 @@ public class InternalClientRegistry {
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 
         clearTabs(i -> true);
-        for (var group : ItemGroup.GROUPS) {
+        for (var group : ItemGroups.GROUPS) {
             ((ClientItemGroupExtension) group).polymer_clearStacks();
+            group.clearStacks();
         }
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
-        var array = ItemGroupAccessor.getGROUPS();
+        var array = ItemGroups.GROUPS;
 
         var list = new ArrayList<ItemGroup>();
 
@@ -339,7 +345,7 @@ public class InternalClientRegistry {
         }
 
         if (list.size() <= CreativeInventoryScreenAccessor.getSelectedTab()) {
-            CreativeInventoryScreenAccessor.setSelectedTab(ItemGroup.BUILDING_BLOCKS.getIndex());
+            CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.BUILDING_BLOCKS.getIndex());
 
             if (CompatStatus.FABRIC_ITEM_GROUP) {
                 try {
@@ -366,7 +372,7 @@ public class InternalClientRegistry {
             }
         }
 
-        ItemGroupAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
+        ItemGroupsAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
     }
 
     public static int getClientProtocolVer(String identifier) {
@@ -397,26 +403,8 @@ public class InternalClientRegistry {
                 }
             };
 
-            for (var item : Registry.ITEM) {
-                item.appendStacks(ItemGroup.SEARCH, wrap);
-            }
-
-            for (var group : ItemGroup.GROUPS) {
-                if (group == ItemGroup.SEARCH) {
-                    continue;
-                }
-
-                Collection<ItemStack> stacks;
-
-                if (group instanceof InternalClientItemGroup clientItemGroup) {
-                    stacks = clientItemGroup.getStacks();
-                } else {
-                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                }
-
-                if (stacks != null) {
-                    list.addAll(stacks);
-                }
+            for (var group : ItemGroups.GROUPS) {
+                wrap.addAll(group.getSearchTabStacks( MinecraftClient.getInstance().world.getEnabledFeatures()));
             }
 
             MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TOOLTIP, list);

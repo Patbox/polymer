@@ -3,12 +3,10 @@ package eu.pb4.polymer.impl.networking.packets;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
-import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +14,14 @@ import java.util.List;
 public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> stacks) implements BufferWritable {
     public static PolymerVanillaItemGroupEntry of(ItemGroup group, ServerPlayNetworkHandler handler) {
         var stacks = new ArrayList<ItemStack>();
-        var list = DefaultedList.<ItemStack>of();
-        group.appendStacks(list);
 
-        for (var item : list) {
+        for (var item : group.getDisplayStacks(handler.player.world.getEnabledFeatures())) {
             if (PolymerItemUtils.isPolymerServerItem(item)) {
                 stacks.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
             }
         }
 
-        return new PolymerVanillaItemGroupEntry(((ItemGroupAccessor) group).getId(), stacks);
+        return new PolymerVanillaItemGroupEntry("vanilla_" + group.getIndex(), stacks);
     }
 
     @Override

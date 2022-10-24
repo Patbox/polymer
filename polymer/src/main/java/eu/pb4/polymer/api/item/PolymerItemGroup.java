@@ -10,17 +10,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
 
-import java.util.Locale;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * An server side item group that can be synchronized with polymer clients
  * It also has it's own server side functionality
  */
-public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
+public abstract class PolymerItemGroup extends ItemGroup implements PolymerObject {
     /**
      * Registry of all PolymerItemGroups
      */
@@ -34,45 +31,15 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
     private final Identifier identifier;
     private boolean sync;
     private ItemStack icon = PolymerImplUtils.getNoTextureItem().copy();
-    private Consumer<DefaultedList<ItemStack>> customAppend = null;
     private Supplier<ItemStack> cachedIcon;
 
-    private PolymerItemGroup(Identifier id, Text name, boolean sync) {
-        super(0, id.toString().replace(":", "_").toLowerCase(Locale.ROOT));
+    public PolymerItemGroup(Identifier id, Text name, boolean sync) {
+        super(-1, name);
         this.identifier = id;
         this.name = name;
         this.sync = sync;
-    }
 
-    /**
-     * Creates new ItemGroup
-     */
-    public static PolymerItemGroup create(Identifier id, Text name, ItemStack icon) {
-        return create(id, name).setIcon(() -> icon);
-    }
-
-    public static PolymerItemGroup create(Identifier id, Text name, Supplier<ItemStack> icon) {
-        return create(id, name).setIcon(icon);
-    }
-
-    /**
-     * Creates new ItemGroup
-     */
-    public static PolymerItemGroup create(Identifier id, Text name) {
-        var group = new PolymerItemGroup(id, name, true);
-
-        InternalServerRegistry.ITEM_GROUPS.set(id, group);
-        return group;
-    }
-
-    /**
-     * Creates new ItemGroup, which isn't synced by default
-     */
-    public static PolymerItemGroup createPrivate(Identifier id, Text name) {
-        var group = new PolymerItemGroup(id, name, false);
-
-        InternalServerRegistry.ITEM_GROUPS.set(id, group);
-        return group;
+        InternalServerRegistry.ITEM_GROUPS.set(id, this);
     }
 
     /**
@@ -102,10 +69,6 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
         return this;
     }
 
-    public PolymerItemGroup setCustomAppend(Consumer<DefaultedList<ItemStack>> itemListConsumer) {
-        this.customAppend = itemListConsumer;
-        return this;
-    }
 
     @Override
     public ItemStack createIcon() {
@@ -124,15 +87,6 @@ public final class PolymerItemGroup extends ItemGroup implements PolymerObject {
 
     public Identifier getId() {
         return this.identifier;
-    }
-
-    @Override
-    public void appendStacks(DefaultedList<ItemStack> stacks) {
-        if (this.customAppend == null) {
-            super.appendStacks(stacks);
-        } else {
-            this.customAppend.accept(stacks);
-        }
     }
 
     @Override

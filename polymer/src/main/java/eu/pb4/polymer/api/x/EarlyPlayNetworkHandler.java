@@ -213,11 +213,6 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     }
 
     @Override
-    public void onRequestChatPreview(RequestChatPreviewC2SPacket packet) {
-
-    }
-
-    @Override
     public void onMessageAcknowledgment(MessageAcknowledgmentC2SPacket packet) {
 
     }

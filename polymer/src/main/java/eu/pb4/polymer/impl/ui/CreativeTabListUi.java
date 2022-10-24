@@ -4,6 +4,7 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -22,11 +23,11 @@ public class CreativeTabListUi extends MicroUi {
         this.title(Text.literal("Creative Item Groups"));
         this.items = new ArrayList<>();
         if (PolymerImpl.ADD_NON_POLYMER_CREATIVE_TABS) {
-            for (var group : ItemGroup.GROUPS) {
+            for (var group : ItemGroups.GROUPS) {
                 if (!(group instanceof PolymerObject)
-                        && group != ItemGroup.INVENTORY
-                        && group != ItemGroup.HOTBAR
-                        && group != ItemGroup.SEARCH
+                        && group != ItemGroups.INVENTORY
+                        && group != ItemGroups.HOTBAR
+                        && group != ItemGroups.SEARCH
                 ) {
                     this.items.add(group);
                 }
@@ -73,7 +74,7 @@ public class CreativeTabListUi extends MicroUi {
 
         this.slot(ITEMS_PER_PAGE + 2, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 3, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
-        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_SEARCH, (player, slotIndex, button, actionType) -> new CreativeTabUi(player, ItemGroup.SEARCH));
+        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_SEARCH, (player, slotIndex, button, actionType) -> new CreativeTabUi(player, ItemGroups.SEARCH));
         this.slot(ITEMS_PER_PAGE + 5, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 6, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         if (this.page >= this.items.size() / ITEMS_PER_PAGE) {

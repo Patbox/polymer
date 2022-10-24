@@ -6,6 +6,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.biome.source.BiomeAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,7 +38,7 @@ public class PlayerManagerMixin {
 
         if (((TempPlayerLoginAttachments) player).polymer_getForceRespawnPacket()) {
             var world = player.getWorld();
-            connection.send(new PlayerRespawnS2CPacket(world.getDimensionKey(), world.getRegistryKey(), BiomeAccess.hashSeed(world.getSeed()),player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), world.isDebugWorld(), world.isFlat(), false, player.getLastDeathPos()));
+            connection.send(new PlayerRespawnS2CPacket(world.getDimensionKey(), world.getRegistryKey(), BiomeAccess.hashSeed(((ServerWorld) world).getSeed()),player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), world.isDebugWorld(), ((ServerWorld) world).isFlat(), false, player.getLastDeathPos()));
         }
     }
 }

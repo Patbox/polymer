@@ -23,6 +23,7 @@ import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -138,7 +139,7 @@ public final class PolymerUtils {
             player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
 
             var world = player.getWorld();
-            var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) player.getWorld().getChunkManager().threadedAnvilChunkStorage);
+            var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).threadedAnvilChunkStorage);
             int dist = tacsAccess.getWatchDistance();
             int playerX = player.getWatchedSection().getX();
             int playerZ = player.getWatchedSection().getZ();
@@ -166,7 +167,7 @@ public final class PolymerUtils {
     }
 
     private static void nestedSend(ServerPlayerEntity player, int iteration, List<WorldChunk> chunks) {
-        var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) player.getWorld().getChunkManager().threadedAnvilChunkStorage);
+        var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).threadedAnvilChunkStorage);
 
         var iterator = chunks.listIterator();
         int pos = 0;
@@ -236,7 +237,7 @@ public final class PolymerUtils {
         NbtCompound properties = new NbtCompound();
         NbtCompound data = new NbtCompound();
         NbtList textures = new NbtList();
-        textures.add(data);
+        textures.addElement(0, data);
 
         data.putString("Value", value);
         properties.put("textures", textures);

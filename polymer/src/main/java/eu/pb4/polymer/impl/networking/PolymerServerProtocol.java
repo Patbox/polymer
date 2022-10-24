@@ -20,7 +20,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -246,12 +246,12 @@ public class PolymerServerProtocol {
             PolymerImplUtils.setPlayer(handler.player);
             version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_VANILLA);
 
-            for (var group : ItemGroup.GROUPS) {
+            for (var group : ItemGroups.GROUPS) {
                 if (!(group instanceof PolymerObject)
                         && !group.isSpecial()
-                        && group != ItemGroup.SEARCH
-                        && group != ItemGroup.INVENTORY
-                        && group != ItemGroup.HOTBAR
+                        && group != ItemGroups.SEARCH
+                        && group != ItemGroups.INVENTORY
+                        && group != ItemGroups.HOTBAR
                 ) {
                     try {
                         var entry = PolymerVanillaItemGroupEntry.of(group, handler);
@@ -274,12 +274,12 @@ public class PolymerServerProtocol {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP);
 
-        if (version == 0) {
+        if (version > -1) {
             var buf = buf(version);
             PolymerImplUtils.setPlayer(handler.player);
 
             var list = DefaultedList.<ItemStack>of();
-            group.appendStacks(list);
+            list.addAll(group.getDisplayStacks(handler.player.world.getEnabledFeatures()));
 
             buf.writeIdentifier(group.getId());
             buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));

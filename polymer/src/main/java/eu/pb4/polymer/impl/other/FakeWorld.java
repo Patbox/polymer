@@ -12,6 +12,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
 import net.minecraft.recipe.RecipeManager;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -58,7 +59,7 @@ public final class FakeWorld extends World {
     public static final World INSTANCE_UNSAFE;
     public static final World INSTANCE_REGULAR;
     static final Scoreboard SCOREBOARD = new Scoreboard();
-    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.createAndLoad();
+    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.EMPTY;
     static final RecipeManager RECIPE_MANAGER = new RecipeManager();
     final ChunkManager chunkManager = new ChunkManager() {
         private LightingProvider lightingProvider = null;
@@ -320,6 +321,11 @@ public final class FakeWorld extends World {
     @Override
     public DynamicRegistryManager getRegistryManager() {
         return REGISTRY_MANAGER;
+    }
+
+    @Override
+    public FeatureSet getEnabledFeatures() {
+        return FeatureSet.empty();
     }
 
     @Override

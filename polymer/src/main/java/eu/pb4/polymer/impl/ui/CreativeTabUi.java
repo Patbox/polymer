@@ -18,7 +18,7 @@ public class CreativeTabUi extends MicroUi {
         this.title(itemGroup.getDisplayName());
         this.itemGroup = itemGroup;
         this.items = DefaultedList.of();
-        this.itemGroup.appendStacks(this.items);
+        this.items.addAll(this.itemGroup.getDisplayStacks(player.world.getEnabledFeatures()));
         this.page = 0;
         this.drawUi();
 

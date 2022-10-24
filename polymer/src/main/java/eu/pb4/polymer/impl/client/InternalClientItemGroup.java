@@ -5,9 +5,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
@@ -21,8 +21,8 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject 
     private final List<ItemStack> stacks;
     private final Identifier identifier;
 
-    public InternalClientItemGroup(int index, Identifier identifier, String id, Text name, ItemStack stack, List<ItemStack> stackList) {
-        super(index, id);
+    public InternalClientItemGroup(int index, Identifier identifier, Text name, ItemStack stack, List<ItemStack> stackList) {
+        super(index, name);
         this.identifier = identifier;
         this.name = name;
         this.icon = stack;
@@ -35,17 +35,17 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject 
     }
 
     @Override
+    protected void addItems(FeatureSet enabledFeatures, Entries entries) {
+        entries.addAll(this.stacks);
+    }
+
+    @Override
     public Text getDisplayName() {
         return this.name;
     }
 
     public Identifier getIdentifier() {
         return identifier;
-    }
-
-    @Override
-    public void appendStacks(DefaultedList<ItemStack> stacks) {
-        stacks.addAll(this.stacks);
     }
 
     public Collection<ItemStack> getStacks() {

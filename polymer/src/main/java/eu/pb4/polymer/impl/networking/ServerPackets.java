@@ -94,13 +94,13 @@ public class ServerPackets {
         register(SYNC_BLOCK, 0);
         register(SYNC_BLOCK_ENTITY, 0);
         register(SYNC_BLOCKSTATE, 1);
-        register(SYNC_ITEM, 3);
+        register(SYNC_ITEM, 4);
         register(SYNC_ENCHANTMENT, 0);
         register(SYNC_VILLAGER_PROFESSION, 0);
-        register(SYNC_ITEM_GROUP, 0);
+        register(SYNC_ITEM_GROUP, 1);
         register(SYNC_ITEM_GROUP_CLEAR, 0);
         register(SYNC_ITEM_GROUP_REMOVE, 0);
-        register(SYNC_ITEM_GROUP_VANILLA, 0);
+        register(SYNC_ITEM_GROUP_VANILLA, 1);
         register(SYNC_ENTITY, 1);
         register(SYNC_STATUS_EFFECT, 0);
         register(SYNC_TAGS, 0);

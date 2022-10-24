@@ -3,7 +3,9 @@ package eu.pb4.polymer.mixin.client;
 import eu.pb4.polymer.impl.client.rendering.PolymerResourcePack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resource.*;
+import net.minecraft.resource.ResourcePackManager;
+import net.minecraft.resource.ResourcePackProfile;
+import net.minecraft.resource.ResourcePackProvider;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -22,8 +24,8 @@ public abstract class ResourcePackManagerMixin<T extends ResourcePackProfile> {
     @Mutable
     private Set<ResourcePackProvider> providers;
 
-    @Inject(method = "<init>(Lnet/minecraft/resource/ResourcePackProfile$Factory;[Lnet/minecraft/resource/ResourcePackProvider;)V", at = @At("RETURN"))
-    public void polymer_construct(ResourcePackProfile.Factory profileFactory, ResourcePackProvider[] providers, CallbackInfo ci) {
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void polymer_construct(ResourcePackProvider[] providers, CallbackInfo ci) {
         this.providers = new HashSet<>(this.providers);
         this.providers.add(new PolymerResourcePack.Provider());
     }

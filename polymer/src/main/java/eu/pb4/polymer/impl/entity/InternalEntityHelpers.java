@@ -10,7 +10,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -30,7 +29,7 @@ public class InternalEntityHelpers {
 
     static {
         try {
-            EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_UNSAFE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato"), new PlayerPublicKey(null)) {
+            EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_UNSAFE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
                 @Override
                 public boolean isSpectator() {
                     return false;
@@ -43,7 +42,7 @@ public class InternalEntityHelpers {
             });
         } catch (Throwable e) {
             try {
-                EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_REGULAR, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato"), new PlayerPublicKey(null)) {
+                EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_REGULAR, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
                     @Override
                     public boolean isSpectator() {
                         return false;

@@ -11,7 +11,7 @@ import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.comparison.EntryComparator;
 import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
 import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 
 import java.util.Collection;
@@ -41,8 +41,8 @@ public class ReiCompatibility implements REIClientPlugin {
         try {
             registry.removeEntryIf(SHOULD_REMOVE);
 
-            for (var group : ItemGroup.GROUPS) {
-                if (group == ItemGroup.SEARCH) {
+            for (var group : ItemGroups.GROUPS) {
+                if (group == ItemGroups.SEARCH) {
                     continue;
                 }
 

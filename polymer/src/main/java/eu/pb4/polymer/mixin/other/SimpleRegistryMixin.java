@@ -57,14 +57,14 @@ public abstract class SimpleRegistryMixin<T> extends Registry<T> implements Regi
         this.polymer_deferredRegistration.clear();
     }
 
-    @Inject(method = "set(ILnet/minecraft/util/registry/RegistryKey;Ljava/lang/Object;Lcom/mojang/serialization/Lifecycle;Z)Lnet/minecraft/util/registry/RegistryEntry;", at = @At("TAIL"))
-    private <V extends T> void polymer_storeStatus(int rawId, RegistryKey<T> key, T entry, Lifecycle lifecycle, boolean checkDuplicateKeys, CallbackInfoReturnable<RegistryEntry<T>> cir) {
+    @Inject(method = "set", at = @At("TAIL"))
+    private <V extends T> void polymer_storeStatus(int rawId, RegistryKey<T> key, T value, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {
         this.polymer_objects = null;
-        if (PolymerObject.is(entry)) {
-            RegistrySyncUtils.setServerEntry(this, entry);
+        if (PolymerObject.is(value)) {
+            RegistrySyncUtils.setServerEntry(this, value);
         }
 
-        PolymerImplUtils.invokeRegistered((Registry<Object>) this, entry);
+        PolymerImplUtils.invokeRegistered((Registry<Object>) this, value);
     }
 
     @Override

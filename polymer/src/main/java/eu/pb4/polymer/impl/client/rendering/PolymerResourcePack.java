@@ -8,7 +8,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.resource.*;
-import net.minecraft.resource.metadata.PackResourceMetadata;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +22,8 @@ import java.util.function.Consumer;
 public class PolymerResourcePack extends ZipResourcePack {
     public static boolean generated = false;
 
-    private PolymerResourcePack(File file) {
-        super(file);
+    private PolymerResourcePack(String string, File file) {
+        super(string, file);
     }
 
     @Nullable
@@ -31,7 +31,7 @@ public class PolymerResourcePack extends ZipResourcePack {
         Path outputPath = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip");
         if ((outputPath.toFile().exists() && generated) || PolymerRPUtils.build(outputPath)) {
             generated = true;
-            return new PolymerResourcePack(outputPath.toFile());
+            return new PolymerResourcePack(ClientUtils.PACK_ID, outputPath.toFile());
         } else {
             return null;
         }
@@ -44,18 +44,20 @@ public class PolymerResourcePack extends ZipResourcePack {
 
     public static class Provider implements ResourcePackProvider {
         @Override
-        public void register(Consumer<ResourcePackProfile> profileAdder, ResourcePackProfile.Factory factory) {
+        public void register(Consumer<ResourcePackProfile> profileAdder) {
             if (PolymerRPUtils.shouldGenerate()) {
                 ResourcePack pack = PolymerResourcePack.setup();
 
                 if (pack != null) {
-                    profileAdder.accept(factory.create(pack.getName(),
+                    profileAdder.accept(ResourcePackProfile.of(pack.getName(),
                             Text.translatable("text.polymer.resource_pack.name"),
                             PolymerRPUtils.isRequired() || PolymerImpl.FORCE_RESOURCE_PACK_CLIENT,
-                            () -> pack,
-                            new PackResourceMetadata(Text.translatable("text.polymer.resource_pack.description" + (PolymerRPUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION),
+                            (x) -> pack,
+                            new ResourcePackProfile.Metadata(Text.translatable("text.polymer.resource_pack.description" + (PolymerRPUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION, FeatureSet.empty()),
+                            ResourceType.CLIENT_RESOURCES,
                             ResourcePackProfile.InsertionPosition.TOP,
-                            ResourcePackSource.PACK_SOURCE_BUILTIN
+                            true,
+                            ResourcePackSource.BUILTIN
                     ));
                 }
             }
