@@ -68,7 +68,7 @@ public final class PolymerImpl {
     public static final boolean LOG_INVALID_SERVER_IDS_CLIENT;
     public static final boolean CHANGING_QOL_CLIENT;
     public static final boolean USE_UNSAFE_ITEMS_CLIENT;
-    public static final boolean USE_OLD_REI_COMPAT_CLIENT;
+    public static final boolean USE_FULL_REI_COMPAT_CLIENT = true;
 
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
@@ -133,7 +133,7 @@ public final class PolymerImpl {
             LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
             CHANGING_QOL_CLIENT = !clientConfig.disableNonVisualQualityOfLifeChanges;
             USE_UNSAFE_ITEMS_CLIENT = clientConfig.experimentalModdedContainerSupport;
-            USE_OLD_REI_COMPAT_CLIENT = clientConfig.enableReiCompatibilityLayer;
+            //USE_FULL_REI_COMPAT_CLIENT = clientConfig.enableReiCompatibilityLayer;
         } else {
             USE_ALT_ARMOR_HANDLER = false;
             ENABLE_NETWORKING_CLIENT = false;
@@ -143,7 +143,7 @@ public final class PolymerImpl {
             LOG_INVALID_SERVER_IDS_CLIENT = false;
             CHANGING_QOL_CLIENT = false;
             USE_UNSAFE_ITEMS_CLIENT = false;
-            USE_OLD_REI_COMPAT_CLIENT = false;
+            //USE_FULL_REI_COMPAT_CLIENT = false;
         }
     }
 

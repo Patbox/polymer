@@ -24,6 +24,7 @@ public class WebServer {
     public static String baseAddress = "";
     public static String fullAddress = "";
     public static boolean enabled;
+    public static boolean isPackReady = true;
 
     @Nullable
     public static HttpServer start(MinecraftServer minecraftServer, Config config) {
@@ -41,7 +42,17 @@ public class WebServer {
             if (!WebServer.baseAddress.endsWith("/")) {
                 WebServer.baseAddress += "/";
             }
+            WebServer.isPackReady = true;
             updateHash();
+
+            PolymerRPUtils.RESOURCE_PACK_CREATION_EVENT.register((x) -> {
+                isPackReady = false;
+
+            });
+            PolymerRPUtils.RESOURCE_PACK_FINISHED_EVENT.register(() -> {
+                isPackReady = true;
+                updateHash();
+            });
 
             return server;
         } catch (IOException e) {

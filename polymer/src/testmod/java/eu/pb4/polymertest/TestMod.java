@@ -33,9 +33,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.SetCameraEntityS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -49,6 +47,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.GameMode;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -150,6 +149,11 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         player.networkHandler.sendPacket(new EntityAttributesS2CPacket(player.getId(), attributes));
     });
 
+    public static SimplePolymerItem SPEC_ITEM = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.ENDER_EYE, (player, hand) -> {
+        player.networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.GAME_MODE_CHANGED, GameMode.SPECTATOR.getId()));
+        player.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
+    });
+
     public static SimplePolymerItem MARKER_TEST = new ClickItem(new FabricItemSettings().group(ITEM_GROUP), Items.BLAZE_ROD, (player, hand) -> {
         if (hand == Hand.OFF_HAND) {
             DebugInfoSender.clearGameTestMarkers(player.getWorld());
@@ -218,6 +222,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registry.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
         register(Registry.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
         register(Registry.ITEM, new Identifier("test", "cmarker_test"), MARKER_TEST);
+        register(Registry.ITEM, new Identifier("test", "spec"), SPEC_ITEM);
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);

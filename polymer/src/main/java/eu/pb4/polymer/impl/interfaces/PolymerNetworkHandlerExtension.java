@@ -48,4 +48,6 @@ public interface PolymerNetworkHandlerExtension {
     void polymer_setIgnoreNext();
 
     void polymer_resetSupported();
+
+    void polymer_delayAfterSequence(Runnable runnable);
 }

@@ -37,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHandlerExtension {
@@ -63,12 +64,15 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     private String polymer_version = "";
     @Unique
     private BlockMapper polymer_blockMapper;
+    private List<Runnable> polymer_afterSequence = new ArrayList<>();
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
 
     @Shadow
     public abstract ServerPlayerEntity getPlayer();
+
+    @Shadow private int sequence;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void polymer_setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
@@ -131,7 +135,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         this.polymer_protocolMap.clear();
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("TAIL"))
     private void polymer_sendScheduledPackets(CallbackInfo ci) {
         if (!this.polymer_scheduledPackets.isEmpty()) {
             var array = this.polymer_scheduledPackets;
@@ -148,6 +152,16 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
 
         if (!this.polymer_delayedActions.isEmpty()) {
             this.polymer_delayedActions.entrySet().removeIf(e -> e.getValue().tryDoing());
+        }
+    }
+
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0, shift = At.Shift.AFTER))
+    private void polymer_sendSequencePackets(CallbackInfo ci) {
+        if (!this.polymer_afterSequence.isEmpty()) {
+            for (var entry : this.polymer_afterSequence) {
+                entry.run();
+            }
+            this.polymer_afterSequence.clear();
         }
     }
 
@@ -249,6 +263,15 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         if (PolymerImpl.DONT_USE_BLOCK_DELTA_PACKET && packet instanceof ChunkDeltaUpdateS2CPacket cPacket) {
             BlockPacketUtil.splitChunkDelta((ServerPlayNetworkHandler) (Object) this, cPacket);
             ci.cancel();
+        }
+    }
+
+    @Override
+    public void polymer_delayAfterSequence(Runnable runnable) {
+        if (this.sequence == -1) {
+            runnable.run();
+        } else {
+            this.polymer_afterSequence.add(runnable);
         }
     }
 

@@ -21,10 +21,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.*;
@@ -82,35 +79,48 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     @Override
     public boolean copyFromPath(Path basePath, boolean override) {
         try {
-            Files.walkFileTree(basePath, new FileVisitor<>() {
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    return FileVisitResult.CONTINUE;
-                }
+            if (Files.isSymbolicLink(basePath)) {
+                basePath = Files.readSymbolicLink(basePath);
+            }
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    var relative = basePath.relativize(file);
-                    var path = relative.toString().replace("\\", "/");
-                    if (override || !fileMap.containsKey(path)) {
-                        var bytes = Files.readAllBytes(file);
-
-                        fileMap.put(path, bytes);
+            if (Files.isDirectory(basePath)) {
+                Path finalBasePath = basePath;
+                Files.walkFileTree(basePath, new FileVisitor<>() {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                        return FileVisitResult.CONTINUE;
                     }
-                    return FileVisitResult.CONTINUE;
-                }
 
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                    return FileVisitResult.CONTINUE;
-                }
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        var relative = finalBasePath.relativize(file);
+                        var path = relative.toString().replace("\\", "/");
+                        if (override || !fileMap.containsKey(path)) {
+                            var bytes = Files.readAllBytes(file);
 
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                    return FileVisitResult.CONTINUE;
+                            fileMap.put(path, bytes);
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+                return true;
+            } else if (Files.isRegularFile(basePath)) {
+                try (var fs = FileSystems.newFileSystem(basePath, Collections.emptyMap())) {
+                    fs.getRootDirectories().forEach(this::copyFromPath);
                 }
-            });
-            return true;
+                return true;
+            }
+            return false;
         } catch (Exception e) {
             PolymerImpl.LOGGER.error("Something went wrong while copying data from: " + basePath);
             e.printStackTrace();
@@ -119,7 +129,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
-    public boolean copyModAssets(String modId) {
+    public boolean copyAssets(String modId) {
         Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(modId);
         if (mod.isPresent()) {
             ModContainer container = mod.get();
