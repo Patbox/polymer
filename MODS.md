@@ -1,6 +1,17 @@
 # Mods using Polymer
 Some mods/ports using Polymer, ordered alphabetically
 
+## Brewery
+Brewery is a Fabric/Quilt compatible mod allowing you to create alcoholic and non-alcoholic drinks 
+with cauldrons and barrels. Aside of few builtin ones, you can add any number of custom drinks with 
+their own recipes and functionality by using datapacks. Additionally, this mod can work purely server side, 
+allowing vanilla clients to join and use its capabilities.
+
+### Links:
+- Github: https://github.com/Patbox/brewery
+- Modrinth: https://modrinth.com/mod/brewery
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/patboxs-brewery
+
 ## ComputerCraft: Restitched with Polymer
 This is a port of CC: Restitched (which by itself is port of CC: Tweaked, continuation of original ComputerCraft), 
 modified in a way to allow nearly all functionality of regular version to work purely server side 
@@ -39,6 +50,16 @@ This project is a fork [Get Off My Lawn by Draylar](https://github.com/Draylar/g
 - Modrinth: https://modrinth.com/mod/goml-reserved
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/get-off-my-lawn-reserved/
 
+## Illager Expansion (Polymer Port)
+Illager Expansion is mod focused around bringing more content to the mysterious Illagers in minecraft. 
+From new strucutres to mobs and items we have you covered. Will you be able to find all of the secrets 
+of the Illagers before its to late?
+
+### Links:
+- Github: https://github.com/PolymerPorts/Illager-Expansion-Rematch
+- Modrinth: https://modrinth.com/mod/illager-expansion-polymer
+
+
 ## Interdimensional
 Interdimensional allows you to create custom dimensions from an intuitive command interface,
 without needing to install the mod on your client!
@@ -47,6 +68,15 @@ without needing to install the mod on your client!
 - Github: https://github.com/QuiltServerTools/Interdimensional
 - Modrinth: https://modrinth.com/mod/interdimensional
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/interdimensional
+
+## Jump Vader
+It's a mod that lets you place "Jump Vader" blocks similar to the Quark mod's elevators. 
+You simply place one above the other at any vertical distance, and jump/crouch on top of the block 
+to go in between the different heights.
+
+### Links:
+- Github: https://github.com/VenomCodeDev/JumpVaderMod
+- Modrinth: https://modrinth.com/mod/jumpvader
 
 ## Lightning Podoboo
 Makes fire created by natural lightning cosmetic, meaning no blocks are destroyed from bad weather.  
@@ -66,9 +96,17 @@ A mod that adds server-side backpacks.
 ## TaterCart
 This mod changes minecart physics (with option to toggle it per minecart 
 for people who need vanilla physics) and adds multiple new one with their own functionality!
+
 ### Links:
 - Github: https://github.com/Patbox/TaterCart
 - Modrinth: https://modrinth.com/mod/tatercart
+
+## Trinkets (Polymer Port)
+A data-driven accessory mod for Minecraft using Fabric.
+
+### Links:
+- Github: https://github.com/PolymerPorts/trinkets
+- Modrinth: https://modrinth.com/mod/trinkets-polymer
 
 ## Simple Villagers
 Having frustrations with villagers? No more!
