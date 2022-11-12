@@ -1,4 +1,4 @@
-package eu.pb4.polymer.api.x;
+package eu.pb4.polymer.api.block;
 
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
@@ -14,10 +14,12 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * Do not use, unless you really need it! See package-info for more information
+ * Do not use, unless you really need it and you are 100% sure about what you need!
  *
- * Allows to change how blocks display for certain players
- * You can replace any block that way, including vanilla ones
+ * Allows changing how blocks display for certain players.
+ * You can replace any block that way, including vanilla ones.
+ *
+ * To only change your own blocks see {@link PolymerBlock}
  */
 public interface BlockMapper {
     SimpleEvent<BiFunction<ServerPlayerEntity, BlockMapper, @Nullable BlockMapper>> DEFAULT_MAPPER_EVENT = new SimpleEvent<>();

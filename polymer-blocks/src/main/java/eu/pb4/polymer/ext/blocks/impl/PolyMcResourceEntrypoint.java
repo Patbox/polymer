@@ -8,12 +8,12 @@ import io.github.theepicblock.polymc.api.resource.PolyMcResourcePack;
 import io.github.theepicblock.polymc.api.resource.json.JBlockStateVariant;
 import io.github.theepicblock.polymc.impl.misc.logging.SimpleLogger;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 
 public class PolyMcResourceEntrypoint implements PolyMcEntrypoint {
     @Override
     public void registerPolys(PolyRegistry registry) {
-        for (var block : Registry.BLOCK) {
+        for (var block : Registries.BLOCK) {
             if (block instanceof PolymerTexturedBlock) {
                 registry.registerBlockPoly(block, new PolymerTextureBlockPoly());
             }
@@ -23,7 +23,7 @@ public class PolyMcResourceEntrypoint implements PolyMcEntrypoint {
     @Override
     public void registerModSpecificResources(ModdedResources moddedResources, PolyMcResourcePack pack, SimpleLogger logger) {
         for (var entry : PolymerBlocksInternal.modelMap.entrySet()) {
-            Identifier clientBlockId = Registry.BLOCK.getId(entry.getKey().getBlock());
+            Identifier clientBlockId = Registries.BLOCK.getId(entry.getKey().getBlock());
             var clientBlockState = pack.getOrDefaultBlockState(clientBlockId.getNamespace(), clientBlockId.getPath());
 
             var stateName = PolymerBlocksInternal.generateStateName(entry.getKey());

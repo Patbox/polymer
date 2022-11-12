@@ -1,8 +1,8 @@
 package eu.pb4.polymer.mixin.entity;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -12,10 +12,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.util.collection.IndexedIterable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -96,8 +96,8 @@ public class EntitySpawnS2CPacketMixin {
         }
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/LivingEntity;I)V", at = @At("TAIL"))
-    private void polymer_changePosition2(LivingEntity entity, int entityTypeId, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;ILnet/minecraft/util/math/BlockPos;)V", at = @At("TAIL"))
+    private void polymer_changePosition2(Entity entity, int entityTypeId, BlockPos pos, CallbackInfo ci) {
         if (entity instanceof PolymerEntity virtualEntity) {
             Vec3d vec3d = virtualEntity.getClientSidePosition(entity.getPos());
             this.x = vec3d.x;

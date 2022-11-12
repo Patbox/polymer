@@ -1,11 +1,11 @@
 package eu.pb4.polymer.mixin.other;
 
+import eu.pb4.polymer.api.block.BlockMapper;
+import eu.pb4.polymer.api.networking.DynamicPacket;
 import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.other.PolymerStatusEffect;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymer.api.utils.DynamicPacket;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;

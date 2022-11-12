@@ -1,4 +1,4 @@
-package eu.pb4.polymer.api.utils;
+package eu.pb4.polymer.api.networking;
 
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;

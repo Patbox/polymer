@@ -171,13 +171,7 @@ public final class ResourcePackCreator {
     }
 
     @Nullable
-    @Deprecated
-    public String getPackDescription() {
-        return this.packDescription != null ? Text.Serializer.toJson(this.packDescription) : null;
-    }
-
-    @Nullable
-    public Text getPackDescriptionText() {
+    public Text getPackDescription() {
         return this.packDescription;
     }
 

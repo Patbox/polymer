@@ -5,7 +5,6 @@ import eu.pb4.polymer.api.utils.PolymerRegistry;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImplUtils;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -17,7 +16,7 @@ import java.util.function.Supplier;
  * An server side item group that can be synchronized with polymer clients
  * It also has it's own server side functionality
  */
-public abstract class PolymerItemGroup extends ItemGroup implements PolymerObject {
+public abstract class PolymerItemGroup /*extends ItemGroup*/ implements PolymerObject {
     /**
      * Registry of all PolymerItemGroups
      */
@@ -34,7 +33,7 @@ public abstract class PolymerItemGroup extends ItemGroup implements PolymerObjec
     private Supplier<ItemStack> cachedIcon;
 
     public PolymerItemGroup(Identifier id, Text name, boolean sync) {
-        super(-1, name);
+        //super(-1, name);
         this.identifier = id;
         this.name = name;
         this.sync = sync;
@@ -70,7 +69,7 @@ public abstract class PolymerItemGroup extends ItemGroup implements PolymerObjec
     }
 
 
-    @Override
+    //@Override
     public ItemStack createIcon() {
         if (this.cachedIcon != null) {
             this.icon = this.cachedIcon.get();
@@ -80,7 +79,7 @@ public abstract class PolymerItemGroup extends ItemGroup implements PolymerObjec
         return this.icon;
     }
 
-    @Override
+    //@Override
     public Text getDisplayName() {
         return this.name;
     }

@@ -10,7 +10,7 @@ import net.minecraft.item.MiningToolItem;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 import static eu.pb4.polymer.impl.PolymerImplUtils.id;
@@ -52,7 +52,7 @@ public record PolymerItemEntry(
 
         return new PolymerItemEntry(
                 Item.getRawId(item),
-                Registry.ITEM.getId(item),
+                Registries.ITEM.getId(item),
                 PolymerItemUtils.getPolymerItemStack(item.getDefaultStack(), handler.player),
                 food != null ? food.getHunger() : 0,
                 food != null ? food.getSaturationModifier() : 0,

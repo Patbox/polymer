@@ -116,7 +116,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
                                 BlockState blockState = chunk.getBlockState(blockPos);
 
-                                if (PolymerBlockUtils.isLightSource(blockState)) {
+                                if (PolymerBlockUtils.forceLightUpdates(blockState)) {
                                     sendUpdate = true;
                                     break;
                                 }

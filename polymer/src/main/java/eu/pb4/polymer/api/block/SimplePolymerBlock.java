@@ -7,15 +7,15 @@ import net.minecraft.block.BlockState;
  * Minimalistic implementation of PolymerBlock
 */
 public class SimplePolymerBlock extends Block implements PolymerBlock {
-    private Block virtualBlock;
+    private Block polymerBlock;
 
-    public SimplePolymerBlock(Settings settings, Block virtualBlock) {
+    public SimplePolymerBlock(Settings settings, Block polymerBlock) {
         super(settings);
-        this.virtualBlock = virtualBlock;
+        this.polymerBlock = polymerBlock;
     }
 
     @Override
     public Block getPolymerBlock(BlockState state) {
-        return this.virtualBlock;
+        return this.polymerBlock;
     }
 }

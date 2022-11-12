@@ -3,7 +3,6 @@ package eu.pb4.polymer.impl.client.compat;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
@@ -11,6 +10,7 @@ import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.comparison.EntryComparator;
 import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
 import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 
@@ -41,18 +41,19 @@ public class ReiCompatibility implements REIClientPlugin {
         try {
             registry.removeEntryIf(SHOULD_REMOVE);
 
-            for (var group : ItemGroups.GROUPS) {
-                if (group == ItemGroups.SEARCH) {
+            for (var group : ItemGroups.getGroups()) {
+                if (group.getType() != ItemGroup.Type.CATEGORY) {
                     continue;
                 }
 
                 Collection<ItemStack> stacks;
 
-                if (group instanceof InternalClientItemGroup clientItemGroup) {
+                //todo
+                /*if (group instanceof InternalClientItemGroup clientItemGroup) {
                     stacks = clientItemGroup.getStacks();
-                } else {
+                } else {*/
                     stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                }
+                //}
 
                 if (stacks != null) {
                     for (var stack : stacks) {

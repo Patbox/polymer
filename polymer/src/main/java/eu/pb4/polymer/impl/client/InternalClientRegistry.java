@@ -1,37 +1,28 @@
 package eu.pb4.polymer.impl.client;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.client.PolymerClientDecoded;
-import eu.pb4.polymer.api.client.PolymerClientUtils;
-import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
-import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
-import eu.pb4.polymer.api.client.registry.ClientPolymerEntry;
-import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
+import eu.pb4.polymer.api.client.*;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
-import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
-import eu.pb4.polymer.mixin.client.item.CreativeInventoryScreenAccessor;
-import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.mixin.itemgroup.ItemGroupAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.search.SearchManager;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
@@ -45,14 +36,13 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,30 +77,28 @@ public class InternalClientRegistry {
     public static boolean hasArmorTextures = false;
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";
-    @Deprecated
-    public static int blockOffset = -1;
 
     private static Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMap() {
         var map = new HashMap<Registry<?>, ImplPolymerRegistry<?>>();
-        map.put(Registry.BLOCK, BLOCKS);
-        map.put(Registry.ENTITY_TYPE, ENTITY_TYPES);
-        map.put(Registry.ITEM, ITEMS);
-        map.put(Registry.STATUS_EFFECT, STATUS_EFFECT);
-        map.put(Registry.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
-        map.put(Registry.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
-        map.put(Registry.ENCHANTMENT, ENCHANTMENT);
+        map.put(Registries.BLOCK, BLOCKS);
+        map.put(Registries.ENTITY_TYPE, ENTITY_TYPES);
+        map.put(Registries.ITEM, ITEMS);
+        map.put(Registries.STATUS_EFFECT, STATUS_EFFECT);
+        map.put(Registries.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
+        map.put(Registries.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
+        map.put(Registries.ENCHANTMENT, ENCHANTMENT);
         return (Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
     private static Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMapId() {
         var map = new HashMap<Identifier, ImplPolymerRegistry<?>>();
-        map.put(Registry.BLOCK.getKey().getValue(), BLOCKS);
-        map.put(Registry.ENTITY_TYPE.getKey().getValue(), ENTITY_TYPES);
-        map.put(Registry.ITEM.getKey().getValue(), ITEMS);
-        map.put(Registry.STATUS_EFFECT.getKey().getValue(), STATUS_EFFECT);
-        map.put(Registry.VILLAGER_PROFESSION.getKey().getValue(), VILLAGER_PROFESSIONS);
-        map.put(Registry.BLOCK_ENTITY_TYPE.getKey().getValue(), BLOCK_ENTITY);
-        map.put(Registry.ENCHANTMENT.getKey().getValue(), ENCHANTMENT);
+        map.put(Registries.BLOCK.getKey().getValue(), BLOCKS);
+        map.put(Registries.ENTITY_TYPE.getKey().getValue(), ENTITY_TYPES);
+        map.put(Registries.ITEM.getKey().getValue(), ITEMS);
+        map.put(Registries.STATUS_EFFECT.getKey().getValue(), STATUS_EFFECT);
+        map.put(Registries.VILLAGER_PROFESSION.getKey().getValue(), VILLAGER_PROFESSIONS);
+        map.put(Registries.BLOCK_ENTITY_TYPE.getKey().getValue(), BLOCK_ENTITY);
+        map.put(Registries.ENCHANTMENT.getKey().getValue(), ENCHANTMENT);
         return (Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
@@ -154,7 +142,6 @@ public class InternalClientRegistry {
         DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
-        blockOffset = -1;
         rebuildSearch();
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
     }
@@ -206,7 +193,7 @@ public class InternalClientRegistry {
             }
         }
 
-        return Registry.ITEM.get(id);
+        return Registries.ITEM.get(id);
     }
 
     public static Enchantment decodeEnchantment(int id) {
@@ -230,7 +217,7 @@ public class InternalClientRegistry {
             }
         }
 
-        return Registry.BLOCK_ENTITY_TYPE.get(id);
+        return Registries.BLOCK_ENTITY_TYPE.get(id);
     }
 
     public static StatusEffect decodeStatusEffect(int id) {
@@ -242,7 +229,7 @@ public class InternalClientRegistry {
             }
         }
 
-        return Registry.STATUS_EFFECT.get(id);
+        return Registries.STATUS_EFFECT.get(id);
     }
 
     public static EntityType<?> decodeEntity(int id) {
@@ -254,7 +241,7 @@ public class InternalClientRegistry {
             }
         }
 
-        return Registry.ENTITY_TYPE.get(id);
+        return Registries.ENTITY_TYPE.get(id);
     }
 
     public static VillagerProfession decodeVillagerProfession(int id) {
@@ -266,7 +253,7 @@ public class InternalClientRegistry {
             }
         }
 
-        return Registry.VILLAGER_PROFESSION.get(id);
+        return Registries.VILLAGER_PROFESSION.get(id);
     }
 
     private static void errorDecode(int rawId, String type) {
@@ -319,15 +306,16 @@ public class InternalClientRegistry {
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 
         clearTabs(i -> true);
-        for (var group : ItemGroups.GROUPS) {
+        for (var group : ItemGroups.getGroups()) {
             ((ClientItemGroupExtension) group).polymer_clearStacks();
-            group.clearStacks();
+            group.reloadSearchProvider();
         }
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
-        var array = ItemGroups.GROUPS;
+        //todo
+        /*var array = ItemGroups.getGroups();
 
         var list = new ArrayList<ItemGroup>();
 
@@ -372,7 +360,7 @@ public class InternalClientRegistry {
             }
         }
 
-        ItemGroupsAccessor.setGROUPS(list.toArray(new ItemGroup[0]));
+        ItemGroupsAccessor.setGROUPS(list.toArray(new ItemGroup[0]));*/
     }
 
     public static int getClientProtocolVer(String identifier) {
@@ -403,8 +391,8 @@ public class InternalClientRegistry {
                 }
             };
 
-            for (var group : ItemGroups.GROUPS) {
-                wrap.addAll(group.getSearchTabStacks( MinecraftClient.getInstance().world.getEnabledFeatures()));
+            for (var group : ItemGroups.getGroups()) {
+                wrap.addAll(group.getSearchTabStacks());
             }
 
             MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TOOLTIP, list);

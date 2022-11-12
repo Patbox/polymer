@@ -2,8 +2,8 @@ package eu.pb4.polymer.ext.blocks.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.resourcepack.ResourcePackCreator;
-import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.ext.blocks.impl.BlockExtBlockMapper;
 import eu.pb4.polymer.ext.blocks.impl.DefaultModelData;
 import eu.pb4.polymer.ext.blocks.impl.PolymerBlocksInternal;
@@ -14,7 +14,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.Waterloggable;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -103,7 +103,7 @@ public final class BlockResourceCreator {
             var state = blockStateEntry.getKey();
             var models = blockStateEntry.getValue();
 
-            var id = Registry.BLOCK.getId(state.getBlock());
+            var id = Registries.BLOCK.getId(state.getBlock());
 
             var stateName = PolymerBlocksInternal.generateStateName(state);
             var array = PolymerBlocksInternal.createJsonElement(models);

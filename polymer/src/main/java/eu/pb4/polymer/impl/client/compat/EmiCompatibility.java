@@ -11,13 +11,13 @@ import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -55,18 +55,18 @@ public class EmiCompatibility implements EmiPlugin {
             try {
                 EmiStackList.stacks.removeIf(SHOULD_REMOVE);
 
-                for (var group : ItemGroups.GROUPS) {
-                    if (group == ItemGroups.SEARCH) {
+                for (var group : ItemGroups.getGroups()) {
+                    if (group.getType() != ItemGroup.Type.CATEGORY) {
                         continue;
                     }
 
                     Collection<ItemStack> stacks;
-
-                    if (group instanceof InternalClientItemGroup clientItemGroup) {
+//todo
+                    /*if (group instanceof InternalClientItemGroup clientItemGroup) {
                         stacks = clientItemGroup.getStacks();
-                    } else {
+                    } else {*/
                         stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                    }
+                    //}
 
                     if (stacks != null) {
                         for (var stack : stacks) {
@@ -95,7 +95,7 @@ public class EmiCompatibility implements EmiPlugin {
         @Override
         public Identifier getId() {
             var id = PolymerItemUtils.getPolymerIdentifier(this.getItemStack());
-            return  id != null ? id : Registry.ITEM.getId(this.getItemStack().getItem());
+            return  id != null ? id : Registries.ITEM.getId(this.getItemStack().getItem());
         }
 
         @Override

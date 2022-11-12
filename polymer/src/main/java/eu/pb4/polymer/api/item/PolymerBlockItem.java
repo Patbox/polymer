@@ -11,15 +11,15 @@ import org.jetbrains.annotations.Nullable;
  * Basic implementation of PolymerItem for blocks
  */
 public class PolymerBlockItem extends BlockItem implements PolymerItem {
-    private final Item virtualItem;
+    private final Item polymerItem;
 
     public PolymerBlockItem(Block block, Settings settings, Item virtualItem) {
         super(block, settings);
-        this.virtualItem = virtualItem;
+        this.polymerItem = virtualItem;
     }
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return virtualItem;
+        return this.polymerItem;
     }
 }

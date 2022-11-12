@@ -26,6 +26,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
@@ -149,7 +150,7 @@ public class PolymerImplUtils {
     public static String getAsString(BlockState state) {
         var builder = new StringBuilder();
 
-        builder.append(Registry.BLOCK.getId(state.getBlock()));
+        builder.append(Registries.BLOCK.getId(state.getBlock()));
 
         if (!state.getEntries().isEmpty()) {
             builder.append("[");
@@ -190,9 +191,9 @@ public class PolymerImplUtils {
 
             {
                 msg.accept("== Vanilla Registries");
-                for (var reg : ((Registry<Registry<Object>>) Registry.REGISTRIES)) {
+                for (var reg : ((Registry<Registry<Object>>) Registries.REGISTRIES)) {
                     msg.accept("");
-                    msg.accept("== Registry: " + ((Registry<Object>) (Object) Registry.REGISTRIES).getId(reg).toString());
+                    msg.accept("== Registry: " + ((Registry<Object>) (Object) Registries.REGISTRIES).getId(reg).toString());
                     msg.accept("");
                     if (reg instanceof RegistrySyncExtension regEx) {
                         msg.accept("= Status: " + regEx.polymerRSM_getStatus().name());

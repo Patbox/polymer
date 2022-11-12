@@ -10,12 +10,10 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@ApiStatus.Experimental
 public final class PolymerPacketUtils {
     private PolymerPacketUtils() {
     }
@@ -68,10 +66,5 @@ public final class PolymerPacketUtils {
             MAP_S2C.put(identifier, packetName);
         }
         return ((PolymerNetworkHandlerExtension) handler).polymer_getSupportedVersion(packetName.getPath());
-    }
-
-    @Deprecated
-    public static boolean registerPacket(Identifier identifier, PolymerServerPacketHandler handler, int... supportedVersions) {
-        return registerPacketHandler(identifier, handler, supportedVersions);
     }
 }

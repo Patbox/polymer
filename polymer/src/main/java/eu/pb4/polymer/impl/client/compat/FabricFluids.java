@@ -11,7 +11,7 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.BlockRenderView;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ public class FabricFluids {
             }
         };
 
-        for (var fluid : Registry.FLUID) {
+        for (var fluid : Registries.FLUID) {
             if (fluid instanceof PolymerObject && FluidRenderHandlerRegistry.INSTANCE.get(fluid) == null) {
                 FluidRenderHandlerRegistry.INSTANCE.register(fluid, renderer);
             }

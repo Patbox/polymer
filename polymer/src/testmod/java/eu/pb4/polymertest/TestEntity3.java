@@ -8,6 +8,7 @@ import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType() {
+    public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
         return EntityType.FIREBALL;
     }
 
@@ -28,8 +29,8 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public void modifyTrackedData(List<DataTracker.Entry<?>> data) {
-        data.add(new DataTracker.Entry<>(EntityAccessor.getNO_GRAVITY(), true));
+    public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player) {
+        data.add(new DataTracker.SerializedEntry(EntityAccessor.getNO_GRAVITY().getId(), EntityAccessor.getNO_GRAVITY().getType(), true));
     }
 
 }

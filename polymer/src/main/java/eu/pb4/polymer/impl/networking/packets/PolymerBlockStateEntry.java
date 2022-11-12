@@ -5,7 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.state.property.Property;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
@@ -26,7 +26,7 @@ public record PolymerBlockStateEntry(Map<String, String> states, int numId, int 
             list.put(entry.getKey().getName(), ((Property) (Object) entry.getKey()).name(entry.getValue()));
         }
 
-        return new PolymerBlockStateEntry(list, Block.STATE_IDS.getRawId(state), Registry.BLOCK.getRawId(state.getBlock()));
+        return new PolymerBlockStateEntry(list, Block.STATE_IDS.getRawId(state), Registries.BLOCK.getRawId(state.getBlock()));
     }
 
     public static PolymerBlockStateEntry read(PacketByteBuf buf, int version) {

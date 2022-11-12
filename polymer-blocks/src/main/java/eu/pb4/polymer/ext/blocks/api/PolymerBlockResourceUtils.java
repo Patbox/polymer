@@ -1,7 +1,7 @@
 package eu.pb4.polymer.ext.blocks.api;
 
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.ext.blocks.impl.BlockExtBlockMapper;
 import eu.pb4.polymer.ext.blocks.impl.PolymerBlocksInternal;
 import eu.pb4.polymer.impl.compat.CompatStatus;

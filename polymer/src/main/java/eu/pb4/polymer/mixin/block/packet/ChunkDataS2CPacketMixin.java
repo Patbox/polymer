@@ -1,8 +1,8 @@
 package eu.pb4.polymer.mixin.block.packet;
 
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.world.chunk.WorldChunk;

@@ -6,7 +6,7 @@ import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
@@ -20,17 +20,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Set;
 
 @Mixin(value = SimpleRegistry.class)
-public abstract class SimpleRegistryMixin<T> extends Registry<T> implements RegistrySyncExtension<T> {
+public abstract class SimpleRegistryMixin<T> implements RegistrySyncExtension<T>, MutableRegistry<T> {
     private Object2BooleanMap<T> polymerRSM_entryStatus = new Object2BooleanOpenHashMap<>();
 
     @Shadow public abstract Set<Identifier> getIds();
 
     @Unique
     private Status polymerRSM_status = null;
-
-    protected SimpleRegistryMixin(RegistryKey<? extends Registry<T>> key, Lifecycle lifecycle) {
-        super(key, lifecycle);
-    }
 
     @Inject(method = "set", at = @At("TAIL"))
     private <V extends T> void polymerRSM_resetStatus(int rawId, RegistryKey<T> key, T value, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {

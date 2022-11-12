@@ -2,6 +2,7 @@ package eu.pb4.polymer.api.item;
 
 import eu.pb4.polymer.api.block.PolymerHeadBlock;
 import net.minecraft.block.Block;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
     private final PolymerHeadBlock polymerBlock;
 
-    public PolymerHeadBlockItem(PolymerHeadBlock block, Settings settings) {
-        super((Block) block, settings);
+    public <T extends Block & PolymerHeadBlock> PolymerHeadBlockItem(T block, Settings settings) {
+        super(block, settings);
         this.polymerBlock = block;
     }
 
@@ -25,8 +26,8 @@ public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
         return Items.PLAYER_HEAD;
     }
 
-    public ItemStack getPolymerItemStack(ItemStack itemStack, ServerPlayerEntity player) {
-        ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext tooltipContext, ServerPlayerEntity player) {
+        ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, tooltipContext, player);
         out.getOrCreateNbt().put("SkullOwner", this.polymerBlock.getPolymerHeadSkullOwner(this.getBlock().getDefaultState()));
         return out;
     }

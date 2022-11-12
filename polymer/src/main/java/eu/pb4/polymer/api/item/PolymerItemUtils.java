@@ -9,6 +9,7 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
@@ -27,7 +28,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -64,12 +65,24 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipContext(player), player);
+    }
+
+    /**
+     * This methods creates a client side ItemStack representation
+     *
+     * @param itemStack      Server side ItemStack
+     * @param tooltipContext Tooltip Context
+     * @param player         Player being send to
+     * @return Client side ItemStack
+     */
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext tooltipContext, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {
-            return item.getPolymerItemStack(itemStack, player);
+            return item.getPolymerItemStack(itemStack, tooltipContext, player);
         } else if (shouldPolymerConvert(itemStack, player)) {
-            return createItemStack(itemStack, player);
+            return createItemStack(itemStack, tooltipContext, player);
         }
 
         if (ITEM_CHECK.invoke((x) -> x.test(itemStack))) {
@@ -93,7 +106,7 @@ public final class PolymerItemUtils {
             if (id != null && !id.isEmpty()) {
                 try {
                     Identifier identifier = Identifier.tryParse(id);
-                    Item item = Registry.ITEM.get(identifier);
+                    Item item = Registries.ITEM.get(identifier);
                     if (item != Items.AIR) {
                         out = new ItemStack(item, itemStack.getCount());
                         NbtCompound tag = itemStack.getSubNbt(REAL_TAG);
@@ -159,6 +172,7 @@ public final class PolymerItemUtils {
 
         return null;
     }
+
     public static boolean isPolymerServerItem(ItemStack itemStack) {
         return shouldPolymerConvert(itemStack, null);
     }
@@ -174,7 +188,7 @@ public final class PolymerItemUtils {
                 for (NbtElement enchantment : itemStack.getEnchantments()) {
                     String id = ((NbtCompound) enchantment).getString("id");
 
-                    Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+                    Enchantment ench = Registries.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
                         if (ench instanceof PolymerEnchantment polymerEnchantment && polymerEnchantment.getPolymerEnchantment(player) == ench) {
@@ -188,7 +202,7 @@ public final class PolymerItemUtils {
                 for (NbtElement enchantment : itemStack.getNbt().getList(EnchantedBookItem.STORED_ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE)) {
                     String id = ((NbtCompound) enchantment).getString("id");
 
-                    Enchantment ench = Registry.ENCHANTMENT.get(Identifier.tryParse(id));
+                    Enchantment ench = Registries.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
                         if (ench instanceof PolymerEnchantment polymerEnchantment && polymerEnchantment.getPolymerEnchantment(player) == ench) {
@@ -239,7 +253,7 @@ public final class PolymerItemUtils {
             out.getOrCreateNbt().put(PolymerItemUtils.REAL_TAG, itemStack.getNbt());
         }
 
-        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
 
         if (cmd != -1) {
             out.getOrCreateNbt().putInt("CustomModelData", cmd);
@@ -263,6 +277,18 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemStack createItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return createItemStack(itemStack, PolymerUtils.getTooltipContext(player), player);
+    }
+
+    /**
+     * This method creates full (vanilla like) representation of ItemStack
+     *
+     * @param itemStack      Server side ItemStack
+     * @param tooltipContext TooltipContext
+     * @param player         Player seeing it
+     * @return Client side ItemStack
+     */
+    public static ItemStack createItemStack(ItemStack itemStack, TooltipContext tooltipContext, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
         int cmd = -1;
         int color = -1;
@@ -275,7 +301,7 @@ public final class PolymerItemUtils {
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
-        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
         out.getOrCreateNbt().putInt("HideFlags", 127);
 
         NbtList lore = new NbtList();
@@ -304,13 +330,13 @@ public final class PolymerItemUtils {
             if (itemStack.hasEnchantments()) {
                 var list = new NbtList();
                 for (var enchNbt : itemStack.getEnchantments()) {
-                    var ench = Registry.ENCHANTMENT.get(EnchantmentHelper.getIdFromNbt((NbtCompound) enchNbt));
+                    var ench = Registries.ENCHANTMENT.get(EnchantmentHelper.getIdFromNbt((NbtCompound) enchNbt));
 
                     if (ench instanceof PolymerEnchantment polyEnch) {
                         var possible = polyEnch.getPolymerEnchantment(player);
 
                         if (possible != null) {
-                            list.add(EnchantmentHelper.createNbt(Registry.ENCHANTMENT.getId(possible), EnchantmentHelper.getLevelFromNbt((NbtCompound) enchNbt)));
+                            list.add(EnchantmentHelper.createNbt(Registries.ENCHANTMENT.getId(possible), EnchantmentHelper.getLevelFromNbt((NbtCompound) enchNbt)));
                         }
                     } else if (!(ench instanceof PolymerObject)) {
                         list.add(enchNbt.copy());
@@ -361,7 +387,7 @@ public final class PolymerItemUtils {
         }
 
         try {
-            List<Text> tooltip = itemStack.getTooltip(player, PolymerUtils.getTooltipContext(player));
+            List<Text> tooltip = itemStack.getTooltip(player, tooltipContext);
             MutableText name = (MutableText) tooltip.remove(0);
 
             if (!out.getName().equals(name)) {

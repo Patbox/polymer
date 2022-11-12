@@ -5,7 +5,7 @@ import eu.pb4.polymer.ext.blocks.api.PolymerBlockModel;
 import net.minecraft.block.*;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class DefaultModelData {
             var vines = new ArrayList<BlockState>();
 
             for (var block : new Block[]{Blocks.TWISTING_VINES, Blocks.WEEPING_VINES}) {
-                var id = Registry.BLOCK.getId(block);
+                var id = Registries.BLOCK.getId(block);
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
                     MODELS.put(state, model);
@@ -61,7 +61,7 @@ public class DefaultModelData {
             }
 
             {
-                var id = Registry.BLOCK.getId(Blocks.CAVE_VINES);
+                var id = Registries.BLOCK.getId(Blocks.CAVE_VINES);
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
                 var model2 = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath() + "_lit"))};
                 for (var state : Blocks.CAVE_VINES.getStateManager().getStates()) {
@@ -83,7 +83,7 @@ public class DefaultModelData {
             var plant = new ArrayList<BlockState>();
 
             {
-                var id = Registry.BLOCK.getId(Blocks.SUGAR_CANE);
+                var id = Registries.BLOCK.getId(Blocks.SUGAR_CANE);
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : Blocks.SUGAR_CANE.getStateManager().getStates()) {
                     MODELS.put(state, model);
@@ -100,7 +100,7 @@ public class DefaultModelData {
             var plant = new ArrayList<BlockState>();
 
             for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING}) {
-                var id = Registry.BLOCK.getId(block);
+                var id = Registries.BLOCK.getId(block);
 
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
@@ -123,7 +123,7 @@ public class DefaultModelData {
         var list = new ArrayList<BlockState>();
 
         for (var block : blocks) {
-            var id = Registry.BLOCK.getId(block);
+            var id = Registries.BLOCK.getId(block);
             var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
             for (var state : block.getStateManager().getStates()) {
                 MODELS.put(state, model);

@@ -1,16 +1,10 @@
 package eu.pb4.polymer.impl.client.networking;
 
 import com.mojang.brigadier.StringReader;
-import eu.pb4.polymer.api.client.PolymerClientDecoded;
-import eu.pb4.polymer.api.client.PolymerClientPacketHandler;
-import eu.pb4.polymer.api.client.PolymerClientUtils;
-import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
-import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
-import eu.pb4.polymer.api.client.registry.ClientPolymerEntry;
-import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
+import eu.pb4.polymer.api.client.*;
+import eu.pb4.polymer.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
-import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientEntityExtension;
@@ -19,7 +13,6 @@ import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.ServerPackets;
 import eu.pb4.polymer.impl.networking.packets.*;
 import eu.pb4.polymer.impl.other.EventRunners;
-import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,18 +20,17 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.command.CommandRegistryWrapper;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryKeys;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -104,10 +96,10 @@ public class PolymerClientProtocolHandler {
                 PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
             });
             case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
-                    (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registry.BLOCK.get(entry.identifier()))));
+                    (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registries.BLOCK.get(entry.identifier()))));
             case ServerPackets.SYNC_ITEM -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
                     (entry) -> {
-                        var regEntry = Registry.ITEM.getEntry(RegistryKey.of(Registry.ITEM_KEY, entry.identifier()));
+                        var regEntry = Registries.ITEM.getEntry(RegistryKey.of(RegistryKeys.ITEM, entry.identifier()));
 
                         InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
                                 new ClientPolymerItem(
@@ -124,15 +116,15 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.SYNC_BLOCKSTATE -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
                         (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
             case ServerPackets.SYNC_ENTITY -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
-                    (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registry.ENTITY_TYPE.get(entry.identifier()))));
+                    (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registries.ENTITY_TYPE.get(entry.identifier()))));
             case ServerPackets.SYNC_VILLAGER_PROFESSION -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.VILLAGER_PROFESSIONS.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.VILLAGER_PROFESSION.get(entry.id()))));
+                    (entry) -> InternalClientRegistry.VILLAGER_PROFESSIONS.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.VILLAGER_PROFESSION.get(entry.id()))));
             case ServerPackets.SYNC_BLOCK_ENTITY -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.BLOCK_ENTITY.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.BLOCK_ENTITY_TYPE.get(entry.id()))));
+                    (entry) -> InternalClientRegistry.BLOCK_ENTITY.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.BLOCK_ENTITY_TYPE.get(entry.id()))));
             case ServerPackets.SYNC_STATUS_EFFECT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.STATUS_EFFECT.get(entry.id()))));
+                    (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.STATUS_EFFECT.get(entry.id()))));
             case ServerPackets.SYNC_ENCHANTMENT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.ENCHANTMENT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registry.ENCHANTMENT.get(entry.id()))));
+                    (entry) -> InternalClientRegistry.ENCHANTMENT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.ENCHANTMENT.get(entry.id()))));
 
             case ServerPackets.SYNC_TAGS -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag);
             case ServerPackets.SYNC_ITEM_GROUP -> handleItemGroupSync(handler, version, buf);
@@ -188,7 +180,7 @@ public class PolymerClientProtocolHandler {
 
     private static boolean handleSyncInfo(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version >= 0) {
-            InternalClientRegistry.blockOffset = buf.readVarInt();
+            //InternalClientRegistry.blockOffset = buf.readVarInt();
         }
 
         return true;
@@ -214,7 +206,7 @@ public class PolymerClientProtocolHandler {
             }
 
             try {
-                var parsed = BlockArgumentParser.block(CommandRegistryWrapper.of(Registry.BLOCK), new StringReader(path.toString()), false);
+                var parsed = BlockArgumentParser.block(Registries.BLOCK.getReadOnlyWrapper(), new StringReader(path.toString()), false);
 
                 return parsed.blockState();
             } catch (Exception e) {
@@ -255,7 +247,7 @@ public class PolymerClientProtocolHandler {
                     groupAccess.polymer_addStack(PolymerImplUtils.readStack(buf));
                 }
 
-                group.clearStacks();
+                group.reloadSearchProvider();
             }
             return true;
         }
@@ -383,7 +375,9 @@ public class PolymerClientProtocolHandler {
             MinecraftClient.getInstance().execute(() -> {
                 InternalClientRegistry.clearTabs((t) -> t.getIdentifier().equals(id));
 
-                var array = ItemGroups.GROUPS;
+                //todo
+                /*var array = ItemGroups.GROUPS;
+
 
                 var newArray = new ItemGroup[array.length + 1];
 
@@ -396,7 +390,7 @@ public class PolymerClientProtocolHandler {
                 newArray[array.length] = group;
                 ItemGroupsAccessor.setGROUPS(newArray);
 
-                InternalClientRegistry.ITEM_GROUPS.set(id, group);
+                InternalClientRegistry.ITEM_GROUPS.set(id, group);*/
             });
 
             return true;

@@ -1,10 +1,9 @@
-package eu.pb4.polymer.api.x;
+package eu.pb4.polymer.api.networking;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.networking.EarlyConnectionMagic;
-import io.netty.util.internal.UnstableApi;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
@@ -26,12 +25,10 @@ import java.util.function.Function;
 /**
  * This api exposes Polymer's early play packets utilities.
  *
- * Use carefully, as client might not be initialized or it might have leftover state from previous EarlyPlay handlers
- * Use this only if you know what you are doing
+ * Use carefully, as client might not be initialized, or it might have leftover state from previous EarlyPlay handlers
+ * Use this only if you know what you are doing and you need to do sync/packets before player joins a world.
  */
 
-@ApiStatus.Experimental
-@UnstableApi
 public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListener {
 
     public static void register(Function<Context, EarlyPlayNetworkHandler> constructor) {
@@ -415,6 +412,11 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     @Override
     public void onUpdateDifficultyLock(UpdateDifficultyLockC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onPlayerSession(PlayerSessionC2SPacket packet) {
 
     }
 

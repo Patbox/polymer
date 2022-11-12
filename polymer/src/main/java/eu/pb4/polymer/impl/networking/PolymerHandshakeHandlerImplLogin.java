@@ -1,10 +1,10 @@
 package eu.pb4.polymer.impl.networking;
 
+import eu.pb4.polymer.api.block.BlockMapper;
+import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
-import eu.pb4.polymer.api.x.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;

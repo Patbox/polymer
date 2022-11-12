@@ -1,8 +1,8 @@
 package eu.pb4.polymer.impl.networking;
 
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.Packet;

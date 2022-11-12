@@ -10,7 +10,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 
 public class TestItem extends SimplePolymerItem {
@@ -21,7 +21,7 @@ public class TestItem extends SimplePolymerItem {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-        context.getWorld().setBlockState(context.getBlockPos(), Registry.BLOCK.getRandom(this.random).get().value().getDefaultState());
+        context.getWorld().setBlockState(context.getBlockPos(), Registries.BLOCK.getRandom(this.random).get().value().getDefaultState());
         return super.useOnBlock(context);
     }
 

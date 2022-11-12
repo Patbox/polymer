@@ -1,7 +1,7 @@
 package eu.pb4.polymer.impl.client.compat;
 
+import eu.pb4.polymer.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
-import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.block.Block;

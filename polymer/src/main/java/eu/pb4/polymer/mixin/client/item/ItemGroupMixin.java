@@ -2,14 +2,14 @@ package eu.pb4.polymer.mixin.client.item;
 
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.utils.PolymerObject;
-import eu.pb4.polymer.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.impl.other.PolymerTooltipContext;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemStackSet;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,11 +19,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ItemGroup.class)
@@ -37,22 +37,22 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @Unique private List<ItemStack> polymer_items = new ArrayList<>();
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void polymer_storeInMap(int index, Text displayName, CallbackInfo ci) {
+    private void polymer_storeInMap(ItemGroup.Row row, int column, ItemGroup.Type type, Text displayName, Supplier iconSupplier, ItemGroup.EntryCollector entryCollector, CallbackInfo ci) {
         if (!(this instanceof PolymerObject)) {
-            InternalClientRegistry.VANILLA_ITEM_GROUPS.put("vanilla_" + index, (ItemGroup) (Object) this);
+            //InternalClientRegistry.VANILLA_ITEM_GROUPS.put("vanilla_" + index, (ItemGroup) (Object) this);
         }
     }
 
-    @Inject(method = "getStacks", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;addItems(Lnet/minecraft/resource/featuretoggle/FeatureSet;Lnet/minecraft/item/ItemGroup$Entries;)V",
+    /*@Inject(method = "getStacks", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;addItems(Lnet/minecraft/resource/featuretoggle/FeatureSet;Lnet/minecraft/item/ItemGroup$Entries;)V",
             shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymer_addItems(FeatureSet enabledFeatures, boolean search, CallbackInfoReturnable<ItemStackSet> cir, ItemGroup.EntriesImpl entries) {
         entries.addAll(this.polymer_items);
-    }
+    }*/
 
-    @Inject(method = "getIcon", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/item/ItemGroup;createIcon()Lnet/minecraft/item/ItemStack;", shift = At.Shift.AFTER))
+    @Inject(method = "getIcon", at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/function/Supplier;get()Ljava/lang/Object;", shift = At.Shift.AFTER))
     private void polymer_wrapIcon(CallbackInfoReturnable<ItemStack> cir) {
-        if (this.icon.getItem() instanceof PolymerItem virtualItem) {
-            this.icon = virtualItem.getPolymerItemStack(this.icon, null);
+        if (this.icon != null && this.icon.getItem() instanceof PolymerItem virtualItem) {
+            this.icon = virtualItem.getPolymerItemStack(this.icon, PolymerTooltipContext.BASIC, ClientUtils.getPlayer());
         }
     }
 

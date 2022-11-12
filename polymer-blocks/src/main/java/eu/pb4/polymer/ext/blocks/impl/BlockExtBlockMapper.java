@@ -1,6 +1,6 @@
 package eu.pb4.polymer.ext.blocks.impl;
 
-import eu.pb4.polymer.api.x.BlockMapper;
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.ext.blocks.api.PolymerTexturedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

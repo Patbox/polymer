@@ -1,8 +1,8 @@
 package eu.pb4.polymer.autohost.impl;
 
+import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.api.x.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.EntityType;
@@ -39,7 +39,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
 
             //this.sendPacket(new ChunkDataS2CPacket(FAKE_CHUNK, PolymerUtils.getFakeWorld().getLightingProvider(), null, null, true));
             this.sendPacket(FAKE_ENTITY.createSpawnPacket());
-            this.sendPacket(new EntityTrackerUpdateS2CPacket(FAKE_ENTITY.getId(), FAKE_ENTITY.getDataTracker(), true));
+            this.sendPacket(new EntityTrackerUpdateS2CPacket(FAKE_ENTITY.getId(), FAKE_ENTITY.getDataTracker().getChangedEntries()));
             this.sendPacket(new SetCameraEntityS2CPacket(FAKE_ENTITY));
             this.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, (new PacketByteBuf(Unpooled.buffer())).writeString(this.getServer().getServerModName() + "/" + "polymer_loading_pack")));
             this.sendPacket(new WorldTimeUpdateS2CPacket(0, 18000, false));

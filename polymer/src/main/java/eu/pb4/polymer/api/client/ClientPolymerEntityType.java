@@ -1,4 +1,4 @@
-package eu.pb4.polymer.api.client.registry;
+package eu.pb4.polymer.api.client;
 
 import eu.pb4.polymer.api.utils.PolymerRegistry;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;

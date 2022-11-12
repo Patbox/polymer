@@ -1,7 +1,6 @@
 package eu.pb4.polymer.mixin.client.item;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
-import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -9,6 +8,7 @@ import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
@@ -38,18 +38,18 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
         if (this.searchBox.getText().isEmpty()) {
             this.handler.itemList.removeIf((i) -> PolymerItemUtils.isPolymerServerItem(i));
 
-            for (var group : ItemGroups.GROUPS) {
-                if (group == ItemGroups.SEARCH) {
+            for (var group : ItemGroups.getGroups()) {
+                if (group.getType() != ItemGroup.Type.CATEGORY) {
                     continue;
                 }
 
                 Collection<ItemStack> stacks;
-
-                if (group instanceof InternalClientItemGroup clientItemGroup) {
+//todo
+                /*if (group instanceof InternalClientItemGroup clientItemGroup) {
                     stacks = clientItemGroup.getStacks();
-                } else {
+                } else {*/
                     stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                }
+                //}
 
                 if (stacks != null) {
                     for (var stack : stacks) {

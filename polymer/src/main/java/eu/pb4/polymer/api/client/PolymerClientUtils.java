@@ -1,8 +1,5 @@
 package eu.pb4.polymer.api.client;
 
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
-import eu.pb4.polymer.api.client.registry.ClientPolymerEntityType;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -119,18 +116,5 @@ public final class PolymerClientUtils {
 
     public static int getSupportedVersion(Identifier identifier) {
         return InternalClientRegistry.getClientProtocolVer("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
-    }
-
-    @Deprecated
-    public static boolean registerPacket(Identifier identifier, PolymerClientPacketHandler handler, int... supportedVersions) {
-        return registerPacketHandler(identifier, handler, supportedVersions);
-    }
-
-    /**
-     * This method will stop working at some point, as I decided to stop offsetting BlockState ids in protocol.
-     */
-    @Deprecated
-    public static int getBlockStateOffset() {
-        return InternalClientRegistry.blockOffset != -1 ? InternalClientRegistry.blockOffset : PolymerBlockUtils.getBlockStateOffset();
     }
 }

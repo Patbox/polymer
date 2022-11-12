@@ -1,7 +1,8 @@
 package eu.pb4.polymer.impl.client;
 
-import eu.pb4.polymer.api.client.PolymerKeepModel;
 import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.api.utils.PolymerKeepModel;
+import eu.pb4.polymer.api.utils.PolymerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -40,6 +41,6 @@ public class ClientUtils {
             stack.setCount(og.getCount());
         }
 
-        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, ClientUtils.getPlayer()) : stack;
+        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipContext(ClientUtils.getPlayer()), ClientUtils.getPlayer()) : stack;
     }
 }

@@ -1,6 +1,4 @@
-package eu.pb4.polymer.api.client;
-
-import eu.pb4.polymer.api.utils.PolymerObject;
+package eu.pb4.polymer.api.utils;
 
 /**
  * This interface marks blocks and items to keep their model while loaded on client.

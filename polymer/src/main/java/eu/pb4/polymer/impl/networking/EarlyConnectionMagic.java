@@ -1,6 +1,6 @@
 package eu.pb4.polymer.impl.networking;
 
-import eu.pb4.polymer.api.x.EarlyPlayNetworkHandler;
+import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import net.minecraft.network.ClientConnection;

@@ -10,18 +10,19 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> stacks) implements BufferWritable {
     public static PolymerVanillaItemGroupEntry of(ItemGroup group, ServerPlayNetworkHandler handler) {
         var stacks = new ArrayList<ItemStack>();
 
-        for (var item : group.getDisplayStacks(handler.player.world.getEnabledFeatures())) {
+        for (var item : group.getDisplayStacks()) {
             if (PolymerItemUtils.isPolymerServerItem(item)) {
                 stacks.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
             }
         }
 
-        return new PolymerVanillaItemGroupEntry("vanilla_" + group.getIndex(), stacks);
+        return new PolymerVanillaItemGroupEntry("vanilla_" + group.getType().name().toLowerCase(Locale.ROOT) + "_" + group.getRow() + "_" + group.getColumn(), stacks);
     }
 
     @Override

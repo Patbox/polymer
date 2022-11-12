@@ -4,6 +4,9 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.other.FakeWorld;
+import eu.pb4.polymer.mixin.entity.DataTrackerAccessor;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -13,19 +16,19 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.disguiselib.api.EntityDisguise;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @ApiStatus.Internal
 @SuppressWarnings({"unused", "unchecked"})
 public class InternalEntityHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
+    private static final Map<EntityType<?>, @Nullable Int2ObjectMap<DataTracker.Entry<?>>> TRACKED_DATA = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
 
     static {
         try {
@@ -59,8 +62,19 @@ public class InternalEntityHelpers {
         }
     }
 
-    public static List<DataTracker.Entry<?>> getExampleTrackedDataOfEntityType(EntityType<?> type) {
-        return getEntity(type).getDataTracker().getAllEntries();
+    public static Int2ObjectMap<DataTracker.Entry<?>> getExampleTrackedDataOfEntityType(EntityType<?> type) {
+        var val = TRACKED_DATA.get(type);
+
+        if (val == null) {
+            var ent = getEntity(type);
+            if (ent != null) {
+                var map = ((DataTrackerAccessor) ent.getDataTracker()).getEntries();
+                TRACKED_DATA.put(type, map);
+                return map;
+            }
+        }
+
+        return val;
     }
 
     public static <T extends Entity> Class<T> getEntityClass(EntityType<T> type) {
@@ -93,7 +107,7 @@ public class InternalEntityHelpers {
                 try {
                     entity = type.create(FakeWorld.INSTANCE_REGULAR);
                 } catch (Throwable e2) {
-                    var id = Registry.ENTITY_TYPE.getId(type);
+                    var id = Registries.ENTITY_TYPE.getId(type);
                     if (PolymerImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
                         PolymerImpl.LOGGER.warn(String.format(
                                 "Couldn't create template entity of %s... Defaulting to empty. %s",

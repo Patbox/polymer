@@ -5,7 +5,7 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.*;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +32,8 @@ public interface PolymerItem extends PolymerObject {
      * @param player    Player for which it's send
      * @return Client-side ItemStack
      */
-    default ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerItemUtils.createItemStack(itemStack, player);
+    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
+        return PolymerItemUtils.createItemStack(itemStack, context, player);
     }
 
 

@@ -1,7 +1,7 @@
 package eu.pb4.polymer.autohost.impl;
 
+import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymer.api.x.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;

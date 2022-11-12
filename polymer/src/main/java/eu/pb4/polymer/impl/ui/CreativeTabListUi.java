@@ -1,8 +1,8 @@
 package eu.pb4.polymer.impl.ui;
 
 import eu.pb4.polymer.api.utils.PolymerObject;
-import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
@@ -23,17 +23,16 @@ public class CreativeTabListUi extends MicroUi {
         this.title(Text.literal("Creative Item Groups"));
         this.items = new ArrayList<>();
         if (PolymerImpl.ADD_NON_POLYMER_CREATIVE_TABS) {
-            for (var group : ItemGroups.GROUPS) {
+            for (var group : ItemGroups.getGroups()) {
                 if (!(group instanceof PolymerObject)
-                        && group != ItemGroups.INVENTORY
-                        && group != ItemGroups.HOTBAR
-                        && group != ItemGroups.SEARCH
+                        && group.getType() == ItemGroup.Type.CATEGORY
                 ) {
                     this.items.add(group);
                 }
             }
         }
-        this.items.addAll(PolymerUtils.getItemGroups(player));
+        //todo
+        //this.items.addAll(PolymerUtils.getItemGroups(player));
         this.page = 0;
         this.drawUi();
 
@@ -45,7 +44,7 @@ public class CreativeTabListUi extends MicroUi {
         int end = Math.min((page + 1) * ITEMS_PER_PAGE, this.items.size());
         for (int i = start; i < end; i++) {
             var itemGroup = this.items.get(i);
-            var icon = itemGroup.createIcon().copy();
+            var icon = itemGroup.getIcon().copy();
             var text = itemGroup.getDisplayName().copy();
             if (!text.getStyle().isItalic()) {
                 text.setStyle(text.getStyle().withItalic(false));
@@ -74,7 +73,7 @@ public class CreativeTabListUi extends MicroUi {
 
         this.slot(ITEMS_PER_PAGE + 2, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 3, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
-        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_SEARCH, (player, slotIndex, button, actionType) -> new CreativeTabUi(player, ItemGroups.SEARCH));
+        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_SEARCH, (player, slotIndex, button, actionType) -> new CreativeTabUi(player, ItemGroupsAccessor.getSEARCH()));
         this.slot(ITEMS_PER_PAGE + 5, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 6, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         if (this.page >= this.items.size() / ITEMS_PER_PAGE) {

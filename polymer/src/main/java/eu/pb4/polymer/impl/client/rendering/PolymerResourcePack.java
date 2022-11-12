@@ -22,7 +22,7 @@ public class PolymerResourcePack extends ZipResourcePack {
     public static boolean generated = false;
 
     private PolymerResourcePack(String string, File file) {
-        super(string, file);
+        super(string, file, true);
     }
 
     @Nullable

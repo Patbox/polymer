@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.client.item;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.item.ItemGroup;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
@@ -10,12 +11,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(CreativeInventoryScreen.class)
 public interface CreativeInventoryScreenAccessor {
     @Accessor
-    static int getSelectedTab() {
+    static ItemGroup getSelectedTab() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static void setSelectedTab(int selectedTab) {
+    static void setSelectedTab(ItemGroup selectedTab) {
         throw new UnsupportedOperationException();
     }
 }

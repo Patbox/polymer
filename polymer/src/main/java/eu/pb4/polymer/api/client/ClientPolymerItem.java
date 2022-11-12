@@ -1,4 +1,4 @@
-package eu.pb4.polymer.api.client.registry;
+package eu.pb4.polymer.api.client;
 
 import eu.pb4.polymer.api.utils.PolymerRegistry;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-@ApiStatus.Experimental
+@ApiStatus.NonExtendable
 @Environment(EnvType.CLIENT)
 public record ClientPolymerItem(
         Identifier identifier,
@@ -22,11 +22,5 @@ public record ClientPolymerItem(
         int stackSize,
         @Nullable Item registryEntry
 ) implements ClientPolymerEntry<Item> {
-    @Deprecated
-    @Nullable
-    public Item realServerItem() {
-        return this.registryEntry;
-    }
-
     public static final PolymerRegistry<ClientPolymerItem> REGISTRY = InternalClientRegistry.ITEMS;
 }

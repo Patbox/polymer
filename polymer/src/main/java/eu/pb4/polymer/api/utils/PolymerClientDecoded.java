@@ -1,4 +1,4 @@
-package eu.pb4.polymer.api.client;
+package eu.pb4.polymer.api.utils;
 
 /**
  * This interface marks blocks and items to be decoded on client.

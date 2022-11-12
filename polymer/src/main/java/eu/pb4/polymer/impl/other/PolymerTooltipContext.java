@@ -2,26 +2,25 @@ package eu.pb4.polymer.impl.other;
 
 import net.minecraft.client.item.TooltipContext;
 
-public enum PolymerTooltipContext implements TooltipContext {
-    NORMAL(false),
-    ADVANCED(true);
-
-    private final boolean advanced;
-
-    PolymerTooltipContext(boolean advanced) {
-        this.advanced = advanced;
-    }
+public record PolymerTooltipContext(boolean advanced, boolean creative) implements TooltipContext {
+    public static final TooltipContext BASIC = new PolymerTooltipContext(false, false);
+    public static final TooltipContext ADVANCED = new PolymerTooltipContext(true, false);
 
     @Override
     public boolean isAdvanced() {
         return this.advanced;
     }
 
-    public TooltipContext toVanilla() {
-        return this.isAdvanced() ? Default.ADVANCED : Default.NORMAL;
+    @Override
+    public boolean isCreative() {
+        return this.creative;
+    }
+
+    public PolymerTooltipContext withCreative() {
+        return new PolymerTooltipContext(this.advanced, true);
     }
 
     public static PolymerTooltipContext of(TooltipContext context) {
-        return context.isAdvanced() ? ADVANCED : NORMAL;
+        return new PolymerTooltipContext(context.isAdvanced(), context.isCreative());
     }
 }

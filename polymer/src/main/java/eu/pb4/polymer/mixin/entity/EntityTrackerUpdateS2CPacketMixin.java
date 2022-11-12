@@ -13,9 +13,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,61 +35,49 @@ import java.util.Optional;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
 public class EntityTrackerUpdateS2CPacketMixin {
-
-    @Shadow
-    @Final
-    private @Nullable List<DataTracker.Entry<?>> trackedValues;
-
     @Shadow @Final private int id;
 
+    @Shadow @Final private List<DataTracker.SerializedEntry<?>> trackedValues;
+
     @Nullable
-    private List<DataTracker.Entry<?>> polymer_parseEntries() {
+    private List<DataTracker.SerializedEntry<?>> polymer_parseEntries() {
         Entity entity = EntityAttachedPacket.get(this);
         if (entity == null || entity.getId() != this.id) {
             return this.trackedValues != null ? new ArrayList<>(this.trackedValues) : null;
         }
 
-        var entries = new ArrayList<DataTracker.Entry<?>>();
+        var entries = new ArrayList<DataTracker.SerializedEntry<?>>();
         var player = PolymerUtils.getPlayer();
 
         if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player, entity)) {
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
-            if (legalTrackedData.size() > 0) {
+            if (legalTrackedData != null && legalTrackedData.size() > 0) {
                 if (this.trackedValues != null) {
-                    for (DataTracker.Entry<?> entry : this.trackedValues) {
-                        for (DataTracker.Entry<?> trackedData : legalTrackedData) {
-                            if (trackedData.getData() == entry.getData()) {
-                                entries.add(entry);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                polymerEntity.modifyTrackedData(entries, player);
-            } else {
-                if (this.trackedValues != null) {
-                    for (DataTracker.Entry<?> entry : this.trackedValues) {
-                        if (entry.getData().getId() <= 13) {
+                    for (var entry : this.trackedValues) {
+                        var x = legalTrackedData.get(entry.id());
+                        if (x != null && x.getData().getType() == entry.handler()) {
                             entries.add(entry);
+                            break;
                         }
                     }
                 }
-
-                polymerEntity.modifyTrackedData(entries, player);
             }
+            polymerEntity.modifyRawTrackedData(entries, player);
+
         } else if (this.trackedValues == null) {
             return null;
         } else {
             entries.addAll(this.trackedValues);
         }
 
+        final var isItemFrame = entity instanceof ItemFrameEntity;
+        final var isMinecart = entity instanceof AbstractMinecartEntity;
         final var size = entries.size();
         for (int i = 0; i < size; i++) {
             var entry = entries.get(i);
 
-            if (entry.getData() == ItemFrameEntityAccessor.getITEM_STACK() && entry.get() instanceof ItemStack stack) {
+            if (isItemFrame && entry.id() == ItemFrameEntityAccessor.getITEM_STACK().getId() && entry.value() instanceof ItemStack stack) {
                 var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayer());
 
                 if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
@@ -102,37 +91,33 @@ public class EntityTrackerUpdateS2CPacketMixin {
                     }
                 }
 
-                entries.set(i, new DataTracker.Entry<>(ItemFrameEntityAccessor.getITEM_STACK(), polymerStack));
-            } else if (entry.getData() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID()) {
-                entries.set(i, new DataTracker.Entry<>(AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.get()), player))));
+                entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), polymerStack));
+            } else if (isMinecart && entry.id() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID().getId()) {
+                entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.value()), player))));
             }
-            // Todo: Reintroduce this
-            /*else if (entry.getData() == VillagerEntityAccessor.getVILLAGER_DATA() && entry.get() instanceof VillagerData data && data.getProfession() instanceof PolymerVillagerProfession polymerProf) {
-                entries.set(i, new DataTracker.Entry<>(VillagerEntityAccessor.getVILLAGER_DATA(), new VillagerData(data.getType(), polymerProf.getPolymerProfession(player), data.getLevel())));
-            }*/
         }
 
         return entries;
     }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/data/DataTracker;entriesToPacket(Ljava/util/List;Lnet/minecraft/network/PacketByteBuf;)V", ordinal = 0))
-    private List<DataTracker.Entry<?>> polymer_replaceWithPolymer(List<DataTracker.Entry<?>> value) {
+    @ModifyArg(method = "write(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "net/minecraft/network/packet/s2c/play/EntityTrackerUpdateS2CPacket.write(Ljava/util/List;Lnet/minecraft/network/PacketByteBuf;)V", ordinal = 0))
+    private List<DataTracker.SerializedEntry<?>> polymer_replaceWithPolymer(List<DataTracker.Entry<?>> value) {
         return this.polymer_parseEntries();
     }
 
     @Environment(EnvType.CLIENT)
-    @Inject(method = "getTrackedValues", at = @At("RETURN"), cancellable = true)
-    private void polymer_replaceItemsWithPolymerOnes(CallbackInfoReturnable<List<DataTracker.Entry<?>>> cir) {
-        if (MinecraftClient.getInstance().getServer() != null && this.trackedValues != null) {
+    @Inject(method = "trackedValues", at = @At("RETURN"), cancellable = true)
+    private void polymer_replaceItemsWithPolymerOnes(CallbackInfoReturnable<List<DataTracker.SerializedEntry<?>>> cir) {
+        if (ClientUtils.isSingleplayer() && this.trackedValues != null) {
             var list = this.polymer_parseEntries();
 
             ServerPlayerEntity player = ClientUtils.getPlayer();
 
             for (int i = 0; i < list.size(); i++) {
                 var entry = list.get(i);
-                if (entry.get() instanceof Optional<?> optionalO && optionalO.isPresent()
+                if (entry.value() instanceof Optional<?> optionalO && optionalO.isPresent()
                         && optionalO.get() instanceof BlockState state && state.getBlock() instanceof PolymerBlock polymerBlock) {
-                    list.set(i, new DataTracker.Entry(entry.getData(), Optional.of(PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player))));
+                    list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Optional.of(PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player))));
                 }
             }
 

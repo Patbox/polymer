@@ -1,6 +1,6 @@
 package eu.pb4.polymer.impl.interfaces;
 
-import eu.pb4.polymer.api.x.BlockMapper;
+import eu.pb4.polymer.api.block.BlockMapper;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;

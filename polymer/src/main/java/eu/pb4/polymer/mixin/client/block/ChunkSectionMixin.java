@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.client.block;
 
-import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
+import eu.pb4.polymer.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import net.fabricmc.api.EnvType;

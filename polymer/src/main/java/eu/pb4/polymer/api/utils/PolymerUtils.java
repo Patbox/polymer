@@ -3,6 +3,7 @@ package eu.pb4.polymer.api.utils;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImpl;
@@ -16,6 +17,7 @@ import eu.pb4.polymer.mixin.entity.ServerWorldAccessor;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.Packet;
@@ -106,11 +108,6 @@ public final class PolymerUtils {
         }
     }
 
-    @Deprecated
-    public static boolean isOnClientSide() {
-        return isOnClientThread();
-    }
-
     public static boolean isOnPlayerNetworking() {
         if (!PolymerImpl.IS_CLIENT) {
             return getPlayer() != null;
@@ -194,7 +191,7 @@ public final class PolymerUtils {
      * Returns current TooltipContext of player,
      */
     public static TooltipContext getTooltipContext(@Nullable ServerPlayerEntity player) {
-        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.NORMAL;
+        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
     }
 
     /**
@@ -305,8 +302,9 @@ public final class PolymerUtils {
 
     public static boolean isServerOnly(Object obj) {
         return obj instanceof PolymerObject
+                || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack))
                 || (obj instanceof EntityType<?> type && PolymerEntityUtils.isRegisteredEntityType(type))
-                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isRegisteredBlockEntity(typeBE))
+                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE))
                 || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
 
     }

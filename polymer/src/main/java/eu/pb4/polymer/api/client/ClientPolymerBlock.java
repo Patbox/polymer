@@ -1,4 +1,4 @@
-package eu.pb4.polymer.api.client.registry;
+package eu.pb4.polymer.api.client;
 
 import eu.pb4.polymer.api.utils.PolymerRegistry;
 import eu.pb4.polymer.impl.PolymerImplUtils;
@@ -28,20 +28,9 @@ public record ClientPolymerBlock(Identifier identifier, int numId, Text name, Bl
         this(identifier, numId, name, defaultBlockState, null);
     }
 
-    @Deprecated
-    public Block realServerBlock() {
-        return this.registryEntry;
-    }
-
     public record State(Map<String, String> states, ClientPolymerBlock block, @Nullable BlockState blockState) {
         public State(Map<String, String> states, ClientPolymerBlock block) {
             this(states, block, null);
-        }
-
-        @Deprecated
-        @Nullable
-        public BlockState realServerBlockState() {
-            return this.blockState;
         }
     }
 }

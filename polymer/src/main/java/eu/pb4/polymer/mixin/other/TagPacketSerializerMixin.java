@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.tag.TagPacketSerializer;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -21,7 +21,7 @@ public class TagPacketSerializerMixin {
         var map = new HashMap<Identifier, IntList>();
         var player = PolymerUtils.getPlayer();
         for (var entry : value.entrySet()) {
-            var reg = Registry.REGISTRIES.get(entry.getKey());
+            var reg = Registries.REGISTRIES.get(entry.getKey());
 
             if (reg != null) {
                 var list = new IntArrayList(entry.getValue().size());

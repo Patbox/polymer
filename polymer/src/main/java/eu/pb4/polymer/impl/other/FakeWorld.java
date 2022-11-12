@@ -24,10 +24,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
-import net.minecraft.util.registry.*;
+import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryKeys;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
@@ -176,9 +178,9 @@ public final class FakeWorld extends World {
             accessor.polymer_setDebugWorld(true);
             accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
             accessor.polymer_setProperties(new FakeWorldProperties());
-            accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
+            accessor.polymer_setRegistryKey(RegistryKey.of(RegistryKeys.DIMENSION, PolymerImplUtils.id("fake_world")));
             accessor.polymer_setDimensionKey(DimensionTypes.OVERWORLD);
-            accessor.polymer_setDimensionEntry(BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD));
+            accessor.polymer_setDimensionEntry(null);
             accessor.polymer_setThread(Thread.currentThread());
             accessor.polymer_setRandom(Random.create());
             accessor.polymer_setAsyncRandom(Random.createThreadSafe());
@@ -193,8 +195,8 @@ public final class FakeWorld extends World {
         try {
             worldDefault = new FakeWorld(
                     new FakeWorldProperties(),
-                    RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")),
-                    BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD),
+                    RegistryKey.of(RegistryKeys.DIMENSION, PolymerImplUtils.id("fake_world")),
+                    null,//BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD),
                     () -> new ProfilerSystem(() -> 0l, () -> 0, false),
                     false,
                     true,
@@ -340,7 +342,7 @@ public final class FakeWorld extends World {
 
     @Override
     public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
+        return null;//BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
     }
 
 

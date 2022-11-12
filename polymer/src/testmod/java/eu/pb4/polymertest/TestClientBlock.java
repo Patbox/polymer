@@ -1,8 +1,8 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
-import eu.pb4.polymer.api.client.PolymerClientDecoded;
-import eu.pb4.polymer.api.client.PolymerKeepModel;
+import eu.pb4.polymer.api.utils.PolymerClientDecoded;
+import eu.pb4.polymer.api.utils.PolymerKeepModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

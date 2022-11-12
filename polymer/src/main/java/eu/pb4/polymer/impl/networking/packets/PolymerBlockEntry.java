@@ -9,7 +9,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 
@@ -23,7 +23,7 @@ public record PolymerBlockEntry(Identifier identifier, int numId, Text text, Blo
     }
 
     public static PolymerBlockEntry of(Block block) {
-        return new PolymerBlockEntry(Registry.BLOCK.getId(block), Registry.BLOCK.getRawId(block), block.getName(), block.getDefaultState());
+        return new PolymerBlockEntry(Registries.BLOCK.getId(block), Registries.BLOCK.getRawId(block), block.getName(), block.getDefaultState());
     }
 
     public static PolymerBlockEntry read(PacketByteBuf buf, int version) {

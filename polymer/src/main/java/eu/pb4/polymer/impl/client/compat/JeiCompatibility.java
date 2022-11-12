@@ -3,13 +3,13 @@ package eu.pb4.polymer.impl.client.compat;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -49,18 +49,18 @@ public class JeiCompatibility implements IModPlugin {
                     manager.removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, list);
                 }
 
-                for (var group : ItemGroups.GROUPS) {
-                    if (group == ItemGroups.SEARCH) {
+                for (var group : ItemGroups.getGroups()) {
+                    if (group.getType() != ItemGroup.Type.CATEGORY) {
                         continue;
                     }
 
                     Collection<ItemStack> stacks;
 
-                    if (group instanceof InternalClientItemGroup clientItemGroup) {
+                    /*if (group instanceof InternalClientItemGroup clientItemGroup) {
                         stacks = clientItemGroup.getStacks();
-                    } else {
+                    } else {*/
                         stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                    }
+                    //}
 
                     if (stacks != null && !stacks.isEmpty()) {
                         manager.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, stacks);

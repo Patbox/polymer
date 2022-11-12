@@ -6,7 +6,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
@@ -21,8 +21,8 @@ public record PolymerEntityEntry(Identifier identifier, int rawId, Text name) im
 
     public static PolymerEntityEntry of(EntityType<?> entityType) {
         return new PolymerEntityEntry(
-                Registry.ENTITY_TYPE.getId(entityType),
-                Registry.ENTITY_TYPE.getRawId(entityType),
+                Registries.ENTITY_TYPE.getId(entityType),
+                Registries.ENTITY_TYPE.getRawId(entityType),
                 entityType.getName()
         );
     }

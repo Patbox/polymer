@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.api.x.EarlyPlayNetworkHandler;
+import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.impl.interfaces.ExtClientConnection;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.ClientConnection;

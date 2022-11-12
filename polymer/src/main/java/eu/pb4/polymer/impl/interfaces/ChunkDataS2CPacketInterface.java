@@ -1,6 +1,6 @@
 package eu.pb4.polymer.impl.interfaces;
 
-import eu.pb4.polymer.api.x.BlockMapper;
+import eu.pb4.polymer.api.block.BlockMapper;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.ApiStatus;
 

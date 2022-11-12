@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.village.VillagerData;
@@ -21,13 +22,13 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType() {
+    public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
         return EntityType.VILLAGER;
     }
 
     @Override
-    public void modifyTrackedData(List<DataTracker.Entry<?>> data) {
-        data.add(new DataTracker.Entry<>(VillagerEntityAccessor.get(), new VillagerData(VillagerType.SWAMP, VillagerProfession.CARTOGRAPHER, 1)));
+    public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player) {
+        data.add(new DataTracker.SerializedEntry(VillagerEntityAccessor.get().getId(), VillagerEntityAccessor.get().getType(), new VillagerData(VillagerType.SWAMP, VillagerProfession.CARTOGRAPHER, 1)));
     }
 
     @Override

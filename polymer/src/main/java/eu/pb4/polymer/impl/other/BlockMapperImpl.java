@@ -1,8 +1,8 @@
 package eu.pb4.polymer.impl.other;
 
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.block.PolymerBlock;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

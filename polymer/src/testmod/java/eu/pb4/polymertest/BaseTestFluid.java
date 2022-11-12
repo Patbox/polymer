@@ -23,14 +23,6 @@ public abstract class BaseTestFluid extends FlowableFluid implements PolymerObje
     }
 
     /**
-     * @return whether the fluid infinite like water
-     */
-    @Override
-    protected boolean isInfinite() {
-        return false;
-    }
-
-    /**
      * Perform actions when fluid flows into a replaceable block. Water drops
      * the block's loot table. Lava plays the "block.lava.extinguish" sound.
      */

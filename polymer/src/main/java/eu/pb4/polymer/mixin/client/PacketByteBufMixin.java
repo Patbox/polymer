@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.collection.IndexedIterable;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -18,15 +18,15 @@ public class PacketByteBufMixin {
     private Object polymer_justInCaseRemap(IndexedIterable instance, int i) {
         if (instance == Block.STATE_IDS) {
             return InternalClientRegistry.decodeState(i);
-        } else if (instance == Registry.ENTITY_TYPE) {
+        } else if (instance == Registries.ENTITY_TYPE) {
             return InternalClientRegistry.decodeEntity(i);
-        } else if (instance == Registry.ENCHANTMENT) {
+        } else if (instance == Registries.ENCHANTMENT) {
             return InternalClientRegistry.decodeEnchantment(i);
-        } else if (instance == Registry.ITEM) {
+        } else if (instance == Registries.ITEM) {
             return InternalClientRegistry.decodeItem(i);
-        } else if (instance == Registry.VILLAGER_PROFESSION) {
+        } else if (instance == Registries.VILLAGER_PROFESSION) {
             return InternalClientRegistry.decodeVillagerProfession(i);
-        } else if (instance == Registry.STATUS_EFFECT) {
+        } else if (instance == Registries.STATUS_EFFECT) {
             return InternalClientRegistry.decodeStatusEffect(i);
         }
 

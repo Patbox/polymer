@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.client.rendering;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
-import eu.pb4.polymer.api.client.PolymerKeepModel;
+import eu.pb4.polymer.api.utils.PolymerKeepModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;

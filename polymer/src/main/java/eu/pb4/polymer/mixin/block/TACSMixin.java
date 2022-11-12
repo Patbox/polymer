@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.block;
 
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.impl.interfaces.ServerChunkManagerInterface;

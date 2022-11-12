@@ -11,7 +11,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -19,36 +20,12 @@ import java.util.function.Consumer;
  */
 public interface PolymerEntity extends PolymerObject {
     /**
-     * This method is used to determine what this entity will look like on client
-     * This should never return entity type used by other PolymerEntity!
-     *
-     * @return Vanilla/Modded entity type
-     */
-    EntityType<?> getPolymerEntityType();
-
-    /**
      * This method is used to determine what this entity will look like on client for specific player
      * This should never return entity type used by other PolymerEntity!
      *
      * @return Vanilla/Modded entity type
      */
-    default EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
-        return this.getPolymerEntityType();
-    }
-
-    /**
-     * This method is used for replacing entity's equipment on client
-     *
-     * @param items List of Pair of EquipmentSlot and ItemStack on entity server-side
-     * @return List of Pair of EquipmentSlot and ItemStack sent to client
-     */
-    default List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(List<Pair<EquipmentSlot, ItemStack>> items) {
-        var map = new HashMap<EquipmentSlot, ItemStack>();
-        for (var entry : items) {
-            map.put(entry.getFirst(), entry.getSecond());
-        }
-        return this.getPolymerVisibleEquipment(map);
-    }
+    EntityType<?> getPolymerEntityType(ServerPlayerEntity player);
 
     /**
      * This method is used for replacing entity's equipment on client for a player
@@ -57,7 +34,7 @@ public interface PolymerEntity extends PolymerObject {
      * @return List of Pair of EquipmentSlot and ItemStack sent to client
      */
     default List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(List<Pair<EquipmentSlot, ItemStack>> items, ServerPlayerEntity player) {
-        return this.getPolymerVisibleEquipment(items);
+        return items;
     }
 
     /**
@@ -66,17 +43,11 @@ public interface PolymerEntity extends PolymerObject {
     default void onBeforeSpawnPacket(Consumer<Packet<?>> packetConsumer) {}
 
     /**
-     * This method allows to modify DataTracker values before they are send to the client
+     * This method allows to modify raw serialized DataTracker entries before they are send to the client
      * @param data Current values
      */
-    default void modifyTrackedData(List<DataTracker.Entry<?>> data) {}
+    default void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player) {
 
-    /**
-     * This method allows to modify DataTracker values before they are send to the client
-     * @param data Current values
-     */
-    default void modifyTrackedData(List<DataTracker.Entry<?>> data, ServerPlayerEntity player) {
-        this.modifyTrackedData(data);
     }
 
     /**
@@ -122,19 +93,6 @@ public interface PolymerEntity extends PolymerObject {
      */
     default boolean sendPacketsTo(ServerPlayerEntity player) {
         return true;
-    }
-
-
-    /**
-     * Use {@link PolymerEntity#getPolymerVisibleEquipment(List)} instead
-     */
-    @Deprecated
-    default List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(Map<EquipmentSlot, ItemStack> map) {
-        List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(map.size());
-        for (Map.Entry<EquipmentSlot, ItemStack> entry : map.entrySet()) {
-            list.add(Pair.of(entry.getKey(), entry.getValue()));
-        }
-        return list;
     }
 
     /**

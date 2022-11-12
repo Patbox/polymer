@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.client.compat;
 
-import eu.pb4.polymer.api.client.registry.ClientPolymerItem;
+import eu.pb4.polymer.api.client.ClientPolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.comparison.ComparisonContext;

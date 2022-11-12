@@ -1,6 +1,6 @@
 package eu.pb4.polymer.impl.client.interfaces;
 
-import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
+import eu.pb4.polymer.api.client.ClientPolymerBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.ApiStatus;

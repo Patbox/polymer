@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(SimpleRegistry.class)
-public abstract class SimpleRegistryMixin<T> extends Registry<T> implements RegistryExtension<T> {
-    @Shadow public abstract RegistryEntry<T> add(RegistryKey<T> key, T entry, Lifecycle lifecycle);
-
+public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Registry<T> {
     @Shadow private volatile Map<TagKey<T>, RegistryEntryList.Named<T>> tagToEntryList;
+
+    @Shadow public abstract RegistryEntry.Reference<T> add(RegistryKey<T> key, T entry, Lifecycle lifecycle);
+
     @Nullable
     @Unique
     private List<T> polymer_objects = null;
@@ -35,10 +36,6 @@ public abstract class SimpleRegistryMixin<T> extends Registry<T> implements Regi
 
     @Unique
     private boolean polymer_deferRegistration = true;
-
-    protected SimpleRegistryMixin(RegistryKey<? extends Registry<T>> key, Lifecycle lifecycle) {
-        super(key, lifecycle);
-    }
 
     /*@Inject(method = "add", at = @At("HEAD"), cancellable = true)
     private <V extends T> void polymer_deferRegistration(RegistryKey<T> key, T entry, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {

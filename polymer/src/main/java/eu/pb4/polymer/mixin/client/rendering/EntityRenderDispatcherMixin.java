@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.client.rendering;
 
-import eu.pb4.polymer.api.client.PolymerKeepModel;
+import eu.pb4.polymer.api.utils.PolymerKeepModel;
 import eu.pb4.polymer.impl.client.rendering.NullEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;

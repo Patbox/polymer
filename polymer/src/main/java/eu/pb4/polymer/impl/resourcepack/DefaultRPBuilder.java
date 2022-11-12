@@ -12,7 +12,7 @@ import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -189,7 +189,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 this.models.put(cmdInfo.item(), jsonArray);
             }
 
-            this.customModelData.computeIfAbsent(Registry.ITEM.getId(cmdInfo.item()), (x) -> new ArrayList<>()).add(cmdInfo);
+            this.customModelData.computeIfAbsent(Registries.ITEM.getId(cmdInfo.item()), (x) -> new ArrayList<>()).add(cmdInfo);
 
             {
                 JsonObject jsonObject = new JsonObject();
@@ -219,7 +219,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
             return true;
         } catch (Exception e) {
-            PolymerImpl.LOGGER.error(String.format("Something went wrong while adding custom model data (%s) of %s for model %s", cmdInfo.value(), Registry.ITEM.getId(cmdInfo.item()), cmdInfo.modelPath().toString()));
+            PolymerImpl.LOGGER.error(String.format("Something went wrong while adding custom model data (%s) of %s for model %s", cmdInfo.value(), Registries.ITEM.getId(cmdInfo.item()), cmdInfo.modelPath().toString()));
             e.printStackTrace();
             return false;
         }
@@ -303,13 +303,13 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
 
                 for (Map.Entry<Item, JsonArray> entry : this.models.entrySet()) {
-                    Identifier id = Registry.ITEM.getId(entry.getKey());
+                    Identifier id = Registries.ITEM.getId(entry.getKey());
                     try {
                         JsonObject modelObject;
 
                         String baseModelPath;
                         {
-                            Identifier itemId = Registry.ITEM.getId(entry.getKey());
+                            Identifier itemId = Registries.ITEM.getId(entry.getKey());
                             baseModelPath = "assets/" + itemId.getNamespace() + "/models/item/" + itemId.getPath() + ".json";
                         }
 

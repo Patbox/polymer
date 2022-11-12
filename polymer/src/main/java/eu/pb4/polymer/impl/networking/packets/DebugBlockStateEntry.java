@@ -6,7 +6,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public record DebugBlockStateEntry(Map<String, String> states, int numId, Identi
 
         return new DebugBlockStateEntry(list,
                 Block.STATE_IDS.getRawId(state),
-                Registry.BLOCK.getId(state.getBlock())
+                Registries.BLOCK.getId(state.getBlock())
         );
     }
 

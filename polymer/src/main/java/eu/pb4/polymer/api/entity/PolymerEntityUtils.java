@@ -7,6 +7,7 @@ import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.entity.Entity;
@@ -17,11 +18,14 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.village.VillagerProfession;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
@@ -49,7 +53,7 @@ public final class PolymerEntityUtils {
         ENTITY_TYPES.addAll(Arrays.asList(types));
 
         for (var type : types) {
-            RegistrySyncUtils.setServerEntry(Registry.ENTITY_TYPE, type);
+            RegistrySyncUtils.setServerEntry(Registries.ENTITY_TYPE, type);
         }
     }
 
@@ -61,7 +65,7 @@ public final class PolymerEntityUtils {
      */
     public static void registerProfession(VillagerProfession profession, PolymerVillagerProfession mapper) {
         VILLAGER_PROFESSIONS.put(profession, mapper);
-        RegistrySyncUtils.setServerEntry(Registry.VILLAGER_PROFESSION, profession);
+        RegistrySyncUtils.setServerEntry(Registries.VILLAGER_PROFESSION, profession);
     }
 
     @Nullable
@@ -77,13 +81,20 @@ public final class PolymerEntityUtils {
     public static boolean isRegisteredEntityType(EntityType<?> type) {
         return ENTITY_TYPES.contains(type);
     }
-
+    /*
+    / **
+     * @param type EntityType
+     * @return List of default DataTracker entries for entity type
+     * /
+    public static List<DataTracker.Entry<?>> getDefaultDataTrackerEntries(EntityType<?> type) {
+        return InternalEntityHelpers.getExampleTrackedDataOfEntityType(type);
+    }*/
 
     /**
      * @param type EntityType
      * @return List of default DataTracker entries for entity type
      */
-    public static List<DataTracker.Entry<?>> getDefaultDataTrackerEntries(EntityType<?> type) {
+    public static Int2ObjectMap<DataTracker.Entry<?>> getDefaultTrackedData(EntityType<?> type) {
         return InternalEntityHelpers.getExampleTrackedDataOfEntityType(type);
     }
 

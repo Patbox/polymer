@@ -1,8 +1,6 @@
 package eu.pb4.polymer.api.block;
 
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
-import eu.pb4.polymer.api.x.BlockMapper;
-import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -18,7 +16,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -54,7 +52,7 @@ public final class PolymerBlockUtils {
         BLOCK_ENTITY_TYPES.addAll(Arrays.asList(types));
 
         for (var type : types) {
-            RegistrySyncUtils.setServerEntry(Registry.BLOCK_ENTITY_TYPE, type);
+            RegistrySyncUtils.setServerEntry(Registries.BLOCK_ENTITY_TYPE, type);
         }
     }
 
@@ -63,17 +61,17 @@ public final class PolymerBlockUtils {
      *
      * @param type BlockEntities type
      */
-    public static boolean isRegisteredBlockEntity(BlockEntityType<?> type) {
+    public static boolean isPolymerBlockEntityType(BlockEntityType<?> type) {
         return BLOCK_ENTITY_TYPES.contains(type);
     }
 
     /**
-     * This method is used internally to check if BlockState is PolymerBlock with light source not equal to it's visual block
+     * This method is used to check if BlockState should force sending of light updates to client
      *
      * @param blockState
      * @return
      */
-    public static boolean isLightSource(BlockState blockState) {
+    public static boolean forceLightUpdates(BlockState blockState) {
         if (blockState.getBlock() instanceof PolymerBlock virtualBlock) {
             if (virtualBlock.forceLightUpdates(blockState)) {
                 return true;
@@ -253,17 +251,5 @@ public final class PolymerBlockUtils {
     @FunctionalInterface
     public interface MineEventListener {
         boolean onBlockMine(ServerPlayerEntity player, BlockPos pos, BlockState state);
-    }
-
-    /**
-     * It is used mostly internally and honestly you don't really need it.
-     * Do not use this method to check if states are managed by polymer or not.
-     *
-     * Additionally, it might stop working at some point/depending on platform when
-     * offsetting becomes useless. It's implementation detail after all.
-     */
-    @Deprecated
-    public static int getBlockStateOffset() {
-        return PolymerImplUtils.getBlockStateOffset();
     }
 }

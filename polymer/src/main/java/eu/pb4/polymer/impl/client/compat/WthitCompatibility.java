@@ -1,7 +1,7 @@
 package eu.pb4.polymer.impl.client.compat;
 
+import eu.pb4.polymer.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
-import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -21,7 +21,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +58,7 @@ public class WthitCompatibility implements IWailaPlugin {
 
             if (id != null) {
                 String modName = null;
-                var regBlock = Registry.ITEM.get(id);
+                var regBlock = Registries.ITEM.get(id);
                 if (regBlock != null) {
                     modName = IModInfo.get(regBlock).getName();
                 }
@@ -180,7 +180,7 @@ public class WthitCompatibility implements IWailaPlugin {
                     var id = PolymerItemUtils.getServerIdentifier(stack);
                     if (id != null) {
                         String modName = null;
-                        var regBlock = Registry.ITEM.get(id);
+                        var regBlock = Registries.ITEM.get(id);
                         if (regBlock != null) {
                             modName = IModInfo.get(regBlock).getName();
                         }
@@ -219,7 +219,7 @@ public class WthitCompatibility implements IWailaPlugin {
                 var type = PolymerClientUtils.getEntityType(accessor.<ItemEntity>getEntity());
                 if (type != null) {
                     String modName = null;
-                    var regBlock = Registry.ENTITY_TYPE.get(type.identifier());
+                    var regBlock = Registries.ENTITY_TYPE.get(type.identifier());
                     if (regBlock != null) {
                         modName = IModInfo.get(InternalEntityHelpers.getEntity(regBlock)).getName();
                     }

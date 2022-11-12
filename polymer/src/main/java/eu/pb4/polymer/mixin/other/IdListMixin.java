@@ -7,7 +7,7 @@ import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.collection.IdList;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -58,7 +58,7 @@ public abstract class IdListMixin<T> implements PolymerIdList {
 
             if (this.polymer_hasPolymer && !(blockState.getBlock() instanceof PolymerBlock) && this.polymer_offset <= this.nextId) {
                 if (this.polymer_reorderLock) {
-                    PolymerImpl.LOGGER.warn("Someone registered BlockStates while StateList is locked! Related block: " + Registry.BLOCK.getId(blockState.getBlock()));
+                    PolymerImpl.LOGGER.warn("Someone registered BlockStates while StateList is locked! Related block: " + Registries.BLOCK.getId(blockState.getBlock()));
                 } else {
 
                     if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {

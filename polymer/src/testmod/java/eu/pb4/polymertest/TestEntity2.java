@@ -8,13 +8,13 @@ import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
@@ -28,7 +28,7 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(List<Pair<EquipmentSlot, ItemStack> > oldList) {
+    public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(List<Pair<EquipmentSlot, ItemStack> > oldList, ServerPlayerEntity player) {
         List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(2);
         list.add(Pair.of(EquipmentSlot.MAINHAND, Items.DIAMOND.getDefaultStack()));
         list.add(Pair.of(EquipmentSlot.HEAD, TestMod.TATER_BLOCK_ITEM.getDefaultStack()));
@@ -36,7 +36,7 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType() {
+    public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
         return EntityType.PLAYER;
     }
 
@@ -55,10 +55,5 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
                 ));
         packet.getEntries().add(new PlayerListS2CPacket.Entry(this.getUuid(), gameprofile, false, 0, GameMode.ADVENTURE, null, null));
         packetConsumer.accept(packet);
-    }
-
-    @Override
-    public void modifyTrackedData(List<DataTracker.Entry<?>> data) {
-
     }
 }

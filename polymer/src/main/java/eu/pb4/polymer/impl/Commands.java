@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
@@ -11,11 +12,9 @@ import eu.pb4.polymer.api.other.PolymerStat;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.api.x.BlockMapper;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.impl.ui.CreativeTabListUi;
-import eu.pb4.polymer.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.impl.ui.PotionUi;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
@@ -38,10 +37,9 @@ import net.minecraft.stat.Stats;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -239,7 +237,7 @@ public class Commands {
         var builder = new StringBuilder();
         var state = context.getSource().getWorld().getBlockState(raycast.getBlockPos());
 
-        builder.append(Registry.BLOCK.getId(state.getBlock()));
+        builder.append(Registries.BLOCK.getId(state.getBlock()));
 
         if (!state.getBlock().getStateManager().getProperties().isEmpty()) {
             builder.append("[");
@@ -286,7 +284,7 @@ public class Commands {
         int line = 0;
         MutableText text = null;
 
-        for (var statId : Registry.CUSTOM_STAT) {
+        for (var statId : Registries.CUSTOM_STAT) {
             if (statId instanceof PolymerObject) {
                 var stat = Stats.CUSTOM.getOrCreateStat(statId);
 
@@ -370,11 +368,12 @@ public class Commands {
     private static int creativeTab(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (context.getSource().getPlayer().isCreative()) {
             try {
-                var itemGroup = PolymerItemGroup.REGISTRY.get(context.getArgument("itemGroup", Identifier.class));
-                if (itemGroup != null && itemGroup.shouldSyncWithPolymerClient(context.getSource().getPlayer())) {
-                    new CreativeTabUi(context.getSource().getPlayer(), itemGroup);
+                //todo
+                //var itemGroup = PolymerItemGroup.REGISTRY.get(context.getArgument("itemGroup", Identifier.class));
+                //if (itemGroup != null && itemGroup.shouldSyncWithPolymerClient(context.getSource().getPlayer())) {
+                //    new CreativeTabUi(context.getSource().getPlayer(), itemGroup);
                     return 2;
-                }
+                //}
             } catch (Exception e) {
                 //
             }

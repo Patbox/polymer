@@ -5,6 +5,7 @@ import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.util.registry.Registry;
 
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public final class PolymerStat extends Identifier implements PolymerObject {
      */
     public static Identifier registerStat(String id, Text name, StatFormatter formatter) {
         PolymerStat identifier = new PolymerStat(id);
-        Registry.register(Registry.CUSTOM_STAT, id, identifier);
+        Registry.register(Registries.CUSTOM_STAT, id, identifier);
         Stats.CUSTOM.getOrCreateStat(identifier, formatter);
         NAMES.put(identifier, name);
         return identifier;
