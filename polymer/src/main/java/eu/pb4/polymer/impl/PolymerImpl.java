@@ -25,7 +25,6 @@ import java.util.Map;
 
 public final class PolymerImpl {
 
-
     private PolymerImpl() {
     }
 
@@ -69,6 +68,7 @@ public final class PolymerImpl {
     public static final boolean CHANGING_QOL_CLIENT;
     public static final boolean USE_UNSAFE_ITEMS_CLIENT;
     public static final boolean USE_FULL_REI_COMPAT_CLIENT = true;
+    public static final boolean LOG_ITEM_TOOLTIP_ERRORS = false;
 
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();

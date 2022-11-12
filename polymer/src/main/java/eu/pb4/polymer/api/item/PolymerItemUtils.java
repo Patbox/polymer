@@ -8,6 +8,7 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
+import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
@@ -377,6 +378,10 @@ public final class PolymerItemUtils {
                 lore.add(NbtString.of(Text.Serializer.toJson(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
             }
         } catch (Throwable e) {
+            if (PolymerImpl.LOG_ITEM_TOOLTIP_ERRORS) {
+                PolymerImpl.LOGGER.error("Failed to get tooltip of " + itemStack, e);
+            }
+
             // Fallback for mods that require client side methods for tooltips
             try {
                 MutableText name = itemStack.getName().copy();
@@ -388,6 +393,11 @@ public final class PolymerItemUtils {
             } catch (Throwable e2) {
                 // Fallback for mods that can't even handle names correctly...
                 // Do nothing and hope for the best™
+
+                if (PolymerImpl.LOG_ITEM_TOOLTIP_ERRORS) {
+                    PolymerImpl.LOGGER.error("Failed for second time. Ignoring.", e2);
+
+                }
             }
         }
         var outNbt = out.getOrCreateNbt();
