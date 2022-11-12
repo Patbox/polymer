@@ -6,11 +6,16 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -24,9 +29,11 @@ import java.util.function.Consumer;
  */
 public final class ResourcePackCreator {
     public final SimpleEvent<Consumer<PolymerRPBuilder>> creationEvent = new SimpleEvent<>();
+    public final SimpleEvent<Runnable> finishedEvent = new SimpleEvent<>();
     public final SimpleEvent<Consumer<PolymerRPBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
-    private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenHashMap<>();
-    private final Map<Item, Map<Identifier, PolymerModelData>> itemsMap = new Object2ObjectOpenHashMap<>();
+    private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+    private final Object2IntMap<Item> itemIds = new Object2IntOpenCustomHashMap<>(Util.identityHashStrategy());
+    private final Map<Item, Map<Identifier, PolymerModelData>> itemsMap = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
     private final Set<String> modIds = new HashSet<>();
     private final IntSet takenArmorColors = new IntOpenHashSet();
     private final Map<Identifier, PolymerArmorModel> armorModelMap = new HashMap<>();
@@ -34,6 +41,7 @@ public final class ResourcePackCreator {
     private int armorColor = 0;
     private Text packDescription = null;
     private byte[] packIcon = null;
+    private Set<Path> sourcePaths = new HashSet<>();
 
     public static ResourcePackCreator create() {
         return new ResourcePackCreator(0);
@@ -41,6 +49,7 @@ public final class ResourcePackCreator {
 
     protected ResourcePackCreator(int cmdOffset) {
         this.cmdOffset = cmdOffset;
+        this.itemIds.defaultReturnValue(1);
     }
 
     /**
@@ -56,13 +65,30 @@ public final class ResourcePackCreator {
         if (map.containsKey(modelPath)) {
             return map.get(modelPath);
         } else {
-            var cmdInfoList = this.items.computeIfAbsent(vanillaItem, (x) -> new ArrayList<>());
-
-            var cmdInfo = new PolymerModelData(vanillaItem, cmdInfoList.size() + this.cmdOffset, modelPath);
-            cmdInfoList.add(cmdInfo);
-            map.put(modelPath, cmdInfo);
-            return cmdInfo;
+            return this.forceDefineModel(vanillaItem, this.itemIds.getInt(vanillaItem), modelPath, true);
         }
+    }
+
+    /**
+     * This method can be used to register custom model data for items.
+     * Use this method only if you really need to preserve ids
+     *
+     * @param vanillaItem Vanilla/Client side item
+     * @param customModelData forced CMD
+     * @param modelPath   Path to model in resource pack
+     * @param respectOffset Whatever output CustomModelData should have offset added
+     * @return PolymerModelData with data about this model
+     */
+    @ApiStatus.Experimental
+    public PolymerModelData forceDefineModel(Item vanillaItem, int customModelData, Identifier modelPath, boolean respectOffset) {
+        var map = this.itemsMap.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
+
+        var cmdInfoList = this.items.computeIfAbsent(vanillaItem, (x) -> new ArrayList<>());
+        var cmdInfo = new PolymerModelData(vanillaItem, customModelData + (respectOffset ? this.cmdOffset : 0), modelPath);
+        cmdInfoList.add(cmdInfo);
+        this.itemIds.put(vanillaItem, Math.max(this.itemIds.getInt(vanillaItem), customModelData + 1));
+        map.put(modelPath, cmdInfo);
+        return cmdInfo;
     }
 
     /**
@@ -92,11 +118,20 @@ public final class ResourcePackCreator {
      */
     public boolean addAssetSource(String modId) {
         if (PolymerImpl.isModLoaded(modId)) {
-            modIds.add(modId);
+            this.modIds.add(modId);
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Adds mod with provided mod id as a source of assets
+     *
+     * @param sourcePath Path to a source
+     */
+    public boolean addAssetSource(Path sourcePath) {
+        return this.sourcePaths.add(sourcePath);
     }
 
     /**
@@ -138,7 +173,7 @@ public final class ResourcePackCreator {
     @Nullable
     @Deprecated
     public String getPackDescription() {
-        return Text.Serializer.toJson(this.packDescription);
+        return this.packDescription != null ? Text.Serializer.toJson(this.packDescription) : null;
     }
 
     @Nullable
@@ -194,11 +229,16 @@ public final class ResourcePackCreator {
         this.creationEvent.invoke((x) -> x.accept(builder));
         status.accept("action:creation_event_finish");
 
+        for (var path : this.sourcePaths) {
+            status.accept("action:copy_path_start/" + path);
+            successful = builder.copyFromPath(path) && successful;
+            status.accept("action:copy_path_end/" + path);
+        }
+
         for (String modId : this.modIds) {
             status.accept("action:copy_mod_start/" + modId);
-            successful = builder.copyModAssets(modId) && successful;
+            successful = builder.copyAssets(modId) && successful;
             status.accept("action:copy_mod_end/" + modId);
-
         }
         
         for (var cmdInfoList : this.items.values()) {
@@ -223,6 +263,7 @@ public final class ResourcePackCreator {
         successful = builder.buildResourcePack().get() && successful;
 
         status.accept("action:done");
+        this.finishedEvent.invoke(Runnable::run);
         return successful;
     }
 }

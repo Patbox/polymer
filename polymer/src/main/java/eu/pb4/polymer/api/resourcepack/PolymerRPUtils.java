@@ -32,6 +32,7 @@ public final class PolymerRPUtils {
     private static final ResourcePackCreator INSTANCE = new ResourcePackCreator(PolymerImpl.FORCE_CUSTOM_MODEL_DATA_OFFSET ? 100000 : 1);
 
     public static final SimpleEvent<Consumer<PolymerRPBuilder>> RESOURCE_PACK_CREATION_EVENT = INSTANCE.creationEvent;
+    public static final SimpleEvent<Runnable> RESOURCE_PACK_FINISHED_EVENT = INSTANCE.finishedEvent;
     private static boolean REQUIRED = PolymerImpl.FORCE_RESOURCE_PACK_SERVER;
     private static boolean DEFAULT_CHECK = true;
 
@@ -150,6 +151,10 @@ public final class PolymerRPUtils {
 
     public static PolymerRPBuilder createBuilder(Path output) {
         return new DefaultRPBuilder(output);
+    }
+
+    public static boolean build() {
+        return build(PolymerRPUtils.DEFAULT_PATH);
     }
 
     public static boolean build(Path output) {

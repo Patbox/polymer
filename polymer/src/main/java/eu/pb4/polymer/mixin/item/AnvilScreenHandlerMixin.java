@@ -8,6 +8,7 @@ import net.minecraft.screen.ForgingScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +29,7 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
     
     @Inject(method = "setNewItemName", at = @At("HEAD"), cancellable = true)
     private void polymer_ignoreIncorrectAnvilInput(String newItemName, CallbackInfo ci) {
-        if (this.player instanceof ServerPlayerEntity serverPlayer) {
+        if (this.player instanceof ServerPlayerEntity serverPlayer && !StringUtils.isBlank(newItemName)) {
             var stack = this.getSlot(0).getStack();
             if (stack.getItem() instanceof PolymerObject && !stack.hasCustomName()
                     && Objects.equals(newItemName, ServerTranslationUtils.parseFor(serverPlayer.networkHandler, stack.getName()).getString())) {

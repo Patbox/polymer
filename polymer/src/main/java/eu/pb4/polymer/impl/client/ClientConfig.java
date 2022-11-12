@@ -18,6 +18,6 @@ public class ClientConfig {
     public String _c7 = "Enables experimental support for less standard modded containers, allowing them to display polymer items";
     public boolean experimentalModdedContainerSupport = true;
 
-    public String _mod1 = "Enable (unstable/not fully working) REI compat. I suggest you to use EMI or JEI for better experience";
-    public boolean enableReiCompatibilityLayer = false;
+    //public String _mod1 = "Enable (unstable/not fully working) REI compat. I suggest you to use EMI or JEI for better experience";
+    //public boolean enableReiCompatibilityLayer = false;
 }

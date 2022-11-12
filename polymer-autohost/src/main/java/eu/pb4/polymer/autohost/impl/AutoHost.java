@@ -34,7 +34,7 @@ public class AutoHost {
 
             Util.getIoWorkerExecutor().execute(() -> {
                 server.sendMessage(Text.literal("Starting resource pack generation..."));
-                boolean success = PolymerRPUtils.build(PolymerRPUtils.DEFAULT_PATH);
+                boolean success = PolymerRPUtils.build();
 
                 server.execute(() -> {
                     if (success) {

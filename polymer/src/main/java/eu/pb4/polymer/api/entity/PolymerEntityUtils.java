@@ -2,6 +2,7 @@ package eu.pb4.polymer.api.entity;
 
 import eu.pb4.polymer.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
+import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
@@ -14,6 +15,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.village.VillagerProfession;
@@ -151,5 +153,9 @@ public final class PolymerEntityUtils {
     @Nullable
     public static Entity getEntityContext(Packet<?> packet) {
         return EntityAttachedPacket.get(packet);
+    }
+
+    public static void sendEntityType(ServerPlayerEntity player, int entityId, EntityType<?> entityType) {
+        PolymerServerProtocol.sendEntityInfo(player.networkHandler, entityId, entityType);
     }
 }

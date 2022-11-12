@@ -22,6 +22,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
 
     //private static final WorldChunk FAKE_CHUNK = new WorldChunk(PolymerUtils.getFakeWorld(), ChunkPos.ORIGIN);
     private static final ArmorStandEntity FAKE_ENTITY = new ArmorStandEntity(EntityType.ARMOR_STAND, PolymerUtils.getFakeWorld());
+    private boolean delayed;
 
     public ResourcePackNetworkHandler(Context context) {
         super(PolymerImplUtils.id("auto_host_resourcepack"), context);
@@ -42,6 +43,18 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
             this.sendPacket(new SetCameraEntityS2CPacket(FAKE_ENTITY));
             this.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, (new PacketByteBuf(Unpooled.buffer())).writeString(this.getServer().getServerModName() + "/" + "polymer_loading_pack")));
             this.sendPacket(new WorldTimeUpdateS2CPacket(0, 18000, false));
+            if (WebServer.isPackReady) {
+                this.sendPacket(new ResourcePackSendS2CPacket(WebServer.fullAddress, WebServer.hash, this.required, AutoHost.message));
+            } else {
+                this.delayed = true;
+            }
+        }
+    }
+
+    @Override
+    public void tick() {
+        if (this.delayed && WebServer.isPackReady) {
+            this.delayed = false;
             this.sendPacket(new ResourcePackSendS2CPacket(WebServer.fullAddress, WebServer.hash, this.required, AutoHost.message));
         }
     }

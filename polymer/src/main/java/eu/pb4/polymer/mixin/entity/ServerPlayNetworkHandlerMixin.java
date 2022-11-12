@@ -2,7 +2,6 @@ package eu.pb4.polymer.mixin.entity;
 
 import eu.pb4.polymer.api.entity.PolymerEntity;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
-import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketCallbacks;
@@ -17,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayNetworkHandler.class)
-public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHandlerExtension {
+public abstract class ServerPlayNetworkHandlerMixin {
     @Shadow public abstract ServerPlayerEntity getPlayer();
 
     @Shadow public ServerPlayerEntity player;

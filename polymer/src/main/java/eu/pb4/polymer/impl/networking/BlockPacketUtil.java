@@ -21,18 +21,14 @@ public class BlockPacketUtil {
         if (packet instanceof BlockUpdateS2CPacket blockUpdatePacket) {
             BlockState blockState = ((BlockUpdateS2CPacketAccessor) blockUpdatePacket).polymer_getState();
             BlockPos pos = blockUpdatePacket.getPos();
-            PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
 
             if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
-                PolymerNetworkHandlerExtension.of(handler).polymer_delayAction("BlockPacketUtil|BlockUpdate|" + pos.toShortString(), 10,
-                        () -> polymerBlock.onPolymerBlockSend(handler.player, pos.mutableCopy(), blockState));
-
-                //polymerBlock.onPolymerBlockSend(handler.player, pos.mutableCopy(), blockState);
+                PolymerNetworkHandlerExtension.of(handler).polymer_delayAfterSequence(new SendSingleBlockInfo(polymerBlock, handler, pos, blockState));
             }
         } else if (packet instanceof ChunkDataS2CPacket) {
             WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer_getWorldChunk();
             PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;
-            if (wc != null) {
+            if (wc != null && wci.polymer_hasAny()) {
                 PolymerServerProtocol.sendSectionUpdate(handler, wc);
 
                 var iterator = wci.polymer_iterator();
@@ -46,12 +42,35 @@ public class BlockPacketUtil {
             }
         } else if (packet instanceof ChunkDeltaUpdateS2CPacket) {
             ChunkDeltaUpdateS2CPacketAccessor chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
+
             ChunkSectionPos chunkPos = chunk.polymer_getSectionPos();
             BlockState[] blockStates = chunk.polymer_getBlockStates();
             short[] localPos = chunk.polymer_getPositions();
+
+            PolymerNetworkHandlerExtension.of(handler).polymer_delayAfterSequence(new SendSequanceBlockInfo(handler, chunkPos, blockStates, localPos));
+        }
+    }
+
+    public static void splitChunkDelta(ServerPlayNetworkHandler handler, ChunkDeltaUpdateS2CPacket cPacket) {
+        cPacket.visitUpdates((blockPos, blockState) -> handler.sendPacket(new BlockUpdateS2CPacket(blockPos.toImmutable(), blockState)));
+    }
+
+    private record SendSingleBlockInfo(PolymerBlock polymerBlock, ServerPlayNetworkHandler handler, BlockPos pos, BlockState blockState) implements Runnable {
+        @Override
+        public void run() {
+            PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
+            polymerBlock.onPolymerBlockSend(handler.player, pos.mutableCopy(), blockState);
+        }
+    }
+
+    private record SendSequanceBlockInfo(ServerPlayNetworkHandler handler, ChunkSectionPos chunkPos,
+                                         BlockState[] blockStates, short[] localPos) implements Runnable {
+        @Override
+        public void run() {
             PolymerServerProtocol.sendMultiBlockUpdate(handler, chunkPos, localPos, blockStates);
 
             var blockPos = new BlockPos.Mutable();
+
             for (int i = 0; i < localPos.length; i++) {
                 BlockState blockState = blockStates[i];
 
@@ -62,9 +81,5 @@ public class BlockPacketUtil {
                 }
             }
         }
-    }
-
-    public static void splitChunkDelta(ServerPlayNetworkHandler handler, ChunkDeltaUpdateS2CPacket cPacket) {
-        cPacket.visitUpdates((blockPos, blockState) -> handler.sendPacket(new BlockUpdateS2CPacket(blockPos.toImmutable(), blockState)));
     }
 }

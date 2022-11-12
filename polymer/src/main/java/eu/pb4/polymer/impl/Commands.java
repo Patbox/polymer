@@ -417,7 +417,7 @@ public class Commands {
 
             Util.getIoWorkerExecutor().execute(() -> {
                 context.getSource().sendFeedback(Text.literal("Starting resource pack generation..."), true);
-                boolean success = PolymerRPUtils.build(PolymerRPUtils.DEFAULT_PATH);
+                boolean success = PolymerRPUtils.build();
 
                 context.getSource().getServer().execute(() -> {
                     if (success) {

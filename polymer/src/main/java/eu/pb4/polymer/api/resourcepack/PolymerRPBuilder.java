@@ -8,7 +8,7 @@ import java.nio.file.Path;
 @ApiStatus.NonExtendable
 public interface PolymerRPBuilder {
     boolean addData(String path, byte[] data);
-    boolean copyModAssets(String modId);
+    boolean copyAssets(String modId);
     default boolean copyFromPath(Path path) {
         return this.copyFromPath(path, true);
     }

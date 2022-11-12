@@ -6,13 +6,10 @@
     },
     "X": {
       "item": "test:pickaxe"
-    },
-    "A": {
-      "item": "minecraft:wooden_pickaxe"
     }
   },
   "pattern": [
-    "XAX",
+    "XXX",
     " # ",
     " # "
   ],

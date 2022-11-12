@@ -5,7 +5,6 @@ import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.resource.*;
 import net.minecraft.resource.featuretoggle.FeatureSet;
@@ -28,7 +27,7 @@ public class PolymerResourcePack extends ZipResourcePack {
 
     @Nullable
     public static PolymerResourcePack setup() {
-        Path outputPath = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip");
+        Path outputPath = PolymerRPUtils.DEFAULT_PATH;
         if ((outputPath.toFile().exists() && generated) || PolymerRPUtils.build(outputPath)) {
             generated = true;
             return new PolymerResourcePack(ClientUtils.PACK_ID, outputPath.toFile());

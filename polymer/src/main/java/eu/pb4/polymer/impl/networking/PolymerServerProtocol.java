@@ -20,6 +20,8 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -304,13 +306,17 @@ public class PolymerServerProtocol {
     }
 
     public static void sendEntityInfo(ServerPlayNetworkHandler player, Entity entity) {
+        sendEntityInfo(player, entity.getId(), entity.getType());
+    }
+
+    public static void sendEntityInfo(ServerPlayNetworkHandler player, int id, EntityType<?> type) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_ENTITY);
 
         if (version == 0) {
             var buf = buf(0);
-            buf.writeVarInt(entity.getId());
-            buf.writeIdentifier(Registry.ENTITY_TYPE.getId(entity.getType()));
+            buf.writeVarInt(id);
+            buf.writeIdentifier(Registry.ENTITY_TYPE.getId(type));
             player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_ENTITY_ID, buf));
         }
     }

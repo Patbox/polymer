@@ -10,11 +10,15 @@ This library/mod includes few small utilities that can be useful for playing on 
 
 Few things it does on the client:
 
-- Added compatibility to multiple client side mods ([EMI](https://modrinth.com/mod/emi), [Just Enough Items](https://www.curseforge.com/minecraft/mc-mods/jei), [Roughly Enough Items](https://modrinth.com/mod/roughly-enough-items), [WTHIT](https://modrinth.com/mod/wthit), [Jade](https://www.curseforge.com/minecraft/mc-mods/jade), [AppleSkin](https://modrinth.com/mod/appleskin))
+- Added compatibility to multiple client side mods ([EMI](https://modrinth.com/mod/emi),
+  [Just Enough Items](https://www.curseforge.com/minecraft/mc-mods/jei),
+  [Roughly Enough Items](https://modrinth.com/mod/roughly-enough-items), [WTHIT](https://modrinth.com/mod/wthit), 
+  [Jade](https://www.curseforge.com/minecraft/mc-mods/jade), [AppleSkin](https://modrinth.com/mod/appleskin))
 - Correct information on F3 debug screen
-- Full support for Polymer item picking
+- Full support for Polymer quick block picking (middle mouse click)
 - Creative item tabs synced with server
-- Fixes for server resource pack while using [Canvas or Iris](https://github.com/IrisShaders/Iris/issues/1042)
+- Fixes (some) server resource pack features broken by [Canvas or Iris](https://github.com/IrisShaders/Iris/issues/1042)
+  (custom armor texutes)
 
 ## For server owners/mod pack makers:
 Any mod using this library shouldn't be required on the client side! However, as stated above, there
@@ -38,7 +42,12 @@ need to use regular mods on the client (for example with a modpack).
 ## Commands
 - `/polymer` - Display about
 - `/polymer creative` - Opens list of Polymer/Server-Side creative tabs (Available to anyone with creative)
-- `/polymer generate` - Generates polymer resourcepack as `<server/client directory>/polymer-resourcepack.zip`
+- `/polymer generate-pack` - Generates polymer resourcepack as `<server/client directory>/polymer-resourcepack.zip`
+- `/polymer stats` - Shows server side statistics
+- `/polymer effects` - Shows server side status effects
+- `/polymer client-item` - Displays client side nbt of held item
+- `/polymer client-item get` - Gives player client side copy of held item
+- `/polymer export-registry` - Exports registry information (debug command)
 
 ## Download
 - [Modrinth](https://modrinth.com/mod/polymer)

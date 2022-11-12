@@ -31,7 +31,7 @@ public class ReiCompatibility implements REIClientPlugin {
     };
 
     public static void registerEvents() {
-        if (PolymerImpl.USE_OLD_REI_COMPAT_CLIENT) {
+        if (PolymerImpl.USE_FULL_REI_COMPAT_CLIENT) {
             PolymerClientUtils.ON_CLEAR.register(() -> update(EntryRegistry.getInstance()));
             PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
         }
@@ -77,7 +77,7 @@ public class ReiCompatibility implements REIClientPlugin {
 
     @Override
     public void registerEntries(EntryRegistry registry) {
-        if (PolymerImpl.USE_OLD_REI_COMPAT_CLIENT) {
+        if (PolymerImpl.USE_FULL_REI_COMPAT_CLIENT) {
             update(registry);
         } else {
             try {

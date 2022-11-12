@@ -18,7 +18,7 @@ import java.util.Objects;
 public abstract class emi_EmiStackMixin {
     @Shadow public abstract ItemStack getItemStack();
 
-    @Inject(method = "isEqual(Ldev/emi/emi/api/stack/EmiStack;)Z", at = @At("TAIL"), cancellable = true, remap = false)
+    @Inject(method = "isEqual(Ldev/emi/emi/api/stack/EmiStack;)Z", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer_areEqual(EmiStack stack, CallbackInfoReturnable<Boolean> cir) {
         var id1 = PolymerItemUtils.getServerIdentifier(stack.getItemStack());
         var id2 = PolymerItemUtils.getServerIdentifier(this.getItemStack());
@@ -27,7 +27,7 @@ public abstract class emi_EmiStackMixin {
         }
     }
 
-    @Inject(method = "isEqual(Ldev/emi/emi/api/stack/EmiStack;Ldev/emi/emi/api/stack/Comparison;)Z", at = @At("TAIL"), cancellable = true, remap = false)
+    @Inject(method = "isEqual(Ldev/emi/emi/api/stack/EmiStack;Ldev/emi/emi/api/stack/Comparison;)Z", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer_areEqual2(EmiStack stack, Comparison comparison, CallbackInfoReturnable<Boolean> cir) {
         var id1 = PolymerItemUtils.getServerIdentifier(stack.getItemStack());
         var id2 = PolymerItemUtils.getServerIdentifier(this.getItemStack());

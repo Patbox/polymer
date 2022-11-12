@@ -81,4 +81,5 @@ public final class PolymerSyncUtils {
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_REBUILD_SEARCH_ID, PolymerPacketUtils.buf(0)));
         }
     }
+
 }
