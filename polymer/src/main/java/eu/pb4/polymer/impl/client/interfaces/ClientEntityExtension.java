@@ -8,6 +8,6 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public interface ClientEntityExtension {
-    void polymer_setId(Identifier id);
-    Identifier polymer_getId();
+    void polymer$setId(Identifier id);
+    Identifier polymer$getId();
 }

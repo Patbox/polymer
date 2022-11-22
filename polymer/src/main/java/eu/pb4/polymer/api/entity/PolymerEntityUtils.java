@@ -16,9 +16,9 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registries;
 import net.minecraft.village.VillagerProfession;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,14 +81,6 @@ public final class PolymerEntityUtils {
     public static boolean isRegisteredEntityType(EntityType<?> type) {
         return ENTITY_TYPES.contains(type);
     }
-    /*
-    / **
-     * @param type EntityType
-     * @return List of default DataTracker entries for entity type
-     * /
-    public static List<DataTracker.Entry<?>> getDefaultDataTrackerEntries(EntityType<?> type) {
-        return InternalEntityHelpers.getExampleTrackedDataOfEntityType(type);
-    }*/
 
     /**
      * @param type EntityType

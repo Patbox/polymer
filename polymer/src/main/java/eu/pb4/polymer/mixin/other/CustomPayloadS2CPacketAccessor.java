@@ -8,5 +8,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(CustomPayloadS2CPacket.class)
 public interface CustomPayloadS2CPacketAccessor {
     @Accessor("data")
-    PacketByteBuf polymer_getData();
+    PacketByteBuf polymer$getData();
 }

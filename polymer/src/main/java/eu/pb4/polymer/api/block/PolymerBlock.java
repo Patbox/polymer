@@ -1,6 +1,6 @@
 package eu.pb4.polymer.api.block;
 
-import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -9,7 +9,7 @@ import net.minecraft.util.math.BlockPos;
 /**
  * Interface used for creation of server side blocks
  */
-public interface PolymerBlock extends PolymerObject {
+public interface PolymerBlock extends PolymerSyncedObject<Block> {
 
     /**
      * Returns main/default block used on client
@@ -76,5 +76,10 @@ public interface PolymerBlock extends PolymerObject {
      */
     default BlockState getPolymerBreakEventBlockState(BlockState state, ServerPlayerEntity player) {
         return state;
+    }
+
+    @Override
+    default Block getPolymerReplacement(ServerPlayerEntity player) {
+        return this.getPolymerBlock(player, ((Block) this).getDefaultState());
     }
 }

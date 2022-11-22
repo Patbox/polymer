@@ -6,15 +6,18 @@ import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.*;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.UpgradeData;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.chunk.BlendingData;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +62,7 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
                             for (byte y = 0; y < 16; y++) {
                                 state = container.get(x, y, z);
                                 if (state.getBlock() instanceof PolymerBlock) {
-                                    storage.polymer_setPolymer(x, y, z);
+                                    storage.polymer$setPolymer(x, y, z);
                                 }
                             }
                         }
@@ -74,14 +77,14 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/ChunkSection;setBlockState(IIILnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER))
     private void polymer_addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         if (state.getBlock() instanceof PolymerBlock) {
-            this.polymer_setPolymer(pos.getX(), pos.getY(), pos.getZ());
+            this.polymer$setPolymer(pos.getX(), pos.getY(), pos.getZ());
         } else {
-            this.polymer_removePolymer(pos.getX(), pos.getY(), pos.getZ());
+            this.polymer$removePolymer(pos.getX(), pos.getY(), pos.getZ());
         }
     }
 
     @Override
-    public @Nullable Iterator<BlockPos.Mutable> polymer_iterator() {
+    public @Nullable Iterator<BlockPos.Mutable> polymer$iterator() {
         return new ForwardingIterator<>() {
             int current;
             Iterator<BlockPos.Mutable> currentIterator = Collections.emptyIterator();
@@ -93,8 +96,8 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
                     while (this.current < array.length) {
                         var s = array[this.current++];
                         var si = (PolymerBlockPosStorage) s;
-                        if (s != null && si.polymer_hasAny()) {
-                            this.currentIterator = si.polymer_iterator(ChunkSectionPos.from(WorldChunkMixin.this.getPos(), s.getYOffset() >> 4));
+                        if (s != null && si.polymer$hasAny()) {
+                            this.currentIterator = si.polymer$iterator(ChunkSectionPos.from(WorldChunkMixin.this.getPos(), s.getYOffset() >> 4));
                             break;
                         }
                     }
@@ -106,24 +109,24 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
     }
 
     @Override
-    public void polymer_setPolymer(int x, int y, int z) {
-        this.polymer_getSectionStorage(y).polymer_setPolymer(x, y, z);
+    public void polymer$setPolymer(int x, int y, int z) {
+        this.polymer_getSectionStorage(y).polymer$setPolymer(x, y, z);
     }
 
     @Override
-    public void polymer_removePolymer(int x, int y, int z) {
-        this.polymer_getSectionStorage(y).polymer_removePolymer(x, y, z);
+    public void polymer$removePolymer(int x, int y, int z) {
+        this.polymer_getSectionStorage(y).polymer$removePolymer(x, y, z);
     }
 
     @Override
-    public boolean polymer_getPolymer(int x, int y, int z) {
-        return this.polymer_getSectionStorage(y).polymer_getPolymer(x, y, z);
+    public boolean polymer$getPolymer(int x, int y, int z) {
+        return this.polymer_getSectionStorage(y).polymer$getPolymer(x, y, z);
     }
 
     @Override
-    public boolean polymer_hasAny() {
+    public boolean polymer$hasAny() {
         for (var s : this.getSectionArray()) {
-            if (s != null && ((PolymerBlockPosStorage) s).polymer_hasAny()) {
+            if (s != null && ((PolymerBlockPosStorage) s).polymer$hasAny()) {
                 return true;
             }
         }
@@ -131,12 +134,12 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
     }
 
     @Override
-    public @Nullable ShortSet polymer_getBackendSet() {
+    public @Nullable ShortSet polymer$getBackendSet() {
         return null;
     }
 
     @Override
-    public @Nullable Iterator<BlockPos.Mutable> polymer_iterator(ChunkSectionPos sectionPos) {
+    public @Nullable Iterator<BlockPos.Mutable> polymer$iterator(ChunkSectionPos sectionPos) {
         return null;
     }
 

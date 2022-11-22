@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(EnchantmentScreen.class)
 public class EnchantmentScreenMixin {
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/enchantment/Enchantment;byRawId(I)Lnet/minecraft/enchantment/Enchantment;"))
-    private Enchantment polymer_decodeId(int id) {
+    private Enchantment polymer$decodeId(int id) {
         return InternalClientRegistry.decodeEnchantment(id);
     }
 }

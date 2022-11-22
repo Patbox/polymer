@@ -29,7 +29,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player) {
+    public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
         data.add(new DataTracker.SerializedEntry(EntityAccessor.getNO_GRAVITY().getId(), EntityAccessor.getNO_GRAVITY().getType(), true));
     }
 

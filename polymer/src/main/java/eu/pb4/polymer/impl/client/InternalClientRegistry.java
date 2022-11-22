@@ -6,9 +6,11 @@ import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
+import eu.pb4.polymer.impl.interfaces.IndexedNetwork;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
@@ -23,7 +25,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.search.SearchManager;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
@@ -31,13 +32,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.collection.IdList;
+import net.minecraft.util.collection.IndexedIterable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registries;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
@@ -64,10 +66,10 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntry<BlockEntityType<?>>> BLOCK_ENTITY = new ImplPolymerRegistry<>("block_entity", "BE");
     public static final ImplPolymerRegistry<ClientPolymerEntry<StatusEffect>> STATUS_EFFECT = new ImplPolymerRegistry<>("status_effect", "SE");
     public static final ImplPolymerRegistry<ClientPolymerEntry<Enchantment>> ENCHANTMENT = new ImplPolymerRegistry<>("enchantment", "EN");
-    public static final HashMap<String, ItemGroup> VANILLA_ITEM_GROUPS = new HashMap<>();
+    public static final HashMap<Identifier, ItemGroup> VANILLA_ITEM_GROUPS = new HashMap<>();
     public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, ITEM_GROUPS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, ENCHANTMENT);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
-    public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId();
+    public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId(BY_VANILLA);
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
     private static final Map<ClientPolymerItem, VirtualClientItem> VIRTUAL_ITEM_CACHE = new Object2ObjectOpenHashMap<>();
     public static boolean enabled = false;
@@ -90,16 +92,8 @@ public class InternalClientRegistry {
         return (Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
-    private static Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMapId() {
-        var map = new HashMap<Identifier, ImplPolymerRegistry<?>>();
-        map.put(Registries.BLOCK.getKey().getValue(), BLOCKS);
-        map.put(Registries.ENTITY_TYPE.getKey().getValue(), ENTITY_TYPES);
-        map.put(Registries.ITEM.getKey().getValue(), ITEMS);
-        map.put(Registries.STATUS_EFFECT.getKey().getValue(), STATUS_EFFECT);
-        map.put(Registries.VILLAGER_PROFESSION.getKey().getValue(), VILLAGER_PROFESSIONS);
-        map.put(Registries.BLOCK_ENTITY_TYPE.getKey().getValue(), BLOCK_ENTITY);
-        map.put(Registries.ENCHANTMENT.getKey().getValue(), ENCHANTMENT);
-        return (Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
+    private static Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMapId(Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> byVanilla) {
+        return byVanilla.entrySet().stream().map(x -> Map.entry(x.getKey().getKey().getValue(), x.getValue())).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
     }
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
@@ -110,7 +104,7 @@ public class InternalClientRegistry {
                     true
             );
 
-            return ((ClientBlockStorageInterface) chunk).polymer_getClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ());
+            return ((ClientBlockStorageInterface) chunk).polymer$getClientBlock(pos.getX(), pos.getY(), pos.getZ());
         }
 
         return ClientPolymerBlock.NONE_STATE;
@@ -125,7 +119,7 @@ public class InternalClientRegistry {
             );
 
             if (chunk != null) {
-                ((ClientBlockStorageInterface) chunk).polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), state);
+                ((ClientBlockStorageInterface) chunk).polymer$setClientBlock(pos.getX(), pos.getY(), pos.getZ(), state);
             }
         }
     }
@@ -142,8 +136,13 @@ public class InternalClientRegistry {
         DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
-        rebuildSearch();
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
+    }
+
+    public static void updateItemGroup(ItemGroup group) {
+        if (ItemGroups.enabledFeatures != null) {
+            group.updateEntries(ItemGroups.enabledFeatures, ItemGroups.operatorEnabled);
+        }
     }
 
     @Nullable
@@ -158,6 +157,26 @@ public class InternalClientRegistry {
         }
 
         return null;
+    }
+
+    private static void setDecoders() {
+        IndexedNetwork.set(Block.STATE_IDS, InternalClientRegistry::decodeState);
+        IndexedNetwork.set(Registries.ENTITY_TYPE, InternalClientRegistry::decodeEntity);
+        IndexedNetwork.set(Registries.ENCHANTMENT, InternalClientRegistry::decodeEnchantment);
+        IndexedNetwork.set(Registries.ITEM, InternalClientRegistry::decodeItem);
+        IndexedNetwork.set(Registries.BLOCK, InternalClientRegistry::decodeBlock);
+        IndexedNetwork.set(Registries.VILLAGER_PROFESSION, InternalClientRegistry::decodeVillagerProfession);
+        IndexedNetwork.set(Registries.STATUS_EFFECT, InternalClientRegistry::decodeStatusEffect);
+        IndexedNetwork.set(Registries.BLOCK_ENTITY_TYPE, InternalClientRegistry::decodeBlockEntityType);
+    }
+
+
+    public static Object decodeRegistry(IndexedIterable instance, int i) {
+        if (instance instanceof IndexedNetwork<?> indexedNetwork) {
+            return indexedNetwork.polymer$getDecoder().apply(i);
+        }
+
+        return instance.get(i);
     }
 
     public static BlockState decodeState(int rawId) {
@@ -194,6 +213,17 @@ public class InternalClientRegistry {
         }
 
         return Registries.ITEM.get(id);
+    }
+
+    public static Block decodeBlock(int id) {
+        if (InternalClientRegistry.enabled) {
+            var item = InternalClientRegistry.BLOCKS.get(id);
+            if (item != null && item.registryEntry() != null) {
+                return item.registryEntry();
+            }
+        }
+
+        return Registries.BLOCK.get(id);
     }
 
     public static Enchantment decodeEnchantment(int id) {
@@ -302,14 +332,17 @@ public class InternalClientRegistry {
         VIRTUAL_ITEM_CACHE.clear();
 
         BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
-        ((PolymerIdList) BLOCK_STATES).polymer_clear();
+        ((PolymerIdList) BLOCK_STATES).polymer$clear();
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 
         clearTabs(i -> true);
         for (var group : ItemGroups.getGroups()) {
-            ((ClientItemGroupExtension) group).polymer_clearStacks();
-            group.reloadSearchProvider();
+            if (group.getType() == ItemGroup.Type.CATEGORY) {
+                ((ClientItemGroupExtension) group).polymer$clearStacks();
+                updateItemGroup(group);
+            }
         }
+        updateItemGroup(ItemGroups.getSearchGroup());
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
@@ -373,36 +406,21 @@ public class InternalClientRegistry {
         }
     }
 
-    public static void rebuildSearch() {
-        try {
-            var list = DefaultedList.<ItemStack>of();
-
-            var wrap = new DefaultedList<>(list, ItemStack.EMPTY) {
-                @Override
-                public boolean add(ItemStack stack) {
-                    return !PolymerItemUtils.isPolymerServerItem(stack) && super.add(stack);
-                }
-
-                @Override
-                public void add(int index, ItemStack element) {
-                    if (!PolymerItemUtils.isPolymerServerItem(element)) {
-                        super.add(index, element);
-                    }
-                }
-            };
-
-            for (var group : ItemGroups.getGroups()) {
-                wrap.addAll(group.getSearchTabStacks());
-            }
-
-            MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TOOLTIP, list);
-            MinecraftClient.getInstance().reloadSearchProvider(SearchManager.ITEM_TAG, list);
-        } catch (Throwable throwable) {
-
-        }
-    }
-
     private static boolean isPolymerItemStack(Object o) {
         return o instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null);
+    }
+
+    static {
+        setDecoders();
+    }
+
+    public static ItemGroup getVanillaItemGroup(Identifier id) {
+        for (var group : ItemGroups.getGroups()) {
+            if (PolymerImplUtils.toItemGroupId(group).equals(id)) {
+                return group;
+            }
+        }
+
+        return null;
     }
 }

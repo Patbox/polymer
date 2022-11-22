@@ -3,10 +3,10 @@ package eu.pb4.polymer.impl.networking.packets;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;

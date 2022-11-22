@@ -29,7 +29,7 @@ public abstract class DebugHudMixin {
     @Shadow @Final private MinecraftClient client;
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymer_replaceBlockString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
+    private void polymer$replaceBlockString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.enabled) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
@@ -50,7 +50,7 @@ public abstract class DebugHudMixin {
     }
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 9), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymer_replaceEntityString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
+    private void polymer$replaceEntityString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
         if (this.client.targetedEntity != null && InternalClientRegistry.enabled) {
             var type = PolymerClientUtils.getEntityType(this.client.targetedEntity);
 
@@ -63,7 +63,7 @@ public abstract class DebugHudMixin {
     }
 
     @Inject(method = "getLeftText", at = @At("RETURN"))
-    private void polymer_debugText(CallbackInfoReturnable<List<String>> cir) {
+    private void polymer$debugText(CallbackInfoReturnable<List<String>> cir) {
         if (InternalClientRegistry.enabled && PolymerImpl.DISPLAY_DEBUG_INFO_CLIENT) {
             var list = cir.getReturnValue();
 

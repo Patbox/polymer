@@ -1,6 +1,6 @@
 package eu.pb4.polymer.api.item;
 
-import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Interface used for creation of server-side items
  */
-public interface PolymerItem extends PolymerObject {
+public interface PolymerItem extends PolymerSyncedObject<Item> {
     /**
      * Returns main/default item used on client for specific player
      *
@@ -77,5 +77,10 @@ public interface PolymerItem extends PolymerObject {
      */
     default boolean showDefaultNameInItemFrames() {
         return false;
+    }
+
+    @Override
+    default Item getPolymerReplacement(ServerPlayerEntity player) {
+        return this.getPolymerItem(((Item) this).getDefaultStack(), player);
     }
 }

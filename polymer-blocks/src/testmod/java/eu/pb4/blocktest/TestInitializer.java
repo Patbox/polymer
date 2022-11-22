@@ -1,20 +1,17 @@
 package eu.pb4.blocktest;
 
-import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.ext.blocks.api.BlockModelType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 public class TestInitializer implements ModInitializer {
-    public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(new Identifier("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
+    //public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(new Identifier("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
 
     @Override
     public void onInitialize() {
@@ -31,9 +28,9 @@ public class TestInitializer implements ModInitializer {
 
     public static void register(BlockModelType type, String modelId) {
         var id = new Identifier("blocktest", modelId);
-        var block = Registry.register(Registry.BLOCK, id,
+        var block = Registry.register(Registries.BLOCK, id,
                 new TestBlock(FabricBlockSettings.copy(Blocks.DIAMOND_BLOCK), type, modelId));
 
-        Registry.register(Registry.ITEM, id, new TestItem(new Item.Settings().group(ITEM_GROUP), block, modelId));
+        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings(), block, modelId));
     }
 }

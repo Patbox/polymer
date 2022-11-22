@@ -17,66 +17,66 @@ import java.util.List;
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
     @Unique
-    private boolean polymer_requireWorldReload;
+    private boolean polymer$requireWorldReload;
 
     @Unique
-    private PolymerHandshakeHandler polymer_handshakeHandler;
+    private PolymerHandshakeHandler polymer$handshakeHandler;
     @Unique
-    private List<CustomPayloadC2SPacket> polymer_latePackets;
+    private List<CustomPayloadC2SPacket> polymer$latePackets;
     @Unique
-    private boolean polymer_forceRespawnPacket;
+    private boolean polymer$forceRespawnPacket;
 
     @Override
-    public void polymer_setWorldReload(boolean value) {
-        this.polymer_requireWorldReload = value;
+    public void polymer$setWorldReload(boolean value) {
+        this.polymer$requireWorldReload = value;
     }
 
     @Override
-    public boolean polymer_getWorldReload() {
-        return this.polymer_requireWorldReload;
+    public boolean polymer$getWorldReload() {
+        return this.polymer$requireWorldReload;
     }
 
     @Override
-    public PolymerHandshakeHandler polymer_getAndRemoveHandshakeHandler() {
-        var handler = this.polymer_handshakeHandler;
-        this.polymer_handshakeHandler = null;
+    public PolymerHandshakeHandler polymer$getAndRemoveHandshakeHandler() {
+        var handler = this.polymer$handshakeHandler;
+        this.polymer$handshakeHandler = null;
         return handler;
     }
 
     @Override
-    public PolymerHandshakeHandler polymer_getHandshakeHandler() {
-        return this.polymer_handshakeHandler;
+    public PolymerHandshakeHandler polymer$getHandshakeHandler() {
+        return this.polymer$handshakeHandler;
     }
 
     @Override
-    public void polymer_setLatePackets(List<CustomPayloadC2SPacket> packets) {
-        this.polymer_latePackets = packets;
+    public void polymer$setLatePackets(List<CustomPayloadC2SPacket> packets) {
+        this.polymer$latePackets = packets;
     }
 
     @Override
-    public List<CustomPayloadC2SPacket> polymer_getLatePackets() {
-        return this.polymer_latePackets;
+    public List<CustomPayloadC2SPacket> polymer$getLatePackets() {
+        return this.polymer$latePackets;
     }
 
     @Override
-    public void polymer_setHandshakeHandler(PolymerHandshakeHandler handler) {
-        this.polymer_handshakeHandler = handler;
+    public void polymer$setHandshakeHandler(PolymerHandshakeHandler handler) {
+        this.polymer$handshakeHandler = handler;
     }
 
     @Override
-    public void polymer_setForceRespawnPacket() {
-        this.polymer_forceRespawnPacket = true;
+    public void polymer$setForceRespawnPacket() {
+        this.polymer$forceRespawnPacket = true;
     }
 
     @Override
-    public boolean polymer_getForceRespawnPacket() {
-        return this.polymer_forceRespawnPacket;
+    public boolean polymer$getForceRespawnPacket() {
+        return this.polymer$forceRespawnPacket;
     }
 
     @Inject(method = "onScreenHandlerOpened", at = @At("HEAD"))
-    private void polymer_setPlayerContext(ScreenHandler screenHandler, CallbackInfo ci) {
+    private void polymer$setPlayerContext(ScreenHandler screenHandler, CallbackInfo ci) {
         if (screenHandler instanceof ScreenHandlerPlayerContext context) {
-            context.polymer_setPlayer((ServerPlayerEntity) (Object) this);
+            context.polymer$setPlayer((ServerPlayerEntity) (Object) this);
         }
     }
 }

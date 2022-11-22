@@ -8,8 +8,6 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public interface ClientBlockStorageInterface {
-    void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block);
-    ClientPolymerBlock.State polymer_getClientPolymerBlock(int x, int y, int z);
-
-    boolean polymer_hasClientPalette();
+    void polymer$setClientBlock(int x, int y, int z, ClientPolymerBlock.State block);
+    ClientPolymerBlock.State polymer$getClientBlock(int x, int y, int z);
 }

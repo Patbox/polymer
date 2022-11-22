@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.api.other.PolymerEnchantment;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.impl.interfaces.ScreenHandlerPlayerContext;
 import net.minecraft.screen.EnchantmentScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,19 +13,19 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(EnchantmentScreenHandler.class)
 public class EnchantmentScreenHandlerMixin implements ScreenHandlerPlayerContext {
     @Unique
-    private ServerPlayerEntity polymer_player;
+    private ServerPlayerEntity polymer$player;
 
-    @ModifyArg(method = "method_17411", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/Registry;getRawId(Ljava/lang/Object;)I"))
-    private Object polymer_replaceEnchantment(@Nullable Object value) {
-        if (value instanceof PolymerEnchantment polymerEnchantment) {
-            return polymerEnchantment.getPolymerEnchantment(this.polymer_player);
+    @ModifyArg(method = "method_17411", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getRawId(Ljava/lang/Object;)I"))
+    private Object polymer$replaceEnchantment(@Nullable Object value) {
+        if (value instanceof PolymerSyncedObject<?> polymerEnchantment) {
+            return polymerEnchantment.getPolymerReplacement(this.polymer$player);
         } else {
             return value;
         }
     }
 
     @Override
-    public void polymer_setPlayer(ServerPlayerEntity player) {
-        this.polymer_player = player;
+    public void polymer$setPlayer(ServerPlayerEntity player) {
+        this.polymer$player = player;
     }
 }

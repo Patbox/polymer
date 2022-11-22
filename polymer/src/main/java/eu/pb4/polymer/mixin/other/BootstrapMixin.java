@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Bootstrap.class)
 public class BootstrapMixin {
     @Inject(method = "setOutputStreams", at = @At("HEAD"))
-    private static void polymer_enableMapping(CallbackInfo ci) {
-        ((PolymerIdList) Block.STATE_IDS).polymer_enableLazyBlockStates();
+    private static void polymer$enableMapping(CallbackInfo ci) {
+        ((PolymerIdList) Block.STATE_IDS).polymer$enableLazyBlockStates();
     }
 }

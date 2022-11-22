@@ -6,10 +6,10 @@ import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 

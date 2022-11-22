@@ -9,6 +9,7 @@ import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ServerPlayPacketListener;
+import net.minecraft.network.listener.TickablePacketListener;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
@@ -29,7 +30,7 @@ import java.util.function.Function;
  * Use this only if you know what you are doing and you need to do sync/packets before player joins a world.
  */
 
-public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListener {
+public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener {
 
     public static void register(Function<Context, EarlyPlayNetworkHandler> constructor) {
         EarlyConnectionMagic.register(constructor);
@@ -76,12 +77,22 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         return false;
     }
 
-    public void tick() {
+    @Override
+    public final void tick() {
+        if (this.lastRespose++ == 1200) {
+            this.disconnect(Text.translatable("multiplayer.disconnect.slow_login"));
+        } else if (this.lastRespose == 20) {
+            this.sendKeepAlive();
+        }
 
+        this.onTick();
+    }
+
+    protected void onTick() {
     }
 
     protected void forceRespawnPacket() {
-        ((TempPlayerLoginAttachments) this.getPlayer()).polymer_setForceRespawnPacket();
+        ((TempPlayerLoginAttachments) this.getPlayer()).polymer$setForceRespawnPacket();
     }
 
     @Override
@@ -100,7 +111,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         this.context.connection().send(packet);
 
         if (packet instanceof GameJoinS2CPacket packet1) {
-            if (((TempPlayerLoginAttachments) this.getPlayer()).polymer_getForceRespawnPacket()) {
+            if (((TempPlayerLoginAttachments) this.getPlayer()).polymer$getForceRespawnPacket()) {
                 this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), false, packet1.lastDeathLocation()));
             }
 
@@ -115,17 +126,6 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     public final void sendKeepAlive() {
         this.sendKeepAlive(System.currentTimeMillis());
-    }
-
-    @ApiStatus.Internal
-    public final void tickInternal() {
-        if (this.lastRespose++ == 1200) {
-            this.disconnect(Text.translatable("multiplayer.disconnect.slow_login"));
-        } else if (this.lastRespose == 20) {
-            this.sendKeepAlive();
-        }
-
-        this.tick();
     }
 
     @Override

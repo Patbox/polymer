@@ -40,7 +40,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
     @Shadow @Final private List<DataTracker.SerializedEntry<?>> trackedValues;
 
     @Nullable
-    private List<DataTracker.SerializedEntry<?>> polymer_parseEntries() {
+    private List<DataTracker.SerializedEntry<?>> polymer$createEntries() {
         Entity entity = EntityAttachedPacket.get(this);
         if (entity == null || entity.getId() != this.id) {
             return this.trackedValues != null ? new ArrayList<>(this.trackedValues) : null;
@@ -50,21 +50,19 @@ public class EntityTrackerUpdateS2CPacketMixin {
         var player = PolymerUtils.getPlayer();
 
         if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player, entity)) {
+            var mod = this.trackedValues != null ? new ArrayList<>(this.trackedValues) : new ArrayList<DataTracker.SerializedEntry<?>>();
+            polymerEntity.modifyRawTrackedData(mod, player, false);
+
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
-            if (legalTrackedData != null && legalTrackedData.size() > 0) {
-                if (this.trackedValues != null) {
-                    for (var entry : this.trackedValues) {
-                        var x = legalTrackedData.get(entry.id());
-                        if (x != null && x.getData().getType() == entry.handler()) {
-                            entries.add(entry);
-                            break;
-                        }
+            if (mod.size() > 0 && legalTrackedData != null && legalTrackedData.size() > 0) {
+                for (var entry : mod) {
+                    var x = legalTrackedData.get(entry.id());
+                    if (x != null && x.getData().getType() == entry.handler()) {
+                        entries.add(entry);
                     }
                 }
             }
-            polymerEntity.modifyRawTrackedData(entries, player);
-
         } else if (this.trackedValues == null) {
             return null;
         } else {
@@ -101,15 +99,15 @@ public class EntityTrackerUpdateS2CPacketMixin {
     }
 
     @ModifyArg(method = "write(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "net/minecraft/network/packet/s2c/play/EntityTrackerUpdateS2CPacket.write(Ljava/util/List;Lnet/minecraft/network/PacketByteBuf;)V", ordinal = 0))
-    private List<DataTracker.SerializedEntry<?>> polymer_replaceWithPolymer(List<DataTracker.Entry<?>> value) {
-        return this.polymer_parseEntries();
+    private List<DataTracker.SerializedEntry<?>> polymer$changeForPacket(List<DataTracker.Entry<?>> value) {
+        return this.polymer$createEntries();
     }
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "trackedValues", at = @At("RETURN"), cancellable = true)
-    private void polymer_replaceItemsWithPolymerOnes(CallbackInfoReturnable<List<DataTracker.SerializedEntry<?>>> cir) {
+    private void polymer$patchDataClient(CallbackInfoReturnable<List<DataTracker.SerializedEntry<?>>> cir) {
         if (ClientUtils.isSingleplayer() && this.trackedValues != null) {
-            var list = this.polymer_parseEntries();
+            var list = this.polymer$createEntries();
 
             ServerPlayerEntity player = ClientUtils.getPlayer();
 

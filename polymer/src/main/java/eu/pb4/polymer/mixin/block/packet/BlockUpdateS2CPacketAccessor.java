@@ -8,5 +8,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(BlockUpdateS2CPacket.class)
 public interface BlockUpdateS2CPacketAccessor {
     @Accessor("state")
-    BlockState polymer_getState();
+    BlockState polymer$getState();
 }

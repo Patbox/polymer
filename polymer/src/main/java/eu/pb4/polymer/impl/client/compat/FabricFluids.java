@@ -10,8 +10,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registries;
 import net.minecraft.world.BlockRenderView;
 import org.jetbrains.annotations.Nullable;
 

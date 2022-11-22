@@ -11,20 +11,20 @@ import java.util.Iterator;
 @ApiStatus.Internal
 public interface PolymerBlockPosStorage {
     @Nullable
-    ShortSet polymer_getBackendSet();
+    ShortSet polymer$getBackendSet();
 
     @Nullable
-    Iterator<BlockPos.Mutable> polymer_iterator(ChunkSectionPos sectionPos);
+    Iterator<BlockPos.Mutable> polymer$iterator(ChunkSectionPos sectionPos);
 
     @Nullable
-    Iterator<BlockPos.Mutable> polymer_iterator();
+    Iterator<BlockPos.Mutable> polymer$iterator();
 
-    void polymer_setPolymer(int x, int y, int z);
-    void polymer_removePolymer(int x, int y, int z);
+    void polymer$setPolymer(int x, int y, int z);
+    void polymer$removePolymer(int x, int y, int z);
 
-    boolean polymer_getPolymer(int x, int y, int z);
+    boolean polymer$getPolymer(int x, int y, int z);
 
-    boolean polymer_hasAny();
+    boolean polymer$hasAny();
 
     static short pack(int x, int y, int z) {
         return (short) ((x & 15) << 8 | (z & 15) << 4 | (y & 15));

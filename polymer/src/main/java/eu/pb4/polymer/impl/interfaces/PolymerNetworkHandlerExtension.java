@@ -10,32 +10,32 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @SuppressWarnings({"unused"})
 public interface PolymerNetworkHandlerExtension {
-    boolean polymer_hasResourcePack();
+    boolean polymer$hasResourcePack();
 
-    void polymer_setResourcePack(boolean value);
+    void polymer$setResourcePack(boolean value);
 
-    void polymer_schedulePacket(Packet<?> packet, int duration);
+    void polymer$schedulePacket(Packet<?> packet, int duration);
 
-    boolean polymer_hasPolymer();
-    String polymer_version();
-    int polymer_protocolVersion();
+    boolean polymer$hasPolymer();
+    String polymer$version();
+    int polymer$protocolVersion();
 
-    void polymer_setVersion(String version);
+    void polymer$setVersion(String version);
 
-    long polymer_lastPacketUpdate(String identifier);
-    void polymer_savePacketTime(String identifier);
+    long polymer$lastPacketUpdate(String identifier);
+    void polymer$savePacketTime(String identifier);
 
-    int polymer_getSupportedVersion(String identifier);
-    void polymer_setSupportedVersion(String identifier, int i);
-    Object2IntMap<String> polymer_getSupportMap();
+    int polymer$getSupportedVersion(String identifier);
+    void polymer$setSupportedVersion(String identifier, int i);
+    Object2IntMap<String> polymer$getSupportMap();
 
-    boolean polymer_advancedTooltip();
-    void polymer_setAdvancedTooltip(boolean value);
+    boolean polymer$advancedTooltip();
+    void polymer$setAdvancedTooltip(boolean value);
 
-    void polymer_delayAction(String identifier, int delay, Runnable action);
+    void polymer$delayAction(String identifier, int delay, Runnable action);
 
-    BlockMapper polymer_getBlockMapper();
-    void polymer_setBlockMapper(BlockMapper mapper);
+    BlockMapper polymer$getBlockMapper();
+    void polymer$setBlockMapper(BlockMapper mapper);
 
     static PolymerNetworkHandlerExtension of(ServerPlayerEntity player) {
         return (PolymerNetworkHandlerExtension) player.networkHandler;
@@ -45,9 +45,9 @@ public interface PolymerNetworkHandlerExtension {
         return (PolymerNetworkHandlerExtension) handler;
     }
 
-    void polymer_setIgnoreNext();
+    void polymer$setIgnoreNext();
 
-    void polymer_resetSupported();
+    void polymer$resetSupported();
 
-    void polymer_delayAfterSequence(Runnable runnable);
+    void polymer$delayAfterSequence(Runnable runnable);
 }

@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 public interface PolymerEntity extends PolymerObject {
     /**
      * This method is used to determine what this entity will look like on client for specific player
-     * This should never return entity type used by other PolymerEntity!
      *
      * @return Vanilla/Modded entity type
      */
@@ -45,8 +44,9 @@ public interface PolymerEntity extends PolymerObject {
     /**
      * This method allows to modify raw serialized DataTracker entries before they are send to the client
      * @param data Current values
+     * @param initial
      */
-    default void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player) {
+    default void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
 
     }
 
@@ -99,4 +99,11 @@ public interface PolymerEntity extends PolymerObject {
      * This method is executed after tracker tick
      */
     default void onEntityTrackerTick(Set<EntityTrackingListener> listeners) {};
+
+    /**
+     * Sends real id to clients with polymer
+     */
+    default boolean canSynchronizeToPolymerClient(ServerPlayerEntity player) {
+        return true;
+    }
 }

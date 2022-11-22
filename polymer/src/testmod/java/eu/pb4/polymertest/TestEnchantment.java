@@ -1,7 +1,7 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.api.other.PolymerEnchantment;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.Entity;
@@ -10,10 +10,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.server.network.ServerPlayerEntity;
-import org.jetbrains.annotations.Nullable;
 
 
-public class TestEnchantment extends Enchantment implements PolymerEnchantment {
+public class TestEnchantment extends Enchantment implements PolymerSyncedObject<Enchantment> {
     public TestEnchantment() {
         super(Rarity.COMMON, EnchantmentTarget.WEAPON, new EquipmentSlot[] {EquipmentSlot.MAINHAND});
     }
@@ -38,7 +37,7 @@ public class TestEnchantment extends Enchantment implements PolymerEnchantment {
     }
 
     @Override
-    public @Nullable Enchantment getPolymerEnchantment(@Nullable ServerPlayerEntity player) {
+    public Enchantment getPolymerReplacement(ServerPlayerEntity player) {
         return PolymerRPUtils.hasPack(player) ? this : null;
     }
 }

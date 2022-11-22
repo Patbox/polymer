@@ -28,32 +28,32 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     }
 
     public void set(String polymerVersion, Object2IntMap<String> protocolVersions) {
-        this.polymerHandler.polymer_setVersion(polymerVersion);
+        this.polymerHandler.polymer$setVersion(polymerVersion);
         for (var entry : protocolVersions.object2IntEntrySet()) {
-            this.polymerHandler.polymer_setSupportedVersion(entry.getKey(), entry.getIntValue());
+            this.polymerHandler.polymer$setSupportedVersion(entry.getKey(), entry.getIntValue());
         }
     }
 
     public boolean isPolymer() {
-        return this.polymerHandler.polymer_hasPolymer();
+        return this.polymerHandler.polymer$hasPolymer();
     }
 
     public String getPolymerVersion() {
-        return this.polymerHandler.polymer_version();
+        return this.polymerHandler.polymer$version();
     }
 
     public int getSupportedProtocol(String identifier) {
-        return this.polymerHandler.polymer_getSupportedVersion(identifier);
+        return this.polymerHandler.polymer$getSupportedVersion(identifier);
     }
 
     @Override
     public void setLastPacketTime(String identifier) {
-        this.polymerHandler.polymer_savePacketTime(identifier);
+        this.polymerHandler.polymer$savePacketTime(identifier);
     }
 
     @Override
     public long getLastPacketTime(String identifier) {
-        return this.polymerHandler.polymer_lastPacketUpdate(identifier);
+        return this.polymerHandler.polymer$lastPacketUpdate(identifier);
 
     }
 
@@ -68,12 +68,12 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
 
     @Override
     public BlockMapper getBlockMapper() {
-        return this.polymerHandler.polymer_getBlockMapper();
+        return this.polymerHandler.polymer$getBlockMapper();
     }
 
     @Override
     public void setBlockMapper(BlockMapper mapper) {
-        this.polymerHandler.polymer_setBlockMapper(mapper);
+        this.polymerHandler.polymer$setBlockMapper(mapper);
     }
 
     public ServerPlayerEntity getPlayer() {
@@ -91,16 +91,16 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
 
     @Override
     public boolean getPackStatus() {
-        return this.polymerHandler.polymer_hasResourcePack();
+        return this.polymerHandler.polymer$hasResourcePack();
     }
 
     @Override
     public void reset() {
-        this.polymerHandler.polymer_resetSupported();
+        this.polymerHandler.polymer$resetSupported();
     }
 
     @Override
     public void setPackStatus(boolean status) {
-        this.polymerHandler.polymer_setResourcePack(status);
+        this.polymerHandler.polymer$setResourcePack(status);
     }
 }

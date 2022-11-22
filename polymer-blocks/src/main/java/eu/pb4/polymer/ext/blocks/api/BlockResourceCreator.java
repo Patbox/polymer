@@ -13,8 +13,8 @@ import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.Waterloggable;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;

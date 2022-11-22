@@ -1,12 +1,12 @@
 package eu.pb4.polymer.mixin.other;
 
-import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.tag.TagPacketSerializer;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.TagPacketSerializer;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -17,7 +17,7 @@ import java.util.Map;
 @Mixin(TagPacketSerializer.Serialized.class)
 public class TagPacketSerializerMixin {
     @ModifyArg(method = "writeBuf", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeMap(Ljava/util/Map;Lnet/minecraft/network/PacketByteBuf$PacketWriter;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
-    private Map<Identifier, IntList> polymer_skipEntries(Map<Identifier, IntList> value) {
+    private Map<Identifier, IntList> polymer$skipEntries(Map<Identifier, IntList> value) {
         var map = new HashMap<Identifier, IntList>();
         var player = PolymerUtils.getPlayer();
         for (var entry : value.entrySet()) {
@@ -27,7 +27,7 @@ public class TagPacketSerializerMixin {
                 var list = new IntArrayList(entry.getValue().size());
 
                 for (int i : entry.getValue()) {
-                    if (!PolymerObject.canSendServerEntry(reg.get(i), player)) {
+                    if (PolymerSyncedObject.canSyncRawToClient(reg.get(i), player)) {
                         list.add(i);
                     }
                 }

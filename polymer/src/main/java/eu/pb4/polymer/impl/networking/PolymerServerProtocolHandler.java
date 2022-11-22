@@ -74,9 +74,9 @@ public class PolymerServerProtocolHandler {
         if (version == 0) {
             var tooltip = buf.readBoolean();
             handler.getPlayer().getServer().execute(() -> {
-                polymerHandler.polymer_setAdvancedTooltip(tooltip);
+                polymerHandler.polymer$setAdvancedTooltip(tooltip);
 
-                if (polymerHandler.polymer_lastPacketUpdate(ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
+                if (polymerHandler.polymer$lastPacketUpdate(ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
                     PolymerServerProtocol.syncVanillaItemGroups(handler);
                     PolymerSyncUtils.synchronizeCreativeTabs(handler);
                     PolymerUtils.reloadInventory(handler.player);
@@ -87,15 +87,15 @@ public class PolymerServerProtocolHandler {
 
     private static void handleSyncRequest(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
-        var lastPacketUpdate = polymerHandler.polymer_lastPacketUpdate(ClientPackets.SYNC_REQUEST);
+        var lastPacketUpdate = polymerHandler.polymer$lastPacketUpdate(ClientPackets.SYNC_REQUEST);
 
         if (version == 0 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
             handler.getPlayer().getServer().execute(() -> {
-                polymerHandler.polymer_savePacketTime(ClientPackets.SYNC_REQUEST);
+                polymerHandler.polymer$savePacketTime(ClientPackets.SYNC_REQUEST);
                 PolymerServerProtocol.sendSyncPackets(handler, true);
 
-                if (handler.getPlayer() != null && ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_getWorldReload()) {
-                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_setWorldReload(false);
+                if (handler.getPlayer() != null && ((TempPlayerLoginAttachments) handler.getPlayer()).polymer$getWorldReload()) {
+                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymer$setWorldReload(false);
                     PolymerUtils.reloadWorld(handler.getPlayer());
                 }
             });
@@ -127,7 +127,7 @@ public class PolymerServerProtocolHandler {
                 handler.setLastPacketTime(ClientPackets.HANDSHAKE);
 
                 if (handler.getPlayer() != null) {
-                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymer_setWorldReload(handler.shouldUpdateWorld());
+                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymer$setWorldReload(handler.shouldUpdateWorld());
                 }
 
                 PolymerSyncUtils.ON_HANDSHAKE.invoke((c) -> c.accept(handler));

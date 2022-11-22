@@ -22,12 +22,12 @@ public class EntityAttachedPacketsMixin implements EntityAttachedPacket {
     private Entity polymer_entity = null;
 
     @Override
-    public Entity polymer_getEntity() {
+    public Entity polymer$getEntity() {
         return this.polymer_entity;
     }
 
     @Override
-    public Packet<?> polymer_setEntity(Entity entity) {
+    public Packet<?> polymer$setEntity(Entity entity) {
         this.polymer_entity = entity;
         return (Packet<?>) this;
     }

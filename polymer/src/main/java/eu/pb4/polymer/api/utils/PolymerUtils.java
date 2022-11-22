@@ -124,7 +124,7 @@ public final class PolymerUtils {
      * @param duration time (in ticks) waited before packet is send
      */
     public static void schedulePacket(ServerPlayNetworkHandler handler, Packet<?> packet, int duration) {
-        ((PolymerNetworkHandlerExtension) handler).polymer_schedulePacket(packet, duration);
+        ((PolymerNetworkHandlerExtension) handler).polymer$schedulePacket(packet, duration);
     }
 
     /**
@@ -159,7 +159,7 @@ public final class PolymerUtils {
                 }
             }
 
-            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer_delayAction("polymer:reload/send_chunks/0", 1, () -> nestedSend(player, 0, toSend));
+            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer$delayAction("polymer:reload/send_chunks/0", 1, () -> nestedSend(player, 0, toSend));
         });
     }
 
@@ -176,7 +176,7 @@ public final class PolymerUtils {
         }
         if (chunks.size() != 0) {
             int finalIteration = iteration + 1;
-            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer_delayAction("polymer:reload/send_chunks/" + finalIteration, 1, () -> nestedSend(player, finalIteration, chunks));
+            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer$delayAction("polymer:reload/send_chunks/" + finalIteration, 1, () -> nestedSend(player, finalIteration, chunks));
         }
     }
 
@@ -191,7 +191,7 @@ public final class PolymerUtils {
      * Returns current TooltipContext of player,
      */
     public static TooltipContext getTooltipContext(@Nullable ServerPlayerEntity player) {
-        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer_advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
+        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
     }
 
     /**
@@ -201,7 +201,7 @@ public final class PolymerUtils {
         var list = new LinkedHashSet<PolymerItemGroup>();
 
         for (var group : InternalServerRegistry.ITEM_GROUPS) {
-            if (group.shouldSyncWithPolymerClient(player)) {
+            if (group.canSendToPlayer(player)) {
                 list.add(group);
             }
         }

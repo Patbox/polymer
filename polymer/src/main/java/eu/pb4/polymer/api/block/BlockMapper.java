@@ -55,20 +55,20 @@ public interface BlockMapper {
     }
 
     static BlockMapper getFrom(@Nullable ServerPlayerEntity player) {
-        return player != null ? PolymerNetworkHandlerExtension.of(player).polymer_getBlockMapper() : BlockMapper.createDefault();
+        return player != null ? PolymerNetworkHandlerExtension.of(player).polymer$getBlockMapper() : BlockMapper.createDefault();
     }
 
     static void resetMapper(@Nullable ServerPlayerEntity player) {
         if (player != null) {
-            PolymerNetworkHandlerExtension.of(player).polymer_setBlockMapper(getDefault(player));
+            PolymerNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(player));
         }
     }
 
     static void set(ServerPlayNetworkHandler handler, BlockMapper mapper) {
-        PolymerNetworkHandlerExtension.of(handler).polymer_setBlockMapper(mapper);
+        PolymerNetworkHandlerExtension.of(handler).polymer$setBlockMapper(mapper);
     }
 
     static BlockMapper get(ServerPlayNetworkHandler handler) {
-        return PolymerNetworkHandlerExtension.of(handler).polymer_getBlockMapper();
+        return PolymerNetworkHandlerExtension.of(handler).polymer$getBlockMapper();
     }
 }

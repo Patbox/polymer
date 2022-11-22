@@ -42,29 +42,29 @@ import java.util.List;
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHandlerExtension {
     @Unique
-    private final Object2IntMap<String> polymer_protocolMap = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<String> polymer$protocolMap = new Object2IntOpenHashMap<>();
 
     @Unique
-    private final Object2ObjectMap<String, DelayedAction> polymer_delayedActions = new Object2ObjectArrayMap<>();
+    private final Object2ObjectMap<String, DelayedAction> polymer$delayedActions = new Object2ObjectArrayMap<>();
     @Unique
-    private final Object2LongMap<String> polymer_rateLimits = new Object2LongOpenHashMap<>();
+    private final Object2LongMap<String> polymer$rateLimits = new Object2LongOpenHashMap<>();
     @Shadow
     public ServerPlayerEntity player;
     @Shadow
     private int ticks;
     @Unique
-    private boolean polymer_advancedTooltip = false;
+    private boolean polymer$advancedTooltip = false;
     @Unique
-    private boolean polymer_hasResourcePack = false;
+    private boolean polymer$hasResourcePack = false;
     @Unique
-    private boolean polymer_ignoreNextStatus = false;
+    private boolean polymer$ignoreNextStatus = false;
     @Unique
-    private ArrayList<ScheduledPacket> polymer_scheduledPackets = new ArrayList<>();
+    private ArrayList<ScheduledPacket> polymer$scheduledPackets = new ArrayList<>();
     @Unique
-    private String polymer_version = "";
+    private String polymer$version = "";
     @Unique
-    private BlockMapper polymer_blockMapper;
-    private List<Runnable> polymer_afterSequence = new ArrayList<>();
+    private BlockMapper polymer$blockMapper;
+    private List<Runnable> polymer$afterSequence = new ArrayList<>();
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
@@ -75,152 +75,152 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Shadow private int sequence;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void polymer_setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
-        this.polymer_blockMapper = BlockMapper.getDefault(player);
+    private void polymer$setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+        this.polymer$blockMapper = BlockMapper.getDefault(player);
     }
 
 
     @Override
-    public BlockMapper polymer_getBlockMapper() {
-        return this.polymer_blockMapper;
+    public BlockMapper polymer$getBlockMapper() {
+        return this.polymer$blockMapper;
     }
 
     @Override
-    public void polymer_setBlockMapper(BlockMapper mapper) {
-        this.polymer_blockMapper = mapper;
+    public void polymer$setBlockMapper(BlockMapper mapper) {
+        this.polymer$blockMapper = mapper;
     }
 
     @Override
-    public boolean polymer_hasResourcePack() {
-        return this.polymer_hasResourcePack;
+    public boolean polymer$hasResourcePack() {
+        return this.polymer$hasResourcePack;
     }
 
     @Override
-    public void polymer_setResourcePack(boolean value) {
-        this.polymer_hasResourcePack = value;
+    public void polymer$setResourcePack(boolean value) {
+        this.polymer$hasResourcePack = value;
     }
 
     @Override
-    public void polymer_schedulePacket(Packet<?> packet, int duration) {
-        this.polymer_scheduledPackets.add(new ScheduledPacket(packet, this.ticks + duration));
+    public void polymer$schedulePacket(Packet<?> packet, int duration) {
+        this.polymer$scheduledPackets.add(new ScheduledPacket(packet, this.ticks + duration));
     }
 
     @Override
-    public boolean polymer_hasPolymer() {
-        return !this.polymer_version.isEmpty();
+    public boolean polymer$hasPolymer() {
+        return !this.polymer$version.isEmpty();
     }
 
     @Override
-    public String polymer_version() {
-        return this.polymer_version;
+    public String polymer$version() {
+        return this.polymer$version;
     }
 
     @Override
-    public void polymer_setVersion(String version) {
-        this.polymer_version = version;
+    public void polymer$setVersion(String version) {
+        this.polymer$version = version;
     }
 
     @Override
-    public long polymer_lastPacketUpdate(String packet) {
-        return this.polymer_rateLimits.getLong(packet);
+    public long polymer$lastPacketUpdate(String packet) {
+        return this.polymer$rateLimits.getLong(packet);
     }
 
     @Override
-    public void polymer_savePacketTime(String packet) {
-        this.polymer_rateLimits.put(packet, System.currentTimeMillis());
+    public void polymer$savePacketTime(String packet) {
+        this.polymer$rateLimits.put(packet, System.currentTimeMillis());
     }
 
     @Override
-    public void polymer_resetSupported() {
-        this.polymer_protocolMap.clear();
+    public void polymer$resetSupported() {
+        this.polymer$protocolMap.clear();
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private void polymer_sendScheduledPackets(CallbackInfo ci) {
-        if (!this.polymer_scheduledPackets.isEmpty()) {
-            var array = this.polymer_scheduledPackets;
-            this.polymer_scheduledPackets = new ArrayList<>();
+    private void polymer$sendScheduledPackets(CallbackInfo ci) {
+        if (!this.polymer$scheduledPackets.isEmpty()) {
+            var array = this.polymer$scheduledPackets;
+            this.polymer$scheduledPackets = new ArrayList<>();
 
             for (var entry : array) {
                 if (entry.time() <= this.ticks) {
                     this.sendPacket(entry.packet());
                 } else {
-                    this.polymer_scheduledPackets.add(entry);
+                    this.polymer$scheduledPackets.add(entry);
                 }
             }
         }
 
-        if (!this.polymer_delayedActions.isEmpty()) {
-            this.polymer_delayedActions.entrySet().removeIf(e -> e.getValue().tryDoing());
+        if (!this.polymer$delayedActions.isEmpty()) {
+            this.polymer$delayedActions.entrySet().removeIf(e -> e.getValue().tryDoing());
         }
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0, shift = At.Shift.AFTER))
-    private void polymer_sendSequencePackets(CallbackInfo ci) {
-        if (!this.polymer_afterSequence.isEmpty()) {
-            for (var entry : this.polymer_afterSequence) {
+    private void polymer$sendSequencePackets(CallbackInfo ci) {
+        if (!this.polymer$afterSequence.isEmpty()) {
+            for (var entry : this.polymer$afterSequence) {
                 entry.run();
             }
-            this.polymer_afterSequence.clear();
+            this.polymer$afterSequence.clear();
         }
     }
 
     @Override
-    public void polymer_delayAction(String identifier, int delay, Runnable action) {
-        this.polymer_delayedActions.put(identifier, new DelayedAction(identifier, delay, action));
+    public void polymer$delayAction(String identifier, int delay, Runnable action) {
+        this.polymer$delayedActions.put(identifier, new DelayedAction(identifier, delay, action));
     }
 
     @Override
-    public void polymer_setAdvancedTooltip(boolean value) {
-        this.polymer_advancedTooltip = value;
+    public void polymer$setAdvancedTooltip(boolean value) {
+        this.polymer$advancedTooltip = value;
     }
 
     @Override
-    public boolean polymer_advancedTooltip() {
-        return this.polymer_advancedTooltip;
+    public boolean polymer$advancedTooltip() {
+        return this.polymer$advancedTooltip;
     }
 
     @Override
-    public int polymer_getSupportedVersion(String identifier) {
-        return this.polymer_protocolMap.getOrDefault(identifier, -1);
+    public int polymer$getSupportedVersion(String identifier) {
+        return this.polymer$protocolMap.getOrDefault(identifier, -1);
     }
 
     @Override
-    public void polymer_setSupportedVersion(String identifier, int i) {
-        this.polymer_protocolMap.put(identifier, i);
+    public void polymer$setSupportedVersion(String identifier, int i) {
+        this.polymer$protocolMap.put(identifier, i);
     }
 
     @Override
-    public Object2IntMap<String> polymer_getSupportMap() {
-        return this.polymer_protocolMap;
+    public Object2IntMap<String> polymer$getSupportMap() {
+        return this.polymer$protocolMap;
     }
 
     @Inject(method = "onCustomPayload", at = @At("HEAD"))
-    private void polymer_catchPackets(CustomPayloadC2SPacket packet, CallbackInfo ci) {
+    private void polymer$catchPackets(CustomPayloadC2SPacket packet, CallbackInfo ci) {
         if (packet.getChannel().getNamespace().equals(PolymerUtils.ID)) {
             PolymerServerProtocolHandler.handle((ServerPlayNetworkHandler) (Object) this, packet.getChannel(), packet.getData());
         }
     }
 
     @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
-    private void polymer_changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
+    private void polymer$changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
         if (PolymerRPUtils.shouldCheckByDefault() && packet.getStatus() != ResourcePackStatusC2SPacket.Status.ACCEPTED) {
-            if (this.polymer_ignoreNextStatus == false) {
-                this.polymer_setResourcePack(switch (packet.getStatus()) {
+            if (this.polymer$ignoreNextStatus == false) {
+                this.polymer$setResourcePack(switch (packet.getStatus()) {
                     case SUCCESSFULLY_LOADED -> true;
                     case DECLINED, FAILED_DOWNLOAD, ACCEPTED -> false;
                 });
             }
 
-            this.polymer_ignoreNextStatus = false;
+            this.polymer$ignoreNextStatus = false;
         }
     }
 
 
     @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"))
-    private Packet<?> polymer_replacePacket(Packet<?> packet) {
+    private Packet<?> polymer$replacePacket(Packet<?> packet) {
         if (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() instanceof PolymerSoundEvent polymerSoundEvent) {
-            var soundEffect = polymerSoundEvent.getSoundEffectFor(this.player);
+            var soundEffect = polymerSoundEvent.getPolymerReplacement(this.player);
 
             if (soundEffect instanceof PolymerSoundEvent outEffect) {
                 return new PlaySoundIdS2CPacket(outEffect.getId(), soundPacket.getCategory(), new Vec3d(soundPacket.getX(), soundPacket.getY(), soundPacket.getZ()), soundPacket.getVolume(), soundPacket.getPitch(), soundPacket.getSeed());
@@ -228,7 +228,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
                 return new PlaySoundS2CPacket(soundEffect, soundPacket.getCategory(), soundPacket.getX(), soundPacket.getY(), soundPacket.getZ(), soundPacket.getVolume(), soundPacket.getPitch(), soundPacket.getSeed());
             }
         } else if (packet instanceof PlaySoundFromEntityS2CPacket soundPacket && soundPacket.getSound() instanceof PolymerSoundEvent polymerSoundEvent) {
-            var soundEffect = polymerSoundEvent.getSoundEffectFor(this.player);
+            var soundEffect = polymerSoundEvent.getPolymerReplacement(this.player);
             var entity = this.player.getWorld().getEntityById(soundPacket.getEntityId());
             if (entity != null) {
                 if (soundEffect instanceof PolymerSoundEvent outEffect) {
@@ -249,12 +249,12 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"), cancellable = true)
-    private void polymer_skipEffects(Packet<?> packet, PacketCallbacks arg, CallbackInfo ci) {
+    private void polymer$skipEffects(Packet<?> packet, PacketCallbacks arg, CallbackInfo ci) {
         if (packet instanceof DynamicPacket
                 || (
                         (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() == PolymerSoundEvent.EMPTY_SOUND)
                                 || packet instanceof StatusEffectPacketExtension packet2
-                                && ((packet2.polymer_getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerStatusEffect(this.player) == null))
+                                && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerReplacement(this.player) == null))
                 ) || !EntityAttachedPacket.shouldSend(packet, this.player)
         ) {
             ci.cancel();
@@ -267,16 +267,16 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     }
 
     @Override
-    public void polymer_delayAfterSequence(Runnable runnable) {
+    public void polymer$delayAfterSequence(Runnable runnable) {
         if (this.sequence == -1) {
             runnable.run();
         } else {
-            this.polymer_afterSequence.add(runnable);
+            this.polymer$afterSequence.add(runnable);
         }
     }
 
     @Override
-    public void polymer_setIgnoreNext() {
-        this.polymer_ignoreNextStatus = true;
+    public void polymer$setIgnoreNext() {
+        this.polymer$ignoreNextStatus = true;
     }
 }

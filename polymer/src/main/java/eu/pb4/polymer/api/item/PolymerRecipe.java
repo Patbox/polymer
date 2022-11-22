@@ -1,6 +1,6 @@
 package eu.pb4.polymer.api.item;
 
-import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.*;
 import net.minecraft.recipe.book.CookingRecipeCategory;
@@ -12,8 +12,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Interface used for creation of server-side recipes
  */
-public interface PolymerRecipe extends PolymerObject {
-
+public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
     /**
      * Returns client-side recipe used on client for specific player
      * This allows the client to still display Recipe Unlocked toast messages to the player.
@@ -28,37 +27,14 @@ public interface PolymerRecipe extends PolymerObject {
      * @see PolymerRecipe#createSmokingRecipe(Recipe) - For a Smoker Toast Icon
      * @see PolymerRecipe#createStonecuttingRecipe(Recipe) - For a Stonecutter Toast Icon
      *
-     * @param input Server-sided recipe to be converted
      * @param player Player recipe is send to
      * @return Vanilla (or other) Recipe instance, or null if the recipe is hidden from the client
      */
     @Nullable
-    default Recipe<?> getPolymerRecipe(Recipe<?> input, ServerPlayerEntity player) {
-        return this.getPolymerRecipe(input);
-    }
-
-    /**
-     * Returns client-side recipe used on client for specific player
-     * This allows the client to still display Recipe Unlocked toast messages to the player.
-     *
-     * The provided methods for generating a recipe unsure that the
-     * recipe will not appear in the incorrect recipe book screen.
-     * @see PolymerRecipe#createBlastingRecipe(Recipe) - For a Blast Furnace Toast Icon
-     * @see PolymerRecipe#createCraftingRecipe(Recipe) - For a Crafting Table Toast Icon
-     * @see PolymerRecipe#createCampfireCookingRecipe(Recipe) - For a Campfire Toast Icon
-     * @see PolymerRecipe#createSmeltingRecipe(Recipe) - For a Furnace Toast Icon
-     * @see PolymerRecipe#createSmithingRecipe(Recipe) - For a Smithing Table Toast Icon
-     * @see PolymerRecipe#createSmokingRecipe(Recipe) - For a Smoker Toast Icon
-     * @see PolymerRecipe#createStonecuttingRecipe(Recipe) - For a Stonecutter Toast Icon
-     *
-     * @param input Server-sided recipe to be converted
-     * @return Vanilla (or other) Recipe instance, or null if the recipe is hidden from the client
-     */
-    @Nullable
-    default Recipe<?> getPolymerRecipe(Recipe<?> input) {
+    @Override
+    default Recipe<?> getPolymerReplacement(ServerPlayerEntity player) {
         return null;
     }
-
 
     /**
      * Make the client display as a {@link RecipeType#BLASTING}.

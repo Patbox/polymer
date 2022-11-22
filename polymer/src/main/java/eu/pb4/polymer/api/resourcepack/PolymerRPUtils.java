@@ -96,8 +96,8 @@ public final class PolymerRPUtils {
      */
     public static boolean hasPack(@Nullable ServerPlayerEntity player) {
         return player != null && (
-                (player.networkHandler != null && (((PolymerNetworkHandlerExtension) player.networkHandler).polymer_hasResourcePack())
-                || (((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler() != null && ((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler().getPackStatus())
+                (player.networkHandler != null && (((PolymerNetworkHandlerExtension) player.networkHandler).polymer$hasResourcePack())
+                || (((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler() != null && ((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler().getPackStatus())
                 || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded())))
         );
     }
@@ -110,12 +110,12 @@ public final class PolymerRPUtils {
      */
     public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
         if (player.networkHandler != null) {
-            ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setResourcePack(status);
+            ((PolymerNetworkHandlerExtension) player.networkHandler).polymer$setResourcePack(status);
             PolymerUtils.reloadWorld(player);
         }
 
-        if (((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler() != null) {
-            ((TempPlayerLoginAttachments) player).polymer_getHandshakeHandler().setPackStatus(status);
+        if (((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler() != null) {
+            ((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler().setPackStatus(status);
         }
     }
 
@@ -146,7 +146,7 @@ public final class PolymerRPUtils {
     }
 
     public static void ignoreNextDefaultCheck(ServerPlayerEntity player) {
-        ((PolymerNetworkHandlerExtension) player.networkHandler).polymer_setIgnoreNext();
+        ((PolymerNetworkHandlerExtension) player.networkHandler).polymer$setIgnoreNext();
     }
 
     public static PolymerRPBuilder createBuilder(Path output) {

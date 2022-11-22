@@ -1,13 +1,14 @@
 package eu.pb4.polymer.api.other;
 
-import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
-public interface PolymerEnchantment extends PolymerObject {
+public interface PolymerEnchantment extends PolymerSyncedObject<Enchantment> {
     @Nullable
-    default Enchantment getPolymerEnchantment(@Nullable ServerPlayerEntity player) {
+    @Override
+    default Enchantment getPolymerReplacement(ServerPlayerEntity player) {
         return null;
     }
 }

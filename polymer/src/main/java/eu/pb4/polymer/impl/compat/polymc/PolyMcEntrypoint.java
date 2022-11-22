@@ -3,7 +3,7 @@ package eu.pb4.polymer.impl.compat.polymc;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.api.item.PolymerItem;
 import io.github.theepicblock.polymc.api.PolyRegistry;
-import net.minecraft.util.registry.Registries;
+import net.minecraft.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal

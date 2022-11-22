@@ -18,9 +18,7 @@ class FakeEntity extends Entity {
     }
 
     @Override
-    protected void initDataTracker() {
-
-    }
+    protected void initDataTracker() {}
 
     @Override
     protected void readCustomDataFromNbt(NbtCompound nbt) {

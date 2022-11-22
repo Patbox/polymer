@@ -19,35 +19,30 @@ import net.minecraft.world.chunk.WorldChunk;
 public class BlockPacketUtil {
     public static void sendFromPacket(Packet<?> packet, ServerPlayNetworkHandler handler) {
         if (packet instanceof BlockUpdateS2CPacket blockUpdatePacket) {
-            BlockState blockState = ((BlockUpdateS2CPacketAccessor) blockUpdatePacket).polymer_getState();
-            BlockPos pos = blockUpdatePacket.getPos();
-
+            BlockState blockState = ((BlockUpdateS2CPacketAccessor) blockUpdatePacket).polymer$getState();
             if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
-                PolymerNetworkHandlerExtension.of(handler).polymer_delayAfterSequence(new SendSingleBlockInfo(polymerBlock, handler, pos, blockState));
+                PolymerNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSingleBlockInfo(polymerBlock, handler, blockUpdatePacket.getPos(), blockState));
             }
         } else if (packet instanceof ChunkDataS2CPacket) {
-            WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer_getWorldChunk();
+            WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer$getWorldChunk();
             PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;
-            if (wc != null && wci.polymer_hasAny()) {
+            if (wc != null && wci.polymer$hasAny()) {
                 PolymerServerProtocol.sendSectionUpdate(handler, wc);
 
-                var iterator = wci.polymer_iterator();
+                var iterator = wci.polymer$iterator();
                 while (iterator.hasNext()) {
                     var pos = iterator.next();
-                    BlockState blockState = wc.getBlockState(pos);
+                    var blockState = wc.getBlockState(pos);
                     if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
                         polymerBlock.onPolymerBlockSend(handler.player, pos, blockState);
                     }
                 }
             }
         } else if (packet instanceof ChunkDeltaUpdateS2CPacket) {
-            ChunkDeltaUpdateS2CPacketAccessor chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
+            var chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
 
-            ChunkSectionPos chunkPos = chunk.polymer_getSectionPos();
-            BlockState[] blockStates = chunk.polymer_getBlockStates();
-            short[] localPos = chunk.polymer_getPositions();
-
-            PolymerNetworkHandlerExtension.of(handler).polymer_delayAfterSequence(new SendSequanceBlockInfo(handler, chunkPos, blockStates, localPos));
+            PolymerNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSequanceBlockInfo(handler,
+                    chunk.polymer_getSectionPos(), chunk.polymer_getBlockStates(),  chunk.polymer_getPositions()));
         }
     }
 

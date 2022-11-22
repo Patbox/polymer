@@ -88,8 +88,7 @@ public abstract class PolymerItemGroup /*extends ItemGroup*/ implements PolymerO
         return this.identifier;
     }
 
-    @Override
-    public boolean shouldSyncWithPolymerClient(ServerPlayerEntity player) {
+    public boolean canSendToPlayer(ServerPlayerEntity player) {
         return this.sync;
     }
 

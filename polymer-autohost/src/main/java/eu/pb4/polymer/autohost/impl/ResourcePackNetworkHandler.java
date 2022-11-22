@@ -52,7 +52,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     }
 
     @Override
-    public void tick() {
+    public void onTick() {
         if (this.delayed && WebServer.isPackReady) {
             this.delayed = false;
             this.sendPacket(new ResourcePackSendS2CPacket(WebServer.fullAddress, WebServer.hash, this.required, AutoHost.message));

@@ -38,17 +38,17 @@ public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
         }
     }
 
-    public WorldChunk polymer_getWorldChunk() {
+    public WorldChunk polymer$getWorldChunk() {
         return this.polymer_worldChunk;
     }
 
     @Override
-    public BlockMapper polymer_getMapper() {
+    public BlockMapper polymer$getMapper() {
         return this.polymer_usedMapper;
     }
 
     @Override
-    public boolean polymer_hasPlayerDependentBlocks() {
+    public boolean polymer$hasPlayerDependentBlocks() {
         return this.polymer_hasPlayerDependentBlocks;
     }
 }

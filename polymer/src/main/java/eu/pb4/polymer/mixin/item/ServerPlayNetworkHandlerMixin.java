@@ -12,6 +12,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -23,7 +24,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     public abstract void onPlayerInteractItem(PlayerInteractItemC2SPacket packet);
 
     @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
-    private void polymer_resendToolOnPlace(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
+    private void polymer$resendHandOnPlace(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
         if (itemStack.getItem() instanceof PolymerItem polymerItem) {
@@ -56,7 +56,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onPlayerInteractItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
-    private void polymer_resendToolOnUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
+    private void polymer$resendHandOnUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
         if (itemStack.getItem() instanceof PolymerItem polymerItem) {
@@ -70,29 +70,30 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Redirect(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0))
-    private void polymer_replaceOriginalCall(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
-    }
 
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
     private void polymer_updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
 
         if (PolymerImpl.RESEND_BLOCKS_AROUND_CLICK) {
+            var og = packet.getBlockHitResult().getBlockPos();
             var base = packet.getBlockHitResult().getBlockPos();
             for (Direction direction : Direction.values()) {
                 var pos = base.offset(direction);
-                var state = player.world.getBlockState(pos);
-                player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
-                /*if (state.hasBlockEntity()) {
-                    var be = player.getWorld().getBlockEntity(pos);
-                    if (be != null) {
-                        player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
+                if (!og.equals(pos)) {
+                    var state = player.world.getBlockState(pos);
+                    player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
+
+                    if (state.hasBlockEntity()) {
+                        var be = player.getWorld().getBlockEntity(pos);
+                        if (be != null) {
+                            player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
+                        }
                     }
-                }*/
+                }
             }
         }
 
-        ItemStack stack = this.player.getStackInHand(packet.getHand());
+        var stack = this.player.getStackInHand(packet.getHand());
 
         if (stack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, stack, this.player);
@@ -103,7 +104,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER))
-    private void polymer_storeSomeData(ClickSlotC2SPacket packet, CallbackInfo ci) {
+    private void polymer$storeArmor(ClickSlotC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler == this.player.playerScreenHandler) {
             for (ItemStack stack : this.player.getInventory().armor) {
                 armorItems.add(stack.copy());
@@ -112,7 +113,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onClickSlot", at = @At("TAIL"))
-    private void polymer_resendArmorIfNeeded(ClickSlotC2SPacket packet, CallbackInfo ci) {
+    private void polymer$updateArmor(ClickSlotC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler == this.player.playerScreenHandler && packet.getSlot() != -999) {
             int x = 0;
             for (ItemStack stack : this.player.getInventory().armor) {

@@ -8,9 +8,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 
 import static eu.pb4.polymer.impl.PolymerImplUtils.id;

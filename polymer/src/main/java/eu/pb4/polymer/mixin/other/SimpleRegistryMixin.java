@@ -5,10 +5,13 @@ import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.RegistryExtension;
-import eu.pb4.polymer.impl.other.DeferredRegistryEntry;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.registry.*;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.TagKey;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,34 +32,11 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
 
     @Nullable
     @Unique
-    private List<T> polymer_objects = null;
-
-    @Unique
-    private List<DeferredRegistryEntry<T>> polymer_deferredRegistration = new ArrayList<>();
-
-    @Unique
-    private boolean polymer_deferRegistration = true;
-
-    /*@Inject(method = "add", at = @At("HEAD"), cancellable = true)
-    private <V extends T> void polymer_deferRegistration(RegistryKey<T> key, T entry, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {
-        if (entry instanceof PolymerBlock && this.polymer_deferRegistration) {
-            this.polymer_deferredRegistration.add(new DeferredRegistryEntry<>(key, entry, lifecycle));
-            cir.setReturnValue((RegistryEntry<T>) ((Block) entry).getRegistryEntry());
-        }
-    }*/
-
-    @Inject(method = "freeze", at = @At("HEAD"))
-    private void polymer_registerDeferred(CallbackInfoReturnable<Registry<T>> cir) {
-        this.polymer_deferRegistration = false;
-        for (var obj : this.polymer_deferredRegistration) {
-            this.add(obj.registryKey(), obj.entry(), obj.lifecycle());
-        }
-        this.polymer_deferredRegistration.clear();
-    }
+    private List<T> polymer$objects = null;
 
     @Inject(method = "set", at = @At("TAIL"))
-    private <V extends T> void polymer_storeStatus(int rawId, RegistryKey<T> key, T value, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {
-        this.polymer_objects = null;
+    private <V extends T> void polymer$storeStatus(int rawId, RegistryKey<T> key, T value, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {
+        this.polymer$objects = null;
         if (PolymerObject.is(value)) {
             RegistrySyncUtils.setServerEntry(this, value);
         }
@@ -65,21 +45,21 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
     }
 
     @Override
-    public List<T> polymer_getEntries() {
-        if (this.polymer_objects == null) {
-            this.polymer_objects = new ArrayList<>();
+    public List<T> polymer$getEntries() {
+        if (this.polymer$objects == null) {
+            this.polymer$objects = new ArrayList<>();
             for (var obj : this) {
                 if (PolymerUtils.isServerOnly(obj)) {
-                    this.polymer_objects.add(obj);
+                    this.polymer$objects.add(obj);
                 }
             }
         }
 
-        return this.polymer_objects;
+        return this.polymer$objects;
     }
 
     @Override
-    public Map<TagKey<T>, RegistryEntryList.Named<T>> polymer_getTagsInternal() {
+    public Map<TagKey<T>, RegistryEntryList.Named<T>> polymer$getTagsInternal() {
         return this.tagToEntryList;
     }
 }

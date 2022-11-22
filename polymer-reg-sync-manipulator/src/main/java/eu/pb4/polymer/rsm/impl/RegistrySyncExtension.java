@@ -4,13 +4,13 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public interface RegistrySyncExtension<T> {
-    void polymerRSM_setServerEntry(T obj, boolean value);
-    boolean polymerRSM_isServerEntry(T obj);
+    void polymer_registry_sync$setServerEntry(T obj, boolean value);
+    boolean polymer_registry_sync$isServerEntry(T obj);
 
-    Status polymerRSM_getStatus();
-    void polymerRSM_setStatus(Status status);
-    boolean polymerRSM_updateStatus(Status status);
-    void polymerRSM_clearStatus();
+    Status polymer_registry_sync$getStatus();
+    void polymer_registry_sync$setStatus(Status status);
+    boolean polymer_registry_sync$updateStatus(Status status);
+    void polymer_registry_sync$clearStatus();
 
     enum Status {
         VANILLA(0),

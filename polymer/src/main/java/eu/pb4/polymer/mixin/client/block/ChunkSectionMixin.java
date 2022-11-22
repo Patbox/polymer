@@ -5,7 +5,7 @@ import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
@@ -25,7 +25,7 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Unique
     private PalettedContainer<ClientPolymerBlock.State> polymer_container;
 
-    @Inject(method = "<init>(ILnet/minecraft/util/registry/Registry;)V", at = @At("TAIL"))
+    @Inject(method = "<init>(ILnet/minecraft/registry/Registry;)V", at = @At("TAIL"))
     private void polymer_init(int chunkPos, Registry<Biome> biomeRegistry, CallbackInfo ci) {
         this.polymer_createContainers();
     }
@@ -41,17 +41,12 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     }
 
     @Override
-    public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {
+    public void polymer$setClientBlock(int x, int y, int z, ClientPolymerBlock.State block) {
         this.polymer_container.swapUnsafe(x & 15, y & 15, z & 15, block);
     }
 
     @Override
-    public ClientPolymerBlock.State polymer_getClientPolymerBlock(int x, int y, int z) {
+    public ClientPolymerBlock.State polymer$getClientBlock(int x, int y, int z) {
         return this.polymer_container.get(x & 15, y & 15, z & 15);
-    }
-
-    @Override
-    public boolean polymer_hasClientPalette() {
-        return this.polymer_container != null;
     }
 }

@@ -1,7 +1,7 @@
 package eu.pb4.polymer.api.other;
 
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
-import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * This class allows for creation of custom sound effects
  * It can be used to play custom sounds for players with resourcepack while keeping fallback for vanilla clients
  */
-public class PolymerSoundEvent extends SoundEvent implements PolymerObject {
+public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject<SoundEvent> {
     public static final SoundEvent EMPTY_SOUND = new SoundEvent(PolymerImplUtils.id("empty_sound"));
     private final SoundEvent polymerSound;
 
@@ -41,10 +41,8 @@ public class PolymerSoundEvent extends SoundEvent implements PolymerObject {
         return this.polymerSound;
     }
 
-    /**
-     * Returns sound effect used for player
-     */
-    public SoundEvent getSoundEffectFor(@Nullable ServerPlayerEntity player) {
+    @Override
+    public SoundEvent getPolymerReplacement(ServerPlayerEntity player) {
         return PolymerRPUtils.hasPack(player) ? this : this.getVanillaPolymerSound();
     }
 }

@@ -28,7 +28,7 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
     }
     
     @Inject(method = "setNewItemName", at = @At("HEAD"), cancellable = true)
-    private void polymer_ignoreIncorrectAnvilInput(String newItemName, CallbackInfo ci) {
+    private void polymer$fixAnvilInput(String newItemName, CallbackInfo ci) {
         if (this.player instanceof ServerPlayerEntity serverPlayer && !StringUtils.isBlank(newItemName)) {
             var stack = this.getSlot(0).getStack();
             if (stack.getItem() instanceof PolymerObject && !stack.hasCustomName()

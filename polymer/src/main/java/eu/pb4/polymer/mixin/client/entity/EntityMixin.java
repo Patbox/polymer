@@ -23,12 +23,12 @@ public abstract class EntityMixin implements ClientEntityExtension {
     @Unique private Identifier polymer_client_entityId = null;
 
     @Override
-    public void polymer_setId(Identifier id) {
+    public void polymer$setId(Identifier id) {
         this.polymer_client_entityId = id;
     }
 
     @Override
-    public Identifier polymer_getId() {
+    public Identifier polymer$getId() {
         return this.polymer_client_entityId;
     }
 

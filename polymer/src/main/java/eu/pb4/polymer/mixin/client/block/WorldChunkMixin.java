@@ -4,8 +4,8 @@ import eu.pb4.polymer.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -25,34 +25,29 @@ public abstract class WorldChunkMixin extends Chunk implements ClientBlockStorag
     }
 
     @Override
-    public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {
+    public void polymer$setClientBlock(int x, int y, int z, ClientPolymerBlock.State block) {
         var id = this.getSectionIndex(y);
 
         if (id >= 0 && id < this.sectionArray.length) {
             var section = this.getSection(id);
 
             if (section != null && !section.isEmpty()) {
-                ((ClientBlockStorageInterface) section).polymer_setClientPolymerBlock(x, y, z, block);
+                ((ClientBlockStorageInterface) section).polymer$setClientBlock(x, y, z, block);
             }
         }
     }
 
     @Override
-    public ClientPolymerBlock.State polymer_getClientPolymerBlock(int x, int y, int z) {
+    public ClientPolymerBlock.State polymer$getClientBlock(int x, int y, int z) {
         var id = this.getSectionIndex(y);
         if (id >= 0 && id < this.sectionArray.length) {
             var section = this.getSection(id);
 
             if (section != null && !section.isEmpty()) {
-                return ((ClientBlockStorageInterface) section).polymer_getClientPolymerBlock(x, y, z);
+                return ((ClientBlockStorageInterface) section).polymer$getClientBlock(x, y, z);
             }
         }
 
         return ClientPolymerBlock.NONE_STATE;
-    }
-
-    @Override
-    public boolean polymer_hasClientPalette() {
-        return true;
     }
 }

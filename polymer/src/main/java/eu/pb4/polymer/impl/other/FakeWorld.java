@@ -12,11 +12,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
 import net.minecraft.recipe.RecipeManager;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -24,10 +29,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.RegistryKeys;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
@@ -131,7 +132,7 @@ public final class FakeWorld extends World {
         }
 
         @Override
-        public <U extends Entity> void forEach(TypeFilter<Entity, U> filter, Consumer<U> action) {
+        public <U extends Entity> void forEach(TypeFilter<Entity, U> filter, LazyIterationConsumer<U> consumer) {
 
         }
 
@@ -141,9 +142,10 @@ public final class FakeWorld extends World {
         }
 
         @Override
-        public <U extends Entity> void forEachIntersects(TypeFilter<Entity, U> filter, Box box, Consumer<U> action) {
+        public <U extends Entity> void forEachIntersects(TypeFilter<Entity, U> filter, Box box, LazyIterationConsumer<U> consumer) {
 
         }
+
     };
     private static final QueryableTickScheduler<?> FAKE_SCHEDULER = new QueryableTickScheduler<Object>() {
         @Override
@@ -173,19 +175,19 @@ public final class FakeWorld extends World {
         try {
             worldUnsafe = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
             var accessor = (WorldAccessor) worldUnsafe;
-            accessor.polymer_setBiomeAccess(new BiomeAccess(worldUnsafe, 1l));
-            accessor.polymer_setBorder(new WorldBorder());
-            accessor.polymer_setDebugWorld(true);
-            accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
-            accessor.polymer_setProperties(new FakeWorldProperties());
-            accessor.polymer_setRegistryKey(RegistryKey.of(RegistryKeys.DIMENSION, PolymerImplUtils.id("fake_world")));
-            accessor.polymer_setDimensionKey(DimensionTypes.OVERWORLD);
-            accessor.polymer_setDimensionEntry(null);
-            accessor.polymer_setThread(Thread.currentThread());
-            accessor.polymer_setRandom(Random.create());
-            accessor.polymer_setAsyncRandom(Random.createThreadSafe());
-            accessor.polymer_setBlockEntityTickers(new ArrayList<>());
-            accessor.polymer_setPendingBlockEntityTickers(new ArrayList<>());
+            accessor.polymer$setBiomeAccess(new BiomeAccess(worldUnsafe, 1l));
+            accessor.polymer$setBorder(new WorldBorder());
+            accessor.polymer$setDebugWorld(true);
+            accessor.polymer$setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
+            accessor.polymer$setProperties(new FakeWorldProperties());
+            accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, PolymerImplUtils.id("fake_world")));
+            accessor.polymer$setDimensionKey(DimensionTypes.OVERWORLD);
+            accessor.polymer$setDimensionEntry(null);
+            accessor.polymer$setThread(Thread.currentThread());
+            accessor.polymer$setRandom(Random.create());
+            accessor.polymer$setAsyncRandom(Random.createThreadSafe());
+            accessor.polymer$setBlockEntityTickers(new ArrayList<>());
+            accessor.polymer$setPendingBlockEntityTickers(new ArrayList<>());
 
         } catch (Throwable e) {
             PolymerImpl.LOGGER.error("Creating fake world with unsafe failed...", e);
@@ -195,7 +197,7 @@ public final class FakeWorld extends World {
         try {
             worldDefault = new FakeWorld(
                     new FakeWorldProperties(),
-                    RegistryKey.of(RegistryKeys.DIMENSION, PolymerImplUtils.id("fake_world")),
+                    RegistryKey.of(RegistryKeys.WORLD, PolymerImplUtils.id("fake_world")),
                     null,//BuiltinRegistries.DIMENSION_TYPE.entryOf(DimensionTypes.OVERWORLD),
                     () -> new ProfilerSystem(() -> 0l, () -> 0, false),
                     false,

@@ -26,6 +26,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.nbt.visitor.NbtTextFormatter;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.LecternScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
@@ -39,7 +40,6 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -198,7 +198,7 @@ public class Commands {
                     .then(literal("protocol-info")
                             .executes((ctx) -> {
                                 ctx.getSource().sendFeedback(Text.literal("Protocol supported by your client:"), false);
-                                for (var entry : PolymerNetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer_getSupportMap().object2IntEntrySet()) {
+                                for (var entry : PolymerNetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer$getSupportMap().object2IntEntrySet()) {
                                     ctx.getSource().sendFeedback(Text.literal("- " + entry.getKey() + " = " + entry.getIntValue()), false);
                                 }
                                 return 0;
@@ -231,7 +231,7 @@ public class Commands {
         dispatcher.register(command);
     }
 
-    private static int targetBlock(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int targetBlock(CommandContext<ServerCommandSource> context)  {
         var raycast = (BlockHitResult) context.getSource().getPlayer().raycast(10, 0, true);
 
         var builder = new StringBuilder();

@@ -5,20 +5,20 @@ import eu.pb4.polymer.impl.interfaces.RegistryExtension;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public record PolymerTagEntry(Identifier registry, List<TagData> tags) implements BufferWritable {
     public static PolymerTagEntry of(Registry<Object> registry, ServerPlayNetworkHandler handler, int version) {
-        if (registry instanceof RegistryExtension && !((RegistryExtension<Object>) registry).polymer_getEntries().isEmpty()) {
+        if (registry instanceof RegistryExtension && !((RegistryExtension<Object>) registry).polymer$getEntries().isEmpty()) {
             var registryExtension = (RegistryExtension<Object>) registry;
 
             var out = new ArrayList<TagData>();
-            for (var entry : registryExtension.polymer_getTagsInternal().values()){
+            for (var entry : registryExtension.polymer$getTagsInternal().values()){
                 var ids = new IntArrayList();
 
                 for (var obj : entry) {

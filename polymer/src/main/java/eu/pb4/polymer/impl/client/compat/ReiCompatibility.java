@@ -1,20 +1,15 @@
 package eu.pb4.polymer.impl.client.compat;
 
-import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.comparison.EntryComparator;
 import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
 import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 
-import java.util.Collection;
 import java.util.function.Predicate;
 
 public class ReiCompatibility implements REIClientPlugin {
@@ -30,42 +25,21 @@ public class ReiCompatibility implements REIClientPlugin {
         return 0;
     };
 
-    public static void registerEvents() {
-        if (PolymerImpl.USE_FULL_REI_COMPAT_CLIENT) {
-            PolymerClientUtils.ON_CLEAR.register(() -> update(EntryRegistry.getInstance()));
-            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> update(EntryRegistry.getInstance()));
-        }
+    static {
+        CompatUtils.registerReload(() -> update(EntryRegistry.getInstance()));
     }
 
     private static void update(EntryRegistry registry) {
         try {
             registry.removeEntryIf(SHOULD_REMOVE);
-
-            for (var group : ItemGroups.getGroups()) {
-                if (group.getType() != ItemGroup.Type.CATEGORY) {
-                    continue;
-                }
-
-                Collection<ItemStack> stacks;
-
-                //todo
-                /*if (group instanceof InternalClientItemGroup clientItemGroup) {
-                    stacks = clientItemGroup.getStacks();
-                } else {*/
-                    stacks = ((ClientItemGroupExtension) group).polymer_getStacks();
-                //}
-
-                if (stacks != null) {
-                    for (var stack : stacks) {
-                        registry.addEntry(EntryStack.of(VanillaEntryTypes.ITEM, stack));
-                    }
-                }
-            }
+            CompatUtils.iterateItems(stack -> registry.addEntry(EntryStack.of(VanillaEntryTypes.ITEM, stack)));
 
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
+
+    public static void registerEvents() {}
 
     @Override
     public void registerItemComparators(ItemComparatorRegistry registry) {

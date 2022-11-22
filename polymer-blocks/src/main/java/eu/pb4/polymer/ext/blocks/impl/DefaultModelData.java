@@ -3,9 +3,9 @@ package eu.pb4.polymer.ext.blocks.impl;
 import eu.pb4.polymer.ext.blocks.api.BlockModelType;
 import eu.pb4.polymer.ext.blocks.api.PolymerBlockModel;
 import net.minecraft.block.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 
 import java.util.ArrayList;
 import java.util.HashMap;

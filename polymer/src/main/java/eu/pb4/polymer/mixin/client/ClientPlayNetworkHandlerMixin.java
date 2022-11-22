@@ -44,7 +44,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
     @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
     private void polymer_catchPackets(CustomPayloadS2CPacket packet, CallbackInfo ci) {
         if (packet.getChannel().getNamespace().equals(PolymerUtils.ID)) {
-            var buf = ((CustomPayloadS2CPacketAccessor) packet).polymer_getData();
+            var buf = ((CustomPayloadS2CPacketAccessor) packet).polymer$getData();
             PolymerClientProtocolHandler.handle((ClientPlayNetworkHandler) (Object) this, packet.getChannel(), buf);
             buf.release();
             ci.cancel();

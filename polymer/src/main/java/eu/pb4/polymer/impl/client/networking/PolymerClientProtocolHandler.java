@@ -22,15 +22,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registries;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.RegistryKeys;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -234,17 +235,23 @@ public class PolymerClientProtocolHandler {
 
     private static boolean handleItemGroupVanillaSync(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version == 1) {
-            var id = buf.readString();
-            ItemGroup group = InternalClientRegistry.VANILLA_ITEM_GROUPS.get(id);
+            var id = buf.readIdentifier();
+            ItemGroup group = InternalClientRegistry.getVanillaItemGroup(id);
 
             if (group != null) {
                 var groupAccess = (ClientItemGroupExtension) group;
-                groupAccess.polymer_clearStacks();
+                groupAccess.polymer$clearStacks();
 
                 var size = buf.readVarInt();
 
                 for (int i = 0; i < size; i++) {
-                    groupAccess.polymer_addStack(PolymerImplUtils.readStack(buf));
+                    groupAccess.polymer$addStackGroup(PolymerImplUtils.readStack(buf));
+                }
+
+                size = buf.readVarInt();
+
+                for (int i = 0; i < size; i++) {
+                    groupAccess.polymer$addStackSearch(PolymerImplUtils.readStack(buf));
                 }
 
                 group.reloadSearchProvider();
@@ -261,7 +268,7 @@ public class PolymerClientProtocolHandler {
             MinecraftClient.getInstance().execute(() -> {
                 var entity = handler.getWorld().getEntityById(id);
                 if (entity != null) {
-                    ((ClientEntityExtension) entity).polymer_setId(polymerId);
+                    ((ClientEntityExtension) entity).polymer$setId(polymerId);
                 }
             });
             return true;
@@ -283,7 +290,7 @@ public class PolymerClientProtocolHandler {
                     );
 
                     if (chunk != null) {
-                        ((ClientBlockStorageInterface) chunk).polymer_setClientPolymerBlock(pos.getX(), pos.getY(), pos.getZ(), block);
+                        ((ClientBlockStorageInterface) chunk).polymer$setClientBlock(pos.getX(), pos.getY(), pos.getZ(), block);
                         PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
 
                         if (block.blockState() != null && PolymerClientDecoded.checkDecode(block.blockState().getBlock())) {
@@ -331,7 +338,7 @@ public class PolymerClientProtocolHandler {
                                 var z = ChunkSectionPos.unpackLocalZ(pos);
                                 mutableBlockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z);
                                 PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(mutableBlockPos, block));
-                                storage.polymer_setClientPolymerBlock(x, y, z, block);
+                                storage.polymer$setClientBlock(x, y, z, block);
 
                                 if (block.blockState() != null && PolymerClientDecoded.checkDecode(block.blockState().getBlock())) {
                                     section.setBlockState(x, y, z, block.blockState());
@@ -350,7 +357,12 @@ public class PolymerClientProtocolHandler {
     private static boolean handleSearchRebuild(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version == 0) {
             MinecraftClient.getInstance().execute(() -> {
-                InternalClientRegistry.rebuildSearch();
+                for (var group : ItemGroups.getGroups()) {
+                    if (group.getType() == ItemGroup.Type.CATEGORY) {
+                        InternalClientRegistry.updateItemGroup(group);
+                    }
+                }
+                InternalClientRegistry.updateItemGroup(ItemGroups.getSearchGroup());
 
                 PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
             });
@@ -386,7 +398,7 @@ public class PolymerClientProtocolHandler {
                 }
 
 
-                var group = new InternalClientItemGroup(array.length, id, name, icon, stacks);
+                var group = new InternalClientItemGroup(array.length, id, name, icon, stacksMain);
                 newArray[array.length] = group;
                 ItemGroupsAccessor.setGROUPS(newArray);
 

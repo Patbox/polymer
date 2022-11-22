@@ -1,7 +1,7 @@
 package eu.pb4.polymer.rsm.impl;
 
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.SimpleRegistry;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

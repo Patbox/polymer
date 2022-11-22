@@ -107,7 +107,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
                                 }
                             }
 
-                            var iterator = ((PolymerBlockPosStorage) chunk).polymer_iterator();
+                            var iterator = ((PolymerBlockPosStorage) chunk).polymer$iterator();
                             while (iterator.hasNext()){
                                 var blockPos = iterator.next();
                                 if (blockPos.getY() < tooLow || blockPos.getY() > tooHigh) {
@@ -136,12 +136,12 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
     }
 
     @Override
-    public void polymer_setSection(ChunkSectionPos pos, boolean hasPolymer) {
+    public void polymer$setSection(ChunkSectionPos pos, boolean hasPolymer) {
         this.polymer_hadPolymerSource.put(pos, hasPolymer);
     }
 
     @Override
-    public void polymer_removeSection(ChunkSectionPos pos) {
+    public void polymer$removeSection(ChunkSectionPos pos) {
         this.polymer_hadPolymerSource.removeBoolean(pos);
     }
 }

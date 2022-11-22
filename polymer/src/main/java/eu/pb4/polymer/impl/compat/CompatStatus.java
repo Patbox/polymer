@@ -7,7 +7,6 @@ import org.jetbrains.annotations.ApiStatus;
 public final class CompatStatus {
     private static final FabricLoader LOADER = FabricLoader.getInstance();
 
-    public static final boolean POLYMER_LEGACY = LOADER.isModLoaded("polymer-legacy");
     public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
 
     public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");

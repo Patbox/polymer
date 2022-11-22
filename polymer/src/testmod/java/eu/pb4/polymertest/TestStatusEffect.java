@@ -6,6 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class TestStatusEffect extends StatusEffect implements PolymerStatusEffect {
     protected TestStatusEffect() {
@@ -25,7 +26,7 @@ public class TestStatusEffect extends StatusEffect implements PolymerStatusEffec
     }
 
     @Override
-    public StatusEffect getPolymerStatusEffect() {
+    public StatusEffect getPolymerReplacement(ServerPlayerEntity player) {
         return StatusEffects.CONDUIT_POWER;
     }
 }

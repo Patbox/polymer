@@ -1,7 +1,7 @@
 package eu.pb4.polymer.impl.compat;
 
 import net.minecraft.network.Packet;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 

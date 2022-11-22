@@ -11,8 +11,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,8 +21,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -85,34 +86,19 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
             if (Files.isDirectory(basePath)) {
                 Path finalBasePath = basePath;
-                Files.walkFileTree(basePath, new FileVisitor<>() {
-                    @Override
-                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        var relative = finalBasePath.relativize(file);
-                        var path = relative.toString().replace("\\", "/");
-                        if (override || !fileMap.containsKey(path)) {
-                            var bytes = Files.readAllBytes(file);
-
-                            fileMap.put(path, bytes);
+                Files.walk(basePath).forEach((file) -> {
+                    var relative = finalBasePath.relativize(file);
+                    var path = relative.toString().replace("\\", "/");
+                    if ((override || !fileMap.containsKey(path)) && Files.isRegularFile(file)) {
+                        try {
+                            fileMap.put(path, Files.readAllBytes(file));
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                        return FileVisitResult.CONTINUE;
-                    }
 
-                    @Override
-                    public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                        return FileVisitResult.CONTINUE;
                     }
                 });
+
                 return true;
             } else if (Files.isRegularFile(basePath)) {
                 try (var fs = FileSystems.newFileSystem(basePath, Collections.emptyMap())) {
@@ -137,31 +123,15 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             try {
                 for (var rootPaths : container.getRootPaths()) {
                     Path assets = rootPaths.resolve("assets");
-                    Files.walkFileTree(assets, new FileVisitor<>() {
-                        @Override
-                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                            return FileVisitResult.CONTINUE;
-                        }
-
-                        @Override
-                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                            var relative = assets.relativize(file);
-
-                            var bytes = Files.readAllBytes(file);
-
-                            fileMap.put("assets/" + relative.toString().replace("\\", "/"), bytes);
-
-                            return FileVisitResult.CONTINUE;
-                        }
-
-                        @Override
-                        public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                            return FileVisitResult.CONTINUE;
-                        }
-
-                        @Override
-                        public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                            return FileVisitResult.CONTINUE;
+                    Files.walk(assets).forEach((file) -> {
+                        var relative = assets.relativize(file);
+                        var path = relative.toString().replace("\\", "/");
+                        if (Files.isRegularFile(file)) {
+                            try {
+                                fileMap.put(path, Files.readAllBytes(file));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
                 }

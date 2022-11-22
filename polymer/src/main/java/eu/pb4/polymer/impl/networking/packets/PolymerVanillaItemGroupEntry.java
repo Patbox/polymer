@@ -7,30 +7,46 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> stacks) implements BufferWritable {
+public record PolymerVanillaItemGroupEntry(Identifier identifier, List<ItemStack> stacksMain, List<ItemStack> stacksSearch) implements BufferWritable {
     public static PolymerVanillaItemGroupEntry of(ItemGroup group, ServerPlayNetworkHandler handler) {
-        var stacks = new ArrayList<ItemStack>();
+        var stacksMain = new ArrayList<ItemStack>();
+        var stacksSearch = new ArrayList<ItemStack>();
 
         for (var item : group.getDisplayStacks()) {
             if (PolymerItemUtils.isPolymerServerItem(item)) {
-                stacks.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
+                stacksMain.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
             }
         }
 
-        return new PolymerVanillaItemGroupEntry("vanilla_" + group.getType().name().toLowerCase(Locale.ROOT) + "_" + group.getRow() + "_" + group.getColumn(), stacks);
+        for (var item : group.getSearchTabStacks()) {
+            if (PolymerItemUtils.isPolymerServerItem(item)) {
+                stacksSearch.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
+            }
+        }
+
+        return new PolymerVanillaItemGroupEntry(PolymerImplUtils.toItemGroupId(group), stacksMain, stacksSearch);
     }
 
     @Override
     public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
-        buf.writeString(identifier);
-        buf.writeVarInt(stacks.size());
-        for (var item : stacks) {
+        buf.writeIdentifier(identifier);
+        buf.writeVarInt(stacksMain.size());
+        for (var item : stacksMain) {
             PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, item));
         }
+
+        buf.writeVarInt(stacksSearch.size());
+        for (var item : stacksSearch) {
+            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, item));
+        }
+    }
+
+    public boolean isNonEmpty() {
+        return !this.stacksMain.isEmpty() || !this.stacksSearch.isEmpty();
     }
 }

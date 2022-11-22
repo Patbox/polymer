@@ -7,8 +7,8 @@ import io.github.theepicblock.polymc.api.resource.ModdedResources;
 import io.github.theepicblock.polymc.api.resource.PolyMcResourcePack;
 import io.github.theepicblock.polymc.api.resource.json.JBlockStateVariant;
 import io.github.theepicblock.polymc.impl.misc.logging.SimpleLogger;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 
 public class PolyMcResourceEntrypoint implements PolyMcEntrypoint {
     @Override

@@ -65,6 +65,6 @@ public final class PolymerPacketUtils {
             packetName = PolymerImplUtils.id("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
             MAP_S2C.put(identifier, packetName);
         }
-        return ((PolymerNetworkHandlerExtension) handler).polymer_getSupportedVersion(packetName.getPath());
+        return ((PolymerNetworkHandlerExtension) handler).polymer$getSupportedVersion(packetName.getPath());
     }
 }

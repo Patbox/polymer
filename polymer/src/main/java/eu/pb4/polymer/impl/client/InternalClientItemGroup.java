@@ -34,7 +34,7 @@ public class InternalClientItemGroup /*extends ItemGroup*/ implements PolymerObj
 
     //@Override
     //protected void addItems(FeatureSet enabledFeatures, Entries entries) {
-   //     entries.addAll(this.stacks);
+   //     entries.addAll(this.stacksMain);
     //}
 
     //@Override

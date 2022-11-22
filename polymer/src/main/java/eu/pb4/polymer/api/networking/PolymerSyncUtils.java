@@ -77,7 +77,7 @@ public final class PolymerSyncUtils {
      * Rebuild creative search index
      */
     public static void rebuildCreativeSearch(ServerPlayNetworkHandler handler) {
-        if (PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(ServerPackets.SYNC_REBUILD_SEARCH) == 0) {
+        if (PolymerNetworkHandlerExtension.of(handler).polymer$getSupportedVersion(ServerPackets.SYNC_REBUILD_SEARCH) == 0) {
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_REBUILD_SEARCH_ID, PolymerPacketUtils.buf(0)));
         }
     }

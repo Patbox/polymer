@@ -76,7 +76,7 @@ public final class PolymerClientUtils {
 
     @Nullable
     public static ClientPolymerEntityType getEntityType(Entity entity) {
-        return InternalClientRegistry.ENTITY_TYPES.get(((ClientEntityExtension) entity).polymer_getId());
+        return InternalClientRegistry.ENTITY_TYPES.get(((ClientEntityExtension) entity).polymer$getId());
     }
 
     public static String getServerVersion() {

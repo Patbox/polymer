@@ -35,8 +35,8 @@ public class TACSMixin {
         var value = cachedDataPacket.getValue();
         var playerMapper = BlockMapper.getFrom(player);
         if (value != null && (
-                ((ChunkDataS2CPacketInterface) value).polymer_hasPlayerDependentBlocks()
-                || ((ChunkDataS2CPacketInterface) value).polymer_getMapper() != playerMapper
+                ((ChunkDataS2CPacketInterface) value).polymer$hasPlayerDependentBlocks()
+                || ((ChunkDataS2CPacketInterface) value).polymer$getMapper() != playerMapper
                 || playerMapper != BlockMapper.createDefault()
         )) {
             cachedDataPacket.setValue(null);
@@ -51,7 +51,7 @@ public class TACSMixin {
     @Inject(method = "method_18843", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;setLoadedToWorld(Z)V", shift = At.Shift.AFTER))
     private void polymer_unloadChunk(ChunkHolder chunkHolder, CompletableFuture completableFuture, long l, Chunk chunk, CallbackInfo ci) {
         for (int i = chunk.getBottomSectionCoord(); i <= chunk.getTopSectionCoord(); i++) {
-            ((ServerChunkManagerInterface) this.world.getChunkManager()).polymer_removeSection(ChunkSectionPos.from(chunk.getPos(), i));
+            ((ServerChunkManagerInterface) this.world.getChunkManager()).polymer$removeSection(ChunkSectionPos.from(chunk.getPos(), i));
         }
     }
 
@@ -59,7 +59,7 @@ public class TACSMixin {
     private void polymer_loadChunk(ChunkHolder chunkHolder, Chunk chunk, CallbackInfoReturnable<Chunk> callbackInfoReturnable) {
         for (var section : chunk.getSectionArray()) {
             if (section != null && !section.isEmpty()) {
-                ((ServerChunkManagerInterface) this.world.getChunkManager()).polymer_setSection(
+                ((ServerChunkManagerInterface) this.world.getChunkManager()).polymer$setSection(
                         ChunkSectionPos.from(chunk.getPos(), ChunkSectionPos.getSectionCoord(section.getYOffset())),
                         section.hasAny(PolymerBlockUtils.IS_POLYMER_BLOCK_STATE_PREDICATE)
                 );

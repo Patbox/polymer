@@ -2,9 +2,9 @@ package eu.pb4.polymer.api.item;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.other.PolymerEnchantment;
 import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.api.utils.events.BooleanEvent;
 import eu.pb4.polymer.api.utils.events.FunctionEvent;
@@ -22,13 +22,13 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.potion.PotionUtil;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -191,7 +191,7 @@ public final class PolymerItemUtils {
                     Enchantment ench = Registries.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
-                        if (ench instanceof PolymerEnchantment polymerEnchantment && polymerEnchantment.getPolymerEnchantment(player) == ench) {
+                        if (ench instanceof PolymerSyncedObject polymerEnchantment && polymerEnchantment.getPolymerReplacement(player) == ench) {
                             continue;
                         }
 
@@ -205,7 +205,7 @@ public final class PolymerItemUtils {
                     Enchantment ench = Registries.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
-                        if (ench instanceof PolymerEnchantment polymerEnchantment && polymerEnchantment.getPolymerEnchantment(player) == ench) {
+                        if (ench instanceof PolymerSyncedObject polymerEnchantment && polymerEnchantment.getPolymerReplacement(player) == ench) {
                             continue;
                         }
 
@@ -332,8 +332,8 @@ public final class PolymerItemUtils {
                 for (var enchNbt : itemStack.getEnchantments()) {
                     var ench = Registries.ENCHANTMENT.get(EnchantmentHelper.getIdFromNbt((NbtCompound) enchNbt));
 
-                    if (ench instanceof PolymerEnchantment polyEnch) {
-                        var possible = polyEnch.getPolymerEnchantment(player);
+                    if (ench instanceof PolymerSyncedObject polyEnch) {
+                        var possible = (Enchantment) polyEnch.getPolymerReplacement(player);
 
                         if (possible != null) {
                             list.add(EnchantmentHelper.createNbt(Registries.ENCHANTMENT.getId(possible), EnchantmentHelper.getLevelFromNbt((NbtCompound) enchNbt)));

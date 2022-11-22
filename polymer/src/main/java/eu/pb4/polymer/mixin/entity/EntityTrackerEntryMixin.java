@@ -50,7 +50,7 @@ public abstract class EntityTrackerEntryMixin {
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymer_sendEntityInfo(ServerPlayerEntity player, CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity polymerEntity && polymerEntity.shouldSyncWithPolymerClient(player)) {
+        if (this.entity instanceof PolymerEntity polymerEntity && polymerEntity.canSynchronizeToPolymerClient(player)) {
             PolymerServerProtocol.sendEntityInfo(player.networkHandler, this.entity);
         }
     }

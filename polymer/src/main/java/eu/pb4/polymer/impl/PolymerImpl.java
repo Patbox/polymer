@@ -24,10 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class PolymerImpl {
-
-    private PolymerImpl() {
-    }
-
     public static final Logger LOGGER = LoggerFactory.getLogger("Polymer");
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     public static final Gson GSON_PRETTY = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();

@@ -6,15 +6,14 @@ import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
-import java.util.List;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 @SuppressWarnings({"unused"})
 public interface ClientItemGroupExtension {
-    void polymer_addStacks(List<ItemStack> stackList);
-    void polymer_addStack(ItemStack stack);
-    void polymer_clearStacks();
-    Collection<ItemStack> polymer_getStacks();
-    void polymer_removeStacks(Collection<ItemStack> stacks);
+    void polymer$addStackGroup(ItemStack stack);
+    void polymer$addStackSearch(ItemStack stack);
+    void polymer$clearStacks();
+    Collection<ItemStack> polymer$getStacksGroup();
+    Collection<ItemStack> polymer$getStacksSearch();
 }

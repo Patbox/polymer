@@ -16,18 +16,20 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registries;
-import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -96,6 +98,49 @@ public class PolymerImplUtils {
         } else {
             return source -> source.hasPermissionLevel(operatorLevel);
         }
+    }
+
+    public static Identifier toItemGroupId(ItemGroup group) {
+        var name = group.getDisplayName();
+
+        if (name.getContent() instanceof TranslatableTextContent content) {
+            var id = content.getKey();
+
+            if (id.startsWith("itemGroup.")) {
+                id = id.substring("itemGroup.".length());
+            }
+
+            var sub = id.split(".", 2);
+
+            if (sub.length == 2) {
+                return new Identifier(makeSafeId(sub[0]), makeSafeId(sub[1]));
+            } else {
+                return new Identifier(makeSafeId(id));
+            }
+        }
+
+        return new Identifier(makeSafeId(name.getString()));
+    }
+
+    private static String makeSafeId(String id) {
+        if (Identifier.isValid(id)) {
+            return id;
+        }
+
+        id = id.toLowerCase(Locale.ROOT);
+        var builder = new StringBuilder();
+
+        for (int i = 0; i < id.length(); i++) {
+            var chr = id.charAt(i);
+
+            if (Identifier.isPathCharacterValid(chr)) {
+                builder.append(chr);
+            } else {
+                builder.append("_");
+            }
+        }
+
+        return builder.toString();
     }
 
     public static Identifier id(String path) {
@@ -196,7 +241,7 @@ public class PolymerImplUtils {
                     msg.accept("== Registry: " + ((Registry<Object>) (Object) Registries.REGISTRIES).getId(reg).toString());
                     msg.accept("");
                     if (reg instanceof RegistrySyncExtension regEx) {
-                        msg.accept("= Status: " + regEx.polymerRSM_getStatus().name());
+                        msg.accept("= Status: " + regEx.polymer_registry_sync$getStatus().name());
                         msg.accept("");
                     }
 
@@ -284,15 +329,15 @@ public class PolymerImplUtils {
     }
 
     public static int getBlockStateOffset() {
-        return ((PolymerIdList) Block.STATE_IDS).polymer_getOffset();
+        return ((PolymerIdList) Block.STATE_IDS).polymer$getOffset();
     }
 
     public static void setStateIdsLock(boolean value) {
-        ((PolymerIdList) Block.STATE_IDS).polymer_setReorderLock(value);
+        ((PolymerIdList) Block.STATE_IDS).polymer$setReorderLock(value);
     }
 
     public static boolean getStateIdsLock(boolean value) {
-        return ((PolymerIdList) Block.STATE_IDS).polymer_getReorderLock();
+        return ((PolymerIdList) Block.STATE_IDS).polymer$getReorderLock();
     }
 
     public static void invokeRegistered(Registry<Object> ts, Object entry) {

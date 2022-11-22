@@ -6,6 +6,7 @@ import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImpl;
@@ -25,13 +26,13 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registries;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -69,7 +70,7 @@ public class PolymerServerProtocol {
 
     public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
         if (state.getBlock() instanceof PolymerBlock && version > -1) {
             var buf = buf(version);
@@ -83,7 +84,7 @@ public class PolymerServerProtocol {
     }
 
     public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {var polymerHandler = PolymerNetworkHandlerExtension.of(player);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
 
         if (version >= -1) {
             var list = new LongArrayList();
@@ -110,17 +111,17 @@ public class PolymerServerProtocol {
 
     public static void sendSectionUpdate(ServerPlayNetworkHandler player, WorldChunk chunk) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
         if (version == 2) {
             var wci = (PolymerBlockPosStorage) chunk;
-            if (wci.polymer_hasAny()) {
+            if (wci.polymer$hasAny()) {
                 for (var section : chunk.getSectionArray()) {
                     var storage = (PolymerBlockPosStorage) section;
 
-                    if (section != null && storage.polymer_hasAny()) {
+                    if (section != null && storage.polymer$hasAny()) {
                         var buf = buf(version);
-                        var set = storage.polymer_getBackendSet();
+                        var set = storage.polymer$getBackendSet();
                         buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), ChunkSectionPos.getSectionCoord(section.getYOffset())));
 
                         assert set != null;
@@ -148,7 +149,7 @@ public class PolymerServerProtocol {
 
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
 
-        if (!polymerHandler.polymer_hasPolymer()) {
+        if (!polymerHandler.polymer$hasPolymer()) {
             return;
         }
         int version;
@@ -156,12 +157,12 @@ public class PolymerServerProtocol {
         handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_STARTED_ID, buf(0)));
         PolymerSyncUtils.ON_SYNC_STARTED.invoke((c) -> c.accept(handler));
 
-        version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_CLEAR);
+        version = polymerHandler.polymer$getSupportedVersion(ServerPackets.SYNC_CLEAR);
         if (version == 0) {
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_CLEAR_ID, buf(version)));
         }
 
-        version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_INFO);
+        version = polymerHandler.polymer$getSupportedVersion(ServerPackets.SYNC_INFO);
         if (version == 0) {
             var buf = buf(version);
 
@@ -182,7 +183,7 @@ public class PolymerServerProtocol {
             syncVanillaItemGroups(handler);
 
             for (var group : InternalServerRegistry.ITEM_GROUPS) {
-                if (group.shouldSyncWithPolymerClient(handler.player)) {
+                if (group.canSendToPlayer(handler.player)) {
                     syncItemGroup(group, handler);
                 }
             }
@@ -196,7 +197,7 @@ public class PolymerServerProtocol {
         PolymerSyncUtils.AFTER_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE_ID, ((PolymerIdList) Block.STATE_IDS).polymer_getPolymerStates(), false, PolymerBlockStateEntry::of);
+        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE_ID, ((PolymerIdList) Block.STATE_IDS).polymer$getPolymerStates(), false, PolymerBlockStateEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
@@ -232,7 +233,7 @@ public class PolymerServerProtocol {
 
     public static void sendCreativeSyncPackets(ServerPlayNetworkHandler handler) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP);
 
         if (version != -1) {
             for (var group : PolymerUtils.getItemGroups(handler.getPlayer())) {
@@ -243,11 +244,11 @@ public class PolymerServerProtocol {
 
     public static void syncVanillaItemGroups(ServerPlayNetworkHandler handler) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_VANILLA);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_VANILLA);
 
         if (version != -1) {
             PolymerImplUtils.setPlayer(handler.player);
-            version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_VANILLA);
+            version = polymerHandler.polymer$getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_VANILLA);
 
             for (var group : ItemGroups.getGroups()) {
                 if (!(group instanceof PolymerObject)
@@ -256,7 +257,7 @@ public class PolymerServerProtocol {
                 ) {
                     try {
                         var entry = PolymerVanillaItemGroupEntry.of(group, handler);
-                        if (entry.stacks().size() != 0) {
+                        if (entry.isNonEmpty()) {
                             var buf = buf(version);
                             entry.write(buf, version, handler);
                             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_VANILLA_ID, buf));
@@ -276,7 +277,7 @@ public class PolymerServerProtocol {
             return;
         }
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP);
 
         if (version > -1) {
             var buf = buf(version);
@@ -301,7 +302,7 @@ public class PolymerServerProtocol {
 
     public static void removeItemGroup(PolymerItemGroup group, ServerPlayNetworkHandler player) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_REMOVE);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_REMOVE);
 
         if (version == 0) {
             player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_REMOVE_ID, buf(0).writeIdentifier(group.getId())));
@@ -314,7 +315,7 @@ public class PolymerServerProtocol {
 
     public static void sendEntityInfo(ServerPlayNetworkHandler player, int id, EntityType<?> type) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.WORLD_ENTITY);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.WORLD_ENTITY);
 
         if (version == 0) {
             var buf = buf(0);
@@ -344,16 +345,16 @@ public class PolymerServerProtocol {
     }
 
     private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, BufferWritableCreator<T> writableFunction) {
-        var version = PolymerNetworkHandlerExtension.of(handler).polymer_getSupportedVersion(packetId.getPath());
+        var version = PolymerNetworkHandlerExtension.of(handler).polymer$getSupportedVersion(packetId.getPath());
 
         if (iterable instanceof RegistryExtension && !bypassPolymerCheck) {
-            iterable = ((RegistryExtension<T>) iterable).polymer_getEntries();
+            iterable = ((RegistryExtension<T>) iterable).polymer$getEntries();
         }
 
         if (version != -1) {
             var entries = new ArrayList<BufferWritable>();
             for (var entry : iterable) {
-                if (!(entry instanceof PolymerObject obj && !obj.shouldSyncWithPolymerClient(handler.player))) {
+                if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(handler.player))) {
                     var val = writableFunction.serialize(entry, handler, version);
                     if (val != null) {
                         entries.add(val);
@@ -373,7 +374,7 @@ public class PolymerServerProtocol {
 
     public static void sendDebugValidateStatesPackets(ServerPlayNetworkHandler handler) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
-        var version = polymerHandler.polymer_getSupportedVersion(ServerPackets.DEBUG_VALIDATE_STATES);
+        var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.DEBUG_VALIDATE_STATES);
 
         if (version != -1) {
             sendSync(handler, ServerPackets.DEBUG_VALIDATE_STATES_ID, Block.STATE_IDS, true, DebugBlockStateEntry::of);

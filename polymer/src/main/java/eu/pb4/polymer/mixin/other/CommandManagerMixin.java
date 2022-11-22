@@ -19,7 +19,7 @@ public abstract class CommandManagerMixin {
     private CommandDispatcher<ServerCommandSource> dispatcher;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void polymer_addCommand(CommandManager.RegistrationEnvironment environment, CommandRegistryAccess commandRegistryAccess, CallbackInfo ci) {
+    private void polymer$addCommand(CommandManager.RegistrationEnvironment environment, CommandRegistryAccess commandRegistryAccess, CallbackInfo ci) {
         Commands.register(this.dispatcher);
     }
 }

@@ -26,7 +26,7 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
 
     public PolymerHandshakeHandlerImplLogin(EarlyPlayNetworkHandler.Context context) {
         super(PolymerImplUtils.id("early_handshake"), context);
-        ((TempPlayerLoginAttachments) this.getPlayer()).polymer_setHandshakeHandler(this);
+        ((TempPlayerLoginAttachments) this.getPlayer()).polymer$setHandshakeHandler(this);
         this.sendKeepAlive(MAGIC_VALUE);
         this.blockMapper = BlockMapper.getDefault(this.getPlayer());
 
@@ -79,21 +79,21 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
     public void apply(ServerPlayNetworkHandler handler) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
 
-        polymerHandler.polymer_setVersion(this.getPolymerVersion());
+        polymerHandler.polymer$setVersion(this.getPolymerVersion());
 
         if (this.protocolVersions != null) {
             for (var entry : this.protocolVersions.object2IntEntrySet()) {
-                polymerHandler.polymer_setSupportedVersion(entry.getKey(), entry.getIntValue());
+                polymerHandler.polymer$setSupportedVersion(entry.getKey(), entry.getIntValue());
             }
         }
 
         for (var entry : this.lastUpdate.keySet()) {
-            polymerHandler.polymer_savePacketTime(entry);
+            polymerHandler.polymer$savePacketTime(entry);
         }
 
-        polymerHandler.polymer_setResourcePack(this.hasPack);
+        polymerHandler.polymer$setResourcePack(this.hasPack);
 
-        polymerHandler.polymer_setBlockMapper(this.blockMapper);
+        polymerHandler.polymer$setBlockMapper(this.blockMapper);
     }
 
     @Override

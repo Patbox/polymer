@@ -1,7 +1,7 @@
 package eu.pb4.polymer.mixin.item.packet;
 
-import eu.pb4.polymer.api.item.PolymerRecipe;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import io.netty.buffer.Unpooled;
@@ -27,19 +27,19 @@ import java.util.List;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
-    @Unique List<Recipe<?>> polymer_clientRewrittenRecipes = null;
+    @Unique List<Recipe<?>> polymer$clientRewrittenRecipes = null;
 
     @Shadow public abstract void write(PacketByteBuf buf);
 
     @Shadow @Final private List<Recipe<?>> recipes;
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
-    public Collection<Recipe<?>> polymer_onWrite(Collection<Recipe<?>> recipes) {
+    public Collection<Recipe<?>> polymer$remapRecipes(Collection<Recipe<?>> recipes) {
         List<Recipe<?>> list = new ArrayList<>();
         var player = PolymerUtils.getPlayer();
         for (Recipe<?> recipe : recipes) {
-            if (recipe instanceof PolymerRecipe) {
-                Recipe<?> polymerRecipe = ((PolymerRecipe) recipe).getPolymerRecipe(recipe, player);
+            if (recipe instanceof PolymerSyncedObject<?> syncedRecipe) {
+                Recipe<?> polymerRecipe = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
                 if (polymerRecipe != null) {
                     list.add(polymerRecipe);
                 }
@@ -57,10 +57,10 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
      */
     @Environment(EnvType.CLIENT)
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
-    private void polymer_replaceRecipesOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
+    private void polymer$replaceOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
         if (ClientUtils.isSingleplayer()) {
-            if (this.polymer_clientRewrittenRecipes == null) {
-                this.polymer_clientRewrittenRecipes = new ArrayList<>();
+            if (this.polymer$clientRewrittenRecipes == null) {
+                this.polymer$clientRewrittenRecipes = new ArrayList<>();
 
                 PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 
@@ -68,13 +68,13 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
                     buf.clear();
                     try {
                         ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).write(buf, recipe);
-                        this.polymer_clientRewrittenRecipes.add(recipe.getSerializer().read(recipe.getId(), buf));
+                        this.polymer$clientRewrittenRecipes.add(recipe.getSerializer().read(recipe.getId(), buf));
                     } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
-                        this.polymer_clientRewrittenRecipes.add(recipe);
+                        this.polymer$clientRewrittenRecipes.add(recipe);
                     }
                 }
             }
-            cir.setReturnValue(this.polymer_clientRewrittenRecipes);
+            cir.setReturnValue(this.polymer$clientRewrittenRecipes);
         }
     }
 

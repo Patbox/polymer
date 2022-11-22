@@ -22,7 +22,7 @@ public class StatisticsS2CPacketMixin {
     @Shadow @Final private Object2IntMap<Stat<?>> stats;
 
     @Inject(method = "<init>(Lit/unimi/dsi/fastutil/objects/Object2IntMap;)V", at = @At("TAIL"))
-    public void polymer_onWrite(Object2IntMap<Stat<?>> stats, CallbackInfo ci) {
+    public void polymer$onWrite(Object2IntMap<Stat<?>> stats, CallbackInfo ci) {
         this.stats = stats.object2IntEntrySet().stream().filter(statEntry -> {
             if (statEntry.getKey().getType() == Stats.CUSTOM) {
                 Identifier key = (Identifier) statEntry.getKey().getValue();

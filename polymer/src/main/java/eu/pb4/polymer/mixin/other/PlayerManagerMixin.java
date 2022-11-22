@@ -16,17 +16,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerManager.class)
 public class PlayerManagerMixin {
     @Inject(method = "onPlayerConnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/CustomPayloadS2CPacket;<init>(Lnet/minecraft/util/Identifier;Lnet/minecraft/network/PacketByteBuf;)V", shift = At.Shift.AFTER))
-    private void polymer_setupHandler(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
-        var handshake = ((TempPlayerLoginAttachments) player).polymer_getAndRemoveHandshakeHandler();
+    private void polymer$setupHandler(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+        var handshake = ((TempPlayerLoginAttachments) player).polymer$getAndRemoveHandshakeHandler();
 
         if (handshake != null) {
             handshake.apply(player.networkHandler);
             PolymerServerProtocol.sendSyncPackets(player.networkHandler, false);
         }
 
-        var packets = ((TempPlayerLoginAttachments) player).polymer_getLatePackets();
+        var packets = ((TempPlayerLoginAttachments) player).polymer$getLatePackets();
         if (packets != null) {
-            ((TempPlayerLoginAttachments) player).polymer_setLatePackets(null);
+            ((TempPlayerLoginAttachments) player).polymer$setLatePackets(null);
             for (var packet : packets) {
                 try {
                     packet.apply(player.networkHandler);
@@ -36,7 +36,7 @@ public class PlayerManagerMixin {
             }
         }
 
-        if (((TempPlayerLoginAttachments) player).polymer_getForceRespawnPacket()) {
+        if (((TempPlayerLoginAttachments) player).polymer$getForceRespawnPacket()) {
             var world = player.getWorld();
             connection.send(new PlayerRespawnS2CPacket(world.getDimensionKey(), world.getRegistryKey(), BiomeAccess.hashSeed(((ServerWorld) world).getSeed()),player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), world.isDebugWorld(), ((ServerWorld) world).isFlat(), false, player.getLastDeathPos()));
         }

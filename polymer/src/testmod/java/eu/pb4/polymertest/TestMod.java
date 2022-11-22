@@ -17,8 +17,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.fabric.impl.itemgroup.MinecraftItemGroups;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.enchantment.Enchantment;
@@ -36,6 +38,8 @@ import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -46,8 +50,6 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.registry.Registries;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 
 import java.util.*;
@@ -408,8 +410,17 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
             for (var e : entry.getValue()) {
                 Registry.register((Registry<Object>) entry.getKey(), e.getLeft(), e.getRight());
+
+
             }
         }
+
+        ItemGroupEvents.modifyEntriesEvent(MinecraftItemGroups.FUNCTIONAL_ID).register(entries -> {
+            for (var item : REG_CACHE.get(Registries.ITEM)) {
+                entries.add(((Item) item.getRight()).getDefaultStack());
+            }
+        });
+
 
 
         if (PolymerImpl.IS_CLIENT) {

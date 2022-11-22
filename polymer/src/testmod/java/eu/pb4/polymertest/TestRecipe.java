@@ -24,8 +24,8 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
     }
 
     @Override
-    public Recipe<?> getPolymerRecipe(Recipe<?> input, ServerPlayerEntity player) {
-        return PolymerRecipe.createStonecuttingRecipe(input);
+    public Recipe<?> getPolymerReplacement(ServerPlayerEntity player) {
+        return PolymerRecipe.createStonecuttingRecipe(this);
     }
 
     @Override

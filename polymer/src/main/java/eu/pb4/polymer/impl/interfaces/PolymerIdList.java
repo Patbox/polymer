@@ -7,12 +7,12 @@ import java.util.Collection;
 
 @ApiStatus.Internal
 public interface PolymerIdList {
-    void polymer_enableLazyBlockStates();
-    void polymer_setIgnoreCalls(boolean value);
-    Collection<BlockState> polymer_getPolymerStates();
-    int polymer_getOffset();
-    void polymer_clear();
+    void polymer$enableLazyBlockStates();
+    void polymer$setIgnoreCalls(boolean value);
+    Collection<BlockState> polymer$getPolymerStates();
+    int polymer$getOffset();
+    void polymer$clear();
 
-    void polymer_setReorderLock(boolean value);
-    boolean polymer_getReorderLock();
+    void polymer$setReorderLock(boolean value);
+    boolean polymer$getReorderLock();
 }

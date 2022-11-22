@@ -7,37 +7,28 @@ import eu.pb4.polymer.impl.interfaces.StatusEffectPacketExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
 import net.minecraft.util.collection.IndexedIterable;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityStatusEffectS2CPacket.class)
 public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExtension {
 
     @Mutable
     @Shadow @Final private StatusEffect effectId;
-    @Unique private StatusEffect polymer_effect = null;
-
-    @Inject(method = "<init>(ILnet/minecraft/entity/effect/StatusEffectInstance;)V", at = @At("TAIL"))
-    public void polymer_onInit(int entityId, StatusEffectInstance effect, CallbackInfo ci) {
-        this.polymer_effect = effect.getEffectType();
-        if (this.effectId instanceof PolymerStatusEffect virtualEffect && virtualEffect.getPolymerStatusEffect() != null) {
-            this.polymer_effect = virtualEffect.getPolymerStatusEffect();
-        }
-    }
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V", ordinal = 0))
-    public Object polymer_onWrite(Object object) {
+    public Object polymer$onWrite(Object object) {
         if (object instanceof PolymerStatusEffect virtualEffect) {
-            var effect = virtualEffect.getPolymerStatusEffect(PolymerUtils.getPlayer());
+            var effect = virtualEffect.getPolymerReplacement(PolymerUtils.getPlayer());
 
             if (effect != null) {
                 return effect;
@@ -50,12 +41,12 @@ public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExten
 
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;"))
-    private Object polymer_remapEffect(PacketByteBuf instance, IndexedIterable<?> registry) {
+    private Object polymer$remapEffect(PacketByteBuf instance, IndexedIterable<?> registry) {
         return InternalClientRegistry.decodeStatusEffect(instance.readVarInt());
     }
 
     @Override
-    public StatusEffect polymer_getStatusEffect() {
-        return this.polymer_effect;
+    public StatusEffect polymer$getStatusEffect() {
+        return this.effectId;
     }
 }
