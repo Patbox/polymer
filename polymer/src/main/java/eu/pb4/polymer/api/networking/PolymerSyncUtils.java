@@ -1,10 +1,10 @@
 package eu.pb4.polymer.api.networking;
 
-import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.impl.networking.ServerPackets;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 
@@ -61,7 +61,7 @@ public final class PolymerSyncUtils {
     /**
      * Sends/Updates Creative tab for player
      */
-    public static void sendCreativeTab(PolymerItemGroup group, ServerPlayNetworkHandler handler) {
+    public static void sendCreativeTab(ItemGroup group, ServerPlayNetworkHandler handler) {
         PolymerServerProtocol.removeItemGroup(group, handler);
         PolymerServerProtocol.syncItemGroup(group, handler);
     }
@@ -69,16 +69,18 @@ public final class PolymerSyncUtils {
     /**
      * Removes creative tab from player
      */
-    public static void removeCreativeTab(PolymerItemGroup group, ServerPlayNetworkHandler handler) {
+    public static void removeCreativeTab(ItemGroup group, ServerPlayNetworkHandler handler) {
+        PolymerServerProtocol.removeItemGroup(group, handler);
         PolymerServerProtocol.removeItemGroup(group, handler);
     }
 
     /**
      * Rebuild creative search index
      */
-    public static void rebuildCreativeSearch(ServerPlayNetworkHandler handler) {
-        if (PolymerNetworkHandlerExtension.of(handler).polymer$getSupportedVersion(ServerPackets.SYNC_REBUILD_SEARCH) == 0) {
-            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_REBUILD_SEARCH_ID, PolymerPacketUtils.buf(0)));
+    public static void rebuildItemGroups(ServerPlayNetworkHandler handler) {
+        var ver = PolymerNetworkHandlerExtension.of(handler).polymer$getSupportedVersion(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE);
+        if (ver > -1) {
+            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE_ID, PolymerPacketUtils.buf(ver)));
         }
     }
 

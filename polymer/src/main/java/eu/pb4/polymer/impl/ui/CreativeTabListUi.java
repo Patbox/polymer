@@ -1,10 +1,8 @@
 package eu.pb4.polymer.impl.ui;
 
-import eu.pb4.polymer.api.utils.PolymerObject;
-import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -22,17 +20,7 @@ public class CreativeTabListUi extends MicroUi {
         super(6);
         this.title(Text.literal("Creative Item Groups"));
         this.items = new ArrayList<>();
-        if (PolymerImpl.ADD_NON_POLYMER_CREATIVE_TABS) {
-            for (var group : ItemGroups.getGroups()) {
-                if (!(group instanceof PolymerObject)
-                        && group.getType() == ItemGroup.Type.CATEGORY
-                ) {
-                    this.items.add(group);
-                }
-            }
-        }
-        //todo
-        //this.items.addAll(PolymerUtils.getItemGroups(player));
+        this.items.addAll(PolymerItemGroupUtils.getItemGroups(player));
         this.page = 0;
         this.drawUi();
 

@@ -1,7 +1,7 @@
 package eu.pb4.polymer.ext.blocks.api;
 
 import eu.pb4.polymer.api.block.BlockMapper;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.ext.blocks.impl.BlockExtBlockMapper;
 import eu.pb4.polymer.ext.blocks.impl.PolymerBlocksInternal;
 import eu.pb4.polymer.impl.compat.CompatStatus;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public final class PolymerBlockResourceUtils {
     private PolymerBlockResourceUtils() {}
 
-    final static BlockResourceCreator CREATOR = new BlockResourceCreator(PolymerRPUtils.getInstance(), BlockExtBlockMapper.INSTANCE, () -> {
+    final static BlockResourceCreator CREATOR = new BlockResourceCreator(PolymerResourcePackUtils.getInstance(), BlockExtBlockMapper.INSTANCE, () -> {
         BlockMapper.DEFAULT_MAPPER_EVENT.register((player, mapper) -> BlockExtBlockMapper.INSTANCE);
     });
 

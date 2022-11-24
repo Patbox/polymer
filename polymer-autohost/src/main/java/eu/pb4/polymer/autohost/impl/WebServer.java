@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
@@ -45,11 +45,11 @@ public class WebServer {
             WebServer.isPackReady = true;
             updateHash();
 
-            PolymerRPUtils.RESOURCE_PACK_CREATION_EVENT.register((x) -> {
+            PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register((x) -> {
                 isPackReady = false;
 
             });
-            PolymerRPUtils.RESOURCE_PACK_FINISHED_EVENT.register(() -> {
+            PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.register(() -> {
                 isPackReady = true;
                 updateHash();
             });
@@ -63,9 +63,9 @@ public class WebServer {
 
     private static void updateHash() {
         try {
-            hash = com.google.common.io.Files.asByteSource(PolymerRPUtils.DEFAULT_PATH.toFile()).hash(Hashing.sha1()).toString();
-            size = Files.size(PolymerRPUtils.DEFAULT_PATH);
-            lastUpdate = Files.getLastModifiedTime(PolymerRPUtils.DEFAULT_PATH).toMillis();
+            hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.DEFAULT_PATH.toFile()).hash(Hashing.sha1()).toString();
+            size = Files.size(PolymerResourcePackUtils.DEFAULT_PATH);
+            lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.DEFAULT_PATH).toMillis();
             WebServer.fullAddress = WebServer.baseAddress + WebServer.hash + ".zip";
         } catch (Exception e) {
             hash = "";
@@ -86,14 +86,14 @@ public class WebServer {
 
     public static void handle(HttpExchange exchange) throws IOException {
         if ("GET".equals(exchange.getRequestMethod())) {
-            if (Files.exists(PolymerRPUtils.DEFAULT_PATH)) {
-                var updateTime = Files.getLastModifiedTime(PolymerRPUtils.DEFAULT_PATH).toMillis();
+            if (Files.exists(PolymerResourcePackUtils.DEFAULT_PATH)) {
+                var updateTime = Files.getLastModifiedTime(PolymerResourcePackUtils.DEFAULT_PATH).toMillis();
                 if (updateTime > lastUpdate) {
                     updateHash();
                 }
 
                 try (
-                        var input = Files.newInputStream(PolymerRPUtils.DEFAULT_PATH);
+                        var input = Files.newInputStream(PolymerResourcePackUtils.DEFAULT_PATH);
                         var output = exchange.getResponseBody()
                 ) {
                     exchange.getResponseHeaders().add("Server", "polymer-autohost");

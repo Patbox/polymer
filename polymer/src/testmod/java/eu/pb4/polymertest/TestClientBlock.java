@@ -26,7 +26,7 @@ public class TestClientBlock extends Block implements PolymerBlock, PolymerKeepM
     }
 
     @Override
-    public BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state) {
-        return state;
+    public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
+        return getPolymerBlockState(state);
     }
 }

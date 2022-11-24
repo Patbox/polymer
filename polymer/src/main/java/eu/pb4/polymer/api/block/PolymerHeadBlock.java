@@ -53,7 +53,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
     }
 
     @Override
-    default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) {
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, ServerPlayerEntity player) {
         player.networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos.toImmutable()));
     }
 }

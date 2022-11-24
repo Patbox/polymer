@@ -1,6 +1,6 @@
 package eu.pb4.blocktest;
 
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.ext.blocks.api.BlockModelType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -11,12 +11,12 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class TestInitializer implements ModInitializer {
-    //public static final PolymerItemGroup ITEM_GROUP = PolymerItemGroup.create(new Identifier("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
+    //public static final PolymerItemGroupUtils ITEM_GROUP = PolymerItemGroupUtils.create(new Identifier("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
 
     @Override
     public void onInitialize() {
-        PolymerRPUtils.markAsRequired();
-        PolymerRPUtils.addAssetSource("apolymertestblocks");
+        PolymerResourcePackUtils.markAsRequired();
+        PolymerResourcePackUtils.addModAssets("apolymertestblocks");
 
         register(BlockModelType.FULL_BLOCK, "block/chlorophyte_block");
         register(BlockModelType.TRANSPARENT_BLOCK, "block/chair");

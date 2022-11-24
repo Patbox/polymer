@@ -4,7 +4,7 @@ import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
@@ -131,7 +131,7 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
 
     @Override
     public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
-        if (PolymerRPUtils.shouldCheckByDefault()) {
+        if (PolymerResourcePackUtils.shouldCheckByDefault()) {
             this.hasPack = switch (packet.getStatus()) {
                 case ACCEPTED, SUCCESSFULLY_LOADED -> true;
                 case DECLINED, FAILED_DOWNLOAD -> false;

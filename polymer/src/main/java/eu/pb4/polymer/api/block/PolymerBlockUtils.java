@@ -142,13 +142,13 @@ public final class PolymerBlockUtils {
      */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, @Nullable ServerPlayerEntity player) {
         BlockState out = player != null
-                ? block.getPolymerBlockState(player, blockState)
+                ? block.getPolymerBlockState(blockState, player)
                 : block.getPolymerBlockState(blockState);
 
         int req = 0;
         while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
             out = player != null
-                    ? block.getPolymerBlockState(player, blockState)
+                    ? block.getPolymerBlockState(blockState, player)
                     : newBlock.getPolymerBlockState(out);
             req++;
         }
@@ -198,7 +198,7 @@ public final class PolymerBlockUtils {
 
         while (out instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
             out = player != null
-                    ? block.getPolymerBlock(player, out.getDefaultState())
+                    ? block.getPolymerBlock(out.getDefaultState(), player)
                     : newBlock.getPolymerBlock(state);
             req++;
         }
@@ -250,6 +250,6 @@ public final class PolymerBlockUtils {
 
     @FunctionalInterface
     public interface MineEventListener {
-        boolean onBlockMine(ServerPlayerEntity player, BlockPos pos, BlockState state);
+        boolean onBlockMine(BlockState state, BlockPos pos, ServerPlayerEntity player);
     }
 }

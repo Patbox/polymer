@@ -7,7 +7,7 @@ import eu.pb4.polymer.api.item.*;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.other.PolymerStat;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -40,6 +40,7 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -58,28 +59,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class TestMod implements ModInitializer, ClientModInitializer {
-    /*public static final PolymerItemGroup ITEM_GROUP = new PolymerItemGroup(
-            new Identifier("polymer", "test"),
-            Text.translatable("testmod.itemgroup").formatted(Formatting.AQUA), true) {
-        @Override
-        protected void addItems(FeatureSet enabledFeatures, Entries entries) {
-            var items = REG_CACHE.get(Registries.ITEM);
+    public static final ItemGroup ITEM_GROUP = PolymerItemGroupUtils.builder(
+            new Identifier("polymer", "test"))
+            .displayName(Text.translatable("testmod.itemgroup").formatted(Formatting.AQUA))
+            .icon(()-> new ItemStack(TestMod.TATER_BLOCK_ITEM))
+            .entries(new ItemGroup.EntryCollector() {
+                @Override
+                public void accept(FeatureSet enabledFeatures, ItemGroup.Entries entries, boolean operatorEnabled) {
+                    entries.add(Items.DAMAGED_ANVIL.getDefaultStack());
+                    var items = REG_CACHE.get(Registries.ITEM);
 
-            for (var pair : items) {
-                entries.add((ItemConvertible) pair.getRight());
-            }
+                    for (var pair : items) {
+                        entries.add((ItemConvertible) pair.getRight());
+                    }
+                }
+            })
+            .build();
 
-        }
-    };
-
-    public static final PolymerItemGroup ITEM_GROUP_2 = new PolymerItemGroup(
-            new Identifier("polymer", "test2"),
-            Text.translatable("testmod.itemgroup2").formatted(Formatting.AQUA), false) {
-        @Override
-        protected void addItems(FeatureSet enabledFeatures, Entries entries) {
-
-        }
-    };*/
     public static Block FLUID_BLOCK;
     public static TestFluid.Flowing FLOWING_FLUID;
     public static TestFluid.Still STILL_FLUID;
@@ -149,7 +145,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
     public static final Item TEST_FOOD_2 = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().hunger(1).saturationModifier(2).build()), Items.CAKE);
 
-    public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(new Identifier("polymertest", "ghosthurt"), SoundEvents.ENTITY_GHAST_HURT);
+    public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(new Identifier("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
     
     private static final Map<Registry<?>, List<Pair<Identifier, ?>>> REG_CACHE = new HashMap<>();
 
@@ -199,12 +195,12 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
     @Override
     public void onInitialize() {
-        //ITEM_GROUP.setIcon(new ItemStack(TATER_BLOCK_ITEM));
-        PolymerRPUtils.addAssetSource("apolymertest");
-        PolymerRPUtils.requestArmor(new Identifier("polymertest", "shulker"));
-        PolymerRPUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
-        //PolymerRPUtils.markAsRequired();
-        //PolymerRPUtils.addModAsAssetsSource("promenade");
+        //ITEM_GROUP.setIcon();
+        PolymerResourcePackUtils.addModAssets("apolymertest");
+        PolymerResourcePackUtils.requestArmor(new Identifier("polymertest", "shulker"));
+        PolymerResourcePackUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
+        //PolymerResourcePackUtils.markAsRequired();
+        //PolymerResourcePackUtils.addModAsAssetsSource("promenade");
 
         register(Registries.ITEM, new Identifier("test", "item"), ITEM);
         register(Registries.ITEM, new Identifier("test", "item2"), ITEM_2);
@@ -309,7 +305,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             d.register(literal("test")
                     .executes((ctx) -> {
                         try {
-                            ctx.getSource().sendFeedback(Text.literal("" + PolymerRPUtils.hasPack(ctx.getSource().getPlayer())), false);
+                            ctx.getSource().sendFeedback(Text.literal("" + PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer())), false);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -338,7 +334,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
                 } else {
                     //PolymerSyncUtils.removeCreativeTab(ITEM_GROUP_2, player.networkHandler);
                 }
-                PolymerSyncUtils.rebuildCreativeSearch(player.networkHandler);
+                PolymerSyncUtils.rebuildItemGroups(player.networkHandler);
                 atomicBoolean.set(!atomicBoolean.get());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -383,7 +379,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             return 0;
         })));
 
-        PolymerItemGroup.LIST_EVENT.register((p, s) -> {
+        PolymerItemGroupUtils.LIST_EVENT.register((p, s) -> {
             if (atomicBoolean.get()) {
                 //s.add(ITEM_GROUP_2);
             }

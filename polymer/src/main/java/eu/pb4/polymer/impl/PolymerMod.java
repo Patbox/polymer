@@ -1,6 +1,6 @@
 package eu.pb4.polymer.impl;
 
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.impl.client.compat.FabricFluids;
 import eu.pb4.polymer.impl.client.compat.ReiCompatibility;
 import eu.pb4.polymer.impl.client.rendering.PolymerResourcePack;
@@ -17,7 +17,7 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 	@Override
 	public void onInitialize() {
 		if (CompatStatus.POLYMC) {
-			PolymerRPUtils.markAsRequired();
+			PolymerResourcePackUtils.markAsRequired();
 			ServerLifecycleEvents.SERVER_STARTED.register(PolyMcHelpers::overrideCommand);
 		}
 	}

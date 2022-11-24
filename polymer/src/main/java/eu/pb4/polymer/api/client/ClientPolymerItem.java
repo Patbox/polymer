@@ -7,10 +7,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-@ApiStatus.NonExtendable
 @Environment(EnvType.CLIENT)
 public record ClientPolymerItem(
         Identifier identifier,

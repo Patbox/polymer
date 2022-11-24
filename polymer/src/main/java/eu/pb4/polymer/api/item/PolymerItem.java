@@ -1,5 +1,6 @@
 package eu.pb4.polymer.api.item;
 
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
@@ -50,7 +51,7 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
 
     /**
      * Method used for getting custom armor color of items
-     * It's designed to be used alongside {@link eu.pb4.polymer.api.resourcepack.PolymerRPUtils#requestArmor(Identifier)}
+     * It's designed to be used alongside {@link PolymerResourcePackUtils#requestArmor(Identifier)}
      * Make sure colors isn't even so it won't get wrong texture
      *
      * @param itemStack Server-side ItemStack

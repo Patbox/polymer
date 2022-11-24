@@ -22,7 +22,7 @@ public class TestPerPlayerBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
         return player.isCreative() ? Blocks.BEDROCK.getDefaultState() : Blocks.COBBLESTONE.getDefaultState();
     }
 }

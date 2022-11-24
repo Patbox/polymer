@@ -1,52 +1,43 @@
 package eu.pb4.polymer.impl.client;
 
+import eu.pb4.polymer.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.impl.PolymerImplUtils;
+import eu.pb4.polymer.impl.interfaces.ItemGroupExtra;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Collection;
-import java.util.List;
-
 @Environment(EnvType.CLIENT)
 @ApiStatus.Internal
-public class InternalClientItemGroup /*extends ItemGroup*/ implements PolymerObject {
-    private final ItemStack icon;
-    private final Text name;
-    private final List<ItemStack> stacks;
+public class InternalClientItemGroup extends ItemGroup implements PolymerObject, ItemGroupExtra {
     private final Identifier identifier;
 
-    public InternalClientItemGroup(int index, Identifier identifier, Text name, ItemStack stack, List<ItemStack> stackList) {
-        //super(index, name);
+    public InternalClientItemGroup(Row row, int column, Identifier identifier, Text name, ItemStack stack) {
+        super(row, column, Type.CATEGORY, name, () -> stack.copy(), (a, b, c) -> {});
         this.identifier = identifier;
-        this.name = name;
-        this.icon = stack;
-        this.stacks = stackList;
-    }
-
-    //@Override
-    public ItemStack createIcon() {
-        return icon;
-    }
-
-    //@Override
-    //protected void addItems(FeatureSet enabledFeatures, Entries entries) {
-   //     entries.addAll(this.stacksMain);
-    //}
-
-    //@Override
-    public Text getDisplayName() {
-        return this.name;
     }
 
     public Identifier getIdentifier() {
-        return identifier;
+        return this.identifier;
     }
 
-    public Collection<ItemStack> getStacks() {
-        return this.stacks;
+    public Identifier getId() {
+        return PolymerImplUtils.id( "group/" + this.identifier.getNamespace() + "/" + this.identifier.getPath());
+    }
+
+    @Override
+    public PolymerItemGroupUtils.Contents polymer$getContentsWith(FeatureSet enabledFeatures, boolean operatorEnabled) {
+        return null;
+    }
+
+    @Override
+    public boolean polymer$isSyncable() {
+        return false;
     }
 }

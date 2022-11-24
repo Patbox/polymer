@@ -13,6 +13,7 @@ import eu.pb4.polymer.impl.networking.ClientPackets;
 import eu.pb4.polymer.impl.networking.ServerPackets;
 import eu.pb4.polymer.impl.networking.packets.*;
 import eu.pb4.polymer.impl.other.EventRunners;
+import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -89,11 +90,11 @@ public class PolymerClientProtocolHandler {
             case ServerPackets.WORLD_CHUNK_SECTION_UPDATE -> handleWorldSectionUpdate(handler, version, buf);
             case ServerPackets.WORLD_ENTITY -> handleEntity(handler, version, buf);
 
-            case ServerPackets.SYNC_STARTED -> run(() -> {
+            case ServerPackets.SYNC_STARTED -> run(handler, () -> {
                 PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
             });
             case ServerPackets.SYNC_INFO -> handleSyncInfo(handler, version, buf);
-            case ServerPackets.SYNC_FINISHED -> run(() -> {
+            case ServerPackets.SYNC_FINISHED -> run(handler, () -> {
                 PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
             });
             case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
@@ -128,12 +129,12 @@ public class PolymerClientProtocolHandler {
                     (entry) -> InternalClientRegistry.ENCHANTMENT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.ENCHANTMENT.get(entry.id()))));
 
             case ServerPackets.SYNC_TAGS -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag);
-            case ServerPackets.SYNC_ITEM_GROUP -> handleItemGroupSync(handler, version, buf);
-            case ServerPackets.SYNC_ITEM_GROUP_CLEAR -> run(() -> InternalClientRegistry.clearTabs(i -> true));
+            case ServerPackets.SYNC_ITEM_GROUP_DEFINE -> handleItemGroupDefine(handler, version, buf);
+            case ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD -> handleItemGroupContentsAdd(handler, version, buf);
+            case ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR -> handleItemGroupContentsClear(handler, version, buf);
             case ServerPackets.SYNC_ITEM_GROUP_REMOVE -> handleItemGroupRemove(handler, version, buf);
-            case ServerPackets.SYNC_ITEM_GROUP_VANILLA -> handleItemGroupVanillaSync(handler, version, buf);
-            case ServerPackets.SYNC_REBUILD_SEARCH -> handleSearchRebuild(handler, version, buf);
-            case ServerPackets.SYNC_CLEAR -> run(InternalClientRegistry::clear);
+            case ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE -> handleItemGroupApplyUpdates(handler, version, buf);
+            case ServerPackets.SYNC_CLEAR -> run(handler, InternalClientRegistry::clear);
             case ServerPackets.DEBUG_VALIDATE_STATES -> handleGenericSync(handler, version, buf, DebugBlockStateEntry::read, PolymerClientProtocolHandler::handleDebugValidateStates);
 
             default -> {
@@ -175,15 +176,13 @@ public class PolymerClientProtocolHandler {
     }
 
     private static boolean handleDisable() {
-        InternalClientRegistry.disable();
+        MinecraftClient.getInstance().execute(() -> {
+            InternalClientRegistry.disable();
+        });
         return true;
     }
 
     private static boolean handleSyncInfo(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version >= 0) {
-            //InternalClientRegistry.blockOffset = buf.readVarInt();
-        }
-
         return true;
     }
 
@@ -218,51 +217,121 @@ public class PolymerClientProtocolHandler {
         return null;
     }
 
-    private static boolean run(Runnable runnable) {
-        runnable.run();
+    private static boolean run(ClientPlayNetworkHandler handler, Runnable runnable) {
+        MinecraftClient.getInstance().execute(runnable);
         return true;
     }
 
-    private static boolean handleItemGroupRemove(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
+    private static boolean handleItemGroupApplyUpdates(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version > -1) {
+
+            MinecraftClient.getInstance().execute(() -> {
+                if (ItemGroups.enabledFeatures != null) {
+                    ItemGroupsAccessor.callUpdateEntries(ItemGroups.enabledFeatures, ItemGroups.operatorEnabled);
+                }
+                PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
+            });
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean handleItemGroupDefine(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version > -1) {
             var id = buf.readIdentifier();
-            MinecraftClient.getInstance().execute(() -> InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(id)));
+            var name = buf.readText();
+            var icon = PolymerImplUtils.readStack(buf);
+
+            MinecraftClient.getInstance().execute(() -> {
+                InternalClientRegistry.clearTabs((t) -> t.getIdentifier().equals(id));
+                InternalClientRegistry.createItemGroup(id, name, icon);
+            });
+
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean handleItemGroupRemove(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version > -1) {
+            var id = buf.readIdentifier();
+            MinecraftClient.getInstance().execute(() -> {
+                InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(id));
+            });
             return true;
         }
 
         return false;
     }
 
-    private static boolean handleItemGroupVanillaSync(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 1) {
+    private static boolean handleItemGroupContentsAdd(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version > -1) {
             var id = buf.readIdentifier();
-            ItemGroup group = InternalClientRegistry.getVanillaItemGroup(id);
 
-            if (group != null) {
-                var groupAccess = (ClientItemGroupExtension) group;
-                groupAccess.polymer$clearStacks();
+            var size = buf.readVarInt();
 
-                var size = buf.readVarInt();
+            var groupList = new ArrayList<ItemStack>();
+            var searchList = new ArrayList<ItemStack>();
 
-                for (int i = 0; i < size; i++) {
-                    groupAccess.polymer$addStackGroup(PolymerImplUtils.readStack(buf));
+            for (int i = 0; i < size; i++) {
+                var stack = PolymerImplUtils.readStack(buf);
+                if (!stack.isEmpty()) {
+                    stack = stack.copy();
+                    stack.setCount(1);
+                    groupList.add(stack);
                 }
-
-                size = buf.readVarInt();
-
-                for (int i = 0; i < size; i++) {
-                    groupAccess.polymer$addStackSearch(PolymerImplUtils.readStack(buf));
-                }
-
-                group.reloadSearchProvider();
             }
+
+            size = buf.readVarInt();
+
+            for (int i = 0; i < size; i++) {
+                var stack = PolymerImplUtils.readStack(buf);
+                if (!stack.isEmpty()) {
+                    stack = stack.copy();
+                    stack.setCount(1);
+                    searchList.add(stack);
+                }
+            }
+
+            MinecraftClient.getInstance().execute(() -> {
+                ItemGroup group = InternalClientRegistry.getItemGroup(id);
+
+                if (group != null) {
+                    var groupAccess = (ClientItemGroupExtension) group;
+
+                    for (var stack : groupList) {
+                        groupAccess.polymer$addStackGroup(stack);
+                    }
+
+                    for (var stack : searchList) {
+                        groupAccess.polymer$addStackSearch(stack);
+                    }
+                }
+            });
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean handleItemGroupContentsClear(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version > -1) {
+            var id = buf.readIdentifier();
+            MinecraftClient.getInstance().execute(() -> {
+                ItemGroup group = InternalClientRegistry.getItemGroup(id);
+
+                if (group != null) {
+                    var groupAccess = (ClientItemGroupExtension) group;
+                    groupAccess.polymer$clearStacks();
+                }
+
+            });
             return true;
         }
         return false;
     }
 
     private static boolean handleEntity(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
+        if (version > -1) {
             var id = buf.readVarInt();
             var polymerId = buf.readIdentifier();
             MinecraftClient.getInstance().execute(() -> {
@@ -350,62 +419,6 @@ public class PolymerClientProtocolHandler {
             });
             return true;
 
-        }
-        return false;
-    }
-
-    private static boolean handleSearchRebuild(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
-            MinecraftClient.getInstance().execute(() -> {
-                for (var group : ItemGroups.getGroups()) {
-                    if (group.getType() == ItemGroup.Type.CATEGORY) {
-                        InternalClientRegistry.updateItemGroup(group);
-                    }
-                }
-                InternalClientRegistry.updateItemGroup(ItemGroups.getSearchGroup());
-
-                PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
-            });
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean handleItemGroupSync(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 1) {
-            var id = buf.readIdentifier();
-            var name = buf.readText();
-            var icon = PolymerImplUtils.readStack(buf);
-
-            var size = buf.readVarInt();
-
-            var stacks = new ArrayList<ItemStack>();
-            for (int i = 0; i < size; i++) {
-                stacks.add(PolymerImplUtils.readStack(buf));
-            }
-
-            MinecraftClient.getInstance().execute(() -> {
-                InternalClientRegistry.clearTabs((t) -> t.getIdentifier().equals(id));
-
-                //todo
-                /*var array = ItemGroups.GROUPS;
-
-
-                var newArray = new ItemGroup[array.length + 1];
-
-                if (array.length >= 0) {
-                    System.arraycopy(array, 0, newArray, 0, array.length);
-                }
-
-
-                var group = new InternalClientItemGroup(array.length, id, name, icon, stacksMain);
-                newArray[array.length] = group;
-                ItemGroupsAccessor.setGROUPS(newArray);
-
-                InternalClientRegistry.ITEM_GROUPS.set(id, group);*/
-            });
-
-            return true;
         }
         return false;
     }

@@ -23,10 +23,10 @@ import java.util.function.Consumer;
 /**
  * Global utilities allowing creation of single, polymer mod compatible resource pack
  */
-public final class PolymerRPUtils {
+public final class PolymerResourcePackUtils {
     public static final Path DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip").toAbsolutePath().normalize();
 
-    private PolymerRPUtils() {
+    private PolymerResourcePackUtils() {
     }
 
     private static final ResourcePackCreator INSTANCE = new ResourcePackCreator(PolymerImpl.FORCE_CUSTOM_MODEL_DATA_OFFSET ? 100000 : 1);
@@ -62,14 +62,14 @@ public final class PolymerRPUtils {
      *
      * @param modId Id of mods used as a source
      */
-    public static boolean addAssetSource(String modId) {
+    public static boolean addModAssets(String modId) {
         return INSTANCE.addAssetSource(modId);
     }
 
     /**
      * Allows to check if there are any provided resources
      */
-    public static boolean shouldGenerate() {
+    public static boolean hasResources() {
         return !INSTANCE.isEmpty();
     }
 
@@ -154,7 +154,7 @@ public final class PolymerRPUtils {
     }
 
     public static boolean build() {
-        return build(PolymerRPUtils.DEFAULT_PATH);
+        return build(PolymerResourcePackUtils.DEFAULT_PATH);
     }
 
     public static boolean build(Path output) {

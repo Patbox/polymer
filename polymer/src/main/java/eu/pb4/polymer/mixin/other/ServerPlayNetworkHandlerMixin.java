@@ -4,7 +4,7 @@ import eu.pb4.polymer.api.block.BlockMapper;
 import eu.pb4.polymer.api.networking.DynamicPacket;
 import eu.pb4.polymer.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.api.other.PolymerStatusEffect;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.EntityAttachedPacket;
@@ -204,7 +204,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
 
     @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
     private void polymer$changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
-        if (PolymerRPUtils.shouldCheckByDefault() && packet.getStatus() != ResourcePackStatusC2SPacket.Status.ACCEPTED) {
+        if (PolymerResourcePackUtils.shouldCheckByDefault() && packet.getStatus() != ResourcePackStatusC2SPacket.Status.ACCEPTED) {
             if (this.polymer$ignoreNextStatus == false) {
                 this.polymer$setResourcePack(switch (packet.getStatus()) {
                     case SUCCESSFULLY_LOADED -> true;

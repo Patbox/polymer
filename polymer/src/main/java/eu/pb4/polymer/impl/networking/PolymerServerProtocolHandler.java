@@ -71,13 +71,12 @@ public class PolymerServerProtocolHandler {
     private static void handleTooltipChange(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
 
-        if (version == 0) {
+        if (version > -1) {
             var tooltip = buf.readBoolean();
             handler.getPlayer().getServer().execute(() -> {
                 polymerHandler.polymer$setAdvancedTooltip(tooltip);
 
                 if (polymerHandler.polymer$lastPacketUpdate(ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
-                    PolymerServerProtocol.syncVanillaItemGroups(handler);
                     PolymerSyncUtils.synchronizeCreativeTabs(handler);
                     PolymerUtils.reloadInventory(handler.player);
                 }

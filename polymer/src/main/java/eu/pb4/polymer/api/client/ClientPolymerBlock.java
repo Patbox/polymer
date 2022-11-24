@@ -10,13 +10,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
 
-@ApiStatus.Experimental
 @Environment(EnvType.CLIENT)
 public record ClientPolymerBlock(Identifier identifier, int numId, Text name, BlockState defaultBlockState,
                                  @Nullable Block registryEntry) implements ClientPolymerEntry<Block> {

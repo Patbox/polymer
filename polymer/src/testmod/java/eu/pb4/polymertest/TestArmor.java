@@ -3,7 +3,7 @@ package eu.pb4.polymertest;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.resourcepack.PolymerArmorModel;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -18,23 +18,23 @@ public class TestArmor extends ArmorItem implements PolymerItem {
     public TestArmor(EquipmentSlot slot, Identifier model, Identifier armor) {
         super(ArmorMaterials.DIAMOND, slot, new Settings().fireproof().maxDamage(10000));
         this.itemDefault = getItemFor(slot, false);
-        this.itemModel = PolymerRPUtils.requestModel(getItemFor(slot, true), model);
-        this.armorModel = PolymerRPUtils.requestArmor(armor);
+        this.itemModel = PolymerResourcePackUtils.requestModel(getItemFor(slot, true), model);
+        this.armorModel = PolymerResourcePackUtils.requestArmor(armor);
     }
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerRPUtils.hasPack(player) ? this.itemModel.item() : this.itemDefault;
+        return PolymerResourcePackUtils.hasPack(player) ? this.itemModel.item() : this.itemDefault;
     }
 
     @Override
     public int getPolymerArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerRPUtils.hasPack(player) ? this.armorModel.value() : -1;
+        return PolymerResourcePackUtils.hasPack(player) ? this.armorModel.color() : -1;
     }
 
     @Override
     public int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerRPUtils.hasPack(player) ? this.itemModel.value() : -1;
+        return PolymerResourcePackUtils.hasPack(player) ? this.itemModel.value() : -1;
     }
 
     private static Item getItemFor(EquipmentSlot slot, boolean bool) {

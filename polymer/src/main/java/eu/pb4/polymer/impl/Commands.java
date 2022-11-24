@@ -5,16 +5,17 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.polymer.api.block.BlockMapper;
-import eu.pb4.polymer.api.item.PolymerItemGroup;
+import eu.pb4.polymer.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.api.other.PolymerStat;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.impl.ui.CreativeTabListUi;
+import eu.pb4.polymer.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.impl.ui.PotionUi;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
@@ -38,6 +39,7 @@ import net.minecraft.stat.Stats;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import org.jetbrains.annotations.ApiStatus;
@@ -160,9 +162,9 @@ public class Commands {
                                 .suggests((context, builder) -> {
                                     var remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
 
-                                    var groups = PolymerUtils.getItemGroups(context.getSource().getPlayer());
+                                    var groups = PolymerItemGroupUtils.getItemGroups(context.getSource().getPlayerOrThrow());
 
-                                    CommandSource.forEachMatching(groups, remaining, PolymerItemGroup::getId, group -> builder.suggest(group.getId().toString(), group.getDisplayName()));
+                                    CommandSource.forEachMatching(groups, remaining, PolymerImplUtils::toItemGroupId, group -> builder.suggest(PolymerImplUtils.toItemGroupId(group).toString(), group.getDisplayName()));
                                     return builder.buildFuture();
                                 })
                                 .executes(Commands::creativeTab)
@@ -213,14 +215,14 @@ public class Commands {
                             .then(argument("status", BoolArgumentType.bool())
                                     .executes((ctx) -> {
                                         var status = ctx.getArgument("status", Boolean.class);
-                                        PolymerRPUtils.setPlayerStatus(ctx.getSource().getPlayer(), status);
+                                        PolymerResourcePackUtils.setPlayerStatus(ctx.getSource().getPlayer(), status);
                                         ctx.getSource().sendFeedback(Text.literal("New resource pack status: " + status), false);
                                         return 0;
                                     }))
                     )
                     .then(literal("get-pack-status")
                             .executes((ctx) -> {
-                                var status = PolymerRPUtils.hasPack(ctx.getSource().getPlayer());
+                                var status = PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer());
                                 ctx.getSource().sendFeedback(Text.literal("Resource pack status: " + status), false);
                                 return 0;
                             })
@@ -365,15 +367,16 @@ public class Commands {
         return 0;
     }
 
-    private static int creativeTab(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int creativeTab(CommandContext<ServerCommandSource> context) {
         if (context.getSource().getPlayer().isCreative()) {
             try {
-                //todo
-                //var itemGroup = PolymerItemGroup.REGISTRY.get(context.getArgument("itemGroup", Identifier.class));
-                //if (itemGroup != null && itemGroup.shouldSyncWithPolymerClient(context.getSource().getPlayer())) {
-                //    new CreativeTabUi(context.getSource().getPlayer(), itemGroup);
+                var id = context.getArgument("itemGroup", Identifier.class);
+
+                var itemGroup = PolymerItemGroupUtils.get(id);
+                if (itemGroup != null) {
+                    new CreativeTabUi(context.getSource().getPlayer(), itemGroup);
                     return 2;
-                //}
+                }
             } catch (Exception e) {
                 //
             }
@@ -416,14 +419,14 @@ public class Commands {
 
             Util.getIoWorkerExecutor().execute(() -> {
                 context.getSource().sendFeedback(Text.literal("Starting resource pack generation..."), true);
-                boolean success = PolymerRPUtils.build();
+                boolean success = PolymerResourcePackUtils.build();
 
                 context.getSource().getServer().execute(() -> {
                     if (success) {
                         context.getSource().sendFeedback(
                                 Text.literal("Resource pack created successfully! You can find it in game folder as ")
                                 .append(Text.literal("polymer-resourcepack.zip")
-                                        .setStyle(Style.EMPTY.withUnderline(true).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(PolymerRPUtils.DEFAULT_PATH.toAbsolutePath().toString()))))),
+                                        .setStyle(Style.EMPTY.withUnderline(true).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(PolymerResourcePackUtils.DEFAULT_PATH.toAbsolutePath().toString()))))),
                                 true
                         );
                     } else {

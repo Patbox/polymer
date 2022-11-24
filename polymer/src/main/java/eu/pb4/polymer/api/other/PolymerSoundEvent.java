@@ -1,6 +1,6 @@
 package eu.pb4.polymer.api.other;
 
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,20 +13,12 @@ import org.jetbrains.annotations.Nullable;
  * It can be used to play custom sounds for players with resourcepack while keeping fallback for vanilla clients
  */
 public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject<SoundEvent> {
-    public static final SoundEvent EMPTY_SOUND = new SoundEvent(PolymerImplUtils.id("empty_sound"));
+    public static final SoundEvent EMPTY_SOUND = new SoundEvent(PolymerImplUtils.id("empty_sound"), 0, false);
     private final SoundEvent polymerSound;
 
-    public PolymerSoundEvent(Identifier id, @Nullable SoundEvent vanillaEvent) {
-        super(id);
-        while (vanillaEvent instanceof PolymerSoundEvent soundEvent) {
-            vanillaEvent = soundEvent.getVanillaPolymerSound();
-        }
 
-        this.polymerSound = vanillaEvent != null ? vanillaEvent : EMPTY_SOUND;
-    }
-
-    public PolymerSoundEvent(Identifier id, float distanceToTravel, @Nullable SoundEvent vanillaEvent) {
-        super(id, distanceToTravel);
+    public PolymerSoundEvent(Identifier id, float distanceToTravel, boolean useStaticDistance, @Nullable SoundEvent vanillaEvent) {
+        super(id, distanceToTravel, useStaticDistance);
         while (vanillaEvent instanceof PolymerSoundEvent soundEvent) {
             vanillaEvent = soundEvent.getVanillaPolymerSound();
         }
@@ -43,6 +35,6 @@ public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject
 
     @Override
     public SoundEvent getPolymerReplacement(ServerPlayerEntity player) {
-        return PolymerRPUtils.hasPack(player) ? this : this.getVanillaPolymerSound();
+        return PolymerResourcePackUtils.hasPack(player) ? this : this.getVanillaPolymerSound();
     }
 }

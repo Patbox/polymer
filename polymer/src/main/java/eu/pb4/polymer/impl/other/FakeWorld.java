@@ -20,6 +20,7 @@ import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
@@ -242,6 +243,11 @@ public final class FakeWorld extends World {
 
     @Override
     public void playSoundFromEntity(@Nullable PlayerEntity player, Entity entity, SoundEvent sound, SoundCategory category, float volume, float pitch) {
+
+    }
+
+    @Override
+    public void method_47907(@Nullable PlayerEntity playerEntity, Vec3d vec3d, Identifier identifier, SoundCategory soundCategory, float f, float g, double d, long l) {
 
     }
 

@@ -2,10 +2,8 @@ package eu.pb4.polymer.api.utils;
 
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.api.item.PolymerItemGroup;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
-import eu.pb4.polymer.impl.InternalServerRegistry;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
@@ -40,9 +38,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.zip.ZipFile;
 
 /**
  * General use case utils that can be useful in multiple situations
@@ -58,14 +54,6 @@ public final class PolymerUtils {
 
     public static String getVersion() {
         return PolymerImpl.VERSION;
-    }
-
-    public static String getMainModuleId() {
-        return PolymerImpl.MOD_ID;
-    }
-
-    public static String getMainModuleName() {
-        return PolymerImpl.NAME;
     }
 
     /**
@@ -195,35 +183,6 @@ public final class PolymerUtils {
     }
 
     /**
-     * Returns list of ItemGroups accessible by player
-     */
-    public static List<PolymerItemGroup> getItemGroups(ServerPlayerEntity player) {
-        var list = new LinkedHashSet<PolymerItemGroup>();
-
-        for (var group : InternalServerRegistry.ITEM_GROUPS) {
-            if (group.canSendToPlayer(player)) {
-                list.add(group);
-            }
-        }
-
-        var sync = new PolymerItemGroup.ItemGroupListBuilder() {
-            @Override
-            public void add(PolymerItemGroup group) {
-                list.add(group);
-            }
-
-            @Override
-            public void remove(PolymerItemGroup group) {
-                list.remove(group);
-            }
-        };
-
-        PolymerItemGroup.LIST_EVENT.invoke((x) -> x.onItemGroupSync(player, sync));
-
-        return new ArrayList<>(list);
-    }
-
-    /**
      * Creates SkullOwner NbtCompound from provided skin value
      *
      * @param value Skin value
@@ -269,7 +228,7 @@ public final class PolymerUtils {
     }
 
     @Nullable
-    public static ZipFile getClientJar() {
+    public static Path getClientJar() {
         try {
             Path clientJarPath;
             if (!PolymerImpl.IS_CLIENT) {
@@ -293,7 +252,7 @@ public final class PolymerUtils {
                 Files.copy(is, clientJarPath);
             }
 
-            return new ZipFile(clientJarPath.toFile());
+            return clientJarPath;
         } catch (Exception e) {
             PolymerImpl.LOGGER.error("Couldn't retrieve client jar!", e);
             return null;

@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.ui;
 
+import eu.pb4.polymer.api.item.PolymerItemGroupUtils;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
@@ -18,7 +19,8 @@ public class CreativeTabUi extends MicroUi {
         this.title(itemGroup.getDisplayName());
         this.itemGroup = itemGroup;
         this.items = DefaultedList.of();
-        this.items.addAll(this.itemGroup.getDisplayStacks());
+        var content = PolymerItemGroupUtils.getContentsFor(player, itemGroup);
+        this.items.addAll(content.main());
         this.page = 0;
         this.drawUi();
 

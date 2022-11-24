@@ -2,7 +2,7 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PickaxeItem;
@@ -19,7 +19,7 @@ public class TestPickaxeItem extends PickaxeItem implements PolymerItem {
 
     public TestPickaxeItem(Item polymerItem, ToolMaterial material, int attackDamage, float attackSpeed, Settings settings) {
         super(material, attackDamage, attackSpeed, settings);
-        this.model = PolymerRPUtils.requestModel(polymerItem, new Identifier("polymertest", "item/pickaxe"));
+        this.model = PolymerResourcePackUtils.requestModel(polymerItem, new Identifier("polymertest", "item/pickaxe"));
     }
 
     @Override

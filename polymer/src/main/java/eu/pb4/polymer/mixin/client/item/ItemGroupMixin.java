@@ -1,6 +1,7 @@
 package eu.pb4.polymer.mixin.client.item;
 
 import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.other.PolymerTooltipContext;
@@ -9,6 +10,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.resource.featuretoggle.FeatureSet;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,13 +31,20 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Shadow private Collection<ItemStack> displayStacks;
     @Shadow private Set<ItemStack> searchTabStacks;
+
+    @Shadow @Final private ItemGroup.Type type;
     @Unique private List<ItemStack> polymer$itemsGroup = new ArrayList<>();
     @Unique private List<ItemStack> polymer$itemsSearch = new ArrayList<>();
 
     @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE))
     private void polymer$injectEntries(FeatureSet enabledFeatures, boolean operatorEnabled, CallbackInfo ci) {
-        this.displayStacks.addAll(this.polymer$itemsGroup);
-        this.searchTabStacks.addAll(this.polymer$itemsSearch);
+        if (this.type == ItemGroup.Type.CATEGORY) {
+            this.displayStacks.removeIf(PolymerItemUtils::isPolymerServerItem);
+            this.searchTabStacks.removeIf(PolymerItemUtils::isPolymerServerItem);
+
+            this.displayStacks.addAll(this.polymer$itemsGroup);
+            this.searchTabStacks.addAll(this.polymer$itemsSearch);
+        }
     }
 
     @Inject(method = "getIcon", at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/function/Supplier;get()Ljava/lang/Object;", shift = At.Shift.AFTER))

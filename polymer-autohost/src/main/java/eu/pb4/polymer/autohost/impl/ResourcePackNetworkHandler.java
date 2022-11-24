@@ -1,7 +1,7 @@
 package eu.pb4.polymer.autohost.impl;
 
 import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import io.netty.buffer.Unpooled;
@@ -27,11 +27,11 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     public ResourcePackNetworkHandler(Context context) {
         super(PolymerImplUtils.id("auto_host_resourcepack"), context);
 
-        this.required = AutoHost.config.require || PolymerRPUtils.isRequired();
+        this.required = AutoHost.config.require || PolymerResourcePackUtils.isRequired();
 
         var player = this.getPlayer();
 
-        if (PolymerRPUtils.hasPack(player)) {
+        if (PolymerResourcePackUtils.hasPack(player)) {
             this.continueJoining();
         } else {
             var server = this.getServer();
@@ -62,9 +62,9 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     @Override
     public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
         switch (packet.getStatus()) {
-            case ACCEPTED -> PolymerRPUtils.setPlayerStatus(this.getPlayer(), true);
+            case ACCEPTED -> PolymerResourcePackUtils.setPlayerStatus(this.getPlayer(), true);
             case SUCCESSFULLY_LOADED -> {
-                PolymerRPUtils.setPlayerStatus(this.getPlayer(), true);
+                PolymerResourcePackUtils.setPlayerStatus(this.getPlayer(), true);
                 this.sendPacket(new PlayPingS2CPacket(0));
             }
             case DECLINED, FAILED_DOWNLOAD -> {

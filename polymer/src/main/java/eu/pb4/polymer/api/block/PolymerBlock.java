@@ -23,7 +23,7 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
      *
      * @return Vanilla (or other) Block instance
      */
-    default Block getPolymerBlock(ServerPlayerEntity player, BlockState state) {
+    default Block getPolymerBlock(BlockState state, ServerPlayerEntity player) {
         return this.getPolymerBlock(state);
     }
 
@@ -42,11 +42,11 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
      * Main method used for replacing BlockStates for players
      * Keep in mind you should ideally use blocks with the same hitbox as generic/non-player ones!
      *
-     * @param player Player viewing it
      * @param state Server side BlocksState
+     * @param player Player viewing it
      * @return Client side BlockState
      */
-    default BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state) {
+    default BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
         return this.getPolymerBlockState(state);
     }
 
@@ -54,13 +54,13 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
      * This method is called when block gets send to player
      * Allows to add client-only BlockEntities (for signs, heads, etc)
      *
-     * @param player Player packets should be send to
-     * @param pos Position of block. Keep in mind it's mutable,
-     *            so make sure to use {@link BlockPos.Mutable#toImmutable()}
-     *            in case of using in packets, as it's reused for other positions!
      * @param blockState Real BlockState of block
+     * @param pos Position of block. Keep in mind it's mutable,
+ *            so make sure to use {@link BlockPos.Mutable#toImmutable()}
+ *            in case of using in packets, as it's reused for other positions!
+     * @param player Player packets should be send to
      */
-    default void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState blockState) { }
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, ServerPlayerEntity player) { }
 
     /**
      * You can override this method in case of issues with light updates of this block. In most cases it's not needed.
@@ -80,6 +80,6 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
 
     @Override
     default Block getPolymerReplacement(ServerPlayerEntity player) {
-        return this.getPolymerBlock(player, ((Block) this).getDefaultState());
+        return this.getPolymerBlock(((Block) this).getDefaultState(), player);
     }
 }

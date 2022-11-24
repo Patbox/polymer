@@ -252,7 +252,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
                 credits.add("");
 
-                this.clientJar = PolymerUtils.getClientJar();
+                this.clientJar = new ZipFile(PolymerUtils.getClientJar().toFile());
 
                 this.buildEvent.invoke((c) -> c.accept(credits));
 
@@ -312,7 +312,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var armorDataMap = new HashMap<Integer, String>();
 
                     for (var entry : this.armors) {
-                        armorDataMap.put(entry.value(), entry.modelPath().toString());
+                        armorDataMap.put(entry.color(), entry.modelPath().toString());
                         try {
                             var images = new BufferedImage[2];
                             var metadata = new ArmorTextureMetadata[2];
@@ -361,7 +361,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                                     }
                                 }
                             }
-                            list.add(new ArmorData(entry.modelPath(), entry.value(), images, metadata));
+                            list.add(new ArmorData(entry.modelPath(), entry.color(), images, metadata));
                         } catch (Throwable e) {
                             PolymerImpl.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
                             e.printStackTrace();

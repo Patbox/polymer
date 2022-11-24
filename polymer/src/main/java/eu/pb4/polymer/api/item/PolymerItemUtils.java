@@ -2,7 +2,7 @@ package eu.pb4.polymer.api.item;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -177,7 +177,7 @@ public final class PolymerItemUtils {
         return shouldPolymerConvert(itemStack, null);
     }
 
-    private static boolean shouldPolymerConvert(ItemStack itemStack, ServerPlayerEntity player) {
+    private static boolean shouldPolymerConvert(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;
         }
@@ -223,7 +223,7 @@ public final class PolymerItemUtils {
             var display = itemStack.getSubNbt("display");
             if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
                 var color = display.getInt("color");
-                return PolymerRPUtils.isColorTaken(color);
+                return PolymerResourcePackUtils.isColorTaken(color);
             }
         }
 

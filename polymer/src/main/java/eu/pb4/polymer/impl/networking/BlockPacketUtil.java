@@ -34,7 +34,7 @@ public class BlockPacketUtil {
                     var pos = iterator.next();
                     var blockState = wc.getBlockState(pos);
                     if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
-                        polymerBlock.onPolymerBlockSend(handler.player, pos, blockState);
+                        polymerBlock.onPolymerBlockSend(blockState, pos, handler.player);
                     }
                 }
             }
@@ -54,7 +54,7 @@ public class BlockPacketUtil {
         @Override
         public void run() {
             PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
-            polymerBlock.onPolymerBlockSend(handler.player, pos.mutableCopy(), blockState);
+            polymerBlock.onPolymerBlockSend(blockState, pos.mutableCopy(), handler.player);
         }
     }
 
@@ -72,7 +72,7 @@ public class BlockPacketUtil {
                 if (blockState.getBlock() instanceof PolymerBlock) {
 
                     blockPos.set(chunkPos.unpackBlockX(localPos[i]), chunkPos.unpackBlockY(localPos[i]), chunkPos.unpackBlockZ(localPos[i]));
-                    ((PolymerBlock) blockState.getBlock()).onPolymerBlockSend(handler.player, blockPos, blockState);
+                    ((PolymerBlock) blockState.getBlock()).onPolymerBlockSend(blockState, blockPos, handler.player);
                 }
             }
         }

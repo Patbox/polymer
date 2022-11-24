@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import eu.pb4.polymer.api.utils.events.SimpleEvent;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.resourcepack.DefaultRPBuilder;
+import eu.pb4.polymer.impl.resourcepack.PolymerArmorModelImpl;
+import eu.pb4.polymer.impl.resourcepack.PolymerModelDataImpl;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -84,7 +86,7 @@ public final class ResourcePackCreator {
         var map = this.itemsMap.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
 
         var cmdInfoList = this.items.computeIfAbsent(vanillaItem, (x) -> new ArrayList<>());
-        var cmdInfo = new PolymerModelData(vanillaItem, customModelData + (respectOffset ? this.cmdOffset : 0), modelPath);
+        var cmdInfo = new PolymerModelDataImpl(vanillaItem, customModelData + (respectOffset ? this.cmdOffset : 0), modelPath);
         cmdInfoList.add(cmdInfo);
         this.itemIds.put(vanillaItem, Math.max(this.itemIds.getInt(vanillaItem), customModelData + 1));
         map.put(modelPath, cmdInfo);
@@ -103,7 +105,7 @@ public final class ResourcePackCreator {
         } else {
             this.armorColor++;
             int color = 0xFFFFFF - armorColor * 2;
-            var model = new PolymerArmorModel(color, modelPath);
+            var model = new PolymerArmorModelImpl(color, modelPath);
 
             this.armorModelMap.put(modelPath, model);
             this.takenArmorColors.add(color);

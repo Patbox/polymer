@@ -16,6 +16,7 @@ public interface PolymerStatusEffect extends PolymerSyncedObject<StatusEffect> {
     }
 
     @Override
+    @Nullable
     default StatusEffect getPolymerReplacement(ServerPlayerEntity player) {
         return null;
     }

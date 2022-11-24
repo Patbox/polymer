@@ -10,21 +10,25 @@ import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.client.networking.PolymerClientProtocolHandler;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 import eu.pb4.polymer.impl.interfaces.IndexedNetwork;
 import eu.pb4.polymer.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.impl.other.DelayedAction;
 import eu.pb4.polymer.impl.other.EventRunners;
 import eu.pb4.polymer.impl.other.ImplPolymerRegistry;
+import eu.pb4.polymer.mixin.other.ItemGroupsAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.impl.itemgroup.ItemGroupHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
@@ -34,6 +38,7 @@ import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.collection.IndexedIterable;
@@ -44,6 +49,7 @@ import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,12 +143,6 @@ public class InternalClientRegistry {
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
-    }
-
-    public static void updateItemGroup(ItemGroup group) {
-        if (ItemGroups.enabledFeatures != null) {
-            group.updateEntries(ItemGroups.enabledFeatures, ItemGroups.operatorEnabled);
-        }
     }
 
     @Nullable
@@ -339,42 +339,39 @@ public class InternalClientRegistry {
         for (var group : ItemGroups.getGroups()) {
             if (group.getType() == ItemGroup.Type.CATEGORY) {
                 ((ClientItemGroupExtension) group).polymer$clearStacks();
-                updateItemGroup(group);
             }
         }
-        updateItemGroup(ItemGroups.getSearchGroup());
+        if (ItemGroups.enabledFeatures != null) {
+            ItemGroupsAccessor.callUpdateEntries(ItemGroups.enabledFeatures, ItemGroups.operatorEnabled);
+        }
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
-        //todo
-        /*var array = ItemGroups.getGroups();
+        try {
+            var itemGroups = new ArrayList<>(ItemGroups.getGroups());
+            itemGroups.removeIf((i) -> i instanceof InternalClientItemGroup group && removePredicate.test(group));
 
-        var list = new ArrayList<ItemGroup>();
-
-        int posOffset = 0;
-
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] instanceof InternalClientItemGroup group && removePredicate.test(group)) {
-                posOffset++;
-                ITEM_GROUPS.remove(group);
-                ((ItemGroupAccessor) array[i]).setIndex(0);
-            } else if (array[i] != null) {
-                ((ItemGroupAccessor) array[i]).setIndex(i - posOffset);
-                list.add(array[i]);
-            }
-        }
-
-        if (list.size() <= CreativeInventoryScreenAccessor.getSelectedTab()) {
-            CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.BUILDING_BLOCKS.getIndex());
+            List<ItemGroup> validated = ItemGroupsAccessor.callCollect(itemGroups.toArray(ItemGroup[]::new));
+            ItemGroupsAccessor.setGROUPS(validated);
 
             if (CompatStatus.FABRIC_ITEM_GROUP) {
                 try {
-                    Field f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
+                    ItemGroupHelper.sortedGroups = validated.stream().sorted((a, b) -> {
+                        if (a.isSpecial() && !b.isSpecial()) return 1;
+                        if (!a.isSpecial() && b.isSpecial()) return -1;
+                        return 0;
+                    }).toList();
+                } catch (Throwable e) {
+
+                }
+
+                try {
+                    var f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
                     f1.setAccessible(true);
                     f1.setInt(null, 0);
                 } catch (Throwable e) {
-                    // noop
+
                 }
             }
 
@@ -388,12 +385,30 @@ public class InternalClientRegistry {
                         }
                     }
                 } catch (Throwable e) {
-                    // noop
+
+                }
+
+            }
+
+        } catch (Throwable e) {
+
+        }
+    }
+
+    public static void createItemGroup(Identifier id, Text name, ItemStack icon) {
+        try {
+            var group = new InternalClientItemGroup(null, -1, id, name, icon);
+
+            if (CompatStatus.FABRIC_ITEM_GROUP) {
+                try {
+                    ItemGroupHelper.appendItemGroup(group);
+                } catch (Throwable e) {
+
                 }
             }
-        }
+        } catch(Throwable e) {
 
-        ItemGroupsAccessor.setGROUPS(list.toArray(new ItemGroup[0]));*/
+        }
     }
 
     public static int getClientProtocolVer(String identifier) {
@@ -414,9 +429,11 @@ public class InternalClientRegistry {
         setDecoders();
     }
 
-    public static ItemGroup getVanillaItemGroup(Identifier id) {
+    public static ItemGroup getItemGroup(Identifier id) {
         for (var group : ItemGroups.getGroups()) {
-            if (PolymerImplUtils.toItemGroupId(group).equals(id)) {
+            if (group instanceof InternalClientItemGroup clientItemGroup && clientItemGroup.getIdentifier().equals(id)) {
+                return group;
+            } else if (PolymerImplUtils.toItemGroupId(group).equals(id)) {
                 return group;
             }
         }

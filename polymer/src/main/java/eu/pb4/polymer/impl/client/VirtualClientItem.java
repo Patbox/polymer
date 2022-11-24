@@ -9,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
@@ -60,6 +61,11 @@ public class VirtualClientItem extends Item {
                 tooltip.add(Text.Serializer.fromLenientJson(text.asString()));
             }
         }
+    }
+
+    @Override
+    public FeatureSet getRequiredFeatures() {
+        return FeatureSet.empty();
     }
 
     private VirtualClientItem() {

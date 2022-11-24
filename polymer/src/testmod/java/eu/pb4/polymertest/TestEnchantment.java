@@ -1,6 +1,6 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
@@ -38,6 +38,6 @@ public class TestEnchantment extends Enchantment implements PolymerSyncedObject<
 
     @Override
     public Enchantment getPolymerReplacement(ServerPlayerEntity player) {
-        return PolymerRPUtils.hasPack(player) ? this : null;
+        return PolymerResourcePackUtils.hasPack(player) ? this : null;
     }
 }

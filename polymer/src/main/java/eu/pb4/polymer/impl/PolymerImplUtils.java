@@ -100,7 +100,28 @@ public class PolymerImplUtils {
         }
     }
 
+    public static boolean permissionCheck(ServerPlayerEntity player, String path, int operatorLevel) {
+        if (CompatStatus.FABRIC_PERMISSION_API_V0) {
+            return Permissions.check(player, "polymer." + path, operatorLevel);
+        } else {
+            return player.hasPermissionLevel(operatorLevel);
+        }
+    }
+
     public static Identifier toItemGroupId(ItemGroup group) {
+        var posId = InternalServerRegistry.ITEM_GROUPS.getId(group);
+        if (posId != null) {
+            return posId;
+        }
+
+        if (CompatStatus.FABRIC_ITEM_GROUP) {
+            try {
+                return ((net.fabricmc.fabric.api.itemgroup.v1.IdentifiableItemGroup) group).getId();
+            } catch (Throwable e) {
+
+            }
+        }
+
         var name = group.getDisplayName();
 
         if (name.getContent() instanceof TranslatableTextContent content) {
@@ -110,7 +131,7 @@ public class PolymerImplUtils {
                 id = id.substring("itemGroup.".length());
             }
 
-            var sub = id.split(".", 2);
+            var sub = id.split("\\.", 2);
 
             if (sub.length == 2) {
                 return new Identifier(makeSafeId(sub[0]), makeSafeId(sub[1]));
@@ -162,7 +183,13 @@ public class PolymerImplUtils {
         } else {
             int i = buf.readVarInt();
             int j = buf.readByte();
-            ItemStack itemStack = new ItemStack(decodeItem(i), j);
+            var dec = decodeItem(i);
+            if (dec == null || dec == Items.AIR) {
+                buf.readNbt();
+                return ItemStack.EMPTY;
+            }
+
+            ItemStack itemStack = new ItemStack(dec, j);
             itemStack.setNbt(buf.readNbt());
             return itemStack;
         }

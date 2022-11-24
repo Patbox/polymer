@@ -1,5 +1,6 @@
 package eu.pb4.polymer.impl.networking.packets;
 
+import eu.pb4.polymer.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
@@ -12,24 +13,27 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public record PolymerVanillaItemGroupEntry(Identifier identifier, List<ItemStack> stacksMain, List<ItemStack> stacksSearch) implements BufferWritable {
-    public static PolymerVanillaItemGroupEntry of(ItemGroup group, ServerPlayNetworkHandler handler) {
+public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> stacksMain, List<ItemStack> stacksSearch) implements BufferWritable {
+    public static PolymerItemGroupContent of(ItemGroup group, ServerPlayNetworkHandler handler) {
         var stacksMain = new ArrayList<ItemStack>();
         var stacksSearch = new ArrayList<ItemStack>();
 
-        for (var item : group.getDisplayStacks()) {
-            if (PolymerItemUtils.isPolymerServerItem(item)) {
+        var anyContent = PolymerItemGroupUtils.isPolymerItemGroup(group);
+        var contents = PolymerItemGroupUtils.getContentsFor(handler.player, group);
+
+        for (var item : contents.main()) {
+            if (anyContent || PolymerItemUtils.isPolymerServerItem(item)) {
                 stacksMain.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
             }
         }
 
-        for (var item : group.getSearchTabStacks()) {
-            if (PolymerItemUtils.isPolymerServerItem(item)) {
+        for (var item : contents.search()) {
+            if (anyContent || PolymerItemUtils.isPolymerServerItem(item)) {
                 stacksSearch.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
             }
         }
 
-        return new PolymerVanillaItemGroupEntry(PolymerImplUtils.toItemGroupId(group), stacksMain, stacksSearch);
+        return new PolymerItemGroupContent(PolymerImplUtils.toItemGroupId(group), stacksMain, stacksSearch);
     }
 
     @Override

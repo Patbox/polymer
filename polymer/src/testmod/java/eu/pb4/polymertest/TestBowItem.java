@@ -2,7 +2,7 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,7 +18,7 @@ public class TestBowItem extends BowItem implements PolymerItem {
     public TestBowItem(Settings settings, String model) {
         super(settings);
 
-        this.model = PolymerRPUtils.requestModel(Items.BOW, new Identifier("polymertest", "item/" + model));
+        this.model = PolymerResourcePackUtils.requestModel(Items.BOW, new Identifier("polymertest", "item/" + model));
     }
 
     @Override

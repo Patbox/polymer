@@ -1,6 +1,6 @@
 package eu.pb4.polymer.mixin.compat.polymc;
 
-import eu.pb4.polymer.api.resourcepack.PolymerRPUtils;
+import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
 import io.github.theepicblock.polymc.api.resource.ModdedResources;
 import io.github.theepicblock.polymc.api.resource.PolyMcResourcePack;
 import io.github.theepicblock.polymc.impl.misc.logging.SimpleLogger;
@@ -66,7 +66,7 @@ public class polymc_ArmorColorManagerMixin {
      */
     @Overwrite
     public boolean hasColor(int c) {
-        return PolymerRPUtils.isColorTaken(c);
+        return PolymerResourcePackUtils.isColorTaken(c);
     }
 
     /**
@@ -76,8 +76,8 @@ public class polymc_ArmorColorManagerMixin {
     @Overwrite
     public int getColorForMaterial(ArmorMaterial material) {
         if (!material2Color.containsKey(material)) {
-            var color = PolymerRPUtils.requestArmor(new Identifier("minecraft", material.getName()));
-            material2Color.put(material, color.value());
+            var color = PolymerResourcePackUtils.requestArmor(new Identifier("minecraft", material.getName()));
+            material2Color.put(material, color.color());
         }
         return material2Color.getInt(material);
     }
