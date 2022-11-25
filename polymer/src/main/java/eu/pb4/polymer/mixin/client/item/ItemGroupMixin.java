@@ -2,6 +2,8 @@ package eu.pb4.polymer.mixin.client.item;
 
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.impl.other.PolymerTooltipContext;
@@ -9,6 +11,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,6 +39,9 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @Shadow @Final private ItemGroup.Type type;
     @Unique private List<ItemStack> polymer$itemsGroup = new ArrayList<>();
     @Unique private List<ItemStack> polymer$itemsSearch = new ArrayList<>();
+    @Shadow public abstract Text getDisplayName();
+
+    @Unique private List<ItemStack> polymer_items = new ArrayList<>();
 
     @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE))
     private void polymer$injectEntries(FeatureSet enabledFeatures, boolean operatorEnabled, CallbackInfo ci) {

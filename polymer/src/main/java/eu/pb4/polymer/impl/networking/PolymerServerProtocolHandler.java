@@ -41,7 +41,7 @@ public class PolymerServerProtocolHandler {
                 versionRead = true;
                 handle(handler, identifier.getPath(), version, buf);
             } catch (Throwable e) {
-                PolymerImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)! {}", identifier, versionRead ? "Unknown" : version, handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
+                PolymerImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, versionRead ? version : "Unknown", handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
             }
         }
     }

@@ -371,7 +371,9 @@ public class InternalClientRegistry {
                     f1.setAccessible(true);
                     f1.setInt(null, 0);
                 } catch (Throwable e) {
-
+                    if (PolymerImpl.LOG_MORE_ERRORS) {
+                        PolymerImpl.LOGGER.error("Failed to change item group page (FABRIC)!", e);
+                    }
                 }
             }
 
@@ -385,7 +387,9 @@ public class InternalClientRegistry {
                         }
                     }
                 } catch (Throwable e) {
-
+                    if (PolymerImpl.LOG_MORE_ERRORS) {
+                        PolymerImpl.LOGGER.error("Failed to change item group page (QUILT)!", e);
+                    }
                 }
 
             }

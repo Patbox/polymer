@@ -1,5 +1,6 @@
 package eu.pb4.polymer.mixin.other;
 
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.interfaces.TempPlayerLoginAttachments;
 import eu.pb4.polymer.impl.networking.PolymerServerProtocol;
 import net.minecraft.network.ClientConnection;
@@ -31,7 +32,9 @@ public class PlayerManagerMixin {
                 try {
                     packet.apply(player.networkHandler);
                 } catch (Throwable e) {
-
+                    if (PolymerImpl.LOG_MORE_ERRORS) {
+                        PolymerImpl.LOGGER.error("Packet error!", e);
+                    }
                 }
             }
         }

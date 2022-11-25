@@ -44,6 +44,9 @@ public class InternalEntityHelpers {
                 }
             });
         } catch (Throwable e) {
+            if (PolymerImpl.LOG_MORE_ERRORS) {
+                PolymerImpl.LOGGER.error("Failed add player like entity! Trying with alternative method", e);
+            }
             try {
                 EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_REGULAR, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
                     @Override
@@ -57,7 +60,9 @@ public class InternalEntityHelpers {
                     }
                 });
             } catch (Throwable e2) {
-
+                if (PolymerImpl.LOG_MORE_ERRORS) {
+                    PolymerImpl.LOGGER.error("Failed add player like entity!", e2);
+                }
             }
         }
     }

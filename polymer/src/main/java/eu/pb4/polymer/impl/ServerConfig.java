@@ -27,4 +27,6 @@ public class ServerConfig {
     public boolean logHandshakeTime = false;
     public String _c12 = "Enables logging of BlockState ids rebuilds";
     public boolean logBlockStateRebuilds = true;
+    public String _c13 = "Enables logging of more exceptions. Useful when debugging";
+    public boolean logAllExceptions = false;
 }

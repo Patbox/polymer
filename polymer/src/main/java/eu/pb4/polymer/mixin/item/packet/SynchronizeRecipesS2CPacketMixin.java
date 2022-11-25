@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.item.packet;
 import eu.pb4.polymer.api.utils.PolymerObject;
 import eu.pb4.polymer.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -71,6 +72,11 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
                         this.polymer$clientRewrittenRecipes.add(recipe.getSerializer().read(recipe.getId(), buf));
                     } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
                         this.polymer$clientRewrittenRecipes.add(recipe);
+                        if (PolymerImpl.LOG_MORE_ERRORS) {
+                            PolymerImpl.LOGGER.error("Couldn't rewrite recipe!", e);
+                        }
+
+                        this.polymer_clientRewrittenRecipes.add(recipe);
                     }
                 }
             }
