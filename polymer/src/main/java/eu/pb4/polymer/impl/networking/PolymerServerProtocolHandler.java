@@ -88,7 +88,7 @@ public class PolymerServerProtocolHandler {
         var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var lastPacketUpdate = polymerHandler.polymer$lastPacketUpdate(ClientPackets.SYNC_REQUEST);
 
-        if (version == 0 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
+        if (version > -1 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
             handler.getPlayer().getServer().execute(() -> {
                 polymerHandler.polymer$savePacketTime(ClientPackets.SYNC_REQUEST);
                 PolymerServerProtocol.sendSyncPackets(handler, true);
