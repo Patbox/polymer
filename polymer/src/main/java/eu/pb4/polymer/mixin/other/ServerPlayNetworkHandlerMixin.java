@@ -195,10 +195,11 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         return this.polymer_protocolMap;
     }
 
-    @Inject(method = "onCustomPayload", at = @At("HEAD"))
+    @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
     private void polymer_catchPackets(CustomPayloadC2SPacket packet, CallbackInfo ci) {
         if (packet.getChannel().getNamespace().equals(PolymerUtils.ID)) {
             PolymerServerProtocolHandler.handle((ServerPlayNetworkHandler) (Object) this, packet.getChannel(), packet.getData());
+            ci.cancel();
         }
     }
 
