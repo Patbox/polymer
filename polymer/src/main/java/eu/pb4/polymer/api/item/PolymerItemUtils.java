@@ -378,7 +378,7 @@ public final class PolymerItemUtils {
                 lore.add(NbtString.of(Text.Serializer.toJson(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
             }
         } catch (Throwable e) {
-            if (PolymerImpl.LOG_ITEM_TOOLTIP_ERRORS) {
+            if (PolymerImpl.LOG_MORE_ERRORS) {
                 PolymerImpl.LOGGER.error("Failed to get tooltip of " + itemStack, e);
             }
 
@@ -394,7 +394,7 @@ public final class PolymerItemUtils {
                 // Fallback for mods that can't even handle names correctly...
                 // Do nothing and hope for the best™
 
-                if (PolymerImpl.LOG_ITEM_TOOLTIP_ERRORS) {
+                if (PolymerImpl.LOG_MORE_ERRORS) {
                     PolymerImpl.LOGGER.error("Failed for second time. Ignoring.", e2);
 
                 }

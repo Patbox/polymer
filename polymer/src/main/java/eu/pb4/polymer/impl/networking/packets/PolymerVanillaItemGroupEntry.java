@@ -1,6 +1,7 @@
 package eu.pb4.polymer.impl.networking.packets;
 
 import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
 import eu.pb4.polymer.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.mixin.other.ItemGroupAccessor;
@@ -17,7 +18,13 @@ public record PolymerVanillaItemGroupEntry(String identifier, List<ItemStack> st
     public static PolymerVanillaItemGroupEntry of(ItemGroup group, ServerPlayNetworkHandler handler) {
         var stacks = new ArrayList<ItemStack>();
         var list = DefaultedList.<ItemStack>of();
-        group.appendStacks(list);
+        try {
+            group.appendStacks(list);
+        } catch (Throwable e) {
+            if (PolymerImpl.LOG_MORE_ERRORS) {
+                PolymerImpl.LOGGER.error("Failed to get items of " + group.getDisplayName().getString()  +" Item Group", e);
+            }
+        }
 
         for (var item : list) {
             if (PolymerItemUtils.isPolymerServerItem(item)) {

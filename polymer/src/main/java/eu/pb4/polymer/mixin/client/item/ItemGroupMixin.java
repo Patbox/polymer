@@ -3,6 +3,7 @@ package eu.pb4.polymer.mixin.client.item;
 import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.utils.PolymerObject;
+import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.ClientUtils;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
@@ -11,6 +12,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,6 +32,8 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @Shadow private ItemStack icon;
 
     @Shadow public abstract String getName();
+
+    @Shadow public abstract Text getDisplayName();
 
     @Unique private List<ItemStack> polymer_items = new ArrayList<>();
 
@@ -65,7 +69,9 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
                 }
             }
         } catch (Throwable e) {
-
+            if (PolymerImpl.LOG_MORE_ERRORS) {
+                PolymerImpl.LOGGER.error("Failed to add ItemStacks to " + this.getDisplayName().getString(), e);
+            }
         }
     }
 
