@@ -46,6 +46,7 @@ public class ClientPackets {
     static {
         register(HANDSHAKE, 0);
         register(DISABLE, 0);
+        register(SYNC_REQUEST, 0);
         register(WORLD_PICK_BLOCK, 0);
         register(WORLD_PICK_ENTITY, 0);
         register(CHANGE_TOOLTIP, 0);
