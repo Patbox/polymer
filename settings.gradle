@@ -8,9 +8,11 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'polymer-all'
+rootProject.name = 'polymer-bundled'
 
-include 'polymer'
+include 'polymer-common'
+include 'polymer-core'
+include 'polymer-resource-pack'
 include 'polymer-blocks'
 include 'polymer-reg-sync-manipulator'
 include 'polymer-autohost'

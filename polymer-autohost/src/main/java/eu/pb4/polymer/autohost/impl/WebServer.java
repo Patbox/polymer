@@ -6,8 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
-import eu.pb4.polymer.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
 

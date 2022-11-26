@@ -1,5 +1,5 @@
 archivesBaseName = "polymer-blocks"
-version = rootProject.blocks_ext_version + "+" + rootProject.minecraft_version
+version = rootProject.mod_version + "+" + rootProject.minecraft_version
 
 
 sourceSets {
@@ -30,7 +30,9 @@ dependencies {
     modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
-    implementation(project(path: ':polymer', configuration: 'namedElements'))
+    implementation(project(path: ':polymer-core', configuration: 'namedElements'))
+    implementation(project(path: ':polymer-common', configuration: 'namedElements'))
+    implementation(project(path: ':polymer-resource-pack', configuration: 'namedElements'))
     modImplementation "xyz.nucleoid:packet-tweaker:0.3.0+1.18.2"
     modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
 
@@ -41,9 +43,8 @@ dependencies {
     modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.1.0')
 
     testmodImplementation sourceSets.main.output
-    testmodImplementation project(":polymer").sourceSets.testmod.output
+    //testmodImplementation project(":polymer-core").sourceSets.testmod.output
 }
-
 
 processResources {
     inputs.property "version", project.version

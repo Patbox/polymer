@@ -11,12 +11,22 @@ targetCompatibility = JavaVersion.VERSION_17
 
 var isStable = project.is_stable == "true"
 
-archivesBaseName = "polymer-all"
-version = project.all_version + "+" + project.minecraft_version
+archivesBaseName = "polymer-bundled"
+version = project.mod_version + "+" + project.minecraft_version
 group = project.maven_group
 
 
 System.out.println(isStable ? "release" : "beta")
+
+allprojects {
+    processResources {
+        inputs.property "version", project.version
+
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
+        }
+    }
+}
 
 allprojects {
     apply plugin: 'fabric-loom'
@@ -98,24 +108,12 @@ subprojects {
 }
 
 dependencies {
-    include(project(":polymer"))
-    include(project(":polymer-blocks"))
     include(project(":polymer-autohost"))
+    include(project(":polymer-core"))
+    include(project(":polymer-common"))
+    include(project(":polymer-resource-pack"))
+    include(project(":polymer-blocks"))
     //include(project(":polymer-client-extensions"))
-}
-
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
-    }
 }
 
 void setupRepositories(RepositoryHandler repositories) {

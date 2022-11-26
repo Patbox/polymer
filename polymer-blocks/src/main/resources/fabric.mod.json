@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "polymer-blocks-ext",
   "version": "${version}",
-  "name": "Polymer Blocks",
+  "name": "Polymer (Textured Blocks)",
   "description": "Polymer extension adding support for textured blocks!",
   "authors": [
     "Patbox"
@@ -16,12 +16,16 @@
   "environment": "*",
   "entrypoints": {
     "polymc": [
-      "eu.pb4.polymer.ext.blocks.impl.PolyMcResourceEntrypoint"
+      "eu.pb4.polymer.blocks.impl.PolyMcResourceEntrypoint"
     ]
   },
   "mixins": [
     "polymer-blocks.mixins.json"
   ],
+  "depends": {
+    "polymer-core": ">=${version}",
+    "fabricloader": ">=0.14.0"
+  },
   "custom": {
     "modmenu": {
       "badges": [

@@ -1,0 +1,28 @@
+archivesBaseName = "polymer-common"
+version = rootProject.mod_version + "+" + rootProject.minecraft_version
+group = rootProject.maven_group
+
+loom {
+    enableTransitiveAccessWideners = false
+}
+
+dependencies {
+    modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
+}
+
+afterEvaluate {
+    // Disable the gen sources task on sub projects
+    genSourcesWithFernFlower.enabled = true
+    genSourcesWithCfr.enabled = false
+    unpickJar.enabled = true
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version_supported", rootProject.minecraft_version_supported
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+        expand "minecraft_version_supported": rootProject.minecraft_version_supported
+    }
+}

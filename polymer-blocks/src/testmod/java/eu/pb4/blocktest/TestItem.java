@@ -1,8 +1,8 @@
 package eu.pb4.blocktest;
 
-import eu.pb4.polymer.api.item.PolymerItem;
 import eu.pb4.polymer.api.resourcepack.PolymerModelData;
 import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
+import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;

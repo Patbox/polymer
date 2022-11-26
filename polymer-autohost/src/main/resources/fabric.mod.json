@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "polymer-autohost",
   "version": "${version}",
-  "name": "Polymer Auto Host",
+  "name": "Polymer (Auto Host)",
   "description": "Automatically host polymer resource packs",
   "authors": [
     "Patbox"
@@ -14,6 +14,12 @@
   "license": "LGPLv3",
   "icon": "assets/icon.png",
   "environment": "server",
+  "depends": {
+    "polymer-resource-pack": ">=${version}",
+    "polymer-core": ">=${version}",
+    "fabricloader": ">=0.14.0"
+
+  },
   "mixins": [
     "polymer-autohost.mixins.json"
   ]

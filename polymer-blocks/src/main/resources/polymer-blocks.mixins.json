@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "eu.pb4.polymer.ext.blocks.mixin",
+  "package": "eu.pb4.polymer.blocks.mixin",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "eu.pb4.polymer.ext.blocks.mixin.PolymerBlocksMixinConfigPlugin",
+  "plugin": "eu.pb4.polymer.blocks.mixin.PolymerBlocksMixinConfigPlugin",
   "mixins": [
     "polymc.PolyRegistryMixin"
   ],

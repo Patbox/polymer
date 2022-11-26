@@ -1,0 +1,102 @@
+archivesBaseName = "polymer-core"
+version = rootProject.mod_version + "+" + rootProject.minecraft_version
+group = rootProject.maven_group
+
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+}
+
+loom {
+    runs {
+        testmodClient {
+            client()
+            name = "(Core) Testmod Client"
+            source sourceSets.testmod
+        }
+        testmodServer {
+            server()
+            name = "(Core) Testmod Server"
+            source sourceSets.testmod
+        }
+    }
+
+    accessWidenerPath = file("src/main/resources/polymer-core.accesswidener")
+
+    enableTransitiveAccessWideners = false
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+dependencies {
+
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+
+    //modRuntime "supercoder79:databreaker:0.2.7"
+
+    modCompileOnly('com.github.CaffeineMC:lithium-fabric:mc1.19-0.8.0')
+
+    //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
+    modCompileOnly('com.github.TheEpicBlock:PolyMc:5.1.0')
+
+
+    modCompileOnly /*modRuntimeOnly*/("curse.maven:jade-324717:3828126")
+    modCompileOnly "mcp.mobius.waila:wthit:fabric-5.1.3"
+
+    //modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.1.530"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:9.1.565"
+    modCompileOnly /*modLocalRuntime*/("dev.emi:emi:0.3.3+1.19")
+
+    //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
+    //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")
+    modCompileOnly /*modLocalRuntime*/("curse.maven:jei-238222:3928387")
+
+    //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
+    //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
+
+    modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
+
+    modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.19-2.4.0:api") {
+        exclude(group: "com.terraformersmc")
+        exclude(group: "io.github.prospector")
+        exclude(group: "io.github.prospector")
+        exclude(group: "net.fabricmc")
+    }
+
+    modImplementation include("xyz.nucleoid:packet-tweaker:0.3.0+1.18.2")
+
+    modCompileOnly("fr.catcore:server-translations-api:1.4.16+1.19")
+    modLocalRuntime("fr.catcore:server-translations-api:1.4.16+1.19")
+
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v2.0.4-1.19'
+    modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:q_misc_util:v2.0.4-1.19'
+
+    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
+    // You may need to force-disable transitiveness on them.
+
+    testmodImplementation sourceSets.main.output
+
+    implementation include(project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
+    implementation include(project(path: ':polymer-common', configuration: 'namedElements'))
+
+    compileOnly (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
+    localRuntime (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
+}
+
+
+afterEvaluate {
+    // Disable the gen sources task on sub projects
+    genSourcesWithFernFlower.enabled = true
+    genSourcesWithCfr.enabled = false
+    unpickJar.enabled = true
+}

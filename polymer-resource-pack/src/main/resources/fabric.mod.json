@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-resource-pack",
+  "version": "${version}",
+  "name": "Polymer Resource Pack API",
+  "description": "Server resource pack generation API",
+  "authors": [
+    "Patbox"
+  ],
+  "contributors": [
+    "aws404"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer",
+    "issues": "https://github.com/Patbox/polymer/issues"
+  },
+
+  "license": "LGPLv3",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod"
+    ]
+  },
+  "mixins": [
+    "polymer-resource-pack.mixins.json"
+  ],
+
+  "depends": {
+    "minecraft": ">=1.19.1 <1.20",
+    "fabricloader": ">=0.14.0"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "library" ],
+      "discord": "https://pb4.eu/discord"
+    }
+  }
+}

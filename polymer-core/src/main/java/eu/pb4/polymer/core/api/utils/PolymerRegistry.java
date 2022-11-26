@@ -1,0 +1,32 @@
+package eu.pb4.polymer.core.api.utils;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.IndexedIterable;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
+public interface PolymerRegistry<T> extends IndexedIterable<T> {
+    @Nullable
+    T get(Identifier identifier);
+
+    @Nullable
+    T get(int id);
+
+    @Nullable
+    T getDirect(Identifier identifier);
+
+    @Nullable
+    Identifier getId(T entry);
+    int getRawId(T entry);
+    Iterable<Identifier> ids();
+    Iterable<Map.Entry<Identifier, T>> entries();
+
+    Set<T> getTag(Identifier tag);
+    Collection<Identifier> getTags();
+    Collection<Identifier> getTagsOf(T entry);
+
+    int size();
+}

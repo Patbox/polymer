@@ -1,0 +1,37 @@
+archivesBaseName = "polymer-resource-pack"
+version = rootProject.mod_version + "+" + rootProject.minecraft_version
+group = rootProject.maven_group
+
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+}
+
+loom {
+
+}
+
+dependencies {
+    //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.1.0')
+    implementation include(project(path: ':polymer-common', configuration: 'namedElements'))
+}
+
+afterEvaluate {
+    // Disable the gen sources task on sub projects
+    genSourcesWithFernFlower.enabled = true
+    genSourcesWithCfr.enabled = false
+    unpickJar.enabled = true
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version_supported", rootProject.minecraft_version_supported
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+        expand "minecraft_version_supported": rootProject.minecraft_version_supported
+    }
+}

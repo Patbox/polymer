@@ -1,9 +1,9 @@
 package eu.pb4.polymer.autohost.impl;
 
-import eu.pb4.polymer.api.networking.EarlyPlayNetworkHandler;
-import eu.pb4.polymer.api.resourcepack.PolymerResourcePackUtils;
-import eu.pb4.polymer.api.utils.PolymerUtils;
-import eu.pb4.polymer.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.api.networking.EarlyPlayNetworkHandler;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.ArmorStandEntity;

@@ -1,5 +1,5 @@
 archivesBaseName = "polymer-reg-sync-manipulator"
-version = rootProject.reg_sync_man_version + "+" + rootProject.minecraft_version
+version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
 sourceSets {
@@ -15,9 +15,11 @@ loom {
 
 processResources {
     inputs.property "version", project.version
+    inputs.property "minecraft_version_supported", rootProject.minecraft_version_supported
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version
+        expand "minecraft_version_supported": rootProject.minecraft_version_supported
     }
 }
 
@@ -35,3 +37,5 @@ afterEvaluate {
     genSourcesWithCfr.enabled = false
     unpickJar.enabled = true
 }
+
+
