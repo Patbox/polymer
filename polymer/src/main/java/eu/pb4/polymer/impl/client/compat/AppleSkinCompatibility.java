@@ -16,8 +16,6 @@ public class AppleSkinCompatibility implements AppleSkinApi {
 
                 if (item != null) {
                     event.modifiedFoodValues = new FoodValues(item.foodValue(), item.saturation());
-                } else {
-                    event.modifiedFoodValues = new FoodValues(0, 0);
                 }
             }
         });
