@@ -27,7 +27,7 @@ public record PolymerBlockEntry(Identifier identifier, int numId, Text text, Blo
     }
 
     public static PolymerBlockEntry read(PacketByteBuf buf, int version) {
-        if (version == 0) {
+        if (version > -1) {
             return new PolymerBlockEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText(), Block.getStateFromRawId(buf.readVarInt()));
         }
 

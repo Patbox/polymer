@@ -18,7 +18,7 @@ public class jei_SubtypeManagerMixin {
     @Inject(method = "getSubtypeInfo", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer_handlePolymerSubtypes(IIngredientTypeWithSubtypes<?, ?> ingredientType, Object ingredient, UidContext context, CallbackInfoReturnable<@Nullable String> cir) {
         if (ingredient instanceof ItemStack stack) {
-            var id = PolymerItemUtils.getPolymerIdentifier(stack);
+            var id = PolymerItemUtils.getServerIdentifier(stack);
             if (id != null) {
                 cir.setReturnValue("polymer_item|" + id);
             }

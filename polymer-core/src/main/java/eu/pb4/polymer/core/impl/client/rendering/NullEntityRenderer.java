@@ -4,30 +4,19 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.EmptyEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
-public class NullEntityRenderer extends EntityRenderer<Entity> {
+public class NullEntityRenderer extends EmptyEntityRenderer<Entity> {
     public static final EntityRenderer<Entity> INSTANCE = new NullEntityRenderer();
 
     private NullEntityRenderer() {
         super(new EntityRendererFactory.Context(null, null, null, null, null, null, null));
-    }
-
-
-    @Override
-    protected int getBlockLight(Entity entity, BlockPos pos) {
-        return 0;
-    }
-
-    @Override
-    protected int getSkyLight(Entity entity, BlockPos pos) {
-        return 0;
     }
 
     @Override
@@ -41,7 +30,7 @@ public class NullEntityRenderer extends EntityRenderer<Entity> {
     }
 
     @Override
-    public Identifier getTexture(Entity entity) {
-        return new Identifier("minecraft", "pig");
+    protected void renderLabelIfPresent(Entity entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+
     }
 }

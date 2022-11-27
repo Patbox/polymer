@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.mixin.other;
 
-import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.networking.DynamicPacket;
 import eu.pb4.polymer.core.api.other.PolymerSoundEvent;
@@ -14,13 +13,11 @@ import eu.pb4.polymer.core.impl.networking.BlockPacketUtil;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.ScheduledPacket;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
@@ -56,10 +53,6 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Unique
     private boolean polymer$advancedTooltip = false;
     @Unique
-    private boolean polymer$hasResourcePack = false;
-    @Unique
-    private boolean polymer$ignoreNextStatus = false;
-    @Unique
     private ArrayList<ScheduledPacket> polymer$scheduledPackets = new ArrayList<>();
     @Unique
     private String polymer$version = "";
@@ -89,16 +82,6 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     @Override
     public void polymer$setBlockMapper(BlockMapper mapper) {
         this.polymer$blockMapper = mapper;
-    }
-
-    @Override
-    public boolean polymer$hasResourcePack() {
-        return this.polymer$hasResourcePack;
-    }
-
-    @Override
-    public void polymer$setResourcePack(boolean value) {
-        this.polymer$hasResourcePack = value;
     }
 
     @Override
@@ -204,21 +187,6 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         }
     }
 
-    @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
-    private void polymer$changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
-        if (CompatStatus.POLYMER_RESOURCE_PACKS && PolymerResourcePackUtils.shouldCheckByDefault() && packet.getStatus() != ResourcePackStatusC2SPacket.Status.ACCEPTED) {
-            if (this.polymer$ignoreNextStatus == false) {
-                this.polymer$setResourcePack(switch (packet.getStatus()) {
-                    case SUCCESSFULLY_LOADED -> true;
-                    case DECLINED, FAILED_DOWNLOAD, ACCEPTED -> false;
-                });
-            }
-
-            this.polymer$ignoreNextStatus = false;
-        }
-    }
-
-
     @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"))
     private Packet<?> polymer$replacePacket(Packet<?> packet) {
         if (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() instanceof PolymerSoundEvent polymerSoundEvent) {
@@ -275,10 +243,5 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
         } else {
             this.polymer$afterSequence.add(runnable);
         }
-    }
-
-    @Override
-    public void polymer$setIgnoreNext() {
-        this.polymer$ignoreNextStatus = true;
     }
 }

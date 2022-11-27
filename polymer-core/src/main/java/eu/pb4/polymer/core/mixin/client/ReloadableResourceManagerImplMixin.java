@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 @Mixin(ReloadableResourceManagerImpl.class)
 public class ReloadableResourceManagerImplMixin {
     @Inject(method = "reload", at = @At("RETURN"))
-    private void polymer_onReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReload> cir) {
+    private void polymer$onReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReload> cir) {
         var server = MinecraftClient.getInstance().getServer();
         if (server != null) {
             server.execute(() -> PolymerUtils.reloadWorld(ClientUtils.getPlayer()));

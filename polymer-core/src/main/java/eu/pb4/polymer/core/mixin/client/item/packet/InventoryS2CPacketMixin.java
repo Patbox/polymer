@@ -20,7 +20,7 @@ import java.util.List;
 public class InventoryS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getContents", at = @At("RETURN"), cancellable = true)
-    private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<List<ItemStack>> cir) {
+    private void polymer$replaceItems(CallbackInfoReturnable<List<ItemStack>> cir) {
         if (ClientUtils.isSingleplayer()) {
             List<ItemStack> list = new ArrayList<>();
             ServerPlayerEntity player = ClientUtils.getPlayer();

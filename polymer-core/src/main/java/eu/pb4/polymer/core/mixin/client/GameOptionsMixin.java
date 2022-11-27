@@ -18,12 +18,12 @@ public class GameOptionsMixin {
     @Shadow protected MinecraftClient client;
 
     @Shadow public String language;
-    @Unique String polymer_oldLang = this.language;
+    @Unique String polymer$oldLang = this.language;
 
     @Inject(method = "sendClientSettings", at = @At("TAIL"))
-    private void polymer_requestSync(CallbackInfo ci) {
-        if (this.client.player != null && (this.polymer_oldLang != this.language)) {
-            this.polymer_oldLang = this.language;
+    private void polymer$requestSync(CallbackInfo ci) {
+        if (this.client.player != null && (this.polymer$oldLang != this.language)) {
+            this.polymer$oldLang = this.language;
             PolymerClientProtocol.sendSyncRequest(this.client.player.networkHandler);
         }
     }

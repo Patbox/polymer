@@ -18,37 +18,37 @@ import java.util.BitSet;
 @Mixin(ChunkDataS2CPacket.class)
 public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
     @Unique
-    private WorldChunk polymer_worldChunk;
+    private WorldChunk polymer$worldChunk;
 
     @Unique
-    private BlockMapper polymer_usedMapper;
+    private BlockMapper polymer$usedMapper;
 
     @Unique
-    private boolean polymer_hasPlayerDependentBlocks;
+    private boolean polymer$hasPlayerDependentBlocks;
 
     @Inject(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/world/chunk/light/LightingProvider;Ljava/util/BitSet;Ljava/util/BitSet;Z)V", at = @At("TAIL"))
     private void polymer_storeWorldChunk(WorldChunk chunk, LightingProvider lightingProvider, BitSet bitSet, BitSet bitSet2, boolean bl, CallbackInfo ci) {
-        this.polymer_worldChunk = chunk;
-        this.polymer_usedMapper = BlockMapper.getFrom(PolymerUtils.getPlayer());
+        this.polymer$worldChunk = chunk;
+        this.polymer$usedMapper = BlockMapper.getFrom(PolymerUtils.getPlayer());
         for (var section : chunk.getSectionArray()) {
             if (section != null && section.hasAny(PolymerBlockUtils.IS_POLYMER_BLOCK_STATE_PREDICATE)) {
-                this.polymer_hasPlayerDependentBlocks = true;
+                this.polymer$hasPlayerDependentBlocks = true;
                 break;
             }
         }
     }
 
     public WorldChunk polymer$getWorldChunk() {
-        return this.polymer_worldChunk;
+        return this.polymer$worldChunk;
     }
 
     @Override
     public BlockMapper polymer$getMapper() {
-        return this.polymer_usedMapper;
+        return this.polymer$usedMapper;
     }
 
     @Override
     public boolean polymer$hasPlayerDependentBlocks() {
-        return this.polymer_hasPlayerDependentBlocks;
+        return this.polymer$hasPlayerDependentBlocks;
     }
 }

@@ -10,10 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @SuppressWarnings({"unused"})
 public interface PolymerNetworkHandlerExtension {
-    boolean polymer$hasResourcePack();
-
-    void polymer$setResourcePack(boolean value);
-
     void polymer$schedulePacket(Packet<?> packet, int duration);
 
     boolean polymer$hasPolymer();
@@ -44,8 +40,6 @@ public interface PolymerNetworkHandlerExtension {
     static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {
         return (PolymerNetworkHandlerExtension) handler;
     }
-
-    void polymer$setIgnoreNext();
 
     void polymer$resetSupported();
 

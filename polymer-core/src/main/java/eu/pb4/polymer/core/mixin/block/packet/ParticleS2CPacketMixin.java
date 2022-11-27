@@ -25,19 +25,19 @@ public class ParticleS2CPacketMixin {
     @Shadow @Final private ParticleEffect parameters;
 
     @Redirect(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/particle/ParticleEffect;write(Lnet/minecraft/network/PacketByteBuf;)V"))
-    private void polymer_modifyParticle(ParticleEffect instance, PacketByteBuf buf) {
-        this.polymer_remap(instance).write(buf);
+    private void polymer$modifyParticle(ParticleEffect instance, PacketByteBuf buf) {
+        this.polymer$remap(instance).write(buf);
     }
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getParameters", at = @At("HEAD"), cancellable = true)
-    private void polymer_modifyClient(CallbackInfoReturnable<ParticleEffect> cir) {
-        cir.setReturnValue(this.polymer_remap(this.parameters));
+    private void polymer$modifyClient(CallbackInfoReturnable<ParticleEffect> cir) {
+        cir.setReturnValue(this.polymer$remap(this.parameters));
     }
 
 
     @Unique
-    private ParticleEffect polymer_remap(ParticleEffect instance) {
+    private ParticleEffect polymer$remap(ParticleEffect instance) {
         if (instance instanceof BlockStateParticleEffect particleEffect) {
             return new BlockStateParticleEffect(
                     (ParticleType<BlockStateParticleEffect>) instance.getType(),

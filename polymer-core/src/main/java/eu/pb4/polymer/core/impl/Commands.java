@@ -1,9 +1,11 @@
 package eu.pb4.polymer.core.impl;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
@@ -127,23 +129,23 @@ public class Commands {
                             PolymerServerProtocol.sendDebugValidateStatesPackets(ctx.getSource().getPlayer().networkHandler);
                             return 0;
                         })
-                );
-                /*.then(literal("set-pack-status")
+                )
+                .then(literal("set-pack-status")
                         .then(argument("status", BoolArgumentType.bool())
                                 .executes((ctx) -> {
                                     var status = ctx.getArgument("status", Boolean.class);
-                                    //PolymerResourcePackUtils.setPlayerStatus(ctx.getSource().getPlayer(), status);
+                                    ((CommonResourcePackInfoHolder) ctx.getSource().getPlayer()).polymerCommon$setResourcePack(status);
                                     ctx.getSource().sendFeedback(Text.literal("New resource pack status: " + status), false);
                                     return 0;
                                 }))
                 )
                 .then(literal("get-pack-status")
                         .executes((ctx) -> {
-                            //var status = PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer());
-                            //ctx.getSource().sendFeedback(Text.literal("Resource pack status: " + status), false);
+                            var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer());
+                            ctx.getSource().sendFeedback(Text.literal("Resource pack status: " + status), false);
                             return 0;
                         })
-                )*/
+                );
     }
 
     private static int targetBlock(CommandContext<ServerCommandSource> context) {

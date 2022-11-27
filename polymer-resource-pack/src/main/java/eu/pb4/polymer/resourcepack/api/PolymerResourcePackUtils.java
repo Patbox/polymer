@@ -2,6 +2,8 @@ package eu.pb4.polymer.resourcepack.api;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
@@ -92,11 +94,7 @@ public final class PolymerResourcePackUtils {
      * @return True if player has a server resourcepack
      */
     public static boolean hasPack(@Nullable ServerPlayerEntity player) {
-        return player != null /*&& (
-                (player.networkHandler != null && (((PolymerNetworkHandlerExtension) player.networkHandler).polymer$hasResourcePack())
-                || (((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler() != null && ((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler().getPackStatus())
-                || ((player.server.isHost(player.getGameProfile()) && ClientUtils.isResourcePackLoaded())))
-        )*/;
+        return player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack();
     }
 
     /**
@@ -106,14 +104,10 @@ public final class PolymerResourcePackUtils {
      * @param status true if player has resource pack, otherwise false
      */
     public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
-        /*if (player.networkHandler != null) {
-            ((PolymerNetworkHandlerExtension) player.networkHandler).polymer$setResourcePack(status);
-            PolymerUtils.reloadWorld(player);
+        ((CommonResourcePackInfoHolder) player).polymerCommon$setResourcePack(status);
+        if (player.networkHandler != null) {
+            ((CommonResourcePackInfoHolder) player.networkHandler).polymerCommon$setResourcePack(status);
         }
-
-        if (((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler() != null) {
-            ((TempPlayerLoginAttachments) player).polymer$getHandshakeHandler().setPackStatus(status);
-        }*/
     }
 
     /**
@@ -136,6 +130,7 @@ public final class PolymerResourcePackUtils {
 
     public static void disableDefaultCheck() {
         DEFAULT_CHECK = false;
+        CommonImplUtils.disableResourcePackCheck = true;
     }
 
     public static boolean shouldCheckByDefault() {
@@ -143,7 +138,7 @@ public final class PolymerResourcePackUtils {
     }
 
     public static void ignoreNextDefaultCheck(ServerPlayerEntity player) {
-        //((PolymerNetworkHandlerExtension) player.networkHandler).polymer$setIgnoreNext();
+        ((CommonResourcePackInfoHolder) player.networkHandler).polymerCommon$setIgnoreNextResourcePack();
     }
 
     public static PolymerRPBuilder createBuilder(Path output) {

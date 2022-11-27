@@ -51,15 +51,15 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
     @Shadow public abstract ServerLightingProvider getLightingProvider();
 
     @Unique
-    private final Object2LongMap<ChunkSectionPos> polymer_lastUpdates = new Object2LongArrayMap<>();
+    private final Object2LongMap<ChunkSectionPos> polymer$lastUpdates = new Object2LongArrayMap<>();
     @Unique
-    private final Object2BooleanMap<ChunkSectionPos> polymer_hadPolymerSource = new Object2BooleanOpenHashMap<>();
+    private final Object2BooleanMap<ChunkSectionPos> polymer$hadPolymerSource = new Object2BooleanOpenHashMap<>();
 
     @Inject(method = "tickChunks", at = @At("TAIL"))
-    private void polymer_sendChunkUpdates(CallbackInfo ci) {
+    private void polymer$sendChunkUpdates(CallbackInfo ci) {
         this.world.getServer().execute(() -> {
-            if (this.polymer_lastUpdates.size() != 0) {
-                for (var entry : new ArrayList<>(this.polymer_lastUpdates.object2LongEntrySet())) {
+            if (this.polymer$lastUpdates.size() != 0) {
+                for (var entry : new ArrayList<>(this.polymer$lastUpdates.object2LongEntrySet())) {
                     var pos = entry.getKey();
                     var time = entry.getLongValue();
 
@@ -78,7 +78,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
                                 player.networkHandler.sendPacket(packet);
                             }
                         }
-                        this.polymer_lastUpdates.removeLong(pos);
+                        this.polymer$lastUpdates.removeLong(pos);
                     }
                 }
             }
@@ -86,7 +86,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
     }
 
     @Inject(method = "onLightUpdate", at = @At("TAIL"))
-    private void polymer_scheduleChunkUpdates(LightType type, ChunkSectionPos pos, CallbackInfo ci) {
+    private void polymer$scheduleChunkUpdates(LightType type, ChunkSectionPos pos, CallbackInfo ci) {
         if (type == LightType.BLOCK) {
             this.world.getServer().execute(() -> {
                 boolean sendUpdate = false;
@@ -100,7 +100,7 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
                         if (chunk != null) {
                             if (!safeHasPolymer) {
                                 for (int y = -1; y <= 1; y++) {
-                                     if (this.polymer_hadPolymerSource.getBoolean(ChunkSectionPos.from(chunk.getPos(), pos.getSectionY() + y))) {
+                                     if (this.polymer$hadPolymerSource.getBoolean(ChunkSectionPos.from(chunk.getPos(), pos.getSectionY() + y))) {
                                          safeHasPolymer = true;
                                          break;
                                      }
@@ -127,9 +127,9 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
                 boolean update = sendUpdate || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke((c) -> c.test(this.world, pos));
 
-                if (update || safeHasPolymer || this.polymer_hadPolymerSource.getBoolean(pos)) {
-                    this.polymer_lastUpdates.put(pos, System.currentTimeMillis());
-                    this.polymer_hadPolymerSource.put(pos, update);
+                if (update || safeHasPolymer || this.polymer$hadPolymerSource.getBoolean(pos)) {
+                    this.polymer$lastUpdates.put(pos, System.currentTimeMillis());
+                    this.polymer$hadPolymerSource.put(pos, update);
                 }
             });
         }
@@ -137,11 +137,11 @@ public abstract class ServerChunkManagerMixin implements ServerChunkManagerInter
 
     @Override
     public void polymer$setSection(ChunkSectionPos pos, boolean hasPolymer) {
-        this.polymer_hadPolymerSource.put(pos, hasPolymer);
+        this.polymer$hadPolymerSource.put(pos, hasPolymer);
     }
 
     @Override
     public void polymer$removeSection(ChunkSectionPos pos) {
-        this.polymer_hadPolymerSource.removeBoolean(pos);
+        this.polymer$hadPolymerSource.removeBoolean(pos);
     }
 }

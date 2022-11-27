@@ -26,7 +26,7 @@ public class WorldEventS2CPacketMixin {
     @Shadow @Final private int data;
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeInt(I)Lio/netty/buffer/ByteBuf;", ordinal = 1))
-    private int polymer_replaceValue(int data) {
+    private int polymer$replaceValue(int data) {
         if (this.eventId == WorldEvents.BLOCK_BROKEN) {
             var state = Block.getStateFromRawId(data);
             var player = PolymerUtils.getPlayer();
@@ -43,7 +43,7 @@ public class WorldEventS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getData", at = @At("HEAD"), cancellable = true)
-    private void polymer_replaceClientData(CallbackInfoReturnable<Integer> cir) {
+    private void polymer$replaceClientData(CallbackInfoReturnable<Integer> cir) {
         if (this.eventId == WorldEvents.BLOCK_BROKEN) {
             var state = InternalClientRegistry.decodeState(this.data);
             var player = ClientUtils.getPlayer();

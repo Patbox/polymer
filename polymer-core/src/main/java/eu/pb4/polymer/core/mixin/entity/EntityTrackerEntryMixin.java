@@ -33,12 +33,12 @@ public abstract class EntityTrackerEntryMixin {
     @Shadow @Final private Consumer<Packet<?>> receiver;
 
     @ModifyVariable(method = "sendPackets", at = @At("HEAD"))
-    private Consumer<Packet<?>> polymer_packetWrap(Consumer<Packet<?>> packetConsumer) {
+    private Consumer<Packet<?>> polymer$packetWrap(Consumer<Packet<?>> packetConsumer) {
         return (packet) -> packetConsumer.accept(EntityAttachedPacket.setIfEmpty(packet, this.entity));
     }
 
     @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/Packet;"))
-    private void polymer_sendPacketsBeforeSpawning(Consumer<Packet<?>> sender, CallbackInfo ci) {
+    private void polymer$sendPacketsBeforeSpawning(Consumer<Packet<?>> sender, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity virtualEntity) {
             try {
                 virtualEntity.onBeforeSpawnPacket(sender);
@@ -49,21 +49,21 @@ public abstract class EntityTrackerEntryMixin {
     }
 
     @Inject(method = "startTracking", at = @At("TAIL"))
-    private void polymer_sendEntityInfo(ServerPlayerEntity player, CallbackInfo ci) {
+    private void polymer$sendEntityInfo(ServerPlayerEntity player, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity && polymerEntity.canSynchronizeToPolymerClient(player)) {
             PolymerServerProtocol.sendEntityInfo(player.networkHandler, this.entity);
         }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private void polymer_tick(CallbackInfo ci) {
+    private void polymer$tick(CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {
             polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet((Set<EntityTrackingListener>) receiver.getAttached()));
         }
     }
 
     @Inject(method = "sendPackets", at = @At("TAIL"))
-    private void polymer_modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
+    private void polymer$modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity) {
             try {
                 if (this.entity instanceof LivingEntity livingEntity) {

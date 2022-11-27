@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl.networking;
 
+import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.networking.EarlyPlayNetworkHandler;
@@ -92,14 +93,12 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
             polymerHandler.polymer$savePacketTime(entry);
         }
 
-        polymerHandler.polymer$setResourcePack(this.hasPack);
-
         polymerHandler.polymer$setBlockMapper(this.blockMapper);
     }
 
     @Override
     public boolean getPackStatus() {
-        return this.hasPack;
+        return ((CommonResourcePackInfoHolder) this.getPlayer()).polymerCommon$hasResourcePack();
     }
 
     @Override
@@ -109,7 +108,7 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
 
     @Override
     public void setPackStatus(boolean status) {
-        this.hasPack = status;
+        ((CommonResourcePackInfoHolder) this.getPlayer()).polymerCommon$setResourcePack(status);
     }
 
     @Override

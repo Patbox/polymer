@@ -2,10 +2,12 @@ package eu.pb4.polymer.core.impl.client.compat;
 
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
+import org.jetbrains.annotations.ApiStatus;
 import squeek.appleskin.api.AppleSkinApi;
 import squeek.appleskin.api.event.FoodValuesEvent;
 import squeek.appleskin.api.food.FoodValues;
 
+@ApiStatus.Internal
 public class AppleSkinCompatibility implements AppleSkinApi {
     @Override
     public void registerEvents() {
@@ -16,8 +18,6 @@ public class AppleSkinCompatibility implements AppleSkinApi {
 
                 if (item != null) {
                     event.modifiedFoodValues = new FoodValues(item.foodValue(), item.saturation());
-                } else {
-                    event.modifiedFoodValues = new FoodValues(0, 0);
                 }
             }
         });

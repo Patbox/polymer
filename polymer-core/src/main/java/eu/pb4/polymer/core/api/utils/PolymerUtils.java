@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.api.utils;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
@@ -11,10 +11,8 @@ import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.ClientUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.other.FakeWorld;
-import eu.pb4.polymer.core.impl.other.PolymerTooltipContext;
 import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
@@ -121,12 +119,12 @@ public final class PolymerUtils {
 
             var world = player.getWorld();
             var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).threadedAnvilChunkStorage);
-            int dist = tacsAccess.getWatchDistance();
+            int dist = tacsAccess.polymer$getWatchDistance();
             int playerX = player.getWatchedSection().getX();
             int playerZ = player.getWatchedSection().getZ();
 
             for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
-                var tracker = tacsAccess.polymer_getEntityTrackers().get(e.getId());
+                var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
                 if (tracker != null) {
                     tracker.stopTracking(player);
                 }
@@ -156,7 +154,7 @@ public final class PolymerUtils {
             var chunk = iterator.next();
             pos++;
             iterator.remove();
-            tacsAccess.polymer_sendChunkDataPackets(player, new MutableObject<>(), chunk);
+            tacsAccess.polymer$sendChunkDataPackets(player, new MutableObject<>(), chunk);
         }
         if (chunks.size() != 0) {
             int finalIteration = iteration + 1;
@@ -175,7 +173,14 @@ public final class PolymerUtils {
      * Returns current TooltipContext of player,
      */
     public static TooltipContext getTooltipContext(@Nullable ServerPlayerEntity player) {
-        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
+        return PolymerImplUtils.getTooltipContext(player);
+    }
+
+    /**
+     * Returns current TooltipContext of player,
+     */
+    public static TooltipContext getCreativeTooltipContext(@Nullable ServerPlayerEntity player) {
+        return PolymerImplUtils.getTooltipContext(player).withCreative();
     }
 
     /**
@@ -237,7 +242,7 @@ public final class PolymerUtils {
 
     }
 
-    public static boolean hasResourcePack(ServerPlayerEntity player) {
-        return CompatStatus.POLYMER_RESOURCE_PACKS && PolymerResourcePackUtils.hasPack(player);
+    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
+        return player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack();
     }
 }

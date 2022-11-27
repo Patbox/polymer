@@ -42,7 +42,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
-    private void polymer_catchPackets(CustomPayloadS2CPacket packet, CallbackInfo ci) {
+    private void polymer$catchPackets(CustomPayloadS2CPacket packet, CallbackInfo ci) {
         if (packet.getChannel().getNamespace().equals(PolymerUtils.ID)) {
             var buf = ((CustomPayloadS2CPacketAccessor) packet).polymer$getData();
             PolymerClientProtocolHandler.handle((ClientPlayNetworkHandler) (Object) this, packet.getChannel(), buf);
@@ -52,7 +52,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onKeepAlive", at = @At("HEAD"))
-    private void polymer_handleHackfest(KeepAliveS2CPacket packet, CallbackInfo ci) {
+    private void polymer$handleHackfest(KeepAliveS2CPacket packet, CallbackInfo ci) {
         // Yes, it's a hack but it works quite well!
         // I should replace it with some api later
         if (packet.getId() == PolymerHandshakeHandlerImplLogin.MAGIC_VALUE) {
@@ -61,35 +61,14 @@ public abstract class ClientPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onBlockUpdate", at = @At("TAIL"))
-    private void polymer_removeOldPolymerBlock(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+    private void polymer$removeOldBlock(BlockUpdateS2CPacket packet, CallbackInfo ci) {
         // This should be overriden by next polymer packet anyway
         // Thanks to it there is no need to send vanilla updates!
         InternalClientRegistry.setBlockAt(packet.getPos(), ClientPolymerBlock.NONE_STATE);
     }
 
     @Inject(method = "method_34007", at = @At("TAIL"))
-    private void polymer_removeOldPolymerBlock2(int i, BlockPos pos, BlockState state, CallbackInfo ci) {
+    private void polymer$removeOldBlock2(int i, BlockPos pos, BlockState state, CallbackInfo ci) {
         InternalClientRegistry.setBlockAt(pos, ClientPolymerBlock.NONE_STATE);
     }
-
-    /*@Inject(method = "onEntitiesDestroy", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift = At.Shift.AFTER))
-    private void polymer_printDebug(EntitiesDestroyS2CPacket packet, CallbackInfo ci) {
-        var list = new ArrayList<Entity>();
-        packet.getEntityIds().forEach((i) -> list.add(this.world.getEntityById(i)));
-        for (var entity : list) {
-            if (entity != null) {
-                this.client.inGameHud.getChatHud().addMessage(Text.literal("Despawn: ").append(entity.getName()).append(" " + entity.getPos()));
-            }
-        }
-        this.client.inGameHud.getChatHud().addMessage(Text.of(String.join(", ", packet.getEntityIds().intStream().mapToObj((x) -> "" + x).collect(Collectors.toList()))));
-    }
-
-    @Inject(method = "onEntitySpawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift = At.Shift.AFTER))
-    private void polymer_printDebug2(EntitySpawnS2CPacket packet, CallbackInfo ci) {
-        this.client.inGameHud.getChatHud().addMessage(Text.literal("Spawn: ")
-                .append("" + packet.getId())
-                .append(" " + Registry.ENTITY_TYPE.getId(packet.getEntityTypeId()))
-                .append(" " + packet.getX() + ", " + packet.getY() + ", " + packet.getZ())
-        );
-    }*/
 }

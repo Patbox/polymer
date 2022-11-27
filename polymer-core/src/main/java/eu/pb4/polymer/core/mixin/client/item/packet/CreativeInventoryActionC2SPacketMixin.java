@@ -14,14 +14,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Environment(EnvType.CLIENT)
 @Mixin(CreativeInventoryActionC2SPacket.class)
 public class CreativeInventoryActionC2SPacketMixin {
-    @Unique ItemStack polymer_cachedItemStack = null;
+    @Unique ItemStack polymer$cachedItemStack = null;
 
     @Inject(method = "getItemStack", at = @At("TAIL"), cancellable = true)
-    private void polymer_replaceWithReal(CallbackInfoReturnable<ItemStack> cir) {
-        if (this.polymer_cachedItemStack == null) {
-            this.polymer_cachedItemStack = PolymerItemUtils.getRealItemStack(cir.getReturnValue());
+    private void polymer$replaceWithReal(CallbackInfoReturnable<ItemStack> cir) {
+        if (this.polymer$cachedItemStack == null) {
+            this.polymer$cachedItemStack = PolymerItemUtils.getRealItemStack(cir.getReturnValue());
         }
 
-        cir.setReturnValue(this.polymer_cachedItemStack);
+        cir.setReturnValue(this.polymer$cachedItemStack);
     }
 }

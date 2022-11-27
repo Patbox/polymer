@@ -18,7 +18,7 @@ public class PalettedContainerDataMixin<T> {
     @Shadow @Final private Palette<T> palette;
 
     @Redirect(method = "writePacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/PaletteStorage;getData()[J"))
-    private long[] polymer_replaceData(PaletteStorage instance) {
+    private long[] polymer$replaceData(PaletteStorage instance) {
         if (this.palette instanceof IdListPalette<T>  && this.palette.get(0) instanceof BlockState) {
             var palette = (IdListPalette<BlockState>) this.palette;
             var player = PolymerUtils.getPlayer();

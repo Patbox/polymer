@@ -20,22 +20,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EntityMixin implements ClientEntityExtension {
     @Shadow public @Nullable abstract Text getCustomName();
 
-    @Unique private Identifier polymer_client_entityId = null;
+    @Unique private Identifier polymer$entityId = null;
 
     @Override
     public void polymer$setId(Identifier id) {
-        this.polymer_client_entityId = id;
+        this.polymer$entityId = id;
     }
 
     @Override
     public Identifier polymer$getId() {
-        return this.polymer_client_entityId;
+        return this.polymer$entityId;
     }
 
     @Inject(method = "getName", at = @At("HEAD"), cancellable = true)
-    private void polymer_replaceName(CallbackInfoReturnable<Text> cir) {
-        if (this.polymer_client_entityId != null && this.getCustomName() == null) {
-            var type = InternalClientRegistry.ENTITY_TYPES.get(this.polymer_client_entityId);
+    private void polymer$replaceName(CallbackInfoReturnable<Text> cir) {
+        if (this.polymer$entityId != null && this.getCustomName() == null) {
+            var type = InternalClientRegistry.ENTITY_TYPES.get(this.polymer$entityId);
 
             if (type != null) {
                 cir.setReturnValue(type.name());

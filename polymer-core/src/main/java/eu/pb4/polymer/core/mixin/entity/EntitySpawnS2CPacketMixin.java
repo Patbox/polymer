@@ -52,7 +52,7 @@ public class EntitySpawnS2CPacketMixin {
     @Shadow @Final private EntityType<?> entityType;
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
-    private Object polymer_replaceWithPolymer(@Nullable Object value) {
+    private Object polymer$replaceWithPolymer(@Nullable Object value) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity polymerEntity && value == ((Entity) polymerEntity).getType()) {
             return polymerEntity.getPolymerEntityType(PolymerUtils.getPlayer());
         } else {
@@ -62,7 +62,7 @@ public class EntitySpawnS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEntityType", at = @At("HEAD"), cancellable = true)
-    private void polymer_replaceWithPolymer(CallbackInfoReturnable<EntityType<?>> cir) {
+    private void polymer$replaceWithPolymer(CallbackInfoReturnable<EntityType<?>> cir) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity polymerEntity && !PolymerClientDecoded.checkDecode(polymerEntity)) {
             cir.setReturnValue(polymerEntity.getPolymerEntityType(ClientUtils.getPlayer()));
         }
@@ -70,12 +70,12 @@ public class EntitySpawnS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;"))
-    private Object polymer_replaceWithPolymer(PacketByteBuf instance, IndexedIterable<?> registry) {
+    private Object polymer$replaceWithPolymer(PacketByteBuf instance, IndexedIterable<?> registry) {
         return InternalClientRegistry.decodeEntity(instance.readVarInt());
     }
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
-    private int polymer_replaceValue(int data) {
+    private int polymer$replaceValue(int data) {
         if (this.entityType == EntityType.FALLING_BLOCK) {
             return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId(data), PolymerUtils.getPlayer()));
         }
@@ -84,7 +84,7 @@ public class EntitySpawnS2CPacketMixin {
     }
 
     @Inject(method = "<init>(Lnet/minecraft/entity/Entity;I)V", at = @At("TAIL"))
-    private void polymer_changePosition(Entity entity, int entityData, CallbackInfo ci) {
+    private void polymer$changePosition(Entity entity, int entityData, CallbackInfo ci) {
         if (entity instanceof PolymerEntity virtualEntity) {
             Vec3d vec3d = virtualEntity.getClientSidePosition(entity.getPos());
             this.x = vec3d.x;
@@ -96,7 +96,7 @@ public class EntitySpawnS2CPacketMixin {
     }
 
     @Inject(method = "<init>(Lnet/minecraft/entity/Entity;ILnet/minecraft/util/math/BlockPos;)V", at = @At("TAIL"))
-    private void polymer_changePosition2(Entity entity, int entityTypeId, BlockPos pos, CallbackInfo ci) {
+    private void polymer$changePosition2(Entity entity, int entityTypeId, BlockPos pos, CallbackInfo ci) {
         if (entity instanceof PolymerEntity virtualEntity) {
             Vec3d vec3d = virtualEntity.getClientSidePosition(entity.getPos());
             this.x = vec3d.x;
@@ -109,7 +109,7 @@ public class EntitySpawnS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEntityData", at = @At("HEAD"), cancellable = true)
-    private void polymer_replaceClientData(CallbackInfoReturnable<Integer> cir) {
+    private void polymer$replaceClientData(CallbackInfoReturnable<Integer> cir) {
         if (this.entityType == EntityType.FALLING_BLOCK) {
             var state = InternalClientRegistry.decodeState(this.entityData);
             cir.setReturnValue(Block.getRawIdFromState(state));

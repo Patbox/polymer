@@ -3,8 +3,8 @@ package eu.pb4.polymer.core.impl.other;
 import net.minecraft.client.item.TooltipContext;
 
 public record PolymerTooltipContext(boolean advanced, boolean creative) implements TooltipContext {
-    public static final TooltipContext BASIC = new PolymerTooltipContext(false, false);
-    public static final TooltipContext ADVANCED = new PolymerTooltipContext(true, false);
+    public static final PolymerTooltipContext BASIC = new PolymerTooltipContext(false, false);
+    public static final PolymerTooltipContext ADVANCED = new PolymerTooltipContext(true, false);
 
     @Override
     public boolean isAdvanced() {

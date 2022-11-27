@@ -8,8 +8,6 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import org.slf4j.Logger;
 
-import java.nio.file.Path;
-
 public final class PolymerImpl {
     public static final Logger LOGGER = CommonImpl.LOGGER;
     private static final FabricLoader LOADER = CommonImpl.LOADER;
@@ -18,10 +16,7 @@ public final class PolymerImpl {
     public static final boolean IS_CLIENT = CommonImpl.IS_CLIENT;
 
     private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer-core").get();
-    public static final String MOD_ID = CONTAINER.getMetadata().getId();
     public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString();
-
-    public static final ServerConfig SERVER_CONFIG = loadConfig("server", ServerConfig.class);
 
     private static final boolean FORCE_DEVELOPER_MODE = false;
     public static final boolean DEVELOPER_MODE;
@@ -45,17 +40,19 @@ public final class PolymerImpl {
     public static final boolean LOG_MORE_ERRORS;
 
     static {
-        ENABLE_NETWORKING_SERVER = SERVER_CONFIG.enableNetworkSync;
-        ENABLE_TEMPLATE_ENTITY_WARNINGS = SERVER_CONFIG.enableTemplateEntityWarnings;
-        DEVELOPER_MODE = DEV_ENV || SERVER_CONFIG.enableDevUtils || FORCE_DEVELOPER_MODE;
-        CORE_COMMAND_MINIMAL_OP = SERVER_CONFIG.coreCommandOperatorLevel;
-        ADD_NON_POLYMER_CREATIVE_TABS = SERVER_CONFIG.displayNonPolymerCreativeTabs;
-        HANDLE_HANDSHAKE_EARLY = SERVER_CONFIG.handleHandshakeEarly;
-        RESEND_BLOCKS_AROUND_CLICK = SERVER_CONFIG.sendBlocksAroundClicked;
-        DONT_USE_BLOCK_DELTA_PACKET = SERVER_CONFIG.disableChunkDeltaUpdatePacket;
-        LOG_SYNC_TIME = DEVELOPER_MODE || SERVER_CONFIG.logHandshakeTime;
-        LOG_BLOCKSTATE_REBUILDS = SERVER_CONFIG.logBlockStateRebuilds;
-        LOG_MORE_ERRORS = SERVER_CONFIG.logAllExceptions || DEVELOPER_MODE;
+        var serverConfig = loadConfig("server", ServerConfig.class);
+
+        ENABLE_NETWORKING_SERVER = serverConfig.enableNetworkSync;
+        ENABLE_TEMPLATE_ENTITY_WARNINGS = serverConfig.enableTemplateEntityWarnings;
+        DEVELOPER_MODE = DEV_ENV || serverConfig.enableDevUtils || FORCE_DEVELOPER_MODE;
+        CORE_COMMAND_MINIMAL_OP = serverConfig.coreCommandOperatorLevel;
+        ADD_NON_POLYMER_CREATIVE_TABS = serverConfig.displayNonPolymerCreativeTabs;
+        HANDLE_HANDSHAKE_EARLY = serverConfig.handleHandshakeEarly;
+        RESEND_BLOCKS_AROUND_CLICK = serverConfig.sendBlocksAroundClicked;
+        DONT_USE_BLOCK_DELTA_PACKET = serverConfig.disableChunkDeltaUpdatePacket;
+        LOG_SYNC_TIME = DEVELOPER_MODE || serverConfig.logHandshakeTime;
+        LOG_BLOCKSTATE_REBUILDS = serverConfig.logBlockStateRebuilds;
+        LOG_MORE_ERRORS = serverConfig.logAllExceptions || DEVELOPER_MODE;
 
 
         if (PolymerImpl.IS_CLIENT) {
@@ -80,14 +77,6 @@ public final class PolymerImpl {
 
     public static <T> T loadConfig(String name, Class<T> clazz) {
         return CommonImpl.loadConfig(name, clazz);
-    }
-
-    public static Path getJarPath(String path) {
-        return FabricLoader.getInstance().getModContainer(MOD_ID).get().getPath(path);
-    }
-
-    public static Path getGameDir() {
-        return LOADER.getGameDir();
     }
 
     public static boolean isOlderThan(String version) {

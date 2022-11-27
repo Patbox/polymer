@@ -20,13 +20,11 @@
     "block.packet.PalettedContainerDataMixin",
     "block.packet.ParticleS2CPacketMixin",
     "block.packet.ServerPlayNetworkHandlerMixin",
-    "block.packet.StateAccessor",
     "block.packet.ThreadedAnvilChunkStorageAccessor",
     "block.packet.WorldEventS2CPacketMixin",
     "block.storage.ChunkSectionMixin",
     "block.storage.WorldChunkMixin",
     "command.CommandManagerMixin",
-    "command.SuggestionProvidersMixin",
     "compat.lithium_BlockPaletteMixin",
     "compat.fabric.fabricSync_StateIdTrackerMixin",
     "compat.immersive_portals.ip_ChunkDataSyncManagerMixin",
@@ -49,7 +47,6 @@
     "entity.ServerPlayNetworkHandlerMixin",
     "entity.ServerWorldAccessor",
     "entity.TrackedDataHandlerRegistryBlockStateMixin",
-    "entity.VillagerEntityAccessor",
     "item.AnvilScreenHandlerMixin",
     "item.ItemGroupMixin",
     "item.ItemStackContentMixin",
@@ -88,7 +85,6 @@
     "client.MinecraftClientMixin",
     "client.PacketByteBufMixin",
     "client.ReloadableResourceManagerImplMixin",
-    "client.block.BlockEntityUpdateS2CPacketMixin",
     "client.block.ChunkSectionMixin",
     "client.block.EmptyChunkMixin",
     "client.block.WorldChunkMixin",
@@ -97,8 +93,6 @@
     "client.compat.jei_SubtypeManagerMixin",
     "client.compat.rei_ItemEntryDefinitionMixin",
     "client.entity.EntityMixin",
-    "client.item.CreativeInventoryScreenAccessor",
-    "client.item.IdentifierSearchableContainerMixin",
     "client.item.ItemGroupMixin",
     "client.item.ItemMixin",
     "client.item.ItemStackMixin",
@@ -116,8 +110,7 @@
     "client.rendering.ItemModelsMixin",
     "client.rendering.ItemRendererMixin",
     "client.rendering.ModelLoaderMixin",
-    "client.rendering.ModelOverrideListMixin",
-    "client.rendering.StatusEffectSpriteManagerMixin"
+    "client.rendering.ModelOverrideListMixin"
   ],
   "injectors": {
     "defaultRequire": 1

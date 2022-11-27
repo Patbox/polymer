@@ -13,12 +13,6 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class ClientUtils {
-    public static final String PACK_ID = "$polymer-resources";
-
-    public static boolean isResourcePackLoaded() {
-        return MinecraftClient.getInstance().getResourcePackManager().getEnabledNames().contains(PACK_ID);
-    }
-
     public static boolean isSingleplayer() {
         return MinecraftClient.getInstance().getServer() != null;
     }

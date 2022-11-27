@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(ArmorFeatureRenderer.class)
 public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> {
     @Inject(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/DyeableArmorItem;getColor(Lnet/minecraft/item/ItemStack;)I"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT, require = 0)
-    private void polymer_changeArmorTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot armorSlot, int light, A model, CallbackInfo ci, ItemStack stack) {
+    private void polymer$changeArmorTexture(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot armorSlot, int light, A model, CallbackInfo ci, ItemStack stack) {
         if (InternalClientRegistry.hasArmorTextures) {
             int color = ((DyeableArmorItem) stack.getItem()).getColor(stack);
 

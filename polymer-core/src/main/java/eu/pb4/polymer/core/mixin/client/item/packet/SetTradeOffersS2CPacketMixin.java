@@ -20,15 +20,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SetTradeOffersS2CPacket.class)
 public class SetTradeOffersS2CPacketMixin {
     @Shadow @Final private TradeOfferList recipes;
-    @Unique private TradeOfferList polymer_trades = null;
+    @Unique private TradeOfferList polymer$trades = null;
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getOffers", at = @At("HEAD"), cancellable = true)
-    private void polymer_replaceRecipes(CallbackInfoReturnable<TradeOfferList> cir) {
+    private void polymer$replaceOffers(CallbackInfoReturnable<TradeOfferList> cir) {
         ServerPlayerEntity player = ClientUtils.getPlayer();
 
         if (player != null) {
-            if (this.polymer_trades == null) {
+            if (this.polymer$trades == null) {
                 TradeOfferList list = new TradeOfferList();
 
                 for (TradeOffer tradeOffer : this.recipes) {
@@ -46,10 +46,10 @@ public class SetTradeOffersS2CPacketMixin {
                     list.add(offer);
                 }
 
-                this.polymer_trades = list;
+                this.polymer$trades = list;
             }
 
-            cir.setReturnValue(this.polymer_trades);
+            cir.setReturnValue(this.polymer$trades);
         }
     }
 }

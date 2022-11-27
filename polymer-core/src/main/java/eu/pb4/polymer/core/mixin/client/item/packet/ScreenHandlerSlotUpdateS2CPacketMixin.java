@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ScreenHandlerSlotUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getItemStack", at = @At("RETURN"), cancellable = true)
-    private void polymer_replaceItemsWithVirtualOnes(CallbackInfoReturnable<ItemStack> cir) {
+    private void polymer$replaceItem(CallbackInfoReturnable<ItemStack> cir) {
         if (ClientUtils.isSingleplayer()) {
             cir.setReturnValue(PolymerItemUtils.getPolymerItemStack(cir.getReturnValue(), ClientUtils.getPlayer()));
         }

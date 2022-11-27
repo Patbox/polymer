@@ -42,15 +42,15 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V",
             at = @At("TAIL")
     )
-    private void polymer_polymerBlocksInit(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler blockTickScheduler, ChunkTickScheduler fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
+    private void polymer$polymerBlocksInit(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler blockTickScheduler, ChunkTickScheduler fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
         if (world instanceof ServerWorld) {
-            this.polymer_generatePolymerBlockSet();
+            this.polymer$generatePolymerBlockSet();
         }
     }
 
 
     @Unique
-    private void polymer_generatePolymerBlockSet() {
+    private void polymer$generatePolymerBlockSet() {
         for (var section : this.getSectionArray()) {
             if (section != null && !section.isEmpty()) {
                 var container = section.getBlockStateContainer();
@@ -75,7 +75,7 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
 
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/ChunkSection;setBlockState(IIILnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER))
-    private void polymer_addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+    private void polymer$addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         if (state.getBlock() instanceof PolymerBlock) {
             this.polymer$setPolymer(pos.getX(), pos.getY(), pos.getZ());
         } else {

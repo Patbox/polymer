@@ -40,36 +40,24 @@ public abstract class MinecraftClientMixin {
     @Shadow @Final private ReloadableResourceManagerImpl resourceManager;
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;initFont(Z)V"))
-    private void polymer_registerCustom(RunArgs args, CallbackInfo ci) {
+    private void polymer$registerCustom(RunArgs args, CallbackInfo ci) {
         this.resourceManager.registerReloader(new PolymerResourceReloader(this.textureManager));
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private void polymer_tick(CallbackInfo ci) {
+    private void polymer$tick(CallbackInfo ci) {
         if (InternalClientRegistry.enabled) {
             InternalClientRegistry.tick();
         }
     }
-
-    /*@ModifyVariable(method = "initializeSearchProviders", at = @At(value = "STORE"))
-    private DefaultedList<?> polymer_removePolymerItemsFromSearch(DefaultedList<?> og) {
-        return new DefaultedList<>(new ArrayList<>(), null) {
-            @Override
-            public void add(int value, Object element) {
-                if (element instanceof ItemStack stack && !PolymerItemUtils.isPolymerServerItem(stack)) {
-                    super.add(value, element);
-                }
-            }
-        };
-    }*/
-
+    
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V"))
-    private void polymer_onDisconnect(CallbackInfo ci) {
+    private void polymer$onDisconnect(CallbackInfo ci) {
         InternalClientRegistry.disable();
     }
 
     @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
-    private void polymer_pickBlock(CallbackInfo ci) {
+    private void polymer$pickBlock(CallbackInfo ci) {
         if (PolymerImpl.CHANGING_QOL_CLIENT && InternalClientRegistry.enabled && this.getNetworkHandler() != null && this.crosshairTarget != null) {
             switch (this.crosshairTarget.getType()) {
                 case BLOCK -> {

@@ -18,14 +18,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockModels.class)
 public class BlockModelsMixin {
     @Inject(method = "getModelId(Lnet/minecraft/block/BlockState;)Lnet/minecraft/client/util/ModelIdentifier;", at = @At("HEAD"), cancellable = true, require = 0)
-    private static void polymer_skipVirtualModels(BlockState state, CallbackInfoReturnable<ModelIdentifier> cir) {
+    private static void polymer$skipModels(BlockState state, CallbackInfoReturnable<ModelIdentifier> cir) {
         if (PolymerKeepModel.useServerModel(state.getBlock())) {
             cir.setReturnValue(new ModelIdentifier("minecraft", "air", ""));
         }
     }
 
     @ModifyVariable(method = "getModel", at = @At("HEAD"), require = 0)
-    private BlockState polymer_replaceBlockState(BlockState state) {
+    private BlockState polymer$replaceBlockState(BlockState state) {
         return state.getBlock() instanceof PolymerBlock block && !PolymerKeepModel.is(block) ? Blocks.AIR.getDefaultState() : state;
     }
 }

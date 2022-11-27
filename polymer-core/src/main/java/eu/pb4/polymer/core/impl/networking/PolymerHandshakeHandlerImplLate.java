@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl.networking;
 
+import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.networking.PolymerHandshakeHandler;
 import eu.pb4.polymer.core.api.networking.PolymerSyncUtils;
@@ -91,7 +92,7 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
 
     @Override
     public boolean getPackStatus() {
-        return this.polymerHandler.polymer$hasResourcePack();
+        return ((CommonResourcePackInfoHolder) this.polymerHandler).polymerCommon$hasResourcePack();
     }
 
     @Override
@@ -101,6 +102,6 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
 
     @Override
     public void setPackStatus(boolean status) {
-        this.polymerHandler.polymer$setResourcePack(status);
+        ((CommonResourcePackInfoHolder) this.polymerHandler).polymerCommon$setResourcePack(status);
     }
 }

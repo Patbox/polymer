@@ -15,14 +15,14 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface ThreadedAnvilChunkStorageAccessor {
 
     @Accessor("world")
-    ServerWorld getWorld();
+    ServerWorld polymer$getWorld();
 
-    @Accessor
-    int getWatchDistance();
+    @Accessor("watchDistance")
+    int polymer$getWatchDistance();
 
     @Accessor("entityTrackers")
-    Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> polymer_getEntityTrackers();
+    Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> polymer$getEntityTrackers();
 
     @Invoker("sendChunkDataPackets")
-    void polymer_sendChunkDataPackets(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk);
+    void polymer$sendChunkDataPackets(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk);
 }

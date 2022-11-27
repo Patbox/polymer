@@ -45,57 +45,57 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Shadow public abstract void finishMining(BlockPos pos, int sequence, String reason);
 
     @Unique
-    private int polymer_sequence = 0;
+    private int polymer$sequence = 0;
 
     @Unique
-    private int polymer_blockBreakingCooldown;
+    private int polymer$blockBreakingCooldown;
 
     @Unique
-    private boolean polymer_hasMiningFatigue;
+    private boolean polymer$hasMiningFatigue;
 
     @Inject(method = "continueMining", at = @At("TAIL"))
     private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (this.polymer_shouldMineServerSide(pos, state)) {
+        if (this.polymer$shouldMineServerSide(pos, state)) {
             int j = this.tickCounter - i;
             float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j);
 
-            if (this.polymer_blockBreakingCooldown > 0) {
-                --this.polymer_blockBreakingCooldown;
+            if (this.polymer$blockBreakingCooldown > 0) {
+                --this.polymer$blockBreakingCooldown;
             }
 
             if (f >= 1.0F) {
-                this.polymer_blockBreakingCooldown = 5;
+                this.polymer$blockBreakingCooldown = 5;
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
-                this.finishMining(pos, this.polymer_sequence, "destroyed");
+                this.finishMining(pos, this.polymer$sequence, "destroyed");
 
                 if (!(state.getBlock() instanceof AbstractFireBlock)) {
                     this.world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, pos, Block.getRawIdFromState(state));
                 }
 
             }
-        } else if (this.polymer_hasMiningFatigue) {
-            this.polymer_clearMiningEffect();
+        } else if (this.polymer$hasMiningFatigue) {
+            this.polymer$clearMiningEffect();
         }
     }
 
     @Inject(method = "continueMining", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockBreakingInfo(ILnet/minecraft/util/math/BlockPos;I)V"))
-    private void polymer_onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (this.polymer_shouldMineServerSide(pos, state)) {
+    private void polymer$onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
+        if (this.polymer$shouldMineServerSide(pos, state)) {
             int j = tickCounter - i;
             float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j + 1);
             int k = (int) (f * 10.0F);
 
             this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, k));
-        } else if (this.polymer_hasMiningFatigue) {
-            this.polymer_clearMiningEffect();
+        } else if (this.polymer$hasMiningFatigue) {
+            this.polymer$clearMiningEffect();
         }
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
-        this.polymer_sequence = sequence;
+        this.polymer$sequence = sequence;
         var state = this.player.getWorld().getBlockState(pos);
-        if (this.polymer_shouldMineServerSide(pos, state)) {
+        if (this.polymer$shouldMineServerSide(pos, state)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 var ogDelta = state.calcBlockBreakingDelta(this.player, this.world, pos);;
                 if (state.getBlock() instanceof PolymerBlock virtualBlock) {
@@ -109,49 +109,49 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 }
 
                 if (ogDelta < 1.0f) {
-                    polymer_sendMiningFatigue();
+                    polymer$sendMiningFatigue();
                 }
             } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
-                if (this.polymer_hasMiningFatigue) {
-                    this.polymer_clearMiningEffect();
+                if (this.polymer$hasMiningFatigue) {
+                    this.polymer$clearMiningEffect();
                 }
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
             }
-        } else if (this.polymer_hasMiningFatigue) {
-            this.polymer_clearMiningEffect();
+        } else if (this.polymer$hasMiningFatigue) {
+            this.polymer$clearMiningEffect();
         }
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
-    private void polymer_enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
-        if (this.polymer_shouldMineServerSide(pos, this.player.getWorld().getBlockState(pos))) {
+    private void polymer$enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
+        if (this.polymer$shouldMineServerSide(pos, this.player.getWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
-                this.startMiningTime += polymer_blockBreakingCooldown;
+                this.startMiningTime += polymer$blockBreakingCooldown;
             }
-        } else if (this.polymer_hasMiningFatigue) {
-            this.polymer_clearMiningEffect();
+        } else if (this.polymer$hasMiningFatigue) {
+            this.polymer$clearMiningEffect();
         }
     }
 
     @Inject(method = "finishMining", at = @At("HEAD"))
-    private void polymer_clearEffects(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
-        this.polymer_clearMiningEffect();
+    private void polymer$clearEffects(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
+        this.polymer$clearMiningEffect();
     }
 
     @Unique
-    private boolean polymer_shouldMineServerSide(BlockPos pos, BlockState state) {
+    private boolean polymer$shouldMineServerSide(BlockPos pos, BlockState state) {
         return state.getBlock() instanceof PolymerBlock || this.player.getMainHandStack().getItem() instanceof PolymerItem || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, this.player));
     }
 
     @Unique
-    private void polymer_sendMiningFatigue() {
-        this.polymer_hasMiningFatigue = true;
+    private void polymer$sendMiningFatigue() {
+        this.polymer$hasMiningFatigue = true;
         this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
     }
 
     @Unique
-    private void polymer_clearMiningEffect() {
-        this.polymer_hasMiningFatigue = false;
+    private void polymer$clearMiningEffect() {
+        this.polymer$hasMiningFatigue = false;
         this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
         if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
             StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
@@ -160,6 +160,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)
-    private void polymer_noOneCaresAboutMismatch(Logger instance, String s, Object o, Object o2) {
+    private void polymer$noOneCaresAboutMismatch(Logger instance, String s, Object o, Object o2) {
     }
 }

@@ -34,7 +34,7 @@ public abstract class EntityAttributesS2CPacketMixin {
      * No error is printed, packet is just silently ignored.
      */
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 0))
-    private int polymer_replaceWithPolymer(int input) {
+    private int polymer$replaceWithPolymer(int input) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayer()))) {
             return -1;
         }
@@ -43,7 +43,7 @@ public abstract class EntityAttributesS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEntityId", at = @At("HEAD"), cancellable = true)
-    private void polymer_replaceWithPolymer2(CallbackInfoReturnable<Integer> cir) {
+    private void polymer$replaceWithPolymer2(CallbackInfoReturnable<Integer> cir) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayer()))) {
             cir.setReturnValue(-1);
         }
@@ -51,7 +51,7 @@ public abstract class EntityAttributesS2CPacketMixin {
 
     @SuppressWarnings("unchecked")
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V", ordinal = 0))
-    private Collection<EntityAttributesS2CPacket.Entry> polymer_replaceWithPolymer(Collection<EntityAttributesS2CPacket.Entry> value) {
+    private Collection<EntityAttributesS2CPacket.Entry> polymer$replaceWithPolymer(Collection<EntityAttributesS2CPacket.Entry> value) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && ((Entity) entity).getId() == this.entityId) {
             var type = entity.getPolymerEntityType(PolymerUtils.getPlayer());
             if (!InternalEntityHelpers.isLivingEntity(type)) {

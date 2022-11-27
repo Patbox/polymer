@@ -129,7 +129,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         var path = relative.toString().replace("\\", "/");
                         if (Files.isRegularFile(file)) {
                             try {
-                                fileMap.put(path, Files.readAllBytes(file));
+                                fileMap.put("assets/" + path, Files.readAllBytes(file));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

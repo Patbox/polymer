@@ -58,10 +58,6 @@ public class PolymerServerProtocol {
         handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.HANDSHAKE_ID, buf));
     }
 
-    public static void sendDisable(PolymerHandshakeHandler handler) {
-        handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.DISABLE_ID, buf(0)));
-    }
-
     public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
         var polymerHandler = PolymerNetworkHandlerExtension.of(player);
         var version = polymerHandler.polymer$getSupportedVersion(ServerPackets.WORLD_SET_BLOCK_UPDATE);

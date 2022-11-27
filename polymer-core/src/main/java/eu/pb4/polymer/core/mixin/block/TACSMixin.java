@@ -30,7 +30,7 @@ public class TACSMixin {
 
 
     @Inject(method = "sendChunkDataPackets", at = @At("HEAD"), require = 0)
-    private void polymer_catchPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
+    private void polymer$catchPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
         PolymerImplUtils.setPlayer(player);
         var value = cachedDataPacket.getValue();
         var playerMapper = BlockMapper.getFrom(player);
@@ -44,19 +44,19 @@ public class TACSMixin {
     }
 
     @Inject(method = "sendChunkDataPackets", at = @At("TAIL"), require = 0)
-    private void polymer_clearPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
+    private void polymer$clearPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
         PolymerImplUtils.setPlayer(null);
     }
 
     @Inject(method = "method_18843", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;setLoadedToWorld(Z)V", shift = At.Shift.AFTER))
-    private void polymer_unloadChunk(ChunkHolder chunkHolder, CompletableFuture completableFuture, long l, Chunk chunk, CallbackInfo ci) {
+    private void polymer$unloadChunk(ChunkHolder chunkHolder, CompletableFuture completableFuture, long l, Chunk chunk, CallbackInfo ci) {
         for (int i = chunk.getBottomSectionCoord(); i <= chunk.getTopSectionCoord(); i++) {
             ((ServerChunkManagerInterface) this.world.getChunkManager()).polymer$removeSection(ChunkSectionPos.from(chunk.getPos(), i));
         }
     }
 
     @Inject(method = "method_17227", at = @At("TAIL"))
-    private void polymer_loadChunk(ChunkHolder chunkHolder, Chunk chunk, CallbackInfoReturnable<Chunk> callbackInfoReturnable) {
+    private void polymer$loadChunk(ChunkHolder chunkHolder, Chunk chunk, CallbackInfoReturnable<Chunk> callbackInfoReturnable) {
         for (var section : chunk.getSectionArray()) {
             if (section != null && !section.isEmpty()) {
                 ((ServerChunkManagerInterface) this.world.getChunkManager()).polymer$setSection(

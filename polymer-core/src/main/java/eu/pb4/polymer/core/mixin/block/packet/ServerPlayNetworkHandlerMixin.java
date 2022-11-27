@@ -18,7 +18,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     public ServerPlayerEntity player;
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;send(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", shift = At.Shift.AFTER))
-    private void polymer_catchBlockUpdates(Packet<?> packet, PacketCallbacks callbacks, CallbackInfo ci) {
+    private void polymer$catchBlockUpdates(Packet<?> packet, PacketCallbacks callbacks, CallbackInfo ci) {
         try {
             BlockPacketUtil.sendFromPacket(packet, (ServerPlayNetworkHandler) (Object) this);
         } catch (Exception e) {

@@ -4,7 +4,6 @@ import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.client.*;
-import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
@@ -425,10 +424,6 @@ public class InternalClientRegistry {
         }
     }
 
-    private static boolean isPolymerItemStack(Object o) {
-        return o instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null);
-    }
-
     static {
         setDecoders();
     }
@@ -443,9 +438,5 @@ public class InternalClientRegistry {
         }
 
         return null;
-    }
-
-    public static boolean hideFromItemGroup(ItemStack stack) {
-        return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null;
     }
 }

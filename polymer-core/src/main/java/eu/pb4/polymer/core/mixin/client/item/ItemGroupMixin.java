@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.mixin.client.item;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.ClientUtils;
-import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipContext;
 import net.fabricmc.api.EnvType;
@@ -40,8 +40,8 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V"))
     private void polymer$injectEntries(FeatureSet enabledFeatures, boolean operatorEnabled, CallbackInfo ci) {
         if (this.type == ItemGroup.Type.CATEGORY && ClientUtils.isClientThread()) {
-            this.displayStacks.removeIf(InternalClientRegistry::hideFromItemGroup);
-            this.searchTabStacks.removeIf(InternalClientRegistry::hideFromItemGroup);
+            this.displayStacks.removeIf(PolymerImplUtils::isPolymerControlled);
+            this.searchTabStacks.removeIf(PolymerImplUtils::isPolymerControlled);
 
             this.displayStacks.addAll(this.polymer$itemsGroup);
             this.searchTabStacks.addAll(this.polymer$itemsSearch);

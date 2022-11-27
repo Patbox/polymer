@@ -50,7 +50,7 @@ public final class CommonImpl {
 
         var config = loadConfig("common", CommonConfig.class);
         CORE_COMMAND_MINIMAL_OP = config.coreCommandOperatorLevel;
-        DEVELOPER_MODE = config.enableDevTools;
+        DEVELOPER_MODE = config.enableDevTools || DEV_ENV;
 
         var list = new ArrayList<String>();
         for (var person : CONTAINER.getMetadata().getAuthors()) {

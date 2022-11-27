@@ -23,30 +23,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChunkSection.class)
 public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Unique
-    private PalettedContainer<ClientPolymerBlock.State> polymer_container;
+    private PalettedContainer<ClientPolymerBlock.State> polymer$container;
 
     @Inject(method = "<init>(ILnet/minecraft/registry/Registry;)V", at = @At("TAIL"))
-    private void polymer_init(int chunkPos, Registry<Biome> biomeRegistry, CallbackInfo ci) {
-        this.polymer_createContainers();
+    private void polymer$init(int chunkPos, Registry<Biome> biomeRegistry, CallbackInfo ci) {
+        this.polymer$createContainers();
     }
 
     @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/world/chunk/ReadableContainer;)V", at = @At("TAIL"))
-    private void polymer_init2(int chunkPos, PalettedContainer blockStateContainer, ReadableContainer readableContainer, CallbackInfo ci) {
-        this.polymer_createContainers();
+    private void polymer$init2(int chunkPos, PalettedContainer blockStateContainer, ReadableContainer readableContainer, CallbackInfo ci) {
+        this.polymer$createContainers();
     }
 
 
-    private void polymer_createContainers() {
-        this.polymer_container = new PalettedContainer<>(InternalClientRegistry.BLOCK_STATES, ClientPolymerBlock.NONE_STATE, PalettedContainer.PaletteProvider.BLOCK_STATE);
+    private void polymer$createContainers() {
+        this.polymer$container = new PalettedContainer<>(InternalClientRegistry.BLOCK_STATES, ClientPolymerBlock.NONE_STATE, PalettedContainer.PaletteProvider.BLOCK_STATE);
     }
 
     @Override
     public void polymer$setClientBlock(int x, int y, int z, ClientPolymerBlock.State block) {
-        this.polymer_container.swapUnsafe(x & 15, y & 15, z & 15, block);
+        this.polymer$container.swapUnsafe(x & 15, y & 15, z & 15, block);
     }
 
     @Override
     public ClientPolymerBlock.State polymer$getClientBlock(int x, int y, int z) {
-        return this.polymer_container.get(x & 15, y & 15, z & 15);
+        return this.polymer$container.get(x & 15, y & 15, z & 15);
     }
 }

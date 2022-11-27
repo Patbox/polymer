@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 
 public class CommonImplUtils {
     public static final Text[] ICON;
+    public static boolean disableResourcePackCheck;
 
     static {
         final String chr = "█";

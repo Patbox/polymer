@@ -19,16 +19,16 @@ import org.spongepowered.asm.mixin.Unique;
 })
 public class EntityAttachedPacketsMixin implements EntityAttachedPacket {
     @Unique
-    private Entity polymer_entity = null;
+    private Entity polymer$entity = null;
 
     @Override
     public Entity polymer$getEntity() {
-        return this.polymer_entity;
+        return this.polymer$entity;
     }
 
     @Override
     public Packet<?> polymer$setEntity(Entity entity) {
-        this.polymer_entity = entity;
+        this.polymer$entity = entity;
         return (Packet<?>) this;
     }
 }

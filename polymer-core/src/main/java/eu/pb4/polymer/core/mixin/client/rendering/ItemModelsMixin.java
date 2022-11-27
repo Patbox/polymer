@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(ItemModels.class)
 public class ItemModelsMixin {
     @ModifyVariable(method = "getModel(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/client/render/model/BakedModel;", at = @At("HEAD"), require = 0)
-    private ItemStack polymer_replaceItemStack(ItemStack stack) {
+    private ItemStack polymer$replaceItemStack(ItemStack stack) {
         return ClientUtils.getRenderingStack(stack);
     }
 }

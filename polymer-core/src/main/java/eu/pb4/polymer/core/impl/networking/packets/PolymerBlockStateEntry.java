@@ -30,7 +30,7 @@ public record PolymerBlockStateEntry(Map<String, String> states, int numId, int 
     }
 
     public static PolymerBlockStateEntry read(PacketByteBuf buf, int version) {
-        if (version == 1) {
+        if (version >= 1) {
             var numId = buf.readVarInt();
             var blockId = buf.readVarInt();
             var states = buf.readMap(PacketByteBuf::readString, PacketByteBuf::readString);

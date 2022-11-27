@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public interface MetaConsumer<T, E> extends Consumer<T> {
     E getAttached();
 
-    static MetaConsumer<Packet<?>, Collection<EntityTrackingListener>> plsFixInDevRemappingFabric(ThreadedAnvilChunkStorage.EntityTracker entityTracker, Set<EntityTrackingListener> listeners, Entity entity) {
+    static MetaConsumer<Packet<?>, Collection<EntityTrackingListener>> sendToOtherPlayers(ThreadedAnvilChunkStorage.EntityTracker entityTracker, Set<EntityTrackingListener> listeners, Entity entity) {
         return new MetaConsumer<>() {
             @Override
             public Collection<EntityTrackingListener> getAttached() {

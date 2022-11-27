@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(ModelOverrideList.class)
 public class ModelOverrideListMixin {
     @ModifyVariable(method = "apply", at = @At("HEAD"), require = 0)
-    private ItemStack polymer_replaceItemStack(ItemStack stack) {
+    private ItemStack polymer$replaceItemStack(ItemStack stack) {
         return ClientUtils.getRenderingStack(stack);
     }
 }

@@ -24,7 +24,7 @@ public record DebugBlockStateEntry(Map<String, String> states, int numId, Identi
         var list = new HashMap<String, String>();
 
         for (var entry : state.getEntries().entrySet()) {
-            list.put(entry.getKey().getName(), ((Property) (Object) entry.getKey()).name(entry.getValue()));
+            list.put(entry.getKey().getName(), ((Property) entry.getKey()).name(entry.getValue()));
         }
 
         return new DebugBlockStateEntry(list,

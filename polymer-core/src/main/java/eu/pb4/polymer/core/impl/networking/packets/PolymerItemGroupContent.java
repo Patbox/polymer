@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.impl.networking.packets;
 
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
 import net.minecraft.item.ItemGroup;
@@ -23,13 +24,13 @@ public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> sta
 
         for (var item : contents.main()) {
             if (anyContent || PolymerItemUtils.isPolymerServerItem(item)) {
-                stacksMain.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
+                stacksMain.add(PolymerItemUtils.getPolymerItemStack(item, PolymerUtils.getCreativeTooltipContext(handler.player), handler.player));
             }
         }
 
         for (var item : contents.search()) {
             if (anyContent || PolymerItemUtils.isPolymerServerItem(item)) {
-                stacksSearch.add(PolymerItemUtils.getPolymerItemStack(item, handler.player));
+                stacksSearch.add(PolymerItemUtils.getPolymerItemStack(item, PolymerUtils.getCreativeTooltipContext(handler.player), handler.player));
             }
         }
 

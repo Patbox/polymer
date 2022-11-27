@@ -28,7 +28,7 @@ public record PolymerEntityEntry(Identifier identifier, int rawId, Text name) im
     }
 
     public static PolymerEntityEntry read(PacketByteBuf buf, int version) {
-        if (version == 1) {
+        if (version >= 1) {
             return new PolymerEntityEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText());
         }
         return null;

@@ -15,17 +15,17 @@ import java.util.Iterator;
 @Mixin(ChunkSection.class)
 public class ChunkSectionMixin implements PolymerBlockPosStorage {
     @Unique
-    private final ShortSet polymer_blocks = new ShortOpenHashSet();
+    private final ShortSet polymer$blocks = new ShortOpenHashSet();
 
     @Override
     public @Nullable ShortSet polymer$getBackendSet() {
-        return this.polymer_blocks;
+        return this.polymer$blocks;
     }
 
     @Override
     public Iterator<BlockPos.Mutable> polymer$iterator(ChunkSectionPos sectionPos) {
         var blockPos = new BlockPos.Mutable();
-        var iterator = this.polymer_blocks.iterator();
+        var iterator = this.polymer$blocks.iterator();
 
         return new Iterator<>() {
             @Override
@@ -49,21 +49,21 @@ public class ChunkSectionMixin implements PolymerBlockPosStorage {
 
     @Override
     public void polymer$setPolymer(int x, int y, int z) {
-        this.polymer_blocks.add(PolymerBlockPosStorage.pack(x, y, z));
+        this.polymer$blocks.add(PolymerBlockPosStorage.pack(x, y, z));
     }
 
     @Override
     public void polymer$removePolymer(int x, int y, int z) {
-        this.polymer_blocks.remove(PolymerBlockPosStorage.pack(x, y, z));
+        this.polymer$blocks.remove(PolymerBlockPosStorage.pack(x, y, z));
     }
 
     @Override
     public boolean polymer$getPolymer(int x, int y, int z) {
-        return this.polymer_blocks.contains(PolymerBlockPosStorage.pack(x, y, z));
+        return this.polymer$blocks.contains(PolymerBlockPosStorage.pack(x, y, z));
     }
 
     @Override
     public boolean polymer$hasAny() {
-        return !this.polymer_blocks.isEmpty();
+        return !this.polymer$blocks.isEmpty();
     }
 }

@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.impl.client.compat;
 
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.common.entry.EntryStack;
@@ -13,7 +14,7 @@ import net.minecraft.item.ItemStack;
 import java.util.function.Predicate;
 
 public class ReiCompatibility implements REIClientPlugin {
-    private static final Predicate<? extends EntryStack<?>> SHOULD_REMOVE = (x) -> x.getValue() instanceof ItemStack stack && (PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null);
+    private static final Predicate<? extends EntryStack<?>> SHOULD_REMOVE = (x) -> x.getValue() instanceof ItemStack stack && PolymerImplUtils.isPolymerControlled(stack);
 
     private static final EntryComparator<ItemStack> ITEM_STACK_ENTRY_COMPARATOR = (c, i) -> {
         var polymerId = PolymerItemUtils.getServerIdentifier(i);

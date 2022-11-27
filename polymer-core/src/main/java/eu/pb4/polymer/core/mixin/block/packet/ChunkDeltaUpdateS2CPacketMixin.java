@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(value = ChunkDeltaUpdateS2CPacket.class, priority = 500)
 public abstract class ChunkDeltaUpdateS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
-    private BlockState polymer_replaceWithPolymerBlockState(BlockState state) {
+    private BlockState polymer$replaceWithPolymerBlockState(BlockState state) {
         return PolymerBlockUtils.getPolymerBlockState(state, PolymerUtils.getPlayer());
     }
 
@@ -28,13 +28,13 @@ public abstract class ChunkDeltaUpdateS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"), require = 0)
-    private Object polymer_decodeState(IdList instance, int index) {
+    private Object polymer$decodeState(IdList instance, int index) {
         return index > 0 ? InternalClientRegistry.decodeState(index) : instance.get(index);
     }
 
     @Environment(EnvType.CLIENT)
     @ModifyArg(method = "visitUpdates", at = @At(value = "INVOKE", target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
-    private Object polymer_replaceState(Object obj) {
+    private Object polymer$replaceState(Object obj) {
         return obj != null ? PolymerBlockUtils.getPolymerBlockState((BlockState) obj, ClientUtils.getPlayer()) : null;
     }
 }

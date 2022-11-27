@@ -3,12 +3,14 @@ package eu.pb4.polymer.core.impl;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
+import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
+import eu.pb4.polymer.core.impl.other.PolymerTooltipContext;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
-import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
@@ -23,7 +25,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Property;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -32,13 +33,13 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class PolymerImplUtils {
     private static final ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
-    private static ItemStack NO_TEXTURE;
 
     public static final SimpleEvent<BiConsumer<Registry<Object>, Object>> ON_REGISTERED = new SimpleEvent<>();
 
@@ -110,15 +111,6 @@ public class PolymerImplUtils {
 
     public static Identifier id(String path) {
         return new Identifier(PolymerUtils.ID, path);
-    }
-
-    public static ItemStack getNoTextureItem() {
-        if (NO_TEXTURE == null) {
-            NO_TEXTURE = Items.PLAYER_HEAD.getDefaultStack();
-            NO_TEXTURE.getOrCreateNbt().put("SkullOwner", PolymerUtils.createSkullOwner(PolymerUtils.NO_TEXTURE_HEAD_VALUE));
-            NO_TEXTURE.setCustomName(Text.empty());
-        }
-        return NO_TEXTURE;
     }
 
     public static ItemStack readStack(PacketByteBuf buf) {
@@ -315,15 +307,6 @@ public class PolymerImplUtils {
         ON_REGISTERED.invoke((a) -> a.accept(ts, entry));
     }
 
-    public static <T> T createUnsafe(Class<T> tClass) {
-        try {
-            return (T) UnsafeAccess.UNSAFE.allocateInstance(tClass);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public static boolean shouldSkipStateInitialization(Stream<StackWalker.StackFrame> s) {
         if (CompatStatus.QUILT_REGISTRY) {
             var x = s.skip(3).findFirst();
@@ -334,5 +317,17 @@ public class PolymerImplUtils {
 
     public static boolean shouldLogStateRebuild(StackTraceElement[] trace) {
         return trace.length <= 4 || !trace[4].getClassName().startsWith("org.quiltmc.qsl.registry.impl.sync");
+    }
+
+    public static boolean isPolymerControlled(ItemStack stack) {
+        return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null || PolymerUtils.isServerOnly(stack);
+    }
+
+    public static PolymerTooltipContext getTooltipContext(ServerPlayerEntity player) {
+        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
+    }
+
+    public static boolean areSamePolymerType(ItemStack a, ItemStack b) {
+        return Objects.equals(PolymerItemUtils.getServerIdentifier(a), PolymerItemUtils.getServerIdentifier(b));
     }
 }

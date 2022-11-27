@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.impl.client;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.client.ClientPolymerItem;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
@@ -25,7 +25,7 @@ public class VirtualClientItem extends Item {
     private ClientPolymerItem polymerItem;
 
     public static VirtualClientItem of(ClientPolymerItem item) {
-        var obj = PolymerImplUtils.createUnsafe(VirtualClientItem.class);
+        var obj = CommonImplUtils.createUnsafe(VirtualClientItem.class);
         obj.polymerItem = item;
         return obj;
     }

@@ -3,8 +3,6 @@ package eu.pb4.polymer.core.impl.client;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 
 public class ClientConfig {
-    public String _c1 = "Forces resource pack by default";
-    public boolean forceResourcePackByDefault = false;
     public String _c2 = "Toggles Polymer's networking for client";
     public boolean enableNetworkSync = true;
     public String _c3 = "Enables alternative armor (texture) renderer. Always enabled with Iris/Canvas installed";
