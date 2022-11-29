@@ -7,7 +7,7 @@ name: build
 on: 
  pull_request:
  push:
-  paths-ignore: [ '.github/', 'docs/', 'mkdocs.yml' ]
+  paths-ignore: [ '.github/**', 'docs/**', 'mkdocs.yml' ]
 
 jobs:
   build:
