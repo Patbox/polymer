@@ -20,8 +20,6 @@ jobs:
         run: |
           git config --global user.name Docs deploy
           git config --global user.email docs@dummy.bot.com
-      - name: Deploy docs
-      - run: mike set-default latest
-      - name: Deploy docs
-        run: mike deploy --push --update-aliases 0.2.x
+          mike set-default latest
+          mike deploy --push --update-aliases 0.2.x
 
