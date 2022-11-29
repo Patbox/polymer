@@ -19,5 +19,5 @@ jobs:
           git config --global user.name Docs deploy
           git config --global user.email docs@dummy.bot.com
       - name: Deploy docs
-        run: mike deploy 0.2.x
+        run: mike deploy --push --update-aliases 0.2.x latest
 

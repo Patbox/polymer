@@ -7,7 +7,7 @@ This library also should work correctly with other, non-polymer mods and PolyMC!
 
 ## Adding as dependency:
 Add it to your dependencies like this:
-
+ 
 ```groovy
 repositories {
 	maven { url 'https://maven.nucleoid.xyz' }
