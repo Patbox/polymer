@@ -17,7 +17,7 @@ dependencies {
 	modImplementation include("eu.pb4:polymer:[TAG]")
 }
 ```
-
+ 
 For `[TAG]`/polymer version I recommend you checking [this maven](https://maven.nucleoid.xyz/eu/pb4/polymer/).
 
 Latest version: ![version](https://img.shields.io/maven-metadata/v?color=%23579B67&label=&metadataUrl=https://maven.nucleoid.xyz/eu/pb4/polymer/maven-metadata.xml)
