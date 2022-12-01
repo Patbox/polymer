@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "polymer-blocks-ext",
+  "id": "polymer-blocks",
   "version": "${version}",
   "name": "Polymer (Textured Blocks)",
   "description": "Polymer extension adding support for textured blocks!",

@@ -9,13 +9,14 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
-import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocolHandler;
 import eu.pb4.polymer.core.impl.interfaces.IndexedNetwork;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
+import eu.pb4.polymer.core.mixin.client.CreativeInventoryScreenAccessor;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
+import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
@@ -303,9 +304,7 @@ public class InternalClientRegistry {
             }
         }
 
-        PolymerClientProtocolHandler.tick();
-
-        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (Outdated)" : "") + ", S: " + InternalClientRegistry.serverVersion + " | PPS: " + PolymerClientProtocolHandler.packetsPerSecond;
+        debugServerInfo = "[Polymer] C: " + PolymerImpl.VERSION + (isClientOutdated ? " (Outdated)" : "") + ", S: " + InternalClientRegistry.serverVersion;
 
         var regInfo = new StringBuilder();
         regInfo.append("[Polymer] ");
@@ -353,6 +352,8 @@ public class InternalClientRegistry {
 
             List<ItemGroup> validated = ItemGroupsAccessor.callCollect(itemGroups.toArray(ItemGroup[]::new));
             ItemGroupsAccessor.setGROUPS(validated);
+
+            CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.getDefaultTab());
 
             if (CompatStatus.FABRIC_ITEM_GROUP) {
                 try {
@@ -414,8 +415,8 @@ public class InternalClientRegistry {
         }
     }
 
-    public static int getClientProtocolVer(String identifier) {
-        return CLIENT_PROTOCOL.getOrDefault(identifier, -1);
+    public static int getClientProtocolVer(Identifier identifier) {
+        return PolymerClientNetworking.getSupportedVersion(identifier);
     }
 
     public static void delayAction(String id, int time, Runnable action) {
@@ -438,5 +439,9 @@ public class InternalClientRegistry {
         }
 
         return null;
+    }
+
+    public static void register() {
+
     }
 }

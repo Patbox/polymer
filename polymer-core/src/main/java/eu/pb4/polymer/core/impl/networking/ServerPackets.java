@@ -1,91 +1,45 @@
 package eu.pb4.polymer.core.impl.networking;
 
 
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import it.unimi.dsi.fastutil.ints.IntArraySet;
+import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.IntStream;
+import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
 
 @ApiStatus.Internal
 public class ServerPackets {
-    public static final Map<String, int[]> REGISTRY = new HashMap<>();
-    public static final String HANDSHAKE = "handshake";
-    public static final Identifier HANDSHAKE_ID = PolymerImplUtils.id(HANDSHAKE);
-    public static final String DISABLE = "disable";
-    public static final Identifier DISABLE_ID = PolymerImplUtils.id(DISABLE);
-    public static final String SYNC_STARTED = "sync/started";
-    public static final Identifier SYNC_STARTED_ID = PolymerImplUtils.id(SYNC_STARTED);
-    public static final String SYNC_INFO = "sync/info";
-    public static final Identifier SYNC_INFO_ID = PolymerImplUtils.id(SYNC_INFO);
-    public static final String SYNC_FINISHED = "sync/finished";
-    public static final Identifier SYNC_FINISHED_ID = PolymerImplUtils.id(SYNC_FINISHED);
-    public static final String SYNC_BLOCK = "sync/blocks";
-    public static final Identifier SYNC_BLOCK_ID = PolymerImplUtils.id(SYNC_BLOCK);
-    public static final String SYNC_BLOCK_ENTITY = "sync/block_entities";
-    public static final Identifier SYNC_BLOCK_ENTITY_ID = PolymerImplUtils.id(SYNC_BLOCK_ENTITY);
-    public static final String SYNC_ITEM = "sync/items";
-    public static final Identifier SYNC_ITEM_ID = PolymerImplUtils.id(SYNC_ITEM);
-    public static final String SYNC_ENCHANTMENT = "sync/enchantments";
-    public static final Identifier SYNC_ENCHANTMENT_ID = PolymerImplUtils.id(SYNC_ENCHANTMENT);
-    public static final String SYNC_ENTITY = "sync/entities";
-    public static final Identifier SYNC_ENTITY_ID = PolymerImplUtils.id(SYNC_ENTITY);
-    public static final String SYNC_STATUS_EFFECT = "sync/status_effect";
-    public static final Identifier SYNC_STATUS_EFFECT_ID = PolymerImplUtils.id(SYNC_STATUS_EFFECT);
-    public static final String SYNC_VILLAGER_PROFESSION = "sync/villager_profession";
-    public static final Identifier SYNC_VILLAGER_PROFESSION_ID = PolymerImplUtils.id(SYNC_VILLAGER_PROFESSION);
-    public static final String SYNC_ITEM_GROUP_DEFINE = "sync/item_group/define";
-    public static final Identifier SYNC_ITEM_GROUP_DEFINE_ID = PolymerImplUtils.id(SYNC_ITEM_GROUP_DEFINE);
-    public static final String SYNC_ITEM_GROUP_REMOVE = "sync/item_group/remove";
-    public static final Identifier SYNC_ITEM_GROUP_REMOVE_ID = PolymerImplUtils.id(SYNC_ITEM_GROUP_REMOVE);
-    public static final String SYNC_ITEM_GROUP_CONTENTS_ADD = "sync/item_group/contents/add";
-    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_ADD_ID = PolymerImplUtils.id(SYNC_ITEM_GROUP_CONTENTS_ADD);
-    public static final String SYNC_ITEM_GROUP_CONTENTS_CLEAR = "sync/item_group/contents/clear";
-    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_CLEAR_ID = PolymerImplUtils.id(SYNC_ITEM_GROUP_CONTENTS_CLEAR);
-    public static final String SYNC_BLOCKSTATE = "sync/blockstate";
-    public static final Identifier SYNC_BLOCKSTATE_ID = PolymerImplUtils.id(SYNC_BLOCKSTATE);
-    public static final String SYNC_TAGS = "sync/tags";
-    public static final Identifier SYNC_TAGS_ID = PolymerImplUtils.id(SYNC_TAGS);
-    public static final String SYNC_ITEM_GROUP_APPLY_UPDATE = "sync/item_group/apply_update";
-    public static final Identifier SYNC_ITEM_GROUP_APPLY_UPDATE_ID = PolymerImplUtils.id(SYNC_ITEM_GROUP_APPLY_UPDATE);
-    public static final String SYNC_CLEAR = "sync/clear_all";
-    public static final Identifier SYNC_CLEAR_ID = PolymerImplUtils.id(SYNC_CLEAR);
-    public static final String WORLD_SET_BLOCK_UPDATE = "world/set_block";
-    public static final Identifier WORLD_SET_BLOCK_UPDATE_ID = PolymerImplUtils.id(WORLD_SET_BLOCK_UPDATE);
-    public static final String WORLD_CHUNK_SECTION_UPDATE = "world/section";
-    public static final Identifier WORLD_CHUNK_SECTION_UPDATE_ID = PolymerImplUtils.id(WORLD_CHUNK_SECTION_UPDATE);
-    public static final String WORLD_ENTITY = "world/entity";
-    public static final Identifier WORLD_ENTITY_ID = PolymerImplUtils.id(WORLD_ENTITY);
+    public static final Identifier DISABLE= id("disable");
+    public static final Identifier SYNC_STARTED = id("sync/started");
+    public static final Identifier SYNC_INFO= id("sync/info");
+    public static final Identifier SYNC_FINISHED= id("sync/finished");
+    public static final Identifier SYNC_BLOCK= id("sync/blocks");
+    public static final Identifier SYNC_BLOCK_ENTITY= id("sync/block_entities");
+    public static final Identifier SYNC_ITEM= id("sync/items");
+    public static final Identifier SYNC_ENCHANTMENT= id("sync/enchantments");
+    public static final Identifier SYNC_ENTITY= id("sync/entities");
+    public static final Identifier SYNC_STATUS_EFFECT= id("sync/status_effect");
+    public static final Identifier SYNC_VILLAGER_PROFESSION= id("sync/villager_profession");
+    public static final Identifier SYNC_ITEM_GROUP_DEFINE= id("sync/item_group/define");
+    public static final Identifier SYNC_ITEM_GROUP_REMOVE= id("sync/item_group/remove");
+    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_ADD= id("sync/item_group/contents/add");
+    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_CLEAR= id("sync/item_group/contents/clear");
+    public static final Identifier SYNC_BLOCKSTATE= id("sync/blockstate");
+    public static final Identifier SYNC_TAGS= id("sync/tags");
+    public static final Identifier SYNC_ITEM_GROUP_APPLY_UPDATE= id("sync/item_group/apply_update");
+    public static final Identifier SYNC_CLEAR= id("sync/clear_all");
+    public static final Identifier WORLD_SET_BLOCK_UPDATE= id("world/set_block");
+    public static final Identifier WORLD_CHUNK_SECTION_UPDATE= id("world/section");
+    public static final Identifier WORLD_ENTITY= id("world/entity");
 
-    public static final String DEBUG_VALIDATE_STATES = "debug/validate_states";
-    public static final Identifier DEBUG_VALIDATE_STATES_ID = PolymerImplUtils.id(DEBUG_VALIDATE_STATES);
+    public static final Identifier DEBUG_VALIDATE_STATES= id("debug/validate_states");
 
-
-    public static final int getBestSupported(String identifier, int[] ver) {
-
-        var values = REGISTRY.get(identifier);
-
-        if (values != null) {
-            var verSet = new IntArraySet(ver);
-
-            var value = IntStream.of(values).filter((i) -> verSet.contains(i)).max();
-
-            return value.isPresent() ? value.getAsInt() : -1;
-        }
-
-        return -1;
-    }
-
-    public static final void register(String id, int... ver) {
-        REGISTRY.put(id, ver);
+    public static final void register(Identifier id, int... ver) {
+        PolymerServerNetworking.registerServerVersions(id, ver);
     }
 
 
     static {
-        register(HANDSHAKE, 0);
         register(DISABLE, 0);
         register(SYNC_STARTED, 0);
         register(SYNC_INFO, 0);

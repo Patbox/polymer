@@ -9,11 +9,10 @@ import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.other.PolymerStat;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.core.impl.ui.CreativeTabUi;
@@ -116,7 +115,7 @@ public class Commands {
                             PolymerSyncUtils.synchronizePolymerRegistries(ctx.getSource().getPlayer().networkHandler);
                             return 0;
                         }))
-                .then(literal("protocol-info")
+                /*.then(literal("protocol-info")
                         .executes((ctx) -> {
                             ctx.getSource().sendFeedback(Text.literal("Protocol supported by your client:"), false);
                             for (var entry : PolymerNetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer$getSupportMap().object2IntEntrySet()) {
@@ -124,7 +123,8 @@ public class Commands {
                             }
                             return 0;
                         })
-                ).then(literal("validate_states")
+                )*/
+                .then(literal("validate_states")
                         .executes((ctx) -> {
                             PolymerServerProtocol.sendDebugValidateStatesPackets(ctx.getSource().getPlayer().networkHandler);
                             return 0;

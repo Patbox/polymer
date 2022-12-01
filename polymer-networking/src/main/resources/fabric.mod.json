@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-networking",
+  "version": "${version}",
+  "name": "Polymer (Networking)",
+  "description": "Networking API with some bit of magic",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer",
+    "issues": "https://github.com/Patbox/polymer/issues"
+  },
+  "mixins": [
+    "polymer-networking.mixins.json"
+  ],
+  "license": "LGPLv3",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "depends": {
+    "minecraft": ">=1.19.3-beta.3",
+    "fabricloader": ">=0.14.0"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "library" ],
+      "discord": "https://pb4.eu/discord"
+    }
+  }
+}

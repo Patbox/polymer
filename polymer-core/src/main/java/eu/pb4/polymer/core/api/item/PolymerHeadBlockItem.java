@@ -8,6 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -28,7 +29,7 @@ public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
 
     public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext tooltipContext, ServerPlayerEntity player) {
         ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, tooltipContext, player);
-        out.getOrCreateNbt().put("SkullOwner", this.polymerBlock.getPolymerHeadSkullOwner(this.getBlock().getDefaultState()));
+        out.getOrCreateNbt().put("SkullOwner", this.polymerBlock.getPolymerHeadSkullOwner(this.getBlock().getDefaultState(), BlockPos.ORIGIN, player));
         return out;
     }
 }

@@ -9,12 +9,11 @@ import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientEntityExtension;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
-import eu.pb4.polymer.core.impl.networking.ClientPackets;
 import eu.pb4.polymer.core.impl.networking.ServerPackets;
 import eu.pb4.polymer.core.impl.networking.packets.*;
 import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -30,7 +29,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -38,123 +36,87 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import static eu.pb4.polymer.networking.api.client.PolymerClientNetworking.registerPacketHandler;
 
 @ApiStatus.Internal
 @SuppressWarnings({"unused"})
 @Environment(EnvType.CLIENT)
 public class PolymerClientProtocolHandler {
-    public static volatile int packetsPerSecond = 0;
 
-    private static int currentPacketsPerSecond = 0;
-    private static int ticker = 0;
+    public static void register() {
+        registerPacketHandler(ServerPackets.DISABLE, (handler, version, buf) -> handleDisable());
 
-    public static void tick() {
-        ticker++;
+        registerPacketHandler(ServerPackets.WORLD_SET_BLOCK_UPDATE, PolymerClientProtocolHandler::handleSetBlock);
+        registerPacketHandler(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, PolymerClientProtocolHandler::handleWorldSectionUpdate);
+        registerPacketHandler(ServerPackets.WORLD_ENTITY, PolymerClientProtocolHandler::handleEntity);
 
-        if (ticker >= 20) {
-            ticker = 0;
+        registerPacketHandler(ServerPackets.SYNC_STARTED, (handler, version, buf) -> run(handler, () -> {
+            PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
+        }));
+        registerPacketHandler(ServerPackets.SYNC_INFO, PolymerClientProtocolHandler::handleSyncInfo);
+        registerPacketHandler(ServerPackets.SYNC_FINISHED, (handler, version, buf) -> run(handler, () -> {
+            PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
+        }));
+        registerPacketHandler(ServerPackets.SYNC_BLOCK, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
+                (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registries.BLOCK.get(entry.identifier())))));
+        registerPacketHandler(ServerPackets.SYNC_ITEM, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
+                (entry) -> {
+                    var regEntry = Registries.ITEM.getEntry(RegistryKey.of(RegistryKeys.ITEM, entry.identifier()));
 
-            packetsPerSecond = currentPacketsPerSecond;
-            currentPacketsPerSecond = 0;
-        }
+                    InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
+                            new ClientPolymerItem(
+                                    entry.identifier(),
+                                    entry.representation(),
+                                    entry.foodLevels(),
+                                    entry.saturation(),
+                                    entry.miningTool(),
+                                    entry.miningLevel(),
+                                    entry.stackSize(),
+                                    regEntry.isPresent() ? regEntry.get().value() : null
+                            ));
+                }));
+        registerPacketHandler(ServerPackets.SYNC_BLOCKSTATE, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
+                (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId())));
+        registerPacketHandler(ServerPackets.SYNC_ENTITY, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
+                (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registries.ENTITY_TYPE.get(entry.identifier())))));
+        registerPacketHandler(ServerPackets.SYNC_VILLAGER_PROFESSION, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                (entry) -> InternalClientRegistry.VILLAGER_PROFESSIONS.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.VILLAGER_PROFESSION.get(entry.id())))));
+        registerPacketHandler(ServerPackets.SYNC_BLOCK_ENTITY, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                (entry) -> InternalClientRegistry.BLOCK_ENTITY.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.BLOCK_ENTITY_TYPE.get(entry.id())))));
+        registerPacketHandler(ServerPackets.SYNC_STATUS_EFFECT, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.STATUS_EFFECT.get(entry.id())))));
+        registerPacketHandler(ServerPackets.SYNC_ENCHANTMENT, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                (entry) -> InternalClientRegistry.ENCHANTMENT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.ENCHANTMENT.get(entry.id())))));
 
-    }
+        registerPacketHandler(ServerPackets.SYNC_TAGS, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag));
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_DEFINE, (handler, version, buf) -> handleItemGroupDefine(handler, version, buf));
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD, (handler, version, buf) -> handleItemGroupContentsAdd(handler, version, buf));
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, (handler, version, buf) -> handleItemGroupContentsClear(handler, version, buf));
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_REMOVE, (handler, version, buf) -> handleItemGroupRemove(handler, version, buf));
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, (handler, version, buf) -> handleItemGroupApplyUpdates(handler, version, buf));
+        registerPacketHandler(ServerPackets.SYNC_CLEAR, (handler, version, buf) -> run(handler, InternalClientRegistry::clear));
+        registerPacketHandler(ServerPackets.DEBUG_VALIDATE_STATES, (handler, version, buf) -> handleGenericSync(handler, version, buf, DebugBlockStateEntry::read, PolymerClientProtocolHandler::handleDebugValidateStates));
 
-    public static final HashMap<String, PolymerClientPacketHandler> CUSTOM_PACKETS = new HashMap<>();
 
-    public static void handle(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
-        if (PolymerImpl.ENABLE_NETWORKING_CLIENT) {
-            var version = -1;
-            try {
-                version = buf.readVarInt();
-                if (!handle(handler, identifier.getPath(), version, buf)) {
-                    PolymerImpl.LOGGER.warn("Unsupported packet " + identifier + " (" + version + ") was received from server!");
-                }
-            } catch (Exception e) {
-                PolymerImpl.LOGGER.error("Invalid " + identifier + " (" + version + ") packet received from server!");
-                PolymerImpl.LOGGER.error(e.toString());
-            }
-            currentPacketsPerSecond++;
-        }
-    }
+        PolymerClientNetworking.AFTER_HANDSHAKE_RECEIVED.register(() -> {
+            InternalClientRegistry.setVersion(PolymerClientNetworking.getServerVersion());
+        });
 
-    private static boolean handle(ClientPlayNetworkHandler handler, String packet, int version, PacketByteBuf buf) {
-        return switch (packet) {
-            case ServerPackets.HANDSHAKE -> handleHandshake(handler, version, buf);
-            case ServerPackets.DISABLE -> handleDisable();
-
-            case ServerPackets.WORLD_SET_BLOCK_UPDATE -> handleSetBlock(handler, version, buf);
-            case ServerPackets.WORLD_CHUNK_SECTION_UPDATE -> handleWorldSectionUpdate(handler, version, buf);
-            case ServerPackets.WORLD_ENTITY -> handleEntity(handler, version, buf);
-
-            case ServerPackets.SYNC_STARTED -> run(handler, () -> {
-                PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
-            });
-            case ServerPackets.SYNC_INFO -> handleSyncInfo(handler, version, buf);
-            case ServerPackets.SYNC_FINISHED -> run(handler, () -> {
-                PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
-            });
-            case ServerPackets.SYNC_BLOCK -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
-                    (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registries.BLOCK.get(entry.identifier()))));
-            case ServerPackets.SYNC_ITEM -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
-                    (entry) -> {
-                        var regEntry = Registries.ITEM.getEntry(RegistryKey.of(RegistryKeys.ITEM, entry.identifier()));
-
-                        InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
-                                new ClientPolymerItem(
-                                        entry.identifier(),
-                                        entry.representation(),
-                                        entry.foodLevels(),
-                                        entry.saturation(),
-                                        entry.miningTool(),
-                                        entry.miningLevel(),
-                                        entry.stackSize(),
-                                        regEntry.isPresent() ? regEntry.get().value() : null
-                                ));
-                    });
-            case ServerPackets.SYNC_BLOCKSTATE -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
-                        (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
-            case ServerPackets.SYNC_ENTITY -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
-                    (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registries.ENTITY_TYPE.get(entry.identifier()))));
-            case ServerPackets.SYNC_VILLAGER_PROFESSION -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.VILLAGER_PROFESSIONS.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.VILLAGER_PROFESSION.get(entry.id()))));
-            case ServerPackets.SYNC_BLOCK_ENTITY -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.BLOCK_ENTITY.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.BLOCK_ENTITY_TYPE.get(entry.id()))));
-            case ServerPackets.SYNC_STATUS_EFFECT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.STATUS_EFFECT.get(entry.id()))));
-            case ServerPackets.SYNC_ENCHANTMENT -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                    (entry) -> InternalClientRegistry.ENCHANTMENT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.ENCHANTMENT.get(entry.id()))));
-
-            case ServerPackets.SYNC_TAGS -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag);
-            case ServerPackets.SYNC_ITEM_GROUP_DEFINE -> handleItemGroupDefine(handler, version, buf);
-            case ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD -> handleItemGroupContentsAdd(handler, version, buf);
-            case ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR -> handleItemGroupContentsClear(handler, version, buf);
-            case ServerPackets.SYNC_ITEM_GROUP_REMOVE -> handleItemGroupRemove(handler, version, buf);
-            case ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE -> handleItemGroupApplyUpdates(handler, version, buf);
-            case ServerPackets.SYNC_CLEAR -> run(handler, InternalClientRegistry::clear);
-            case ServerPackets.DEBUG_VALIDATE_STATES -> handleGenericSync(handler, version, buf, DebugBlockStateEntry::read, PolymerClientProtocolHandler::handleDebugValidateStates);
-
-            default -> {
-                var packetHandler = CUSTOM_PACKETS.get(packet);
-                if (packetHandler != null) {
-                    packetHandler.onPacket(handler, version, buf);
-                    yield true;
-                }
-                yield false;
-            }
-        };
+        PolymerClientNetworking.AFTER_DISABLE.register(() -> {
+            InternalClientRegistry.disable();
+        });
     }
 
     private static void registerTag(PolymerTagEntry tagEntry) {
-            var reg = InternalClientRegistry.BY_VANILLA_ID.get(tagEntry.registry());
-            if (reg != null) {
-                for (var tag : tagEntry.tags()) {
-                    reg.createTag(tag.id(), tag.ids());
-                }
+        var reg = InternalClientRegistry.BY_VANILLA_ID.get(tagEntry.registry());
+        if (reg != null) {
+            for (var tag : tagEntry.tags()) {
+                reg.createTag(tag.id(), tag.ids());
             }
+        }
     }
 
     private static void handleDebugValidateStates(DebugBlockStateEntry entry) {
@@ -419,36 +381,6 @@ public class PolymerClientProtocolHandler {
             });
             return true;
 
-        }
-        return false;
-    }
-
-    private static boolean handleHandshake(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version == 0) {
-            InternalClientRegistry.setVersion(buf.readString(64));
-
-            var size = buf.readVarInt();
-
-            for (int i = 0; i < size; i++) {
-                var id = buf.readString();
-
-                var size2 = buf.readVarInt();
-                var list = new IntArrayList();
-
-                for (int i2 = 0; i2 < size2; i2++) {
-                    list.add(buf.readVarInt());
-                }
-
-                InternalClientRegistry.CLIENT_PROTOCOL.put(id, ClientPackets.getBestSupported(id, list.elements()));
-            }
-
-            MinecraftClient.getInstance().execute(() -> {
-                PolymerClientUtils.ON_HANDSHAKE.invoke(EventRunners.RUN);
-                PolymerClientProtocol.sendTooltipContext(handler);
-                PolymerClientProtocol.sendSyncRequest(handler);
-            });
-
-            return true;
         }
         return false;
     }

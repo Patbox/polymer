@@ -27,22 +27,12 @@ public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject
 
     public PolymerSoundEvent(Identifier id, float distanceToTravel, boolean useStaticDistance, @Nullable SoundEvent vanillaEvent) {
         super(id, distanceToTravel, useStaticDistance);
-        while (vanillaEvent instanceof PolymerSoundEvent soundEvent) {
-            vanillaEvent = soundEvent.getVanillaPolymerSound();
-        }
 
         this.polymerSound = vanillaEvent != null ? vanillaEvent : EMPTY_SOUND;
     }
 
-    /**
-     * SoundEvent played for players without resource pack
-     */
-    public SoundEvent getVanillaPolymerSound() {
-        return this.polymerSound;
-    }
-
     @Override
     public SoundEvent getPolymerReplacement(ServerPlayerEntity player) {
-        return PolymerUtils.hasResourcePack(player) ? this : this.getVanillaPolymerSound();
+        return PolymerUtils.hasResourcePack(player) ? this : (this.polymerSound instanceof PolymerSoundEvent pe ? pe.getPolymerReplacement(player) : this.polymerSound);
     }
 }

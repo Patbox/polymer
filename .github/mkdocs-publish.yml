@@ -1,0 +1,25 @@
+name: Deploy MkDocs
+on:
+  push:
+    branches: [ 'dev/**' ]
+    paths: [ 'docs/**', 'mkdocs.yml', '.github/workflows/mkdocs-publish.yml' ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install MkDocs
+        run: pip install mkdocs-material mike
+      - name: Setup MkDocs Deploy
+        run: |
+          git config --global user.name Docs deploy
+          git config --global user.email docs@dummy.bot.com
+          mike set-default latest
+          mike deploy --push --update-aliases 0.3.x
+

@@ -230,12 +230,12 @@ public final class FakeWorld extends World {
     }
 
     @Override
-    public void playSound(@Nullable PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch, long seed) {
+    public void playSound(@Nullable PlayerEntity except, double x, double y, double z, RegistryEntry<SoundEvent> registryEntry, SoundCategory category, float volume, float pitch, long seed) {
 
     }
 
     @Override
-    public void playSoundFromEntity(@Nullable PlayerEntity except, Entity entity, SoundEvent sound, SoundCategory category, float volume, float pitch, long seed) {
+    public void playSoundFromEntity(@Nullable PlayerEntity except, Entity entity, RegistryEntry<SoundEvent> registryEntry, SoundCategory category, float volume, float pitch, long seed) {
 
     }
 
@@ -246,11 +246,6 @@ public final class FakeWorld extends World {
 
     @Override
     public void playSoundFromEntity(@Nullable PlayerEntity player, Entity entity, SoundEvent sound, SoundCategory category, float volume, float pitch) {
-
-    }
-
-    @Override
-    public void method_47907(@Nullable PlayerEntity playerEntity, Vec3d vec3d, Identifier identifier, SoundCategory soundCategory, float f, float g, double d, long l) {
 
     }
 

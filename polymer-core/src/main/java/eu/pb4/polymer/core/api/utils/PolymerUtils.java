@@ -5,7 +5,6 @@ import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.ClientUtils;

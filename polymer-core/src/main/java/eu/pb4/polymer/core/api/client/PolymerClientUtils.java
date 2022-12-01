@@ -1,24 +1,14 @@
 package eu.pb4.polymer.core.api.client;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientEntityExtension;
-import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocolHandler;
-import eu.pb4.polymer.core.impl.networking.ClientPackets;
-import eu.pb4.polymer.core.impl.networking.ServerPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
@@ -28,9 +18,6 @@ import java.util.function.BiConsumer;
 public final class PolymerClientUtils {
     private PolymerClientUtils() {
     }
-
-    private static final Map<Identifier, String> MAP_S2C = new HashMap<>();
-    private static final Map<Identifier, Identifier> MAP_C2S = new HashMap<>();
 
     /**
      * This event is run after receiving server handshake packet
@@ -85,36 +72,5 @@ public final class PolymerClientUtils {
 
     public static boolean isEnabled() {
         return InternalClientRegistry.enabled;
-    }
-
-    public static boolean sendPacket(ClientPlayNetworkHandler player, Identifier identifier, PacketByteBuf packetByteBuf) {
-        var packetName = MAP_C2S.get(identifier);
-        if (packetName == null) {
-            packetName = PolymerImplUtils.id("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
-            MAP_C2S.put(identifier, packetName);
-        }
-        player.sendPacket(new CustomPayloadC2SPacket(packetName, packetByteBuf));
-        return true;
-    }
-
-    public static boolean registerPacketHandler(Identifier identifier, PolymerClientPacketHandler handler, int... supportedVersions) {
-        if (!MAP_S2C.containsKey(identifier)) {
-            var packet = "custom/" + identifier.getNamespace() + "/" + identifier.getPath();
-            MAP_S2C.put(identifier, packet);
-
-            ServerPackets.register(packet, supportedVersions);
-            PolymerClientProtocolHandler.CUSTOM_PACKETS.put(packet, handler);
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean registerClientPacket(Identifier identifier, int... supportedVersions) {
-        ClientPackets.register("custom/" + identifier.getNamespace() + "/" + identifier.getPath(), supportedVersions);
-        return true;
-    }
-
-    public static int getSupportedVersion(Identifier identifier) {
-        return InternalClientRegistry.getClientProtocolVer("custom/" + identifier.getNamespace() + "/" + identifier.getPath());
     }
 }

@@ -4,9 +4,9 @@ import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.*;
-import eu.pb4.polymer.core.api.networking.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.core.api.other.PolymerStat;
+import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
@@ -19,6 +19,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.impl.itemgroup.MinecraftItemGroups;
 import net.fabricmc.loader.api.FabricLoader;
@@ -277,13 +278,13 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registries.POTION, new Identifier("test", "long_potion_2"), LONG_POTION_2);
 
         register(Registries.ENTITY_TYPE, new Identifier("test", "entity"), ENTITY);
-        //DefaultAttributeRegistries.register(ENTITY, TestEntity.createCreeperAttributes().add(EntityAttributes.GENERIC_LUCK));
+        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes().add(EntityAttributes.GENERIC_LUCK));
 
         register(Registries.ENTITY_TYPE, new Identifier("test", "entity2"), ENTITY_2);
-        //FabricDefaultAttributeRegistries.register(ENTITY_2, TestEntity2.createCreeperAttributes());
+        FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
 
         register(Registries.ENTITY_TYPE, new Identifier("test", "entity3"), ENTITY_3);
-        //FabricDefaultAttributeRegistries.register(ENTITY_3, TestEntity3.createMobAttributes().add(EntityAttributes.HORSE_JUMP_STRENGTH));
+        FabricDefaultAttributeRegistry.register(ENTITY_3, TestEntity3.createMobAttributes().add(EntityAttributes.HORSE_JUMP_STRENGTH));
 
         PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3);
 

@@ -88,6 +88,7 @@ dependencies {
 
     implementation include(project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
     implementation include(project(path: ':polymer-common', configuration: 'namedElements'))
+    implementation include(project(path: ':polymer-networking', configuration: 'namedElements'))
 
     compileOnly (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
     localRuntime (project(path: ':polymer-resource-pack', configuration: 'namedElements'))

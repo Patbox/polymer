@@ -5,15 +5,18 @@ repo_name: Patbox/polymer
 
 nav:
   - index.md
-  - Using Polymer:
-      - polymer/items.md
-      - polymer/blocks.md
-      - polymer/entities.md
-      - polymer/resource-packs.md
-      - polymer/other.md
-  - Using Polymer Extensions:
-      - ext/polymer-blocks.md
-  - Useful tools:
+  - Polymer Core:
+      - polymer-core/items.md
+      - polymer-core/blocks.md
+      - polymer-core/entities.md
+      - polymer-core/other.md
+      - polymer-core/client-side.md
+  - Polymer Resource Pack:
+      - polymer-resource-pack/basics.md
+  - Polymer Textured Blocks:
+      - polymer-blocks/basics.md
+  - Other:
+      - other/updating-0.2.x-to-0.3.md
       - other/server-translation-api.md
 
 
