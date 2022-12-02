@@ -62,14 +62,12 @@
     "other.IndexedNetworkMixin",
     "other.ItemGroupsAccessor",
     "other.PacketByteBufMixin",
-    "other.ReferenceAccessor",
     "other.RemoveEntityStatusEffectS2CPacketMixin",
     "other.ServerPlayerEntityMixin",
     "other.ServerPlayNetworkHandlerMixin",
     "other.SimpleRegistryMixin",
     "other.StatisticsS2CPacketMixin",
-    "other.TagPacketSerializerMixin",
-    "other.WorldAccessor"
+    "other.TagPacketSerializerMixin"
   ],
   "client": [
     "client.ClientPlayNetworkHandlerMixin",

@@ -1,8 +1,7 @@
 package eu.pb4.polymer.autohost.impl;
 
-import eu.pb4.polymer.core.api.networking.EarlyPlayNetworkHandler;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.EntityType;
@@ -13,6 +12,7 @@ import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 
 import java.util.Optional;
@@ -21,11 +21,11 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     private final boolean required;
 
     //private static final WorldChunk FAKE_CHUNK = new WorldChunk(PolymerUtils.getFakeWorld(), ChunkPos.ORIGIN);
-    private static final ArmorStandEntity FAKE_ENTITY = new ArmorStandEntity(EntityType.ARMOR_STAND, PolymerUtils.getFakeWorld());
+    private static final ArmorStandEntity FAKE_ENTITY = new ArmorStandEntity(EntityType.ARMOR_STAND, PolymerCommonUtils.getFakeWorld());
     private boolean delayed;
 
     public ResourcePackNetworkHandler(Context context) {
-        super(PolymerImplUtils.id("auto_host_resourcepack"), context);
+        super(new Identifier("polymer","auto_host_resourcepack"), context);
 
         this.required = AutoHost.config.require || PolymerResourcePackUtils.isRequired();
 

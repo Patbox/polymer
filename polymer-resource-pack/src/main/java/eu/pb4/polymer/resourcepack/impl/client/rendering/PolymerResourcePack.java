@@ -1,7 +1,7 @@
 package eu.pb4.polymer.resourcepack.impl.client.rendering;
 
+import eu.pb4.polymer.common.impl.client.RPClientUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import eu.pb4.polymer.resourcepack.impl.client.RPClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.SharedConstants;
@@ -54,7 +54,7 @@ public class PolymerResourcePack extends ZipResourcePack {
                             new ResourcePackProfile.Metadata(Text.translatable("text.polymer.resource_pack.description" + (PolymerResourcePackUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION, FeatureSet.empty()),
                             ResourceType.CLIENT_RESOURCES,
                             ResourcePackProfile.InsertionPosition.TOP,
-                            true,
+                            false,
                             ResourcePackSource.BUILTIN
                     ));
                 }

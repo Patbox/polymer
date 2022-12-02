@@ -1,7 +1,9 @@
 package eu.pb4.polymer.core.impl;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.compat.FabricFluids;
 import eu.pb4.polymer.core.impl.client.compat.ReiCompatibility;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocolHandler;
@@ -19,6 +21,11 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 		CommonImplUtils.registerDevCommands(Commands::registerDev);
 
 		PolymerServerProtocolHandler.register();
+		PolymerCommonUtils.ON_RESOURCE_PACK_STATUS_CHANGE.register(((handler, oldStatus, newStatus) -> {
+			if (oldStatus != newStatus) {
+				PolymerUtils.reloadWorld(handler.player);
+			}
+		}));
 	}
 
 	@Override

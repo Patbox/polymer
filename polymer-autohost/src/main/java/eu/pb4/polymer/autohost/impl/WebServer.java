@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
@@ -109,7 +109,7 @@ public class WebServer {
 
     public static class Config {
         public String _c1 = "Enables Polymer's ResourcePack Auto Hosting";
-        public boolean enableHttpServer = PolymerImpl.DEV_ENV;
+        public boolean enableHttpServer = CommonImpl.DEV_ENV;
         public String _c2 = "Port used internally to run http server";
         public int port = 25567;
         public String _c3 = "Public address used for sending requests";

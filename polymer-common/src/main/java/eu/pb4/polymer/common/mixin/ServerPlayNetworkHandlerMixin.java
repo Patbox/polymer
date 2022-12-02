@@ -1,5 +1,6 @@
 package eu.pb4.polymer.common.mixin;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import net.minecraft.network.ClientConnection;
@@ -34,7 +35,10 @@ public abstract class ServerPlayNetworkHandlerMixin implements CommonResourcePac
 
     @Override
     public void polymerCommon$setResourcePack(boolean value) {
+        var old = this.polymerCommon$hasResourcePack;
         this.polymerCommon$hasResourcePack = value;
+
+        PolymerCommonUtils.ON_RESOURCE_PACK_STATUS_CHANGE.invoke(x -> x.onResourcePackChange((ServerPlayNetworkHandler) (Object) this, old, value));
     }
 
     @Inject(method = "onResourcePackStatus", at = @At("TAIL"))

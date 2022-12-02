@@ -1,7 +1,9 @@
 package eu.pb4.polymer.core.api.utils;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
+import eu.pb4.polymer.common.impl.client.RPClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
@@ -9,7 +11,6 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.ClientUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
-import eu.pb4.polymer.core.impl.other.FakeWorld;
 import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import net.minecraft.block.entity.BlockEntityType;
@@ -224,7 +225,7 @@ public final class PolymerUtils {
     }
 
     public static World getFakeWorld() {
-        return FakeWorld.INSTANCE;
+        return PolymerCommonUtils.getFakeWorld();
     }
 
     @Nullable
@@ -242,6 +243,6 @@ public final class PolymerUtils {
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
-        return player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack();
+        return (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack()) || (CommonImpl.IS_CLIENT && RPClientUtils.isResourcePackLoaded());
     }
 }

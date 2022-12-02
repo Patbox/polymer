@@ -2,8 +2,8 @@ package eu.pb4.polymer.core.impl.entity;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.common.impl.FakeWorld;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.other.FakeWorld;
 import eu.pb4.polymer.core.mixin.entity.DataTrackerAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;

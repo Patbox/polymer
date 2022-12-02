@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.impl.entity;
 
+import eu.pb4.polymer.common.impl.FakeWorld;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.other.FakeWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;

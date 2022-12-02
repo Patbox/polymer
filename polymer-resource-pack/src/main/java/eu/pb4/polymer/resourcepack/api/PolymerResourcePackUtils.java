@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.common.impl.client.RPClientUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
@@ -94,7 +95,7 @@ public final class PolymerResourcePackUtils {
      * @return True if player has a server resourcepack
      */
     public static boolean hasPack(@Nullable ServerPlayerEntity player) {
-        return player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack();
+        return (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack()) || (CommonImpl.IS_CLIENT && RPClientUtils.isResourcePackLoaded());
     }
 
     /**

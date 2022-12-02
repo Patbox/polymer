@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "polymer-resource-pack",
   "version": "${version}",
-  "name": "Polymer Resource Pack API",
+  "name": "Polymer (Resource Pack API)",
   "description": "Server resource pack generation API",
   "authors": [
     "Patbox"

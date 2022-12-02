@@ -1,9 +1,8 @@
-package eu.pb4.polymer.core.impl.other;
+package eu.pb4.polymer.common.impl;
 
-import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.mixin.other.ReferenceAccessor;
-import eu.pb4.polymer.core.mixin.other.WorldAccessor;
+
+import eu.pb4.polymer.common.mixin.ReferenceAccessor;
+import eu.pb4.polymer.common.mixin.WorldAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import net.minecraft.block.Block;
@@ -184,7 +183,7 @@ public final class FakeWorld extends World {
             accessor.polymer$setDebugWorld(true);
             accessor.polymer$setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
             accessor.polymer$setProperties(new FakeWorldProperties());
-            accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, PolymerImplUtils.id("fake_world")));
+            accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, new Identifier("polymer","fake_world")));
             accessor.polymer$setDimensionKey(DimensionTypes.OVERWORLD);
             accessor.polymer$setDimensionEntry(dimType);
             accessor.polymer$setThread(Thread.currentThread());
@@ -194,14 +193,14 @@ public final class FakeWorld extends World {
             accessor.polymer$setPendingBlockEntityTickers(new ArrayList<>());
 
         } catch (Throwable e) {
-            PolymerImpl.LOGGER.error("Creating fake world with unsafe failed...", e);
+            CommonImpl.LOGGER.error("Creating fake world with unsafe failed...", e);
             worldUnsafe = null;
         }
 
         try {
             worldDefault = new FakeWorld(
                     new FakeWorldProperties(),
-                    RegistryKey.of(RegistryKeys.WORLD, PolymerImplUtils.id("fake_world")),
+                    RegistryKey.of(RegistryKeys.WORLD, new Identifier("polymer", "fake_world")),
                     dimType,
                     () -> new ProfilerSystem(() -> 0l, () -> 0, false),
                     false,
@@ -209,7 +208,7 @@ public final class FakeWorld extends World {
                     1
             );
         } catch (Throwable e) {
-            PolymerImpl.LOGGER.error("Creating fake world in regular way failed...", e);
+            CommonImpl.LOGGER.error("Creating fake world in regular way failed...", e);
             worldDefault = null;
         }
 

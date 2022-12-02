@@ -1,7 +1,7 @@
 package eu.pb4.polymer.autohost.impl;
 
-import eu.pb4.polymer.core.api.networking.EarlyPlayNetworkHandler;
-import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
@@ -14,7 +14,7 @@ public class AutoHost {
 
 
     public static void init(MinecraftServer server) {
-        var config = PolymerImpl.loadConfig("auto-host", WebServer.Config.class);
+        var config = CommonImpl.loadConfig("auto-host", WebServer.Config.class);
         AutoHost.config = config;
 
         try {

@@ -1,4 +1,4 @@
-package eu.pb4.polymer.resourcepack.impl.client;
+package eu.pb4.polymer.common.impl.client;
 
 
 import net.fabricmc.api.EnvType;

@@ -1,4 +1,4 @@
-package eu.pb4.polymer.core.mixin.other;
+package eu.pb4.polymer.common.mixin;
 
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;

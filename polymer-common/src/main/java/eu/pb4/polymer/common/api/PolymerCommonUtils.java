@@ -1,7 +1,11 @@
 package eu.pb4.polymer.common.api;
 
+import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.FakeWorld;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
@@ -13,9 +17,10 @@ import java.nio.file.Path;
 public final class PolymerCommonUtils {
     private PolymerCommonUtils(){}
 
-    private final static String SAFE_CLIENT_SHA1 = "c0898ec7c6a5a2eaa317770203a1554260699994";
-    private final static String SAFE_CLIENT_URL = "https://launcher.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
+    public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
 
+    private final static String SAFE_CLIENT_SHA1 = "0f37b64668c8b2e54d12bd13138f8ca874f92270";
+    private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     @Nullable
     public static Path getClientJar() {
         try {
@@ -41,5 +46,13 @@ public final class PolymerCommonUtils {
             CommonImpl.LOGGER.error("Couldn't retrieve client jar!", e);
             return null;
         }
+    }
+
+    public static World getFakeWorld() {
+        return FakeWorld.INSTANCE;
+    }
+
+    public interface ResourcePackChangeCallback {
+        void onResourcePackChange(ServerPlayNetworkHandler handler, boolean oldStatus, boolean newStatus);
     }
 }
