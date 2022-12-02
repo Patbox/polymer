@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.mixin.block.packet;
 
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,7 +22,7 @@ public abstract class BlockPaletteMixin {
     @ModifyArg(method = {"writePacket", "getPacketSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
-            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerImplUtils.getPlayer());
+            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerUtils.getPlayerContext());
         }
         return object;
     }

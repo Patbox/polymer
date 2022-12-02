@@ -20,7 +20,7 @@ public abstract class ItemStackContentMixin {
     @Inject(method = "toJson", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceItem(CallbackInfoReturnable<JsonElement> cir) {
         if (PolymerItemUtils.isPolymerServerItem(this.asStack())) {
-            var stack = PolymerItemUtils.getPolymerItemStack(this.asStack(), PolymerUtils.getPlayer());
+            var stack = PolymerItemUtils.getPolymerItemStack(this.asStack(), PolymerUtils.getPlayerContext());
 
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("id", Registries.ITEM.getId(stack.getItem()).toString());

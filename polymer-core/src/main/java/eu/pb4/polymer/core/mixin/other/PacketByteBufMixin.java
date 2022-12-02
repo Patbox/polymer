@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class PacketByteBufMixin {
     @ModifyVariable(method = "writeRegistryValue", at = @At("HEAD"), argsOnly = true)
     private Object polymer$changeData(Object val, IndexedIterable<?> registry) {
-        var player = PolymerUtils.getPlayer();
+        var player = PolymerUtils.getPlayerContext();
         
         if (player != null) {
             if (val instanceof PolymerSyncedObject<?> polymerSyncedObject) {
@@ -41,7 +41,7 @@ public abstract class PacketByteBufMixin {
     @ModifyVariable(method = "writeRegistryEntry", at = @At("HEAD"))
     private RegistryEntry polymer$writeOptional(RegistryEntry registryEntry, IndexedIterable<RegistryEntry> indexedIterable) {
         if (registryEntry.value() instanceof PolymerSoundEvent syncedObject) {
-            var replacement = syncedObject.getPolymerReplacement(PolymerUtils.getPlayer());
+            var replacement = syncedObject.getPolymerReplacement(PolymerUtils.getPlayerContext());
 
             if (replacement instanceof PolymerSoundEvent) {
                 return RegistryEntry.of(replacement);

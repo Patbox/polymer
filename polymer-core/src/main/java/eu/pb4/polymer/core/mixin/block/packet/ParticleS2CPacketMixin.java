@@ -41,12 +41,12 @@ public class ParticleS2CPacketMixin {
         if (instance instanceof BlockStateParticleEffect particleEffect) {
             return new BlockStateParticleEffect(
                     (ParticleType<BlockStateParticleEffect>) instance.getType(),
-                    PolymerBlockUtils.getPolymerBlockState(particleEffect.getBlockState(), PolymerUtils.getPlayer())
+                    PolymerBlockUtils.getPolymerBlockState(particleEffect.getBlockState(), PolymerUtils.getPlayerContext())
             );
         } else if (instance instanceof ItemStackParticleEffect particleEffect) {
             return new ItemStackParticleEffect(
                     (ParticleType<ItemStackParticleEffect>) instance.getType(),
-                    PolymerItemUtils.getPolymerItemStack(particleEffect.getItemStack(), PolymerUtils.getPlayer())
+                    PolymerItemUtils.getPolymerItemStack(particleEffect.getItemStack(), PolymerUtils.getPlayerContext())
             );
         }
         return instance;

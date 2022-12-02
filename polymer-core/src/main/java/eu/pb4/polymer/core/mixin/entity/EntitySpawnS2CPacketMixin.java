@@ -1,10 +1,10 @@
 package eu.pb4.polymer.core.mixin.entity;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.client.ClientUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import net.fabricmc.api.EnvType;
@@ -54,7 +54,7 @@ public class EntitySpawnS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
     private Object polymer$replaceWithPolymer(@Nullable Object value) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity polymerEntity && value == ((Entity) polymerEntity).getType()) {
-            return polymerEntity.getPolymerEntityType(PolymerUtils.getPlayer());
+            return polymerEntity.getPolymerEntityType(PolymerUtils.getPlayerContext());
         } else {
             return value;
         }
@@ -77,7 +77,7 @@ public class EntitySpawnS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
         if (this.entityType == EntityType.FALLING_BLOCK) {
-            return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId(data), PolymerUtils.getPlayer()));
+            return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId(data), PolymerUtils.getPlayerContext()));
         }
 
         return data;

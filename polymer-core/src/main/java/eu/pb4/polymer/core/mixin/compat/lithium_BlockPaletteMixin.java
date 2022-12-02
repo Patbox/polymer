@@ -21,7 +21,7 @@ public class lithium_BlockPaletteMixin {
     @ModifyArg(method = {"writePacket", "getPacketSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
-            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerUtils.getPlayer());
+            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerUtils.getPlayerContext());
         }
         return object;
     }

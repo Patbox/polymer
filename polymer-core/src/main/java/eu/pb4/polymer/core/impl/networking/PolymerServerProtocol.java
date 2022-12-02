@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
@@ -211,33 +212,30 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroupContents(ItemGroup group, ServerPlayNetworkHandler handler) {
-        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
 
         if (version != -1) {
-            PolymerImplUtils.setPlayer(handler.player);
-            version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
-
-            {
-                var buf = buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR));
-                buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
-                handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
-            }
-
-
-            try {
-                var entry = PolymerItemGroupContent.of(group, handler);
-                if (entry.isNonEmpty()) {
-                    var buf = buf(version);
-                    entry.write(buf, version, handler);
-                    handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD, buf));
+            PolymerUtils.executeWithPlayerContext(handler.player, () -> {
+                {
+                    var buf = buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR));
+                    buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
+                    handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
                 }
-            } catch (Exception e) {
 
-            }
+
+                try {
+                    var entry = PolymerItemGroupContent.of(group, handler);
+                    if (entry.isNonEmpty()) {
+                        var buf = buf(version);
+                        entry.write(buf, version, handler);
+                        handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD, buf));
+                    }
+                } catch (Exception e) {
+
+                }
+            });
         }
 
-        PolymerImplUtils.setPlayer(null);
     }
 
     public static void syncItemGroupDefinition(ItemGroup group, ServerPlayNetworkHandler handler) {
@@ -246,14 +244,12 @@ public class PolymerServerProtocol {
 
         if (version > -1 && PolymerItemGroupUtils.isPolymerItemGroup(group)) {
             var buf = buf(version);
-            PolymerImplUtils.setPlayer(handler.player);
 
             buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
             buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));
             PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, PolymerItemUtils.getPolymerItemStack(group.getIcon(), handler.player)));
-
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_DEFINE, buf));
-            PolymerImplUtils.setPlayer(null);
+
         }
     }
 
@@ -285,12 +281,11 @@ public class PolymerServerProtocol {
         var buf = buf(version);
 
         buf.writeVarInt(entries.size());
-        PolymerImplUtils.setPlayer(handler.player);
-        for (var entry : entries) {
-            entry.write(buf, version, handler);
-        }
-        PolymerImplUtils.setPlayer(null);
-
+        PolymerUtils.executeWithPlayerContext(handler.player, () -> {
+            for (var entry : entries) {
+                entry.write(buf, version, handler);
+            }
+        });
         handler.sendPacket(new CustomPayloadS2CPacket(id, buf));
         entries.clear();
     }

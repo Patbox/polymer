@@ -1,14 +1,15 @@
 package eu.pb4.polymer.core.mixin.entity;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.client.ClientUtils;
 import eu.pb4.polymer.core.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
+import eu.pb4.polymer.core.impl.interfaces.EntityTrackerUpdateS2CPacketExt;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -34,10 +36,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
-public class EntityTrackerUpdateS2CPacketMixin {
+public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2CPacketExt {
     @Shadow @Final private int id;
 
     @Shadow @Final private List<DataTracker.SerializedEntry<?>> trackedValues;
+    @Unique
+    private boolean polymer$isInitial = false;
 
     @Nullable
     private List<DataTracker.SerializedEntry<?>> polymer$createEntries() {
@@ -47,11 +51,11 @@ public class EntityTrackerUpdateS2CPacketMixin {
         }
 
         var entries = new ArrayList<DataTracker.SerializedEntry<?>>();
-        var player = PolymerUtils.getPlayer();
+        var player = PolymerUtils.getPlayerContext();
 
         if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player, entity)) {
             var mod = this.trackedValues != null ? new ArrayList<>(this.trackedValues) : new ArrayList<DataTracker.SerializedEntry<?>>();
-            polymerEntity.modifyRawTrackedData(mod, player, false);
+            polymerEntity.modifyRawTrackedData(mod, player, this.polymer$isInitial);
 
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
@@ -62,6 +66,8 @@ public class EntityTrackerUpdateS2CPacketMixin {
                         entries.add(entry);
                     }
                 }
+            } else {
+                entries.addAll(mod);
             }
         } else if (this.trackedValues == null) {
             return null;
@@ -76,7 +82,7 @@ public class EntityTrackerUpdateS2CPacketMixin {
             var entry = entries.get(i);
 
             if (isItemFrame && entry.id() == ItemFrameEntityAccessor.getITEM_STACK().getId() && entry.value() instanceof ItemStack stack) {
-                var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayer());
+                var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayerContext());
 
                 if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
                     var nbtCompound = polymerStack.getSubNbt("display");
@@ -121,5 +127,15 @@ public class EntityTrackerUpdateS2CPacketMixin {
 
             cir.setReturnValue(list);
         }
+    }
+
+    @Override
+    public boolean polymer$getInitial() {
+        return this.polymer$isInitial;
+    }
+
+    @Override
+    public void polymer$setInitial() {
+        this.polymer$isInitial = true;
     }
 }

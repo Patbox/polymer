@@ -19,13 +19,13 @@ public class BlockUpdateS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
     private Object polymer_replaceWithVirtualBlockState(Object state) {
-        return PolymerBlockUtils.getPolymerBlockState((BlockState) state, PolymerUtils.getPlayer());
+        return PolymerBlockUtils.getPolymerBlockState((BlockState) state, PolymerUtils.getPlayerContext());
     }
 
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getState", at = @At("HEAD"), cancellable = true)
     public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
-        cir.setReturnValue(PolymerBlockUtils.getPolymerBlockState(this.state, PolymerUtils.getPlayer()));
+        cir.setReturnValue(PolymerBlockUtils.getPolymerBlockState(this.state, PolymerUtils.getPlayerContext()));
     }
 }

@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.mixin.compat.immersive_portals;
 
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.impl.networking.BlockPacketUtil;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -19,10 +19,10 @@ public abstract class ip_ServerPlayNetworkHandlerMixin {
     @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("TAIL"))
     private Packet<?> polymer_sendRequiredPackets(Packet<?> packet) {
         if (packet instanceof IECustomPayloadPacket attachedPacket && attachedPacket.ip_getRedirectedPacket() != null && attachedPacket.ip_getRedirectedDimension() != null) {
-            PacketRedirection.withForceRedirect(this.player.getServer().getWorld(attachedPacket.ip_getRedirectedDimension()), () -> {
-                PolymerImplUtils.setPlayer(this.player);
-                BlockPacketUtil.sendFromPacket(attachedPacket.ip_getRedirectedPacket(), (ServerPlayNetworkHandler) (Object) this);
-                PolymerImplUtils.setPlayer(null);
+            PolymerCommonUtils.executeWithPlayerContext(this.player, () -> {
+                PacketRedirection.withForceRedirect(this.player.getServer().getWorld(attachedPacket.ip_getRedirectedDimension()), () -> {
+                    BlockPacketUtil.sendFromPacket(attachedPacket.ip_getRedirectedPacket(), (ServerPlayNetworkHandler) (Object) this);
+                });
             });
         }
         return packet;

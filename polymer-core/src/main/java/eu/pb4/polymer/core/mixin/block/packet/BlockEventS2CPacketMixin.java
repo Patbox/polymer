@@ -1,9 +1,9 @@
 package eu.pb4.polymer.core.mixin.block.packet;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.client.ClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -35,6 +35,6 @@ public abstract class BlockEventS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
     private Object polymer$replaceBlockLocal(Object block) {
-        return PolymerBlockUtils.getPolymerBlock((Block) block, PolymerUtils.getPlayer());
+        return PolymerBlockUtils.getPolymerBlock((Block) block, PolymerUtils.getPlayerContext());
     }
 }

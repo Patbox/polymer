@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.mixin.block;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.core.impl.interfaces.ServerChunkManagerInterface;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
@@ -31,7 +31,7 @@ public class TACSMixin {
 
     @Inject(method = "sendChunkDataPackets", at = @At("HEAD"), require = 0)
     private void polymer$catchPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
-        PolymerImplUtils.setPlayer(player);
+        CommonImplUtils.setPlayer(player);
         var value = cachedDataPacket.getValue();
         var playerMapper = BlockMapper.getFrom(player);
         if (value != null && (
@@ -45,7 +45,7 @@ public class TACSMixin {
 
     @Inject(method = "sendChunkDataPackets", at = @At("TAIL"), require = 0)
     private void polymer$clearPlayer(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
-        PolymerImplUtils.setPlayer(null);
+        CommonImplUtils.setPlayer(null);
     }
 
     @Inject(method = "method_18843", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;setLoadedToWorld(Z)V", shift = At.Shift.AFTER))

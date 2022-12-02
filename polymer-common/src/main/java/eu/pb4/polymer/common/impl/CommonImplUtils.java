@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
@@ -15,6 +16,17 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class CommonImplUtils {
+    private static final ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
+
+    @Nullable
+    public static ServerPlayerEntity getPlayer() {
+        return playerTargetHack.get();
+    }
+
+    public static void setPlayer(ServerPlayerEntity player) {
+        playerTargetHack.set(player);
+    }
+
     public static final Text[] ICON;
     public static boolean disableResourcePackCheck;
 

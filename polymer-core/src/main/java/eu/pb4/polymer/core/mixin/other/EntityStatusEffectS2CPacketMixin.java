@@ -28,7 +28,7 @@ public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExten
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V", ordinal = 0))
     public Object polymer$onWrite(Object object) {
         if (object instanceof PolymerStatusEffect virtualEffect) {
-            var effect = virtualEffect.getPolymerReplacement(PolymerUtils.getPlayer());
+            var effect = virtualEffect.getPolymerReplacement(PolymerUtils.getPlayerContext());
 
             if (effect != null) {
                 return effect;

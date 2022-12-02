@@ -43,6 +43,7 @@
     "entity.EntityTrackerUpdateS2CPacketMixin",
     "entity.ItemFrameEntityAccessor",
     "entity.LivingEntityMixin",
+    "entity.PlayerListS2CPacketAccessor",
     "entity.PlayerSpawnS2CPacketAccessor",
     "entity.ServerPlayNetworkHandlerMixin",
     "entity.ServerWorldAccessor",

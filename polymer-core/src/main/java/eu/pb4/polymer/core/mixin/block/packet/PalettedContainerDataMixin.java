@@ -21,7 +21,7 @@ public class PalettedContainerDataMixin<T> {
     private long[] polymer$replaceData(PaletteStorage instance) {
         if (this.palette instanceof IdListPalette<T>  && this.palette.get(0) instanceof BlockState) {
             var palette = (IdListPalette<BlockState>) this.palette;
-            var player = PolymerUtils.getPlayer();
+            var player = PolymerUtils.getPlayerContext();
             final int size = instance.getSize();
             var data = new PackedIntegerArray(instance.getElementBits(), size);
 

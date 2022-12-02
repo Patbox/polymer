@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.mixin.entity.EntityAccessor;
+import eu.pb4.polymer.core.mixin.entity.PlayerListS2CPacketAccessor;
 import eu.pb4.polymer.core.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
@@ -15,6 +16,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -22,10 +24,7 @@ import net.minecraft.util.Util;
 import net.minecraft.village.VillagerProfession;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
@@ -139,6 +138,15 @@ public final class PolymerEntityUtils {
      */
     public static PlayerSpawnS2CPacket createPlayerSpawnPacket(Entity entity) {
         return createPlayerSpawnPacket(entity.getId(), entity.getUuid(), entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
+    }
+
+    /**
+     * @return Creates PlayerEntity spawn packet, that can be used by VirtualEntities
+     */
+    public static PlayerListS2CPacket createMutablePlayerListPacket(EnumSet<PlayerListS2CPacket.Action> actions) {
+        var packet = new PlayerListS2CPacket(actions, List.of());
+        ((PlayerListS2CPacketAccessor) packet).setEntries(new ArrayList<>());
+        return packet;
     }
 
     public static boolean canHoldEntityContext(Packet<?> packet) {

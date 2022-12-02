@@ -3,13 +3,12 @@ package eu.pb4.polymer.core.api.utils;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
-import eu.pb4.polymer.common.impl.client.RPClientUtils;
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.client.ClientUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
@@ -30,7 +29,6 @@ import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -54,18 +52,8 @@ public final class PolymerUtils {
      * Returns player if it's known to polymer (otherwise null!)
      */
     @Nullable
-    public static ServerPlayerEntity getPlayer() {
-        ServerPlayerEntity player = PacketContext.get().getTarget();
-
-        if (player == null) {
-            player = PolymerImplUtils.getPlayer();
-
-            if (player == null && PolymerImpl.IS_CLIENT) {
-                player = ClientUtils.getPlayer();
-            }
-        }
-
-        return player;
+    public static ServerPlayerEntity getPlayerContext() {
+        return PolymerCommonUtils.getPlayerContext();
     }
 
     /**
@@ -92,9 +80,9 @@ public final class PolymerUtils {
 
     public static boolean isOnPlayerNetworking() {
         if (!PolymerImpl.IS_CLIENT) {
-            return getPlayer() != null;
+            return getPlayerContext() != null;
         } else {
-            return getPlayer() != null || ClientUtils.isSingleplayer();
+            return getPlayerContext() != null || ClientUtils.isSingleplayer();
         }
     }
 
@@ -205,23 +193,14 @@ public final class PolymerUtils {
     }
 
     /**
-     * Allows to execute code with selected player being returned for {@link PolymerUtils#getPlayer()}
+     * Allows to execute code with selected player being returned for {@link PolymerUtils#getPlayerContext()}
      * calls. Useful for custom packets using writeItemStack and similar methods.
      *
      * @param player
      * @param runnable
      */
     public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
-        var oldPlayer = PolymerImplUtils.getPlayer();
-        var oldTarget = PacketContext.get().getTarget();
-
-        PolymerImplUtils.setPlayer(player);
-        PacketContext.setReadContext(player.networkHandler);
-
-        runnable.run();
-
-        PolymerImplUtils.setPlayer(oldPlayer);
-        PacketContext.setReadContext(oldTarget != null ? oldTarget.networkHandler : null);
+        PolymerCommonUtils.executeWithPlayerContext(player, runnable);
     }
 
     public static World getFakeWorld() {
@@ -243,6 +222,6 @@ public final class PolymerUtils {
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
-        return (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack()) || (CommonImpl.IS_CLIENT && RPClientUtils.isResourcePackLoaded());
+        return (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack()) || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 }

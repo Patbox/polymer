@@ -1,10 +1,10 @@
 package eu.pb4.polymer.core.mixin.item.packet;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.client.ClientUtils;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -37,7 +37,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
     public Collection<Recipe<?>> polymer$remapRecipes(Collection<Recipe<?>> recipes) {
         List<Recipe<?>> list = new ArrayList<>();
-        var player = PolymerUtils.getPlayer();
+        var player = PolymerUtils.getPlayerContext();
         for (Recipe<?> recipe : recipes) {
             if (recipe instanceof PolymerSyncedObject<?> syncedRecipe) {
                 Recipe<?> polymerRecipe = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);

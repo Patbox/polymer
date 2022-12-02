@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.mixin.client.item;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.client.ClientUtils;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipContext;
 import net.fabricmc.api.EnvType;

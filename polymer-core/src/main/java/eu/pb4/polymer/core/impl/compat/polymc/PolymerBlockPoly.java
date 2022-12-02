@@ -13,7 +13,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class PolymerBlockPoly implements BlockPoly {
     @Override
     public BlockState getClientBlock(BlockState input) {
-        var player = PolymerUtils.getPlayer();
+        var player = PolymerUtils.getPlayerContext();
         var state = PolymerBlockUtils.getPolymerBlockState(input, player);
 
         if (state != input) {

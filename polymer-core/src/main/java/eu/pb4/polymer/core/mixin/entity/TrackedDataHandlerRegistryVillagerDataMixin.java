@@ -19,7 +19,7 @@ public class TrackedDataHandlerRegistryVillagerDataMixin {
     private VillagerProfession polymer_replaceWithPolymer(VillagerData instance) {
         var profession = instance.getProfession();
         var polymerProf = PolymerEntityUtils.getPolymerProfession(profession);
-        return polymerProf != null ? polymerProf.getPolymerProfession(profession, PolymerUtils.getPlayer()) : profession;
+        return polymerProf != null ? polymerProf.getPolymerProfession(profession, PolymerUtils.getPlayerContext()) : profession;
     }
 
 

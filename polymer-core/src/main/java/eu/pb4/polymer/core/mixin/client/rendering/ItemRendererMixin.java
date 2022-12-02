@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.mixin.client.rendering;
 
-import eu.pb4.polymer.core.impl.client.ClientUtils;
+import eu.pb4.polymer.core.impl.client.CoreClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -18,6 +18,6 @@ public class ItemRendererMixin {
             "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IILnet/minecraft/client/render/model/BakedModel;)V"
     }, at = @At("HEAD"), require = 0)
     private ItemStack polymer$replaceItemStack(ItemStack stack) {
-        return ClientUtils.getRenderingStack(stack);
+        return CoreClientUtils.getRenderingStack(stack);
     }
 }

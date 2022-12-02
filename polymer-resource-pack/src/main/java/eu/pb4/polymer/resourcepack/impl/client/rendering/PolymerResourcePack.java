@@ -1,6 +1,6 @@
 package eu.pb4.polymer.resourcepack.impl.client.rendering;
 
-import eu.pb4.polymer.common.impl.client.RPClientUtils;
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,7 +29,7 @@ public class PolymerResourcePack extends ZipResourcePack {
         Path outputPath = PolymerResourcePackUtils.DEFAULT_PATH;
         if ((outputPath.toFile().exists() && generated) || PolymerResourcePackUtils.build(outputPath)) {
             generated = true;
-            return new PolymerResourcePack(RPClientUtils.PACK_ID, outputPath.toFile());
+            return new PolymerResourcePack(ClientUtils.PACK_ID, outputPath.toFile());
         } else {
             return null;
         }
@@ -37,7 +37,7 @@ public class PolymerResourcePack extends ZipResourcePack {
 
     @Override
     public String getName() {
-        return RPClientUtils.PACK_ID;
+        return ClientUtils.PACK_ID;
     }
 
     public static class Provider implements ResourcePackProvider {

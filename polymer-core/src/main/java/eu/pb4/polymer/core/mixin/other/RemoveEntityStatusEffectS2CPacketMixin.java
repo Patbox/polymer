@@ -21,7 +21,7 @@ public class RemoveEntityStatusEffectS2CPacketMixin implements StatusEffectPacke
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
     private Object polymer$onReplaceEffect(Object obj) {
         if (obj instanceof PolymerStatusEffect virtualEffect) {
-            var out = virtualEffect.getPolymerReplacement(PolymerUtils.getPlayer());
+            var out = virtualEffect.getPolymerReplacement(PolymerUtils.getPlayerContext());
 
             if (out != null) {
                 return out;

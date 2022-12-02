@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.entity;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
+import eu.pb4.polymer.core.impl.interfaces.EntityTrackerUpdateS2CPacketExt;
 import eu.pb4.polymer.core.impl.interfaces.MetaConsumer;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import net.minecraft.entity.Entity;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -37,6 +39,12 @@ public abstract class EntityTrackerEntryMixin {
         return (packet) -> packetConsumer.accept(EntityAttachedPacket.setIfEmpty(packet, this.entity));
     }
 
+    @ModifyArg(method = "sendPackets", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V", ordinal = 1))
+    private Object polymer$markAsInitial(Object obj) {
+        ((EntityTrackerUpdateS2CPacketExt) obj).polymer$setInitial();
+        return obj;
+    }
+
     @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/Packet;"))
     private void polymer$sendPacketsBeforeSpawning(Consumer<Packet<?>> sender, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity virtualEntity) {
@@ -47,6 +55,8 @@ public abstract class EntityTrackerEntryMixin {
             }
         }
     }
+
+
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymer$sendEntityInfo(ServerPlayerEntity player, CallbackInfo ci) {

@@ -19,7 +19,7 @@ public class TagPacketSerializerMixin {
     @ModifyArg(method = "writeBuf", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeMap(Ljava/util/Map;Lnet/minecraft/network/PacketByteBuf$PacketWriter;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
     private Map<Identifier, IntList> polymer$skipEntries(Map<Identifier, IntList> value) {
         var map = new HashMap<Identifier, IntList>();
-        var player = PolymerUtils.getPlayer();
+        var player = PolymerUtils.getPlayerContext();
         for (var entry : value.entrySet()) {
             var reg = Registries.REGISTRIES.get(entry.getKey());
 

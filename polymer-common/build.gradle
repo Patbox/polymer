@@ -8,6 +8,7 @@ loom {
 
 dependencies {
     modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
+    modImplementation include("xyz.nucleoid:packet-tweaker:0.3.0+1.18.2")
 }
 
 afterEvaluate {

@@ -1,4 +1,4 @@
-package eu.pb4.polymer.core.mixin.client.rendering;
+package eu.pb4.polymer.core.impl.client;
 
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
@@ -6,17 +6,20 @@ import eu.pb4.polymer.core.api.utils.PolymerKeepModel;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-@Mixin(BuiltinModelItemRenderer.class)
-public class BuiltinModelItemRendererMixin {
-    @ModifyVariable(method = "render", at = @At("HEAD"), require = 0)
-    private ItemStack polymer$replaceItem(ItemStack stack) {
+public class CoreClientUtils {
+    public static ItemStack getRenderingStack(ItemStack stack) {
+        if (stack.getItem() instanceof VirtualClientItem virtualItem) {
+            var og = stack;
+
+            stack = virtualItem.getPolymerEntry().visualStack().copy();
+            stack.setCount(og.getCount());
+        }
+
         return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipContext(ClientUtils.getPlayer()), ClientUtils.getPlayer()) : stack;
     }
 }

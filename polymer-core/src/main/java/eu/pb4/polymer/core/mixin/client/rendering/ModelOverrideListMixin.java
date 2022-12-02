@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.mixin.client.rendering;
 
-import eu.pb4.polymer.core.impl.client.ClientUtils;
+import eu.pb4.polymer.core.impl.client.CoreClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.model.json.ModelOverrideList;
@@ -14,6 +14,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class ModelOverrideListMixin {
     @ModifyVariable(method = "apply", at = @At("HEAD"), require = 0)
     private ItemStack polymer$replaceItemStack(ItemStack stack) {
-        return ClientUtils.getRenderingStack(stack);
+        return CoreClientUtils.getRenderingStack(stack);
     }
 }

@@ -18,6 +18,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryOwner;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
@@ -65,6 +66,7 @@ public final class FakeWorld extends World {
     static final Scoreboard SCOREBOARD = new Scoreboard();
     static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.EMPTY;
     static final RecipeManager RECIPE_MANAGER = new RecipeManager();
+    private static final FeatureSet FEATURES = FeatureFlags.FEATURE_MANAGER.getFeatureSet();
     final ChunkManager chunkManager = new ChunkManager() {
         private LightingProvider lightingProvider = null;
 
@@ -332,7 +334,7 @@ public final class FakeWorld extends World {
 
     @Override
     public FeatureSet getEnabledFeatures() {
-        return FeatureSet.empty();
+        return FEATURES;
     }
 
     @Override

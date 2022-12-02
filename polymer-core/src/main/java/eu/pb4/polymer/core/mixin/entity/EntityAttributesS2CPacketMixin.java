@@ -35,7 +35,7 @@ public abstract class EntityAttributesS2CPacketMixin {
      */
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 0))
     private int polymer$replaceWithPolymer(int input) {
-        if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayer()))) {
+        if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayerContext()))) {
             return -1;
         }
         return input;
@@ -44,7 +44,7 @@ public abstract class EntityAttributesS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getEntityId", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceWithPolymer2(CallbackInfoReturnable<Integer> cir) {
-        if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayer()))) {
+        if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayerContext()))) {
             cir.setReturnValue(-1);
         }
     }
@@ -53,7 +53,7 @@ public abstract class EntityAttributesS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V", ordinal = 0))
     private Collection<EntityAttributesS2CPacket.Entry> polymer$replaceWithPolymer(Collection<EntityAttributesS2CPacket.Entry> value) {
         if (EntityAttachedPacket.get(this) instanceof PolymerEntity entity && ((Entity) entity).getId() == this.entityId) {
-            var type = entity.getPolymerEntityType(PolymerUtils.getPlayer());
+            var type = entity.getPolymerEntityType(PolymerUtils.getPlayerContext());
             if (!InternalEntityHelpers.isLivingEntity(type)) {
                 return List.of();
             }

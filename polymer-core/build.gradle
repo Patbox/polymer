@@ -73,10 +73,8 @@ dependencies {
         exclude(group: "net.fabricmc")
     }
 
-    modImplementation include("xyz.nucleoid:packet-tweaker:0.3.0+1.18.2")
-
-    modCompileOnly("fr.catcore:server-translations-api:1.4.16+1.19")
-    modLocalRuntime("fr.catcore:server-translations-api:1.4.16+1.19")
+    modCompileOnly("fr.catcore:server-translations-api:1.4.18+1.19.2")
+    modLocalRuntime("fr.catcore:server-translations-api:1.4.18+1.19.2")
 
     modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v2.0.4-1.19'
     modCompileOnly 'com.github.qouteall.ImmersivePortalsMod:q_misc_util:v2.0.4-1.19'

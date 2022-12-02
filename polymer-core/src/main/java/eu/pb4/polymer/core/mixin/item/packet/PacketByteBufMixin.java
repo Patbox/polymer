@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.mixin.item.packet;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.client.ClientUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
@@ -33,7 +33,7 @@ public abstract class PacketByteBufMixin {
 
     @ModifyVariable(method = "writeItemStack", at = @At("HEAD"), ordinal = 0)
     private ItemStack polymer$replaceWithVanillaItem(ItemStack itemStack) {
-        return PolymerItemUtils.getPolymerItemStack(itemStack, PolymerUtils.getPlayer());
+        return PolymerItemUtils.getPolymerItemStack(itemStack, PolymerUtils.getPlayerContext());
 
     }
 

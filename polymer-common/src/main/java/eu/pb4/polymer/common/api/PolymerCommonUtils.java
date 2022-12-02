@@ -2,11 +2,15 @@ package eu.pb4.polymer.common.api;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.FakeWorld;
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -48,8 +52,47 @@ public final class PolymerCommonUtils {
         }
     }
 
+    /**
+     * Allows to execute code with selected player being returned for {@link PolymerCommonUtils#getPlayerContext()}
+     * calls. Useful for custom packets using writeItemStack and similar methods.
+     *
+     * @param player
+     * @param runnable
+     */
+    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
+        var oldPlayer = CommonImplUtils.getPlayer();
+        var oldTarget = PacketContext.get().getTarget();
+
+        CommonImplUtils.setPlayer(player);
+        PacketContext.setReadContext(player.networkHandler);
+
+        runnable.run();
+
+        CommonImplUtils.setPlayer(oldPlayer);
+        PacketContext.setReadContext(oldTarget != null ? oldTarget.networkHandler : null);
+    }
+
+
     public static World getFakeWorld() {
         return FakeWorld.INSTANCE;
+    }
+
+    /**
+     * Returns player if it's known to polymer (otherwise null!)
+     */
+    @Nullable
+    public static ServerPlayerEntity getPlayerContext() {
+        ServerPlayerEntity player = PacketContext.get().getTarget();
+
+        if (player == null) {
+            player = CommonImplUtils.getPlayer();
+
+            if (player == null && CommonImpl.IS_CLIENT) {
+                player = ClientUtils.getPlayer();
+            }
+        }
+
+        return player;
     }
 
     public interface ResourcePackChangeCallback {

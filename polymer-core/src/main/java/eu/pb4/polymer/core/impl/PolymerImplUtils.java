@@ -39,19 +39,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class PolymerImplUtils {
-    private static final ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
-
     public static final SimpleEvent<BiConsumer<Registry<Object>, Object>> ON_REGISTERED = new SimpleEvent<>();
-
-    @Nullable
-    public static ServerPlayerEntity getPlayer() {
-        return playerTargetHack.get();
-    }
-
-    public static void setPlayer(ServerPlayerEntity player) {
-        playerTargetHack.set(player);
-    }
-
 
     public static Identifier toItemGroupId(ItemGroup group) {
         var posId = InternalServerRegistry.ITEM_GROUPS.getId(group);
