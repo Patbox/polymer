@@ -8,7 +8,7 @@ It is also should be fully compatible with close to all other mods and in case o
 ## Updating from 0.2.x
 With Minecraft 1.19.3 being globally breaking update. I took this as a good time to make breaking changes to polymer itself.
 
-[See this update guide for more informations!](/other/updating-0.2.x-to-0.3)
+[See this update guide for more informations!](other/updating-0.2.x-to-0.3)
 
 ## Modules
 
@@ -18,12 +18,12 @@ With Minecraft 1.19.3 being globally breaking update. I took this as a good time
 It's a heart of Polymer. It allows you to create server side content. It also contains lots of extra mod compatibility for client mods,
 to make your mod better fit for any modpack.
 
-* [Getting Started](/polymer-core/getting-started)
-* [Items](/polymer-core/items)
-* [Blocks](/polymer-core/blocks)
-* [Entities](/polymer-core/entities)
-* [Other custom features](/polymer-core/other)
-* [(Optional) Client Side features](/polymer-core/client-side)
+* [Getting Started](polymer-core/getting-started)
+* [Items](polymer-core/items)
+* [Blocks](polymer-core/blocks)
+* [Entities](polymer-core/entities)
+* [Other custom features](polymer-core/other)
+* [(Optional) Client Side features](polymer-core/client-side)
 
 ### Polymer Resource Pack
 `eu.pb4:polymer-resource-pack`
@@ -32,23 +32,23 @@ Allows creating global (and mod specific) resource packs. It also patches PolyMc
 work with polymer.
 
 * [Getting Started](polymer-resource-pack/getting-started)
-* [Basics](/polymer-resource-pack/basics)
+* [Basics](polymer-resource-pack/basics)
 
 ### Polymer Networking
 `eu.pb4:polymer-networking`
 
 Polymer's Networking API. Uses its own custom synchronization code. Contains extra API, more specific that aren't available in fabric.
 
-* [Getting Started](/polymer-networking/getting-started)
-* [Basics](/polymer-networking/basics)
+* [Getting Started](polymer-networking/getting-started)
+* [Basics](polymer-networking/basics)
 
 ### Polymer Blocks
 `eu.pb4:polymer-blocks`
 
 Extension of Polymer Core and Resource Pack. Allows creation of textured blocks.
 
-* [Getting Started](/polymer-blocks/getting-started)
-* [Basics](/polymer-blocks/basics)
+* [Getting Started](polymer-blocks/getting-started)
+* [Basics](polymer-blocks/basics)
 
 ## Other useful tools/projects compatible with Polymer
-* [Server Translation API](/other/server-translation-api)
+* [Server Translation API](other/server-translation-api)
