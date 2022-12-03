@@ -47,8 +47,6 @@ import static eu.pb4.polymer.networking.api.client.PolymerClientNetworking.regis
 public class PolymerClientProtocolHandler {
 
     public static void register() {
-        registerPacketHandler(ServerPackets.DISABLE, (handler, version, buf) -> handleDisable());
-
         registerPacketHandler(ServerPackets.WORLD_SET_BLOCK_UPDATE, PolymerClientProtocolHandler::handleSetBlock);
         registerPacketHandler(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, PolymerClientProtocolHandler::handleWorldSectionUpdate);
         registerPacketHandler(ServerPackets.WORLD_ENTITY, PolymerClientProtocolHandler::handleEntity);
@@ -135,13 +133,6 @@ public class PolymerClientProtocolHandler {
                 }
             }
         }
-    }
-
-    private static boolean handleDisable() {
-        MinecraftClient.getInstance().execute(() -> {
-            InternalClientRegistry.disable();
-        });
-        return true;
     }
 
     private static boolean handleSyncInfo(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {

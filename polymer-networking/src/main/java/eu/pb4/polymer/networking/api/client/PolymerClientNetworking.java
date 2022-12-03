@@ -24,7 +24,7 @@ public final class PolymerClientNetworking {
     }
 
 
-    public static boolean sendPacket(ClientPlayNetworkHandler player, Identifier identifier, PacketByteBuf packetByteBuf) {
+    public static boolean sendDirect(ClientPlayNetworkHandler player, Identifier identifier, PacketByteBuf packetByteBuf) {
         player.sendPacket(new CustomPayloadC2SPacket(identifier, packetByteBuf));
         return true;
     }
@@ -42,7 +42,7 @@ public final class PolymerClientNetworking {
         return false;
     }
 
-    public static boolean registerClientPacket(Identifier identifier, int... supportedVersions) {
+    public static boolean registerSendPacket(Identifier identifier, int... supportedVersions) {
         ClientPackets.register(identifier, supportedVersions);
         return true;
     }

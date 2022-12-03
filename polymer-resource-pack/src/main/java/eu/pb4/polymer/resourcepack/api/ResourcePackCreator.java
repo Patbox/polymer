@@ -30,9 +30,9 @@ import java.util.function.Consumer;
  * Utilities allowing simple creation of resource pack
  */
 public final class ResourcePackCreator {
-    public final SimpleEvent<Consumer<PolymerRPBuilder>> creationEvent = new SimpleEvent<>();
+    public final SimpleEvent<Consumer<ResourcePackBuilder>> creationEvent = new SimpleEvent<>();
     public final SimpleEvent<Runnable> finishedEvent = new SimpleEvent<>();
-    public final SimpleEvent<Consumer<PolymerRPBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
+    public final SimpleEvent<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
     private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
     private final Object2IntMap<Item> itemIds = new Object2IntOpenCustomHashMap<>(Util.identityHashStrategy());
     private final Map<Item, Map<Identifier, PolymerModelData>> itemsMap = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());

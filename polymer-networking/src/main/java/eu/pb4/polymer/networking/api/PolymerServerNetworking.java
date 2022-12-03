@@ -44,13 +44,13 @@ public final class PolymerServerNetworking {
         return false;
     }
 
-    public static boolean registerServerVersions(Identifier identifier, int... supportedVersions) {
+    public static boolean registerSendPacket(Identifier identifier, int... supportedVersions) {
         ServerPackets.register(identifier, supportedVersions);
         return true;
     }
 
-    public static int getSupportedVersion(ServerPlayNetworkHandler handler, Identifier identifier) {
-        return ((NetworkHandlerExtension) handler).polymer$getSupportedVersion(identifier);
+    public static int getSupportedVersion(ServerPlayNetworkHandler handler, Identifier serverPacket) {
+        return ((NetworkHandlerExtension) handler).polymer$getSupportedVersion(serverPacket);
     }
 
     public static long getLastPacketReceivedTime(ServerPlayNetworkHandler handler, Identifier identifier) {

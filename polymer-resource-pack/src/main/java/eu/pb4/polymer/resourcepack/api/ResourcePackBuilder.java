@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 
 @ApiStatus.NonExtendable
-public interface PolymerRPBuilder {
+public interface ResourcePackBuilder {
     boolean addData(String path, byte[] data);
     boolean copyAssets(String modId);
     default boolean copyFromPath(Path path) {

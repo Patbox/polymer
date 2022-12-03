@@ -2,7 +2,7 @@ package eu.pb4.polymer.resourcepack.impl.compat.polymc;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.resourcepack.api.PolymerRPBuilder;
+import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -17,7 +17,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 @ApiStatus.Internal
 @SuppressWarnings({"deprecation", "unchecked"})
 public class PolyMcHelpers {
-    public static void importPolyMcResources(PolymerRPBuilder builder) {
+    public static void importPolyMcResources(ResourcePackBuilder builder) {
         // Generate PolyMc's resource pack
         var pack = io.github.theepicblock.polymc.PolyMc.getMapForResourceGen().generateResourcePack(io.github.theepicblock.polymc.PolyMc.LOGGER);
         if (pack == null) return;
@@ -52,9 +52,9 @@ public class PolyMcHelpers {
 
     public static class PolymerRPOutputStream extends ByteArrayOutputStream {
         private final String path;
-        private final PolymerRPBuilder builder;
+        private final ResourcePackBuilder builder;
 
-        public PolymerRPOutputStream(String path, PolymerRPBuilder builder) {
+        public PolymerRPOutputStream(String path, ResourcePackBuilder builder) {
             this.path = path;
             this.builder = builder;
         }

@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 public class ServerPackets {
     public static final Map<Identifier, int[]> REGISTRY = new HashMap<>();
     public static final Identifier HANDSHAKE = new Identifier("polymer", "handshake");
+    public static final Identifier DISABLE = new Identifier("polymer", "disable");
 
 
     public static final int getBestSupported(Identifier identifier, int[] ver) {
@@ -36,6 +37,7 @@ public class ServerPackets {
 
 
     static {
+        register(HANDSHAKE, 1);
         register(HANDSHAKE, 1);
     }
 

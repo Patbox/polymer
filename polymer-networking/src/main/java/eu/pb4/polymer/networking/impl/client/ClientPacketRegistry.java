@@ -8,6 +8,7 @@ import eu.pb4.polymer.networking.impl.ServerPackets;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
@@ -81,6 +82,16 @@ public class ClientPacketRegistry {
         return false;
     }
 
+    public static boolean handleDisable(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version > -1) {
+            MinecraftClient.getInstance().execute(() -> {
+                clear();
+            });
+            return true;
+        }
+        return false;
+    }
+
     public static void sendHandshake(ClientPlayNetworkHandler handler) {
             var buf = buf(0);
 
@@ -104,6 +115,7 @@ public class ClientPacketRegistry {
 
 
     static {
-        PACKETS.put(ClientPackets.HANDSHAKE, ClientPacketRegistry::handleHandshake);
+        PACKETS.put(ServerPackets.HANDSHAKE, ClientPacketRegistry::handleHandshake);
+        PACKETS.put(ServerPackets.DISABLE, ClientPacketRegistry::handleDisable);
     }
 }

@@ -35,7 +35,7 @@ public class ServerPackets {
     public static final Identifier DEBUG_VALIDATE_STATES= id("debug/validate_states");
 
     public static final void register(Identifier id, int... ver) {
-        PolymerServerNetworking.registerServerVersions(id, ver);
+        PolymerServerNetworking.registerSendPacket(id, ver);
     }
 
 

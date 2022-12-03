@@ -13,20 +13,14 @@ in corresponding player-aware `getPolymerX` methods.
 
 To "sync" presence/version of your mod you can use Polymer's handshake feature.
 
-You can do that by registering server packet like this,
-
-```
-PolymerPacketUtils.registerServerPacket(PACKET_ID, 0, 1...);
-```
-Where PACKET_ID is just instance of your Identifier, and numbers after it
-representing supported protocol versions (can be single or multiple).
+You can do that by registering packets for which you should check [Polymer Networking documentation](/polymer-networking/basics)
 
 After that you can just validate if player supports it with this check it like this
 ```
-SomeObject getPolymerX(SomeObject serverObject, ServerPlayerEntity player) {
-    if (PolymerPacketUtils.getSupportedVersion(player.networkHandler, PACKET_ID) > 0) {
+SomeObject getPolymerX(ServerPlayerEntity player) {
+    if (PolymerServerNetworking.getSupportedVersion(player.networkHandler, PACKET_ID) > 0) {
         // Client state for modded
-        return serverObject;
+        return this;
     } else {
         // Client state for vanilla
         return VanillaObjects.SOMETHING;

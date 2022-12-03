@@ -3,7 +3,6 @@ package eu.pb4.polymer.core.api.utils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.networking.ServerPackets;
-import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -16,11 +15,6 @@ public final class PolymerSyncUtils {
 
     private PolymerSyncUtils() {
     }
-
-    /**
-     * This event is run after receiving client handshake
-     */
-    public static final SimpleEvent<Consumer<PolymerHandshakeHandler>> ON_HANDSHAKE = new SimpleEvent<>();
     /**
      * This event is run before Polymer registry sync
      */
@@ -43,7 +37,6 @@ public final class PolymerSyncUtils {
     public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_ITEM_GROUP_SYNC = new SimpleEvent<>();
     public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> BEFORE_ENTITY_SYNC = new SimpleEvent<>();
     public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, Boolean>> AFTER_ENTITY_SYNC = new SimpleEvent<>();
-    public static final SimpleEvent<Consumer<PolymerHandshakeHandler>> PREPARE_HANDSHAKE = new SimpleEvent<>();
 
     /**
      * Resends synchronization packets to player if their client supports that

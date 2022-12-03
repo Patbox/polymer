@@ -6,15 +6,21 @@ repo_name: Patbox/polymer
 nav:
   - index.md
   - Polymer Core:
+      - polymer-core/getting-started.md
       - polymer-core/items.md
       - polymer-core/blocks.md
       - polymer-core/entities.md
       - polymer-core/other.md
       - polymer-core/client-side.md
   - Polymer Resource Pack:
+      - polymer-resource-pack/getting-started.md
       - polymer-resource-pack/basics.md
   - Polymer Textured Blocks:
+      - polymer-blocks/getting-started.md
       - polymer-blocks/basics.md
+  - Polymer Networking:
+      - polymer-networking/getting-started.md
+      - polymer-networking/basics.md
   - Other:
       - other/updating-0.2.x-to-0.3.md
       - other/server-translation-api.md
