@@ -107,7 +107,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
         if (packet instanceof GameJoinS2CPacket packet1) {
             if (((TempPlayerLoginAttachments) this.getPlayer()).polymer$getForceRespawnPacket()) {
-                this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), false, packet1.lastDeathLocation()));
+                this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), (byte) 0, packet1.lastDeathLocation()));
             }
 
             this.forceRespawnPacket();
