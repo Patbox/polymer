@@ -732,11 +732,13 @@
 
 <h1 id="updating-from-polymer-02x-to-03x">Updating from Polymer 0.2.x to 0.3.x</h1>
 <h2 id="polymer-library-got-split-up"><code>polymer</code> library got split up</h2>
-<p>The <code>polymer</code> library was broken into multiple ones, most notably:
-- <code>polymer-common</code> - Common code shared between modules
-- <code>polymer-core</code> - All core functionality of polymer. Contains everything required for making server side content + client mod compatibility
-- <code>polymer-resource-pack</code> - Resource pack support
-- <code>polymer-networking</code> - Polymer's previous networking api</p>
+<p>The <code>polymer</code> library was broken into multiple ones, most notably:</p>
+<ul>
+<li><code>polymer-common</code> - Common code shared between modules</li>
+<li><code>polymer-core</code> - All core functionality of polymer. Contains everything required for making server side content + client mod compatibility</li>
+<li><code>polymer-resource-pack</code> - Resource pack support</li>
+<li><code>polymer-networking</code> - Polymer's previous networking api</li>
+</ul>
 <p>All modules (excluding <code>polymer-reg-sync-manipulator</code>) also depend (and include) common module.
 Core additionally depends on <code>polymer-networking</code>, which is used for client sync.</p>
 <p>Autohost module now depends only on <code>polymer-networking</code> and <code>polymer-resource-pack</code>.</p>
@@ -745,9 +747,11 @@ Core additionally depends on <code>polymer-networking</code>, which is used for 
 <p><code>polymer-blocks-ext</code> got renamed to <code>polymer-blocks</code></p>
 <p>From <code>polymer</code> (<code>polymer-core</code>, <code>polymer-resource-pack</code>, <code>polymer-networking</code>)</p>
 <ul>
-<li><code>eu.pb4.polymer.api.networking</code> -&gt; <code>eu.pb4.polymer.networking.api</code> (in <code>polymer-networking</code>):
-  -<code>PolymerPacketUtils</code> is now <code>PolymerServerNetworking</code> </li>
+<li><code>eu.pb4.polymer.api.networking</code> -&gt; <code>eu.pb4.polymer.networking.api</code> (in <code>polymer-networking</code>):<ul>
+<li><code>PolymerPacketUtils</code> is now <code>PolymerServerNetworking</code> </li>
 <li>Networking parts of <code>eu.pb4.polymer.api.client.PolymerClientUtils</code> are moved to <code>eu.pb4.polymer.api.networking.PolymerClientNetworking</code></li>
+</ul>
+</li>
 <li><code>eu.pb4.polymer.api.resourcepack</code> -&gt; <code>eu.pb4.polymer.resourcepack.api</code> (in <code>polymer-resource-pack</code>):<ul>
 <li><code>PolymerRPUtils</code> -&gt; <code>PolymerResourcePackUtils</code></li>
 <li><code>PolymerRPBuilder</code> -&gt; <code>ResourcePackBuilder</code></li>
@@ -759,9 +763,9 @@ Core additionally depends on <code>polymer-networking</code>, which is used for 
 <li>Interfaces in <code>client</code> that were used on both sides were moved to <code>utils</code></li>
 <li><code>[...].client.registry</code> -&gt; <code>[...].client</code></li>
 <li><code>PolymerEntity#modifyTrackedData</code> -&gt; <code>PolymerEntity#modifyRawTrackedData</code></li>
+<li><code>eu.pb4.polymer.ext.blocks</code> -&gt; <code>eu.pb4.polymer.blocks</code> (in <code>polymer-blocks</code>)</li>
 </ul>
 </li>
-<li><code>eu.pb4.polymer.ext.blocks</code> -&gt; <code>eu.pb4.polymer.blocks</code> (in <code>polymer-blocks</code>)</li>
 </ul>
 <p>Additionally, a bunch of method parameters changed to make them more consistent (making ServerPlayerEntity last argument).
 Many old duplicate context-less methods got removed if they were only accessed by one with player context.</p>
