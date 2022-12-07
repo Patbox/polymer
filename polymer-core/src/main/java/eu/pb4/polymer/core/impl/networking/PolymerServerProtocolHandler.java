@@ -26,7 +26,7 @@ public class PolymerServerProtocolHandler {
     public static void register() {
         PolymerServerNetworking.registerPacketHandler(ClientPackets.DISABLE, (handler, version, buf) -> handleDisable(PolymerHandshakeHandler.of(handler), version, buf), 0);
         PolymerServerNetworking.registerPacketHandler(ClientPackets.SYNC_REQUEST, PolymerServerProtocolHandler::handleSyncRequest, 0);
-        PolymerServerNetworking.registerPacketHandler( ClientPackets.WORLD_PICK_BLOCK , PolymerServerProtocolHandler::handlePickBlock, 0);
+        PolymerServerNetworking.registerPacketHandler(ClientPackets.WORLD_PICK_BLOCK , PolymerServerProtocolHandler::handlePickBlock, 0);
         PolymerServerNetworking.registerPacketHandler(ClientPackets.WORLD_PICK_ENTITY , PolymerServerProtocolHandler::handlePickEntity, 0);
         PolymerServerNetworking.registerPacketHandler(ClientPackets.CHANGE_TOOLTIP , PolymerServerProtocolHandler::handleTooltipChange, 0);
 

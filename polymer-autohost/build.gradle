@@ -33,6 +33,8 @@ dependencies {
 
 
     testmodImplementation sourceSets.main.output
+    testmodImplementation (project(path: ':polymer-core', configuration: 'namedElements'))
+    testmodImplementation (project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
 
     project(":polymer-core").afterEvaluate {
         testmodImplementation project(":polymer-core").sourceSets.testmod.output

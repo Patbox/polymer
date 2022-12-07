@@ -81,6 +81,7 @@ public class InternalClientRegistry {
     private static final Map<ClientPolymerItem, VirtualClientItem> VIRTUAL_ITEM_CACHE = new Object2ObjectOpenHashMap<>();
     public static boolean enabled = false;
     public static int syncRequests = 0;
+    public static int syncRequestsPostGameJoin = 0;
     public static String serverVersion = "";
     public static boolean isClientOutdated = false;
     public static boolean hasArmorTextures = false;
@@ -143,6 +144,7 @@ public class InternalClientRegistry {
         DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
+        syncRequestsPostGameJoin = 0;
         PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
     }
 

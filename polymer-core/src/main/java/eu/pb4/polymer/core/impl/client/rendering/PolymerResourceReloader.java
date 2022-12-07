@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.client.rendering;
 
 import com.google.gson.Gson;
+import com.mojang.blaze3d.systems.RenderSystem;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.mixin.client.rendering.ArmorFeatureRendererAccessor;
@@ -11,6 +12,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -68,6 +70,9 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                     this.manager.registerTexture(id, new PolymerArmorResourceTexture(id));
                 }
             }
+        }, (runnable) -> {
+            Objects.requireNonNull(runnable);
+            RenderSystem.recordRenderCall(runnable::run);
         });
     }
 

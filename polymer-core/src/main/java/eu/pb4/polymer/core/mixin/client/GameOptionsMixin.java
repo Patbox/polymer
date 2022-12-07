@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.client;
 
+import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocol;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,7 +23,7 @@ public class GameOptionsMixin {
 
     @Inject(method = "sendClientSettings", at = @At("TAIL"))
     private void polymer$requestSync(CallbackInfo ci) {
-        if (this.client.player != null && (this.polymer$oldLang != this.language)) {
+        if (this.client.player != null && (this.polymer$oldLang != this.language || InternalClientRegistry.syncRequestsPostGameJoin == 0)) {
             this.polymer$oldLang = this.language;
             PolymerClientProtocol.sendSyncRequest(this.client.player.networkHandler);
         }

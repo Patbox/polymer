@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,6 +22,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ClientPlayNetworkHandlerMixin {
 
     @Shadow public abstract ClientWorld getWorld();
+
+    @Inject(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift = At.Shift.AFTER))
+    private void polymer$onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
+        InternalClientRegistry.syncRequestsPostGameJoin = 0;
+    }
 
     @Inject(method = "onBlockUpdate", at = @At("TAIL"))
     private void polymer$removeOldBlock(BlockUpdateS2CPacket packet, CallbackInfo ci) {

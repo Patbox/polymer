@@ -24,6 +24,7 @@ public class PolymerClientProtocol {
         if (InternalClientRegistry.enabled) {
             InternalClientRegistry.delayAction(ClientPackets.SYNC_REQUEST.toString(), 200, () -> {
                 InternalClientRegistry.syncRequests++;
+                InternalClientRegistry.syncRequestsPostGameJoin++;
                 PolymerClientUtils.ON_SYNC_REQUEST.invoke(EventRunners.RUN);
                 handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.SYNC_REQUEST, buf(0)));
             });

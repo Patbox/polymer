@@ -114,9 +114,11 @@ public class PolymerServerProtocol {
 
 
     public static void sendSyncPackets(ServerPlayNetworkHandler handler, boolean fullSync) {
+        if (PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_STARTED) == -1) {
+            return;
+        }
+
         var startTime = System.nanoTime();
-
-
         int version;
 
         handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_STARTED, buf(0)));
