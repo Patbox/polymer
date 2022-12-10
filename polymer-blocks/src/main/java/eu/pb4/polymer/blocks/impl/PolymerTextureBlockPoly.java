@@ -7,6 +7,6 @@ import net.minecraft.block.BlockState;
 public class PolymerTextureBlockPoly implements BlockPoly {
     @Override
     public BlockState getClientBlock(BlockState input) {
-        return PolymerBlockUtils.getPolymerBlockState(input);
+        return input;
     }
 }

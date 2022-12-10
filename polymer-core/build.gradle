@@ -85,7 +85,7 @@ dependencies {
     testmodImplementation sourceSets.main.output
 
     implementation include(project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
-    implementation include(project(path: ':polymer-common', configuration: 'namedElements'))
+    implementation project(path: ':polymer-common', configuration: 'namedElements')
     implementation include(project(path: ':polymer-networking', configuration: 'namedElements'))
 
     compileOnly (project(path: ':polymer-resource-pack', configuration: 'namedElements'))

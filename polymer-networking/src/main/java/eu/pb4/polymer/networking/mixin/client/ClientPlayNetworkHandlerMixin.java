@@ -2,14 +2,15 @@ package eu.pb4.polymer.networking.mixin.client;
 
 import eu.pb4.polymer.networking.impl.PolymerHandshakeHandlerImplLogin;
 import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
-import eu.pb4.polymer.networking.mixin.CustomPayloadS2CPacketAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.KeepAliveS2CPacket;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,6 +26,8 @@ public abstract class ClientPlayNetworkHandlerMixin {
     public abstract ClientWorld getWorld();
 
 
+    @Shadow @Final private MinecraftClient client;
+
     @Inject(method = "onGameJoin", at = @At("TAIL"))
     private void polymer_sendHandshake(GameJoinS2CPacket packet, CallbackInfo ci) {
         ClientPacketRegistry.sendHandshake((ClientPlayNetworkHandler) (Object) this);
@@ -32,11 +35,17 @@ public abstract class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
     private void polymer$catchPackets(CustomPayloadS2CPacket packet, CallbackInfo ci) {
-        var buf = ((CustomPayloadS2CPacketAccessor) packet).polymer$getData();
+        if (this.client.isOnThread()) {
+            return;
+        }
+
+        var buf = packet.getData();
+
         if (ClientPacketRegistry.handle((ClientPlayNetworkHandler) (Object) this, packet.getChannel(), buf)) {
-            buf.release();
             ci.cancel();
         }
+
+        buf.release();
     }
 
     @Inject(method = "onKeepAlive", at = @At("HEAD"))

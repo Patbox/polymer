@@ -25,7 +25,7 @@ public class BlockExtBlockMapper implements BlockMapper {
             return this.baseMapper.toClientSideState(state, player);
         }
 
-        var parsedState = BlockMapper.createDefault().toClientSideState(state, player);
+        var parsedState = this.baseMapper.toClientSideState(state, player);
         return stateMap.getOrDefault(parsedState, parsedState);
     }
 
