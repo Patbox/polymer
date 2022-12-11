@@ -12,6 +12,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -25,14 +26,17 @@ public class ClientPacketRegistry {
     public static final Object2IntMap<Identifier> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
     public static String lastVersion;
 
-    public static boolean handle(ClientPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
+    public static boolean handle(ClientPlayNetworkHandler handler, CustomPayloadS2CPacket packet) {
         boolean versionRead = false;
         int version = -1;
+
+        var identifier = packet.getChannel();
 
         var packetHandler = PACKETS.get(identifier);
 
 
         if (packetHandler != null) {
+            var buf = packet.getData();
             try {
                 version = buf.readVarInt();
                 versionRead = true;
@@ -43,6 +47,9 @@ public class ClientPacketRegistry {
             } catch (Throwable e) {
                 CommonImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from server!", identifier, versionRead ? version : "Unknown"), e);
             }
+            try {
+                buf.release();
+            } catch (Throwable e) {}
             return true;
         }
 

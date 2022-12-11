@@ -39,13 +39,9 @@ public abstract class ClientPlayNetworkHandlerMixin {
             return;
         }
 
-        var buf = packet.getData();
-
-        if (ClientPacketRegistry.handle((ClientPlayNetworkHandler) (Object) this, packet.getChannel(), buf)) {
+        if (ClientPacketRegistry.handle((ClientPlayNetworkHandler) (Object) this, packet)) {
             ci.cancel();
         }
-
-        buf.release();
     }
 
     @Inject(method = "onKeepAlive", at = @At("HEAD"))

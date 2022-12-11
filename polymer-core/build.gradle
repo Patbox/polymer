@@ -55,7 +55,7 @@ dependencies {
 
     //modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.1.530"
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:9.1.565"
-    modCompileOnly /*modLocalRuntime*/("dev.emi:emi:0.3.3+1.19")
+    modCompileOnly modLocalRuntime("dev.emi:emi:0.5.0+1.19.3")
 
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")

@@ -46,6 +46,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
     private ZipFile clientJar = null;
 
+    private Map<String, JsonArray> atlasDefinitions = new HashMap<>();
 
     public DefaultRPBuilder(Path outputPath) {
         outputPath.getParent().toFile().mkdirs();
@@ -69,6 +70,14 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     @Override
     public boolean addData(String path, byte[] data) {
         try {
+            if (path.endsWith(".json")) {
+                var split = path.split("/");
+
+                if (split.length > 3 && split[0].equals("assets") && split[2].equals("atlases")) {
+                    return this.addAtlasFile(path, data);
+                }
+            }
+
             this.fileMap.put(path, data);
             return true;
         } catch (Exception e) {
@@ -76,6 +85,21 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private boolean addAtlasFile(String path, byte[] data) {
+        try {
+            var decode = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
+
+            if (decode instanceof JsonObject obj) {
+                var list = obj.getAsJsonArray("sources");
+                this.atlasDefinitions.computeIfAbsent(path, (x) -> new JsonArray()).addAll(list);
+                return true;
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -92,7 +116,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var path = relative.toString().replace("\\", "/");
                     if ((override || !fileMap.containsKey(path)) && Files.isRegularFile(file)) {
                         try {
-                            fileMap.put(path, Files.readAllBytes(file));
+                            this.addData(path, Files.readAllBytes(file));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -129,7 +153,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         var path = relative.toString().replace("\\", "/");
                         if (Files.isRegularFile(file)) {
                             try {
-                                fileMap.put("assets/" + path, Files.readAllBytes(file));
+                                this.addData("assets/" + path, Files.readAllBytes(file));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -302,6 +326,13 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         bool = false;
                     }
                 }
+
+                for (var entry : this.atlasDefinitions.entrySet()) {
+                    var obj = new JsonObject();
+                    obj.add("sources", entry.getValue());
+                    this.fileMap.put(entry.getKey(), obj.toString().getBytes(StandardCharsets.UTF_8));
+                }
+
                 if (this.armors.size() > 0) {
                     credits.add("Armor texture support is based on https://github.com/Ancientkingg/fancyPants");
                     credits.add("");
