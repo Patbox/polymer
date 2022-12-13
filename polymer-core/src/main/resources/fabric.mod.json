@@ -61,7 +61,7 @@
     },
     "waila:plugins": {
       "id": "polymer:main",
-      "initializer": "eu.pb4.polymer.impl.client.compat.WthitCompatibility"
+      "initializer": "eu.pb4.polymer.core.impl.client.compat.WthitCompatibility"
     }
   }
 }
