@@ -70,10 +70,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Redirect(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0))
-    private void polymer_replaceOriginalCall(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
-    }
-
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
     private void polymer_updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
 
