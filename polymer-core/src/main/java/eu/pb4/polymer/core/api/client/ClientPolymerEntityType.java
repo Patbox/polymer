@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public record ClientPolymerEntityType (Identifier identifier, Text name, @Nullable EntityType<?> registryEntry) implements ClientPolymerEntry<EntityType<?>> {
+public record ClientPolymerEntityType(Identifier identifier, Text name, @Nullable EntityType<?> registryEntry) implements ClientPolymerEntry<EntityType<?>> {
 
     public ClientPolymerEntityType (Identifier identifier, Text name) {
         this(identifier, name, null);

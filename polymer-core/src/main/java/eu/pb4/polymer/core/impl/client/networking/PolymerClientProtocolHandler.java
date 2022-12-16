@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.client.networking;
 
 import com.mojang.brigadier.StringReader;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.PolymerImpl;
@@ -12,6 +13,7 @@ import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.core.impl.networking.ServerPackets;
 import eu.pb4.polymer.core.impl.networking.packets.*;
 import eu.pb4.polymer.core.impl.other.EventRunners;
+import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import net.fabricmc.api.EnvType;
@@ -21,14 +23,17 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.argument.BlockArgumentParser;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -78,16 +83,15 @@ public class PolymerClientProtocolHandler {
                 }));
         registerPacketHandler(ServerPackets.SYNC_BLOCKSTATE, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
                 (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId())));
+
         registerPacketHandler(ServerPackets.SYNC_ENTITY, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
                 (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registries.ENTITY_TYPE.get(entry.identifier())))));
-        registerPacketHandler(ServerPackets.SYNC_VILLAGER_PROFESSION, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                (entry) -> InternalClientRegistry.VILLAGER_PROFESSIONS.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.VILLAGER_PROFESSION.get(entry.id())))));
-        registerPacketHandler(ServerPackets.SYNC_BLOCK_ENTITY, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                (entry) -> InternalClientRegistry.BLOCK_ENTITY.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.BLOCK_ENTITY_TYPE.get(entry.id())))));
-        registerPacketHandler(ServerPackets.SYNC_STATUS_EFFECT, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                (entry) -> InternalClientRegistry.STATUS_EFFECT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.STATUS_EFFECT.get(entry.id())))));
-        registerPacketHandler(ServerPackets.SYNC_ENCHANTMENT, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
-                (entry) -> InternalClientRegistry.ENCHANTMENT.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), Registries.ENCHANTMENT.get(entry.id())))));
+
+        registerGenericHandler(ServerPackets.SYNC_VILLAGER_PROFESSION, InternalClientRegistry.VILLAGER_PROFESSIONS, Registries.VILLAGER_PROFESSION);
+        registerGenericHandler(ServerPackets.SYNC_BLOCK_ENTITY, InternalClientRegistry.BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
+        registerGenericHandler(ServerPackets.SYNC_STATUS_EFFECT, InternalClientRegistry.STATUS_EFFECT, Registries.STATUS_EFFECT);
+        registerGenericHandler(ServerPackets.SYNC_ENCHANTMENT, InternalClientRegistry.ENCHANTMENT, Registries.ENCHANTMENT);
+        registerGenericHandler(ServerPackets.SYNC_FLUID, InternalClientRegistry.FLUID, Registries.FLUID);
 
         registerPacketHandler(ServerPackets.SYNC_TAGS, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag));
         registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_DEFINE, (handler, version, buf) -> handleItemGroupDefine(handler, version, buf));
@@ -108,6 +112,11 @@ public class PolymerClientProtocolHandler {
         });
     }
 
+    private static <T> void registerGenericHandler(Identifier identifier, ImplPolymerRegistry<ClientPolymerEntry<T>> polymerRegistry, Registry<T> registry) {
+        registerPacketHandler(identifier, (handler, version, buf) -> handleGenericSync(handler, version, buf, IdValueEntry::read,
+                (entry) -> polymerRegistry.set(entry.id(), entry.rawId(), ClientPolymerEntry.of(entry.id(), registry.get(entry.id())))));
+    }
+
     private static void registerTag(PolymerTagEntry tagEntry) {
         var reg = InternalClientRegistry.BY_VANILLA_ID.get(tagEntry.registry());
         if (reg != null) {
@@ -118,7 +127,7 @@ public class PolymerClientProtocolHandler {
     }
 
     private static void handleDebugValidateStates(DebugBlockStateEntry entry) {
-        if (PolymerImpl.DEVELOPER_MODE) {
+        if (CommonImpl.DEVELOPER_MODE) {
             var chat = MinecraftClient.getInstance().inGameHud.getChatHud();
 
             var state = Block.STATE_IDS.get(entry.numId());
@@ -388,11 +397,9 @@ public class PolymerClientProtocolHandler {
             }
         }
 
-        MinecraftClient.getInstance().execute(() -> {
-            for (var entry : list) {
-                entryConsumer.accept(entry);
-            }
-        });
+        for (var entry : list) {
+            entryConsumer.accept(entry);
+        }
         return true;
     }
 

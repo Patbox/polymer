@@ -39,12 +39,6 @@ public class EntityStatusEffectS2CPacketMixin implements StatusEffectPacketExten
         return object;
     }
 
-    @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;"))
-    private Object polymer$remapEffect(PacketByteBuf instance, IndexedIterable<?> registry) {
-        return InternalClientRegistry.decodeStatusEffect(instance.readVarInt());
-    }
-
     @Override
     public StatusEffect polymer$getStatusEffect() {
         return this.effectId;

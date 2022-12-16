@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,6 +13,9 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class TestItem extends SimplePolymerItem {
     private Random random = Random.create();
@@ -29,6 +33,16 @@ public class TestItem extends SimplePolymerItem {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         user.sendMessage(Text.literal("Use!" + hand), false);
         return super.use(world, user, hand);
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
+        var builder = new StringBuilder();
+        for (int i = 0; i < 255; i++) {
+            builder.append("I");
+        }
+        tooltip.add(Text.literal(builder.toString()));
     }
 
     @Override

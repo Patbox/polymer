@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "polymer-registry-sync-manipulator",
   "version": "${version}",
-  "name": "Polymer Registry Sync Manipulator",
+  "name": "Polymer (Registry Sync Manipulator)",
   "description": "Library for removing entries from registry sync!",
   "authors": [
     "Patbox"
@@ -16,13 +16,9 @@
   "license": "MIT",
   "icon": "assets/icon.png",
   "environment": "*",
-  "entrypoints": {
-    "preLaunch": ["eu.pb4.polymer.rsm.impl.InitCheck::check"]
-  },
   "mixins": [
     "polymer-rsm.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.14.0"
   },

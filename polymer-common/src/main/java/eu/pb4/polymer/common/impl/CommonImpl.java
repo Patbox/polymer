@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.metadata.CustomValue;
+import net.fabricmc.loader.api.metadata.Person;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class CommonImpl {
@@ -33,8 +34,7 @@ public final class CommonImpl {
     public static final boolean IS_CLIENT = LOADER.getEnvironmentType() == EnvType.CLIENT;
 
     private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer-common").get();
-    public static final String MOD_ID = CONTAINER.getMetadata().getId();
-    public static final String[] CONTRIBUTORS;
+    public static final List<String> CONTRIBUTORS = new ArrayList<>();
     public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString().split("\\+")[0];
     public static final String GITHUB_URL = CONTAINER.getMetadata().getContact().get("sources").orElse("https://pb4.eu");
 
@@ -45,6 +45,12 @@ public final class CommonImpl {
         return DISABLED_MIXINS.get(source + ":" + mixin);
     }
 
+    public static void addContributor(Person person) {
+        if (!CONTRIBUTORS.contains(person.getName())) {
+            CONTRIBUTORS.add(person.getName());
+        }
+    }
+
     static {
         new CompatStatus();
 
@@ -52,15 +58,8 @@ public final class CommonImpl {
         CORE_COMMAND_MINIMAL_OP = config.coreCommandOperatorLevel;
         DEVELOPER_MODE = config.enableDevTools || DEV_ENV;
 
-        var list = new ArrayList<String>();
-        for (var person : CONTAINER.getMetadata().getAuthors()) {
-            list.add(person.getName());
-        }
-        for (var person : CONTAINER.getMetadata().getContributors()) {
-            list.add(person.getName());
-        }
-
-        CONTRIBUTORS = list.toArray(new String[0]);
+        CONTAINER.getMetadata().getAuthors().forEach(CommonImpl::addContributor);
+        CONTAINER.getMetadata().getContributors().forEach(CommonImpl::addContributor);
 
         if (configDir().resolve("mixins.json").toFile().isFile()) {
             for (var mixin : loadConfig("mixins", MixinOverrideConfig.class).disabledMixins) {
@@ -159,20 +158,13 @@ public final class CommonImpl {
 
 
     public static Path getJarPath(String path) {
-        return FabricLoader.getInstance().getModContainer(MOD_ID).get().getPath(path);
+        return CONTAINER.getPath(path);
     }
 
     public static Path getGameDir() {
         return LOADER.getGameDir();
     }
 
-    public static boolean isOlderThan(String version) {
-        try {
-            return CONTAINER.getMetadata().getVersion().compareTo(Version.parse(version)) < 0;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     public static boolean shouldApplyMixin(String source, String mixinClassName) {
         return shouldApplyMixin(source, mixinClassName, false);

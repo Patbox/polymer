@@ -68,12 +68,6 @@ public class EntitySpawnS2CPacketMixin {
         }
     }
 
-    @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;"))
-    private Object polymer$replaceWithPolymer(PacketByteBuf instance, IndexedIterable<?> registry) {
-        return InternalClientRegistry.decodeEntity(instance.readVarInt());
-    }
-
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
         if (this.entityType == EntityType.FALLING_BLOCK) {

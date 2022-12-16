@@ -21,11 +21,4 @@ public class TrackedDataHandlerRegistryVillagerDataMixin {
         var polymerProf = PolymerEntityUtils.getPolymerProfession(profession);
         return polymerProf != null ? polymerProf.getPolymerProfession(profession, PolymerUtils.getPlayerContext()) : profession;
     }
-
-
-    @Environment(EnvType.CLIENT)
-    @Redirect(method = "read(Lnet/minecraft/network/PacketByteBuf;)Lnet/minecraft/village/VillagerData;", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;)Ljava/lang/Object;", ordinal = 1))
-    private Object polymer_replaceWithPolymer(PacketByteBuf instance, IndexedIterable<?> registry) {
-        return InternalClientRegistry.decodeVillagerProfession(instance.readVarInt());
-    }
 }

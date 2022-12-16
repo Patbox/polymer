@@ -15,6 +15,10 @@ archivesBaseName = "polymer-bundled"
 version = project.mod_version + "+" + project.minecraft_version
 group = project.maven_group
 
+var field = com.google.gson.Gson.class.getDeclaredField("prettyPrinting");
+field.setAccessible(true);
+field.setBoolean(net.fabricmc.loom.LoomGradlePlugin.GSON, false);
+
 
 System.out.println(isStable ? "release" : "beta")
 
@@ -183,12 +187,37 @@ if (System.getenv("MODRINTH")) {
 }
 
 
+
 // configure the maven publication
 
 allprojects {
     apply plugin: 'maven-publish'
 
-    afterEvaluate {
+    processResources {
+        doLast {
+            fileTree(dir: outputs.files.asPath, include: "**/*.json").each {
+                File file -> file.text = com.google.gson.JsonParser.parseString(file.text).toString()
+            }
+        }
+    }
+
+    classes {
+        doLast {
+            fileTree(dir: project.sourceSets.main.output.classesDirs.asPath, include: "**/*.json").each {
+                File file -> file.text = com.google.gson.JsonParser.parseString(file.text).toString()
+            }
+        }
+    }
+
+    remapJar {
+        doLast {
+            fileTree(dir: outputs.files.asPath, include: "**/*.json").each {
+                File file -> file.text = com.google.gson.JsonParser.parseString(file.text).toString()
+            }
+        }
+    }
+
+        afterEvaluate {
         if (project.version != "0.0.0-alpha.0") {
             publishing {
                 publications {

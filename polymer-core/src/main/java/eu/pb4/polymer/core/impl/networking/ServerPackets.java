@@ -9,13 +9,13 @@ import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
 
 @ApiStatus.Internal
 public class ServerPackets {
-    public static final Identifier DISABLE= id("disable");
     public static final Identifier SYNC_STARTED = id("sync/started");
-    public static final Identifier SYNC_INFO= id("sync/info");
+    public static final Identifier SYNC_INFO = id("sync/info");
     public static final Identifier SYNC_FINISHED= id("sync/finished");
     public static final Identifier SYNC_BLOCK= id("sync/blocks");
     public static final Identifier SYNC_BLOCK_ENTITY= id("sync/block_entities");
     public static final Identifier SYNC_ITEM= id("sync/items");
+    public static final Identifier SYNC_FLUID = id("sync/fluid");
     public static final Identifier SYNC_ENCHANTMENT= id("sync/enchantments");
     public static final Identifier SYNC_ENTITY= id("sync/entities");
     public static final Identifier SYNC_STATUS_EFFECT= id("sync/status_effect");
@@ -40,7 +40,6 @@ public class ServerPackets {
 
 
     static {
-        register(DISABLE, 0);
         register(SYNC_STARTED, 0);
         register(SYNC_INFO, 0);
         register(SYNC_FINISHED, 0);
@@ -48,6 +47,7 @@ public class ServerPackets {
         register(SYNC_BLOCK_ENTITY, 0);
         register(SYNC_BLOCKSTATE, 1);
         register(SYNC_ITEM, 4);
+        register(SYNC_FLUID, 1);
         register(SYNC_ENCHANTMENT, 0);
         register(SYNC_VILLAGER_PROFESSION, 0);
         register(SYNC_ITEM_GROUP_DEFINE, 1);

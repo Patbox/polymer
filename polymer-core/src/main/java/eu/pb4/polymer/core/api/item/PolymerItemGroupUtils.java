@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.api.item;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.core.api.utils.PolymerRegistry;
 import eu.pb4.polymer.core.impl.InternalServerRegistry;
 import eu.pb4.polymer.core.impl.interfaces.ItemGroupExtra;
 import net.minecraft.item.ItemGroup;
@@ -18,6 +19,8 @@ import java.util.*;
  * It also has it's own server side functionality
  */
 public final class PolymerItemGroupUtils {
+    public static final PolymerRegistry<ItemGroup> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
+
     private static final Map<Identifier, ItemGroup> GROUP_ID = new HashMap<>();
 
     private PolymerItemGroupUtils() {}

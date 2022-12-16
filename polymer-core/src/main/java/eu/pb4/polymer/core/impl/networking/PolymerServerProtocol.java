@@ -18,6 +18,7 @@ import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemGroup;
@@ -125,12 +126,12 @@ public class PolymerServerProtocol {
         PolymerSyncUtils.ON_SYNC_STARTED.invoke((c) -> c.accept(handler));
 
         version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_CLEAR);
-        if (version == 0) {
+        if (version != -1) {
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_CLEAR, buf(version)));
         }
 
         version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_INFO);
-        if (version == 0) {
+        if (version != -1) {
             var buf = buf(version);
 
             buf.writeVarInt(PolymerImplUtils.getBlockStateOffset());
@@ -166,14 +167,10 @@ public class PolymerServerProtocol {
         PolymerSyncUtils.AFTER_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
-        sendSync(handler, ServerPackets.SYNC_VILLAGER_PROFESSION, RegistryExtension.getPolymerEntries(Registries.VILLAGER_PROFESSION), false,
-                entry -> new IdValueEntry(Registries.VILLAGER_PROFESSION.getRawId(entry), Registries.VILLAGER_PROFESSION.getId(entry)));
-
-        sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT, RegistryExtension.getPolymerEntries(Registries.STATUS_EFFECT), false,
-                entry -> new IdValueEntry(Registries.STATUS_EFFECT.getRawId(entry), Registries.STATUS_EFFECT.getId(entry)));
-
-        sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY, RegistryExtension.getPolymerEntries(Registries.BLOCK_ENTITY_TYPE), false,
-                type -> new IdValueEntry(Registries.BLOCK_ENTITY_TYPE.getRawId(type), Registries.BLOCK_ENTITY_TYPE.getId(type)));
+        sendSync(handler, ServerPackets.SYNC_VILLAGER_PROFESSION, Registries.BLOCK_ENTITY_TYPE);
+        sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT, Registries.BLOCK_ENTITY_TYPE);
+        sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
+        sendSync(handler, ServerPackets.SYNC_FLUID, Registries.FLUID);
 
         if (fullSync) {
             sendSync(handler, ServerPackets.SYNC_TAGS, (Registry<Registry<Object>>) Registries.REGISTRIES, true, PolymerTagEntry::of);
@@ -191,8 +188,12 @@ public class PolymerServerProtocol {
         }
     }
 
+    private static void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Registry registry) {
+        sendSync(handler, packetId, RegistryExtension.getPolymerEntries(registry), false,
+                type -> new IdValueEntry(registry.getRawId(type), registry.getId(type)));
+    }
+
     public static void sendCreativeSyncPackets(ServerPlayNetworkHandler handler) {
-        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_DEFINE);
 
         if (version != -1) {
@@ -270,7 +271,7 @@ public class PolymerServerProtocol {
     public static void sendEntityInfo(ServerPlayNetworkHandler player, int id, EntityType<?> type) {
         var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_ENTITY);
 
-        if (version == 0) {
+        if (version != -1) {
             var buf = buf(0);
             buf.writeVarInt(id);
             buf.writeIdentifier(Registries.ENTITY_TYPE.getId(type));

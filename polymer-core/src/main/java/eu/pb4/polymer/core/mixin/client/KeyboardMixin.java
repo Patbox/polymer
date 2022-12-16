@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.client;
 
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
@@ -37,7 +38,7 @@ public abstract class KeyboardMixin {
 
     @Inject(method = "processF3", at = @At("TAIL"), cancellable = true)
     private void polymer_processF3(int key, CallbackInfoReturnable<Boolean> cir) {
-        if (key == GLFW.GLFW_KEY_0 && PolymerImpl.DEVELOPER_MODE) {
+        if (key == GLFW.GLFW_KEY_0 && CommonImpl.DEVELOPER_MODE) {
             PolymerImplUtils.dumpRegistry();
             this.debugLog("Dumped Polymer Client registry!");
             cir.setReturnValue(true);

@@ -75,19 +75,16 @@ public abstract class ServerPlayNetworkHandlerMixin {
     private void polymer_updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
 
         if (PolymerImpl.RESEND_BLOCKS_AROUND_CLICK) {
-            var og = packet.getBlockHitResult().getBlockPos();
             var base = packet.getBlockHitResult().getBlockPos();
             for (Direction direction : Direction.values()) {
                 var pos = base.offset(direction);
-                if (!og.equals(pos)) {
-                    var state = player.world.getBlockState(pos);
-                    player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
+                var state = player.world.getBlockState(pos);
+                player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
 
-                    if (state.hasBlockEntity()) {
-                        var be = player.getWorld().getBlockEntity(pos);
-                        if (be != null) {
-                            player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
-                        }
+                if (state.hasBlockEntity()) {
+                    var be = player.getWorld().getBlockEntity(pos);
+                    if (be != null) {
+                        player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
                     }
                 }
             }
