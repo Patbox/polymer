@@ -2,9 +2,12 @@ package eu.pb4.polymer.core.impl.ui;
 
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemStackSet;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.collection.DefaultedList;
 
 public class CreativeTabUi extends MicroUi {
@@ -19,8 +22,16 @@ public class CreativeTabUi extends MicroUi {
         this.title(itemGroup.getDisplayName());
         this.itemGroup = itemGroup;
         this.items = DefaultedList.of();
-        var content = PolymerItemGroupUtils.getContentsFor(player, itemGroup);
-        this.items.addAll(content.main());
+        if (itemGroup == ItemGroups.getSearchGroup()) {
+            var set = ItemStackSet.create();
+
+            for (var group : PolymerItemGroupUtils.getItemGroups(player)) {
+                set.addAll(PolymerItemGroupUtils.getContentsFor(player, group).search());
+            }
+            this.items.addAll(set);
+        } else {
+            this.items.addAll(PolymerItemGroupUtils.getContentsFor(player, itemGroup).main());
+        }
         this.page = 0;
         this.drawUi();
 
@@ -50,13 +61,17 @@ public class CreativeTabUi extends MicroUi {
         } else {
             this.slot(ITEMS_PER_PAGE + 1, MicroUiElements.BUTTON_PREVIOUS, (player, slotIndex, button, actionType) -> {
                 CreativeTabUi.this.page--;
+                playSound(player, SoundEvents.UI_BUTTON_CLICK);
                 this.drawUi();
             });
         }
 
         this.slot(ITEMS_PER_PAGE + 2, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 3, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
-        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_BACK, (player, slotIndex, button, actionType) -> new CreativeTabListUi(player));
+        this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_BACK, (player, slotIndex, button, actionType) -> {
+            playSound(player, SoundEvents.UI_BUTTON_CLICK);
+            new CreativeTabListUi(player);
+        });
         this.slot(ITEMS_PER_PAGE + 5, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 6, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         if (this.page >= this.items.size() / ITEMS_PER_PAGE) {
@@ -64,6 +79,7 @@ public class CreativeTabUi extends MicroUi {
         } else {
             this.slot(ITEMS_PER_PAGE + 7, MicroUiElements.BUTTON_NEXT, (player, slotIndex, button, actionType) -> {
                 CreativeTabUi.this.page++;
+                playSound(player, SoundEvents.UI_BUTTON_CLICK);
                 this.drawUi();
             });
         }

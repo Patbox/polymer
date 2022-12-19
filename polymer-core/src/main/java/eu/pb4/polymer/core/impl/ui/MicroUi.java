@@ -5,12 +5,15 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,14 +27,12 @@ import org.jetbrains.annotations.Nullable;
  */
 public class MicroUi {
     private final UiElement[] elements;
-    private final int lines;
     private Text title = Text.empty();
     private final ScreenHandlerType<?> type;
     protected final int size;
 
     public MicroUi(int lines) {
         this.size = lines * 9;
-        this.lines = lines;
         this.type = switch (lines) {
             case 1 -> ScreenHandlerType.GENERIC_9X1;
             case 2 -> ScreenHandlerType.GENERIC_9X2;
@@ -79,6 +80,13 @@ public class MicroUi {
             this.elements[i] = null;
         }
         return this;
+    }
+
+    public static void playSound(ServerPlayerEntity player, RegistryEntry<SoundEvent> soundEvent) {
+        playSound(player, soundEvent.value());
+    }
+    public static void playSound(ServerPlayerEntity player, SoundEvent soundEvent) {
+        player.playSound(soundEvent, SoundCategory.MASTER, 0.2f, 1);
     }
 
     @FunctionalInterface

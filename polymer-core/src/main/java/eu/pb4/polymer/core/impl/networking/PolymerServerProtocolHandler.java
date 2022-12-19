@@ -30,6 +30,8 @@ public class PolymerServerProtocolHandler {
         PolymerServerNetworking.registerPacketHandler(ClientPackets.CHANGE_TOOLTIP , PolymerServerProtocolHandler::handleTooltipChange, 0);
 
         PolymerServerNetworking.AFTER_HANDSHAKE_APPLY.register((handler, x) -> PolymerServerProtocol.sendSyncPackets(handler, false));
+
+        ServerPackets.SYNC_ENCHANTMENT.getNamespace();
     }
 
     private static void handleTooltipChange(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {

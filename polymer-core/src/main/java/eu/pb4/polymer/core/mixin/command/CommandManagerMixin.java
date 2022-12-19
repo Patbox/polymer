@@ -17,7 +17,7 @@ public abstract class CommandManagerMixin {
     @Inject(method = "argument", at = @At("TAIL"), cancellable = true)
     private static void polymer$handleSuggestions(String name, ArgumentType<?> type, CallbackInfoReturnable<RequiredArgumentBuilder<ServerCommandSource, ?>> cir) {
         if (type instanceof ItemStackArgumentType || type instanceof BlockStateArgumentType || type instanceof RegistryEntryArgumentType<?>) {
-            cir.setReturnValue(cir.getReturnValue().suggests(type::listSuggestions));
+            cir.getReturnValue().suggests(type::listSuggestions);
         }
     }
 }

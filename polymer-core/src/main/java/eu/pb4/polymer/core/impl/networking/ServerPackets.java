@@ -38,7 +38,6 @@ public class ServerPackets {
         PolymerServerNetworking.registerSendPacket(id, ver);
     }
 
-
     static {
         register(SYNC_STARTED, 0);
         register(SYNC_INFO, 0);

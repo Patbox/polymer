@@ -56,13 +56,9 @@ public class PolymerClientProtocolHandler {
         registerPacketHandler(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, PolymerClientProtocolHandler::handleWorldSectionUpdate);
         registerPacketHandler(ServerPackets.WORLD_ENTITY, PolymerClientProtocolHandler::handleEntity);
 
-        registerPacketHandler(ServerPackets.SYNC_STARTED, (handler, version, buf) -> run(handler, () -> {
-            PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
-        }));
+        registerPacketHandler(ServerPackets.SYNC_STARTED, (handler, version, buf) -> PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN));
         registerPacketHandler(ServerPackets.SYNC_INFO, PolymerClientProtocolHandler::handleSyncInfo);
-        registerPacketHandler(ServerPackets.SYNC_FINISHED, (handler, version, buf) -> run(handler, () -> {
-            PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
-        }));
+        registerPacketHandler(ServerPackets.SYNC_FINISHED, (handler, version, buf) -> PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN));
         registerPacketHandler(ServerPackets.SYNC_BLOCK, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerBlockEntry::read,
                 (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registries.BLOCK.get(entry.identifier())))));
         registerPacketHandler(ServerPackets.SYNC_ITEM, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerItemEntry::read,
@@ -99,7 +95,7 @@ public class PolymerClientProtocolHandler {
         registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, (handler, version, buf) -> handleItemGroupContentsClear(handler, version, buf));
         registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_REMOVE, (handler, version, buf) -> handleItemGroupRemove(handler, version, buf));
         registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, (handler, version, buf) -> handleItemGroupApplyUpdates(handler, version, buf));
-        registerPacketHandler(ServerPackets.SYNC_CLEAR, (handler, version, buf) -> run(handler, InternalClientRegistry::clear));
+        registerPacketHandler(ServerPackets.SYNC_CLEAR, (handler, version, buf) -> InternalClientRegistry.clear());
         registerPacketHandler(ServerPackets.DEBUG_VALIDATE_STATES, (handler, version, buf) -> handleGenericSync(handler, version, buf, DebugBlockStateEntry::read, PolymerClientProtocolHandler::handleDebugValidateStates));
 
 
@@ -177,11 +173,6 @@ public class PolymerClientProtocolHandler {
         }
 
         return null;
-    }
-
-    private static boolean run(ClientPlayNetworkHandler handler, Runnable runnable) {
-        MinecraftClient.getInstance().execute(runnable);
-        return true;
     }
 
     private static boolean handleItemGroupApplyUpdates(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {

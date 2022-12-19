@@ -24,6 +24,7 @@
     "block.packet.WorldEventS2CPacketMixin",
     "block.storage.ChunkSectionMixin",
     "block.storage.WorldChunkMixin",
+    "command.ArgumentNodeMixin",
     "command.CommandManagerMixin",
     "compat.lithium_BlockPaletteMixin",
     "compat.fabric.fabricSync_StateIdTrackerMixin",

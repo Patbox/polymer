@@ -17,6 +17,7 @@ import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.core.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.core.impl.ui.PotionUi;
+import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -115,15 +116,15 @@ public class Commands {
                             PolymerSyncUtils.synchronizePolymerRegistries(ctx.getSource().getPlayer().networkHandler);
                             return 0;
                         }))
-                /*.then(literal("protocol-info")
+                .then(literal("protocol-info")
                         .executes((ctx) -> {
                             ctx.getSource().sendFeedback(Text.literal("Protocol supported by your client:"), false);
-                            for (var entry : PolymerNetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer$getSupportMap().object2IntEntrySet()) {
+                            for (var entry : NetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer$getSupportMap().object2IntEntrySet()) {
                                 ctx.getSource().sendFeedback(Text.literal("- " + entry.getKey() + " = " + entry.getIntValue()), false);
                             }
                             return 0;
                         })
-                )*/
+                )
                 .then(literal("validate_states")
                         .executes((ctx) -> {
                             PolymerServerProtocol.sendDebugValidateStatesPackets(ctx.getSource().getPlayer().networkHandler);
