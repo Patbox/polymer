@@ -16,8 +16,6 @@ import java.util.Map;
 
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
-    @Shadow private Map<EntityType<?>, EntityRenderer<?>> renderers;
-
     @Inject(method = "getRenderer", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceEntityRenderer(Entity entity, CallbackInfoReturnable<EntityRenderer<?>> cir) {
         if (PolymerKeepModel.useServerModel(entity)) {

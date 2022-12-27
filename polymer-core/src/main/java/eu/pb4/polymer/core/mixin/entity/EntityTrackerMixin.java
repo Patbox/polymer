@@ -22,7 +22,7 @@ public abstract class EntityTrackerMixin {
     @Shadow @Final private Set<EntityTrackingListener> listeners;
 
     @Redirect(method = "<init>", at = @At(value = "NEW", target = "net/minecraft/server/network/EntityTrackerEntry"))
-    private EntityTrackerEntry polymer_replaceReceiver(ServerWorld world, Entity entity, int tickInterval, boolean alwaysUpdateVelocity, Consumer<Packet<?>> receiver) {
+    private EntityTrackerEntry polymer$replaceReceiver(ServerWorld world, Entity entity, int tickInterval, boolean alwaysUpdateVelocity, Consumer<Packet<?>> receiver) {
         return new EntityTrackerEntry(world, entity, tickInterval, alwaysUpdateVelocity, MetaConsumer.sendToOtherPlayers((ThreadedAnvilChunkStorage.EntityTracker) (Object) this, this.listeners, entity));
     }
 }

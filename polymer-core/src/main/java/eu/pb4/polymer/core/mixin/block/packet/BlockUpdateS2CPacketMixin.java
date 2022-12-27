@@ -19,7 +19,7 @@ public class BlockUpdateS2CPacketMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getState", at = @At("HEAD"), cancellable = true)
-    public void polymer_replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
+    public void polymer$replaceWithVirtualState(CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(PolymerBlockUtils.getPolymerBlockState(this.state, PolymerUtils.getPlayerContext()));
     }
 }

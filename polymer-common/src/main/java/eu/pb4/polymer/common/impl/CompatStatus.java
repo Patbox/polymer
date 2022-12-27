@@ -10,7 +10,11 @@ public final class CompatStatus {
     public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
     public static final boolean POLYMER_CORE = LOADER.isModLoaded("polymer-core");
     public static final boolean POLYMER_AUTOHOST = LOADER.isModLoaded("polymer-autohost");
-    public static final boolean POLYMER_RESOURCE_PACKS = LOADER.isModLoaded("polymer-resource-packs");
+
+
+    public static final boolean POLYMER_RESOURCE_PACK = LOADER.isModLoaded("polymer-resource-pack");
+    @Deprecated
+    public static final boolean POLYMER_RESOURCE_PACKS = POLYMER_RESOURCE_PACK;
 
     public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");
     public static final boolean FABRIC_FLUID_RENDERERING = LOADER.isModLoaded("fabric-rendering-fluids-v1");

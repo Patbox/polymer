@@ -30,10 +30,6 @@ public abstract class BlockPaletteMixin {
     @Environment(EnvType.CLIENT)
     @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getOrThrow(I)Ljava/lang/Object;"))
     private Object polymer_replaceState(IndexedIterable<?> instance, int i) {
-        if (instance == Block.STATE_IDS) {
-            return InternalClientRegistry.decodeState(i);
-        }
-
-        return instance.getOrThrow(i);
+        return InternalClientRegistry.decodeRegistry(instance, i);
     }
 }

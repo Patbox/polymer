@@ -104,7 +104,7 @@ public final class ResourcePackCreator {
             return this.armorModelMap.get(modelPath);
         } else {
             this.armorColor++;
-            int color = 0xFFFFFF - armorColor * 2;
+            int color = 0xFFFFFF - armorColor * 2 + 1;
             var model = new PolymerArmorModelImpl(color, modelPath);
 
             this.armorModelMap.put(modelPath, model);

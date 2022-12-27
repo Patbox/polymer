@@ -36,7 +36,11 @@ public abstract class EntityTrackerEntryMixin {
 
     @ModifyVariable(method = "sendPackets", at = @At("HEAD"))
     private Consumer<Packet<?>> polymer$packetWrap(Consumer<Packet<?>> packetConsumer) {
-        return (packet) -> packetConsumer.accept(EntityAttachedPacket.setIfEmpty(packet, this.entity));
+        if (this.entity instanceof PolymerEntity polymerEntity) {
+            return (packet) -> polymerEntity.onEntityPacketSent(packetConsumer, EntityAttachedPacket.setIfEmpty(packet, this.entity));
+        } else {
+            return (packet) -> packetConsumer.accept(EntityAttachedPacket.setIfEmpty(packet, this.entity));
+        }
     }
 
     @ModifyArg(method = "sendPackets", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V", ordinal = 1))
@@ -55,8 +59,6 @@ public abstract class EntityTrackerEntryMixin {
             }
         }
     }
-
-
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymer$sendEntityInfo(ServerPlayerEntity player, CallbackInfo ci) {

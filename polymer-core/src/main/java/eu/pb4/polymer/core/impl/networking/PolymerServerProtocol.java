@@ -18,7 +18,6 @@ import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemGroup;
@@ -158,7 +157,7 @@ public class PolymerServerProtocol {
         PolymerSyncUtils.AFTER_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE, ((PolymerIdList) Block.STATE_IDS).polymer$getPolymerStates(), false, PolymerBlockStateEntry::of);
+        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE, ((PolymerIdList) Block.STATE_IDS).polymer$getPolymerEntries(), false, PolymerBlockStateEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 

@@ -1,12 +1,9 @@
 package eu.pb4.polymer.core.mixin.other;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.collection.IdList;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
@@ -16,38 +13,60 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 
 @Mixin(IdList.class)
-public abstract class IdListMixin<T> implements PolymerIdList {
-    @Shadow @Mutable private List<T> list;
-    @Shadow private int nextId;
-    @Shadow @Final private Object2IntMap<Object> idMap;
+public abstract class IdListMixin<T> implements PolymerIdList<T> {
+    @Shadow
+    @Mutable
+    private List<T> list;
+    @Shadow
+    private int nextId;
+    @Shadow
+    @Final
+    private Object2IntMap<Object> idMap;
 
-    @Shadow public abstract void add(T value);
+    @Shadow
+    public abstract void add(T value);
 
-    @Unique private List<Object> polymer$lazyList = new ArrayList<>();
-    @Unique private HashSet<BlockState> polymer$states = new HashSet<>();
-    @Unique private boolean polymer$isPolymerAware;
-    @Unique private boolean polymer$locked = true;
-    @Unique private int polymer$offset = Integer.MAX_VALUE;
-    @Unique private boolean polymer$hasPolymer = false;
-    @Unique private boolean polymer$initializeLazy = true;
-    @Unique private boolean polymer$reorderLock = false;
+    @Unique
+    private final List<T> polymer$lazyList = new ArrayList<>();
+    @Unique
+    private final HashSet<T> polymer$states = new HashSet<>();
+    @Unique
+    private boolean polymer$locked = true;
+    @Unique
+    private int polymer$offset = Integer.MAX_VALUE;
+    @Unique
+    private boolean polymer$hasPolymer = false;
+    @Unique
+    private boolean polymer$initializeLazy = true;
+    @Unique
+    private boolean polymer$reorderLock = false;
+    @Unique
+    private Predicate<T> polymer$checker;
+    @Unique
+    private boolean polymer$isPolymerAware;
+    @Unique
+    private Function<T, String> polymer$namer;
 
     @Inject(method = "add", at = @At("HEAD"), cancellable = true)
     private void polymer$moveToEnd(T value, CallbackInfo ci) {
-        if (this.polymer$isPolymerAware && value instanceof BlockState blockState) {
+        if (this.polymer$isPolymerAware) {
             if (this.idMap.containsKey(value)) {
                 ci.cancel();
                 return;
             }
 
-            if (blockState.getBlock() instanceof PolymerBlock) {
-                this.polymer$states.add(blockState);
+            var isPolymerObj = this.polymer$checker.test(value);
+
+            if (isPolymerObj) {
+                this.polymer$states.add(value);
 
                 if (this.polymer$locked) {
-                    this.polymer$lazyList.add(blockState);
+                    this.polymer$lazyList.add(value);
                     ci.cancel();
                     return;
                 } else {
@@ -56,15 +75,14 @@ public abstract class IdListMixin<T> implements PolymerIdList {
                 }
             }
 
-            if (this.polymer$hasPolymer && !(blockState.getBlock() instanceof PolymerBlock) && this.polymer$offset <= this.nextId) {
+            if (this.polymer$hasPolymer && !isPolymerObj && this.polymer$offset <= this.nextId) {
                 if (this.polymer$reorderLock) {
-                    PolymerImpl.LOGGER.warn("Someone registered BlockStates while StateList is locked! Related block: " + Registries.BLOCK.getId(blockState.getBlock()));
+                    PolymerImpl.LOGGER.warn("Someone registered object while IdList is locked! Related: " + this.polymer$namer.apply(value));
                 } else {
-
                     if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {
                         var trace = Thread.currentThread().getStackTrace();
                         if (PolymerImplUtils.shouldLogStateRebuild(trace)) {
-                            PolymerImpl.LOGGER.warn("Rebuilding BlockStates! Someone accessed BlockStates ids too early...");
+                            PolymerImpl.LOGGER.warn("Rebuilding IdList! Someone accessed it too early...");
                             var builder = new StringBuilder();
                             var line = 0;
                             for (var stackTrace : Thread.currentThread().getStackTrace()) {
@@ -93,7 +111,7 @@ public abstract class IdListMixin<T> implements PolymerIdList {
     }
 
     @Override
-    public Collection<BlockState> polymer$getPolymerStates() {
+    public Collection<T> polymer$getPolymerEntries() {
         return this.polymer$states;
     }
 
@@ -125,14 +143,16 @@ public abstract class IdListMixin<T> implements PolymerIdList {
 
             this.polymer$offset = this.nextId;
             this.polymer$locked = false;
-            ((List<T>) this.polymer$lazyList).forEach(this::add);
+            this.polymer$lazyList.forEach(this::add);
             this.polymer$lazyList.clear();
         }
     }
 
     @Override
-    public void polymer$enableLazyBlockStates() {
-        this.polymer$isPolymerAware = true;
+    public void polymer$setChecker(Predicate<T> function, Function<T, String> namer) {
+        this.polymer$checker = function;
+        this.polymer$isPolymerAware = function != null;
+        this.polymer$namer = namer;
     }
 
     @Override

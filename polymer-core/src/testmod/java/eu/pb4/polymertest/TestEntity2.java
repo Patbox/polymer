@@ -6,9 +6,11 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.Packet;
@@ -16,6 +18,8 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
@@ -44,6 +48,21 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
     @Override
     public Packet<ClientPlayPacketListener> createSpawnPacket() {
         return PolymerEntityUtils.createPlayerSpawnPacket(this);
+    }
+
+    @Override
+    protected ActionResult interactMob(PlayerEntity player, Hand hand) {
+        if (player.getStackInHand(hand).isOf(Items.STICK)) {
+            this.setPose(EntityPose.SWIMMING);
+        } else if (player.getStackInHand(hand).isOf(Items.BLAZE_POWDER)) {
+            this.setPose(EntityPose.CROUCHING);
+        } else if (player.getStackInHand(hand).isOf(Items.TRIDENT)) {
+            this.setPose(EntityPose.SPIN_ATTACK);
+        } else if (player.getStackInHand(hand).isOf(Items.BLAZE_ROD)) {
+            this.setPose(EntityPose.SITTING);
+        }
+
+        return super.interactMob(player, hand);
     }
 
     @Override

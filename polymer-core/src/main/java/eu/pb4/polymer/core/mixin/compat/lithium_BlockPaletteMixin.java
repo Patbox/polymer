@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.compat;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.core.impl.interfaces.IndexedNetwork;
 import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -19,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(value = LithiumHashPalette.class, priority = 500)
 public class lithium_BlockPaletteMixin {
     @ModifyArg(method = {"writePacket", "getPacketSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
-    public Object polymer_getIdRedirect(Object object) {
+    public Object polymer$getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
             return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerUtils.getPlayerContext());
         }
@@ -28,11 +29,7 @@ public class lithium_BlockPaletteMixin {
 
     @Environment(EnvType.CLIENT)
     @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;get(I)Ljava/lang/Object;"), require = 0)
-    private Object polymer_replaceState(IndexedIterable<?> instance, int index) {
-        if (instance == Block.STATE_IDS) {
-            return InternalClientRegistry.decodeState(index);
-        }
-
-        return instance.get(index);
+    private Object polymer$replaceState(IndexedIterable<?> instance, int index) {
+        return InternalClientRegistry.decodeRegistry(instance, index);
     }
 }

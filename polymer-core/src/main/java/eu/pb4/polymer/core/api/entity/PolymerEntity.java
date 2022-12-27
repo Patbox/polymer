@@ -50,6 +50,10 @@ public interface PolymerEntity extends PolymerObject {
 
     }
 
+    default void onEntityPacketSent(Consumer<Packet<?>> consumer, Packet<?> packet) {
+        consumer.accept(packet);
+    }
+
     /**
      * This method allows to modify position of entity on client
      * @param vec3d Real position

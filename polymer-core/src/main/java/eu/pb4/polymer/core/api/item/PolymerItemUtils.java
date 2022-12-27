@@ -221,8 +221,8 @@ public final class PolymerItemUtils {
                 }
             }
 
-            var display = itemStack.getSubNbt("display");
-            if (CompatStatus.POLYMER_RESOURCE_PACKS) {
+            if (CompatStatus.POLYMER_RESOURCE_PACK) {
+                var display = itemStack.getSubNbt("display");
                 if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
                     var color = display.getInt("color");
                     return PolymerResourcePackUtils.isColorTaken(color);
