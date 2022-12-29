@@ -50,7 +50,7 @@ dependencies {
     modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.1.0')
 
 
-    modCompileOnly modRuntimeOnly("curse.maven:jade-324717:4104894")
+    modCompileOnly "curse.maven:jade-324717:4104894"
     modCompileOnly "mcp.mobius.waila:wthit:fabric-5.1.3"
 
     //modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.1.530"
@@ -79,8 +79,8 @@ dependencies {
     modCompileOnly("fr.catcore:server-translations-api:1.4.16+1.19")
     modLocalRuntime("fr.catcore:server-translations-api:1.4.16+1.19")
 
-    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v2.3.1-1.19'
-    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v2.3.1-1.19'
+    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v2.2.5-1.19'
+    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v2.2.5-1.19'
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.

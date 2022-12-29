@@ -7,6 +7,7 @@ import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,7 +30,7 @@ public class ItemStackMixin {
             var item = InternalClientRegistry.ITEMS.get(PolymerItemUtils.getPolymerIdentifier((ItemStack) (Object) this));
 
             if (item != null && item.stackSize() > 0) {
-                cir.setReturnValue(item.stackSize());
+                cir.setReturnValue(MathHelper.clamp(item.stackSize(), 1, 64));
             }
         }
     }

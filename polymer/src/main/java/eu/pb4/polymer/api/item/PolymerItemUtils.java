@@ -206,6 +206,22 @@ public final class PolymerItemUtils {
                 }
             }
 
+            if (itemStack.getNbt().contains("ChargedProjectiles", NbtElement.LIST_TYPE)) {
+                for (var itemNbt : itemStack.getNbt().getList("ChargedProjectiles", NbtElement.COMPOUND_TYPE)) {
+                    if (shouldPolymerConvert(ItemStack.fromNbt((NbtCompound) itemNbt), player)) {
+                        return true;
+                    }
+                }
+            }
+
+            if (itemStack.getNbt().contains("Items", NbtElement.LIST_TYPE)) {
+                for (var itemNbt : itemStack.getNbt().getList("Items", NbtElement.COMPOUND_TYPE)) {
+                    if (shouldPolymerConvert(ItemStack.fromNbt((NbtCompound) itemNbt), player)) {
+                        return true;
+                    }
+                }
+            }
+
             var display = itemStack.getSubNbt("display");
             if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
                 var color = display.getInt("color");
@@ -250,7 +266,7 @@ public final class PolymerItemUtils {
 
     public static int getSafeColor(int inputColor) {
         if (inputColor % 2 == 1) {
-            return Math.max(0, inputColor - 1);
+            return Math.max(0, inputColor - 1) + 1;
         }
         return inputColor;
     }
@@ -344,6 +360,53 @@ public final class PolymerItemUtils {
 
             if (canPlaceOn != null) {
                 out.getNbt().put("CanPlaceOn", canPlaceOn);
+            }
+
+            if (CrossbowItem.isCharged(itemStack)) {
+                CrossbowItem.setCharged(out, true);
+            }
+
+            var beTag = itemStack.getNbt().get("BlockEntityTag");
+
+            if (beTag != null) {
+                out.getNbt().put("BlockEntityTag", canPlaceOn);
+            }
+
+            try {
+                if (itemStack.getNbt().contains("ChargedProjectiles", NbtElement.LIST_TYPE)) {
+                    var outList = new NbtList();
+
+                    for (var itemNbt : itemStack.getNbt().getList("ChargedProjectiles", NbtElement.COMPOUND_TYPE)) {
+                        outList.add(getPolymerItemStack(ItemStack.fromNbt((NbtCompound) itemNbt), player).writeNbt(new NbtCompound()));
+                    }
+
+                    out.getNbt().put("ChargedProjectiles", outList);
+                }
+            } catch (Throwable e) {
+                if (PolymerImpl.LOG_MORE_ERRORS) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                if (itemStack.getNbt().contains("Items", NbtElement.LIST_TYPE)) {
+                    var outList = new NbtList();
+
+                    for (var itemNbt : itemStack.getNbt().getList("Items", NbtElement.COMPOUND_TYPE)) {
+                        var base = new NbtCompound();
+                        var slot = ((NbtCompound) itemNbt).get("Slot");
+                        if (slot != null) {
+                            base.put("Slot", slot);
+                        }
+                        outList.add(getPolymerItemStack(ItemStack.fromNbt((NbtCompound) itemNbt), player).writeNbt(base));
+                    }
+
+                    out.getNbt().put("Items", outList);
+                }
+            } catch (Throwable e) {
+                if (PolymerImpl.LOG_MORE_ERRORS) {
+                    e.printStackTrace();
+                }
             }
         } else {
             if (itemStack.hasGlint()) {

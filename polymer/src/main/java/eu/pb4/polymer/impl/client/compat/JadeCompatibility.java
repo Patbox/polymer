@@ -1,7 +1,7 @@
 package eu.pb4.polymer.impl.client.compat;
 
-import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.api.client.registry.ClientPolymerBlock;
+import eu.pb4.polymer.api.client.PolymerClientUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientRegistry;
 import net.minecraft.block.Block;
@@ -41,79 +41,88 @@ public class JadeCompatibility implements IWailaPlugin {
 
         @Override
         public IElement getIcon(BlockAccessor accessor, snownee.jade.api.config.IPluginConfig config, IElement currentIcon) {
-            var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-            if (block != ClientPolymerBlock.NONE_STATE) {
-                BlockState state = accessor.getLevel().getBlockState(accessor.getPosition());
+            try {
+                var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
+                if (block != ClientPolymerBlock.NONE_STATE) {
+                    BlockState state = accessor.getLevel().getBlockState(accessor.getPosition());
 
-                var itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
+                    var itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
 
-                if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof SkullItem) {
-                    var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
+                    if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof SkullItem) {
+                        var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
 
-                    if (blockEntity != null) {
-                        var nbtCompound = blockEntity.createNbt();
-                        if (nbtCompound.contains("SkullOwner")) {
-                            itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
+                        if (blockEntity != null) {
+                            var nbtCompound = blockEntity.createNbt();
+                            if (nbtCompound.contains("SkullOwner")) {
+                                itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
+                            }
                         }
                     }
-                }
 
-                return ItemStackElement.of(itemStack);
+                    return ItemStackElement.of(itemStack);
+                }
+            } catch (Throwable e) {
+
             }
             return null;
         }
 
         @Override
         public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-            var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-            if (block != ClientPolymerBlock.NONE_STATE) {
-                var formatting = config.getWailaConfig().getFormatting();
-                tooltip.clear();
-                try {
-                    tooltip.add(formatting.title(block.block().name().getString()), Identifiers.CORE_OBJECT_NAME);
-                } catch (Throwable e) {
-                }
-                try {
+            try {
 
-                    RegistryNameProvider.Mode mode = config.getEnum(Identifiers.CORE_REGISTRY_NAME);
-
-                    if (mode != RegistryNameProvider.Mode.OFF) {
-                        if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
-                            tooltip.add(config.getWailaConfig().getFormatting().registryName(block.block().identifier().toString()));
-                        }
+                var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
+                if (block != ClientPolymerBlock.NONE_STATE) {
+                    var formatting = config.getWailaConfig().getFormatting();
+                    tooltip.clear();
+                    try {
+                        tooltip.add(formatting.title(block.block().name().getString()), Identifiers.CORE_OBJECT_NAME);
+                    } catch (Throwable e) {
                     }
-                } catch (Throwable e) {
-                }
+                    try {
 
-                try {
+                        RegistryNameProvider.Mode mode = config.getEnum(Identifiers.CORE_REGISTRY_NAME);
 
-                    if (config.get(Identifiers.MC_BLOCK_STATES)) {
-                        IElementHelper helper = tooltip.getElementHelper();
-                        ITooltip box = helper.tooltip();
-                        block.states().entrySet().forEach((p) -> {
-                            MutableText valueText = Text.literal(" " + p.getValue()).formatted();
-                            if (p.getValue().equals("true") || p.getValue().equals("false")) {
-                                valueText = valueText.formatted(p.getValue().equals("true") ? Formatting.GREEN : Formatting.RED);
+                        if (mode != RegistryNameProvider.Mode.OFF) {
+                            if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
+                                tooltip.add(config.getWailaConfig().getFormatting().registryName(block.block().identifier().toString()));
                             }
-
-                            box.add(Text.literal(p.getKey() + ":").append(valueText));
-                        });
-                        tooltip.add(helper.box(box));
-                    }
-                } catch (Throwable e) {
-                }
-                try {
-
-                    if (config.get(Identifiers.CORE_MOD_NAME)) {
-                        String modName = ModIdentification.getModName(block.block().identifier());
-
-                        if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
-                            modName = "Server";
                         }
-                        tooltip.add(Text.literal(String.format(formatting.getModName(), modName)), Identifiers.CORE_MOD_NAME);
+                    } catch (Throwable e) {
                     }
-                } catch (Throwable e) {
+
+                    try {
+
+                        if (config.get(Identifiers.MC_BLOCK_STATES)) {
+                            IElementHelper helper = tooltip.getElementHelper();
+                            ITooltip box = helper.tooltip();
+                            block.states().entrySet().forEach((p) -> {
+                                MutableText valueText = Text.literal(" " + p.getValue()).formatted();
+                                if (p.getValue().equals("true") || p.getValue().equals("false")) {
+                                    valueText = valueText.formatted(p.getValue().equals("true") ? Formatting.GREEN : Formatting.RED);
+                                }
+
+                                box.add(Text.literal(p.getKey() + ":").append(valueText));
+                            });
+                            tooltip.add(helper.box(box));
+                        }
+                    } catch (Throwable e) {
+                    }
+                    try {
+
+                        if (config.get(Identifiers.CORE_MOD_NAME)) {
+                            String modName = ModIdentification.getModName(block.block().identifier());
+
+                            if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
+                                modName = "Server";
+                            }
+                            tooltip.add(Text.literal(String.format(formatting.getModName(), modName)), Identifiers.CORE_MOD_NAME);
+                        }
+                    } catch (Throwable e) {
+                    }
+
                 }
+            } catch (Throwable e) {
 
             }
         }
@@ -141,44 +150,49 @@ public class JadeCompatibility implements IWailaPlugin {
 
         @Override
         public void appendTooltip(ITooltip tooltip, EntityAccessor accessor, IPluginConfig config) {
-            var entity = accessor.getEntity();
+            try {
 
-            var type = PolymerClientUtils.getEntityType(entity);
+                var entity = accessor.getEntity();
 
-            if (type != null) {
-                tooltip.clear();
+                var type = PolymerClientUtils.getEntityType(entity);
+
                 if (type != null) {
-                    var formatting = config.getWailaConfig().getFormatting();
-                    try {
+                    tooltip.clear();
+                    if (type != null) {
+                        var formatting = config.getWailaConfig().getFormatting();
+                        try {
 
-                        tooltip.add(formatting.title(entity.getDisplayName().getString()), Identifiers.CORE_OBJECT_NAME);
-                    } catch (Throwable e) {
-                    }
-
-
-                    RegistryNameProvider.Mode mode = config.getEnum(Identifiers.CORE_REGISTRY_NAME);
-                    try {
-
-                        if (mode != RegistryNameProvider.Mode.OFF) {
-                            if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
-                                tooltip.add(config.getWailaConfig().getFormatting().registryName(type.identifier().toString()));
-                            }
+                            tooltip.add(formatting.title(entity.getDisplayName().getString()), Identifiers.CORE_OBJECT_NAME);
+                        } catch (Throwable e) {
                         }
-                    } catch (Throwable e) {
-                    }
-                    try {
-                        if (config.get(Identifiers.CORE_MOD_NAME)) {
-                            String modName = ModIdentification.getModName(type.identifier());
 
-                            if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
-                                modName = "Server";
+
+                        RegistryNameProvider.Mode mode = config.getEnum(Identifiers.CORE_REGISTRY_NAME);
+                        try {
+
+                            if (mode != RegistryNameProvider.Mode.OFF) {
+                                if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
+                                    tooltip.add(config.getWailaConfig().getFormatting().registryName(type.identifier().toString()));
+                                }
                             }
-                            tooltip.add(Text.literal(String.format(formatting.getModName(), modName)), Identifiers.CORE_MOD_NAME);
+                        } catch (Throwable e) {
                         }
-                    } catch (Throwable e) {
-                    }
+                        try {
+                            if (config.get(Identifiers.CORE_MOD_NAME)) {
+                                String modName = ModIdentification.getModName(type.identifier());
 
+                                if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
+                                    modName = "Server";
+                                }
+                                tooltip.add(Text.literal(String.format(formatting.getModName(), modName)), Identifiers.CORE_MOD_NAME);
+                            }
+                        } catch (Throwable e) {
+                        }
+
+                    }
                 }
+            } catch (Throwable e) {
+
             }
         }
 
