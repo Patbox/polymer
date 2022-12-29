@@ -7,6 +7,7 @@ import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Environment(EnvType.CLIENT)
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
+
     @ModifyArg(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Text;literal(Ljava/lang/String;)Lnet/minecraft/text/MutableText;", ordinal = 2))
     private String polymer$changeId(String id) {
         var identifier = PolymerItemUtils.getServerIdentifier((ItemStack) (Object) this);
@@ -29,7 +31,7 @@ public class ItemStackMixin {
             var item = InternalClientRegistry.ITEMS.get(PolymerItemUtils.getPolymerIdentifier((ItemStack) (Object) this));
 
             if (item != null && item.stackSize() > 0) {
-                cir.setReturnValue(item.stackSize());
+                cir.setReturnValue(MathHelper.clamp(item.stackSize(), 1, 64));
             }
         }
     }

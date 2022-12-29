@@ -50,7 +50,7 @@ dependencies {
     modCompileOnly('com.github.TheEpicBlock:PolyMc:5.1.0')
 
 
-    modCompileOnly /*modLocalRuntime*/("curse.maven:jade-324717:4104894")
+    modCompileOnly /*modLocalRuntime*/("curse.maven:jade-324717:4160727")
     modCompileOnly "mcp.mobius.waila:wthit:fabric-5.1.3"
 
     //modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.1.530"

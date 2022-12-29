@@ -38,6 +38,6 @@ public class TestEnchantment extends Enchantment implements PolymerSyncedObject<
 
     @Override
     public Enchantment getPolymerReplacement(ServerPlayerEntity player) {
-        return PolymerResourcePackUtils.hasPack(player) ? this : null;
+        return null;
     }
 }

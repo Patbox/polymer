@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.impl.client.compat;
 
-import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
+import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import net.minecraft.block.Block;
@@ -41,31 +41,37 @@ public class JadeCompatibility implements IWailaPlugin {
 
         @Override
         public IElement getIcon(BlockAccessor accessor, snownee.jade.api.config.IPluginConfig config, IElement currentIcon) {
-            var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-            if (block != ClientPolymerBlock.NONE_STATE) {
-                BlockState state = accessor.getLevel().getBlockState(accessor.getPosition());
+            try {
+                var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
+                if (block != ClientPolymerBlock.NONE_STATE) {
+                    BlockState state = accessor.getLevel().getBlockState(accessor.getPosition());
 
-                var itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
+                    var itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
 
-                if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof SkullItem) {
-                    var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
+                    if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof SkullItem) {
+                        var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
 
-                    if (blockEntity != null) {
-                        var nbtCompound = blockEntity.createNbt();
-                        if (nbtCompound.contains("SkullOwner")) {
-                            itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
+                        if (blockEntity != null) {
+                            var nbtCompound = blockEntity.createNbt();
+                            if (nbtCompound.contains("SkullOwner")) {
+                                itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
+                            }
                         }
                     }
-                }
 
-                return ItemStackElement.of(itemStack);
+                    return ItemStackElement.of(itemStack);
+                }
+            } catch (Throwable e) {
+
             }
             return null;
         }
 
         @Override
         public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-            var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
+            try {
+
+                var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != ClientPolymerBlock.NONE_STATE) {
                 var formatting = config.getWailaConfig().getFormatting();
                 tooltip.clear();
@@ -116,6 +122,9 @@ public class JadeCompatibility implements IWailaPlugin {
                 }
 
             }
+            } catch (Throwable e) {
+
+            }
         }
 
         @Override
@@ -141,7 +150,9 @@ public class JadeCompatibility implements IWailaPlugin {
 
         @Override
         public void appendTooltip(ITooltip tooltip, EntityAccessor accessor, IPluginConfig config) {
-            var entity = accessor.getEntity();
+            try {
+
+                var entity = accessor.getEntity();
 
             var type = PolymerClientUtils.getEntityType(entity);
 
@@ -179,6 +190,9 @@ public class JadeCompatibility implements IWailaPlugin {
                     }
 
                 }
+            }
+            } catch (Throwable e) {
+
             }
         }
 
