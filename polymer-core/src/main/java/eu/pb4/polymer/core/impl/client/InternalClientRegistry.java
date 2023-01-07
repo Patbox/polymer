@@ -71,7 +71,6 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>("item", "I");
-    public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>("item_group", "IG");
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPES = new ImplPolymerRegistry<>("entity_type", "E");
     public static final ImplPolymerRegistry<ClientPolymerEntry<VillagerProfession>> VILLAGER_PROFESSIONS = new ImplPolymerRegistry<>("villager_profession", "VP");
     public static final ImplPolymerRegistry<ClientPolymerEntry<BlockEntityType<?>>> BLOCK_ENTITY = new ImplPolymerRegistry<>("block_entity", "BE");
@@ -79,7 +78,7 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntry<Enchantment>> ENCHANTMENT = new ImplPolymerRegistry<>("enchantment", "EN");
     public static final ImplPolymerRegistry<ClientPolymerEntry<Fluid>> FLUID = new ImplPolymerRegistry<>("fluid", "FL");
     public static final ImplPolymerRegistry<ClientPolymerEntry<ScreenHandlerType<?>>> SCREEN_HANDLER = new ImplPolymerRegistry<>("screen_handler", "SH");
-    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, ITEM_GROUPS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, ENCHANTMENT, FLUID, SCREEN_HANDLER);
+    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, ENCHANTMENT, FLUID, SCREEN_HANDLER);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
     public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId(BY_VANILLA);
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
@@ -366,6 +365,12 @@ public class InternalClientRegistry {
 
     public static void createItemGroup(Identifier id, Text name, ItemStack icon) {
         try {
+            var existing = InternalClientRegistry.getItemGroup(id);
+
+            if (existing != null) {
+                return;
+            }
+
             var group = new InternalClientItemGroup(null, -1, id, name, icon);
 
             if (CompatStatus.FABRIC_ITEM_GROUP) {
@@ -408,5 +413,9 @@ public class InternalClientRegistry {
 
     public static void register() {
 
+    }
+
+    public static String getModName(Identifier id) {
+        return "Server (" + id.getNamespace() + ")";
     }
 }

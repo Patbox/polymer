@@ -20,6 +20,6 @@ public abstract class CommandManagerMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void polymer$addCommand(CommandManager.RegistrationEnvironment environment, CommandRegistryAccess commandRegistryAccess, CallbackInfo ci) {
-        CommonCommands.register(this.dispatcher);
+        CommonCommands.register(this.dispatcher, commandRegistryAccess);
     }
 }

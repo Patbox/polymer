@@ -31,16 +31,16 @@ public class WthitCompatibility implements IWailaPlugin {
 
     @Override
     public void register(IRegistrar registrar) {
-        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.HEAD, Block.class, 1000);
-        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.BODY, Block.class, 1000);
-        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.TAIL, Block.class, 1000);
+        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.HEAD, Block.class, 100000);
+        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.BODY, Block.class, 100000);
+        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.TAIL, Block.class, 100000);
         registrar.addOverride(BlockOverride.INSTANCE, Block.class, 1000);
 
-        registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.HEAD, ItemEntity.class, 1000);
-        registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.TAIL, ItemEntity.class, 1000);
+        registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.HEAD, ItemEntity.class, 100000);
+        registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.TAIL, ItemEntity.class, 100000);
 
-        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.HEAD, Entity.class, 1000);
-        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.TAIL, Entity.class, 1000);
+        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.HEAD, Entity.class, 100000);
+        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.TAIL, Entity.class, 100000);
 
         registrar.addEventListener(OtherOverrides.INSTANCE);
     }
@@ -64,7 +64,7 @@ public class WthitCompatibility implements IWailaPlugin {
                 }
 
                 if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
-                    modName = "Server (" + id.getNamespace() + ")";
+                    modName = InternalClientRegistry.getModName(id);
                 }
 
                 return modName;
@@ -143,7 +143,7 @@ public class WthitCompatibility implements IWailaPlugin {
                     String modName = IModInfo.get(block.block().identifier()).getName();
 
                     if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
-                        modName = "Server";
+                        modName = InternalClientRegistry.getModName(block.block().identifier());
                     }
 
                     tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
@@ -186,7 +186,7 @@ public class WthitCompatibility implements IWailaPlugin {
                         }
 
                         if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
-                            modName = "Server";
+                            modName = InternalClientRegistry.getModName(id);
                         }
 
                         tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
@@ -225,7 +225,7 @@ public class WthitCompatibility implements IWailaPlugin {
                     }
 
                     if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !type.identifier().getNamespace().equals("minecraft"))) {
-                        modName = "Server";
+                        modName = InternalClientRegistry.getModName(type.identifier());
                     }
 
                     tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));

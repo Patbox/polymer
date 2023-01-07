@@ -3,6 +3,8 @@ package eu.pb4.polymer.core.impl.networking.packets;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
+import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.mixin.item.MiningToolItemAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -32,7 +34,7 @@ public record PolymerItemEntry(
             buf.writeVarInt(this.numId);
 
             buf.writeIdentifier(this.identifier);
-            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, this.representation));
+            PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(this.representation, handler.player));
 
             buf.writeVarInt(this.foodLevels);
             buf.writeFloat(this.saturation);
@@ -51,7 +53,7 @@ public record PolymerItemEntry(
         return new PolymerItemEntry(
                 Item.getRawId(item),
                 Registries.ITEM.getId(item),
-                PolymerItemUtils.getPolymerItemStack(item.getDefaultStack(), handler.player),
+                item.getDefaultStack(),
                 food != null ? food.getHunger() : 0,
                 food != null ? food.getSaturationModifier() : 0,
                 toolItem != null ? ((MiningToolItemAccessor) toolItem).getEffectiveBlocks().id() : NOT_TOOL,

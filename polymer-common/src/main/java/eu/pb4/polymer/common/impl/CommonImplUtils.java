@@ -3,6 +3,7 @@ package eu.pb4.polymer.common.impl;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -32,9 +34,10 @@ public class CommonImplUtils {
 
     static {
         final String chr = "█";
-        var icon = new ArrayList<MutableText>();
+        Text[] iconArray;
         try {
             var source = ImageIO.read(CommonImpl.getJarPath("assets/icon_ingame.png").toUri().toURL());
+            var icon = new ArrayList<MutableText>();
 
             for (int y = 0; y < source.getHeight(); y++) {
                 var base = Text.empty();
@@ -55,19 +58,28 @@ public class CommonImplUtils {
                 base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
                 icon.add(base);
             }
+
+            iconArray = icon.toArray(new Text[0]);
         } catch (Throwable e) {
             e.printStackTrace();
-            icon.add(Text.literal("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));
+            iconArray = new Text[0];
         }
-
-        ICON = icon.toArray(new Text[0]);
+        ICON = iconArray;
     }
 
     public static void registerCommands(Consumer<LiteralArgumentBuilder<ServerCommandSource>> consumer) {
+        CommonCommands.COMMANDS.add((a, b) -> consumer.accept(a));
+    }
+
+    public static void registerCommands(BiConsumer<LiteralArgumentBuilder<ServerCommandSource>, CommandRegistryAccess> consumer) {
         CommonCommands.COMMANDS.add(consumer);
     }
 
     public static void registerDevCommands(Consumer<LiteralArgumentBuilder<ServerCommandSource>> consumer) {
+        CommonCommands.COMMANDS_DEV.add((a, b) -> consumer.accept(a));
+    }
+
+    public static void registerDevCommands(BiConsumer<LiteralArgumentBuilder<ServerCommandSource>, CommandRegistryAccess> consumer) {
         CommonCommands.COMMANDS_DEV.add(consumer);
     }
 

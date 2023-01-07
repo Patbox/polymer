@@ -49,7 +49,7 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
         if (this.polymer$objects == null) {
             this.polymer$objects = new ArrayList<>();
             for (var obj : this) {
-                if (PolymerUtils.isServerOnly(obj)) {
+                if (PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) this, obj)) {
                     this.polymer$objects.add(obj);
                 }
             }

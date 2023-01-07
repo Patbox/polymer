@@ -18,10 +18,15 @@ import eu.pb4.polymer.core.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.core.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.core.impl.ui.PotionUi;
 import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
+import net.minecraft.block.Block;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.command.argument.RegistryEntryArgumentType;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -29,34 +34,38 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.nbt.visitor.NbtTextFormatter;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.LecternScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.stat.StatType;
 import net.minecraft.stat.Stats;
 import net.minecraft.state.property.Property;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.server.command.CommandManager.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class Commands {
-    public static void register(LiteralArgumentBuilder<ServerCommandSource> command) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> command, CommandRegistryAccess access) {
         command.then(literal("stats")
                         .requires(CommonImplUtils.permission("command.stats", 0))
-                        .executes(Commands::stats)
+                        .executes(Commands::statsGeneral)
+                        .then(argument("type", RegistryEntryArgumentType.registryEntry(access, RegistryKeys.STAT_TYPE)).executes(Commands::stats))
                 )
                 .then(literal("effects")
                         .requires(CommonImplUtils.permission("command.effects", 0))
@@ -194,6 +203,80 @@ public class Commands {
         return 1;
     }
 
+    private static int statsGeneral(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayer();
+
+        var list = new NbtList();
+
+        int line = 0;
+        MutableText text = null;
+
+        for (var statType : Registries.STAT_TYPE) {
+            if (text == null) {
+                text = Text.literal("");
+            }
+            text.append(Text.empty().append(Registries.STAT_TYPE.getId(statType).toString()).append("\n").styled(x -> x.withUnderline(true).withColor(Formatting.BLUE).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/polymer stats " + Registries.STAT_TYPE.getId(statType)))));
+            line++;
+
+            if (line == 13) {
+                list.add(NbtString.of(Text.Serializer.toJson(text)));
+                text = null;
+                line = 0;
+            }
+        }
+
+        if (text != null) {
+            list.add(NbtString.of(Text.Serializer.toJson(text)));
+        }
+
+        var stack = new ItemStack(Items.WRITTEN_BOOK);
+        stack.getOrCreateNbt().put("pages", list);
+        stack.getOrCreateNbt().putString("title", "/polymer starts");
+        stack.getOrCreateNbt().putString("author", player.getGameProfile().getName());
+
+
+        player.openHandledScreen(new NamedScreenHandlerFactory() {
+            @Override
+            public Text getDisplayName() {
+                return Text.empty();
+            }
+
+            @Nullable
+            @Override
+            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+                var lectern = new LecternScreenHandler(syncId) {
+                    @Override
+                    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean canInsertIntoSlot(Slot slot) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onButtonClick(PlayerEntity player, int id) {
+                        if (id == 3) {
+                            return false;
+                        } else {
+                            return super.onButtonClick(player, id);
+                        }
+                    }
+
+                    @Override
+                    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+                        // noop
+                    }
+                };
+                lectern.getSlot(0).setStack(stack);
+                return lectern;
+            }
+        });
+
+        return 1;
+    }
+
     private static int stats(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
 
@@ -202,9 +285,13 @@ public class Commands {
         int line = 0;
         MutableText text = null;
 
-        for (var statId : Registries.CUSTOM_STAT) {
-            if (statId instanceof PolymerObject) {
-                var stat = Stats.CUSTOM.getOrCreateStat(statId);
+        var type = (StatType<Object>) RegistryEntryArgumentType.getRegistryEntry(context, "type", RegistryKeys.STAT_TYPE).value();
+
+        for (var statObj : type.getRegistry()) {
+            if (PolymerUtils.isServerOnly(statObj) && type.hasStat(statObj)) {
+
+
+                var stat = type.getOrCreateStat(statObj);
 
                 if (text == null) {
                     text = Text.literal("");
@@ -212,7 +299,21 @@ public class Commands {
 
                 var statVal = player.getStatHandler().getStat(stat);
 
-                text.append(PolymerStat.getName(statId)).append(Text.literal(": ").formatted(Formatting.GRAY)).append(Text.literal(stat.format(statVal) + "\n").formatted(Formatting.DARK_GRAY));
+                Text title;
+
+                if (statObj instanceof PolymerStat stat1) {
+                    title = PolymerStat.getName(stat1);
+                } else if (statObj instanceof Item item) {
+                    title = item.getName();
+                } else if (statObj instanceof Block item) {
+                    title = item.getName();
+                } else if (statObj instanceof EntityType item) {
+                    title = item.getName();
+                } else {
+                    title = Text.translatable(Util.createTranslationKey(type.getRegistry().getKey().getValue().getPath(), type.getRegistry().getId(statObj)));
+                }
+
+                text.append(title).append(Text.literal(": ").formatted(Formatting.GRAY)).append(Text.literal(stat.format(statVal) + "\n").formatted(Formatting.DARK_GRAY));
                 line++;
 
                 if (line == 13) {

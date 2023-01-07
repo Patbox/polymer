@@ -8,4 +8,6 @@ public class CommonConfig {
     public int coreCommandOperatorLevel = 0;
     public String _c2 = "Enabled developer utilities";
     public boolean enableDevTools = false;
+    public String _c3 = "Uses simpler about display for /polymer command";
+    public boolean minimalisticAbout = false;
 }

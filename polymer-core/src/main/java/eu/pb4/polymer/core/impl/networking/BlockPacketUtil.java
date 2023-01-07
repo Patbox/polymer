@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
@@ -20,8 +21,8 @@ public class BlockPacketUtil {
     public static void sendFromPacket(Packet<?> packet, ServerPlayNetworkHandler handler) {
         if (packet instanceof BlockUpdateS2CPacket blockUpdatePacket) {
             BlockState blockState = ((BlockUpdateS2CPacketAccessor) blockUpdatePacket).polymer$getState();
-            if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
-                PolymerNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSingleBlockInfo(polymerBlock, handler, blockUpdatePacket.getPos(), blockState));
+            if (PolymerImplUtils.POLYMER_STATES.contains(blockState)) {
+                PolymerNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSingleBlockInfo(handler, blockUpdatePacket.getPos(), blockState));
             }
         } else if (packet instanceof ChunkDataS2CPacket) {
             WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer$getWorldChunk();
@@ -50,11 +51,13 @@ public class BlockPacketUtil {
         cPacket.visitUpdates((blockPos, blockState) -> handler.sendPacket(new BlockUpdateS2CPacket(blockPos.toImmutable(), blockState)));
     }
 
-    private record SendSingleBlockInfo(PolymerBlock polymerBlock, ServerPlayNetworkHandler handler, BlockPos pos, BlockState blockState) implements Runnable {
+    private record SendSingleBlockInfo(ServerPlayNetworkHandler handler, BlockPos pos, BlockState blockState) implements Runnable {
         @Override
         public void run() {
             PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
-            polymerBlock.onPolymerBlockSend(blockState, pos.mutableCopy(), handler.player);
+            if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
+                polymerBlock.onPolymerBlockSend(blockState, pos.mutableCopy(), handler.player);
+            }
         }
     }
 
@@ -68,10 +71,9 @@ public class BlockPacketUtil {
 
             for (int i = 0; i < localPos.length; i++) {
                 BlockState blockState = blockStates[i];
+                blockPos.set(chunkPos.unpackBlockX(localPos[i]), chunkPos.unpackBlockY(localPos[i]), chunkPos.unpackBlockZ(localPos[i]));
 
                 if (blockState.getBlock() instanceof PolymerBlock) {
-
-                    blockPos.set(chunkPos.unpackBlockX(localPos[i]), chunkPos.unpackBlockY(localPos[i]), chunkPos.unpackBlockZ(localPos[i]));
                     ((PolymerBlock) blockState.getBlock()).onPolymerBlockSend(blockState, blockPos, handler.player);
                 }
             }

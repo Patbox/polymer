@@ -19,10 +19,10 @@ public interface PolymerBlockPosStorage {
     @Nullable
     Iterator<BlockPos.Mutable> polymer$iterator();
 
-    void polymer$setPolymer(int x, int y, int z);
-    void polymer$removePolymer(int x, int y, int z);
+    void polymer$setSynced(int x, int y, int z);
+    void polymer$removeSynced(int x, int y, int z);
 
-    boolean polymer$getPolymer(int x, int y, int z);
+    boolean polymer$isSynced(int x, int y, int z);
 
     boolean polymer$hasAny();
 

@@ -9,6 +9,7 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
@@ -22,16 +23,19 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.registry.DefaultedRegistry;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.IndexedIterable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -42,7 +46,7 @@ public class PolymerServerProtocol {
     public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
         var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_SET_BLOCK_UPDATE);
 
-        if (state.getBlock() instanceof PolymerBlock && version > -1) {
+        if (PolymerImplUtils.POLYMER_STATES.contains(state) && version > -1) {
             var buf = buf(version);
 
             buf.writeBlockPos(pos);
@@ -60,7 +64,7 @@ public class PolymerServerProtocol {
             var list = new LongArrayList();
 
             for (int i = 0; i < blockSTATE_IDS.length; i++) {
-                if (blockSTATE_IDS[i].getBlock() instanceof PolymerBlock) {
+                if (PolymerImplUtils.POLYMER_STATES.contains(blockSTATE_IDS[i])) {
                     list.add(((long) Block.STATE_IDS.getRawId(blockSTATE_IDS[i])) << 12 | positions[i]);
                 }
             }
@@ -137,11 +141,11 @@ public class PolymerServerProtocol {
 
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_INFO, buf));
         }
-        sendSync(handler, ServerPackets.SYNC_ENCHANTMENT, RegistryExtension.getPolymerEntries(Registries.ENCHANTMENT), false,
+        sendSync(handler, ServerPackets.SYNC_ENCHANTMENT, getServerSideEntries(Registries.ENCHANTMENT), false,
                 type -> new IdValueEntry(Registries.ENCHANTMENT.getRawId(type), Registries.ENCHANTMENT.getId(type)));
 
         PolymerSyncUtils.BEFORE_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_ITEM, RegistryExtension.getPolymerEntries(Registries.ITEM), false, PolymerItemEntry::of);
+        sendSync(handler, ServerPackets.SYNC_ITEM, getServerSideEntries(Registries.ITEM), false, PolymerItemEntry::of);
         PolymerSyncUtils.AFTER_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         if (fullSync) {
@@ -153,21 +157,21 @@ public class PolymerServerProtocol {
         }
 
         PolymerSyncUtils.BEFORE_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCK, RegistryExtension.getPolymerEntries(Registries.BLOCK), false, PolymerBlockEntry::of);
+        sendSync(handler, ServerPackets.SYNC_BLOCK, getServerSideEntries(Registries.BLOCK), false, PolymerBlockEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE, ((PolymerIdList) Block.STATE_IDS).polymer$getPolymerEntries(), false, PolymerBlockStateEntry::of);
+        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE, getServerSideEntries(Block.STATE_IDS), false, PolymerBlockStateEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
         PolymerSyncUtils.BEFORE_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_ENTITY, RegistryExtension.getPolymerEntries(Registries.ENTITY_TYPE), false, PolymerEntityEntry::of);
+        sendSync(handler, ServerPackets.SYNC_ENTITY, getServerSideEntries(Registries.ENTITY_TYPE), false, PolymerEntityEntry::of);
         PolymerSyncUtils.AFTER_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
-        sendSync(handler, ServerPackets.SYNC_VILLAGER_PROFESSION, Registries.BLOCK_ENTITY_TYPE);
-        sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT, Registries.BLOCK_ENTITY_TYPE);
+        sendSync(handler, ServerPackets.SYNC_VILLAGER_PROFESSION, Registries.VILLAGER_PROFESSION);
+        sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT, Registries.STATUS_EFFECT);
         sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
         sendSync(handler, ServerPackets.SYNC_FLUID, Registries.FLUID);
 
@@ -187,8 +191,18 @@ public class PolymerServerProtocol {
         }
     }
 
+    private static <T> Collection<T> getServerSideEntries(IndexedIterable<T> registry) {
+        if (registry instanceof Registry<T> registry1) {
+            return RegistryExtension.getPolymerEntries(registry1);
+        } else if (registry instanceof PolymerIdList<?>) {
+            return ((PolymerIdList<T>) registry).polymer$getPolymerEntries();
+        }
+
+        return List.of();
+    }
+
     private static void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Registry registry) {
-        sendSync(handler, packetId, RegistryExtension.getPolymerEntries(registry), false,
+        sendSync(handler, packetId, getServerSideEntries(registry), false,
                 type -> new IdValueEntry(registry.getRawId(type), registry.getId(type)));
     }
 
@@ -205,7 +219,7 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroup(ItemGroup group, ServerPlayNetworkHandler handler) {
-        if (PolymerItemGroupUtils.isPolymerItemGroup(group)) {
+        if (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerItemGroupUtils.isPolymerItemGroup(group)) {
             removeItemGroup(group, handler);
             syncItemGroupDefinition(group, handler);
         }
@@ -241,15 +255,14 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroupDefinition(ItemGroup group, ServerPlayNetworkHandler handler) {
-        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_DEFINE);
 
-        if (version > -1 && PolymerItemGroupUtils.isPolymerItemGroup(group)) {
+        if (version > -1 && (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerItemGroupUtils.isPolymerItemGroup(group))) {
             var buf = buf(version);
 
             buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
             buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));
-            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, PolymerItemUtils.getPolymerItemStack(group.getIcon(), handler.player)));
+            PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(group.getIcon(), handler.player));
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_DEFINE, buf));
 
         }

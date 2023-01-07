@@ -8,13 +8,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 
 public class AutoHost {
-    public static WebServer.Config config;
+    public static AutoHostConfig config;
     public static Text message;
     public static Text disconnectMessage;
 
 
     public static void init(MinecraftServer server) {
-        var config = CommonImpl.loadConfig("auto-host", WebServer.Config.class);
+        var config = CommonImpl.loadConfig("auto-host", AutoHostConfig.class);
         AutoHost.config = config;
 
         try {

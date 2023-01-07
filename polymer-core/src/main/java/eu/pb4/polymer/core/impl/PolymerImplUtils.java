@@ -6,6 +6,8 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
@@ -16,6 +18,7 @@ import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -40,6 +43,7 @@ import java.util.stream.Stream;
 
 public class PolymerImplUtils {
     public static final SimpleEvent<BiConsumer<Registry<Object>, Object>> ON_REGISTERED = new SimpleEvent<>();
+    public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
 
     public static Identifier toItemGroupId(ItemGroup group) {
         var posId = InternalServerRegistry.ITEM_GROUPS.getId(group);
@@ -317,5 +321,17 @@ public class PolymerImplUtils {
 
     public static boolean areSamePolymerType(ItemStack a, ItemStack b) {
         return Objects.equals(PolymerItemUtils.getServerIdentifier(a), PolymerItemUtils.getServerIdentifier(b));
+    }
+
+    public static boolean isServerSideSyncableEntry(Registry reg, Object obj) {
+        return PolymerUtils.isServerOnly(obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && !reg.getId(obj).getNamespace().equals("minecraft"));
+    }
+
+    public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player) {
+        return convertStack(representation, player, PolymerUtils.getTooltipContext(player));
+    }
+
+    public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipContext context) {
+        return ServerTranslationUtils.parseFor(player.networkHandler,  PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, player), player));
     }
 }

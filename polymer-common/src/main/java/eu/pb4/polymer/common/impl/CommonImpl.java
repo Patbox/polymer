@@ -28,6 +28,7 @@ public final class CommonImpl {
     public static final Gson GSON_PRETTY = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
     public static final int CORE_COMMAND_MINIMAL_OP;
     public static final boolean DEVELOPER_MODE;
+    public static final boolean MINIMAL_ABOUT;
     public static final String DESCRIPTION = "Library for creating better server side content!";
     public static final FabricLoader LOADER = FabricLoader.getInstance();
     public static final boolean DEV_ENV = LOADER.isDevelopmentEnvironment();
@@ -57,6 +58,7 @@ public final class CommonImpl {
         var config = loadConfig("common", CommonConfig.class);
         CORE_COMMAND_MINIMAL_OP = config.coreCommandOperatorLevel;
         DEVELOPER_MODE = config.enableDevTools || DEV_ENV;
+        MINIMAL_ABOUT = config.minimalisticAbout;
 
         CONTAINER.getMetadata().getAuthors().forEach(CommonImpl::addContributor);
         CONTAINER.getMetadata().getContributors().forEach(CommonImpl::addContributor);

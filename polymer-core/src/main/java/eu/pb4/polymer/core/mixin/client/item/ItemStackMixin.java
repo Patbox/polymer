@@ -28,7 +28,7 @@ public class ItemStackMixin {
     @Inject(method = "getMaxCount", at = @At("HEAD"), cancellable = true)
     private void polymer$changeStackSize(CallbackInfoReturnable<Integer> cir) {
         if (PolymerImpl.CHANGING_QOL_CLIENT && ClientUtils.isClientThread()) {
-            var item = InternalClientRegistry.ITEMS.get(PolymerItemUtils.getPolymerIdentifier((ItemStack) (Object) this));
+            var item = InternalClientRegistry.ITEMS.get(PolymerItemUtils.getServerIdentifier((ItemStack) (Object) this));
 
             if (item != null && item.stackSize() > 0) {
                 cir.setReturnValue(MathHelper.clamp(item.stackSize(), 1, 64));

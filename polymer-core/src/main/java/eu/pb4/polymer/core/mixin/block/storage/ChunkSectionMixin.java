@@ -48,17 +48,17 @@ public class ChunkSectionMixin implements PolymerBlockPosStorage {
     }
 
     @Override
-    public void polymer$setPolymer(int x, int y, int z) {
+    public void polymer$setSynced(int x, int y, int z) {
         this.polymer$blocks.add(PolymerBlockPosStorage.pack(x, y, z));
     }
 
     @Override
-    public void polymer$removePolymer(int x, int y, int z) {
+    public void polymer$removeSynced(int x, int y, int z) {
         this.polymer$blocks.remove(PolymerBlockPosStorage.pack(x, y, z));
     }
 
     @Override
-    public boolean polymer$getPolymer(int x, int y, int z) {
+    public boolean polymer$isSynced(int x, int y, int z) {
         return this.polymer$blocks.contains(PolymerBlockPosStorage.pack(x, y, z));
     }
 

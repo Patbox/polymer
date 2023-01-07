@@ -140,7 +140,9 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Unique
     private boolean polymer$shouldMineServerSide(BlockPos pos, BlockState state) {
-        return state.getBlock() instanceof PolymerBlock || this.player.getMainHandStack().getItem() instanceof PolymerItem || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, this.player));
+        return (state.getBlock() instanceof PolymerBlock block && block.handleMiningOnServer(player.getMainHandStack(), state, pos, this.player))
+                || (this.player.getMainHandStack().getItem() instanceof PolymerItem item && item.handleMiningOnServer(player.getMainHandStack(), state, pos, player))
+                || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, this.player));
     }
 
     @Unique

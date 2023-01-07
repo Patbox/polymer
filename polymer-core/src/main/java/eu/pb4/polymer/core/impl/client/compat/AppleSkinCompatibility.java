@@ -12,7 +12,7 @@ public class AppleSkinCompatibility implements AppleSkinApi {
     @Override
     public void registerEvents() {
         FoodValuesEvent.EVENT.register(event -> {
-            var id = PolymerItemUtils.getPolymerIdentifier(event.itemStack);
+            var id = PolymerItemUtils.getServerIdentifier(event.itemStack);
             if (id != null) {
                 var item = InternalClientRegistry.ITEMS.get(id);
 

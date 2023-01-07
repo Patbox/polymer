@@ -4,6 +4,9 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
+import net.minecraft.registry.Registry;
+import net.minecraft.util.Util;
 import net.minecraft.util.collection.IdList;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
@@ -34,7 +37,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     @Unique
     private final List<T> polymer$lazyList = new ArrayList<>();
     @Unique
-    private final HashSet<T> polymer$states = new HashSet<>();
+    private final Set<T> polymer$states = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
     @Unique
     private boolean polymer$locked = true;
     @Unique
@@ -47,6 +50,8 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     private boolean polymer$reorderLock = false;
     @Unique
     private Predicate<T> polymer$checker;
+    @Unique
+    private Predicate<T> polymer$checkerList;
     @Unique
     private boolean polymer$isPolymerAware;
     @Unique
@@ -62,9 +67,11 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
 
             var isPolymerObj = this.polymer$checker.test(value);
 
-            if (isPolymerObj) {
+            if (isPolymerObj || this.polymer$checkerList.test(value)) {
                 this.polymer$states.add(value);
+            }
 
+            if (isPolymerObj) {
                 if (this.polymer$locked) {
                     this.polymer$lazyList.add(value);
                     ci.cancel();
@@ -149,9 +156,10 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     }
 
     @Override
-    public void polymer$setChecker(Predicate<T> function, Function<T, String> namer) {
-        this.polymer$checker = function;
-        this.polymer$isPolymerAware = function != null;
+    public void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker,  Function<T, String> namer) {
+        this.polymer$checker = polymerChecker;
+        this.polymer$checkerList = serverChecker;
+        this.polymer$isPolymerAware = polymerChecker != null;
         this.polymer$namer = namer;
     }
 

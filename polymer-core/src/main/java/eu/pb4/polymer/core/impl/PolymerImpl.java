@@ -4,8 +4,6 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.impl.client.ClientConfig;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.Version;
 import org.slf4j.Logger;
 
 public final class PolymerImpl {
@@ -19,7 +17,6 @@ public final class PolymerImpl {
     public static final boolean ENABLE_TEMPLATE_ENTITY_WARNINGS;
     public static final boolean DISPLAY_DEBUG_INFO_CLIENT;
     public static final boolean ADD_NON_POLYMER_CREATIVE_TABS;
-    public static final boolean UNLOCK_SERVER_PACK_CLIENT;
     public static final boolean RESEND_BLOCKS_AROUND_CLICK;
     public static final boolean DONT_USE_BLOCK_DELTA_PACKET;
     public static final boolean LOG_SYNC_TIME;
@@ -27,6 +24,7 @@ public final class PolymerImpl {
     public static final boolean LOG_INVALID_SERVER_IDS_CLIENT;
     public static final boolean CHANGING_QOL_CLIENT;
     public static final boolean USE_UNSAFE_ITEMS_CLIENT;
+    public static final boolean SYNC_MODDED_ENTRIES_POLYMC;
     public static final boolean USE_FULL_REI_COMPAT_CLIENT = true;
     public static final boolean LOG_MORE_ERRORS;
 
@@ -40,20 +38,19 @@ public final class PolymerImpl {
         LOG_SYNC_TIME = CommonImpl.DEVELOPER_MODE || serverConfig.logHandshakeTime;
         LOG_BLOCKSTATE_REBUILDS = serverConfig.logBlockStateRebuilds;
         LOG_MORE_ERRORS = serverConfig.logAllExceptions || CommonImpl.DEVELOPER_MODE;
+        SYNC_MODDED_ENTRIES_POLYMC = serverConfig.polyMcSyncModdedEntries && CompatStatus.POLYMC;
 
 
         if (PolymerImpl.IS_CLIENT) {
             var clientConfig =  CommonImpl.loadConfig("client", ClientConfig.class);
             USE_ALT_ARMOR_HANDLER = CompatStatus.REQUIRE_ALT_ARMOR_HANDLER || clientConfig.useAlternativeArmorRenderer;
             DISPLAY_DEBUG_INFO_CLIENT = clientConfig.displayF3Info;
-            UNLOCK_SERVER_PACK_CLIENT = LOADER.getGameDir().resolve(".polymer_unlock_rp").toFile().exists();
             LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
             CHANGING_QOL_CLIENT = !clientConfig.disableNonVisualQualityOfLifeChanges;
             USE_UNSAFE_ITEMS_CLIENT = clientConfig.experimentalModdedContainerSupport;
         } else {
             USE_ALT_ARMOR_HANDLER = false;
             DISPLAY_DEBUG_INFO_CLIENT = false;
-            UNLOCK_SERVER_PACK_CLIENT = false;
             LOG_INVALID_SERVER_IDS_CLIENT = false;
             CHANGING_QOL_CLIENT = false;
             USE_UNSAFE_ITEMS_CLIENT = false;

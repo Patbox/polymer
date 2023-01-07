@@ -2,8 +2,8 @@ package eu.pb4.polymer.core.api.utils;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.IndexedIterable;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.api.block;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
@@ -81,5 +82,9 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
     @Override
     default Block getPolymerReplacement(ServerPlayerEntity player) {
         return this.getPolymerBlock(((Block) this).getDefaultState(), player);
+    }
+
+    default boolean handleMiningOnServer(ItemStack tool, BlockState state, BlockPos pos, ServerPlayerEntity player) {
+        return true;
     }
 }

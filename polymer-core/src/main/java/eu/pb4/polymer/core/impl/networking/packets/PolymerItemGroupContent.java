@@ -5,9 +5,11 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 
@@ -23,14 +25,14 @@ public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> sta
         var contents = PolymerItemGroupUtils.getContentsFor(handler.player, group);
 
         for (var item : contents.main()) {
-            if (anyContent || PolymerItemUtils.isPolymerServerItem(item)) {
-                stacksMain.add(PolymerItemUtils.getPolymerItemStack(item, PolymerUtils.getCreativeTooltipContext(handler.player), handler.player));
+            if (anyContent || PolymerItemUtils.isPolymerServerItem(item) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                stacksMain.add(item);
             }
         }
 
         for (var item : contents.search()) {
-            if (anyContent || PolymerItemUtils.isPolymerServerItem(item)) {
-                stacksSearch.add(PolymerItemUtils.getPolymerItemStack(item, PolymerUtils.getCreativeTooltipContext(handler.player), handler.player));
+            if (anyContent || PolymerItemUtils.isPolymerServerItem(item) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                stacksSearch.add(item);
             }
         }
 
@@ -42,12 +44,12 @@ public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> sta
         buf.writeIdentifier(identifier);
         buf.writeVarInt(stacksMain.size());
         for (var item : stacksMain) {
-            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, item));
+            PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(item, handler.player, PolymerUtils.getCreativeTooltipContext(handler.player)));
         }
 
         buf.writeVarInt(stacksSearch.size());
         for (var item : stacksSearch) {
-            PolymerImplUtils.writeStack(buf, ServerTranslationUtils.parseFor(handler, item));
+            PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(item, handler.player, PolymerUtils.getCreativeTooltipContext(handler.player)));
         }
     }
 

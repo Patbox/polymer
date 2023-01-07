@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 @ApiStatus.Internal
 public interface PolymerIdList<T> {
-    void polymer$setChecker(Predicate<T> function, Function<T, String> name);
+    void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker, Function<T, String> name);
     void polymer$setIgnoreCalls(boolean value);
     Collection<T> polymer$getPolymerEntries();
     int polymer$getOffset();

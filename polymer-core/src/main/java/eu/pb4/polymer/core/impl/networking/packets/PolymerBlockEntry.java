@@ -1,8 +1,9 @@
 package eu.pb4.polymer.core.impl.networking.packets;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
@@ -19,7 +20,8 @@ public record PolymerBlockEntry(Identifier identifier, int numId, Text text, Blo
         buf.writeIdentifier(identifier);
         buf.writeVarInt(numId);
         buf.writeText(ServerTranslationUtils.parseFor(handler, text));
-        buf.writeVarInt(Block.getRawIdFromState(PolymerBlockUtils.getBlockStateSafely((PolymerBlock) visual.getBlock(), visual)));
+        var player = PolymerUtils.getPlayerContext();
+        buf.writeVarInt(Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(PolyMcUtils.toVanilla(this.visual, player), player)));
     }
 
     public static PolymerBlockEntry of(Block block) {

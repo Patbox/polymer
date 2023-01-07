@@ -1,12 +1,14 @@
 package eu.pb4.polymer.core.api.item;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,5 +84,9 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
     @Override
     default Item getPolymerReplacement(ServerPlayerEntity player) {
         return this.getPolymerItem(((Item) this).getDefaultStack(), player);
+    }
+
+    default boolean handleMiningOnServer(ItemStack tool, BlockState targetBlock, BlockPos pos, ServerPlayerEntity player) {
+        return true;
     }
 }

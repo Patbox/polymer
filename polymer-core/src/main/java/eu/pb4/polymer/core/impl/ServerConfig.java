@@ -17,4 +17,6 @@ public class ServerConfig {
     public boolean logBlockStateRebuilds = true;
     public String _c13 = "Enables logging of more exceptions. Useful when debugging";
     public boolean logAllExceptions = false;
+    public String _c1 = "Enables syncing of non-polymer entries as polymer ones, when PolyMc is present";
+    public boolean polyMcSyncModdedEntries = true;
 }
