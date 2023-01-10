@@ -35,6 +35,12 @@ public final class CompatStatus {
     public static final boolean JEI = LOADER.isModLoaded("jei");
     public static final boolean EMI = LOADER.isModLoaded("emi");
 
+    public static final boolean FABRIC_PROXY_LITE = LOADER.isModLoaded("fabricproxy-lite");
+    public static final boolean FABRIC_PROXY = LOADER.isModLoaded("fabricproxy");
+    public static final boolean QFORWARD = LOADER.isModLoaded("qforward");
+
+    public static final boolean PROXY_MODS = FABRIC_PROXY || FABRIC_PROXY_LITE || QFORWARD;
+
     public static final boolean IRIS = LOADER.isModLoaded("iris");
     public static final boolean CANVAS = LOADER.isModLoaded("canvas");
     public static final boolean OPTIBAD = LOADER.isModLoaded("optifabric");

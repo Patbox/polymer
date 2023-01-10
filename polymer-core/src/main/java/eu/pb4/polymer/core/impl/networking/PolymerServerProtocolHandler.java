@@ -55,8 +55,8 @@ public class PolymerServerProtocolHandler {
             handler.getPlayer().getServer().execute(() -> {
                 PolymerServerProtocol.sendSyncPackets(handler, true);
 
-                if (handler.getPlayer() != null && ((TempPlayerLoginAttachments) handler.getPlayer()).polymer$getWorldReload()) {
-                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymer$setWorldReload(false);
+                if (handler.getPlayer() != null && ((TempPlayerLoginAttachments) handler.getPlayer()).polymerNet$getWorldReload()) {
+                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymerNet$setWorldReload(false);
                     PolymerUtils.reloadWorld(handler.getPlayer());
                 }
             });

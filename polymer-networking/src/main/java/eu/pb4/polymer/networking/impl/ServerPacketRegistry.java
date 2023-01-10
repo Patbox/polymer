@@ -31,7 +31,6 @@ public class ServerPacketRegistry {
                 version = buf.readVarInt();
                 versionRead = true;
 
-
                 packetHandler.onPacket(handler, version, buf);
             } catch (Throwable e) {
                 CommonImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, versionRead ? version : "Unknown", handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);

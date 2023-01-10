@@ -128,7 +128,7 @@ public class Commands {
                 .then(literal("protocol-info")
                         .executes((ctx) -> {
                             ctx.getSource().sendFeedback(Text.literal("Protocol supported by your client:"), false);
-                            for (var entry : NetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymer$getSupportMap().object2IntEntrySet()) {
+                            for (var entry : NetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymerNet$getSupportMap().object2IntEntrySet()) {
                                 ctx.getSource().sendFeedback(Text.literal("- " + entry.getKey() + " = " + entry.getIntValue()), false);
                             }
                             return 0;

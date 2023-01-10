@@ -34,8 +34,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         if (PolymerResourcePackUtils.hasPack(player)) {
             this.continueJoining();
         } else {
-            var server = this.getServer();
-            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty()));
+            this.sendInitialGameJoin();
 
             //this.sendPacket(new ChunkDataS2CPacket(FAKE_CHUNK, PolymerUtils.getFakeWorld().getLightingProvider(), null, null, true));
             this.sendPacket(FAKE_ENTITY.createSpawnPacket());

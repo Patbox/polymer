@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftClientMixin {
 
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V"))
-    private void polymer$onDisconnect(CallbackInfo ci) {
+    private void polymerNet$onDisconnect(CallbackInfo ci) {
         ClientPacketRegistry.clear();
     }
 }

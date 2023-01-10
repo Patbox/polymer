@@ -1,20 +1,17 @@
 package eu.pb4.polymer.core.impl.networking;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
-import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
-import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.core.impl.networking.packets.*;
+import eu.pb4.polymer.networking.api.ServerPacketWriter;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
@@ -22,8 +19,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.registry.DefaultedRegistry;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -231,25 +228,21 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
 
         if (version != -1) {
-            PolymerUtils.executeWithPlayerContext(handler.player, () -> {
-                {
-                    var buf = buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR));
-                    buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
-                    handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
+            {
+                var buf = buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR));
+                buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
+                handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
+            }
+
+
+            try {
+                var entry = PolymerItemGroupContent.of(group, handler);
+                if (entry.isNonEmpty()) {
+                    handler.sendPacket(entry.toPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD));
                 }
+            } catch (Exception e) {
 
-
-                try {
-                    var entry = PolymerItemGroupContent.of(group, handler);
-                    if (entry.isNonEmpty()) {
-                        var buf = buf(version);
-                        entry.write(buf, version, handler);
-                        handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD, buf));
-                    }
-                } catch (Exception e) {
-
-                }
-            });
+            }
         }
 
     }
@@ -264,7 +257,6 @@ public class PolymerServerProtocol {
             buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));
             PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(group.getIcon(), handler.player));
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_DEFINE, buf));
-
         }
     }
 
@@ -293,16 +285,19 @@ public class PolymerServerProtocol {
 
 
     private static void sendSync(ServerPlayNetworkHandler handler, Identifier id, int version, List<BufferWritable> entries) {
-        var buf = buf(version);
+        handler.sendPacket(new SyncPacket(List.copyOf(entries)).toPacket(id));
+        entries.clear();
+    }
 
-        buf.writeVarInt(entries.size());
-        PolymerUtils.executeWithPlayerContext(handler.player, () -> {
+    private record SyncPacket(List<BufferWritable> entries) implements ServerPacketWriter {
+        @Override
+        public void write(ServerPlayNetworkHandler handler, PacketByteBuf buf, Identifier packetId, int version) {
+            buf.writeVarInt(entries.size());
+
             for (var entry : entries) {
                 entry.write(buf, version, handler);
             }
-        });
-        handler.sendPacket(new CustomPayloadS2CPacket(id, buf));
-        entries.clear();
+        }
     }
 
     private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, Function<T, BufferWritable> writableFunction) {

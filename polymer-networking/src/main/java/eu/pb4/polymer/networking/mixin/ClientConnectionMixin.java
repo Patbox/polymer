@@ -17,18 +17,18 @@ import java.util.function.Consumer;
 @Mixin(ClientConnection.class)
 public class ClientConnectionMixin implements ExtClientConnection {
     @Shadow private int packetsReceivedCounter;
-    private Consumer<CustomPayloadC2SPacket> polymer$packetConsumer;
+    private Consumer<CustomPayloadC2SPacket> polymerNet$packetConsumer;
 
     @Inject(method = "setPacketListener", at = @At("HEAD"))
-    private void polymer$removeConsumer(PacketListener listener, CallbackInfo ci) {
-        this.polymer$packetConsumer = null;
+    private void polymerNet$removeConsumer(PacketListener listener, CallbackInfo ci) {
+        this.polymerNet$packetConsumer = null;
     }
 
     @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
-    private void polymer$handlePacket(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci) {
-        if (this.polymer$packetConsumer != null) {
+    private void polymerNet$handlePacket(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci) {
+        if (this.polymerNet$packetConsumer != null) {
             if (packet instanceof CustomPayloadC2SPacket c) {
-                this.polymer$packetConsumer.accept(c);
+                this.polymerNet$packetConsumer.accept(c);
             }
             ci.cancel();
             this.packetsReceivedCounter++;
@@ -36,7 +36,7 @@ public class ClientConnectionMixin implements ExtClientConnection {
     }
 
     @Override
-    public void polymer$ignorePacketsUntilChange(Consumer<CustomPayloadC2SPacket> consumer) {
-        this.polymer$packetConsumer = consumer;
+    public void polymerNet$ignorePacketsUntilChange(Consumer<CustomPayloadC2SPacket> consumer) {
+        this.polymerNet$packetConsumer = consumer;
     }
 }

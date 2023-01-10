@@ -11,16 +11,15 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.listener.TickablePacketListener;
 import net.minecraft.network.packet.c2s.play.*;
-import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
-import net.minecraft.network.packet.s2c.play.KeepAliveS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -31,6 +30,7 @@ import java.util.function.Function;
  */
 
 public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener {
+
 
     public static void register(Function<Context, EarlyPlayNetworkHandler> constructor) {
         EarlyConnectionMagic.register(constructor);
@@ -43,6 +43,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     private volatile int keepAliveSent = 0;
     private volatile int keepAliveReceived = 0;
+    private volatile int pingsId = 1024;
     private volatile boolean canContinue = true;
     private volatile boolean alreadyContinued;
 
@@ -87,7 +88,11 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     }
 
     protected void forceRespawnPacket() {
-        ((TempPlayerLoginAttachments) this.getPlayer()).polymer$setForceRespawnPacket();
+        ((TempPlayerLoginAttachments) this.getPlayer()).polymerNet$setForceRespawnPacket();
+    }
+
+    protected boolean isForcingRespawnPacket() {
+        return ((TempPlayerLoginAttachments) this.getPlayer()).polymerNet$getForceRespawnPacket();
     }
 
     @Override
@@ -104,9 +109,8 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     public final void sendPacket(Packet<?> packet) {
         this.context.connection().send(packet);
-
         if (packet instanceof GameJoinS2CPacket packet1) {
-            if (((TempPlayerLoginAttachments) this.getPlayer()).polymer$getForceRespawnPacket()) {
+            if (this.isForcingRespawnPacket()) {
                 this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), (byte) 0, packet1.lastDeathLocation()));
             }
 
@@ -123,10 +127,28 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         this.sendKeepAlive(System.currentTimeMillis());
     }
 
+    public final void sendPing(int id) {
+        this.sendPacket(new PlayPingS2CPacket(id));
+    }
+
+    public final int sendPing() {
+        var id = this.pingsId++;
+        this.sendPing(id);
+        return id;
+    }
+
     @Override
     public final void onCustomPayload(CustomPayloadC2SPacket packet) {
         if (!handleCustomPayload(packet)) {
             this.context.storedPackets().add(new CustomPayloadC2SPacket(packet.getChannel(), new PacketByteBuf(packet.getData().copy())));
+        }
+    }
+
+    public final void sendInitialGameJoin() {
+        if (!this.isForcingRespawnPacket()) {
+            var player = this.getPlayer();
+            var server = this.getServer();
+            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty()));
         }
     }
 

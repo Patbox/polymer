@@ -24,14 +24,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin implements NetworkHandlerExtension {
     @Unique
-    private final Object2IntMap<Identifier> polymer$protocolMap = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<Identifier> polymerNet$protocolMap = new Object2IntOpenHashMap<>();
 
     @Unique
-    private final Object2LongMap<Identifier> polymer$rateLimits = new Object2LongOpenHashMap<>();
+    private final Object2LongMap<Identifier> polymerNet$rateLimits = new Object2LongOpenHashMap<>();
     @Shadow
     public ServerPlayerEntity player;
     @Unique
-    private String polymer$version = "";
+    private String polymerNet$version = "";
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
@@ -41,60 +41,60 @@ public abstract class ServerPlayNetworkHandlerMixin implements NetworkHandlerExt
 
 
     @Override
-    public boolean polymer$hasPolymer() {
-        return !this.polymer$version.isEmpty();
+    public boolean polymerNet$hasPolymer() {
+        return !this.polymerNet$version.isEmpty();
     }
 
     @Override
-    public String polymer$version() {
-        return this.polymer$version;
+    public String polymerNet$version() {
+        return this.polymerNet$version;
     }
 
     @Override
-    public void polymer$setVersion(String version) {
-        this.polymer$version = version;
+    public void polymerNet$setVersion(String version) {
+        this.polymerNet$version = version;
     }
 
     @Override
-    public long polymer$lastPacketUpdate(Identifier packet) {
-        return this.polymer$rateLimits.getLong(packet);
+    public long polymerNet$lastPacketUpdate(Identifier packet) {
+        return this.polymerNet$rateLimits.getLong(packet);
     }
 
     @Override
-    public void polymer$savePacketTime(Identifier packet) {
-        this.polymer$rateLimits.put(packet, System.currentTimeMillis());
+    public void polymerNet$savePacketTime(Identifier packet) {
+        this.polymerNet$rateLimits.put(packet, System.currentTimeMillis());
     }
 
     @Override
-    public void polymer$resetSupported() {
-        this.polymer$protocolMap.clear();
+    public void polymerNet$resetSupported() {
+        this.polymerNet$protocolMap.clear();
     }
 
     @Override
-    public int polymer$getSupportedVersion(Identifier identifier) {
-        return this.polymer$protocolMap.getOrDefault(identifier, -1);
+    public int polymerNet$getSupportedVersion(Identifier identifier) {
+        return this.polymerNet$protocolMap.getOrDefault(identifier, -1);
     }
 
     @Override
-    public void polymer$setSupportedVersion(Identifier identifier, int i) {
-        this.polymer$protocolMap.put(identifier, i);
+    public void polymerNet$setSupportedVersion(Identifier identifier, int i) {
+        this.polymerNet$protocolMap.put(identifier, i);
     }
 
     @Override
-    public Object2IntMap<Identifier> polymer$getSupportMap() {
-        return this.polymer$protocolMap;
+    public Object2IntMap<Identifier> polymerNet$getSupportMap() {
+        return this.polymerNet$protocolMap;
     }
 
     @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
-    private void polymer$catchPackets(CustomPayloadC2SPacket packet, CallbackInfo ci) {
+    private void polymerNet$catchPackets(CustomPayloadC2SPacket packet, CallbackInfo ci) {
         if (ServerPacketRegistry.handle((ServerPlayNetworkHandler) (Object) this, packet.getChannel(), packet.getData())) {
-            this.polymer$savePacketTime(packet.getChannel());
+            this.polymerNet$savePacketTime(packet.getChannel());
             ci.cancel();
         }
     }
 
     @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"))
-    private Packet<?> polymer$replacePacket(Packet<?> packet) {
+    private Packet<?> polymerNet$replacePacket(Packet<?> packet) {
         if (packet instanceof DynamicPacket dynamicPacket) {
             var out = dynamicPacket.createPacket((ServerPlayNetworkHandler) (Object) (this), this.player);
 
@@ -107,7 +107,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements NetworkHandlerExt
     }
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"), cancellable = true)
-    private void polymer$dontLeakDynamic(Packet<?> packet, PacketCallbacks arg, CallbackInfo ci) {
+    private void polymerNet$dontLeakDynamic(Packet<?> packet, PacketCallbacks arg, CallbackInfo ci) {
         if (packet instanceof DynamicPacket) {
             ci.cancel();
         }

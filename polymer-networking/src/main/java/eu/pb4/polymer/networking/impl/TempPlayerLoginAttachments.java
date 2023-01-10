@@ -8,16 +8,26 @@ import java.util.List;
 
 @ApiStatus.Internal
 public interface TempPlayerLoginAttachments {
-    void polymer$setWorldReload(boolean value);
-    boolean polymer$getWorldReload();
+    void polymerNet$setWorldReload(boolean value);
+    boolean polymerNet$getWorldReload();
 
-    PolymerHandshakeHandler polymer$getAndRemoveHandshakeHandler();
-    PolymerHandshakeHandler polymer$getHandshakeHandler();
-    void polymer$setLatePackets(List<CustomPayloadC2SPacket> packets);
-    List<CustomPayloadC2SPacket> polymer$getLatePackets();
+    PolymerHandshakeHandler polymerNet$getAndRemoveHandshakeHandler();
+    PolymerHandshakeHandler polymerNet$getHandshakeHandler();
+    void polymerNet$setLatePackets(List<CustomPayloadC2SPacket> packets);
+    List<CustomPayloadC2SPacket> polymerNet$getLatePackets();
 
-    void polymer$setHandshakeHandler(PolymerHandshakeHandler handler);
+    void polymerNet$setHandshakeHandler(PolymerHandshakeHandler handler);
 
-    void polymer$setForceRespawnPacket();
-    boolean polymer$getForceRespawnPacket();
+    void polymerNet$setForceRespawnPacket();
+    boolean polymerNet$getForceRespawnPacket();
+
+    @Deprecated(forRemoval = true)
+    default boolean polymer$getWorldReload() {
+        return polymerNet$getWorldReload();
+    }
+
+    @Deprecated(forRemoval = true)
+    default void polymer$setWorldReload(boolean b) {
+        polymerNet$setWorldReload(b);
+    }
 }

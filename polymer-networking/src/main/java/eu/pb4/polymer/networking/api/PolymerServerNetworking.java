@@ -30,6 +30,11 @@ public final class PolymerServerNetworking {
         return buf.writeVarInt(version);
     }
 
+    public static boolean send(ServerPlayNetworkHandler handler, Identifier identifier, ServerPacketWriter packet) {
+        handler.sendPacket(packet.toPacket(identifier));
+        return true;
+    }
+
     public static boolean sendDirect(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf packetByteBuf) {
         handler.sendPacket(new CustomPayloadS2CPacket(identifier, packetByteBuf));
         return true;
@@ -50,11 +55,11 @@ public final class PolymerServerNetworking {
     }
 
     public static int getSupportedVersion(ServerPlayNetworkHandler handler, Identifier serverPacket) {
-        return ((NetworkHandlerExtension) handler).polymer$getSupportedVersion(serverPacket);
+        return ((NetworkHandlerExtension) handler).polymerNet$getSupportedVersion(serverPacket);
     }
 
     public static long getLastPacketReceivedTime(ServerPlayNetworkHandler handler, Identifier identifier) {
-        return ((NetworkHandlerExtension) handler).polymer$lastPacketUpdate(identifier);
+        return ((NetworkHandlerExtension) handler).polymerNet$lastPacketUpdate(identifier);
     }
 
     static {

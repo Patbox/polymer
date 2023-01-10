@@ -12,59 +12,59 @@ import java.util.List;
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin implements TempPlayerLoginAttachments {
     @Unique
-    private boolean polymer$requireWorldReload;
+    private boolean polymerNet$requireWorldReload;
 
     @Unique
-    private PolymerHandshakeHandler polymer$handshakeHandler;
+    private PolymerHandshakeHandler polymerNet$handshakeHandler;
     @Unique
-    private List<CustomPayloadC2SPacket> polymer$latePackets;
+    private List<CustomPayloadC2SPacket> polymerNet$latePackets;
     @Unique
-    private boolean polymer$forceRespawnPacket;
+    private boolean polymerNet$forceRespawnPacket;
 
     @Override
-    public void polymer$setWorldReload(boolean value) {
-        this.polymer$requireWorldReload = value;
+    public void polymerNet$setWorldReload(boolean value) {
+        this.polymerNet$requireWorldReload = value;
     }
 
     @Override
-    public boolean polymer$getWorldReload() {
-        return this.polymer$requireWorldReload;
+    public boolean polymerNet$getWorldReload() {
+        return this.polymerNet$requireWorldReload;
     }
 
     @Override
-    public PolymerHandshakeHandler polymer$getAndRemoveHandshakeHandler() {
-        var handler = this.polymer$handshakeHandler;
-        this.polymer$handshakeHandler = null;
+    public PolymerHandshakeHandler polymerNet$getAndRemoveHandshakeHandler() {
+        var handler = this.polymerNet$handshakeHandler;
+        this.polymerNet$handshakeHandler = null;
         return handler;
     }
 
     @Override
-    public PolymerHandshakeHandler polymer$getHandshakeHandler() {
-        return this.polymer$handshakeHandler;
+    public PolymerHandshakeHandler polymerNet$getHandshakeHandler() {
+        return this.polymerNet$handshakeHandler;
     }
 
     @Override
-    public void polymer$setLatePackets(List<CustomPayloadC2SPacket> packets) {
-        this.polymer$latePackets = packets;
+    public void polymerNet$setLatePackets(List<CustomPayloadC2SPacket> packets) {
+        this.polymerNet$latePackets = packets;
     }
 
     @Override
-    public List<CustomPayloadC2SPacket> polymer$getLatePackets() {
-        return this.polymer$latePackets;
+    public List<CustomPayloadC2SPacket> polymerNet$getLatePackets() {
+        return this.polymerNet$latePackets;
     }
 
     @Override
-    public void polymer$setHandshakeHandler(PolymerHandshakeHandler handler) {
-        this.polymer$handshakeHandler = handler;
+    public void polymerNet$setHandshakeHandler(PolymerHandshakeHandler handler) {
+        this.polymerNet$handshakeHandler = handler;
     }
 
     @Override
-    public void polymer$setForceRespawnPacket() {
-        this.polymer$forceRespawnPacket = true;
+    public void polymerNet$setForceRespawnPacket() {
+        this.polymerNet$forceRespawnPacket = true;
     }
 
     @Override
-    public boolean polymer$getForceRespawnPacket() {
-        return this.polymer$forceRespawnPacket;
+    public boolean polymerNet$getForceRespawnPacket() {
+        return this.polymerNet$forceRespawnPacket;
     }
 }

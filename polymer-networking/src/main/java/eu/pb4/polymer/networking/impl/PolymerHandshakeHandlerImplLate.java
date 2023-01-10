@@ -30,32 +30,32 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     }
 
     public void set(String polymerVersion, Object2IntMap<Identifier> protocolVersions) {
-        this.polymerHandler.polymer$setVersion(polymerVersion);
+        this.polymerHandler.polymerNet$setVersion(polymerVersion);
         for (var entry : protocolVersions.object2IntEntrySet()) {
-            this.polymerHandler.polymer$setSupportedVersion(entry.getKey(), entry.getIntValue());
+            this.polymerHandler.polymerNet$setSupportedVersion(entry.getKey(), entry.getIntValue());
         }
     }
 
     public boolean isPolymer() {
-        return this.polymerHandler.polymer$hasPolymer();
+        return this.polymerHandler.polymerNet$hasPolymer();
     }
 
     public String getPolymerVersion() {
-        return this.polymerHandler.polymer$version();
+        return this.polymerHandler.polymerNet$version();
     }
 
     public int getSupportedProtocol(Identifier identifier) {
-        return this.polymerHandler.polymer$getSupportedVersion(identifier);
+        return this.polymerHandler.polymerNet$getSupportedVersion(identifier);
     }
 
     @Override
     public void setLastPacketTime(Identifier identifier) {
-        this.polymerHandler.polymer$savePacketTime(identifier);
+        this.polymerHandler.polymerNet$savePacketTime(identifier);
     }
 
     @Override
     public long getLastPacketTime(Identifier identifier) {
-        return this.polymerHandler.polymer$lastPacketUpdate(identifier);
+        return this.polymerHandler.polymerNet$lastPacketUpdate(identifier);
 
     }
 
@@ -84,7 +84,7 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
 
     @Override
     public void reset() {
-        this.polymerHandler.polymer$resetSupported();
+        this.polymerHandler.polymerNet$resetSupported();
     }
 
     @Override

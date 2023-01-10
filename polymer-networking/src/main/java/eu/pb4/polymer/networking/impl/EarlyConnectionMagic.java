@@ -29,7 +29,7 @@ public class EarlyConnectionMagic {
                 }
             });
 
-            ((TempPlayerLoginAttachments) player).polymer$setLatePackets(context.storedPackets);
+            ((TempPlayerLoginAttachments) player).polymerNet$setLatePackets(context.storedPackets);
 
             iterator.next().apply(context);
         }

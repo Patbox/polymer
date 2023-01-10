@@ -9,18 +9,23 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @SuppressWarnings({"unused"})
 public interface NetworkHandlerExtension {
-    boolean polymer$hasPolymer();
-    String polymer$version();
-    int polymer$protocolVersion();
+    boolean polymerNet$hasPolymer();
+    String polymerNet$version();
+    int polymerNet$protocolVersion();
 
-    void polymer$setVersion(String version);
+    void polymerNet$setVersion(String version);
 
-    long polymer$lastPacketUpdate(Identifier identifier);
-    void polymer$savePacketTime(Identifier identifier);
+    long polymerNet$lastPacketUpdate(Identifier identifier);
+    void polymerNet$savePacketTime(Identifier identifier);
 
-    int polymer$getSupportedVersion(Identifier identifier);
-    void polymer$setSupportedVersion(Identifier identifier, int i);
-    Object2IntMap<Identifier> polymer$getSupportMap();
+    int polymerNet$getSupportedVersion(Identifier identifier);
+    void polymerNet$setSupportedVersion(Identifier identifier, int i);
+    Object2IntMap<Identifier> polymerNet$getSupportMap();
+
+    @Deprecated(forRemoval = true)
+    default Object2IntMap<Identifier> polymer$getSupportMap() {
+        return polymerNet$getSupportMap();
+    }
 
     static NetworkHandlerExtension of(ServerPlayerEntity player) {
         return (NetworkHandlerExtension) player.networkHandler;
@@ -31,5 +36,5 @@ public interface NetworkHandlerExtension {
     }
 
 
-    void polymer$resetSupported();
+    void polymerNet$resetSupported();
 }

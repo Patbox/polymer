@@ -4,8 +4,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
-import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
+import eu.pb4.polymer.networking.api.ServerPacketWriter;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -16,7 +15,7 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> stacksMain, List<ItemStack> stacksSearch) implements BufferWritable {
+public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> stacksMain, List<ItemStack> stacksSearch) implements ServerPacketWriter {
     public static PolymerItemGroupContent of(ItemGroup group, ServerPlayNetworkHandler handler) {
         var stacksMain = new ArrayList<ItemStack>();
         var stacksSearch = new ArrayList<ItemStack>();
@@ -40,15 +39,15 @@ public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> sta
     }
 
     @Override
-    public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
-        buf.writeIdentifier(identifier);
-        buf.writeVarInt(stacksMain.size());
-        for (var item : stacksMain) {
+    public void write(ServerPlayNetworkHandler handler, PacketByteBuf buf, Identifier packetId, int version) {
+        buf.writeIdentifier(this.identifier);
+        buf.writeVarInt(this.stacksMain.size());
+        for (var item : this.stacksMain) {
             PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(item, handler.player, PolymerUtils.getCreativeTooltipContext(handler.player)));
         }
 
-        buf.writeVarInt(stacksSearch.size());
-        for (var item : stacksSearch) {
+        buf.writeVarInt(this.stacksSearch.size());
+        for (var item : this.stacksSearch) {
             PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(item, handler.player, PolymerUtils.getCreativeTooltipContext(handler.player)));
         }
     }

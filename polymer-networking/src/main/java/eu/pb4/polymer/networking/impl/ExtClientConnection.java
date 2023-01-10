@@ -7,5 +7,5 @@ import java.util.function.Consumer;
 
 @ApiStatus.Internal
 public interface ExtClientConnection {
-    void polymer$ignorePacketsUntilChange(Consumer<CustomPayloadC2SPacket> consumer);
+    void polymerNet$ignorePacketsUntilChange(Consumer<CustomPayloadC2SPacket> consumer);
 }
