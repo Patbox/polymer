@@ -137,33 +137,35 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             try {
                 for (var rootPaths : container.getRootPaths()) {
                     Path assets = rootPaths.resolve("assets");
-                    Files.walkFileTree(assets, new FileVisitor<>() {
-                        @Override
-                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                            return FileVisitResult.CONTINUE;
-                        }
+                    if (Files.exists(assets)) {
+                        Files.walkFileTree(assets, new FileVisitor<>() {
+                            @Override
+                            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                                return FileVisitResult.CONTINUE;
+                            }
 
-                        @Override
-                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                            var relative = assets.relativize(file);
+                            @Override
+                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                var relative = assets.relativize(file);
 
-                            var bytes = Files.readAllBytes(file);
+                                var bytes = Files.readAllBytes(file);
 
-                            fileMap.put("assets/" + relative.toString().replace("\\", "/"), bytes);
+                                fileMap.put("assets/" + relative.toString().replace("\\", "/"), bytes);
 
-                            return FileVisitResult.CONTINUE;
-                        }
+                                return FileVisitResult.CONTINUE;
+                            }
 
-                        @Override
-                        public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                            return FileVisitResult.CONTINUE;
-                        }
+                            @Override
+                            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                                return FileVisitResult.CONTINUE;
+                            }
 
-                        @Override
-                        public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                            return FileVisitResult.CONTINUE;
-                        }
-                    });
+                            @Override
+                            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                                return FileVisitResult.CONTINUE;
+                            }
+                        });
+                    }
                 }
 
                 return true;

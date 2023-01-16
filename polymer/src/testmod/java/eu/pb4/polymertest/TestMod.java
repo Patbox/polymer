@@ -187,6 +187,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         PolymerRPUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
         //PolymerRPUtils.markAsRequired();
         //PolymerRPUtils.addModAsAssetsSource("promenade");
+        System.out.println(SoundEvents.ENTITY_PARROT_IMITATE_VEX.toString());
 
         register(Registry.ITEM, new Identifier("test", "item"), ITEM);
         register(Registry.ITEM, new Identifier("test", "item2"), ITEM_2);
