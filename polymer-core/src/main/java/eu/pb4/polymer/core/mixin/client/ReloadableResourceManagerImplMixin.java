@@ -23,9 +23,9 @@ import java.util.concurrent.Executor;
 public class ReloadableResourceManagerImplMixin {
     @Inject(method = "reload", at = @At("RETURN"))
     private void polymer$onReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReload> cir) {
-        var server = MinecraftClient.getInstance().getServer();
-        if (server != null) {
-            server.execute(() -> PolymerUtils.reloadWorld(ClientUtils.getPlayer()));
+        var player = ClientUtils.getPlayer();
+        if (player != null) {
+            player.server.execute(() -> PolymerUtils.reloadWorld(player));
         }
     }
 }

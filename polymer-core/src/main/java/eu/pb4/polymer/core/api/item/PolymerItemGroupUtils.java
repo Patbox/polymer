@@ -8,6 +8,7 @@ import eu.pb4.polymer.core.impl.interfaces.ItemGroupExtra;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +31,11 @@ public final class PolymerItemGroupUtils {
     public static final SimpleEvent<ItemGroupEventListener> LIST_EVENT = new SimpleEvent<>();
 
     public static Contents getContentsFor(ServerPlayerEntity player, ItemGroup group) {
-        return ((ItemGroupExtra) group).polymer$getContentsWith(player.world.getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
+        return getContentsFor(group, player.world.getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
+    }
+
+    public static Contents getContentsFor(ItemGroup group, FeatureSet featureSet, boolean operator) {
+        return ((ItemGroupExtra) group).polymer$getContentsWith(featureSet, operator);
     }
 
     /**

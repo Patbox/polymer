@@ -15,21 +15,18 @@ import java.util.function.Consumer;
 @ApiStatus.Internal
 public class CompatUtils {
     public static void iterateItems(Consumer<ItemStack> consumer) {
+        var stacks = ItemStackSet.create();
+
         for (var group : ItemGroups.getGroups()) {
             if (group.getType() != ItemGroup.Type.CATEGORY) {
                 continue;
             }
-
-            var stacks = ItemStackSet.create();
-
             stacks.addAll(((ClientItemGroupExtension) group).polymer$getStacksGroup());
             stacks.addAll(((ClientItemGroupExtension) group).polymer$getStacksSearch());
+        }
 
-            if (stacks != null) {
-                for (var stack : stacks) {
-                    consumer.accept(stack);
-                }
-            }
+        for (var stack : stacks) {
+            consumer.accept(stack);
         }
     }
 

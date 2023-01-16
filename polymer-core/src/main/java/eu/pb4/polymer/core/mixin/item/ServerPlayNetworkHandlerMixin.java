@@ -72,8 +72,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
 
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
-    private void polymer_updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
-
+    private void polymer$updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         if (PolymerImpl.RESEND_BLOCKS_AROUND_CLICK) {
             var base = packet.getBlockHitResult().getBlockPos();
             for (Direction direction : Direction.values()) {
@@ -90,14 +89,14 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
         }
 
-        var stack = this.player.getStackInHand(packet.getHand());
+        /*var stack = this.player.getStackInHand(packet.getHand());
 
         if (stack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, stack, this.player);
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand(), 0));
             }
-        }
+        }*/
     }
 
     @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER))

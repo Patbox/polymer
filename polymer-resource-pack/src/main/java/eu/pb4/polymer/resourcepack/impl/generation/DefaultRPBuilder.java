@@ -148,17 +148,19 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             try {
                 for (var rootPaths : container.getRootPaths()) {
                     Path assets = rootPaths.resolve("assets");
-                    Files.walk(assets).forEach((file) -> {
-                        var relative = assets.relativize(file);
-                        var path = relative.toString().replace("\\", "/");
-                        if (Files.isRegularFile(file)) {
-                            try {
-                                this.addData("assets/" + path, Files.readAllBytes(file));
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                    if (Files.exists(assets)) {
+                        Files.walk(assets).forEach((file) -> {
+                            var relative = assets.relativize(file);
+                            var path = relative.toString().replace("\\", "/");
+                            if (Files.isRegularFile(file)) {
+                                try {
+                                    this.addData("assets/" + path, Files.readAllBytes(file));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
 
                 return true;

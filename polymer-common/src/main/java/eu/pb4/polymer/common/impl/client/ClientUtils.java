@@ -10,6 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 @Environment(EnvType.CLIENT)
 public class ClientUtils {
     public static final String PACK_ID = "$polymer-resources";
+    public static volatile ServerPlayerEntity backupPlayer;
 
     public static boolean isResourcePackLoaded() {
         return MinecraftClient.getInstance().getResourcePackManager().getEnabledNames().contains(PACK_ID);
@@ -22,7 +23,7 @@ public class ClientUtils {
     public static ServerPlayerEntity getPlayer() {
         return MinecraftClient.getInstance().getServer() != null && MinecraftClient.getInstance().player != null
                 ? MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid())
-                : null;
+                : backupPlayer;
     }
 
     public static boolean isClientThread() {

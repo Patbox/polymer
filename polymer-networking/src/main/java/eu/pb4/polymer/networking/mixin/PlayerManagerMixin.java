@@ -1,7 +1,11 @@
 package eu.pb4.polymer.networking.mixin;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import net.minecraft.server.PlayerManager;
@@ -21,6 +25,7 @@ public class PlayerManagerMixin {
 
         if (handshake != null) {
             handshake.apply(player.networkHandler);
+
             PolymerServerNetworking.AFTER_HANDSHAKE_APPLY.invoke(x -> x.accept(player.networkHandler, handshake));
         }
 
@@ -39,6 +44,22 @@ public class PlayerManagerMixin {
         if (((TempPlayerLoginAttachments) player).polymerNet$getForceRespawnPacket()) {
             var world = player.getWorld();
             connection.send(new PlayerRespawnS2CPacket(world.getDimensionKey(), world.getRegistryKey(), BiomeAccess.hashSeed(((ServerWorld) world).getSeed()),player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), world.isDebugWorld(), ((ServerWorld) world).isFlat(), (byte) 0xFF, player.getLastDeathPos()));
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    @Inject(method = "onPlayerConnect", at = @At("HEAD"))
+    private void polymerNet$storePlayer(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+        if (player.server.isHost(player.getGameProfile())) {
+            ClientUtils.backupPlayer = player;
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    @Inject(method = "onPlayerConnect", at = @At("TAIL"))
+    private void polymerNet$removePlayer(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+        if (player.server.isHost(player.getGameProfile())) {
+            ClientUtils.backupPlayer = null;
         }
     }
 }
