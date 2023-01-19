@@ -1,7 +1,9 @@
 package eu.pb4.polymer.impl.other;
 
+import com.mojang.serialization.Lifecycle;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.PolymerImplUtils;
+import eu.pb4.polymer.mixin.GeneratorOptionsAccessor;
 import eu.pb4.polymer.mixin.other.DimensionTypeAccessor;
 import eu.pb4.polymer.mixin.other.WorldAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
@@ -13,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
 import net.minecraft.recipe.RecipeManager;
+import net.minecraft.resource.DataPackSettings;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -26,6 +29,7 @@ import net.minecraft.util.registry.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.biome.GenerationSettings;
 import net.minecraft.world.biome.OverworldBiomeCreator;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
@@ -36,6 +40,9 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.gen.GeneratorOptions;
+import net.minecraft.world.level.LevelInfo;
+import net.minecraft.world.level.LevelProperties;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.QueryableTickScheduler;
 import org.jetbrains.annotations.ApiStatus;
@@ -151,7 +158,11 @@ public final class FakeWorld extends World {
                 accessor.polymer_setBorder(new WorldBorder());
                 accessor.polymer_setDebugWorld(true);
                 accessor.polymer_setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
-                accessor.polymer_setProperties(new FakeWorldProperties());
+                accessor.polymer_setProperties(new LevelProperties(
+                        new LevelInfo("fake_world", GameMode.ADVENTURE, false, Difficulty.NORMAL, false, new GameRules(), new DataPackSettings(List.of(), List.of())),
+                                GeneratorOptionsAccessor.createGeneratorOptions(0, false, false, null, Optional.empty()),
+                                Lifecycle.experimental()
+                                ));
                 accessor.polymer_setRegistryKey(RegistryKey.of(Registry.WORLD_KEY, PolymerImplUtils.id("fake_world")));
                 accessor.polymer_setThread(Thread.currentThread());
                 accessor.polymer_setRandom(new Random());

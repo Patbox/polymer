@@ -127,6 +127,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             try {
                 for (var rootPaths : container.getRootPaths()) {
                     Path assets = rootPaths.resolve("assets");
+                    if (!Files.exists(assets)) {
+                        continue;
+                    }
+
                     Files.walkFileTree(assets, new FileVisitor<>() {
                         @Override
                         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
