@@ -26,9 +26,6 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Unique
     private PalettedContainer<ClientPolymerBlock.State> polymer_container;
 
-    @Unique
-    private PalettedContainerAccessor<ClientPolymerBlock.State> polymer_accessor;
-
     @Inject(method = "<init>(ILnet/minecraft/util/registry/Registry;)V", at = @At("TAIL"))
     private void polymer_init(int chunkPos, Registry<Biome> biomeRegistry, CallbackInfo ci) {
         this.polymer_createContainers();
@@ -39,15 +36,13 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
         this.polymer_createContainers();
     }
 
-
     private void polymer_createContainers() {
         this.polymer_container = new PalettedContainer<>(InternalClientRegistry.BLOCK_STATES, ClientPolymerBlock.NONE_STATE, PalettedContainer.PaletteProvider.BLOCK_STATE);
-        this.polymer_accessor = (PalettedContainerAccessor<ClientPolymerBlock.State>) this.polymer_container;
     }
 
     @Override
     public void polymer_setClientPolymerBlock(int x, int y, int z, ClientPolymerBlock.State block) {
-        this.polymer_accessor.polymer_set(this.polymer_accessor.polymer_paletteProvider().computeIndex(x & 15, y & 15, z & 15), block);
+        this.polymer_container.swapUnsafe(x & 15, y & 15, z & 15, block);
     }
 
     @Override
