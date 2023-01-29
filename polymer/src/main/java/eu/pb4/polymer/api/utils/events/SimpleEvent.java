@@ -26,4 +26,8 @@ public final class SimpleEvent<T> {
             invoker.accept(handler);
         }
     }
+
+    public boolean isEmpty() {
+        return this.handlers.isEmpty();
+    }
 }
