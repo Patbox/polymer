@@ -192,7 +192,7 @@ public final class ResourcePackCreator {
     }
 
     public boolean isEmpty() {
-        return this.items.values().size() <= 0 || this.modIds.size() <= 0 || this.armorModelMap.size() <= 0;
+        return this.items.isEmpty() && this.modIds.isEmpty() && this.armorModelMap.isEmpty() && this.creationEvent.isEmpty();
     }
 
     public boolean build(Path output) throws ExecutionException, InterruptedException {

@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,9 +45,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final Path outputPath;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
-    private ZipFile clientJar = null;
+    private FileSystem clientJar = null;
 
-    private Map<String, JsonArray> atlasDefinitions = new HashMap<>();
+    private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
 
     public DefaultRPBuilder(Path outputPath) {
         outputPath.getParent().toFile().mkdirs();
@@ -237,18 +238,39 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         if (this.fileMap.containsKey(path)) {
             return this.fileMap.get(path);
         } else {
-            try {
-                var entry = this.clientJar.getEntry(path);
-
-                if (entry != null) {
-                    InputStream stream = this.clientJar.getInputStream(entry);
-
-                    return stream.readAllBytes();
-                }
-            } catch (Exception e) {
-                CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
-            }
+            return this.getVanillaData(path);
         }
+    }
+
+    @Nullable
+    private byte[] getVanillaData(String path) {
+        try {
+            var stream = getVanillaStream(path);
+            if (stream != null) {
+                return stream.readAllBytes();
+            }
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
+        }
+        return null;
+    }
+
+    @Nullable
+    private InputStream getVanillaStream(String path) {
+        try {
+            if (this.clientJar == null) {
+                this.clientJar = FileSystems.newFileSystem(PolymerCommonUtils.getClientJar());
+            }
+
+            var entry = this.clientJar.getPath(path);
+
+            if (entry != null && Files.exists(entry)) {
+                return Files.newInputStream(entry);
+            }
+        } catch (Exception e) {
+            CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
+        }
+
         return null;
     }
 
@@ -278,8 +300,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     credits.add(" - " + entry.getMetadata().getName() + " (" + entry.getMetadata().getId() + ")");
                 }
                 credits.add("");
-
-                this.clientJar = new ZipFile(PolymerCommonUtils.getClientJar().toFile());
 
                 this.buildEvent.invoke((c) -> c.accept(credits));
 
@@ -360,7 +380,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                                     if (data == null) {
                                         try {
-                                            InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(path));
+                                            InputStream stream = this.getVanillaStream(path);
                                             if (stream != null) {
                                                 bi = ImageIO.read(stream);
                                             }
@@ -404,10 +424,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     list.sort(Comparator.comparing(e -> -e.color()));
 
                     this.fileMap.put("assets/polymer/armors.json", GSON.toJson(armorDataMap).getBytes(StandardCharsets.UTF_8));
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_1.png")).readAllBytes());
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_1_overlay.png")).readAllBytes());
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2.png")).readAllBytes());
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2_overlay.png")).readAllBytes());
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_1.png"));
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1_overlay.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_1_overlay.png"));
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_2.png"));
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2_overlay.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_2_overlay.png"));
 
                     int[] width = new int[]{64 * globalScale, 64 * globalScale};
                     int[] height = new int[]{32 * globalScale, 32 * globalScale};
@@ -445,11 +465,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     try {
                         for (int i = 0; i <= 1; i++) {
                             {
-                                var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png")));
+                                var tex = ImageIO.read(this.getVanillaStream("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png"));
                                 graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
                             {
-                                var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png")));
+                                var tex = ImageIO.read(this.getVanillaStream("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png"));
                                 graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
                             graphics[i].setColor(Color.WHITE);
@@ -574,6 +594,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 CommonImpl.LOGGER.error("Something went wrong while creating resource pack!");
                 e.printStackTrace();
                 return false;
+            } finally {
+                try {
+                    this.clientJar.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
