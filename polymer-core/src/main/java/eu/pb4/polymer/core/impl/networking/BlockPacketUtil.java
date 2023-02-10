@@ -8,7 +8,7 @@ import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.mixin.block.packet.BlockUpdateS2CPacketAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ChunkDeltaUpdateS2CPacketAccessor;
 import net.minecraft.block.BlockState;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;

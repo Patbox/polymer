@@ -63,10 +63,12 @@ allprojects {
         maven { url "https://dvs1.progwml6.com/files/maven/" }
         maven { url "https://maven.terraformersmc.com/releases" }
         maven { url "https://maven.theepicblock.nl" }
+        maven { url "https://lazurite.dev/maven/releases" }
         maven {
             name = 'Ladysnake Mods'
             url = 'https://ladysnake.jfrog.io/artifactory/mods'
         }
+        mavenLocal()
     }
 
     dependencies {

@@ -16,7 +16,12 @@ public class TestArmor extends ArmorItem implements PolymerItem {
     private final Item itemDefault;
 
     public TestArmor(EquipmentSlot slot, Identifier model, Identifier armor) {
-        super(ArmorMaterials.DIAMOND, slot, new Settings().fireproof().maxDamage(10000));
+        super(ArmorMaterials.DIAMOND, switch (slot) {
+            case HEAD -> Type.HELMET;
+            case CHEST -> Type.CHESTPLATE;
+            case LEGS -> Type.LEGGINGS;
+            default -> Type.BOOTS;
+        }, new Settings().fireproof().maxDamage(10000));
         this.itemDefault = getItemFor(slot, false);
         this.itemModel = PolymerResourcePackUtils.requestModel(getItemFor(slot, true), model);
         this.armorModel = PolymerResourcePackUtils.requestArmor(armor);

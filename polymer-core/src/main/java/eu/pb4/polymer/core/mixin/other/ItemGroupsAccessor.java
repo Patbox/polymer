@@ -2,7 +2,6 @@ package eu.pb4.polymer.core.mixin.other;
 
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -40,7 +39,12 @@ public interface ItemGroupsAccessor {
     }
 
     @Invoker
-    static void callUpdateEntries(FeatureSet enabledFeatures, boolean operatorEnabled) {
+    static void callUpdateEntries(ItemGroup.DisplayContext x) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Accessor
+    static ItemGroup.DisplayContext getDisplayContext() {
         throw new UnsupportedOperationException();
     }
 }

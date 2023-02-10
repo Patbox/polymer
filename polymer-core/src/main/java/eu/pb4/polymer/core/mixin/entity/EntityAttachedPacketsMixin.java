@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.mixin.entity;
 
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

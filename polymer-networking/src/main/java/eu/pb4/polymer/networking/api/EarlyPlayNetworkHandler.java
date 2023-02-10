@@ -6,7 +6,7 @@ import eu.pb4.polymer.networking.impl.EarlyConnectionMagic;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkState;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.listener.TickablePacketListener;
@@ -161,7 +161,6 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         this.handleDisconnect(reason);
     }
 
-    @Override
     public final ClientConnection getConnection() {
         return this.context.connection();
     }
@@ -435,6 +434,11 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     @Override
     public void onPlayerSession(PlayerSessionC2SPacket packet) {
 
+    }
+
+    @Override
+    public boolean isConnectionOpen() {
+        return this.getConnection().isOpen();
     }
 
     @ApiStatus.NonExtendable

@@ -222,7 +222,7 @@ public final class FakeWorld extends World {
     }
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
-        super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed, 0);
+        super(properties, registryRef, DynamicRegistryManager.EMPTY, dimensionType, profiler, isClient, debugWorld, seed, 0);
     }
 
     @Override

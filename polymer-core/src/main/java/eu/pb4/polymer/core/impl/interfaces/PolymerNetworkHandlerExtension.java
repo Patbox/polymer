@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.impl.interfaces;
 
 import eu.pb4.polymer.core.api.block.BlockMapper;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;

@@ -3,7 +3,7 @@ package eu.pb4.polymer.networking.mixin;
 import eu.pb4.polymer.networking.impl.ExtClientConnection;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +24,7 @@ public class ClientConnectionMixin implements ExtClientConnection {
         this.polymerNet$packetConsumer = null;
     }
 
-    @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void polymerNet$handlePacket(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci) {
         if (this.polymerNet$packetConsumer != null) {
             if (packet instanceof CustomPayloadC2SPacket c) {

@@ -7,10 +7,6 @@ public class ServerConfig {
     public boolean displayNonPolymerCreativeTabs = true;
     public String _c9 = "Makes server send additional block updates around clicked area";
     public boolean sendBlocksAroundClicked = true;
-    public String _c10a = "If you have too many BlockStates, this packets likes to break. This toggle allows you to disable";
-    public String _c10b = "and replace it with multiple regular block update ones.";
-    public String _c10c = "See this issue if you are curious: https://github.com/ConsistencyPlus/ConsistencyPlus/issues/108";
-    public boolean disableChunkDeltaUpdatePacket = false;
     public String _c11 = "Makes polymer report time it's handshake took";
     public boolean logHandshakeTime = false;
     public String _c12 = "Enables logging of BlockState ids rebuilds";

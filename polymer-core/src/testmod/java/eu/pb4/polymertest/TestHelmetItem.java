@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 
 public class TestHelmetItem extends ArmorItem implements PolymerItem {
     public TestHelmetItem(Settings settings) {
-        super(ArmorMaterials.IRON, EquipmentSlot.HEAD, settings);
+        super(ArmorMaterials.IRON, Type.HELMET, settings);
     }
 
     @Override

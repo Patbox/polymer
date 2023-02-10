@@ -9,6 +9,7 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -34,7 +35,7 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
     }
 
     @Override
-    public ItemStack craft(Inventory inventory) {
+    public ItemStack craft(Inventory inventory, DynamicRegistryManager dynamicRegistryManager) {
         return this.output.copy();
     }
 
@@ -44,7 +45,7 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
     }
 
     @Override
-    public ItemStack getOutput() {
+    public ItemStack getOutput(DynamicRegistryManager dynamicRegistryManager) {
         return this.output;
     }
 

@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.impl.interfaces.ItemGroupExtra;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,17 +24,18 @@ public abstract class ItemGroupMixin implements ItemGroupExtra {
 
     @Shadow @Nullable private Consumer<List<ItemStack>> searchProviderReloader;
 
-    @Shadow public abstract void updateEntries(FeatureSet enabledFeatures, boolean operatorEnabled);
+
+    @Shadow public abstract void updateEntries(ItemGroup.DisplayContext arg);
 
     @Override
-    public PolymerItemGroupUtils.Contents polymer$getContentsWith(FeatureSet enabledFeatures, boolean operatorEnabled) {
+    public PolymerItemGroupUtils.Contents polymer$getContentsWith(FeatureSet enabledFeatures, boolean operatorEnabled, RegistryWrapper.WrapperLookup lookup) {
         var oldDisplayStack = this.displayStacks;
         var oldSearchStack = this.searchTabStacks;
         var oldSearchProvider = this.searchProviderReloader;
 
         this.searchProviderReloader = null;
 
-        this.updateEntries(enabledFeatures, operatorEnabled);
+        this.updateEntries(new ItemGroup.DisplayContext(enabledFeatures, operatorEnabled, lookup));
         var contents = new PolymerItemGroupUtils.Contents(this.displayStacks, this.searchTabStacks);
 
         this.displayStacks = oldDisplayStack;

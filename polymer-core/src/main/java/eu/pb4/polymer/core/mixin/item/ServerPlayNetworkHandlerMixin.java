@@ -6,9 +6,9 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
+import net.minecraft.item.Equipment;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Wearable;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
@@ -43,7 +43,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Shadow
     public abstract void onPlayerInteractItem(PlayerInteractItemC2SPacket packet);
 
-    @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
+    @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
     private void polymer$resendHandOnPlace(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
@@ -55,13 +55,13 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "onPlayerInteractItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
+    @Inject(method = "onPlayerInteractItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
     private void polymer$resendHandOnUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
         if (itemStack.getItem() instanceof PolymerItem polymerItem) {
             var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player);
-            if (data.item() instanceof Wearable) {
+            if (data.item() instanceof Equipment) {
                 this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
 
                 var slot = MobEntity.getPreferredEquipmentSlot(new ItemStack(data.item()));

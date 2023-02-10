@@ -18,6 +18,8 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.*;
+import net.minecraft.item.trim.ArmorTrim;
+import net.minecraft.item.trim.ArmorTrimMaterial;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -379,13 +381,13 @@ public final class PolymerItemUtils {
                 }
             }
 
-            NbtElement canDestroy = itemStack.getNbt().get("CanDestroy");
+            var canDestroy = itemStack.getNbt().get("CanDestroy");
 
             if (canDestroy != null) {
                 out.getNbt().put("CanDestroy", canDestroy);
             }
 
-            NbtElement canPlaceOn = itemStack.getNbt().get("CanPlaceOn");
+            var canPlaceOn = itemStack.getNbt().get("CanPlaceOn");
 
             if (canPlaceOn != null) {
                 out.getNbt().put("CanPlaceOn", canPlaceOn);
@@ -393,6 +395,12 @@ public final class PolymerItemUtils {
 
             if (CrossbowItem.isCharged(itemStack)) {
                 CrossbowItem.setCharged(out, true);
+            }
+
+            var trim = itemStack.getNbt().get(ArmorTrim.NBT_KEY);
+
+            if (trim != null) {
+                out.getNbt().put(ArmorTrim.NBT_KEY, trim);
             }
 
             var beTag = itemStack.getNbt().get(BlockItem.BLOCK_ENTITY_TAG_KEY);

@@ -303,8 +303,8 @@ public class InternalClientRegistry {
                 ((ClientItemGroupExtension) group).polymer$clearStacks();
             }
         }
-        if (ItemGroups.enabledFeatures != null) {
-            ItemGroupsAccessor.callUpdateEntries(ItemGroups.enabledFeatures, ItemGroups.operatorEnabled);
+        if (ItemGroupsAccessor.getDisplayContext() != null) {
+            ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
         }
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }

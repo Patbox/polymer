@@ -38,7 +38,7 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
 
     @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V"))
-    private void polymer$injectEntries(FeatureSet enabledFeatures, boolean operatorEnabled, CallbackInfo ci) {
+    private void polymer$injectEntries(ItemGroup.DisplayContext arg, CallbackInfo ci) {
         if (this.type == ItemGroup.Type.CATEGORY && ClientUtils.isClientThread()) {
             this.displayStacks.removeIf(PolymerImplUtils::isPolymerControlled);
             this.searchTabStacks.removeIf(PolymerImplUtils::isPolymerControlled);

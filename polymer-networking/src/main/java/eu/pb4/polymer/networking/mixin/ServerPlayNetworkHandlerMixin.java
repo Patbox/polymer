@@ -7,8 +7,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import net.minecraft.network.Packet;
 import net.minecraft.network.PacketCallbacks;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -93,7 +93,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements NetworkHandlerExt
         }
     }
 
-    @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"))
+    @ModifyVariable(method = "sendPacket(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"))
     private Packet<?> polymerNet$replacePacket(Packet<?> packet) {
         if (packet instanceof DynamicPacket dynamicPacket) {
             var out = dynamicPacket.createPacket((ServerPlayNetworkHandler) (Object) (this), this.player);
@@ -106,7 +106,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements NetworkHandlerExt
         return packet;
     }
 
-    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "sendPacket(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"), cancellable = true)
     private void polymerNet$dontLeakDynamic(Packet<?> packet, PacketCallbacks arg, CallbackInfo ci) {
         if (packet instanceof DynamicPacket) {
             ci.cancel();

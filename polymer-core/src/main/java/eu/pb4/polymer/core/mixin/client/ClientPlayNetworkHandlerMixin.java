@@ -23,7 +23,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
 
     @Shadow public abstract ClientWorld getWorld();
 
-    @Inject(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift = At.Shift.AFTER))
+    @Inject(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift = At.Shift.AFTER))
     private void polymer$onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
         InternalClientRegistry.syncRequestsPostGameJoin = 0;
     }

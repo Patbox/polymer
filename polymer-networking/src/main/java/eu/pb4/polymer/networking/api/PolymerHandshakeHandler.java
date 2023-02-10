@@ -2,7 +2,7 @@ package eu.pb4.polymer.networking.api;
 
 import eu.pb4.polymer.networking.impl.PolymerHandshakeHandlerImplLate;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;

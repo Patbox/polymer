@@ -8,6 +8,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -19,7 +20,7 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject,
     private final Identifier identifier;
 
     public InternalClientItemGroup(Row row, int column, Identifier identifier, Text name, ItemStack stack) {
-        super(row, column, Type.CATEGORY, name, () -> stack.copy(), (a, b, c) -> {});
+        super(row, column, Type.CATEGORY, name, () -> stack.copy(), (a, c) -> {});
         this.identifier = identifier;
     }
 
@@ -31,8 +32,9 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject,
         return PolymerImplUtils.id( "group/" + this.identifier.getNamespace() + "/" + this.identifier.getPath());
     }
 
+
     @Override
-    public PolymerItemGroupUtils.Contents polymer$getContentsWith(FeatureSet enabledFeatures, boolean operatorEnabled) {
+    public PolymerItemGroupUtils.Contents polymer$getContentsWith(FeatureSet enabledFeatures, boolean operatorEnabled, RegistryWrapper.WrapperLookup lookup) {
         return null;
     }
 

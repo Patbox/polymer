@@ -120,8 +120,10 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
             for (int i = 0; i < list.size(); i++) {
                 var entry = list.get(i);
                 if (entry.value() instanceof Optional<?> optionalO && optionalO.isPresent()
-                        && optionalO.get() instanceof BlockState state && state.getBlock() instanceof PolymerBlock polymerBlock) {
-                    list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Optional.of(PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player))));
+                        && optionalO.get() instanceof BlockState state) {
+                    list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Optional.of(PolymerBlockUtils.getPolymerBlockState(state, player))));
+                } else if (entry.value() instanceof BlockState state) {
+                    list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), PolymerBlockUtils.getPolymerBlockState(state, player)));
                 }
             }
 

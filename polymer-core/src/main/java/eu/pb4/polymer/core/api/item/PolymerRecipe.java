@@ -43,7 +43,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createBlastingRecipe(Recipe<?> input) {
-        return new BlastingRecipe(input.getId(),"impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new BlastingRecipe(input.getId(),"impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(null), 0, 0);
     }
 
     /**
@@ -53,7 +53,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createCraftingRecipe(Recipe<?> input) {
-        return new ShapelessRecipe(input.getId(), "impossible", CraftingRecipeCategory.MISC, input.getOutput(), DefaultedList.of());
+        return new ShapelessRecipe(input.getId(), "impossible", CraftingRecipeCategory.MISC, input.getOutput(null), DefaultedList.of());
     }
 
     /**
@@ -63,7 +63,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createCampfireCookingRecipe(Recipe<?> input) {
-        return new CampfireCookingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new CampfireCookingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(null), 0, 0);
     }
 
     /**
@@ -73,7 +73,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmeltingRecipe(Recipe<?> input) {
-        return new SmeltingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new SmeltingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(null), 0, 0);
     }
 
     /**
@@ -83,7 +83,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmithingRecipe(Recipe<?> input) {
-        return new SmithingRecipe(input.getId(), Ingredient.EMPTY, Ingredient.EMPTY, input.getOutput());
+        return new LegacySmithingRecipe(input.getId(), Ingredient.EMPTY, Ingredient.EMPTY, input.getOutput(null));
     }
 
     /**
@@ -93,7 +93,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmokingRecipe(Recipe<?> input) {
-        return new SmokingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(), 0, 0);
+        return new SmokingRecipe(input.getId(), "impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getOutput(null), 0, 0);
     }
 
     /**
@@ -103,6 +103,6 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createStonecuttingRecipe(Recipe<?> input) {
-        return new StonecuttingRecipe(input.getId(), "impossible", Ingredient.EMPTY, input.getOutput());
+        return new StonecuttingRecipe(input.getId(), "impossible", Ingredient.EMPTY, input.getOutput(null));
     }
 }

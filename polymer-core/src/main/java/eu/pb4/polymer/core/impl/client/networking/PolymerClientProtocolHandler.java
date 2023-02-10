@@ -4,7 +4,6 @@ import com.mojang.brigadier.StringReader;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
-import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
@@ -23,9 +22,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.argument.BlockArgumentParser;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
@@ -179,8 +176,8 @@ public class PolymerClientProtocolHandler {
         if (version > -1) {
 
             MinecraftClient.getInstance().execute(() -> {
-                if (ItemGroups.enabledFeatures != null) {
-                    ItemGroupsAccessor.callUpdateEntries(ItemGroups.enabledFeatures, ItemGroups.operatorEnabled);
+                if (ItemGroupsAccessor.getDisplayContext() != null) {
+                    ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
                 }
                 PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
             });

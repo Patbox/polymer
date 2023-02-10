@@ -53,20 +53,21 @@ import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class TestMod implements ModInitializer, ClientModInitializer {
+public class TestMod implements ModInitializer {
     public static final ItemGroup ITEM_GROUP = PolymerItemGroupUtils.builder(
             new Identifier("polymer", "test"))
             .displayName(Text.translatable("testmod.itemgroup").formatted(Formatting.AQUA))
             .icon(()-> new ItemStack(TestMod.TATER_BLOCK_ITEM))
             .entries(new ItemGroup.EntryCollector() {
                 @Override
-                public void accept(FeatureSet enabledFeatures, ItemGroup.Entries entries, boolean operatorEnabled) {
+                public void accept(ItemGroup.DisplayContext arg, ItemGroup.Entries entries) {
                     entries.add(Items.DAMAGED_ANVIL.getDefaultStack());
                     var items = REG_CACHE.get(Registries.ITEM);
 
@@ -82,38 +83,38 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static TestFluid.Still STILL_FLUID;
     public static BucketItem FLUID_BUCKET;
 
-    public static SimplePolymerItem ITEM = new TestItem(new FabricItemSettings().fireproof().maxCount(5), Items.IRON_HOE);
-    public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99), Items.DIAMOND_BLOCK);
-    public static SimplePolymerItem ITEM_3 = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(99), Items.CHAINMAIL_CHESTPLATE);
+    public static SimplePolymerItem ITEM = new TestItem(new Item.Settings().fireproof().maxCount(5), Items.IRON_HOE);
+    public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99), Items.DIAMOND_BLOCK);
+    public static SimplePolymerItem ITEM_3 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99), Items.CHAINMAIL_CHESTPLATE);
     public static Block BLOCK = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
-    public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings(), Items.STONE);
+    public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new Item.Settings(), Items.STONE);
     public static Block BLOCK_PLAYER = new TestPerPlayerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f));
-    public static BlockItem BLOCK_PLAYER_ITEM = new PolymerBlockItem(BLOCK_PLAYER, new FabricItemSettings(), Items.WHITE_CARPET);
+    public static BlockItem BLOCK_PLAYER_ITEM = new PolymerBlockItem(BLOCK_PLAYER, new Item.Settings(), Items.WHITE_CARPET);
     public static Block BLOCK_CLIENT = new TestClientBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 3).strength(2f));
-    public static BlockItem BLOCK_CLIENT_ITEM = new TestClientBlockItem(BLOCK_CLIENT, new FabricItemSettings());
+    public static BlockItem BLOCK_CLIENT_ITEM = new TestClientBlockItem(BLOCK_CLIENT, new Item.Settings());
     public static Block BLOCK_FENCE = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE);
-    public static BlockItem BLOCK_FENCE_ITEM = new PolymerBlockItem(BLOCK_FENCE, new FabricItemSettings(), Items.NETHER_BRICK_FENCE);
+    public static BlockItem BLOCK_FENCE_ITEM = new PolymerBlockItem(BLOCK_FENCE, new Item.Settings(), Items.NETHER_BRICK_FENCE);
     public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
     public static Block BLOCK_3 = new Test3Block(AbstractBlock.Settings.of(Material.STONE).strength(2f));
-    public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new FabricItemSettings(), Items.TNT);
-    public static BlockItem BLOCK_ITEM_3 = new PolymerBlockItem(BLOCK_3, new FabricItemSettings(), Items.COBWEB);
+    public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new Item.Settings(), Items.TNT);
+    public static BlockItem BLOCK_ITEM_3 = new PolymerBlockItem(BLOCK_3, new Item.Settings(), Items.COBWEB);
     public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
-    public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new FabricItemSettings());
-    public static BlockItem TATER_BLOCK_ITEM2 = new PolymerBlockItem(TATER_BLOCK, new FabricItemSettings(), Items.RAW_IRON_BLOCK);
-    public static TestPickaxeItem PICKAXE = new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterials.NETHERITE, 10, -3.9f, new FabricItemSettings());
-    public static TestPickaxeItem PICKAXE2 = new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterials.WOOD, 10, -3.9f, new FabricItemSettings());
-    public static TestHelmetItem HELMET = new TestHelmetItem(new FabricItemSettings());
+    public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new Item.Settings());
+    public static BlockItem TATER_BLOCK_ITEM2 = new PolymerBlockItem(TATER_BLOCK, new Item.Settings(), Items.RAW_IRON_BLOCK);
+    public static TestPickaxeItem PICKAXE = new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterials.NETHERITE, 10, -3.9f, new Item.Settings());
+    public static TestPickaxeItem PICKAXE2 = new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterials.WOOD, 10, -3.9f, new Item.Settings());
+    public static TestHelmetItem HELMET = new TestHelmetItem(new Item.Settings());
     public static Block WRAPPED_BLOCK = new SimplePolymerBlock(AbstractBlock.Settings.copy(BLOCK), BLOCK);
     public static Block SELF_REFERENCE_BLOCK = new SelfReferenceBlock(AbstractBlock.Settings.copy(Blocks.STONE));
-    public static Item WRAPPED_ITEM = new SimplePolymerItem(new FabricItemSettings(), ITEM);
+    public static Item WRAPPED_ITEM = new SimplePolymerItem(new Item.Settings(), ITEM);
 
     public static Block WEAK_GLASS_BLOCK = new WeakGlassBlock(AbstractBlock.Settings.copy(Blocks.GLASS));
     public static Item WEAK_GLASS_BLOCK_ITEM = new PolymerBlockItem(WEAK_GLASS_BLOCK, new Item.Settings(), Items.GLASS);
 
-    public static TestBowItem BOW_1 = new TestBowItem(new FabricItemSettings(), "bow");
-    public static TestBowItem BOW_2 = new TestBowItem(new FabricItemSettings(), "bow2");
+    public static TestBowItem BOW_1 = new TestBowItem(new Item.Settings(), "bow");
+    public static TestBowItem BOW_2 = new TestBowItem(new Item.Settings(), "bow2");
 
-    public static Item CAMERA_ITEM = new SimplePolymerItem(new FabricItemSettings().fireproof().maxCount(5), Items.IRON_DOOR) {
+    public static Item CAMERA_ITEM = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(5), Items.IRON_DOOR) {
         @Override
         public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
             if (user instanceof ServerPlayerEntity serverPlayer) {
@@ -121,6 +122,20 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             }
 
             return super.useOnEntity(stack, user, entity, hand);
+        }
+    };
+
+    public static Item FACE_PUNCHER = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(1), Items.STONE_SWORD) {
+
+        @Override
+        public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+            if (user instanceof ServerPlayerEntity serverPlayer) {
+                var stack = user.getStackInHand(hand);
+                var x = stack.hasNbt() && stack.getNbt().contains("value", NbtElement.NUMBER_TYPE) ? stack.getNbt().getFloat("value") : Math.random() * 360;
+
+                serverPlayer.networkHandler.sendPacket(new DamageTiltS2CPacket(user.getId(), (float) x));
+            }
+            return super.use(world, user, hand);
         }
     };
 
@@ -138,9 +153,12 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT, 600));
     public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT_2, 600));
 
-    public static final EntityType<TestEntity> ENTITY = FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, TestEntity::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
-    public static final EntityType<TestEntity2> ENTITY_2 = FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, TestEntity2::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
-    public static final EntityType<TestEntity3> ENTITY_3 = FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, TestEntity3::new).dimensions(EntityDimensions.fixed(0.75f, 1.8f)).build();
+    public static final EntityType<TestEntity> ENTITY = EntityType.Builder.create(TestEntity::new, SpawnGroup.CREATURE).setDimensions(0.75f, 1.8f).build("ig");
+    public static final EntityType<TestEntity2> ENTITY_2 = EntityType.Builder.create(TestEntity2::new, SpawnGroup.CREATURE).setDimensions(0.75f, 1.8f).build("no");
+    public static final EntityType<TestEntity3> ENTITY_3 = EntityType.Builder.create(TestEntity3::new, SpawnGroup.CREATURE).setDimensions(0.75f, 1.8f).build("re");
+
+    public static final EntityType<UnrealBlockEntity> PHYSIC_ENTITY_3 = EntityType.Builder.create(UnrealBlockEntity::new, SpawnGroup.CREATURE).setDimensions(1, 1)
+            .trackingTickInterval(4).build("re");
 
     public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings());
     public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
@@ -150,7 +168,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     
     private static final Map<Registry<?>, List<Pair<Identifier, ?>>> REG_CACHE = new HashMap<>();
 
-    public static SimplePolymerItem ICE_ITEM = new ClickItem(new FabricItemSettings(), Items.SNOWBALL, (player, hand) -> {
+    public static SimplePolymerItem ICE_ITEM = new ClickItem(new Item.Settings(), Items.SNOWBALL, (player, hand) -> {
         var tracker = new DataTracker(null);
         tracker.startTracking(EntityAccessor.getFROZEN_TICKS(), Integer.MAX_VALUE);
         player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(player.getId(), tracker.getChangedEntries()));
@@ -164,12 +182,12 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         player.networkHandler.sendPacket(new EntityAttributesS2CPacket(player.getId(), attributes));
     });
 
-    public static SimplePolymerItem SPEC_ITEM = new ClickItem(new FabricItemSettings(), Items.ENDER_EYE, (player, hand) -> {
+    public static SimplePolymerItem SPEC_ITEM = new ClickItem(new Item.Settings(), Items.ENDER_EYE, (player, hand) -> {
         player.networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.GAME_MODE_CHANGED, GameMode.SPECTATOR.getId()));
         player.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
     });
 
-    public static SimplePolymerItem MARKER_TEST = new ClickItem(new FabricItemSettings(), Items.BLAZE_ROD, (player, hand) -> {
+    public static SimplePolymerItem MARKER_TEST = new ClickItem(new Item.Settings(), Items.BLAZE_ROD, (player, hand) -> {
         if (hand == Hand.OFF_HAND) {
             DebugInfoSender.clearGameTestMarkers((ServerWorld) player.getWorld());
         } else {
@@ -190,11 +208,10 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         }
     });
 
-    private void regArmor(EquipmentSlot slot, String main, String id) {
+    private static void regArmor(EquipmentSlot slot, String main, String id) {
         register(Registries.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
     }
 
-    @Override
     public void onInitialize() {
         //ITEM_GROUP.setIcon();
         PolymerResourcePackUtils.addModAssets("apolymertest");
@@ -238,6 +255,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registries.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
         register(Registries.ITEM, new Identifier("test", "cmarker_test"), MARKER_TEST);
         register(Registries.ITEM, new Identifier("test", "spec"), SPEC_ITEM);
+        register(Registries.ITEM, new Identifier("test", "tilt"), FACE_PUNCHER);
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);
@@ -249,7 +267,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         FLOWING_FLUID = register(Registries.FLUID, new Identifier("test", "flowing_fluid"), new TestFluid.Flowing());
         FLUID_BUCKET = register(Registries.ITEM, new Identifier("test", "fluid_bucket"),
                 new TestBucketItem(STILL_FLUID, new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1), Items.LAVA_BUCKET));
-        FLUID_BLOCK = register(Registries.BLOCK, new Identifier("test", "fluid_block"), new TestFluidBlock(STILL_FLUID, FabricBlockSettings.copy(Blocks.WATER)));
+        FLUID_BLOCK = register(Registries.BLOCK, new Identifier("test", "fluid_block"), new TestFluidBlock(STILL_FLUID, AbstractBlock.Settings.copy(Blocks.WATER)));
 
         regArmor(EquipmentSlot.HEAD, "shulker", "helmet");
         regArmor(EquipmentSlot.CHEST, "shulker", "chestplate");
@@ -286,7 +304,9 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         register(Registries.ENTITY_TYPE, new Identifier("test", "entity3"), ENTITY_3);
         FabricDefaultAttributeRegistry.register(ENTITY_3, TestEntity3.createMobAttributes().add(EntityAttributes.HORSE_JUMP_STRENGTH));
 
-        PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3);
+        register(Registries.ENTITY_TYPE, new Identifier("test", "physics"), PHYSIC_ENTITY_3);
+
+        PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3, PHYSIC_ENTITY_3);
 
         PolymerItemUtils.ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
 
@@ -412,11 +432,11 @@ public class TestMod implements ModInitializer, ClientModInitializer {
             }
         }
 
-        ItemGroupEvents.modifyEntriesEvent(MinecraftItemGroups.FUNCTIONAL_ID).register(entries -> {
+        /*ItemGroupEvents.modifyEntriesEvent(MinecraftItemGroups.FUNCTIONAL_ID).register(entries -> {
             for (var item : REG_CACHE.get(Registries.ITEM)) {
                 entries.add(((Item) item.getRight()).getDefaultStack());
             }
-        });
+        });*/
 
 
 
@@ -428,10 +448,5 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public static <B, T extends B> T register(Registry<B> registry, Identifier id, T obj) {
         REG_CACHE.computeIfAbsent(registry, (r) -> new ArrayList<>()).add(new Pair<>(id, obj));
         return obj;
-    }
-
-    @Override
-    public void onInitializeClient() {
-
     }
 }

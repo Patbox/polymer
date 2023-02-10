@@ -4,7 +4,7 @@ import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;

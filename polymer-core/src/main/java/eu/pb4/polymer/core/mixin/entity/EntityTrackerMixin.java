@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.mixin.entity;
 
 import eu.pb4.polymer.core.impl.interfaces.MetaConsumer;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.server.world.ServerWorld;

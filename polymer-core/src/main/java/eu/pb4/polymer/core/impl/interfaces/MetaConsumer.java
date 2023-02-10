@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.impl.interfaces;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 
