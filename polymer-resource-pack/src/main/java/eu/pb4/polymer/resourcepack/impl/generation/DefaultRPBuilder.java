@@ -5,6 +5,7 @@ import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerArmorModel;
 import eu.pb4.polymer.resourcepack.api.PolymerModelData;
 import eu.pb4.polymer.resourcepack.impl.ArmorTextureMetadata;
@@ -31,7 +32,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -39,7 +39,7 @@ import java.util.zip.ZipOutputStream;
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = CommonImpl.GSON;
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
-    private final Map<Item, JsonArray> models = new HashMap<>();
+    private final Map<Item, JsonArray[]> customModels = new HashMap<>();
     private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
     private final List<PolymerArmorModel> armors = new ArrayList<>();
     private final Path outputPath;
@@ -175,23 +175,24 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         return false;
     }
 
+    public enum OverridePlace {
+        BEFORE_EXISTING,
+        EXISTING,
+        BEFORE_CUSTOM_MODEL_DATA,
+        CUSTOM_MODEL_DATA,
+        END
+    }
+
     @Override
     public boolean addCustomModelData(PolymerModelData cmdInfo) {
         try {
-            JsonArray jsonArray;
-
-            if (this.models.containsKey(cmdInfo.item())) {
-                jsonArray = this.models.get(cmdInfo.item());
-            } else {
-                jsonArray = new JsonArray();
-                this.models.put(cmdInfo.item(), jsonArray);
-            }
+            JsonArray jsonArray = this.getCustomModels(cmdInfo.item(), OverridePlace.CUSTOM_MODEL_DATA);
 
             this.customModelData.computeIfAbsent(Registries.ITEM.getId(cmdInfo.item()), (x) -> new ArrayList<>()).add(cmdInfo);
 
             {
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("model", cmdInfo.modelPath().toString());
+                jsonObject.addProperty("model", CommonImplUtils.shortId(cmdInfo.modelPath()));
                 JsonObject predicateObject = new JsonObject();
                 predicateObject.addProperty("custom_model_data", cmdInfo.value());
                 jsonObject.add("predicate", predicateObject);
@@ -221,6 +222,21 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public JsonArray getCustomModels(Item item, OverridePlace place) {
+        if (!this.customModels.containsKey(item)) {
+            var places = new JsonArray[OverridePlace.values().length];
+            this.customModels.put(item, places);
+        }
+
+        var json = this.customModels.get(item)[place.ordinal()];
+
+        if (json == null) {
+            json = new JsonArray();
+            this.customModels.get(item)[place.ordinal()] = json;
+        }
+        return json;
     }
 
     @Override
@@ -306,38 +322,46 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 boolean bool = true;
                 {
                     var jsonObject = new JsonObject();
-                    for (var entry : this.customModelData.entrySet()) {
+                    var sorted = new ArrayList<>(this.customModelData.entrySet());
+                    sorted.sort(Comparator.comparing(e -> e.getKey()));
+                    for (var entry : sorted) {
                         var jsonObject2 = new JsonObject();
                         for (var model : entry.getValue()) {
-                            jsonObject2.addProperty(model.modelPath().toString(), model.value());
+                            jsonObject2.addProperty(CommonImplUtils.shortId(model.modelPath()), model.value());
                         }
 
-                        jsonObject.add(entry.getKey().toString(), jsonObject2);
+                        jsonObject.add(CommonImplUtils.shortId(entry.getKey()), jsonObject2);
                     }
 
                     this.fileMap.put("assets/polymer/items.json", GSON.toJson(jsonObject).getBytes(StandardCharsets.UTF_8));
                 }
 
 
-                for (Map.Entry<Item, JsonArray> entry : this.models.entrySet()) {
-                    Identifier id = Registries.ITEM.getId(entry.getKey());
+                for (var key : this.customModels.keySet()) {
+                    Identifier id = Registries.ITEM.getId(key);
                     try {
                         JsonObject modelObject;
 
                         String baseModelPath;
                         {
-                            Identifier itemId = Registries.ITEM.getId(entry.getKey());
+                            Identifier itemId = Registries.ITEM.getId(key);
                             baseModelPath = "assets/" + itemId.getNamespace() + "/models/item/" + itemId.getPath() + ".json";
                         }
 
                         modelObject = JsonParser.parseString(new String(this.getDataOrVanilla(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
 
-                        JsonArray jsonArray = new JsonArray();
 
                         if (modelObject.has("overrides")) {
-                            jsonArray.addAll(modelObject.getAsJsonArray("overrides"));
+                            this.getCustomModels(key, OverridePlace.EXISTING).addAll(modelObject.getAsJsonArray("overrides"));
                         }
-                        jsonArray.addAll(entry.getValue());
+
+                        var jsonArray = new JsonArray();
+
+                        for (var models : this.customModels.get(key)) {
+                            if (models != null) {
+                                jsonArray.addAll(models);
+                            }
+                        }
 
                         modelObject.add("overrides", jsonArray);
 
@@ -366,7 +390,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var armorDataMap = new HashMap<Integer, String>();
 
                     for (var entry : this.armors) {
-                        armorDataMap.put(entry.color(), entry.modelPath().toString());
+                        armorDataMap.put(entry.color(), CommonImplUtils.shortId(entry.modelPath()));
                         try {
                             var images = new BufferedImage[2];
                             var metadata = new ArmorTextureMetadata[2];

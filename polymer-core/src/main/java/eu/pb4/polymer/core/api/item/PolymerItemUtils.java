@@ -398,7 +398,7 @@ public final class PolymerItemUtils {
             var beTag = itemStack.getNbt().get(BlockItem.BLOCK_ENTITY_TAG_KEY);
 
             if (beTag != null) {
-                out.getNbt().put(BlockItem.BLOCK_ENTITY_TAG_KEY, canPlaceOn);
+                out.getNbt().put(BlockItem.BLOCK_ENTITY_TAG_KEY, beTag);
             }
 
             try {

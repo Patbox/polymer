@@ -9,6 +9,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -106,5 +107,9 @@ public class CommonImplUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String shortId(Identifier key) {
+        return key.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) ? key.getPath() : key.toString();
     }
 }

@@ -3,6 +3,7 @@ package eu.pb4.polymer.resourcepack.api;
 import com.google.gson.JsonObject;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.resourcepack.api.model.ItemOverride;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.impl.generation.PolymerArmorModelImpl;
 import eu.pb4.polymer.resourcepack.impl.generation.PolymerModelDataImpl;
@@ -35,7 +36,9 @@ public final class ResourcePackCreator {
     public final SimpleEvent<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
     private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
     private final Object2IntMap<Item> itemIds = new Object2IntOpenCustomHashMap<>(Util.identityHashStrategy());
-    private final Map<Item, Map<Identifier, PolymerModelData>> itemsMap = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+    private final Map<Item, Map<Identifier, PolymerModelData>> itemModels = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+    private final Map<Item, List<ItemOverride>> itemOverrides = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+
     private final Set<String> modIds = new HashSet<>();
     private final IntSet takenArmorColors = new IntOpenHashSet();
     private final Map<Identifier, PolymerArmorModel> armorModelMap = new HashMap<>();
@@ -62,13 +65,24 @@ public final class ResourcePackCreator {
      * @return PolymerModelData with data about this model
      */
     public PolymerModelData requestModel(Item vanillaItem, Identifier modelPath) {
-        var map = this.itemsMap.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
+        var map = this.itemModels.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
 
         if (map.containsKey(modelPath)) {
             return map.get(modelPath);
         } else {
             return this.forceDefineModel(vanillaItem, this.itemIds.getInt(vanillaItem), modelPath, true);
         }
+    }
+
+    /**
+     * This method can be used to define custom overrides items
+     *
+     * @param item Vanilla/Client side item
+     * @param override Override that needs to be added
+     * @return PolymerModelData with data about this model
+     */
+    public void defineOverride(Item item, ItemOverride override) {
+        this.itemOverrides.computeIfAbsent(item, (x) -> new ArrayList<>()).add(override);
     }
 
     /**
@@ -83,7 +97,7 @@ public final class ResourcePackCreator {
      */
     @ApiStatus.Experimental
     public PolymerModelData forceDefineModel(Item vanillaItem, int customModelData, Identifier modelPath, boolean respectOffset) {
-        var map = this.itemsMap.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
+        var map = this.itemModels.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
 
         var cmdInfoList = this.items.computeIfAbsent(vanillaItem, (x) -> new ArrayList<>());
         var cmdInfo = new PolymerModelDataImpl(vanillaItem, customModelData + (respectOffset ? this.cmdOffset : 0), modelPath);
@@ -236,6 +250,13 @@ public final class ResourcePackCreator {
             successful = builder.copyAssets(modId) && successful;
             status.accept("action:copy_mod_end/" + modId);
         }
+
+        status.accept("action:copy_overrides_start");
+        for (var entry : this.itemOverrides.entrySet()) {
+            var x = builder.getCustomModels(entry.getKey(), DefaultRPBuilder.OverridePlace.BEFORE_CUSTOM_MODEL_DATA);
+            entry.getValue().forEach(a -> x.add(a.toJson()));
+        }
+        status.accept("action:copy_overrides_finish");
         
         for (var cmdInfoList : this.items.values()) {
             status.accept("action:custom_model_data_start");
