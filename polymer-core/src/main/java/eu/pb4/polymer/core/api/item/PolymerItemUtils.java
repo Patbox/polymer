@@ -54,6 +54,9 @@ public final class PolymerItemUtils {
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
+    private static final String[] NBT_TO_COPY = { "CanDestroy", "CanPlaceOn", BlockItem.BLOCK_ENTITY_TAG_KEY,
+            CompassItem.LODESTONE_DIMENSION_KEY, CompassItem.LODESTONE_POS_KEY, CompassItem.LODESTONE_TRACKED_KEY,
+    };
 
     private PolymerItemUtils() {
     }
@@ -374,31 +377,20 @@ public final class PolymerItemUtils {
             }
 
             if (itemStack.getItem() instanceof PotionItem) {
-                if (!out.getOrCreateNbt().contains("CustomPotionColor")) {
-                    out.getOrCreateNbt().putInt("CustomPotionColor", PotionUtil.getColor(itemStack));
+                out.getOrCreateNbt().putInt("CustomPotionColor", PotionUtil.getColor(itemStack));
+            }
+
+            for (var i = 0; i < NBT_TO_COPY.length; i++) {
+                var key = NBT_TO_COPY[i];
+                var tag = itemStack.getNbt().get(key);
+
+                if (tag != null) {
+                    out.getNbt().put(key, tag);
                 }
-            }
-
-            NbtElement canDestroy = itemStack.getNbt().get("CanDestroy");
-
-            if (canDestroy != null) {
-                out.getNbt().put("CanDestroy", canDestroy);
-            }
-
-            NbtElement canPlaceOn = itemStack.getNbt().get("CanPlaceOn");
-
-            if (canPlaceOn != null) {
-                out.getNbt().put("CanPlaceOn", canPlaceOn);
             }
 
             if (CrossbowItem.isCharged(itemStack)) {
                 CrossbowItem.setCharged(out, true);
-            }
-
-            var beTag = itemStack.getNbt().get(BlockItem.BLOCK_ENTITY_TAG_KEY);
-
-            if (beTag != null) {
-                out.getNbt().put(BlockItem.BLOCK_ENTITY_TAG_KEY, beTag);
             }
 
             try {

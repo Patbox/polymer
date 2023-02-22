@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.client.compat;
 import eu.pb4.polymer.core.api.client.ClientPolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.comparison.ComparisonContext;
 import me.shedaniel.rei.plugin.client.entry.ItemEntryDefinition;
@@ -23,7 +24,7 @@ public abstract class rei_ItemEntryDefinitionMixin {
 
     @Inject(method = "equals(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Lme/shedaniel/rei/api/common/entry/comparison/ComparisonContext;)Z", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer$areEqual(ItemStack o1, ItemStack o2, ComparisonContext context, CallbackInfoReturnable<Boolean> cir) {
-        if (!PolymerImplUtils.areSamePolymerType(o1, o2)) {
+        if (!CompatUtils.areSamePolymerType(o1, o2)) {
             cir.setReturnValue(false);
         }
     }
@@ -36,10 +37,6 @@ public abstract class rei_ItemEntryDefinitionMixin {
 
             if (item != null) {
                 cir.setReturnValue(item.visualStack().copy());
-            } else {
-                var stack = value.copy();
-                stack.setCount(1);
-                cir.setReturnValue(stack);
             }
         }
     }

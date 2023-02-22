@@ -86,7 +86,7 @@
     "client.block.WorldChunkMixin",
     "client.compat.armor_ArmorFeatureRendererMixin",
     "client.compat.emi_EmiStackMixin",
-    "client.compat.jei_SubtypeManagerMixin",
+    "client.compat.jei_StackHelperMixin",
     "client.compat.rei_ItemEntryDefinitionMixin",
     "client.entity.EntityMixin",
     "client.item.ItemGroupMixin",

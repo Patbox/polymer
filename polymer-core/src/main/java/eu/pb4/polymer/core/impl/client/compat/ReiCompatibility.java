@@ -3,17 +3,13 @@ package eu.pb4.polymer.core.impl.client.compat;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import me.shedaniel.rei.RoughlyEnoughItemsCore;
 import me.shedaniel.rei.RoughlyEnoughItemsCoreClient;
-import me.shedaniel.rei.api.client.REIRuntime;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.comparison.EntryComparator;
 import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
 import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
-import me.shedaniel.rei.impl.client.REIRuntimeImpl;
-import me.shedaniel.rei.impl.init.RoughlyEnoughItemsInitializer;
 import net.minecraft.item.ItemStack;
 
 import java.util.function.Predicate;

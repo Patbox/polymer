@@ -16,7 +16,7 @@ loom {
 dependencies {
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
     modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.1.0')
-    implementation include(project(path: ':polymer-common', configuration: 'namedElements'))
+    api include(project(path: ':polymer-common', configuration: 'namedElements'))
 }
 
 afterEvaluate {

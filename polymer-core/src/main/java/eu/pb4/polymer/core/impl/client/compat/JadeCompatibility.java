@@ -31,6 +31,8 @@ public class JadeCompatibility implements IWailaPlugin {
         if (PolymerImpl.IS_CLIENT) {
             registrar.registerBlockComponent(BlockOverride.INSTANCE, Block.class);
             registrar.registerEntityComponent(EntityOverride.INSTANCE, Entity.class);
+
+            registrar.addItemModNameCallback(CompatUtils::getModName);
         }
     }
 
