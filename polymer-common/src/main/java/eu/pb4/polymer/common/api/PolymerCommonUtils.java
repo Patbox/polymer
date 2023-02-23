@@ -23,18 +23,21 @@ public final class PolymerCommonUtils {
 
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
 
-    private final static String SAFE_CLIENT_SHA1 = "0f37b64668c8b2e54d12bd13138f8ca874f92270";
+    private final static String SAFE_CLIENT_SHA1 = "1da03ea094c11b77e6784e6a816b73f5f5dc57b7";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     @Nullable
     public static Path getClientJar() {
         try {
-            Path clientJarPath;
-            if (!CommonImpl.IS_CLIENT) {
-                clientJarPath = CommonImpl.getGameDir().resolve("polymer/cached_client_jars/" + SAFE_CLIENT_SHA1 + ".jar");
-            } else {
+            if (CommonImpl.IS_CLIENT) {
                 var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-                clientJarPath = Path.of(clientFile);
+                var clientJarPath = Path.of(clientFile);
+
+                if (Files.exists(clientJarPath)) {
+                    return clientJarPath;
+                }
             }
+
+            Path clientJarPath = CommonImpl.getGameDir().resolve("polymer/cached_client_jars/" + SAFE_CLIENT_SHA1 + ".jar");
 
             if (!Files.exists(clientJarPath)) {
                 Files.createDirectories(clientJarPath.getParent());

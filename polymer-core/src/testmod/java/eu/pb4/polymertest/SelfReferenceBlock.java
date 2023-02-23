@@ -3,6 +3,7 @@ package eu.pb4.polymertest;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 
 public class SelfReferenceBlock extends Block implements PolymerBlock {
     public SelfReferenceBlock(Settings settings) {
@@ -11,6 +12,6 @@ public class SelfReferenceBlock extends Block implements PolymerBlock {
 
     @Override
     public Block getPolymerBlock(BlockState state) {
-        return this;
+        return /*this*/Blocks.STONE;
     }
 }

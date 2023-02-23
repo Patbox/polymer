@@ -104,6 +104,8 @@ public interface PolymerEntity extends PolymerObject {
      */
     default void onEntityTrackerTick(Set<EntityTrackingListener> listeners) {};
 
+    default void beforeEntityTrackerTick(Set<EntityTrackingListener> listeners) {}
+
     /**
      * Sends real id to clients with polymer
      */

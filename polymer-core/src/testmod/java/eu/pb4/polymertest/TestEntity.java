@@ -8,6 +8,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.village.VillagerData;
 import net.minecraft.village.VillagerProfession;
@@ -35,7 +36,7 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
 
     @Override
     public float getClientSidePitch(float pitch) {
-        return 3.14f;
+        return 180;
     }
 
     @Override

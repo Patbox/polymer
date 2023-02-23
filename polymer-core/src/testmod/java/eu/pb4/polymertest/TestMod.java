@@ -139,6 +139,15 @@ public class TestMod implements ModInitializer {
         }
     };
 
+    public static Item  FORCE_RIDER = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(1), Items.SADDLE) {
+
+        @Override
+        public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
+            user.startRiding(entity, true);
+            return super.useOnEntity(stack, user, entity, hand);
+        }
+    };
+
     public static Enchantment ENCHANTMENT;
 
     public static Identifier CUSTOM_STAT;
@@ -158,7 +167,7 @@ public class TestMod implements ModInitializer {
     public static final EntityType<TestEntity3> ENTITY_3 = EntityType.Builder.create(TestEntity3::new, SpawnGroup.CREATURE).setDimensions(0.75f, 1.8f).build("re");
 
     public static final EntityType<UnrealBlockEntity> PHYSIC_ENTITY_3 = EntityType.Builder.create(UnrealBlockEntity::new, SpawnGroup.CREATURE).setDimensions(1, 1)
-            .trackingTickInterval(4).build("re");
+            .trackingTickInterval(1).build("re");
 
     public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings());
     public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
@@ -256,6 +265,7 @@ public class TestMod implements ModInitializer {
         register(Registries.ITEM, new Identifier("test", "cmarker_test"), MARKER_TEST);
         register(Registries.ITEM, new Identifier("test", "spec"), SPEC_ITEM);
         register(Registries.ITEM, new Identifier("test", "tilt"), FACE_PUNCHER);
+        register(Registries.ITEM, new Identifier("test", "rider"), FORCE_RIDER);
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);

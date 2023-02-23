@@ -67,6 +67,13 @@ public abstract class EntityTrackerEntryMixin {
         }
     }
 
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void polymer$tickHead(CallbackInfo ci) {
+        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {
+            polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet((Set<EntityTrackingListener>) receiver.getAttached()));
+        }
+    }
+
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {

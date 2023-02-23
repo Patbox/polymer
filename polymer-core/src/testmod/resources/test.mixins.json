@@ -5,10 +5,11 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "AECAccessor",
+    "BlockDisplayEntityAccessor",
     "BootstrapMixin",
     "DisplayEntityAccessor",
-    "BlockDisplayEntityAccessor",
     "EntityAccessor",
+    "ItemDisplayEntityAccessor",
     "ServerPlayNetworkHandlerMixin",
     "VillagerEntityAccessor"
   ],

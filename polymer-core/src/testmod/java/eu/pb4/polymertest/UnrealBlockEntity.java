@@ -1,16 +1,12 @@
 package eu.pb4.polymertest;
 
-import com.jme3.math.Quaternion;
-import dev.lazurite.rayon.api.EntityPhysicsElement;
-import dev.lazurite.rayon.impl.bullet.collision.body.ElementRigidBody;
-import dev.lazurite.rayon.impl.bullet.collision.body.EntityRigidBody;
-import dev.lazurite.rayon.impl.bullet.collision.body.shape.MinecraftShape;
-import dev.lazurite.rayon.impl.bullet.math.Convert;
+
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymertest.mixin.DisplayEntityAccessor;
 import eu.pb4.polymertest.mixin.BlockDisplayEntityAccessor;
+import eu.pb4.polymertest.mixin.ItemDisplayEntityAccessor;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
@@ -18,13 +14,17 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.decoration.Brightness;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.util.math.AffineTransformation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
@@ -34,9 +34,14 @@ import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class UnrealBlockEntity extends Entity implements PolymerEntity/*, EntityPhysicsElement*/ {
     private static final TrackedData<Long> DIRTY_MARKER = DataTracker.registerData(UnrealBlockEntity.class, TrackedDataHandlerRegistry.LONG);
+    private final boolean tater;
+
+    TrackedData<ItemStack> ITEM = ItemDisplayEntityAccessor.getITEM();
+    TrackedData<Byte> ITEM_DISPLAY = ItemDisplayEntityAccessor.getITEM_DISPLAY();
 
     TrackedData<BlockState> BLOCK_STATE = BlockDisplayEntityAccessor.getBLOCK_STATE();
     TrackedData<Vector3f> TRANSLATION = DisplayEntityAccessor.getTRANSLATION();
@@ -55,6 +60,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     private Quaternionf rotationRight;
     private Vector3f trackerPos = new Vector3f();
     private Vector3f trackerNext = new Vector3f();
+    private Vector3f translation0 = new Vector3f();
 
 
     /*@Override
@@ -64,33 +70,24 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
 
     public UnrealBlockEntity(EntityType<?> type, World world) {
         super(type, world);
-        this.blockState = Registries.BLOCK.getEntryList(BlockTags.WOOL).get().getRandom(this.random).get().value().getDefaultState();;
-        this.setPosition(this.getPos());
+        this.blockState = Registries.BLOCK.getEntryList(BlockTags.WOOL).get().getRandom(this.random).get().value().getDefaultState();
 
-        //this.rigidBody = new EntityRigidBody(this);
-        //this.rigidBody.setMass(15f);
+        if (this.random.nextFloat() > 0.85) {
+            this.tater = true;
+            this.scale = new Vector3f(2);
+        } else {
+            this.tater = false;
+            this.scale = new Vector3f(1);
+        }
+
+        //this.rigidBody = new EntityRigidBody(this, MinecraftSpace.get(world), MinecraftShape.box(this.calculateBoundingBox()));
+        //this.rigidBody.setMass(14f);
         //this.rigidBody.setBuoyancyType(ElementRigidBody.BuoyancyType.WATER);
 
-        this.scale = new Vector3f(1, 1, 1);
         this.translation = new Vector3f();
         this.rotationLeft = new Quaternionf();
         this.rotationRight = new Quaternionf();
-    }
-
-    /*@Override
-    public MinecraftShape.Convex createShape() {
-        final var box = cast().getBoundingBox();
-        return MinecraftShape.convex(box);
-    }*/
-
-    @Override
-    protected Box calculateBoundingBox() {
-        if (this.blockState == null) {
-            return super.calculateBoundingBox();
-        }
-
-        return this.blockState.getCollisionShape(this.world, BlockPos.ORIGIN, ShapeContext.absent()).getBoundingBox()
-                .offset(this.getPos()).offset(-0.5, 0, -0.5);
+        this.dataTracker.set(DIRTY_MARKER, this.dataTracker.get(DIRTY_MARKER) + 1);
     }
 
     @Override
@@ -99,16 +96,26 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     }
 
     @Override
-    public void onEntityTrackerTick(Set<EntityTrackingListener> listeners) {
+    public void onEntityPacketSent(Consumer<Packet<?>> consumer, Packet<?> packet) {
+        if (packet.getClass() == EntityVelocityUpdateS2CPacket.class || packet.getClass() == CustomPayloadS2CPacket.class) {
+            return;
+        }
+
+        consumer.accept(packet);
+    }
+    /*
+    @Override
+    public void beforeEntityTrackerTick(Set<EntityTrackingListener> listeners) {
         this.trackerPos = this.trackerNext;
-        //this.trackerNext = Convert.toMinecraft(this.getPhysicsLocation(new com.jme3.math.Vector3f(), 1));
-        //rotationLeft = Convert.toMinecraft(this.getPhysicsRotation(new Quaternion(), 1));
-        var pos = this.getPos();
-        translation = new Vector3f(-0.5f, -0.5f, -0.5f).rotate(rotationLeft)
-                .add(trackerNext).add((float) -pos.x, (float) -pos.y, (float) -pos.z);
+        this.trackerNext = Convert.toMinecraft(this.getPhysicsLocation(new com.jme3.math.Vector3f(), 1));
+        rotationLeft = Convert.toMinecraft(this.getPhysicsRotation(new Quaternion(), 1));
+        translation0 = this.tater ? new Vector3f(0) : new Vector3f( -0.5f).rotate(rotationLeft);
+        translation = this.tater ? new Vector3f(0) : new Vector3f( -0.5f).rotate(rotationLeft)
+                .add(trackerNext).add(-this.trackerPos.x, -this.trackerPos.y, -this.trackerPos.z);
+        listeners.forEach(x -> x.sendPacket(new EntityTrackerUpdateS2CPacket(this.getId(), List.of())));
         this.dataTracker.set(DIRTY_MARKER, this.dataTracker.get(DIRTY_MARKER) + 1);
     }
-
+    */
     @Override
     protected void initDataTracker() {
         this.dataTracker.startTracking(DIRTY_MARKER, 0l);
@@ -121,18 +128,32 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
 
     @Override
     public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
-        return EntityType.BLOCK_DISPLAY;
+        return this.tater ? EntityType.ITEM_DISPLAY : EntityType.BLOCK_DISPLAY;
     }
 
     @Override
     public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
-        data.add(DataTracker.SerializedEntry.of(INTER_START, -1l));//player.world.getTime()));
-        data.add(DataTracker.SerializedEntry.of(INTER_DUR, 4));
+        if (data.isEmpty()) {
+            data.add(DataTracker.SerializedEntry.of(INTER_DUR, -1));
+            data.add(DataTracker.SerializedEntry.of(TRANSLATION, this.translation0));
+            return;
+        }
+
+        if (initial) {
+            data.add(DataTracker.SerializedEntry.of(SCALE, this.scale));
+            if (this.tater) {
+                data.add(DataTracker.SerializedEntry.of(ITEM, TestMod.TATER_BLOCK_ITEM.getDefaultStack()));
+                data.add(DataTracker.SerializedEntry.of(ITEM_DISPLAY, ModelTransformationMode.FIXED.getIndex()));
+            } else {
+                data.add(DataTracker.SerializedEntry.of(BLOCK_STATE, this.blockState));
+            }
+            data.add(DataTracker.SerializedEntry.of(ROTATION_RIGHT, this.rotationRight));
+        }
+
+        data.add(DataTracker.SerializedEntry.of(INTER_START, player.world.getTime()));
+        data.add(DataTracker.SerializedEntry.of(INTER_DUR, 1));
         data.add(DataTracker.SerializedEntry.of(TRANSLATION, this.translation));
-        data.add(DataTracker.SerializedEntry.of(SCALE, this.scale));
-        data.add(DataTracker.SerializedEntry.of(BLOCK_STATE, this.blockState));
         data.add(DataTracker.SerializedEntry.of(ROTATION_LEFT, this.rotationLeft));
-        data.add(DataTracker.SerializedEntry.of(ROTATION_RIGHT, this.rotationRight));
         data.add(DataTracker.SerializedEntry.of(LIGHT, new Brightness(Math.max(player.world.getLightLevel(LightType.BLOCK, this.getBlockPos().up()), this.blockState.getLuminance()), player.world.getLightLevel(LightType.SKY, this.getBlockPos().up())).pack()));
     }
 

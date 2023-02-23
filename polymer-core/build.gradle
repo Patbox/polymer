@@ -51,9 +51,9 @@ dependencies {
 
 
     modCompileOnly /*modLocalRuntime*/("curse.maven:jade-324717:4328555")
-    modCompileOnly modLocalRuntime("mcp.mobius.waila:wthit:fabric-6.1.4")
+    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-6.1.4")
     //modCompileOnly('dev.lazurite:rayon-fabric:1.6.6')
-    //modLocalRuntime "dev.lazurite:rayon-fabric:1.6.6-fun2"
+    //modLocalRuntime "dev.lazurite:rayon-fabric:1.6.6-fun3-perf"
 
     modCompileOnly /*modLocalRuntime*/("curse.maven:jade-324717:4160727")
     modCompileOnly "mcp.mobius.waila:wthit:fabric-5.1.3"
@@ -79,7 +79,7 @@ dependencies {
     }
 
     modCompileOnly("fr.catcore:server-translations-api:1.4.19+1.19.3")
-    modLocalRuntime("fr.catcore:server-translations-api:1.4.19+1.19.3")
+    //modLocalRuntime("fr.catcore:server-translations-api:1.4.19+1.19.3")
 
     modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v2.5.1-mc1.19.3'
     modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v2.5.1-mc1.19.3'

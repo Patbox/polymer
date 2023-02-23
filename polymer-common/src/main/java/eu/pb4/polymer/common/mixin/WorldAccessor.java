@@ -1,5 +1,6 @@
 package eu.pb4.polymer.common.mixin;
 
+import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.random.Random;
@@ -70,4 +71,8 @@ public interface WorldAccessor {
     @Mutable
     @Accessor("pendingBlockEntityTickers")
     void polymer$setPendingBlockEntityTickers(List<BlockEntityTickInvoker> list);
+
+    @Mutable
+    @Accessor("damageSources")
+    void polymer$setDamageSources(DamageSources sources);
 }

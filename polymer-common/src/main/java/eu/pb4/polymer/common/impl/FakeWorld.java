@@ -1,6 +1,7 @@
 package eu.pb4.polymer.common.impl;
 
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.mixin.ReferenceAccessor;
 import eu.pb4.polymer.common.mixin.WorldAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
@@ -8,13 +9,14 @@ import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.damage.DamageScaling;
+import net.minecraft.entity.damage.DamageSources;
+import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
 import net.minecraft.recipe.RecipeManager;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryOwner;
 import net.minecraft.registry.tag.BlockTags;
@@ -56,7 +58,9 @@ import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 @ApiStatus.Internal
 public final class FakeWorld extends World {
     public static final World INSTANCE;
@@ -64,7 +68,29 @@ public final class FakeWorld extends World {
     public static final World INSTANCE_UNSAFE;
     public static final World INSTANCE_REGULAR;
     static final Scoreboard SCOREBOARD = new Scoreboard();
-    static final DynamicRegistryManager REGISTRY_MANAGER = DynamicRegistryManager.EMPTY;
+    static final DynamicRegistryManager REGISTRY_MANAGER = new DynamicRegistryManager.Immutable() {
+        private FakeRegistry<DamageType> damageTypes = new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, new Identifier("polymer","fake_damage"),
+                new DamageType("", DamageScaling.NEVER, 0));
+
+        @Override
+        public Optional<Registry> getOptional(RegistryKey key) {
+            var x = Registries.REGISTRIES.get(key);
+            if (x != null) {
+                return Optional.of(x);
+            }
+
+            if (RegistryKeys.DAMAGE_TYPE.equals(key)) {
+                return Optional.of(damageTypes);
+            }
+
+            return Optional.empty();
+        }
+
+        @Override
+        public Stream<Entry<?>> streamAllRegistries() {
+            return Stream.empty();
+        }
+    };
     static final RecipeManager RECIPE_MANAGER = new RecipeManager();
     private static final FeatureSet FEATURES = FeatureFlags.FEATURE_MANAGER.getFeatureSet();
     final ChunkManager chunkManager = new ChunkManager() {
@@ -193,6 +219,11 @@ public final class FakeWorld extends World {
             accessor.polymer$setAsyncRandom(Random.createThreadSafe());
             accessor.polymer$setBlockEntityTickers(new ArrayList<>());
             accessor.polymer$setPendingBlockEntityTickers(new ArrayList<>());
+            try {
+                accessor.polymer$setDamageSources(new DamageSources(REGISTRY_MANAGER));
+            } catch (Throwable e) {
+
+            }
 
         } catch (Throwable e) {
             CommonImpl.LOGGER.error("Creating fake world with unsafe failed...", e);
@@ -222,7 +253,7 @@ public final class FakeWorld extends World {
     }
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
-        super(properties, registryRef, DynamicRegistryManager.EMPTY, dimensionType, profiler, isClient, debugWorld, seed, 0);
+        super(properties, registryRef, REGISTRY_MANAGER, dimensionType, profiler, isClient, debugWorld, seed, 0);
     }
 
     @Override

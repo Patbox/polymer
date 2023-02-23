@@ -56,7 +56,7 @@ public final class PolymerItemUtils {
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
-    private static final String[] NBT_TO_COPY = { "CanDestroy", "CanPlaceOn", BlockItem.BLOCK_ENTITY_TAG_KEY,
+    private static final String[] NBT_TO_COPY = { "CanDestroy", "CanPlaceOn", BlockItem.BLOCK_ENTITY_TAG_KEY, ArmorTrim.NBT_KEY,
             CompassItem.LODESTONE_DIMENSION_KEY, CompassItem.LODESTONE_POS_KEY, CompassItem.LODESTONE_TRACKED_KEY,
     };
 
