@@ -26,6 +26,7 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.impl.itemgroup.ItemGroupHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -416,6 +417,7 @@ public class InternalClientRegistry {
     }
 
     public static String getModName(Identifier id) {
-        return "Server (" + id.getNamespace() + ")";
+        var container = FabricLoader.getInstance().getModContainer(id.getNamespace());
+        return container.isPresent() ? container.get().getMetadata().getName() : (id.getNamespace() + "*");
     }
 }

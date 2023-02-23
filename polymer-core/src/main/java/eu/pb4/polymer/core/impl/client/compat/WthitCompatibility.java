@@ -50,40 +50,12 @@ public class WthitCompatibility implements IWailaPlugin {
 
         @Override
         public @Nullable String getHoveredItemModName(ItemStack stack, IPluginConfig config) {
-            if (PolymerItemUtils.isPolymerServerItem(stack) || !ClientUtils.isClientThread()) {
-                return null;
-            }
-
-            var id = PolymerItemUtils.getServerIdentifier(stack);
-
-            if (id != null) {
-                String modName = null;
-                var regBlock = Registries.ITEM.get(id);
-                if (regBlock != null) {
-                    modName = IModInfo.get(regBlock).getName();
-                }
-
-                if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
-                    modName = InternalClientRegistry.getModName(id);
-                }
-
-                return modName;
-            }
-            return null;
+            return CompatUtils.getModName(stack);
         }
     }
 
     private static class BlockOverride implements IBlockComponentProvider {
         public static final BlockOverride INSTANCE = new BlockOverride();
-
-        @Override
-        public @Nullable BlockState getOverride(IBlockAccessor accessor, IPluginConfig config) {
-            var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
-            if (block != ClientPolymerBlock.NONE_STATE) {
-                return Blocks.STONE.getDefaultState();
-            }
-            return null;
-        }
 
         @Override
         public ITooltipComponent getIcon(IBlockAccessor accessor, IPluginConfig config) {

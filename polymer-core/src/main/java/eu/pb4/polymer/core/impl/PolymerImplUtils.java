@@ -319,10 +319,6 @@ public class PolymerImplUtils {
         return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
     }
 
-    public static boolean areSamePolymerType(ItemStack a, ItemStack b) {
-        return Objects.equals(PolymerItemUtils.getServerIdentifier(a), PolymerItemUtils.getServerIdentifier(b));
-    }
-
     public static boolean isServerSideSyncableEntry(Registry reg, Object obj) {
         return PolymerUtils.isServerOnly(obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && !reg.getId(obj).getNamespace().equals("minecraft"));
     }

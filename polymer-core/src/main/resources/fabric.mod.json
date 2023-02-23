@@ -58,10 +58,6 @@
     "modmenu": {
       "badges": [ "library" ],
       "discord": "https://pb4.eu/discord"
-    },
-    "waila:plugins": {
-      "id": "polymer:main",
-      "initializer": "eu.pb4.polymer.core.impl.client.compat.WthitCompatibility"
     }
   }
 }

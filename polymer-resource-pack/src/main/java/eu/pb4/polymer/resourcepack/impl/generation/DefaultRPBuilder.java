@@ -5,6 +5,7 @@ import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerArmorModel;
 import eu.pb4.polymer.resourcepack.api.PolymerModelData;
 import eu.pb4.polymer.resourcepack.impl.ArmorTextureMetadata;
@@ -22,6 +23,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +32,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -38,15 +39,15 @@ import java.util.zip.ZipOutputStream;
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = CommonImpl.GSON;
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
-    private final Map<Item, JsonArray> models = new HashMap<>();
+    private final Map<Item, JsonArray[]> customModels = new HashMap<>();
     private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
     private final List<PolymerArmorModel> armors = new ArrayList<>();
     private final Path outputPath;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
-    private ZipFile clientJar = null;
+    private FileSystem clientJar = null;
 
-    private Map<String, JsonArray> atlasDefinitions = new HashMap<>();
+    private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
 
     public DefaultRPBuilder(Path outputPath) {
         outputPath.getParent().toFile().mkdirs();
@@ -174,23 +175,24 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         return false;
     }
 
+    public enum OverridePlace {
+        BEFORE_EXISTING,
+        EXISTING,
+        BEFORE_CUSTOM_MODEL_DATA,
+        CUSTOM_MODEL_DATA,
+        END
+    }
+
     @Override
     public boolean addCustomModelData(PolymerModelData cmdInfo) {
         try {
-            JsonArray jsonArray;
-
-            if (this.models.containsKey(cmdInfo.item())) {
-                jsonArray = this.models.get(cmdInfo.item());
-            } else {
-                jsonArray = new JsonArray();
-                this.models.put(cmdInfo.item(), jsonArray);
-            }
+            JsonArray jsonArray = this.getCustomModels(cmdInfo.item(), OverridePlace.CUSTOM_MODEL_DATA);
 
             this.customModelData.computeIfAbsent(Registries.ITEM.getId(cmdInfo.item()), (x) -> new ArrayList<>()).add(cmdInfo);
 
             {
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("model", cmdInfo.modelPath().toString());
+                jsonObject.addProperty("model", CommonImplUtils.shortId(cmdInfo.modelPath()));
                 JsonObject predicateObject = new JsonObject();
                 predicateObject.addProperty("custom_model_data", cmdInfo.value());
                 jsonObject.add("predicate", predicateObject);
@@ -222,6 +224,21 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         }
     }
 
+    public JsonArray getCustomModels(Item item, OverridePlace place) {
+        if (!this.customModels.containsKey(item)) {
+            var places = new JsonArray[OverridePlace.values().length];
+            this.customModels.put(item, places);
+        }
+
+        var json = this.customModels.get(item)[place.ordinal()];
+
+        if (json == null) {
+            json = new JsonArray();
+            this.customModels.get(item)[place.ordinal()] = json;
+        }
+        return json;
+    }
+
     @Override
     public boolean addArmorModel(PolymerArmorModel armorModel) {
         return this.armors.add(armorModel);
@@ -237,18 +254,39 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         if (this.fileMap.containsKey(path)) {
             return this.fileMap.get(path);
         } else {
-            try {
-                var entry = this.clientJar.getEntry(path);
-
-                if (entry != null) {
-                    InputStream stream = this.clientJar.getInputStream(entry);
-
-                    return stream.readAllBytes();
-                }
-            } catch (Exception e) {
-                CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
-            }
+            return this.getVanillaData(path);
         }
+    }
+
+    @Nullable
+    private byte[] getVanillaData(String path) {
+        try {
+            var stream = getVanillaStream(path);
+            if (stream != null) {
+                return stream.readAllBytes();
+            }
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
+        }
+        return null;
+    }
+
+    @Nullable
+    private InputStream getVanillaStream(String path) {
+        try {
+            if (this.clientJar == null) {
+                this.clientJar = FileSystems.newFileSystem(PolymerCommonUtils.getClientJar());
+            }
+
+            var entry = this.clientJar.getPath(path);
+
+            if (entry != null && Files.exists(entry)) {
+                return Files.newInputStream(entry);
+            }
+        } catch (Exception e) {
+            CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar! {}", e);
+        }
+
         return null;
     }
 
@@ -279,45 +317,51 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
                 credits.add("");
 
-                this.clientJar = new ZipFile(PolymerCommonUtils.getClientJar().toFile());
-
                 this.buildEvent.invoke((c) -> c.accept(credits));
 
                 boolean bool = true;
                 {
                     var jsonObject = new JsonObject();
-                    for (var entry : this.customModelData.entrySet()) {
+                    var sorted = new ArrayList<>(this.customModelData.entrySet());
+                    sorted.sort(Comparator.comparing(e -> e.getKey()));
+                    for (var entry : sorted) {
                         var jsonObject2 = new JsonObject();
                         for (var model : entry.getValue()) {
-                            jsonObject2.addProperty(model.modelPath().toString(), model.value());
+                            jsonObject2.addProperty(CommonImplUtils.shortId(model.modelPath()), model.value());
                         }
 
-                        jsonObject.add(entry.getKey().toString(), jsonObject2);
+                        jsonObject.add(CommonImplUtils.shortId(entry.getKey()), jsonObject2);
                     }
 
                     this.fileMap.put("assets/polymer/items.json", GSON.toJson(jsonObject).getBytes(StandardCharsets.UTF_8));
                 }
 
 
-                for (Map.Entry<Item, JsonArray> entry : this.models.entrySet()) {
-                    Identifier id = Registries.ITEM.getId(entry.getKey());
+                for (var key : this.customModels.keySet()) {
+                    Identifier id = Registries.ITEM.getId(key);
                     try {
                         JsonObject modelObject;
 
                         String baseModelPath;
                         {
-                            Identifier itemId = Registries.ITEM.getId(entry.getKey());
+                            Identifier itemId = Registries.ITEM.getId(key);
                             baseModelPath = "assets/" + itemId.getNamespace() + "/models/item/" + itemId.getPath() + ".json";
                         }
 
                         modelObject = JsonParser.parseString(new String(this.getDataOrVanilla(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
 
-                        JsonArray jsonArray = new JsonArray();
 
                         if (modelObject.has("overrides")) {
-                            jsonArray.addAll(modelObject.getAsJsonArray("overrides"));
+                            this.getCustomModels(key, OverridePlace.EXISTING).addAll(modelObject.getAsJsonArray("overrides"));
                         }
-                        jsonArray.addAll(entry.getValue());
+
+                        var jsonArray = new JsonArray();
+
+                        for (var models : this.customModels.get(key)) {
+                            if (models != null) {
+                                jsonArray.addAll(models);
+                            }
+                        }
 
                         modelObject.add("overrides", jsonArray);
 
@@ -346,7 +390,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var armorDataMap = new HashMap<Integer, String>();
 
                     for (var entry : this.armors) {
-                        armorDataMap.put(entry.color(), entry.modelPath().toString());
+                        armorDataMap.put(entry.color(), CommonImplUtils.shortId(entry.modelPath()));
                         try {
                             var images = new BufferedImage[2];
                             var metadata = new ArmorTextureMetadata[2];
@@ -360,7 +404,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                                     if (data == null) {
                                         try {
-                                            InputStream stream = this.clientJar.getInputStream(this.clientJar.getEntry(path));
+                                            InputStream stream = this.getVanillaStream(path);
                                             if (stream != null) {
                                                 bi = ImageIO.read(stream);
                                             }
@@ -404,10 +448,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     list.sort(Comparator.comparing(e -> -e.color()));
 
                     this.fileMap.put("assets/polymer/armors.json", GSON.toJson(armorDataMap).getBytes(StandardCharsets.UTF_8));
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_1.png")).readAllBytes());
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_1_overlay.png")).readAllBytes());
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2.png")).readAllBytes());
-                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2_overlay.png", this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_2_overlay.png")).readAllBytes());
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_1.png"));
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_1_overlay.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_1_overlay.png"));
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_2.png"));
+                    this.fileMap.put("assets/minecraft/textures/models/armor/vanilla_leather_layer_2_overlay.png", this.getVanillaData("assets/minecraft/textures/models/armor/leather_layer_2_overlay.png"));
 
                     int[] width = new int[]{64 * globalScale, 64 * globalScale};
                     int[] height = new int[]{32 * globalScale, 32 * globalScale};
@@ -445,11 +489,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     try {
                         for (int i = 0; i <= 1; i++) {
                             {
-                                var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png")));
+                                var tex = ImageIO.read(this.getVanillaStream("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + ".png"));
                                 graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
                             {
-                                var tex = ImageIO.read(this.clientJar.getInputStream(this.clientJar.getEntry("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png")));
+                                var tex = ImageIO.read(this.getVanillaStream("assets/minecraft/textures/models/armor/leather_layer_" + (i + 1) + "_overlay.png"));
                                 graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
                             graphics[i].setColor(Color.WHITE);
@@ -574,6 +618,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 CommonImpl.LOGGER.error("Something went wrong while creating resource pack!");
                 e.printStackTrace();
                 return false;
+            } finally {
+                try {
+                    this.clientJar.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

@@ -83,6 +83,11 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
         return this.entryMap.size();
     }
 
+    @Override
+    public boolean contains(Identifier id) {
+        return this.entryMap.containsKey(id);
+    }
+
     public void set(Identifier identifier, int rawId, T entry) {
         this.entryMap.put(identifier, entry);
         this.identifierMap.put(entry, identifier);

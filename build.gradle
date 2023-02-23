@@ -118,11 +118,11 @@ subprojects {
 }
 
 dependencies {
-    include(project(":polymer-autohost"))
-    include(project(":polymer-core"))
-    include(project(":polymer-common"))
-    include(project(":polymer-resource-pack"))
-    include(project(":polymer-blocks"))
+    api include(project(":polymer-autohost"))
+    api include(project(":polymer-core"))
+    api include(project(":polymer-common"))
+    api include(project(":polymer-resource-pack"))
+    api include(project(":polymer-blocks"))
     //include(project(":polymer-client-extensions"))
 }
 
