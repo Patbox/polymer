@@ -127,7 +127,14 @@ public final class PolymerBlockUtils {
      * @return Client side BlockState
      */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance) {
-        return getBlockStateSafely(block, blockState, maxDistance, null);
+        BlockState out = block.getPolymerBlockState(blockState);
+
+        int req = 0;
+        while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
+            out = newBlock.getPolymerBlockState(out);
+            req++;
+        }
+        return out;
     }
 
     /**
@@ -141,15 +148,15 @@ public final class PolymerBlockUtils {
      * @return Client side BlockState
      */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, @Nullable ServerPlayerEntity player) {
-        BlockState out = player != null
-                ? block.getPolymerBlockState(blockState, player)
-                : block.getPolymerBlockState(blockState);
+        if (player == null) {
+            return getBlockStateSafely(block, blockState, maxDistance);
+        }
+
+        BlockState out = block.getPolymerBlockState(blockState, player);
 
         int req = 0;
         while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
-            out = player != null
-                    ? block.getPolymerBlockState(blockState, player)
-                    : newBlock.getPolymerBlockState(out);
+            out = newBlock.getPolymerBlockState(blockState, player);
             req++;
         }
         return out;
@@ -198,7 +205,7 @@ public final class PolymerBlockUtils {
 
         while (out instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
             out = player != null
-                    ? block.getPolymerBlock(out.getDefaultState(), player)
+                    ? newBlock.getPolymerBlock(out.getDefaultState(), player)
                     : newBlock.getPolymerBlock(state);
             req++;
         }
