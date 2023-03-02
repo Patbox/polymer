@@ -38,9 +38,8 @@ public abstract class ServerLoginNetworkHandlerMixin {
             EarlyConnectionMagic.handle(player, server, connection, (context) -> {
                 if (!this.polymerNet$passPlayer) {
                     this.polymerNet$passPlayer = true;
-                    this.connection.setPacketListener((PacketListener) this);
                     ((ExtClientConnection) this.connection).polymerNet$ignorePacketsUntilChange(context.storedPackets()::add);
-
+                    this.connection.setPacketListener((PacketListener) this);
 
                     if (this.connection.isOpen()) {
                         var oldPlayer = this.server.getPlayerManager().getPlayer(this.profile.getId());
