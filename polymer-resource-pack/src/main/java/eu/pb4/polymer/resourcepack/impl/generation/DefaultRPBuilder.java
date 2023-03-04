@@ -619,10 +619,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 e.printStackTrace();
                 return false;
             } finally {
-                try {
-                    this.clientJar.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (this.clientJar != null) {
+                    try {
+                        this.clientJar.close();
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
