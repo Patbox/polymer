@@ -1,18 +1,16 @@
 package eu.pb4.polymer.core.impl.client.compat;
 
-import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.core.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.EmptyComponent;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.PairComponent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;

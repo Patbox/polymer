@@ -1,0 +1,229 @@
+package eu.pb4.polymer.virtualentity.api.elements;
+
+import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
+import eu.pb4.polymer.virtualentity.api.tracker.DataTrackerLike;
+import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
+import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker;
+import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.EntityType;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+@SuppressWarnings("ConstantConditions")
+public abstract class GenericEntityElement implements VirtualElement {
+    protected final DataTrackerLike dataTracker = createDataTracker();
+    private final int id = VirtualEntityUtils.requestEntityId();
+    private final UUID uuid = UUID.randomUUID();
+    private ElementHolder holder;
+    private Vec3d offset = Vec3d.ZERO;
+
+    protected DataTrackerLike createDataTracker() {
+        return new SimpleDataTracker(this.getEntityType());
+    }
+
+    @Override
+    public IntList getEntityIds() {
+        return IntList.of(id);
+    }
+
+    @Override
+    public @Nullable ElementHolder getHolder() {
+        return this.holder;
+    }
+
+    @Override
+    public void setHolder(@Nullable ElementHolder holder) {
+        this.holder = holder;
+    }
+
+    @Override
+    public Vec3d getOffset() {
+        return this.offset;
+    }
+
+    @Override
+    public void setOffset(Vec3d offset) {
+        if (this.holder != null) {
+            this.holder.sendPacket(VirtualEntityUtils.createMovePacket(this.id, this.holder.getPos().add(this.offset), this.holder.getPos().add(offset), false, 0f, 0f));
+        }
+        this.offset = offset;
+    }
+
+    protected abstract EntityType<? extends Entity> getEntityType();
+
+    @Override
+    public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+        var pos = this.holder.getPos().add(this.offset);
+        packetConsumer.accept(new EntitySpawnS2CPacket(this.id, this.uuid, pos.x, pos.y, pos.z, 0, 0, this.getEntityType(), 0, Vec3d.ZERO, 0));
+
+        this.sendChangedTrackerEntries(player, packetConsumer);
+    }
+
+    protected void sendChangedTrackerEntries(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+        var changed = this.dataTracker.getChangedEntries();
+
+        if (changed != null) {
+            packetConsumer.accept(new EntityTrackerUpdateS2CPacket(this.id, changed));
+        }
+    }
+
+    @Override
+    public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
+        this.holder.sendPacket(VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.offset), newPos.add(this.offset), false, 0f, 0f));
+    }
+
+    @Override
+    public void stopWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+    }
+
+    @Override
+    public void tick() {
+        this.sendTrackerUpdates();
+    }
+
+    protected void sendTrackerUpdates() {
+        if (this.dataTracker.isDirty()) {
+            var dirty = this.dataTracker.getDirtyEntries();
+            if (dirty != null) {
+                this.holder.sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
+            }
+        }
+    }
+
+    public EntityPose getPose() {
+        return this.dataTracker.get(EntityTrackedData.POSE);
+    }
+
+    public void setPose(EntityPose pose) {
+        this.dataTracker.set(EntityTrackedData.POSE, pose);
+    }
+
+    public void setOnFire(boolean onFire) {
+        this.setFlag(EntityTrackedData.ON_FIRE_FLAG_INDEX, onFire);
+    }
+
+    protected boolean getFlag(int index) {
+        return (this.dataTracker.get(EntityTrackedData.FLAGS) & 1 << index) != 0;
+    }
+
+    protected void setFlag(int index, boolean value) {
+        byte b = this.dataTracker.get(EntityTrackedData.FLAGS);
+        if (value) {
+            this.dataTracker.set(EntityTrackedData.FLAGS, (byte) (b | 1 << index));
+        } else {
+            this.dataTracker.set(EntityTrackedData.FLAGS, (byte) (b & ~(1 << index)));
+        }
+
+    }
+
+    public boolean isSneaking() {
+        return this.getFlag(EntityTrackedData.SNEAKING_FLAG_INDEX);
+    }
+
+    public void setSneaking(boolean sneaking) {
+        this.setFlag(EntityTrackedData.SNEAKING_FLAG_INDEX, sneaking);
+    }
+
+    public boolean isSprinting() {
+        return this.getFlag(EntityTrackedData.SPRINTING_FLAG_INDEX);
+    }
+
+    public void setSprinting(boolean sprinting) {
+        this.setFlag(EntityTrackedData.SPRINTING_FLAG_INDEX, sprinting);
+    }
+
+    public boolean isGlowing() {
+        return this.getFlag(EntityTrackedData.GLOWING_FLAG_INDEX);
+    }
+
+    public final void setGlowing(boolean glowing) {
+        this.setFlag(EntityTrackedData.GLOWING_FLAG_INDEX, glowing);
+    }
+
+    public boolean isInvisible() {
+        return this.getFlag(EntityTrackedData.INVISIBLE_FLAG_INDEX);
+    }
+
+    public void setInvisible(boolean invisible) {
+        this.setFlag(EntityTrackedData.INVISIBLE_FLAG_INDEX, invisible);
+    }
+
+    public int getAir() {
+        return this.dataTracker.get(EntityTrackedData.AIR);
+    }
+
+    public void setAir(int air) {
+        this.dataTracker.set(EntityTrackedData.AIR, air);
+    }
+
+    public int getFrozenTicks() {
+        return this.dataTracker.get(EntityTrackedData.FROZEN_TICKS);
+    }
+
+    public void setFrozenTicks(int frozenTicks) {
+        this.dataTracker.set(EntityTrackedData.FROZEN_TICKS, frozenTicks);
+    }
+
+    @Nullable
+    public Text getCustomName() {
+        return this.dataTracker.get(EntityTrackedData.CUSTOM_NAME).orElse(null);
+    }
+
+    public void setCustomName(@Nullable Text name) {
+        this.dataTracker.set(EntityTrackedData.CUSTOM_NAME, Optional.ofNullable(name));
+    }
+
+    public boolean isCustomNameVisible() {
+        return Boolean.TRUE == this.dataTracker.get(EntityTrackedData.NAME_VISIBLE);
+    }
+
+    public void setCustomNameVisible(boolean visible) {
+        this.dataTracker.set(EntityTrackedData.NAME_VISIBLE, visible);
+    }
+
+    public boolean isSilent() {
+        return Boolean.TRUE == this.dataTracker.get(EntityTrackedData.SILENT);
+    }
+
+    public void setSilent(boolean silent) {
+        this.dataTracker.set(EntityTrackedData.SILENT, silent);
+    }
+
+    public boolean hasNoGravity() {
+        return Boolean.TRUE == this.dataTracker.get(EntityTrackedData.NO_GRAVITY);
+    }
+
+    public void setNoGravity(boolean noGravity) {
+        this.dataTracker.set(EntityTrackedData.NO_GRAVITY, noGravity);
+    }
+
+
+    @Override
+    public InteractionHandler getInteractionHandler(ServerPlayerEntity player) {
+        return InteractionHandler.EMPTY;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, uuid);
+    }
+}

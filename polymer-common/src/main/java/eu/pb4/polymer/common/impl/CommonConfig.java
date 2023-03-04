@@ -10,4 +10,8 @@ public class CommonConfig {
     public boolean enableDevTools = false;
     public String _c3 = "Uses simpler about display for /polymer command";
     public boolean minimalisticAbout = false;
+    public String _c4 = "Logs warnings while creating template/filter entities";
+    public boolean enableTemplateEntityWarnings = true;
+    public String _c5 = "Enables logging of more exceptions. Useful when debugging";
+    public boolean logAllExceptions = false;
 }

@@ -33,6 +33,8 @@ public final class CommonImpl {
     public static final FabricLoader LOADER = FabricLoader.getInstance();
     public static final boolean DEV_ENV = LOADER.isDevelopmentEnvironment();
     public static final boolean IS_CLIENT = LOADER.getEnvironmentType() == EnvType.CLIENT;
+    public static final boolean LOG_MORE_ERRORS;
+    public static final boolean ENABLE_TEMPLATE_ENTITY_WARNINGS;
 
     private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer-common").get();
     public static final List<String> CONTRIBUTORS = new ArrayList<>();
@@ -59,6 +61,8 @@ public final class CommonImpl {
         CORE_COMMAND_MINIMAL_OP = config.coreCommandOperatorLevel;
         DEVELOPER_MODE = config.enableDevTools || DEV_ENV;
         MINIMAL_ABOUT = config.minimalisticAbout;
+        LOG_MORE_ERRORS = config.logAllExceptions || CommonImpl.DEVELOPER_MODE;
+        ENABLE_TEMPLATE_ENTITY_WARNINGS = config.enableTemplateEntityWarnings;
 
         CONTAINER.getMetadata().getAuthors().forEach(CommonImpl::addContributor);
         CONTAINER.getMetadata().getContributors().forEach(CommonImpl::addContributor);

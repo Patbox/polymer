@@ -10,9 +10,9 @@ import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.other.PolymerStat;
-import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.core.impl.ui.CreativeTabUi;
@@ -51,6 +51,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -403,7 +404,7 @@ public class Commands {
         stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
         stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
 
-        context.getSource().sendFeedback((new NbtTextFormatter("", 3)).apply(stack.writeNbt(new NbtCompound())), false);
+        context.getSource().sendFeedback((new NbtTextFormatter("", 3)).apply(ServerTranslationUtils.parseFor(player.networkHandler, stack).writeNbt(new NbtCompound())), false);
 
         return 1;
     }
@@ -414,7 +415,7 @@ public class Commands {
         var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player);
         stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
         stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
-        player.giveItemStack(stack.copy());
+        player.giveItemStack(ServerTranslationUtils.parseFor(player.networkHandler, stack));
         context.getSource().sendFeedback(Text.literal("Given client representation to player"), true);
 
         return 1;

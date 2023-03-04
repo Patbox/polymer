@@ -14,7 +14,6 @@ public final class PolymerImpl {
     public static final boolean IS_CLIENT = CommonImpl.IS_CLIENT;
 
     public static final boolean USE_ALT_ARMOR_HANDLER;
-    public static final boolean ENABLE_TEMPLATE_ENTITY_WARNINGS;
     public static final boolean DISPLAY_DEBUG_INFO_CLIENT;
     public static final boolean ADD_NON_POLYMER_CREATIVE_TABS;
     public static final boolean RESEND_BLOCKS_AROUND_CLICK;
@@ -30,12 +29,11 @@ public final class PolymerImpl {
     static {
         var serverConfig =  CommonImpl.loadConfig("server", ServerConfig.class);
 
-        ENABLE_TEMPLATE_ENTITY_WARNINGS = serverConfig.enableTemplateEntityWarnings;
         ADD_NON_POLYMER_CREATIVE_TABS = serverConfig.displayNonPolymerCreativeTabs;
         RESEND_BLOCKS_AROUND_CLICK = serverConfig.sendBlocksAroundClicked;
         LOG_SYNC_TIME = CommonImpl.DEVELOPER_MODE || serverConfig.logHandshakeTime;
         LOG_BLOCKSTATE_REBUILDS = serverConfig.logBlockStateRebuilds;
-        LOG_MORE_ERRORS = serverConfig.logAllExceptions || CommonImpl.DEVELOPER_MODE;
+        LOG_MORE_ERRORS = CommonImpl.LOG_MORE_ERRORS;
         SYNC_MODDED_ENTRIES_POLYMC = serverConfig.polyMcSyncModdedEntries && CompatStatus.POLYMC;
 
 

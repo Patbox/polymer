@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-virtual-entity",
+  "version": "${version}",
+  "name": "Polymer (Virtual Entity)",
+  "description": "Server side API for creation of virtual entities",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer",
+    "issues": "https://github.com/Patbox/polymer/issues"
+  },
+
+  "license": "LGPLv3",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "_main": [
+      "eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod"
+    ]
+  },
+  "accessWidener": "polymer-virtual-entity.accesswidener",
+  "mixins": [
+    "polymer-virtual-entity.mixins.json"
+  ],
+
+  "depends": {
+    "minecraft": ">=1.19.1 <1.20",
+    "fabricloader": ">=0.14.0"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "library" ],
+      "discord": "https://pb4.eu/discord"
+    }
+  }
+}

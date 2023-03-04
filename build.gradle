@@ -123,6 +123,7 @@ dependencies {
     api include(project(":polymer-common"))
     api include(project(":polymer-resource-pack"))
     api include(project(":polymer-blocks"))
+    api include(project(":polymer-virtual-entity"))
     //include(project(":polymer-client-extensions"))
 }
 

@@ -12,18 +12,15 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymertest.mixin.EntityAccessor;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.fabricmc.fabric.impl.itemgroup.MinecraftItemGroups;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -41,7 +38,6 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -77,7 +73,6 @@ public class TestMod implements ModInitializer {
                 }
             })
             .build();
-
     public static Block FLUID_BLOCK;
     public static TestFluid.Flowing FLOWING_FLUID;
     public static TestFluid.Still STILL_FLUID;
@@ -216,6 +211,10 @@ public class TestMod implements ModInitializer {
                     Integer.MAX_VALUE);
         }
     });
+    public static Block ANIMATED_BLOCK = new AnimatedBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
+    public static BlockItem ANIMATED_BLOCK_ITEM = new PolymerBlockItem(ANIMATED_BLOCK, new Item.Settings(), Items.BEACON);
+    public static final BlockEntityType<? extends BlockEntity> ANIMATED_BE = FabricBlockEntityTypeBuilder.create(AnimatedBlock.BEntity::new).addBlock(ANIMATED_BLOCK).build();
+
 
     private static void regArmor(EquipmentSlot slot, String main, String id) {
         register(Registries.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
@@ -267,6 +266,11 @@ public class TestMod implements ModInitializer {
         register(Registries.ITEM, new Identifier("test", "tilt"), FACE_PUNCHER);
         register(Registries.ITEM, new Identifier("test", "rider"), FORCE_RIDER);
 
+        register(Registries.ITEM, new Identifier("test", "animated"), ANIMATED_BLOCK_ITEM);
+        register(Registries.BLOCK, new Identifier("test", "animated"), ANIMATED_BLOCK);
+        register(Registries.BLOCK_ENTITY_TYPE, new Identifier("test", "animated"), ANIMATED_BE);
+
+
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);
             register(Registries.BLOCK, new Identifier("test", "server_block"), t);
@@ -312,7 +316,7 @@ public class TestMod implements ModInitializer {
         FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
 
         register(Registries.ENTITY_TYPE, new Identifier("test", "entity3"), ENTITY_3);
-        FabricDefaultAttributeRegistry.register(ENTITY_3, TestEntity3.createMobAttributes().add(EntityAttributes.HORSE_JUMP_STRENGTH));
+        FabricDefaultAttributeRegistry.register(ENTITY_3, TestEntity3.createCreeperAttributes());
 
         register(Registries.ENTITY_TYPE, new Identifier("test", "physics"), PHYSIC_ENTITY_3);
 

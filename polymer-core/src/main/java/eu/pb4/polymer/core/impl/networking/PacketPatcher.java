@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class PacketPatcher {
 
     public static Packet<ClientPlayPacketListener> replace(ServerPlayNetworkHandler handler, Packet<ClientPlayPacketListener> packet) {
-        if (packet instanceof EntityEquipmentUpdateS2CPacket original && EntityAttachedPacket.get(original) instanceof PolymerEntity polymerEntity) {
+        if (packet instanceof EntityEquipmentUpdateS2CPacket original && EntityAttachedPacket.get(original, original.getId()) instanceof PolymerEntity polymerEntity) {
             return EntityAttachedPacket.setIfEmpty(
                     new EntityEquipmentUpdateS2CPacket(((Entity) polymerEntity).getId(), polymerEntity.getPolymerVisibleEquipment(original.getEquipmentList(), handler.getPlayer())),
                     (Entity) polymerEntity
@@ -31,12 +31,11 @@ public class PacketPatcher {
 
         if (packet instanceof BundleS2CPacket bundleS2CPacket) {
             var list = new ArrayList<Packet<ClientPlayPacketListener>>();
-            var i = bundleS2CPacket.getPackets().iterator();
-            if (i.hasNext()) {
-                for (var x = i.next(); i.hasNext(); x = i.next()) {
-                    if (!prevent(handler, x)) {
-                        list.add(replace(handler, x));
-                    }
+            var iterator = bundleS2CPacket.getPackets().iterator();
+            while (iterator.hasNext()) {
+                var x = iterator.next();
+                if (!prevent(handler, x)) {
+                    list.add(replace(handler, x));
                 }
             }
 
@@ -56,7 +55,7 @@ public class PacketPatcher {
 
     public static boolean prevent(ServerPlayNetworkHandler handler, Packet<ClientPlayPacketListener> packet) {
         if ((
-                (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound() == PolymerSoundEvent.EMPTY_SOUND)
+                (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound().value() == PolymerSoundEvent.EMPTY_SOUND)
                         || packet instanceof StatusEffectPacketExtension packet2
                         && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerReplacement(handler.player) == null))
         ) || !EntityAttachedPacket.shouldSend(packet, handler.player)
@@ -64,7 +63,7 @@ public class PacketPatcher {
             return true;
         }
 
-        if ((packet instanceof EntityEquipmentUpdateS2CPacket original && (original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, handler.player))) {
+        if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, handler.player)) {
             return true;
         }
 

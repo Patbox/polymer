@@ -1,10 +1,10 @@
-package eu.pb4.polymer.core.impl.entity;
+package eu.pb4.polymer.common.impl.entity;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.common.impl.FakeWorld;
-import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.mixin.entity.DataTrackerAccessor;
+import eu.pb4.polymer.common.mixin.DataTrackerAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.entity.Entity;
@@ -44,8 +44,8 @@ public class InternalEntityHelpers {
                 }
             });
         } catch (Throwable e) {
-            if (PolymerImpl.LOG_MORE_ERRORS) {
-                PolymerImpl.LOGGER.error("Failed add player like entity! Trying with alternative method", e);
+            if (CommonImpl.LOG_MORE_ERRORS) {
+                CommonImpl.LOGGER.error("Failed add player like entity! Trying with alternative method", e);
             }
             try {
                 EXAMPLE_ENTITIES.put(EntityType.PLAYER, new PlayerEntity(FakeWorld.INSTANCE_REGULAR, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
@@ -60,8 +60,8 @@ public class InternalEntityHelpers {
                     }
                 });
             } catch (Throwable e2) {
-                if (PolymerImpl.LOG_MORE_ERRORS) {
-                    PolymerImpl.LOGGER.error("Failed add player like entity!", e2);
+                if (CommonImpl.LOG_MORE_ERRORS) {
+                    CommonImpl.LOGGER.error("Failed add player like entity!", e2);
                 }
             }
         }
@@ -113,17 +113,17 @@ public class InternalEntityHelpers {
                     entity = type.create(FakeWorld.INSTANCE_REGULAR);
                 } catch (Throwable e2) {
                     var id = Registries.ENTITY_TYPE.getId(type);
-                    if (PolymerImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
-                        PolymerImpl.LOGGER.warn(String.format(
+                    if (CommonImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
+                        CommonImpl.LOGGER.warn(String.format(
                                 "Couldn't create template entity of %s... Defaulting to empty. %s",
                                 id,
                                 id != null && id.getNamespace().equals("minecraft") ? "This might cause problems!" : "Don't worry, this shouldn't cause problems!"
                         ));
 
                         if (id != null && id.getNamespace().equals("minecraft")) {
-                            PolymerImpl.LOGGER.warn("First error:");
+                            CommonImpl.LOGGER.warn("First error:");
                             e.printStackTrace();
-                            PolymerImpl.LOGGER.warn("Second error:");
+                            CommonImpl.LOGGER.warn("Second error:");
                             e2.printStackTrace();
                         }
                     }

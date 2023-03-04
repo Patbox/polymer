@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.api.entity;
 
-import eu.pb4.polymer.core.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.mixin.entity.EntityAccessor;

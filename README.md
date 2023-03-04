@@ -1,16 +1,17 @@
 # Polymer
 It's a library for creating server side content, that work for player's without mods or (required) resource packs!
-You can create blocks, items and entities, that not only will work fully on server side (and singleplayer), but also
-are represented on server the same as normal (vanilla/modded) ones (unlike bukkit/spigot ones, that are stored as vanilla block).
+You can create blocks, items and entities, that not only will work fully server side (and singleplayer), but also
+are still real custom ones, allowing for better integration with data packs and other mods (servers still see it as 
+`mymod:custom` and not `minecraft:player_head`, unlike bukkit/spigot ones, that only emulate them).
 
-This library also should work correctly with other, non-polymer mods and PolyMC!
+This library also works correctly with other, non-polymer mods and [PolyMc](https://github.com/TheEpicBlock/PolyMc)!
 
 ## For players:
 This library/mod includes few small utilities that can be useful for playing on servers using Polymer.
 
 Few things it does on the client:
 
-- Added compatibility to multiple client side mods ([EMI](https://modrinth.com/mod/emi),
+- Added compatibility for multiple client side mods ([EMI](https://modrinth.com/mod/emi),
   [Just Enough Items](https://www.curseforge.com/minecraft/mc-mods/jei),
   [Roughly Enough Items](https://modrinth.com/mod/roughly-enough-items), [WTHIT](https://modrinth.com/mod/wthit), 
   [Jade](https://www.curseforge.com/minecraft/mc-mods/jade), [AppleSkin](https://modrinth.com/mod/appleskin))
@@ -25,8 +26,8 @@ Any mod using this library shouldn't be required on the client side! However, as
 are few small quality of life things added with it. So you might want to recommend it or include with
 your mod pack.
 
-If you have a server and polymer based mods you are using include a resource pack, you might want since version 0.2.5
-"packed/all" version of polymer contains AutoHost module, allowing you to setup automatic building and sending of packs
+If you have a server and polymer based mods you are using include a resource pack, you might want to install
+"bundled/packed/all" version of polymer contains AutoHost module, allowing you to set up automatic building and sending of packs
 to clients.
 
 If you use 1.18.x or older, use this instead: https://github.com/aws404/polypack-host
@@ -36,7 +37,7 @@ All information about usage can be found at https://polymer.pb4.eu!
 
 ## What this library/mod doesn't do
 This mod doesn't convert existing mods to server side ones. While it's possible to do so with manual coding,
-for that you might want to use [PolyMC](https://github.com/TheEpicBlock/PolyMc) as long as you don't 
+for that you might want to use [PolyMc](https://github.com/TheEpicBlock/PolyMc) as long as you don't 
 need to use regular mods on the client (for example with a modpack).
 
 ## Commands

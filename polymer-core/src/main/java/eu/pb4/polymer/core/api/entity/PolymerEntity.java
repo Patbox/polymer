@@ -112,4 +112,8 @@ public interface PolymerEntity extends PolymerObject {
     default boolean canSynchronizeToPolymerClient(ServerPlayerEntity player) {
         return true;
     }
+
+    default boolean sendEmptyTrackerUpdates() {
+        return true;
+    }
 }

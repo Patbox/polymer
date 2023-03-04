@@ -1,12 +1,19 @@
 package eu.pb4.polymer.core.impl.interfaces;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import eu.pb4.polymer.core.mixin.entity.EntityAttributesS2CPacketMixin;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 public interface EntityAttachedPacket {
+    @Nullable
+    static Entity get(Object packet, int entityId) {
+        var entity = get(packet);
+        return entity != null && entity.getId() == entityId ? entity : null;
+    }
+
     Entity polymer$getEntity();
     Packet<?> polymer$setEntity(Entity entity);
 
@@ -24,6 +31,8 @@ public interface EntityAttachedPacket {
     }
 
     static boolean shouldSend(Packet<?> packet, ServerPlayerEntity player) {
-        return packet instanceof EntityAttachedPacket e ? e.polymer$getEntity() instanceof PolymerEntity entity ? entity.sendPacketsTo(player) : true : true;
+        var entity = get(packet);
+        var x = entity instanceof PolymerEntity;
+        return !x || (x && ((PolymerEntity) entity).sendPacketsTo(player));
     }
 }

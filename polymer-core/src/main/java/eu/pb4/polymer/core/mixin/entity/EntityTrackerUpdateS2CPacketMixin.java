@@ -1,13 +1,12 @@
 package eu.pb4.polymer.core.mixin.entity;
 
 import eu.pb4.polymer.common.impl.client.ClientUtils;
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.interfaces.EntityTrackerUpdateS2CPacketExt;
 import net.fabricmc.api.EnvType;
@@ -45,8 +44,8 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
 
     @Nullable
     private List<DataTracker.SerializedEntry<?>> polymer$createEntries() {
-        Entity entity = EntityAttachedPacket.get(this);
-        if (entity == null || entity.getId() != this.id) {
+        Entity entity = EntityAttachedPacket.get(this, this.id);
+        if (entity == null) {
             return this.trackedValues != null ? new ArrayList<>(this.trackedValues) : null;
         }
 

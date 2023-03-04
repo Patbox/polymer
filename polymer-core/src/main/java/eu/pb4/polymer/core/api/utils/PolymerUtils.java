@@ -15,7 +15,9 @@ import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.Packet;
@@ -190,6 +192,12 @@ public final class PolymerUtils {
         skullOwner.putIntArray("Id", new int[]{0, 0, 0, 0});
 
         return skullOwner;
+    }
+
+    public static ItemStack createPlayerHead(String value) {
+        var stack = new ItemStack(Items.PLAYER_HEAD);
+        stack.getOrCreateNbt().put("SkullOwner", createSkullOwner(value));
+        return stack;
     }
 
     /**
