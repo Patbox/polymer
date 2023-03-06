@@ -50,14 +50,15 @@ public class ElementHolder {
 
     public void removeElement(VirtualElement element) {
         if (this.elements.remove(element)) {
-            element.setHolder(null);
             this.entityIds.removeAll(element.getEntityIds());
+            var packet = new EntitiesDestroyS2CPacket(element.getEntityIds());
             for (var player : this.players) {
                 for (var e : this.elements) {
                     e.stopWatching(player.getPlayer(), player::sendPacket);
                 }
-                player.sendPacket(new EntitiesDestroyS2CPacket(this.entityIds));
+                player.sendPacket(packet);
             }
+            element.setHolder(null);
         }
     }
 

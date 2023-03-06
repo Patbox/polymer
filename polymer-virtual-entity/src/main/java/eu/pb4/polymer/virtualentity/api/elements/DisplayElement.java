@@ -33,6 +33,38 @@ public abstract class DisplayElement extends GenericEntityElement {
         this.dataTracker.set(DisplayTrackedData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
     }
 
+    public void setTranslation(Vector3fc vector3f) {
+        this.dataTracker.set(DisplayTrackedData.TRANSLATION, new Vector3f(vector3f));
+    }
+
+    public Vector3fc getTranslation() {
+        return this.dataTracker.get(DisplayTrackedData.TRANSLATION);
+    }
+
+    public void setScale(Vector3fc vector3f) {
+        this.dataTracker.set(DisplayTrackedData.SCALE, new Vector3f(vector3f));
+    }
+
+    public Vector3fc getScale() {
+        return this.dataTracker.get(DisplayTrackedData.SCALE);
+    }
+
+    public void setLeftRotation(Quaternionfc quaternion) {
+        this.dataTracker.set(DisplayTrackedData.LEFT_ROTATION, new Quaternionf(quaternion));
+    }
+
+    public Quaternionfc getLeftRotation() {
+        return this.dataTracker.get(DisplayTrackedData.LEFT_ROTATION);
+    }
+
+    public void setRightRotation(Quaternionfc quaternion) {
+        this.dataTracker.set(DisplayTrackedData.RIGHT_ROTATION, new Quaternionf(quaternion));
+    }
+
+    public Quaternionfc getRightRotation() {
+        return this.dataTracker.get(DisplayTrackedData.RIGHT_ROTATION);
+    }
+
     public int getInterpolationDuration() {
         return this.dataTracker.get(DisplayTrackedData.INTERPOLATION_DURATION);
     }

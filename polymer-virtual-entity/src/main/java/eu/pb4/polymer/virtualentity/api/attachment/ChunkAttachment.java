@@ -1,11 +1,14 @@
 package eu.pb4.polymer.virtualentity.api.attachment;
 
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.WorldChunk;
 
@@ -27,6 +30,18 @@ public class ChunkAttachment implements HolderAttachment {
         ((HolderAttachmentHolder) chunk).polymer$addHolder(this);
         this.holder.setAttachment(this);
         this.autoTick = autoTick;
+    }
+
+    public static HolderAttachment of(ElementHolder holder, ServerWorld world, BlockPos pos) {
+        var chunk = world.getChunk(pos);
+        var vec = Vec3d.ofCenter(pos);
+
+        if (chunk instanceof WorldChunk chunk1) {
+            return new ChunkAttachment(holder, chunk1, vec, false);
+        } else {
+            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + pos.toShortString() + ", but it isn't loaded!", new NullPointerException());
+            return new ManualAttachment(holder, () -> vec);
+        }
     }
 
     @Override

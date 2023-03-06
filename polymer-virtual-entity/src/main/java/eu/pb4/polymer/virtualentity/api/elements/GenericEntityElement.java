@@ -40,6 +40,14 @@ public abstract class GenericEntityElement implements VirtualElement {
         return IntList.of(id);
     }
 
+    public final UUID getUuid() {
+        return this.uuid;
+    }
+
+    public final int getEntityId() {
+        return this.id;
+    }
+
     @Override
     public @Nullable ElementHolder getHolder() {
         return this.holder;
@@ -210,7 +218,6 @@ public abstract class GenericEntityElement implements VirtualElement {
     public void setNoGravity(boolean noGravity) {
         this.dataTracker.set(EntityTrackedData.NO_GRAVITY, noGravity);
     }
-
 
     @Override
     public InteractionHandler getInteractionHandler(ServerPlayerEntity player) {
