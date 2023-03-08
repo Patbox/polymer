@@ -8,6 +8,7 @@ import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -15,6 +16,7 @@ import java.util.function.Consumer;
 public interface VirtualElement {
     IntList getEntityIds();
 
+    @ApiStatus.OverrideOnly
     void setHolder(@Nullable ElementHolder holder);
 
     @Nullable

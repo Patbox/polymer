@@ -34,11 +34,7 @@ public class ElementHolder {
     }
 
     public <T extends VirtualElement> T addElement(T element) {
-        if (!this.elements.contains(element)) {
-            this.elements.add(element);
-            this.entityIds.addAll(element.getEntityIds());
-            element.setHolder(this);
-
+        if (this.addElementWithoutUpdates(element)) {
             for (var player : this.players) {
                 var x = new ArrayList<Packet<ClientPlayPacketListener>>();
                 element.startWatching(player.getPlayer(), x::add);
@@ -48,9 +44,18 @@ public class ElementHolder {
         return element;
     }
 
+    public boolean addElementWithoutUpdates(VirtualElement element) {
+        if (!this.elements.contains(element)) {
+            this.elements.add(element);
+            this.entityIds.addAll(element.getEntityIds());
+            element.setHolder(this);
+            return true;
+        }
+        return false;
+    }
+
     public void removeElement(VirtualElement element) {
-        if (this.elements.remove(element)) {
-            this.entityIds.removeAll(element.getEntityIds());
+        if (this.removeElementWithoutUpdates(element)) {
             var packet = new EntitiesDestroyS2CPacket(element.getEntityIds());
             for (var player : this.players) {
                 for (var e : this.elements) {
@@ -58,8 +63,17 @@ public class ElementHolder {
                 }
                 player.sendPacket(packet);
             }
-            element.setHolder(null);
         }
+    }
+
+    public boolean removeElementWithoutUpdates(VirtualElement element) {
+        if (this.elements.contains(element)) {
+            this.elements.remove(element);
+            this.entityIds.removeAll(element.getEntityIds());
+            element.setHolder(null);
+            return true;
+        }
+        return false;
     }
 
     public List<VirtualElement> getElements() {

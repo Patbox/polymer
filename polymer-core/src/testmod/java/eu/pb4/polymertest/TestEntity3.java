@@ -12,6 +12,7 @@ import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -24,6 +25,7 @@ import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Matrix4x3fStack;
@@ -41,6 +43,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     private Matrix4x3fStack stack = new Matrix4x3fStack(8);
     private float previousSpeed = Float.MIN_NORMAL;
     private float previousLimbPos = Float.MIN_NORMAL;
+    private float deathAngle;
 
     public TestEntity3(EntityType<TestEntity3> entityEntityType, World world) {
         super(entityEntityType, world);
@@ -70,6 +73,9 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         leftLeg.setInterpolationDuration(2);
         rightLeg.setInterpolationDuration(2);
         torso.setInterpolationDuration(2);
+        leftLeg.setModelTransformation(ModelTransformationMode.FIXED);
+        rightLeg.setModelTransformation(ModelTransformationMode.FIXED);
+        torso.setModelTransformation(ModelTransformationMode.FIXED);
         this.updateAnimation();
         this.attachment = new EntityAttachment(this.holder, this, false);
     }
@@ -90,11 +96,18 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     private void updateAnimation() {
         var speed = this.limbAnimator.getSpeed();
         var limbPos = this.limbAnimator.getPos();
-
-        if (speed == this.previousSpeed && limbPos == this.previousLimbPos) {
+        float f = ((float)this.deathTime) / 20.0F * 1.6F;
+        f = MathHelper.sqrt(f);
+        if (f > 1.0F) {
+            f = 1.0F;
+        }
+        if (this.deathAngle == f && speed == this.previousSpeed && limbPos == this.previousLimbPos) {
             return;
         }
 
+
+
+        this.deathAngle = f;
         this.previousSpeed = speed;
         this.previousLimbPos = limbPos;
 
@@ -105,7 +118,9 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         stack.clear();
         stack.translate(0, -0.8f, 0);
         stack.rotateY((float) Math.toRadians(180.0F * 3 - MathHelper.lerpAngleDegrees(0.5f, this.prevBodyYaw, this.bodyYaw)) + (float) (0.00001f * Math.random()));
-
+        if (this.deathTime > 0) {
+            stack.rotate(RotationAxis.POSITIVE_Z.rotation(f * MathHelper.HALF_PI));
+        }
         stack.pushMatrix();
 
         stack.translate(0, 0.5f, 0);

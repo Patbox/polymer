@@ -22,7 +22,12 @@ public abstract class DisplayElement extends GenericEntityElement {
     }
 
     public void setTransformation(Matrix4f matrix) {
-        setTransformation(MatrixUtil.affineTransform(matrix));
+        float f = 1.0F / matrix.m33();
+        var triple = MatrixUtil.svdDecompose((new Matrix3f(matrix)).scale(f));
+        this.dataTracker.set(DisplayTrackedData.TRANSLATION, matrix.getTranslation(new Vector3f()));
+        this.dataTracker.set(DisplayTrackedData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));
+        this.dataTracker.set(DisplayTrackedData.SCALE, new Vector3f(triple.getMiddle()));
+        this.dataTracker.set(DisplayTrackedData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
     }
 
     public void setTransformation(Matrix4x3f matrix) {

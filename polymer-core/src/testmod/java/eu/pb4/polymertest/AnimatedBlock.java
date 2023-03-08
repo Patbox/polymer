@@ -13,6 +13,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -58,9 +59,9 @@ public class AnimatedBlock extends BlockWithEntity implements PolymerBlock {
     public static class BEntity extends BlockEntity {
         public HolderAttachment holderAttachment;
         public ElementHolder holder;
-        private DisplayElement centralElement;
-        private DisplayElement planetElement;
-        private DisplayElement moonElement;
+        private ItemDisplayElement centralElement;
+        private ItemDisplayElement planetElement;
+        private ItemDisplayElement moonElement;
         private int tick = 0;
 
         public BEntity(BlockPos pos, BlockState state) {
@@ -72,9 +73,12 @@ public class AnimatedBlock extends BlockWithEntity implements PolymerBlock {
             this.planetElement = this.holder.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
             this.moonElement = this.holder.addElement(new ItemDisplayElement(Items.DECORATED_POT));
             this.centralElement = this.holder.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
-            this.centralElement.setInterpolationDuration(2);
-            this.moonElement.setInterpolationDuration(2);
-            this.planetElement.setInterpolationDuration(2);
+            this.centralElement.setModelTransformation(ModelTransformationMode.FIXED);
+            this.moonElement.setModelTransformation(ModelTransformationMode.FIXED);
+            this.planetElement.setModelTransformation(ModelTransformationMode.FIXED);
+            this.centralElement.setInterpolationDuration(3);
+            this.moonElement.setInterpolationDuration(3);
+            this.planetElement.setInterpolationDuration(3);
 
             this.centralElement.setGlowing(true);
             this.centralElement.setGlowColorOverride(0xfdffba);
