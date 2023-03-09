@@ -12,7 +12,13 @@ public interface DataTrackerLike {
 
     @Nullable
 
-    <T> void set(TrackedData<T> key, T value);
+    default <T> void set(TrackedData<T> key, T value) {
+        set(key, value, false);
+    }
+
+    <T> void set(TrackedData<T> key, T value, boolean forceDirty);
+
+    <T> void setDirty(TrackedData<T> key, boolean isDirty);
 
     boolean isDirty();
 
@@ -32,8 +38,13 @@ public interface DataTrackerLike {
             }
 
             @Override
-            public <T> @Nullable void set(TrackedData<T> key, T value) {
-                dataTracker.set(key, value);
+            public <T> void set(TrackedData<T> key, T value, boolean forceDirty) {
+                dataTracker.method_49743(key, value, forceDirty);
+            }
+
+            @Override
+            public <T> void setDirty(TrackedData<T> key, boolean isDirty) {
+                dataTracker.method_49743(key, dataTracker.get(key), isDirty);
             }
 
             @Override

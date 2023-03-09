@@ -48,7 +48,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     TrackedData<Vector3f> SCALE = DisplayEntityAccessor.getSCALE();
     TrackedData<Quaternionf> ROTATION_LEFT = DisplayEntityAccessor.getLEFT_ROTATION();
     TrackedData<Quaternionf> ROTATION_RIGHT = DisplayEntityAccessor.getRIGHT_ROTATION();
-    TrackedData<Long> INTER_START = DisplayEntityAccessor.getINTERPOLATION_START();
+    //TrackedData<Long> INTER_START = DisplayEntityAccessor.getINTERPOLATION_START();
     TrackedData<Integer> INTER_DUR = DisplayEntityAccessor.getINTERPOLATION_DURATION();
     TrackedData<Integer> LIGHT = DisplayEntityAccessor.getBRIGHTNESS();
 
@@ -150,7 +150,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
             data.add(DataTracker.SerializedEntry.of(ROTATION_RIGHT, this.rotationRight));
         }
 
-        data.add(DataTracker.SerializedEntry.of(INTER_START, player.world.getTime()));
+        //data.add(DataTracker.SerializedEntry.of(INTER_START, player.world.getTime()));
         data.add(DataTracker.SerializedEntry.of(INTER_DUR, 1));
         data.add(DataTracker.SerializedEntry.of(TRANSLATION, this.translation));
         data.add(DataTracker.SerializedEntry.of(ROTATION_LEFT, this.rotationLeft));

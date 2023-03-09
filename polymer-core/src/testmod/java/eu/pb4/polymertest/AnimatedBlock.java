@@ -4,7 +4,6 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
-import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -89,15 +88,15 @@ public class AnimatedBlock extends BlockWithEntity implements PolymerBlock {
         }
 
         public void animate() {
-            if (this.tick % 2 == 0) {
+            if (this.tick % 3 == 0) {
                 this.centralElement.setTransformation(new Matrix4x3f().rotateY(this.tick / 200f).rotateX(MathHelper.PI / 16).scale(2.2f));
                 var planet = new Matrix4x3f().rotateX(-MathHelper.PI / 16).rotateY(this.tick / 40f).translate(3.6f, 0, 0).rotateY(this.tick / 30f).rotateX(MathHelper.PI / 12).rotateZ(MathHelper.PI / 12).scale(1f);
                 this.planetElement.setTransformation(planet);
                 this.moonElement.setTransformation(planet.rotateY(this.tick / 8f).translate(1.4f, 0, 0).scale(0.42f));
 
-                this.centralElement.setInterpolationStart(this.world.getTime());
-                this.planetElement.setInterpolationStart(this.world.getTime());
-                this.moonElement.setInterpolationStart(this.world.getTime());
+                this.centralElement.startInterpolation();
+                this.planetElement.startInterpolation();
+                this.moonElement.startInterpolation();
                 this.holder.tick();
             }
             this.tick++;

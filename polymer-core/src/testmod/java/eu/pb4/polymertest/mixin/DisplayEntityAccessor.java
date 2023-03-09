@@ -30,11 +30,6 @@ public interface DisplayEntityAccessor {
     }
 
     @Accessor
-    static TrackedData<Long> getINTERPOLATION_START() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Accessor
     static TrackedData<Integer> getINTERPOLATION_DURATION() {
         throw new UnsupportedOperationException();
     }

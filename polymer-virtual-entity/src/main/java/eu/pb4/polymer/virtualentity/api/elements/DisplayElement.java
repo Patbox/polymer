@@ -78,12 +78,16 @@ public abstract class DisplayElement extends GenericEntityElement {
         this.dataTracker.set(DisplayTrackedData.INTERPOLATION_DURATION, interpolationDuration);
     }
 
-    public long getInterpolationStart() {
-        return this.dataTracker.get(DisplayTrackedData.INTERPOLATION_START);
+    public int getStartInterpolation() {
+        return this.dataTracker.get(DisplayTrackedData.START_INTERPOLATION);
     }
 
-    public void setInterpolationStart(long interpolationStart) {
-        this.dataTracker.set(DisplayTrackedData.INTERPOLATION_START, interpolationStart);
+    public void startInterpolation() {
+        this.dataTracker.setDirty(DisplayTrackedData.START_INTERPOLATION, true);
+    }
+
+    public void setStartInterpolation(int startInterpolation) {
+        this.dataTracker.set(DisplayTrackedData.START_INTERPOLATION, startInterpolation, true);
     }
 
     public DisplayEntity.BillboardMode getBillboardMode() {

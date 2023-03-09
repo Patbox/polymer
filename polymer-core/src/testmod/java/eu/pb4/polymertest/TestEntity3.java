@@ -1,12 +1,10 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
-import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
-import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
@@ -111,9 +109,9 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         this.previousSpeed = speed;
         this.previousLimbPos = limbPos;
 
-        this.leftLeg.setInterpolationStart(this.world.getTime());
-        this.rightLeg.setInterpolationStart(this.world.getTime());
-        this.torso.setInterpolationStart(this.world.getTime());
+        this.leftLeg.startInterpolation();
+        this.rightLeg.startInterpolation();
+        this.torso.startInterpolation();
 
         stack.clear();
         stack.translate(0, -0.8f, 0);
