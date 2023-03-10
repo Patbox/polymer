@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
+import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
@@ -34,10 +35,10 @@ import java.util.function.Consumer;
 public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     private final ElementHolder holder;
     private final EntityAttachment attachment;
-    private final ItemDisplayElement leftLeg = new ItemDisplayElement(Items.RED_WOOL);
-    private final ItemDisplayElement rightLeg = new ItemDisplayElement(Items.RED_WOOL);
+    private final ItemDisplayElement leftLeg = new ItemDisplayElement(Items.RED_CONCRETE);
+    private final ItemDisplayElement rightLeg = new ItemDisplayElement(Items.RED_CONCRETE);
     private final ItemDisplayElement torso = new ItemDisplayElement(PolymerUtils.createPlayerHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjYyYzQ4NWIxODg2ZGJjZTZjMWNhZDE0MGMwZWY4NzYzNTU5ZDQzYTc4NTY0NDY2NGM2ZDVmMzZlMjc1NGVlOCJ9fX0="));
-    //private final InteractionElement interaction = InteractionElement.redirect(this);
+    private final InteractionElement interaction = InteractionElement.redirect(this);
     private Matrix4x3fStack stack = new Matrix4x3fStack(8);
     private float previousSpeed = Float.MIN_NORMAL;
     private float previousLimbPos = Float.MIN_NORMAL;
@@ -64,7 +65,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
             }
         };
 
-        //this.holder.addElement(interaction);
+        this.holder.addElement(interaction);
         this.holder.addElement(leftLeg);
         this.holder.addElement(rightLeg);
         this.holder.addElement(torso);
@@ -74,6 +75,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         leftLeg.setModelTransformation(ModelTransformationMode.FIXED);
         rightLeg.setModelTransformation(ModelTransformationMode.FIXED);
         torso.setModelTransformation(ModelTransformationMode.FIXED);
+        this.interaction.setSize(1.1f, 1.5f);
         this.updateAnimation();
         this.attachment = new EntityAttachment(this.holder, this, false);
     }
@@ -114,11 +116,12 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         this.torso.startInterpolation();
 
         stack.clear();
-        stack.translate(0, -0.8f, 0);
+        stack.translate(0, -0.2f, 0);
         stack.rotateY((float) Math.toRadians(180.0F * 3 - MathHelper.lerpAngleDegrees(0.5f, this.prevBodyYaw, this.bodyYaw)) + (float) (0.00001f * Math.random()));
         if (this.deathTime > 0) {
             stack.rotate(RotationAxis.POSITIVE_Z.rotation(f * MathHelper.HALF_PI));
         }
+        stack.scale(2);
         stack.pushMatrix();
 
         stack.translate(0, 0.5f, 0);
@@ -164,7 +167,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
         data.add(DataTracker.SerializedEntry.of(EntityTrackedData.FLAGS, (byte) (1 << EntityTrackedData.INVISIBLE_FLAG_INDEX)));
         data.add(new DataTracker.SerializedEntry(EntityAccessor.getNO_GRAVITY().getId(), EntityAccessor.getNO_GRAVITY().getType(), true));
-        data.add(DataTracker.SerializedEntry.of(ArmorStandEntity.ARMOR_STAND_FLAGS, (byte) (ArmorStandEntity.SMALL_FLAG)));
+        data.add(DataTracker.SerializedEntry.of(ArmorStandEntity.ARMOR_STAND_FLAGS, (byte) (ArmorStandEntity.SMALL_FLAG | ArmorStandEntity.MARKER_FLAG)));
     }
 
 }

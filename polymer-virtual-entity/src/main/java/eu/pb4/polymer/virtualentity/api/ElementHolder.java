@@ -135,6 +135,8 @@ public class ElementHolder {
             return;
         }
 
+        this.onTick();
+
         this.updatePosition();
 
         for (var e : this.elements) {
@@ -142,7 +144,10 @@ public class ElementHolder {
         }
     }
 
-     protected void updatePosition() {
+    protected void onTick() {
+    }
+
+    protected void updatePosition() {
         var newPos = this.attachment.getPos();
 
         if (!this.currentPos.equals(newPos)) {

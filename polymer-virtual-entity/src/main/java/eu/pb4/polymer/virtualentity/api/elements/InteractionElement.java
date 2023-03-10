@@ -52,27 +52,32 @@ public class InteractionElement extends GenericEntityElement {
         return EntityType.INTERACTION;
     }
 
-    private float getWidth() {
+    public float getWidth() {
         return this.dataTracker.get(InteractionTrackedData.WIDTH);
     }
 
-    private void setWidth(float width) {
+    public void setWidth(float width) {
         this.dataTracker.set(InteractionTrackedData.WIDTH, width);
     }
 
-    private float getHeight() {
+    public float getHeight() {
         return this.dataTracker.get(InteractionTrackedData.HEIGHT);
     }
 
-    private void setHeight(float height) {
+    public void setHeight(float height) {
         this.dataTracker.set(InteractionTrackedData.HEIGHT, height);
     }
 
-    private void setResponse(boolean response) {
+    public void setResponse(boolean response) {
         this.dataTracker.set(InteractionTrackedData.RESPONSE, response);
     }
 
-    private boolean shouldRespond() {
+    public void setSize(float width, float height) {
+        setWidth(width);
+        setHeight(height);
+    }
+
+    public boolean shouldRespond() {
         return this.dataTracker.get(InteractionTrackedData.RESPONSE);
     }
 }

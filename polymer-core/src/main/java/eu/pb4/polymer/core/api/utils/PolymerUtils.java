@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.utils;
 
+import com.google.common.math.StatsAccumulator;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
@@ -22,6 +23,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
+import net.minecraft.resource.featuretoggle.FeatureFlag;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
@@ -33,13 +35,14 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * General use case utils that can be useful in multiple situations
  */
 public final class PolymerUtils {
+    private static final Set<FeatureFlag> ENABLED_FEATURE_FLAGS = new HashSet<>();
+
     private PolymerUtils() {
     }
 
@@ -86,6 +89,14 @@ public final class PolymerUtils {
         } else {
             return getPlayerContext() != null || ClientUtils.isSingleplayer();
         }
+    }
+
+    public static void addClientEnabledFeatureFlags(FeatureFlag... flags) {
+        ENABLED_FEATURE_FLAGS.addAll(List.of(flags));
+    }
+
+    public static Collection<FeatureFlag> getClientEnabledFeatureFlags() {
+        return Collections.EMPTY_LIST;
     }
 
     /**

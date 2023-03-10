@@ -27,9 +27,13 @@ public class ChunkAttachment implements HolderAttachment {
         this.chunk = chunk;
         this.pos = position;
         this.holder = holder;
-        ((HolderAttachmentHolder) chunk).polymer$addHolder(this);
-        this.holder.setAttachment(this);
+        this.attach();
         this.autoTick = autoTick;
+    }
+
+    protected void attach() {
+        ((HolderAttachmentHolder) chunk).polymerVE$addHolder(this);
+        this.holder.setAttachment(this);
     }
 
     public static HolderAttachment of(ElementHolder holder, ServerWorld world, BlockPos pos) {
@@ -40,7 +44,18 @@ public class ChunkAttachment implements HolderAttachment {
             return new ChunkAttachment(holder, chunk1, vec, false);
         } else {
             CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + pos.toShortString() + ", but it isn't loaded!", new NullPointerException());
-            return new ManualAttachment(holder, () -> vec);
+            return new ManualAttachment(holder, world, () -> vec);
+        }
+    }
+
+    public static HolderAttachment of(ElementHolder holder, ServerWorld world, Vec3d pos) {
+        var chunk = world.getChunk(BlockPos.ofFloored(pos));
+
+        if (chunk instanceof WorldChunk chunk1) {
+            return new ChunkAttachment(holder, chunk1, pos, false);
+        } else {
+            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + BlockPos.ofFloored(pos).toShortString() + ", but it isn't loaded!", new NullPointerException());
+            return new ManualAttachment(holder, world, () -> pos);
         }
     }
 
@@ -54,7 +69,7 @@ public class ChunkAttachment implements HolderAttachment {
         if (this.holder.getAttachment() == this) {
             this.holder.setAttachment(null);
         }
-        ((HolderAttachmentHolder) chunk).polymer$removeHolder(this);
+        ((HolderAttachmentHolder) chunk).polymerVE$removeHolder(this);
     }
 
     @Override
@@ -95,6 +110,11 @@ public class ChunkAttachment implements HolderAttachment {
     @Override
     public Vec3d getPos() {
         return this.pos;
+    }
+
+    @Override
+    public ServerWorld getWorld() {
+        return (ServerWorld) this.chunk.getWorld();
     }
 
 }

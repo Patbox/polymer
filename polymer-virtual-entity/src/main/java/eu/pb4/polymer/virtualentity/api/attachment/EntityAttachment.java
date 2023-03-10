@@ -21,7 +21,7 @@ public class EntityAttachment implements HolderAttachment {
     public EntityAttachment(ElementHolder holder, Entity entity, boolean autoTick) {
         this.entity = entity;
         this.holder = holder;
-        ((HolderAttachmentHolder) entity).polymer$addHolder(this);
+        ((HolderAttachmentHolder) entity).polymerVE$addHolder(this);
         this.holder.setAttachment(this);
         this.autoTick = autoTick;
     }
@@ -33,7 +33,7 @@ public class EntityAttachment implements HolderAttachment {
 
     @Override
     public void destroy() {
-        ((HolderAttachmentHolder) entity).polymer$removeHolder(this);
+        ((HolderAttachmentHolder) entity).polymerVE$removeHolder(this);
         if (this.holder.getAttachment() == this) {
             this.holder.setAttachment(null);
         }
@@ -82,6 +82,11 @@ public class EntityAttachment implements HolderAttachment {
     @Override
     public Vec3d getPos() {
         return this.entity.getPos();
+    }
+
+    @Override
+    public ServerWorld getWorld() {
+        return (ServerWorld) this.entity.getWorld();
     }
 
 }

@@ -213,8 +213,6 @@ public class TestMod implements ModInitializer {
     });
     public static Block ANIMATED_BLOCK = new AnimatedBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
     public static BlockItem ANIMATED_BLOCK_ITEM = new PolymerBlockItem(ANIMATED_BLOCK, new Item.Settings(), Items.BEACON);
-    public static final BlockEntityType<? extends BlockEntity> ANIMATED_BE = FabricBlockEntityTypeBuilder.create(AnimatedBlock.BEntity::new).addBlock(ANIMATED_BLOCK).build();
-
 
     private static void regArmor(EquipmentSlot slot, String main, String id) {
         register(Registries.ITEM, new Identifier("test", main + "_" + id), new TestArmor(slot, new Identifier("polymertest", "item/" + main + "_" + id), new Identifier("polymertest", main)));
@@ -268,8 +266,6 @@ public class TestMod implements ModInitializer {
 
         register(Registries.ITEM, new Identifier("test", "animated"), ANIMATED_BLOCK_ITEM);
         register(Registries.BLOCK, new Identifier("test", "animated"), ANIMATED_BLOCK);
-        register(Registries.BLOCK_ENTITY_TYPE, new Identifier("test", "animated"), ANIMATED_BE);
-
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);

@@ -13,7 +13,7 @@ public abstract class ServerWorldMixin {
 
     @Inject(method = "tickChunk", at = @At("TAIL"))
     private void hologramApi$tickHolograms(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci) {
-        for (var hologram : ((HolderAttachmentHolder) chunk).polymer$getHolders()) {
+        for (var hologram : ((HolderAttachmentHolder) chunk).polymerVE$getHolders()) {
             hologram.tick();
         }
     }

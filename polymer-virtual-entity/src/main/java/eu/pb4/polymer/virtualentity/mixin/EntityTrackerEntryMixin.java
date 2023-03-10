@@ -17,21 +17,21 @@ public class EntityTrackerEntryMixin {
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymerVE$startTracking(ServerPlayerEntity player, CallbackInfo ci) {
-        for (var x : ((HolderAttachmentHolder) this.entity).polymer$getHolders()) {
+        for (var x : ((HolderAttachmentHolder) this.entity).polymerVE$getHolders()) {
             x.startWatching(player);
         }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymerVE$tick(CallbackInfo ci) {
-        for (var x : ((HolderAttachmentHolder) this.entity).polymer$getHolders()) {
+        for (var x : ((HolderAttachmentHolder) this.entity).polymerVE$getHolders()) {
             x.tick();
         }
     }
 
     @Inject(method = "stopTracking", at = @At("TAIL"))
     private void polymerVE$stopTracking(ServerPlayerEntity player, CallbackInfo ci) {
-        for (var x : ((HolderAttachmentHolder) this.entity).polymer$getHolders()) {
+        for (var x : ((HolderAttachmentHolder) this.entity).polymerVE$getHolders()) {
             x.stopWatching(player);
         }
     }

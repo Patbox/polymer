@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
@@ -22,7 +23,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4x3f;
 
-public class AnimatedBlock extends BlockWithEntity implements PolymerBlock {
+public class AnimatedBlock extends Block implements PolymerBlock, BlockWithElementHolder {
     public AnimatedBlock(Settings settings) {
         super(settings);
     }
@@ -32,46 +33,26 @@ public class AnimatedBlock extends BlockWithEntity implements PolymerBlock {
         return Blocks.BARRIER;
     }
 
-    @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new BEntity(pos, state);
+    public ElementHolder createElementHolder(BlockPos pos, BlockState initialBlockState) {
+        return new CustomHolder();
     }
 
-    @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, TestMod.ANIMATED_BE, this::tick);
+    public boolean tickElementHolder() {
+        return true;
     }
 
-    private <E extends BlockEntity> void tick(World world, BlockPos pos, BlockState state, E e) {
-        var self = (BEntity) e;
-
-        if (self.holder == null) {
-            self.setup();
-        }
-
-        self.animate();
-    }
-
-
-    public static class BEntity extends BlockEntity {
-        public HolderAttachment holderAttachment;
-        public ElementHolder holder;
+    public static class CustomHolder extends ElementHolder {
         private ItemDisplayElement centralElement;
         private ItemDisplayElement planetElement;
         private ItemDisplayElement moonElement;
         private int tick = 0;
 
-        public BEntity(BlockPos pos, BlockState state) {
-            super(TestMod.ANIMATED_BE, pos, state);
-        }
-
-        public void setup() {
-            this.holder = new ElementHolder();
-            this.planetElement = this.holder.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
-            this.moonElement = this.holder.addElement(new ItemDisplayElement(Items.DECORATED_POT));
-            this.centralElement = this.holder.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
+        public CustomHolder() {
+            this.planetElement = this.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
+            this.moonElement = this.addElement(new ItemDisplayElement(Items.DECORATED_POT));
+            this.centralElement = this.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
             this.centralElement.setModelTransformation(ModelTransformationMode.FIXED);
             this.moonElement.setModelTransformation(ModelTransformationMode.FIXED);
             this.planetElement.setModelTransformation(ModelTransformationMode.FIXED);
@@ -82,9 +63,11 @@ public class AnimatedBlock extends BlockWithEntity implements PolymerBlock {
             this.centralElement.setGlowing(true);
             this.centralElement.setGlowColorOverride(0xfdffba);
             this.animate();
+        }
 
-
-            this.holderAttachment = new ChunkAttachment(this.holder, (WorldChunk) this.world.getChunk(this.pos), Vec3d.ofCenter(this.pos), false);
+        @Override
+        protected void onTick() {
+            this.animate();
         }
 
         public void animate() {
@@ -97,18 +80,8 @@ public class AnimatedBlock extends BlockWithEntity implements PolymerBlock {
                 this.centralElement.startInterpolation();
                 this.planetElement.startInterpolation();
                 this.moonElement.startInterpolation();
-                this.holder.tick();
             }
             this.tick++;
-        }
-
-        @Override
-        public void markRemoved() {
-            super.markRemoved();
-            if (this.holder != null) {
-                holder.destroy();
-                holder = null;
-            }
         }
     }
 }

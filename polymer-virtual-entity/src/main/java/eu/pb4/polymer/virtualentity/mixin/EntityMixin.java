@@ -15,17 +15,17 @@ public class EntityMixin implements HolderAttachmentHolder {
     private final Collection<HolderAttachment> polymerVE$holders = new ArrayList<>();
 
     @Override
-    public void polymer$addHolder(HolderAttachment holderAttachment) {
+    public void polymerVE$addHolder(HolderAttachment holderAttachment) {
         this.polymerVE$holders.add(holderAttachment);
     }
 
     @Override
-    public void polymer$removeHolder(HolderAttachment holderAttachment) {
+    public void polymerVE$removeHolder(HolderAttachment holderAttachment) {
         this.polymerVE$holders.remove(holderAttachment);
     }
 
     @Override
-    public Collection<HolderAttachment> polymer$getHolders() {
+    public Collection<HolderAttachment> polymerVE$getHolders() {
         return this.polymerVE$holders;
     }
 }
