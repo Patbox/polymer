@@ -152,10 +152,14 @@ public class ElementHolder {
 
         if (!this.currentPos.equals(newPos)) {
             var delta = newPos.subtract(newPos);
-            for (var e : this.elements) {
-                e.notifyMove(this.currentPos, newPos, delta);
-            }
+            this.notifyElementsOfPositionUpdate(newPos, delta);
             this.currentPos = newPos;
+        }
+    }
+
+    protected void notifyElementsOfPositionUpdate(Vec3d newPos, Vec3d delta) {
+        for (var e : this.elements) {
+            e.notifyMove(this.currentPos, newPos, delta);
         }
     }
 

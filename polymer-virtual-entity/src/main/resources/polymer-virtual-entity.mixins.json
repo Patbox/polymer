@@ -11,6 +11,7 @@
     "PlayerInteractEntityC2SPacketAccessor",
     "ServerPlayerEntityMixin",
     "ServerPlayNetworkHandlerMixin",
+    "SlimeEntityAccessor",
     "accessors.BlockDisplayEntityAccessor",
     "accessors.DisplayEntityAccessor",
     "accessors.EntityAccessor",

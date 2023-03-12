@@ -220,7 +220,7 @@ allprojects {
         }
     }
 
-        afterEvaluate {
+    afterEvaluate {
         if (project.version != "0.0.0-alpha.0") {
             publishing {
                 publications {

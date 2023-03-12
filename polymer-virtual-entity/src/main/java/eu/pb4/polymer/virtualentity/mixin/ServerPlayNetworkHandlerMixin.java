@@ -3,20 +3,18 @@ package eu.pb4.polymer.virtualentity.mixin;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
+import eu.pb4.polymer.virtualentity.impl.PacketInterHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,34 +53,19 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
         }
     }
 
-    @Inject(method = "onPlayerInteractEntity", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymerVE$interactWithHologram(PlayerInteractEntityC2SPacket packet, CallbackInfo ci, ServerWorld world, Entity entity) {
+    @ModifyVariable(method = "onPlayerInteractEntity", at = @At(value = "STORE", ordinal = 0))
+    private Entity polymerVE$onInteract(Entity entity, PlayerInteractEntityC2SPacket packet) {
         if (entity == null) {
             var id = ((PlayerInteractEntityC2SPacketAccessor) packet).getEntityId();
             for (var x : this.polymerVE$holders) {
                 if (x.isPartOf(id)) {
                     var i = x.getInteraction(id, this.player);
                     if (i != null) {
-                        packet.handle(new PlayerInteractEntityC2SPacket.Handler() {
-                            @Override
-                            public void interact(Hand hand) {
-                                i.interact(player, hand);
-                            }
-
-                            @Override
-                            public void interactAt(Hand hand, Vec3d pos) {
-                                i.interactAt(player, hand, pos);
-                            }
-
-                            @Override
-                            public void attack() {
-                                i.attack(player);
-                            }
-                        });
+                        packet.handle(new PacketInterHandler(this.player, i));
                     }
-                    return;
                 }
             }
         }
+        return entity;
     }
 }

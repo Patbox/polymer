@@ -7,6 +7,7 @@ import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
+import eu.pb4.polymer.virtualentity.api.elements.MobAnchorElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -39,6 +40,8 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     private final ItemDisplayElement rightLeg = new ItemDisplayElement(Items.RED_CONCRETE);
     private final ItemDisplayElement torso = new ItemDisplayElement(PolymerUtils.createPlayerHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjYyYzQ4NWIxODg2ZGJjZTZjMWNhZDE0MGMwZWY4NzYzNTU5ZDQzYTc4NTY0NDY2NGM2ZDVmMzZlMjc1NGVlOCJ9fX0="));
     private final InteractionElement interaction = InteractionElement.redirect(this);
+    private final MobAnchorElement rideAnchor = new MobAnchorElement();
+
     private Matrix4x3fStack stack = new Matrix4x3fStack(8);
     private float previousSpeed = Float.MIN_NORMAL;
     private float previousLimbPos = Float.MIN_NORMAL;
@@ -49,14 +52,17 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         this.holder = new ElementHolder() {
             @Override
             protected void startWatchingExtraPackets(ServerPlayNetworkHandler player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
-                if (!TestEntity3.this.hasPassengers()) {
-                    packetConsumer.accept(VirtualEntityUtils.createRidePacket(TestEntity3.this.getId(), this.getEntityIds()));
-                }
+                packetConsumer.accept(VirtualEntityUtils.createRidePacket(TestEntity3.this.getId(), IntList.of(
+                        TestEntity3.this.leftLeg.getEntityId(),
+                        TestEntity3.this.rightLeg.getEntityId(),
+                        TestEntity3.this.torso.getEntityId(),
+                        TestEntity3.this.interaction.getEntityId()
+                )));
             }
 
             @Override
-            protected void updatePosition() {
-                this.currentPos = this.getAttachment().getPos();
+            protected void notifyElementsOfPositionUpdate(Vec3d newPos, Vec3d delta) {
+                TestEntity3.this.rideAnchor.notifyMove(this.currentPos, newPos, delta);
             }
 
             @Override
@@ -64,11 +70,8 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
                 return this.getAttachment().getPos();
             }
         };
+        this.rideAnchor.setOffset(new Vec3d(0, 1.3f, 0));
 
-        this.holder.addElement(interaction);
-        this.holder.addElement(leftLeg);
-        this.holder.addElement(rightLeg);
-        this.holder.addElement(torso);
         leftLeg.setInterpolationDuration(2);
         rightLeg.setInterpolationDuration(2);
         torso.setInterpolationDuration(2);
@@ -77,6 +80,12 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         torso.setModelTransformation(ModelTransformationMode.FIXED);
         this.interaction.setSize(1.1f, 1.5f);
         this.updateAnimation();
+
+        this.holder.addElement(interaction);
+        this.holder.addElement(leftLeg);
+        this.holder.addElement(rightLeg);
+        this.holder.addElement(torso);
+        this.holder.addElement(rideAnchor);
         this.attachment = new EntityAttachment(this.holder, this, false);
     }
 
@@ -153,10 +162,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     @Override
     public void onEntityPacketSent(Consumer<Packet<?>> consumer, Packet<?> packet) {
         if (packet instanceof EntityPassengersSetS2CPacket passengersSetS2CPacket) {
-            var list = new IntArrayList();
-            list.addAll(IntList.of(passengersSetS2CPacket.getPassengerIds()));
-            list.addAll(this.holder.getEntityIds());
-            consumer.accept(VirtualEntityUtils.createRidePacket(passengersSetS2CPacket.getId(), list));
+            consumer.accept(VirtualEntityUtils.createRidePacket(this.rideAnchor.getEntityId(), IntList.of(passengersSetS2CPacket.getPassengerIds())));
             return;
         }
 
