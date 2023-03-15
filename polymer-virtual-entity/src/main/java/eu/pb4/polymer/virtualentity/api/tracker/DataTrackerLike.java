@@ -39,12 +39,12 @@ public interface DataTrackerLike {
 
             @Override
             public <T> void set(TrackedData<T> key, T value, boolean forceDirty) {
-                dataTracker.method_49743(key, value, forceDirty);
+                dataTracker.set(key, value, forceDirty);
             }
 
             @Override
             public <T> void setDirty(TrackedData<T> key, boolean isDirty) {
-                dataTracker.method_49743(key, dataTracker.get(key), isDirty);
+                dataTracker.set(key, dataTracker.get(key), isDirty);
             }
 
             @Override

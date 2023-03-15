@@ -75,7 +75,7 @@ public interface DisplayEntityAccessor {
     }
 
     @Accessor
-    static TrackedData<Integer> getField_43151() {
+    static TrackedData<Integer> getSTART_INTERPOLATION() {
         throw new UnsupportedOperationException();
     }
 }

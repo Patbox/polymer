@@ -16,7 +16,7 @@ public final class DisplayTrackedData {
     public final static TrackedData<Quaternionf> LEFT_ROTATION = DisplayEntityAccessor.getLEFT_ROTATION();
     public final static TrackedData<Quaternionf> RIGHT_ROTATION = DisplayEntityAccessor.getRIGHT_ROTATION();
     public final static TrackedData<Integer> INTERPOLATION_DURATION = DisplayEntityAccessor.getINTERPOLATION_DURATION();
-    public final static TrackedData<Integer> START_INTERPOLATION = DisplayEntityAccessor.getField_43151();
+    public final static TrackedData<Integer> START_INTERPOLATION = DisplayEntityAccessor.getSTART_INTERPOLATION();
     public final static TrackedData<Integer> BRIGHTNESS = DisplayEntityAccessor.getBRIGHTNESS();
     public final static TrackedData<Float> VIEW_RANGE = DisplayEntityAccessor.getVIEW_RANGE();
     public final static TrackedData<Float> SHADOW_RADIUS = DisplayEntityAccessor.getSHADOW_RADIUS();
