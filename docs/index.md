@@ -40,7 +40,14 @@ work with polymer.
 Polymer's Networking API. Uses its own custom synchronization code. Contains extra API, more specific that aren't available in fabric.
 
 * [Getting Started](polymer-networking/getting-started)
-* [Basics](polymer-networking/basics)
+
+### Polymer Virtual Entity
+`eu.pb4:polymer-virtual-entity`
+
+Allows you to create virtual/packet based entities in a quick and simple way, with support for
+attaching to any entity and chunks.
+
+* [Getting Started](polymer-virtual-entity/getting-started)
 
 ### Polymer Blocks
 `eu.pb4:polymer-blocks`
@@ -51,4 +58,4 @@ Extension of Polymer Core and Resource Pack. Allows creation of textured blocks.
 * [Basics](polymer-blocks/basics)
 
 ## Other useful tools/projects compatible with Polymer
-* [Server Translation API](other/server-translation-api)
+* [Server Translation API](https://github.com/NucleoidMC/Server-Translations)

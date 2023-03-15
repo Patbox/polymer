@@ -23,7 +23,7 @@ nav:
       - polymer-networking/basics.md
   - Other:
       - other/updating-0.2.x-to-0.3.md
-      - other/server-translation-api.md
+      - Server Translation API: https://github.com/NucleoidMC/Server-Translations
 
 
 theme:

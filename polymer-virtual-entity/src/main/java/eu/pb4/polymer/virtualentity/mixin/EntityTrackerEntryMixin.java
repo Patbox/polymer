@@ -22,7 +22,7 @@ public class EntityTrackerEntryMixin {
         }
     }
 
-    @Inject(method = "tick", at = @At("TAIL"))
+    @Inject(method = "tick", at = @At("HEAD"))
     private void polymerVE$tick(CallbackInfo ci) {
         for (var x : ((HolderAttachmentHolder) this.entity).polymerVE$getHolders()) {
             x.tick();
