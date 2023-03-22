@@ -83,7 +83,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmithingRecipe(Recipe<?> input) {
-        return new LegacySmithingRecipe(input.getId(), Ingredient.EMPTY, Ingredient.EMPTY, input.getOutput(null));
+        return new SmithingTransformRecipe(input.getId(), Ingredient.EMPTY, Ingredient.EMPTY, Ingredient.EMPTY, input.getOutput(null));
     }
 
     /**
