@@ -62,6 +62,7 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
                     var i = x.getInteraction(id, this.player);
                     if (i != null) {
                         packet.handle(new PacketInterHandler(this.player, i));
+                        break;
                     }
                 }
             }

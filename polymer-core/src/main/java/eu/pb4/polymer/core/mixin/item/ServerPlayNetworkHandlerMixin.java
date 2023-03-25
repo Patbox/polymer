@@ -61,11 +61,10 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
         if (itemStack.getItem() instanceof PolymerItem polymerItem) {
             var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player);
-            if (data.item() instanceof Equipment) {
+            if (data.item() instanceof Equipment equipment && equipment.getSlotType().isArmorSlot()) {
                 this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
 
-                var slot = MobEntity.getPreferredEquipmentSlot(new ItemStack(data.item()));
-                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), 8 - slot.getEntitySlotId(), this.player.getEquippedStack(slot)));
+                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), 8 - equipment.getSlotType().getEntitySlotId(), this.player.getEquippedStack(equipment.getSlotType())));
             }
         }
     }

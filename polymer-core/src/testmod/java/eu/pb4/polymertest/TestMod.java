@@ -97,7 +97,7 @@ public class TestMod implements ModInitializer {
     public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new Item.Settings());
     public static BlockItem TATER_BLOCK_ITEM2 = new PolymerBlockItem(TATER_BLOCK, new Item.Settings(), Items.RAW_IRON_BLOCK);
     public static TestPickaxeItem PICKAXE = new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterials.NETHERITE, 10, -3.9f, new Item.Settings());
-    public static TestPickaxeItem PICKAXE2 = new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterials.WOOD, 10, -3.9f, new Item.Settings());
+    public static TestPickaxeItem PICKAXE2 = new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterials.WOOD, 10, -5f, new Item.Settings());
     public static TestHelmetItem HELMET = new TestHelmetItem(new Item.Settings());
     public static Block WRAPPED_BLOCK = new SimplePolymerBlock(AbstractBlock.Settings.copy(BLOCK), BLOCK);
     public static Block SELF_REFERENCE_BLOCK = new SelfReferenceBlock(AbstractBlock.Settings.copy(Blocks.STONE));
@@ -191,6 +191,8 @@ public class TestMod implements ModInitializer {
         player.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
     });
 
+
+
     public static SimplePolymerItem MARKER_TEST = new ClickItem(new Item.Settings(), Items.BLAZE_ROD, (player, hand) -> {
         if (hand == Hand.OFF_HAND) {
             DebugInfoSender.clearGameTestMarkers((ServerWorld) player.getWorld());
@@ -225,6 +227,7 @@ public class TestMod implements ModInitializer {
         PolymerResourcePackUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
         //PolymerResourcePackUtils.markAsRequired();
         //PolymerResourcePackUtils.addModAsAssetsSource("promenade");
+        register(Registries.ITEM, new Identifier("bugged", "wooden_sword"), new BuggedItem(new Item.Settings()));
 
         register(Registries.ITEM, new Identifier("test", "item"), ITEM);
         register(Registries.ITEM, new Identifier("test", "item2"), ITEM_2);

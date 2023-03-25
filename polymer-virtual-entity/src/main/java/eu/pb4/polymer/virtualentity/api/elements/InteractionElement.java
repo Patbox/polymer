@@ -2,6 +2,7 @@ package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -75,6 +76,11 @@ public class InteractionElement extends GenericEntityElement {
     public void setSize(float width, float height) {
         setWidth(width);
         setHeight(height);
+    }
+
+    public void setSize(EntityDimensions dimensions) {
+        setWidth(dimensions.width);
+        setHeight(dimensions.height);
     }
 
     public boolean shouldRespond() {

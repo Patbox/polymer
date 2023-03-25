@@ -1,6 +1,7 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.Brightness;
 import net.minecraft.entity.decoration.DisplayEntity;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.*;
 
 
+@SuppressWarnings("ConstantConditions")
 public abstract class DisplayElement extends GenericEntityElement {
     @Override
     protected abstract EntityType<? extends DisplayEntity> getEntityType();
@@ -136,12 +138,26 @@ public abstract class DisplayElement extends GenericEntityElement {
         return this.dataTracker.get(DisplayTrackedData.WIDTH);
     }
 
+    public float getDisplayHeight() {
+        return this.dataTracker.get(DisplayTrackedData.HEIGHT);
+    }
+
     public void setDisplayWidth(float width) {
         this.dataTracker.set(DisplayTrackedData.WIDTH, width);
     }
 
     public void setDisplayHeight(float height) {
         this.dataTracker.set(DisplayTrackedData.HEIGHT, height);
+    }
+
+    public void setDisplaySize(float width, float height) {
+        this.setDisplayWidth(width);
+        this.setDisplayHeight(height);
+    }
+
+    public void setDisplaySize(EntityDimensions dimensions) {
+        this.setDisplayWidth(dimensions.width);
+        this.setDisplayHeight(dimensions.height);
     }
 
     public int getGlowColorOverride() {
