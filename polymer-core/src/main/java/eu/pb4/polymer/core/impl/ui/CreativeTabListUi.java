@@ -39,7 +39,7 @@ public class CreativeTabListUi extends MicroUi {
                 text.setStyle(text.getStyle().withItalic(false));
             }
             icon.setCustomName(text);
-            icon.getOrCreateNbt().putInt("HideFlags", 127);
+            icon.getOrCreateNbt().putInt("HideFlags", 255);
             this.slot(i - start, icon, (player, slotIndex, button, actionType) -> {
                 playSound(player, SoundEvents.UI_BUTTON_CLICK);
                 new CreativeTabUi(player, itemGroup);

@@ -326,7 +326,7 @@ public final class PolymerItemUtils {
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
         out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
-        out.getNbt().putInt("HideFlags", 127);
+        out.getNbt().putInt("HideFlags", 255);
 
         NbtList lore = new NbtList();
 
