@@ -45,7 +45,7 @@ public class PotionUi extends MicroUi {
                     .append(Text.literal(" (" + StatusEffectUtil.durationToString(effectInstance, 1.0F) + ")").formatted(Formatting.GRAY))
             );
 
-            icon.getNbt().putInt("HideFlags", 127);
+            icon.getNbt().putInt("HideFlags", 255);
             this.slot(id++, icon);
         }
     }
