@@ -17,9 +17,6 @@
   "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
-    "_main": [
-      "eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod"
-    ]
   },
   "accessWidener": "polymer-virtual-entity.accesswidener",
   "mixins": [

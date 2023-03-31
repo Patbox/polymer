@@ -8,12 +8,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
+
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin {
 
     @Inject(method = "tickChunk", at = @At("TAIL"))
     private void hologramApi$tickHolograms(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci) {
-        for (var hologram : ((HolderAttachmentHolder) chunk).polymerVE$getHolders()) {
+        for (var hologram : new ArrayList<>(((HolderAttachmentHolder) chunk).polymerVE$getHolders())) {
             hologram.tick();
         }
     }

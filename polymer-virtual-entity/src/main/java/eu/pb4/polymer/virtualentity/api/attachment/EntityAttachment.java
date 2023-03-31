@@ -89,4 +89,9 @@ public class EntityAttachment implements HolderAttachment {
         return (ServerWorld) this.entity.getWorld();
     }
 
+
+    @Override
+    public boolean shouldTick() {
+        return this.autoTick;
+    }
 }

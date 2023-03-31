@@ -40,4 +40,11 @@ public interface HolderAttachment {
     default void tick() {
         this.holder().tick();
     }
+
+    /**
+     * This shouldn't change value once added to target!
+     */
+    default boolean shouldTick() {
+        return true;
+    }
 }

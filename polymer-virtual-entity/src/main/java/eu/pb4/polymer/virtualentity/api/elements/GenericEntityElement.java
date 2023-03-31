@@ -35,6 +35,10 @@ public abstract class GenericEntityElement implements VirtualElement {
         return new SimpleDataTracker(this.getEntityType());
     }
 
+    public boolean isDirty() {
+        return this.dataTracker.isDirty();
+    }
+
     @Override
     public IntList getEntityIds() {
         return IntList.of(id);
@@ -75,10 +79,14 @@ public abstract class GenericEntityElement implements VirtualElement {
 
     @Override
     public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
-        var pos = this.holder.getPos().add(this.offset);
-        packetConsumer.accept(new EntitySpawnS2CPacket(this.id, this.uuid, pos.x, pos.y, pos.z, 0, 0, this.getEntityType(), 0, Vec3d.ZERO, 0));
+        packetConsumer.accept(this.createSpawnPacket(player));
 
         this.sendChangedTrackerEntries(player, packetConsumer);
+    }
+
+    protected Packet<ClientPlayPacketListener> createSpawnPacket(ServerPlayerEntity player) {
+        var pos = this.holder.getPos().add(this.offset);
+        return new EntitySpawnS2CPacket(this.id, this.uuid, pos.x, pos.y, pos.z, 0, 0, this.getEntityType(), 0, Vec3d.ZERO, 0);
     }
 
     protected void sendChangedTrackerEntries(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
@@ -110,6 +118,10 @@ public abstract class GenericEntityElement implements VirtualElement {
                 this.holder.sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
             }
         }
+    }
+
+    public DataTrackerLike getDataTracker() {
+        return this.dataTracker;
     }
 
     public EntityPose getPose() {

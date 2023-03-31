@@ -51,16 +51,6 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         super(entityEntityType, world);
         this.holder = new ElementHolder() {
             @Override
-            protected void startWatchingExtraPackets(ServerPlayNetworkHandler player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
-                packetConsumer.accept(VirtualEntityUtils.createRidePacket(TestEntity3.this.getId(), IntList.of(
-                        TestEntity3.this.leftLeg.getEntityId(),
-                        TestEntity3.this.rightLeg.getEntityId(),
-                        TestEntity3.this.torso.getEntityId(),
-                        TestEntity3.this.interaction.getEntityId()
-                )));
-            }
-
-            @Override
             protected void notifyElementsOfPositionUpdate(Vec3d newPos, Vec3d delta) {
                 TestEntity3.this.rideAnchor.notifyMove(this.currentPos, newPos, delta);
             }
@@ -80,6 +70,8 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         torso.setModelTransformation(ModelTransformationMode.FIXED);
         this.interaction.setSize(1.1f, 1.5f);
         this.updateAnimation();
+
+        VirtualEntityUtils.addVirtualPassenger(this, this.leftLeg.getEntityId(), this.rightLeg.getEntityId(), this.torso.getEntityId(), this.interaction.getEntityId());
 
         this.holder.addElement(interaction);
         this.holder.addElement(leftLeg);

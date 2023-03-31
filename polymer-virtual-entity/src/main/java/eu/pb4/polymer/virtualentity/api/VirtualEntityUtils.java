@@ -1,11 +1,13 @@
 package eu.pb4.polymer.virtualentity.api;
 
+import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.VirtualEntityImplUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityPositionS2CPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
@@ -19,6 +21,30 @@ public final class VirtualEntityUtils {
     private VirtualEntityUtils() {}
     public static int requestEntityId() {
         return EntityAccessor.getCURRENT_ID().incrementAndGet();
+    }
+
+    public static void addVirtualPassenger(Entity entity, int passengerId) {
+        ((EntityExt) entity).polymerVE$getVirtualRidden().add(passengerId);
+        ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
+    }
+
+    public static void addVirtualPassenger(Entity entity, int... passengerId) {
+        for (var i : passengerId) {
+            ((EntityExt) entity).polymerVE$getVirtualRidden().add(i);
+        }
+        ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
+    }
+
+    public static void removeVirtualPassenger(Entity entity, int passengerId) {
+        ((EntityExt) entity).polymerVE$getVirtualRidden().removeInt(passengerId);
+        ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
+    }
+
+    public static void removeVirtualPassenger(Entity entity, int... passengerId) {
+        for (var i : passengerId) {
+            ((EntityExt) entity).polymerVE$getVirtualRidden().removeInt(i);
+        }
+        ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
     }
 
     @Nullable
@@ -47,7 +73,7 @@ public final class VirtualEntityUtils {
         }
     }
 
-    protected static Packet<ClientPlayPacketListener> createSimpleMovePacket(int id, Vec3d newPos, byte yaw, byte pitch) {
+    public static Packet<ClientPlayPacketListener> createSimpleMovePacket(int id, Vec3d newPos, byte yaw, byte pitch) {
         var packet = VirtualEntityImplUtils.createUnsafe(EntityPositionS2CPacket.class);
         var accessor = (EntityPositionS2CPacketAccessor) packet;
         accessor.setId(id);

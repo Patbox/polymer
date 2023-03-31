@@ -37,15 +37,11 @@ public class ChunkAttachment implements HolderAttachment {
     }
 
     public static HolderAttachment of(ElementHolder holder, ServerWorld world, BlockPos pos) {
-        var chunk = world.getChunk(pos);
-        var vec = Vec3d.ofCenter(pos);
+        return of(holder, world, Vec3d.ofCenter(pos));
+    }
 
-        if (chunk instanceof WorldChunk chunk1) {
-            return new ChunkAttachment(holder, chunk1, vec, false);
-        } else {
-            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + pos.toShortString() + ", but it isn't loaded!", new NullPointerException());
-            return new ManualAttachment(holder, world, () -> vec);
-        }
+    public static HolderAttachment ofTicking(ElementHolder holder, ServerWorld world, BlockPos pos) {
+        return ofTicking(holder, world, Vec3d.ofCenter(pos));
     }
 
     public static HolderAttachment of(ElementHolder holder, ServerWorld world, Vec3d pos) {
@@ -53,6 +49,17 @@ public class ChunkAttachment implements HolderAttachment {
 
         if (chunk instanceof WorldChunk chunk1) {
             return new ChunkAttachment(holder, chunk1, pos, false);
+        } else {
+            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + BlockPos.ofFloored(pos).toShortString() + ", but it isn't loaded!", new NullPointerException());
+            return new ManualAttachment(holder, world, () -> pos);
+        }
+    }
+
+    public static HolderAttachment ofTicking(ElementHolder holder, ServerWorld world, Vec3d pos) {
+        var chunk = world.getChunk(BlockPos.ofFloored(pos));
+
+        if (chunk instanceof WorldChunk chunk1) {
+            return new ChunkAttachment(holder, chunk1, pos, true);
         } else {
             CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + BlockPos.ofFloored(pos).toShortString() + ", but it isn't loaded!", new NullPointerException());
             return new ManualAttachment(holder, world, () -> pos);
@@ -77,6 +84,11 @@ public class ChunkAttachment implements HolderAttachment {
         if (this.autoTick) {
             this.holder().tick();
         }
+    }
+
+    @Override
+    public boolean shouldTick() {
+        return this.autoTick;
     }
 
     @Override

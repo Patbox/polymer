@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class ElementHolder {
+    private final Consumer<Packet<ClientPlayPacketListener>> EMPTY_PACKET_CONSUMER = (p) -> {};
+
     private HolderAttachment attachment;
     private final List<VirtualElement> elements = new ObjectArrayList<>();
     private final List<ServerPlayNetworkHandler> players = new ArrayList<>();
@@ -117,11 +119,12 @@ public class ElementHolder {
         this.players.remove(player);
         ((HolderHolder) player).polymer$removeHolder(this);
 
+        Consumer<Packet<ClientPlayPacketListener>> packetConsumer = player.isConnectionOpen() ? player::sendPacket : EMPTY_PACKET_CONSUMER;
 
         for (var e : this.elements) {
-            e.stopWatching(player.getPlayer(), player::sendPacket);
+            e.stopWatching(player.getPlayer(), packetConsumer);
         }
-        player.sendPacket(new EntitiesDestroyS2CPacket(this.entityIds));
+        packetConsumer.accept(new EntitiesDestroyS2CPacket(this.entityIds));
 
         return true;
     }
