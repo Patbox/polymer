@@ -229,6 +229,7 @@ public class TestMod implements ModInitializer {
         //PolymerResourcePackUtils.addModAsAssetsSource("promenade");
         register(Registries.ITEM, new Identifier("bugged", "wooden_sword"), new BuggedItem(new Item.Settings()));
 
+        register(Registries.ITEM, new Identifier("test", "emerald"), new SimplePolymerItem(new Item.Settings(), Items.EMERALD));
         register(Registries.ITEM, new Identifier("test", "item"), ITEM);
         register(Registries.ITEM, new Identifier("test", "item2"), ITEM_2);
         register(Registries.ITEM, new Identifier("test", "item3"), ITEM_3);

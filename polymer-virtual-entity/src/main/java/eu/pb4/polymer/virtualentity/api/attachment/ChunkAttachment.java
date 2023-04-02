@@ -112,9 +112,14 @@ public class ChunkAttachment implements HolderAttachment {
 
     @Override
     public void updateTracking(ServerPlayNetworkHandler tracking) {
+        if (tracking.player.world != this.chunk.getWorld() || tracking.player.isDead()) {
+            this.stopWatching(tracking);
+            return;
+        }
+
         var tacs = tracking.player.getWorld().getChunkManager().threadedAnvilChunkStorage;
         var section = tracking.getPlayer().getWatchedSection();
-        if (!tacs.isWithinDistance(this.chunk.getPos().x, this.chunk.getPos().z, section.getX(), section.getMaxZ(), ((ThreadedAnvilChunkStorageAccessor) tacs).getWatchDistance())) {
+        if (!tacs.isWithinDistance(this.chunk.getPos().x, this.chunk.getPos().z, section.getX(), section.getZ(), ((ThreadedAnvilChunkStorageAccessor) tacs).getWatchDistance())) {
             this.stopWatching(tracking);
         }
     }

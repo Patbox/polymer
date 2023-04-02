@@ -1,0 +1,8 @@
+{
+  "asset_id": "test",
+  "description": {
+    "color": "#6006ab",
+    "translate": "TEST"
+  },
+  "template_item": "test:item"
+}

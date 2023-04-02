@@ -1,0 +1,9 @@
+{
+  "asset_name": "test",
+  "description": {
+    "color": "#6006ab",
+    "translate": "TEST"
+  },
+  "ingredient": "test:item",
+  "item_model_index": 0.193702
+}

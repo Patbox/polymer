@@ -61,6 +61,7 @@
     "other.IndexedNetworkMixin",
     "other.ItemGroupsAccessor",
     "other.PacketByteBufMixin",
+    "other.RegistryFixedCodecMixin",
     "other.RemoveEntityStatusEffectS2CPacketMixin",
     "other.ServerPlayerEntityMixin",
     "other.ServerPlayNetworkHandlerMixin",

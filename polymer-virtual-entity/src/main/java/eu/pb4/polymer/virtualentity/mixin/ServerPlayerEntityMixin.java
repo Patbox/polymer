@@ -45,7 +45,7 @@ public class ServerPlayerEntityMixin {
         }
     }
 
-    @Inject(method = "onDeath", at = @At("HEAD"))
+    @Inject(method = "onDeath", at = @At("TAIL"))
     private void polymerVE$removeOnDeath(DamageSource source, CallbackInfo ci) {
         for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
             if (holder.getAttachment() != null) {
@@ -54,7 +54,7 @@ public class ServerPlayerEntityMixin {
         }
     }
 
-    @Inject(method = "moveToWorld", at = @At("HEAD"))
+    @Inject(method = "moveToWorld", at = @At(value = "RETURN"))
     private void polymerVE$removeOnWorldChange(ServerWorld destination, CallbackInfoReturnable<Entity> cir) {
         for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
             if (holder.getAttachment() != null) {
