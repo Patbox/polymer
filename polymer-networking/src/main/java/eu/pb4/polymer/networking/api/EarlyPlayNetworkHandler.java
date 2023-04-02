@@ -18,6 +18,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PlayerProvidingPacketListener;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -29,8 +31,7 @@ import java.util.function.Function;
  * Use this only if you know what you are doing and you need to do sync/packets before player joins a world.
  */
 
-public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener {
-
+public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener, PlayerProvidingPacketListener {
 
     public static void register(Function<Context, EarlyPlayNetworkHandler> constructor) {
         EarlyConnectionMagic.register(constructor);
@@ -443,4 +444,9 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     @ApiStatus.NonExtendable
     public interface Context {}
+
+    @Override
+    public final @Nullable ServerPlayerEntity getPlayerForPacketTweaker() {
+        return this.getPlayer();
+    }
 }

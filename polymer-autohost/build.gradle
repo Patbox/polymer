@@ -37,6 +37,10 @@ dependencies {
     testmodImplementation (project(path: ':polymer-blocks', configuration: 'namedElements'))
     testmodImplementation (project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
 
+    compileOnly (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
+    localRuntime (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
+
+
     project(":polymer-core").afterEvaluate {
         testmodImplementation project(":polymer-core").sourceSets.testmod.output
     }
