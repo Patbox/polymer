@@ -26,6 +26,7 @@
     "command.ArgumentNodeMixin",
     "command.CommandManagerMixin",
     "compat.lithium_BlockPaletteMixin",
+    "compat.fabric.fabricNetworking_ServerPlayNetworking",
     "compat.fabric.fabricSync_StateIdTrackerMixin",
     "compat.immersive_portals.ip_ChunkDataSyncManagerMixin",
     "compat.polymc.polymc_BlockPolyGeneratorMixin",

@@ -26,6 +26,14 @@ public class EntityAttachment implements HolderAttachment {
         this.autoTick = autoTick;
     }
 
+    public static EntityAttachment of(ElementHolder holder, Entity entity) {
+        return new EntityAttachment(holder, entity, false);
+    }
+
+    public static EntityAttachment ofTicking(ElementHolder holder, Entity entity) {
+        return new EntityAttachment(holder, entity, true);
+    }
+
     @Override
     public ElementHolder holder() {
         return this.holder;

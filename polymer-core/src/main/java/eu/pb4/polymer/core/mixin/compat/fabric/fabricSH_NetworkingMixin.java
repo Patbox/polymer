@@ -6,18 +6,20 @@ import net.fabricmc.fabric.impl.screenhandler.Networking;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Pseudo
 @Mixin(Networking.class)
 public class fabricSH_NetworkingMixin {
-    @Inject(method = "sendOpenPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;<init>(Lio/netty/buffer/ByteBuf;)V"))
+    @Inject(method = "sendOpenPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;<init>(Lio/netty/buffer/ByteBuf;)V"), require = 0)
     private static void polymer_setPlayer(ServerPlayerEntity player, ExtendedScreenHandlerFactory factory, ScreenHandler handler, int syncId, CallbackInfo ci) {
         CommonImplUtils.setPlayer(player);
     }
 
-    @Inject(method = "sendOpenPacket", at = @At("TAIL"))
+    @Inject(method = "sendOpenPacket", at = @At("TAIL"), require = 0)
     private static void polymer_removePlayer(ServerPlayerEntity player, ExtendedScreenHandlerFactory factory, ScreenHandler handler, int syncId, CallbackInfo ci) {
         CommonImplUtils.setPlayer(null);
     }

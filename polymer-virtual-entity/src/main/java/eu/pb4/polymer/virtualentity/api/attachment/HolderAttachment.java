@@ -1,6 +1,8 @@
 package eu.pb4.polymer.virtualentity.api.attachment;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.impl.SimpleUpdateType;
+import eu.pb4.polymer.virtualentity.impl.VoidUpdateType;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -46,5 +48,18 @@ public interface HolderAttachment {
      */
     default boolean shouldTick() {
         return true;
+    }
+
+
+    interface UpdateType {
+        UpdateType POSITION = UpdateType.of("BlockState");
+
+        static UpdateType of() {
+            return new VoidUpdateType();
+        }
+
+        static UpdateType of(String type) {
+            return new SimpleUpdateType(type);
+        }
     }
 }

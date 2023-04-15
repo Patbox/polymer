@@ -21,6 +21,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.chunk.BlendingData;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -42,6 +43,7 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
     @Shadow
     public abstract World getWorld();
 
+    @Shadow @Final private World world;
     @Unique
     private final Collection<HolderAttachment> polymerVE$holders = new ArrayList<>();
 
@@ -53,7 +55,7 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
             at = @At("TAIL")
     )
     private void polymer$polymerBlocksInit(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler blockTickScheduler, ChunkTickScheduler fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
-        if (world instanceof ServerWorld) {
+        if (world instanceof ServerWorld serverWorld) {
             for (var section : this.getSectionArray()) {
                 if (section != null && !section.isEmpty()) {
                     var container = section.getBlockStateContainer();
@@ -67,9 +69,9 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
                                     if (state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder) {
                                         var blockPos = pos.getBlockPos(x, section.getYOffset() + y, z);
 
-                                        var holder = blockWithElementHolder.createElementHolder(blockPos, state);
+                                        var holder = blockWithElementHolder.createElementHolder(serverWorld, blockPos, state);
                                         if (holder != null) {
-                                            new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, blockPos, Vec3d.ofCenter(blockPos).add(blockWithElementHolder.getElementHolderOffset()), blockWithElementHolder.tickElementHolder());
+                                            new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, blockPos, Vec3d.ofCenter(blockPos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, blockPos, state)), blockWithElementHolder.tickElementHolder(serverWorld, blockPos, state));
                                         }
                                     }
                                 }
@@ -98,10 +100,11 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
     @Inject(method = "setBlockState", at = @At(value = "FIELD", target = "Lnet/minecraft/world/chunk/WorldChunk;needsSaving:Z"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymerVE$addNew(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir,
                                      int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
-        if (oldBlockState.getBlock() != state.getBlock() && state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder) {
-            var holder = blockWithElementHolder.createElementHolder(pos, state);
+
+        if (oldBlockState.getBlock() != state.getBlock() && state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder && this.world instanceof ServerWorld serverWorld) {
+            var holder = blockWithElementHolder.createElementHolder(serverWorld, pos, state);
             if (holder != null) {
-                new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, pos.toImmutable(), Vec3d.ofCenter(pos).add(blockWithElementHolder.getElementHolderOffset()), blockWithElementHolder.tickElementHolder());
+                new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, pos.toImmutable(), Vec3d.ofCenter(pos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, pos, state)), blockWithElementHolder.tickElementHolder(serverWorld, pos, state));
             }
         }
     };

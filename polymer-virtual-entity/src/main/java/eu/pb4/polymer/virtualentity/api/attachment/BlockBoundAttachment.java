@@ -11,6 +11,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public final class BlockBoundAttachment extends ChunkAttachment {
+    public static final UpdateType BLOCK_STATE_UPDATE = UpdateType.of("BlockState");
+
     private final BlockPos blockPos;
     private BlockState blockState;
 
@@ -36,6 +38,9 @@ public final class BlockBoundAttachment extends ChunkAttachment {
     @ApiStatus.Internal
     public void setBlockState(BlockState blockState) {
         this.blockState = blockState;
+        if (this == this.holder().getAttachment()) {
+            this.holder().notifyUpdate(BLOCK_STATE_UPDATE);
+        }
     }
 
     public BlockState getBlockState() {
@@ -51,5 +56,10 @@ public final class BlockBoundAttachment extends ChunkAttachment {
     @Nullable
     public static BlockBoundAttachment get(WorldChunk chunk, BlockPos pos) {
         return ((HolderAttachmentHolder) chunk).polymerVE$getPosHolder(pos);
+    }
+
+    @Nullable
+    public static BlockBoundAttachment get(ElementHolder holder) {
+        return holder.getAttachment() instanceof BlockBoundAttachment blockBoundAttachment ? blockBoundAttachment : null;
     }
 }

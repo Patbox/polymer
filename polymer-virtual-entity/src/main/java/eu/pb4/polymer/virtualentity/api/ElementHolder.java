@@ -151,6 +151,10 @@ public class ElementHolder {
     }
 
     protected void updatePosition() {
+        if (this.attachment == null) {
+            return;
+        }
+
         var newPos = this.attachment.getPos();
 
         if (!this.currentPos.equals(newPos)) {
@@ -222,5 +226,8 @@ public class ElementHolder {
     @Override
     public int hashCode() {
         return 31;
+    }
+
+    public void notifyUpdate(HolderAttachment.UpdateType updateType) {
     }
 }
