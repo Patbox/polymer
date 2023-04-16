@@ -151,7 +151,7 @@ public class ElementHolder {
     }
 
     protected void updatePosition() {
-        if (this.attachment == null) {
+        if (this.attachment == null || !this.attachment.canUpdatePosition()) {
             return;
         }
 
@@ -184,7 +184,7 @@ public class ElementHolder {
     public void setAttachment(@Nullable HolderAttachment attachment) {
         this.attachment = attachment;
         if (attachment != null) {
-            if (this.currentPos == Vec3d.ZERO) {
+            if (this.currentPos == Vec3d.ZERO && attachment.canUpdatePosition()) {
                 this.currentPos = attachment.getPos();
             }
             attachment.updateCurrentlyTracking(new ArrayList<>(this.players));
@@ -192,6 +192,10 @@ public class ElementHolder {
     }
 
     public Vec3d getPos() {
+        if (this.currentPos == Vec3d.ZERO && attachment != null && attachment.canUpdatePosition()) {
+            this.currentPos = attachment.getPos();
+        }
+
         return this.currentPos;
     }
 

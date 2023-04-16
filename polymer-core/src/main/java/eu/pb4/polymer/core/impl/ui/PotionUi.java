@@ -42,7 +42,10 @@ public class PotionUi extends MicroUi {
             }
             icon.setCustomName(Text.empty().setStyle(Style.EMPTY.withItalic(false))
                     .append(effectInstance.getEffectType().getName())
-                    .append(Text.literal(" (" + StatusEffectUtil.durationToString(effectInstance, 1.0F) + ")").formatted(Formatting.GRAY))
+                    .append(Text.literal(" (")
+                            .append(StatusEffectUtil.durationToString(effectInstance, 1.0F))
+                            .append(")")
+                            .formatted(Formatting.GRAY))
             );
 
             icon.getNbt().putInt("HideFlags", 255);

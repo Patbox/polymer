@@ -50,6 +50,9 @@ public interface HolderAttachment {
         return true;
     }
 
+    default boolean canUpdatePosition() {
+        return true;
+    }
 
     interface UpdateType {
         UpdateType POSITION = UpdateType.of("BlockState");

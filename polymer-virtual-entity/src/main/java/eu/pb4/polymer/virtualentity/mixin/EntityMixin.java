@@ -17,8 +17,6 @@ import java.util.Collection;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements HolderAttachmentHolder, EntityExt {
-    @Shadow protected abstract void fall(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition);
-
     @Unique
     private final Collection<HolderAttachment> polymerVE$holders = new ArrayList<>();
     @Unique

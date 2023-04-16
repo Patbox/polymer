@@ -91,7 +91,9 @@ public abstract class EntityTrackerEntryMixin {
     private void polymer$modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity) {
             if (polymerEntity.sendEmptyTrackerUpdates() && this.changedEntries == null) {
-                sender.accept(new EntityTrackerUpdateS2CPacket(this.entity.getId(), List.of()));
+                var x = new EntityTrackerUpdateS2CPacket(this.entity.getId(), List.of());
+                ((EntityTrackerUpdateS2CPacketExt) (Object) x).polymer$setInitial();
+                sender.accept(x);
             }
 
             try {
