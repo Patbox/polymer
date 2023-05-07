@@ -67,7 +67,7 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                     this.manager.registerTexture(id, new PolymerArmorResourceTexture(id));
                 }
             }
-        });
+        }, applyExecutor);
     }
 
     @Override
