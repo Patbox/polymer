@@ -62,7 +62,7 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
                             for (byte y = 0; y < 16; y++) {
                                 state = container.get(x, y, z);
                                 if (PolymerImplUtils.POLYMER_STATES.contains(state)) {
-                                    storage.polymer$setSynced(x, y, z);
+                                    storage.polymer$setSynced(x, y, z, PolymerBlockUtils.forceLightUpdates(state));
                                 }
                             }
                         }
@@ -77,7 +77,7 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/ChunkSection;setBlockState(IIILnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER))
     private void polymer$addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
         if (PolymerImplUtils.POLYMER_STATES.contains(state)) {
-            this.polymer$setSynced(pos.getX(), pos.getY(), pos.getZ());
+            this.polymer$setSynced(pos.getX(), pos.getY(), pos.getZ(), PolymerBlockUtils.forceLightUpdates(state));
         } else {
             this.polymer$removeSynced(pos.getX(), pos.getY(), pos.getZ());
         }
@@ -109,8 +109,8 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
     }
 
     @Override
-    public void polymer$setSynced(int x, int y, int z) {
-        this.polymer_getSectionStorage(y).polymer$setSynced(x, y, z);
+    public void polymer$setSynced(int x, int y, int z, boolean lightSource) {
+        this.polymer_getSectionStorage(y).polymer$setSynced(x, y, z, lightSource);
     }
 
     @Override

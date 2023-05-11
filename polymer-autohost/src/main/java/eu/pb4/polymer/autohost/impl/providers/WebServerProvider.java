@@ -1,9 +1,16 @@
-package eu.pb4.polymer.autohost.impl;
+package eu.pb4.polymer.autohost.impl.providers;
 
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.annotations.SerializedName;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
+import eu.pb4.polymer.autohost.impl.AutoHost;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
@@ -14,32 +21,33 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.concurrent.Executors;
 
-public class WebServer {
-    public static long size = 0;
-    public static String hash = "";
-    public static long lastUpdate = 0;
-    public static String baseAddress = "";
-    public static String fullAddress = "";
-    public static boolean enabled;
-    public static boolean isPackReady = false;
+public class WebServerProvider implements ResourcePackDataProvider {
+    private Config config;
+    public long size = 0;
+    public String hash = "";
+    public long lastUpdate = 0;
+    public String baseAddress = "";
+    public String fullAddress = "";
+    public boolean enabled;
+    public boolean isPackReady = false;
 
     @Nullable
-    public static HttpServer start(MinecraftServer minecraftServer, AutoHostConfig config) {
+    public void serverStarted(MinecraftServer minecraftServer) {
         try {
             var address = createBindAddress(minecraftServer, config);
             var server = HttpServer.create(address, 0);
 
-            server.createContext("/", WebServer::handle);
+            server.createContext("/", this::handle);
             server.setExecutor(Executors.newFixedThreadPool(2));
             server.start();
 
-            WebServer.enabled = true;
-            WebServer.baseAddress = config.externalAddress;
+            this.enabled = true;
+            this.baseAddress = config.externalAddress;
 
-            if (!WebServer.baseAddress.endsWith("/")) {
-                WebServer.baseAddress += "/";
+            if (!this.baseAddress.endsWith("/")) {
+                this.baseAddress += "/";
             }
-            WebServer.isPackReady = true;
+            this.isPackReady = true;
             updateHash();
 
             PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register((x) -> {
@@ -51,19 +59,18 @@ public class WebServer {
                 updateHash();
             });
 
-            return server;
+            AutoHost.generateAndCall(minecraftServer, () -> {});
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
-    private static void updateHash() {
+    private void updateHash() {
         try {
             hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.DEFAULT_PATH.toFile()).hash(Hashing.sha1()).toString();
             size = Files.size(PolymerResourcePackUtils.DEFAULT_PATH);
             lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.DEFAULT_PATH).toMillis();
-            WebServer.fullAddress = WebServer.baseAddress + WebServer.hash + ".zip";
+            this.fullAddress = this.baseAddress + this.hash + ".zip";
         } catch (Exception e) {
             hash = "";
             size = 0;
@@ -71,7 +78,7 @@ public class WebServer {
 
     }
 
-    private static InetSocketAddress createBindAddress(MinecraftServer server, AutoHostConfig config) {
+    private static InetSocketAddress createBindAddress(MinecraftServer server, Config config) {
         var serverIp = server.getServerIp();
         if (!Strings.isNullOrEmpty(serverIp)) {
             return new InetSocketAddress(serverIp, config.port);
@@ -81,7 +88,7 @@ public class WebServer {
     }
 
 
-    public static void handle(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
         if ("GET".equals(exchange.getRequestMethod())) {
             if (Files.exists(PolymerResourcePackUtils.DEFAULT_PATH)) {
                 var updateTime = Files.getLastModifiedTime(PolymerResourcePackUtils.DEFAULT_PATH).toMillis();
@@ -104,4 +111,43 @@ public class WebServer {
          }
     }
 
+    @Override
+    public String getAddress() {
+        return this.fullAddress;
+    }
+
+    @Override
+    public String getHash() {
+        return this.hash;
+    }
+
+    @Override
+    public boolean isReady() {
+        return this.isPackReady;
+    }
+
+    @Override
+    public JsonElement saveSettings() {
+        return this.config.toJson();
+    }
+
+    @Override
+    public void loadSettings(JsonElement settings) {
+        this.config = CommonImpl.GSON.fromJson(settings, Config.class);
+        if (this.config == null) {
+            this.config = new Config();
+        }
+    }
+
+    public static class Config {
+        public String _c1 = "Port used internally to run http server";
+        public int port = 25567;
+        public String _c2 = "Public address used for sending requests";
+        @SerializedName("external_address")
+        public String externalAddress = "http://localhost:25567/";
+
+        public JsonElement toJson() {
+            return CommonImpl.GSON.toJsonTree(this);
+        }
+    }
 }

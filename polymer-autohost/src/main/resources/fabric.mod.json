@@ -19,7 +19,11 @@
     "polymer-common": ">=${version}",
     "polymer-networking": ">=${version}",
     "fabricloader": ">=0.14.0"
-
+  },
+  "entrypoints": {
+    "main": [
+      "eu.pb4.polymer.autohost.impl.AutoHost"
+    ]
   },
   "mixins": [
     "polymer-autohost.mixins.json"

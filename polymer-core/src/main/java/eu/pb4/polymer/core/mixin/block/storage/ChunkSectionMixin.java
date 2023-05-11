@@ -16,6 +16,10 @@ import java.util.Iterator;
 public class ChunkSectionMixin implements PolymerBlockPosStorage {
     @Unique
     private final ShortSet polymer$blocks = new ShortOpenHashSet();
+    @Unique
+    private final ShortSet polymer$lights = new ShortOpenHashSet();
+    @Unique
+    private boolean polymer$requireLightUpdate;;
 
     @Override
     public @Nullable ShortSet polymer$getBackendSet() {
@@ -48,13 +52,21 @@ public class ChunkSectionMixin implements PolymerBlockPosStorage {
     }
 
     @Override
-    public void polymer$setSynced(int x, int y, int z) {
-        this.polymer$blocks.add(PolymerBlockPosStorage.pack(x, y, z));
+    public void polymer$setSynced(int x, int y, int z, boolean lightSource) {
+        var i = PolymerBlockPosStorage.pack(x, y, z);
+        this.polymer$blocks.add(i);
+        if (lightSource) {
+            this.polymer$lights.add(i);
+        }
     }
 
     @Override
     public void polymer$removeSynced(int x, int y, int z) {
-        this.polymer$blocks.remove(PolymerBlockPosStorage.pack(x, y, z));
+        var i = PolymerBlockPosStorage.pack(x, y, z);
+        this.polymer$blocks.remove(i);
+        if (this.polymer$lights.remove(i)) {
+            this.polymer$requireLightUpdate = true;
+        }
     }
 
     @Override
@@ -65,5 +77,20 @@ public class ChunkSectionMixin implements PolymerBlockPosStorage {
     @Override
     public boolean polymer$hasAny() {
         return !this.polymer$blocks.isEmpty();
+    }
+
+    @Override
+    public boolean polymer$hasLights() {
+        return !this.polymer$lights.isEmpty();
+    }
+
+    @Override
+    public boolean polymer$requireLights() {
+        return this.polymer$requireLightUpdate || polymer$hasLights();
+    }
+
+    @Override
+    public void polymer$setRequireLights(boolean value) {
+        this.polymer$requireLightUpdate = value;
     }
 }

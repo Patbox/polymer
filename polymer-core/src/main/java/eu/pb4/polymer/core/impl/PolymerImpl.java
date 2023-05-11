@@ -25,6 +25,7 @@ public final class PolymerImpl {
     public static final boolean SYNC_MODDED_ENTRIES_POLYMC;
     public static final boolean USE_FULL_REI_COMPAT_CLIENT = true;
     public static final boolean LOG_MORE_ERRORS;
+    public static final int LIGHT_UPDATE_TICK_DELAY;
 
     static {
         var serverConfig =  CommonImpl.loadConfig("server", ServerConfig.class);
@@ -35,6 +36,7 @@ public final class PolymerImpl {
         LOG_BLOCKSTATE_REBUILDS = serverConfig.logBlockStateRebuilds;
         LOG_MORE_ERRORS = CommonImpl.LOG_MORE_ERRORS;
         SYNC_MODDED_ENTRIES_POLYMC = serverConfig.polyMcSyncModdedEntries && CompatStatus.POLYMC;
+        LIGHT_UPDATE_TICK_DELAY = serverConfig.lightUpdateTickDelay;
 
 
         if (PolymerImpl.IS_CLIENT) {

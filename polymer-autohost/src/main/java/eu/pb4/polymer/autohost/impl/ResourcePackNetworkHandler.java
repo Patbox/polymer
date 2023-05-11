@@ -13,9 +13,6 @@ import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.GameMode;
-
-import java.util.Optional;
 
 public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     private final boolean required;
@@ -42,8 +39,8 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
             this.sendPacket(new SetCameraEntityS2CPacket(FAKE_ENTITY));
             this.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, (new PacketByteBuf(Unpooled.buffer())).writeString(this.getServer().getServerModName() + "/" + "polymer_loading_pack")));
             this.sendPacket(new WorldTimeUpdateS2CPacket(0, 18000, false));
-            if (WebServer.isPackReady) {
-                this.sendPacket(new ResourcePackSendS2CPacket(WebServer.fullAddress, WebServer.hash, this.required, AutoHost.message));
+            if (AutoHost.provider.isReady()) {
+                this.sendPacket(new ResourcePackSendS2CPacket(AutoHost.provider.getAddress(), AutoHost.provider.getHash(), this.required, AutoHost.message));
             } else {
                 this.delayed = true;
             }
@@ -52,9 +49,9 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
 
     @Override
     public void onTick() {
-        if (this.delayed && WebServer.isPackReady) {
+        if (this.delayed && AutoHost.provider.isReady()) {
             this.delayed = false;
-            this.sendPacket(new ResourcePackSendS2CPacket(WebServer.fullAddress, WebServer.hash, this.required, AutoHost.message));
+            this.sendPacket(new ResourcePackSendS2CPacket(AutoHost.provider.getAddress(), AutoHost.provider.getHash(), this.required, AutoHost.message));
         }
     }
 

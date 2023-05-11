@@ -74,7 +74,7 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public void setShadow(boolean value) {
-        setDisplayFlag(DisplayTrackedData.Text.SHADOW_FLAG, true);
+        setDisplayFlag(DisplayTrackedData.Text.SHADOW_FLAG, value);
     }
 
     public boolean getShadow() {
@@ -82,7 +82,7 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public void setSeeThrough(boolean value) {
-        setDisplayFlag(DisplayTrackedData.Text.SEE_THROUGH_FLAG, true);
+        setDisplayFlag(DisplayTrackedData.Text.SEE_THROUGH_FLAG, value);
     }
 
     public boolean getSeeThrough() {
@@ -90,7 +90,7 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public void setDefaultBackground(boolean value) {
-        setDisplayFlag(DisplayTrackedData.Text.DEFAULT_BACKGROUND_FLAG, true);
+        setDisplayFlag(DisplayTrackedData.Text.DEFAULT_BACKGROUND_FLAG, value);
     }
 
     public boolean getDefaultBackground() {

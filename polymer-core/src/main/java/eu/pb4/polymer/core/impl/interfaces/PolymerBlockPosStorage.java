@@ -19,7 +19,7 @@ public interface PolymerBlockPosStorage {
     @Nullable
     Iterator<BlockPos.Mutable> polymer$iterator();
 
-    void polymer$setSynced(int x, int y, int z);
+    void polymer$setSynced(int x, int y, int z, boolean lightSource);
     void polymer$removeSynced(int x, int y, int z);
 
     boolean polymer$isSynced(int x, int y, int z);
@@ -29,4 +29,7 @@ public interface PolymerBlockPosStorage {
     static short pack(int x, int y, int z) {
         return (short) ((x & 15) << 8 | (z & 15) << 4 | (y & 15));
     }
+    boolean polymer$hasLights();
+    boolean polymer$requireLights();
+    void polymer$setRequireLights(boolean value);
 }

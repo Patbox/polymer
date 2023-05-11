@@ -1,9 +1,11 @@
 package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.common.api.events.BooleanEvent;
+import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
 import eu.pb4.polymer.core.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.block.Block;
@@ -40,7 +42,6 @@ public final class PolymerBlockUtils {
      * This event allows you to force syncing of light updates between server and clinet
      */
     public static final BooleanEvent<BiPredicate<ServerWorld, ChunkSectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
-    private static final Object2BooleanMap<BlockState> IS_LIGHT_SOURCE_CACHE = new Object2BooleanOpenHashMap<>();
     private static final Set<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
 
     /**
@@ -77,17 +78,7 @@ public final class PolymerBlockUtils {
                 return true;
             }
 
-            if (PolymerBlockUtils.IS_LIGHT_SOURCE_CACHE.containsKey(blockState)) {
-                return PolymerBlockUtils.IS_LIGHT_SOURCE_CACHE.getBoolean(blockState);
-            } else {
-                if (blockState.getLuminance() != virtualBlock.getPolymerBlockState(blockState).getLuminance()) {
-                    PolymerBlockUtils.IS_LIGHT_SOURCE_CACHE.put(blockState, true);
-                    return true;
-                }
-
-                PolymerBlockUtils.IS_LIGHT_SOURCE_CACHE.put(blockState, false);
-                return false;
-            }
+            return ((BlockStateExtra) blockState).polymer$isPolymerLightSource();
         }
         return false;
     }

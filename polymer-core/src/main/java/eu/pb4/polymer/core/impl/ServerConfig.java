@@ -11,4 +11,6 @@ public class ServerConfig {
     public boolean logBlockStateRebuilds = true;
     public String _c1 = "Enables syncing of non-polymer entries as polymer ones, when PolyMc is present";
     public boolean polyMcSyncModdedEntries = true;
+    public String _c2 = "Delay from last light updates to syncing it to clients, in ticks";
+    public int lightUpdateTickDelay = 1;
 }

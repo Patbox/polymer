@@ -11,10 +11,12 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,13 +32,42 @@ public abstract class GenericEntityElement implements VirtualElement {
     private final UUID uuid = UUID.randomUUID();
     private ElementHolder holder;
     private Vec3d offset = Vec3d.ZERO;
+    private float pitch;
+    private float yaw;
+    private boolean isRotationDirty;
 
     protected DataTrackerLike createDataTracker() {
         return new SimpleDataTracker(this.getEntityType());
     }
 
     public boolean isDirty() {
-        return this.dataTracker.isDirty();
+        return this.isRotationDirty || this.dataTracker.isDirty();
+    }
+
+    public boolean isRotationDirty() {
+        return isRotationDirty;
+    }
+
+    public void setPitch(float pitch) {
+        if (this.pitch != pitch) {
+            this.pitch = pitch;
+            this.isRotationDirty = true;
+        }
+    }
+
+    public void setYaw(float yaw) {
+        if (this.yaw != yaw) {
+            this.yaw = yaw;
+            this.isRotationDirty = true;
+        }
+    }
+
+    public float getYaw() {
+        return this.yaw;
+    }
+
+    public float getPitch() {
+        return this.pitch;
     }
 
     @Override
@@ -86,7 +117,7 @@ public abstract class GenericEntityElement implements VirtualElement {
 
     protected Packet<ClientPlayPacketListener> createSpawnPacket(ServerPlayerEntity player) {
         var pos = this.holder.getPos().add(this.offset);
-        return new EntitySpawnS2CPacket(this.id, this.uuid, pos.x, pos.y, pos.z, 0, 0, this.getEntityType(), 0, Vec3d.ZERO, 0);
+        return new EntitySpawnS2CPacket(this.id, this.uuid, pos.x, pos.y, pos.z, this.pitch, this.yaw, this.getEntityType(), 0, Vec3d.ZERO, this.yaw);
     }
 
     protected void sendChangedTrackerEntries(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
@@ -99,7 +130,8 @@ public abstract class GenericEntityElement implements VirtualElement {
 
     @Override
     public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
-        this.holder.sendPacket(VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.offset), newPos.add(this.offset), false, 0f, 0f));
+        this.holder.sendPacket(VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.offset), newPos.add(this.offset), this.isRotationDirty, this.yaw, this.pitch));
+        this.isRotationDirty = false;
     }
 
     @Override
@@ -109,6 +141,7 @@ public abstract class GenericEntityElement implements VirtualElement {
     @Override
     public void tick() {
         this.sendTrackerUpdates();
+        this.sendRotationUpdates();
     }
 
     protected void sendTrackerUpdates() {
@@ -117,6 +150,15 @@ public abstract class GenericEntityElement implements VirtualElement {
             if (dirty != null) {
                 this.holder.sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
             }
+        }
+    }
+
+    protected void sendRotationUpdates() {
+        if (this.isRotationDirty) {
+            var i = MathHelper.floor(yaw * 256.0F / 360.0F);
+            var j = MathHelper.floor(pitch * 256.0F / 360.0F);
+            this.holder.sendPacket(new EntityS2CPacket.Rotate(id, (byte) i, (byte) j, false));
+            this.isRotationDirty = false;
         }
     }
 
