@@ -44,6 +44,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.ChunkProvider;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.light.ChunkSkyLight;
+import net.minecraft.world.chunk.light.LightSourceView;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
@@ -55,6 +57,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -62,7 +65,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @ApiStatus.Internal
-public final class FakeWorld extends World {
+public final class FakeWorld extends World implements LightSourceView {
     public static final World INSTANCE;
 
     public static final World INSTANCE_UNSAFE;
@@ -123,8 +126,8 @@ public final class FakeWorld extends World {
                 this.lightingProvider = new LightingProvider(new ChunkProvider() {
                     @Nullable
                     @Override
-                    public BlockView getChunk(int chunkX, int chunkZ) {
-                        return null;
+                    public LightSourceView getChunk(int chunkX, int chunkZ) {
+                        return FakeWorld.this;
                     }
 
                     @Override
@@ -381,6 +384,16 @@ public final class FakeWorld extends World {
     @Override
     public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
         return null;//BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
+    }
+
+    @Override
+    public void forEachLightSource(BiConsumer<BlockPos, BlockState> callback) {
+
+    }
+
+    @Override
+    public ChunkSkyLight getChunkSkyLight() {
+        return null;
     }
 
 

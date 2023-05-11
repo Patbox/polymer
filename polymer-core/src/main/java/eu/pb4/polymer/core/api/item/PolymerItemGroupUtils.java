@@ -21,10 +21,6 @@ import java.util.*;
  * It also has it's own server side functionality
  */
 public final class PolymerItemGroupUtils {
-    public static final PolymerRegistry<ItemGroup> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
-
-    private static final Map<Identifier, ItemGroup> GROUP_ID = new HashMap<>();
-
     private PolymerItemGroupUtils() {}
     /**
      * Even called on synchronization of ItemGroups
@@ -32,7 +28,7 @@ public final class PolymerItemGroupUtils {
     public static final SimpleEvent<ItemGroupEventListener> LIST_EVENT = new SimpleEvent<>();
 
     public static Contents getContentsFor(ServerPlayerEntity player, ItemGroup group) {
-        return getContentsFor(group, player.getServer().getRegistryManager(), player.world.getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
+        return getContentsFor(group, player.getServer().getRegistryManager(), player.getServerWorld().getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
     }
 
     public static Contents getContentsFor(ItemGroup group, RegistryWrapper.WrapperLookup lookup, FeatureSet featureSet, boolean operator) {
@@ -46,12 +42,6 @@ public final class PolymerItemGroupUtils {
         var list = new LinkedHashSet<ItemGroup>();
 
         for (var g : ItemGroups.getGroups()) {
-            if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
-                list.add(g);
-            }
-        }
-
-        for (var g : InternalServerRegistry.ITEM_GROUPS) {
             if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
                 list.add(g);
             }
@@ -74,30 +64,13 @@ public final class PolymerItemGroupUtils {
         return new ArrayList<>(list);
     }
 
-    public static ItemGroup.Builder builder(Identifier identifier) {
-        if (GROUP_ID.containsKey(identifier)) {
-            throw new RuntimeException("Duplicate ItemGroup '" + identifier + "'");
-        }
-        GROUP_ID.put(identifier, null);
-
-        return new ItemGroup.Builder(ItemGroup.Row.BOTTOM, -1) {
-            @Override
-            public ItemGroup build() {
-                var out = super.build();
-                GROUP_ID.put(identifier, out);
-                InternalServerRegistry.ITEM_GROUPS.set(identifier, out);
-                return out;
-            }
-        };
-    }
 
     public static boolean isPolymerItemGroup(ItemGroup group) {
-        return InternalServerRegistry.ITEM_GROUPS.getId(group) != null;
+        return InternalServerRegistry.ITEM_GROUPS.contains(group);
     }
 
-    @Nullable
-    public static ItemGroup get(Identifier id) {
-        return InternalServerRegistry.ITEM_GROUPS.get(id);
+    public static void registerPolymerItemGroup(ItemGroup group) {
+        InternalServerRegistry.ITEM_GROUPS.add(group);
     }
 
     @FunctionalInterface

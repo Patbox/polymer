@@ -86,13 +86,15 @@ public class PolymerServerProtocol {
         if (version > -1) {
             var wci = (PolymerBlockPosStorage) chunk;
             if (wci.polymer$hasAny()) {
-                for (var section : chunk.getSectionArray()) {
+                var sections = chunk.getSectionArray();
+                for (var i = 0; i < sections.length; i++) {
+                    var section = sections[i];
                     var storage = (PolymerBlockPosStorage) section;
 
                     if (section != null && storage.polymer$hasAny()) {
                         var buf = buf(version);
                         var set = storage.polymer$getBackendSet();
-                        buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), ChunkSectionPos.getSectionCoord(section.getYOffset())));
+                        buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), chunk.sectionIndexToCoord(i)));
 
                         assert set != null;
                         var size = set.size();
@@ -230,7 +232,7 @@ public class PolymerServerProtocol {
         if (version != -1) {
             {
                 var buf = buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR));
-                buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
+                buf.writeIdentifier(Registries.ITEM_GROUP.getId(group));
                 handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
             }
 
@@ -253,7 +255,7 @@ public class PolymerServerProtocol {
         if (version > -1 && (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerItemGroupUtils.isPolymerItemGroup(group))) {
             var buf = buf(version);
 
-            buf.writeIdentifier(PolymerImplUtils.toItemGroupId(group));
+            buf.writeIdentifier(Registries.ITEM_GROUP.getId(group));
             buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));
             PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(group.getIcon(), handler.player));
             handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_DEFINE, buf));
@@ -264,7 +266,7 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.SYNC_ITEM_GROUP_REMOVE);
 
         if (version > -1 && PolymerItemGroupUtils.isPolymerItemGroup(group)) {
-            player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_REMOVE, buf(version).writeIdentifier(PolymerImplUtils.toItemGroupId(group))));
+            player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_REMOVE, buf(version).writeIdentifier(Registries.ITEM_GROUP.getId(group))));
         }
     }
 

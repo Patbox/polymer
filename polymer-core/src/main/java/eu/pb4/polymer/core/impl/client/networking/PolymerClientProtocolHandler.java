@@ -244,7 +244,7 @@ public class PolymerClientProtocolHandler {
             }
 
             MinecraftClient.getInstance().execute(() -> {
-                ItemGroup group = InternalClientRegistry.getItemGroup(id);
+                ItemGroup group = Registries.ITEM_GROUP.get(id);
 
                 if (group != null) {
                     var groupAccess = (ClientItemGroupExtension) group;
@@ -267,7 +267,7 @@ public class PolymerClientProtocolHandler {
         if (version > -1) {
             var id = buf.readIdentifier();
             MinecraftClient.getInstance().execute(() -> {
-                ItemGroup group = InternalClientRegistry.getItemGroup(id);
+                ItemGroup group = Registries.ITEM_GROUP.get(id);
 
                 if (group != null) {
                     var groupAccess = (ClientItemGroupExtension) group;

@@ -85,7 +85,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     public void tick() {
         super.tick();
 
-        if (this.world.getTime() % 2 == 1) {
+        if (this.getWorld().getTime() % 2 == 1) {
             return;
         }
 
@@ -118,7 +118,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
 
         stack.clear();
         stack.translate(0, -0.2f, 0);
-        stack.rotateY((float) Math.toRadians(180.0F * 3 - MathHelper.lerpAngleDegrees(0.5f, this.prevBodyYaw, this.bodyYaw)) + (float) (0.00001f * Math.random()));
+        stack.rotateY((float) Math.toRadians(- MathHelper.lerpAngleDegrees(0.5f, this.prevBodyYaw, this.bodyYaw)) + (float) (0.00001f * Math.random()));
         if (this.deathTime > 0) {
             stack.rotate(RotationAxis.POSITIVE_Z.rotation(f * MathHelper.HALF_PI));
         }

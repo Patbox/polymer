@@ -45,62 +45,6 @@ public class PolymerImplUtils {
     public static final SimpleEvent<BiConsumer<Registry<Object>, Object>> ON_REGISTERED = new SimpleEvent<>();
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
 
-    public static Identifier toItemGroupId(ItemGroup group) {
-        var posId = InternalServerRegistry.ITEM_GROUPS.getId(group);
-        if (posId != null) {
-            return posId;
-        }
-
-        if (CompatStatus.FABRIC_ITEM_GROUP) {
-            try {
-                return ((net.fabricmc.fabric.api.itemgroup.v1.IdentifiableItemGroup) group).getId();
-            } catch (Throwable e) {
-
-            }
-        }
-
-        var name = group.getDisplayName();
-
-        if (name.getContent() instanceof TranslatableTextContent content) {
-            var id = content.getKey();
-
-            if (id.startsWith("itemGroup.")) {
-                id = id.substring("itemGroup.".length());
-            }
-
-            var sub = id.split("\\.", 2);
-
-            if (sub.length == 2) {
-                return new Identifier(makeSafeId(sub[0]), makeSafeId(sub[1]));
-            } else {
-                return new Identifier(makeSafeId(id));
-            }
-        }
-
-        return new Identifier(makeSafeId(name.getString()));
-    }
-
-    private static String makeSafeId(String id) {
-        if (Identifier.isValid(id)) {
-            return id;
-        }
-
-        id = id.toLowerCase(Locale.ROOT);
-        var builder = new StringBuilder();
-
-        for (int i = 0; i < id.length(); i++) {
-            var chr = id.charAt(i);
-
-            if (Identifier.isPathCharacterValid(chr)) {
-                builder.append(chr);
-            } else {
-                builder.append("_");
-            }
-        }
-
-        return builder.toString();
-    }
-
     public static Identifier id(String path) {
         return new Identifier(PolymerUtils.ID, path);
     }
@@ -226,14 +170,6 @@ public class PolymerImplUtils {
                 msg.accept("");
                 msg.accept("== Polymer Registries");
                 msg.accept("");
-                var reg = InternalServerRegistry.ITEM_GROUPS;
-
-                msg.accept("== Registry: ItemGroup");
-                msg.accept("");
-
-                for (var entry : reg) {
-                    msg.accept(reg.getRawId(entry) + " | " + reg.getId(entry));
-                }
 
                 if (PolymerImpl.IS_CLIENT) {
                     for (var reg2 : ((Collection<ImplPolymerRegistry<Object>>) (Object) InternalClientRegistry.REGISTRIES)) {

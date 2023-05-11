@@ -67,7 +67,7 @@ public abstract class ServerChunkManagerMixin {
                         if (y >= i && y <= j) {
                             bitSet.set(y - i);
                         }
-                        Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet, true);
+                        Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet);
                         List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false);
                         if (players.size() > 0) {
                             for (ServerPlayerEntity player : players) {

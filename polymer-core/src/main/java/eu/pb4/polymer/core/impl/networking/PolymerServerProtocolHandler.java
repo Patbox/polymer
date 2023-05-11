@@ -73,20 +73,20 @@ public class PolymerServerProtocolHandler {
                 var isCreative = handler.getPlayer().isCreative();
 
                 if (pos.getManhattanDistance(handler.player.getBlockPos()) <= 32) {
-                    BlockState blockState = handler.player.world.getBlockState(pos);
+                    BlockState blockState = handler.player.getWorld().getBlockState(pos);
                     if (blockState.isAir()) {
                         return;
                     }
 
                     Block block = blockState.getBlock();
-                    var itemStack = block.getPickStack(handler.player.world, pos, blockState);
+                    var itemStack = block.getPickStack(handler.player.getWorld(), pos, blockState);
                     if (itemStack.isEmpty()) {
                         return;
                     }
 
                     BlockEntity blockEntity = null;
                     if (isCreative && ctr && blockState.hasBlockEntity()) {
-                        blockEntity = handler.player.world.getBlockEntity(pos);
+                        blockEntity = handler.player.getWorld().getBlockEntity(pos);
                     }
 
 
@@ -121,7 +121,7 @@ public class PolymerServerProtocolHandler {
             var id = buf.readVarInt();
             handler.getPlayer().getServer().execute(() -> {
 
-                var entity = handler.player.world.getEntityById(id);
+                var entity = handler.player.getServerWorld().getEntityById(id);
 
                 if (entity != null && entity.getPos().relativize(handler.player.getPos()).lengthSquared() < 1024) {
                     var itemStack = entity.getPickBlockStack();

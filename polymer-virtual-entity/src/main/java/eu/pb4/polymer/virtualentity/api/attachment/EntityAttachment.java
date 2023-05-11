@@ -80,7 +80,7 @@ public class EntityAttachment implements HolderAttachment {
 
     @Override
     public boolean canUpdatePosition() {
-        return !this.entity.isRemoved() && this.entity.world.getEntityById(this.entity.getId()) == this.entity;
+        return !this.entity.isRemoved() && this.entity.getWorld().getEntityById(this.entity.getId()) == this.entity;
     }
 
     @Override

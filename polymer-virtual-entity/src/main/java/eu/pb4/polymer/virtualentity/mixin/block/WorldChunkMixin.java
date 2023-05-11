@@ -56,7 +56,9 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
     )
     private void polymer$polymerBlocksInit(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler blockTickScheduler, ChunkTickScheduler fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
         if (world instanceof ServerWorld serverWorld) {
-            for (var section : this.getSectionArray()) {
+            var sections = this.getSectionArray();
+            for (int i = 0; i < sections.length; i++) {
+                var section = sections[i];
                 if (section != null && !section.isEmpty()) {
                     var container = section.getBlockStateContainer();
                     if (container.hasAny(x -> x.getBlock() instanceof BlockWithElementHolder)) {
@@ -67,7 +69,7 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
                                     state = container.get(x, y, z);
 
                                     if (state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder) {
-                                        var blockPos = pos.getBlockPos(x, section.getYOffset() + y, z);
+                                        var blockPos = pos.getBlockPos(x, this.sectionIndexToCoord(i) * 16 + y, z);
 
                                         var holder = blockWithElementHolder.createElementHolder(serverWorld, blockPos, state);
                                         if (holder != null) {

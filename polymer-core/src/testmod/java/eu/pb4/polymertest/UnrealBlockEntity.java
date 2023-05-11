@@ -154,7 +154,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
         data.add(DataTracker.SerializedEntry.of(INTER_DUR, 1));
         data.add(DataTracker.SerializedEntry.of(TRANSLATION, this.translation));
         data.add(DataTracker.SerializedEntry.of(ROTATION_LEFT, this.rotationLeft));
-        data.add(DataTracker.SerializedEntry.of(LIGHT, new Brightness(Math.max(player.world.getLightLevel(LightType.BLOCK, this.getBlockPos().up()), this.blockState.getLuminance()), player.world.getLightLevel(LightType.SKY, this.getBlockPos().up())).pack()));
+        data.add(DataTracker.SerializedEntry.of(LIGHT, new Brightness(Math.max(player.getWorld().getLightLevel(LightType.BLOCK, this.getBlockPos().up()), this.blockState.getLuminance()), player.getServerWorld().getLightLevel(LightType.SKY, this.getBlockPos().up())).pack()));
     }
 
     public void applyAffineTransformation(AffineTransformation affineTransformation) {

@@ -43,7 +43,7 @@ public class PlayerManagerMixin {
 
         if (((TempPlayerLoginAttachments) player).polymerNet$getForceRespawnPacket()) {
             var world = player.getWorld();
-            connection.send(new PlayerRespawnS2CPacket(world.getDimensionKey(), world.getRegistryKey(), BiomeAccess.hashSeed(((ServerWorld) world).getSeed()),player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), world.isDebugWorld(), ((ServerWorld) world).isFlat(), (byte) 0xFF, player.getLastDeathPos()));
+            connection.send(new PlayerRespawnS2CPacket(world.getDimensionKey(), world.getRegistryKey(), BiomeAccess.hashSeed(((ServerWorld) world).getSeed()),player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), world.isDebugWorld(), ((ServerWorld) world).isFlat(), (byte) 0xFF, player.getLastDeathPos(), player.getPortalCooldown()));
         }
     }
 

@@ -25,7 +25,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.impl.itemgroup.ItemGroupHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -315,18 +314,18 @@ public class InternalClientRegistry {
             var itemGroups = new ArrayList<>(ItemGroups.getGroups());
             itemGroups.removeIf((i) -> i instanceof InternalClientItemGroup group && removePredicate.test(group));
 
-            List<ItemGroup> validated = ItemGroupsAccessor.callCollect(itemGroups.toArray(ItemGroup[]::new));
-            ItemGroupsAccessor.setGROUPS(validated);
+            //List<ItemGroup> validated = ItemGroupsAccessor.callCollect(itemGroups.toArray(ItemGroup[]::new));
+            //ItemGroupsAccessor.setGROUPS(validated);
 
             CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.getDefaultTab());
 
             if (CompatStatus.FABRIC_ITEM_GROUP) {
                 try {
-                    ItemGroupHelper.sortedGroups = validated.stream().sorted((a, b) -> {
+                    /*ItemGroupHelper.sortedGroups = validated.stream().sorted((a, b) -> {
                         if (a.isSpecial() && !b.isSpecial()) return 1;
                         if (!a.isSpecial() && b.isSpecial()) return -1;
                         return 0;
-                    }).toList();
+                    }).toList();*/
                 } catch (Throwable e) {
 
                 }
@@ -366,7 +365,7 @@ public class InternalClientRegistry {
 
     public static void createItemGroup(Identifier id, Text name, ItemStack icon) {
         try {
-            var existing = InternalClientRegistry.getItemGroup(id);
+            var existing = Registries.ITEM_GROUP.get(id);
 
             if (existing != null) {
                 return;
@@ -376,7 +375,7 @@ public class InternalClientRegistry {
 
             if (CompatStatus.FABRIC_ITEM_GROUP) {
                 try {
-                    ItemGroupHelper.appendItemGroup(group);
+                    //ItemGroupHelper.appendItemGroup(group);
                 } catch (Throwable e) {
 
                 }
@@ -398,18 +397,6 @@ public class InternalClientRegistry {
 
     static {
         setDecoders();
-    }
-
-    public static ItemGroup getItemGroup(Identifier id) {
-        for (var group : ItemGroups.getGroups()) {
-            if (group instanceof InternalClientItemGroup clientItemGroup && clientItemGroup.getIdentifier().equals(id)) {
-                return group;
-            } else if (PolymerImplUtils.toItemGroupId(group).equals(id)) {
-                return group;
-            }
-        }
-
-        return null;
     }
 
     public static void register() {

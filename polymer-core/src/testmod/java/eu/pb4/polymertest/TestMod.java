@@ -57,8 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class TestMod implements ModInitializer {
-    public static final ItemGroup ITEM_GROUP = PolymerItemGroupUtils.builder(
-            new Identifier("polymer", "test"))
+    public static final ItemGroup ITEM_GROUP = new ItemGroup.Builder(null, -1)
             .displayName(Text.translatable("testmod.itemgroup").formatted(Formatting.AQUA))
             .icon(()-> new ItemStack(TestMod.TATER_BLOCK_ITEM))
             .entries(new ItemGroup.EntryCollector() {
@@ -81,19 +80,19 @@ public class TestMod implements ModInitializer {
     public static SimplePolymerItem ITEM = new TestItem(new Item.Settings().fireproof().maxCount(5), Items.IRON_HOE);
     public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99), Items.DIAMOND_BLOCK);
     public static SimplePolymerItem ITEM_3 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99), Items.CHAINMAIL_CHESTPLATE);
-    public static Block BLOCK = new TestBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
+    public static Block BLOCK = new TestBlock(AbstractBlock.Settings.create().luminance((state) -> 15).strength(2f));
     public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new Item.Settings(), Items.STONE);
-    public static Block BLOCK_PLAYER = new TestPerPlayerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f));
+    public static Block BLOCK_PLAYER = new TestPerPlayerBlock(AbstractBlock.Settings.create().strength(2f));
     public static BlockItem BLOCK_PLAYER_ITEM = new PolymerBlockItem(BLOCK_PLAYER, new Item.Settings(), Items.WHITE_CARPET);
-    public static Block BLOCK_CLIENT = new TestClientBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 3).strength(2f));
+    public static Block BLOCK_CLIENT = new TestClientBlock(AbstractBlock.Settings.create().luminance((state) -> 3).strength(2f));
     public static BlockItem BLOCK_CLIENT_ITEM = new TestClientBlockItem(BLOCK_CLIENT, new Item.Settings());
-    public static Block BLOCK_FENCE = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE);
+    public static Block BLOCK_FENCE = new SimplePolymerBlock(AbstractBlock.Settings.create().luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE);
     public static BlockItem BLOCK_FENCE_ITEM = new PolymerBlockItem(BLOCK_FENCE, new Item.Settings(), Items.NETHER_BRICK_FENCE);
-    public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.of(Material.STONE).strength(2f), Blocks.TNT);
-    public static Block BLOCK_3 = new Test3Block(AbstractBlock.Settings.of(Material.STONE).strength(2f));
+    public static Block BLOCK_2 = new SimplePolymerBlock(AbstractBlock.Settings.create().strength(2f), Blocks.TNT);
+    public static Block BLOCK_3 = new Test3Block(AbstractBlock.Settings.create().strength(2f));
     public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new Item.Settings(), Items.TNT);
     public static BlockItem BLOCK_ITEM_3 = new PolymerBlockItem(BLOCK_3, new Item.Settings(), Items.COBWEB);
-    public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.of(Material.STONE).strength(10f));
+    public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.create().strength(10f));
     public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new Item.Settings());
     public static BlockItem TATER_BLOCK_ITEM2 = new PolymerBlockItem(TATER_BLOCK, new Item.Settings(), Items.RAW_IRON_BLOCK);
     public static TestPickaxeItem PICKAXE = new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterials.NETHERITE, 10, -3.9f, new Item.Settings());
@@ -213,7 +212,7 @@ public class TestMod implements ModInitializer {
                     Integer.MAX_VALUE);
         }
     });
-    public static Block ANIMATED_BLOCK = new AnimatedBlock(AbstractBlock.Settings.of(Material.STONE).luminance((state) -> 15).strength(2f));
+    public static Block ANIMATED_BLOCK = new AnimatedBlock(AbstractBlock.Settings.create().luminance((state) -> 15).strength(2f));
     public static BlockItem ANIMATED_BLOCK_ITEM = new PolymerBlockItem(ANIMATED_BLOCK, new Item.Settings(), Items.BEACON);
 
     private static void regArmor(EquipmentSlot slot, String main, String id) {
@@ -227,6 +226,8 @@ public class TestMod implements ModInitializer {
         PolymerResourcePackUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
         //PolymerResourcePackUtils.markAsRequired();
         //PolymerResourcePackUtils.addModAsAssetsSource("promenade");
+        register(Registries.ITEM_GROUP, new Identifier("polymer", "test"), ITEM_GROUP);
+        PolymerItemGroupUtils.registerPolymerItemGroup(ITEM_GROUP);
         register(Registries.ITEM, new Identifier("bugged", "wooden_sword"), new BuggedItem(new Item.Settings()));
 
         register(Registries.ITEM, new Identifier("test", "emerald"), new SimplePolymerItem(new Item.Settings(), Items.EMERALD));

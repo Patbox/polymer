@@ -93,7 +93,7 @@ public class Commands {
 
                                     var groups = PolymerItemGroupUtils.getItemGroups(context.getSource().getPlayerOrThrow());
 
-                                    CommandSource.forEachMatching(groups, remaining, PolymerImplUtils::toItemGroupId, group -> builder.suggest(PolymerImplUtils.toItemGroupId(group).toString(), group.getDisplayName()));
+                                    CommandSource.forEachMatching(groups, remaining, Registries.ITEM_GROUP::getId, group -> builder.suggest(Registries.ITEM_GROUP.getId(group).toString(), group.getDisplayName()));
                                     return builder.buildFuture();
                                 })
                                 .executes(Commands::creativeTab)
@@ -382,7 +382,7 @@ public class Commands {
             try {
                 var id = context.getArgument("itemGroup", Identifier.class);
 
-                var itemGroup = PolymerItemGroupUtils.get(id);
+                var itemGroup = Registries.ITEM_GROUP.get(id);
                 if (itemGroup != null) {
                     new CreativeTabUi(context.getSource().getPlayer(), itemGroup);
                     return 2;

@@ -35,7 +35,7 @@ public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> sta
             }
         }
 
-        return new PolymerItemGroupContent(PolymerImplUtils.toItemGroupId(group), stacksMain, stacksSearch);
+        return new PolymerItemGroupContent(Registries.ITEM_GROUP.getId(group), stacksMain, stacksSearch);
     }
 
     @Override

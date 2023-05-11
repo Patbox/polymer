@@ -57,7 +57,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
         if (this.polymer$shouldMineServerSide(pos, state)) {
             int j = this.tickCounter - i;
-            float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j);
+            float f = state.calcBlockBreakingDelta(this.player, this.player.getWorld(), pos) * (float) (j);
 
             if (this.polymer$blockBreakingCooldown > 0) {
                 --this.polymer$blockBreakingCooldown;
@@ -82,7 +82,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     private void polymer$onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
         if (this.polymer$shouldMineServerSide(pos, state)) {
             int j = tickCounter - i;
-            float f = state.calcBlockBreakingDelta(this.player, this.player.world, pos) * (float) (j + 1);
+            float f = state.calcBlockBreakingDelta(this.player, this.player.getWorld(), pos) * (float) (j + 1);
             int k = (int) (f * 10.0F);
 
             this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, k));

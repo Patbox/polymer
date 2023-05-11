@@ -112,7 +112,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         this.context.connection().send(packet);
         if (packet instanceof GameJoinS2CPacket packet1) {
             if (this.isForcingRespawnPacket()) {
-                this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), (byte) 0, packet1.lastDeathLocation()));
+                this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), (byte) 0, packet1.lastDeathLocation(), packet1.portalCooldown()));
             }
 
             this.forceRespawnPacket();
@@ -149,7 +149,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         if (!this.isForcingRespawnPacket()) {
             var player = this.getPlayer();
             var server = this.getServer();
-            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty()));
+            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty(), 0));
         }
     }
 

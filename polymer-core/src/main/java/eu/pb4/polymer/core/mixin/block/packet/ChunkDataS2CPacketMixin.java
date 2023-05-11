@@ -26,8 +26,8 @@ public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
     @Unique
     private boolean polymer$hasPlayerDependentBlocks;
 
-    @Inject(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/world/chunk/light/LightingProvider;Ljava/util/BitSet;Ljava/util/BitSet;Z)V", at = @At("TAIL"))
-    private void polymer$storeWorldChunk(WorldChunk chunk, LightingProvider lightingProvider, BitSet bitSet, BitSet bitSet2, boolean bl, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/world/chunk/light/LightingProvider;Ljava/util/BitSet;Ljava/util/BitSet;)V", at = @At("TAIL"))
+    private void polymer$storeWorldChunk(WorldChunk chunk, LightingProvider lightingProvider, BitSet bitSet, BitSet bitSet2, CallbackInfo ci) {
         this.polymer$worldChunk = chunk;
         this.polymer$usedMapper = BlockMapper.getFrom(PolymerUtils.getPlayerContext());
         for (var section : chunk.getSectionArray()) {

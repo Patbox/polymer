@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.impl.ui;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
@@ -66,7 +67,7 @@ public class CreativeTabListUi extends MicroUi {
         this.slot(ITEMS_PER_PAGE + 3, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_SEARCH, (player, slotIndex, button, actionType) -> {
             playSound(player, SoundEvents.UI_BUTTON_CLICK);
-            new CreativeTabUi(player, ItemGroupsAccessor.getSEARCH());
+            new CreativeTabUi(player, ItemGroups.getSearchGroup());
         });
         this.slot(ITEMS_PER_PAGE + 5, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 6, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);

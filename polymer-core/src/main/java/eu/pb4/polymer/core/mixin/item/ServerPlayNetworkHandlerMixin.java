@@ -76,7 +76,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
             var base = packet.getBlockHitResult().getBlockPos();
             for (Direction direction : Direction.values()) {
                 var pos = base.offset(direction);
-                var state = player.world.getBlockState(pos);
+                var state = player.getServerWorld().getBlockState(pos);
                 player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
 
                 if (state.hasBlockEntity()) {

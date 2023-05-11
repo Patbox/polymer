@@ -15,6 +15,7 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -34,13 +35,13 @@ public class AnimatedBlock extends Block implements PolymerBlock, BlockWithEleme
     }
 
     @Override
-    public ElementHolder createElementHolder(BlockPos pos, BlockState initialBlockState) {
-        return new CustomHolder();
+    public boolean tickElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+        return true;
     }
 
     @Override
-    public boolean tickElementHolder() {
-        return true;
+    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+        return new CustomHolder();
     }
 
     public static class CustomHolder extends ElementHolder {
