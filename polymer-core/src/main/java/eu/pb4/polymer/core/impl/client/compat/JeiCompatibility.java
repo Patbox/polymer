@@ -24,8 +24,9 @@ public class JeiCompatibility implements IModPlugin {
     }
 
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
-        CompatUtils.registerReload(() -> update(jeiRuntime.getIngredientManager()));
+        CompatUtils.registerSyncReload(() -> update(jeiRuntime.getIngredientManager()));
     }
+
 
     private static void update(IIngredientManager manager) {
         synchronized (manager) {
