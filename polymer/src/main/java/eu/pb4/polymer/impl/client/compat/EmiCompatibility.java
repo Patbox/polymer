@@ -1,7 +1,5 @@
 package eu.pb4.polymer.impl.client.compat;
 
-import dev.emi.emi.EmiReloadManager;
-import dev.emi.emi.EmiStackList;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.Comparison;
@@ -13,6 +11,8 @@ import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.polymer.impl.PolymerImpl;
 import eu.pb4.polymer.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.impl.client.interfaces.ClientItemGroupExtension;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.Version;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -20,23 +20,39 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 public class EmiCompatibility implements EmiPlugin {
+    public static final boolean IS_1_0_0 = FabricLoader.getInstance().getModContainer("emi").map(x -> {
+        try {
+            return x.getMetadata().getVersion().compareTo(Version.parse("1.0.0-")) >= 0;
+        } catch (Throwable e) {
+            return false;
+        }
+    }).orElse(false);
+
     private static final Predicate<EmiStack> SHOULD_REMOVE = (stack) -> (PolymerItemUtils.isPolymerServerItem(stack.getItemStack()) || PolymerItemUtils.getServerIdentifier(stack.getItemStack()) != null || PolymerUtils.isServerOnly(stack.getEntry().getValue()));
 
     static {
         if (PolymerImpl.IS_CLIENT) {
-            PolymerClientUtils.ON_CLEAR.register(() -> {
-                if (MinecraftClient.getInstance().world != null) {
-                    EmiReloadManager.reload();
-                }
-            });
-            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> {
-                if (MinecraftClient.getInstance().world != null) {
-                    EmiReloadManager.reload();
-                }
-            });
+            PolymerClientUtils.ON_CLEAR.register(EmiCompatibility::maybeReload);
+            PolymerClientUtils.ON_SEARCH_REBUILD.register(EmiCompatibility::maybeReload);
+        }
+    }
+
+    private static void maybeReload() {
+        if (!MinecraftClient.getInstance().isOnThread()) {
+            MinecraftClient.getInstance().execute(EmiCompatibility::maybeReload);
+            return;
+        }
+
+        try {
+            if (MinecraftClient.getInstance().world != null) {
+                Class.forName(IS_1_0_0 ? "dev.emi.emi.runtime.EmiReloadManager" : "dev.emi.emi.EmiReloadManager").getMethod("reload").invoke(null);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
@@ -53,7 +69,7 @@ public class EmiCompatibility implements EmiPlugin {
         }
         synchronized (registry) {
             try {
-                EmiStackList.stacks.removeIf(SHOULD_REMOVE);
+                ((List<EmiStack>) Class.forName(IS_1_0_0 ? "dev.emi.emi.registry.EmiStackList" : "dev.emi.emi.EmiStackList").getField("stacks").get(null)).removeIf(SHOULD_REMOVE);
 
                 for (var group : ItemGroup.GROUPS) {
                     if (group == ItemGroup.SEARCH) {
@@ -75,7 +91,7 @@ public class EmiCompatibility implements EmiPlugin {
                     }
                 }
 
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
