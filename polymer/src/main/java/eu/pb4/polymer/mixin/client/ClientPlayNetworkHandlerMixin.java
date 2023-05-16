@@ -55,7 +55,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
     private void polymer_handleHackfest(KeepAliveS2CPacket packet, CallbackInfo ci) {
         // Yes, it's a hack but it works quite well!
         // I should replace it with some api later
-        if (packet.getId() == PolymerHandshakeHandlerImplLogin.MAGIC_VALUE) {
+        if (packet.getId() == PolymerHandshakeHandlerImplLogin.MAGIC_INIT_VALUE) {
             PolymerClientProtocol.sendHandshake((ClientPlayNetworkHandler) (Object) this);
         }
     }

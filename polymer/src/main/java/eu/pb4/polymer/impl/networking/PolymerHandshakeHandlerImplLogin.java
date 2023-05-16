@@ -12,11 +12,13 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 
 public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler implements PolymerHandshakeHandler {
-    public static long MAGIC_VALUE = 0xbb706c6d72627374L;
+    public static long MAGIC_INIT_VALUE = 0xbb706c6d72627374L;
+    public static int CONTINUE_LOGIN_ID = 1;
 
     private String polymerVersion = "";
     private Object2IntMap<String> protocolVersions = null;
@@ -27,7 +29,10 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
     public PolymerHandshakeHandlerImplLogin(EarlyPlayNetworkHandler.Context context) {
         super(PolymerImplUtils.id("early_handshake"), context);
         ((TempPlayerLoginAttachments) this.getPlayer()).polymer_setHandshakeHandler(this);
-        this.sendKeepAlive(MAGIC_VALUE);
+        if (NetImpl.SEND_GAME_JOIN_PACKET) {
+            this.sendInitialGameJoin();
+        }
+        this.sendKeepAlive(MAGIC_INIT_VALUE);
         this.blockMapper = BlockMapper.getDefault(this.getPlayer());
 
         PolymerSyncUtils.PREPARE_HANDSHAKE.invoke((c) -> c.accept(this));
@@ -124,7 +129,14 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
 
     @Override
     public void handleKeepAlive(long value) {
-        if (value == MAGIC_VALUE) {
+        if (value == MAGIC_INIT_VALUE) {
+            this.sendPing(CONTINUE_LOGIN_ID);
+        }
+    }
+
+    @Override
+    public void onPong(PlayPongC2SPacket packet) {
+        if (packet.getParameter() == CONTINUE_LOGIN_ID) {
             this.continueJoining();
         }
     }
