@@ -1,7 +1,7 @@
 package eu.pb4.polymer.impl.networking;
 
 import eu.pb4.polymer.impl.PolymerImpl;
-import eu.pb4.polymer.rsm.impl.CompatStatus;
+import eu.pb4.polymer.impl.compat.CompatStatus;
 
 public class NetImpl {
     public static final boolean SEND_GAME_JOIN_PACKET;
