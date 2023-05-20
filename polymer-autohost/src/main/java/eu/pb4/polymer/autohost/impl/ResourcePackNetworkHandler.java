@@ -13,9 +13,6 @@ import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.text.Text;
-import net.minecraft.world.GameMode;
-
-import java.util.Optional;
 
 public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     private final boolean required;
@@ -34,8 +31,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         if (PolymerRPUtils.hasPack(player)) {
             this.continueJoining();
         } else {
-            var server = this.getServer();
-            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty()));
+            this.sendInitialGameJoin();
 
             //this.sendPacket(new ChunkDataS2CPacket(FAKE_CHUNK, PolymerUtils.getFakeWorld().getLightingProvider(), null, null, true));
             this.sendPacket(FAKE_ENTITY.createSpawnPacket());
