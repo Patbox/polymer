@@ -49,19 +49,28 @@ public class CompatUtils {
         }
     }
 
-    public static void registerReload(Runnable runnable) {
+    public static void registerSyncReload(Runnable runnable) {
         if (PolymerImpl.IS_CLIENT) {
-            PolymerClientUtils.ON_CLEAR.register(() -> {
-                if (MinecraftClient.getInstance().world != null) {
-                    runnable.run();
-                }
-            });
-            PolymerClientUtils.ON_SEARCH_REBUILD.register(() -> {
-                if (MinecraftClient.getInstance().world != null) {
-                    runnable.run();
-                }
-            });
+            PolymerClientUtils.ON_CLEAR.register(safeRunnable(runnable));
+            PolymerClientUtils.ON_SEARCH_REBUILD.register(safeRunnable(runnable));
         }
+    }
+
+    private static Runnable safeRunnable(Runnable runnable) {
+        return () -> {
+            if (!MinecraftClient.getInstance().isOnThread()) {
+                MinecraftClient.getInstance().execute(() -> {
+                    if (MinecraftClient.getInstance().world != null) {
+                        runnable.run();
+                    }
+                });
+                return;
+            }
+
+            if (MinecraftClient.getInstance().world != null) {
+                runnable.run();
+            }
+        };
     }
 
     public static String getModName(ItemStack stack) {
