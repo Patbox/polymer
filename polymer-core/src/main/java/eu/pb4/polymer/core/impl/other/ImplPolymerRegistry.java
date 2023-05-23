@@ -27,7 +27,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     private final String shortName;
 
     private int currentId = 0;
-    private Map<T, Set<Identifier>> entryTags = new Object2ObjectOpenHashMap<>();;
+    private Map<T, Set<Identifier>> entryTags = new Object2ObjectOpenHashMap<>();
 
     public ImplPolymerRegistry(String name, String shortName) {
         this(name, shortName, null, null);

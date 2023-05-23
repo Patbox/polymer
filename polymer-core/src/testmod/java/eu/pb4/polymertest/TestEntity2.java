@@ -66,7 +66,7 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public void onBeforeSpawnPacket(Consumer<Packet<?>> packetConsumer) {
+    public void onBeforeSpawnPacket(ServerPlayerEntity player, Consumer<Packet<?>> packetConsumer) {
         var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(PlayerListS2CPacket.Action.ADD_PLAYER, PlayerListS2CPacket.Action.UPDATE_LISTED));
         var gameprofile = new GameProfile(this.getUuid(), "Test NPC");
         gameprofile.getProperties().put("textures", new Property("textures",

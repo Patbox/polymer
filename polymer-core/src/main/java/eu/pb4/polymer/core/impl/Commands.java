@@ -111,7 +111,7 @@ public class Commands {
                 )
                 .then(literal("get-mapper")
                         .executes((ctx) -> {
-                            ctx.getSource().sendFeedback(Text.literal(BlockMapper.getFrom(ctx.getSource().getPlayer()).getMapperName()), false);
+                            ctx.getSource().sendFeedback(() -> Text.literal(BlockMapper.getFrom(ctx.getSource().getPlayer()).getMapperName()), false);
                             return 0;
                         })
                 )
@@ -128,9 +128,9 @@ public class Commands {
                         }))
                 .then(literal("protocol-info")
                         .executes((ctx) -> {
-                            ctx.getSource().sendFeedback(Text.literal("Protocol supported by your client:"), false);
+                            ctx.getSource().sendFeedback(() -> Text.literal("Protocol supported by your client:"), false);
                             for (var entry : NetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymerNet$getSupportMap().object2IntEntrySet()) {
-                                ctx.getSource().sendFeedback(Text.literal("- " + entry.getKey() + " = " + entry.getIntValue()), false);
+                                ctx.getSource().sendFeedback(() -> Text.literal("- " + entry.getKey() + " = " + entry.getIntValue()), false);
                             }
                             return 0;
                         })
@@ -146,14 +146,14 @@ public class Commands {
                                 .executes((ctx) -> {
                                     var status = ctx.getArgument("status", Boolean.class);
                                     ((CommonResourcePackInfoHolder) ctx.getSource().getPlayer()).polymerCommon$setResourcePack(status);
-                                    ctx.getSource().sendFeedback(Text.literal("New resource pack status: " + status), false);
+                                    ctx.getSource().sendFeedback(() -> Text.literal("New resource pack status: " + status), false);
                                     return 0;
                                 }))
                 )
                 .then(literal("get-pack-status")
                         .executes((ctx) -> {
                             var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer());
-                            ctx.getSource().sendFeedback(Text.literal("Resource pack status: " + status), false);
+                            ctx.getSource().sendFeedback(() -> Text.literal("Resource pack status: " + status), false);
                             return 0;
                         })
                 );
@@ -184,7 +184,7 @@ public class Commands {
             builder.append("]");
         }
 
-        context.getSource().sendFeedback(Text.literal(builder.toString()), false);
+        context.getSource().sendFeedback(() -> Text.literal(builder.toString()), false);
 
         return 0;
     }
@@ -192,7 +192,7 @@ public class Commands {
     private static int dumpRegistries(CommandContext<ServerCommandSource> context) {
         var path = PolymerImplUtils.dumpRegistry();
         if (path != null) {
-            context.getSource().sendFeedback(Text.literal("Exported registry state as " + path), false);
+            context.getSource().sendFeedback(() -> Text.literal("Exported registry state as " + path), false);
         } else {
             context.getSource().sendError(Text.literal("Couldn't export registry!"));
         }
@@ -404,7 +404,7 @@ public class Commands {
         stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
         stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
 
-        context.getSource().sendFeedback((new NbtTextFormatter("", 3)).apply(ServerTranslationUtils.parseFor(player.networkHandler, stack).writeNbt(new NbtCompound())), false);
+        context.getSource().sendFeedback(() -> (new NbtTextFormatter("", 3)).apply(ServerTranslationUtils.parseFor(player.networkHandler, stack).writeNbt(new NbtCompound())), false);
 
         return 1;
     }
@@ -416,7 +416,7 @@ public class Commands {
         stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
         stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
         player.giveItemStack(ServerTranslationUtils.parseFor(player.networkHandler, stack));
-        context.getSource().sendFeedback(Text.literal("Given client representation to player"), true);
+        context.getSource().sendFeedback(() -> Text.literal("Given client representation to player"), true);
 
         return 1;
     }

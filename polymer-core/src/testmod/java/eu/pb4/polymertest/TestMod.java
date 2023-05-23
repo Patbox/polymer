@@ -11,10 +11,12 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
@@ -29,9 +31,12 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.RecipeSerializer;
@@ -50,6 +55,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.source.BiomeAccess;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -341,7 +347,7 @@ public class TestMod implements ModInitializer {
             d.register(literal("test")
                     .executes((ctx) -> {
                         try {
-                            ctx.getSource().sendFeedback(Text.literal("" + PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer())), false);
+                            ctx.getSource().sendFeedback(() -> Text.literal("" + PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer())), false);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -352,7 +358,7 @@ public class TestMod implements ModInitializer {
             d.register(literal("incrementStat")
                     .executes((ctx) -> {
                         ctx.getSource().getPlayer().incrementStat(CUSTOM_STAT);
-                        ctx.getSource().sendFeedback(Text.literal("Stat now: " + ctx.getSource().getPlayer().getStatHandler().getStat(Stats.CUSTOM, CUSTOM_STAT)), false);
+                        ctx.getSource().sendFeedback(() -> Text.literal("Stat now: " + ctx.getSource().getPlayer().getStatHandler().getStat(Stats.CUSTOM, CUSTOM_STAT)), false);
 
                         return 1;
                     })
@@ -453,7 +459,33 @@ public class TestMod implements ModInitializer {
             }
         });*/
 
+        ServerLifecycleEvents.SERVER_STARTED.register((s) -> {
+            var creep = new CreeperEntity(EntityType.CREEPER, s.getOverworld());
+            new Thread(() -> {
+                try {
+                    while (!s.isStopped()) {
+                        s.getPlayerManager().getPlayerList().forEach(x -> {
+                            var i = x.getMainHandStack();
+                            if (i.isOf(Items.EGG)) {
+                                x.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(x.getId(), List.of(DataTracker.SerializedEntry.of(EntityTrackedData.POSE, EntityPose.SLEEPING))));
+                            } else if (i.isOf(Items.CREEPER_HEAD)) {
+                                var l = new ArrayList<Packet<ClientPlayPacketListener>>();
+                                creep.setPos(x.getX(), x.getY() - 255, x.getZ());
+                                l.add(new EntitySpawnS2CPacket(creep));
+                                l.add(new SetCameraEntityS2CPacket(creep));
+                                l.add(new EntitiesDestroyS2CPacket(creep.getId()));
+                                l.add(new PlayerRespawnS2CPacket(x.getWorld().getDimensionKey(), x.getWorld().getRegistryKey(), BiomeAccess.hashSeed(x.getServerWorld().getSeed()), x.interactionManager.getGameMode(), x.interactionManager.getPreviousGameMode(), x.getWorld().isDebugWorld(), x.getServerWorld().isFlat(), PlayerRespawnS2CPacket.KEEP_ALL, x.getLastDeathPos(), x.getPortalCooldown()));
 
+                                x.networkHandler.sendPacket(new BundleS2CPacket(l));
+                            }
+                        });
+                        Thread.sleep(5);
+                    }
+                } catch (Throwable e) {
+
+                }
+            }).start();
+        });
 
         if (PolymerImpl.IS_CLIENT) {
             InternalClientRegistry.decodeState(-1);

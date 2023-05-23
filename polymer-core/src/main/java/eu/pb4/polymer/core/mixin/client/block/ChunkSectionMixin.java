@@ -25,13 +25,13 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Unique
     private PalettedContainer<ClientPolymerBlock.State> polymer$container;
 
-    @Inject(method = "<init>(ILnet/minecraft/registry/Registry;)V", at = @At("TAIL"))
-    private void polymer$init(int chunkPos, Registry<Biome> biomeRegistry, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/registry/Registry;)V", at = @At("TAIL"))
+    private void polymer$init(Registry biomeRegistry, CallbackInfo ci) {
         this.polymer$createContainers();
     }
 
-    @Inject(method = "<init>(ILnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/world/chunk/ReadableContainer;)V", at = @At("TAIL"))
-    private void polymer$init2(int chunkPos, PalettedContainer blockStateContainer, ReadableContainer readableContainer, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/world/chunk/PalettedContainer;Lnet/minecraft/world/chunk/ReadableContainer;)V", at = @At("TAIL"))
+    private void polymer$init2(PalettedContainer blockStateContainer, ReadableContainer biomeContainer, CallbackInfo ci) {
         this.polymer$createContainers();
     }
 

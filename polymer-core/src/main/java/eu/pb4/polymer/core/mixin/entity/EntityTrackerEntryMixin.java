@@ -11,6 +11,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
@@ -56,10 +57,10 @@ public abstract class EntityTrackerEntryMixin {
     }
 
     @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/packet/Packet;"))
-    private void polymer$sendPacketsBeforeSpawning(Consumer<Packet<?>> sender, CallbackInfo ci) {
+    private void polymer$sendPacketsBeforeSpawning(ServerPlayerEntity player, Consumer<Packet<?>> sender, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity virtualEntity) {
             try {
-                virtualEntity.onBeforeSpawnPacket(sender);
+                virtualEntity.onBeforeSpawnPacket(player, sender);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -88,9 +89,9 @@ public abstract class EntityTrackerEntryMixin {
     }
 
     @Inject(method = "sendPackets", at = @At("TAIL"))
-    private void polymer$modifyCreationData(Consumer<Packet<?>> sender, CallbackInfo ci) {
+    private void polymer$modifyCreationData(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> sender, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity) {
-            if (polymerEntity.sendEmptyTrackerUpdates() && this.changedEntries == null) {
+            if (polymerEntity.sendEmptyTrackerUpdates(player) && this.changedEntries == null) {
                 var x = new EntityTrackerUpdateS2CPacket(this.entity.getId(), List.of());
                 ((EntityTrackerUpdateS2CPacketExt) (Object) x).polymer$setInitial();
                 sender.accept(x);

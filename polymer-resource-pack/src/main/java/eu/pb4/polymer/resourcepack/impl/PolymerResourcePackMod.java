@@ -42,18 +42,18 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
 
 	public static int generateResources(CommandContext<ServerCommandSource> context) {
         if (alreadyGeneration) {
-            context.getSource().sendFeedback(Text.literal("Pack is already generating! Wait for it to finish..."), true);
+            context.getSource().sendFeedback(() -> Text.literal("Pack is already generating! Wait for it to finish..."), true);
         } else {
             alreadyGeneration = true;
 
             Util.getIoWorkerExecutor().execute(() -> {
-                context.getSource().sendFeedback(Text.literal("Starting resource pack generation..."), true);
+                context.getSource().sendFeedback(() -> Text.literal("Starting resource pack generation..."), true);
                 boolean success = PolymerResourcePackUtils.build();
 
                 context.getSource().getServer().execute(() -> {
                     if (success) {
-                        context.getSource().sendFeedback(
-                                Text.literal("Resource pack created successfully! You can find it in game folder as ")
+                        context.getSource().sendFeedback(() ->
+                                        Text.literal("Resource pack created successfully! You can find it in game folder as ")
                                 .append(Text.literal("polymer-resourcepack.zip")
                                         .setStyle(Style.EMPTY.withUnderline(true).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(PolymerResourcePackUtils.DEFAULT_PATH.toAbsolutePath().toString()))))),
                                 true

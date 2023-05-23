@@ -39,7 +39,7 @@ public interface PolymerEntity extends PolymerObject {
     /**
      * Allows sending packets before entity's spawn packet, useful for Player Entities
      */
-    default void onBeforeSpawnPacket(Consumer<Packet<?>> packetConsumer) {}
+    default void onBeforeSpawnPacket(ServerPlayerEntity player, Consumer<Packet<?>> packetConsumer) {}
 
     /**
      * This method allows to modify raw serialized DataTracker entries before they are send to the client
@@ -113,7 +113,7 @@ public interface PolymerEntity extends PolymerObject {
         return true;
     }
 
-    default boolean sendEmptyTrackerUpdates() {
+    default boolean sendEmptyTrackerUpdates(ServerPlayerEntity player) {
         return true;
     }
 }

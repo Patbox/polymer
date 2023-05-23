@@ -36,7 +36,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "method_34007", at = @At("TAIL"))
-    private void polymer$removeOldBlock2(int i, BlockPos pos, BlockState state, CallbackInfo ci) {
+    private void polymer$removeOldBlock2(BlockPos pos, BlockState state, CallbackInfo ci) {
         InternalClientRegistry.setBlockAt(pos, ClientPolymerBlock.NONE_STATE);
     }
 }

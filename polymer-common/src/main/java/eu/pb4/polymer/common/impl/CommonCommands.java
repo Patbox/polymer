@@ -145,7 +145,7 @@ public class CommonCommands {
 
     private static int about(CommandContext<ServerCommandSource> context) {
         for (var text : (context.getSource().getEntity() instanceof ServerPlayerEntity ? ABOUT_PLAYER : ABOUT_COLORLESS)) {
-            context.getSource().sendFeedback(text, false);
+            context.getSource().sendFeedback(() -> text, false);
         }
 
         return 0;
