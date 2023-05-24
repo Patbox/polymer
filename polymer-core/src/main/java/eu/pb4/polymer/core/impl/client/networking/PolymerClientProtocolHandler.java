@@ -174,7 +174,6 @@ public class PolymerClientProtocolHandler {
 
     private static boolean handleItemGroupApplyUpdates(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version > -1) {
-
             MinecraftClient.getInstance().execute(() -> {
                 if (ItemGroupsAccessor.getDisplayContext() != null) {
                     ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
@@ -244,7 +243,7 @@ public class PolymerClientProtocolHandler {
             }
 
             MinecraftClient.getInstance().execute(() -> {
-                ItemGroup group = Registries.ITEM_GROUP.get(id);
+                ItemGroup group = InternalClientRegistry.getItemGroup(id);
 
                 if (group != null) {
                     var groupAccess = (ClientItemGroupExtension) group;
@@ -267,7 +266,7 @@ public class PolymerClientProtocolHandler {
         if (version > -1) {
             var id = buf.readIdentifier();
             MinecraftClient.getInstance().execute(() -> {
-                ItemGroup group = Registries.ITEM_GROUP.get(id);
+                ItemGroup group = InternalClientRegistry.getItemGroup(id);
 
                 if (group != null) {
                     var groupAccess = (ClientItemGroupExtension) group;

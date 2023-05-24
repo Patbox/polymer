@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @ApiStatus.Internal
 public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
@@ -86,6 +88,16 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     @Override
     public boolean contains(Identifier id) {
         return this.entryMap.containsKey(id);
+    }
+
+    @Override
+    public boolean containsEntry(T entry) {
+        return this.entryIdMap.containsKey(entry);
+    }
+
+    @Override
+    public Stream<T> stream() {
+        return this.entryMap.values().stream();
     }
 
     public void set(Identifier identifier, int rawId, T entry) {
@@ -162,6 +174,14 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
             this.entryIdMap.removeInt(entry);
             this.identifierMap.remove(entry);
             this.entryTags.remove(entry);
+        }
+    }
+
+    public void removeIf(Predicate<T> removePredicate) {
+        for (var x : new ArrayList<>(this.rawIdMap.values())) {
+            if (removePredicate.test(x)) {
+                remove(x);
+            }
         }
     }
 }

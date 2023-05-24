@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @ApiStatus.NonExtendable
 public interface PolymerRegistry<T> extends IndexedIterable<T> {
@@ -29,8 +30,10 @@ public interface PolymerRegistry<T> extends IndexedIterable<T> {
     Set<T> getTag(Identifier tag);
     Collection<Identifier> getTags();
     Collection<Identifier> getTagsOf(T entry);
-
     int size();
 
     boolean contains(Identifier id);
+    boolean containsEntry(T entry);
+
+    Stream<T> stream();
 }

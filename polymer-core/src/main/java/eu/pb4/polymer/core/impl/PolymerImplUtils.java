@@ -166,6 +166,13 @@ public class PolymerImplUtils {
                 }
             }
 
+            msg.accept("");
+            msg.accept("== Server/Local Polymer Item Groups");
+            msg.accept("");
+            for (var entry : InternalServerRegistry.ITEM_GROUPS) {
+                msg.accept(InternalServerRegistry.ITEM_GROUPS.getId(entry).toString());
+            }
+
             {
                 msg.accept("");
                 msg.accept("== Polymer Registries");

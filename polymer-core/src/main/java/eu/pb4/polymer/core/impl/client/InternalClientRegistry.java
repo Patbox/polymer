@@ -78,7 +78,8 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntry<Enchantment>> ENCHANTMENT = new ImplPolymerRegistry<>("enchantment", "EN");
     public static final ImplPolymerRegistry<ClientPolymerEntry<Fluid>> FLUID = new ImplPolymerRegistry<>("fluid", "FL");
     public static final ImplPolymerRegistry<ClientPolymerEntry<ScreenHandlerType<?>>> SCREEN_HANDLER = new ImplPolymerRegistry<>("screen_handler", "SH");
-    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, ENCHANTMENT, FLUID, SCREEN_HANDLER);
+    public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>("item_groups", "IG");
+    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, ENCHANTMENT, FLUID, SCREEN_HANDLER, ITEM_GROUPS);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
     public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId(BY_VANILLA);
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
@@ -182,7 +183,7 @@ public class InternalClientRegistry {
     }
 
 
-    public static Object decodeRegistry(IndexedIterable instance, int i) {
+    public static Object decodeRegistry(IndexedIterable<?> instance, int i) {
         if (instance instanceof IndexedNetwork<?> indexedNetwork) {
             return indexedNetwork.polymer$getDecoder().apply(i);
         }
@@ -298,7 +299,7 @@ public class InternalClientRegistry {
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 
         clearTabs(i -> true);
-        for (var group : ItemGroups.getGroups()) {
+        for (var group : Registries.ITEM_GROUP) {
             if (group.getType() == ItemGroup.Type.CATEGORY) {
                 ((ClientItemGroupExtension) group).polymer$clearStacks();
             }
@@ -309,14 +310,11 @@ public class InternalClientRegistry {
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
+    private static final int TABS_PER_PAGE = 10;
+
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
         try {
-            var itemGroups = new ArrayList<>(ItemGroups.getGroups());
-            itemGroups.removeIf((i) -> i instanceof InternalClientItemGroup group && removePredicate.test(group));
-
-            //List<ItemGroup> validated = ItemGroupsAccessor.callCollect(itemGroups.toArray(ItemGroup[]::new));
-            //ItemGroupsAccessor.setGROUPS(validated);
-
+            ITEM_GROUPS.removeIf(removePredicate);
             CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.getDefaultTab());
 
             if (CompatStatus.FABRIC_ITEM_GROUP) {
@@ -358,31 +356,59 @@ public class InternalClientRegistry {
 
             }
 
+            int count = Registries.ITEM_GROUP.size() - 4;
+            for (var x : ITEM_GROUPS) {
+                var page = (count / TABS_PER_PAGE);
+                int pageIndex = count % TABS_PER_PAGE;
+                ItemGroup.Row row = pageIndex < (TABS_PER_PAGE / 2) ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
+                var c = row == ItemGroup.Row.TOP ? pageIndex % TABS_PER_PAGE : (pageIndex - TABS_PER_PAGE / 2) % (TABS_PER_PAGE);
+                ((ClientItemGroupExtension) x).polymerCore$setPos(row, c);
+                setItemGroupPage(x, page);
+                count++;
+            }
         } catch (Throwable e) {
 
+        }
+    }
+
+    private static void setItemGroupPage(ItemGroup group, int page) {
+        ((ClientItemGroupExtension) group).polymerCore$setPage(page);
+        if (CompatStatus.FABRIC_ITEM_GROUP) {
+            try {
+                ((net.fabricmc.fabric.impl.itemgroup.FabricItemGroup) group).setPage(page);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static void createItemGroup(Identifier id, Text name, ItemStack icon) {
         try {
             var existing = Registries.ITEM_GROUP.get(id);
-
             if (existing != null) {
                 return;
             }
+            int count = (Registries.ITEM_GROUP.size() - 4) + ITEM_GROUPS.size();
 
-            var group = new InternalClientItemGroup(null, -1, id, name, icon);
+            var page = (count / TABS_PER_PAGE);
+            int pageIndex = count % TABS_PER_PAGE;
+            ItemGroup.Row row = pageIndex < (TABS_PER_PAGE / 2) ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
+            var c = row == ItemGroup.Row.TOP ? pageIndex % TABS_PER_PAGE : (pageIndex - TABS_PER_PAGE / 2) % (TABS_PER_PAGE);
 
-            if (CompatStatus.FABRIC_ITEM_GROUP) {
-                try {
-                    //ItemGroupHelper.appendItemGroup(group);
-                } catch (Throwable e) {
-
-                }
-            }
+            var group = new InternalClientItemGroup(row, c, id, name, icon);
+            ITEM_GROUPS.set(id, group);
+            setItemGroupPage(group, page);
         } catch(Throwable e) {
 
         }
+    }
+
+    public static ItemGroup getItemGroup(Identifier id) {
+        var x = ITEM_GROUPS.get(id);
+        if (x != null) {
+            return x;
+        }
+        return Registries.ITEM_GROUP.get(id);
     }
 
     public static int getClientProtocolVer(Identifier identifier) {

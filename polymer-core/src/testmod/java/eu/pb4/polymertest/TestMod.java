@@ -232,8 +232,8 @@ public class TestMod implements ModInitializer {
         PolymerResourcePackUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
         //PolymerResourcePackUtils.markAsRequired();
         //PolymerResourcePackUtils.addModAsAssetsSource("promenade");
-        register(Registries.ITEM_GROUP, new Identifier("polymer", "test"), ITEM_GROUP);
-        PolymerItemGroupUtils.registerPolymerItemGroup(ITEM_GROUP);
+        //register(Registries.ITEM_GROUP, new Identifier("polymer", "test"), ITEM_GROUP);
+        PolymerItemGroupUtils.registerPolymerItemGroup(new Identifier("test:group"), ITEM_GROUP);
         register(Registries.ITEM, new Identifier("bugged", "wooden_sword"), new BuggedItem(new Item.Settings()));
 
         register(Registries.ITEM, new Identifier("test", "emerald"), new SimplePolymerItem(new Item.Settings(), Items.EMERALD));

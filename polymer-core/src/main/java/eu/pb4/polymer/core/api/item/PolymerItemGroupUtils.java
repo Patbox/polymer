@@ -4,15 +4,16 @@ import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
 import eu.pb4.polymer.core.impl.InternalServerRegistry;
+import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.ItemGroupExtra;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -21,6 +22,7 @@ import java.util.*;
  * It also has it's own server side functionality
  */
 public final class PolymerItemGroupUtils {
+    public static final PolymerRegistry<ItemGroup> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
     private PolymerItemGroupUtils() {}
     /**
      * Even called on synchronization of ItemGroups
@@ -47,6 +49,12 @@ public final class PolymerItemGroupUtils {
             }
         }
 
+        for (var g : InternalServerRegistry.ITEM_GROUPS) {
+            if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
+                list.add(g);
+            }
+        }
+
         var sync = new PolymerItemGroupUtils.ItemGroupListBuilder() {
             @Override
             public void add(ItemGroup group) {
@@ -64,13 +72,24 @@ public final class PolymerItemGroupUtils {
         return new ArrayList<>(list);
     }
 
-
     public static boolean isPolymerItemGroup(ItemGroup group) {
-        return InternalServerRegistry.ITEM_GROUPS.contains(group);
+        return InternalServerRegistry.ITEM_GROUPS.containsEntry(group);
     }
 
-    public static void registerPolymerItemGroup(ItemGroup group) {
-        InternalServerRegistry.ITEM_GROUPS.add(group);
+    public static void registerPolymerItemGroup(Identifier identifier, ItemGroup group) {
+        InternalServerRegistry.ITEM_GROUPS.set(identifier, group);
+        if (Registries.ITEM_GROUP.containsId(identifier)) {
+            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered as vanilla!", identifier);
+        }
+    }
+
+    public static Identifier getId(ItemGroup group) {
+        var x = REGISTRY.getId(group);
+
+        if (x == null) {
+            return Registries.ITEM_GROUP.getId(group);
+        }
+        return x;
     }
 
     @FunctionalInterface
