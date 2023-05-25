@@ -61,9 +61,9 @@ public class PacketPatcher {
             var list = new ArrayList<Packet<ClientPlayPacketListener>>();
             var iterator = bundleS2CPacket.getPackets().iterator();
             while (iterator.hasNext()) {
-                var x = iterator.next();
+                var x = replace(handler, iterator.next());
                 if (!prevent(handler, x)) {
-                    list.add(replace(handler, x));
+                    list.add(x);
                 }
             }
 

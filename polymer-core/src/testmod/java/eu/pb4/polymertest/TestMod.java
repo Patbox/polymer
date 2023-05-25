@@ -11,10 +11,12 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
@@ -39,6 +41,7 @@ import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.DebugInfoSender;
+import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -191,7 +194,10 @@ public class TestMod implements ModInitializer {
         player.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
     });
 
-
+    public static SimplePolymerItem SMALL_TEST = new ClickItem(new Item.Settings(), Items.EGG, (player, hand) -> {
+        player.setPose(EntityPose.SLEEPING);
+        player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(player.getId(), List.of(DataTracker.SerializedEntry.of(EntityTrackedData.POSE, EntityPose.SLEEPING))));
+    });
 
     public static SimplePolymerItem MARKER_TEST = new ClickItem(new Item.Settings(), Items.BLAZE_ROD, (player, hand) -> {
         if (hand == Hand.OFF_HAND) {
@@ -264,6 +270,7 @@ public class TestMod implements ModInitializer {
         register(Registries.ITEM, new Identifier("test", "food2"), TEST_FOOD_2);
         register(Registries.ITEM, new Identifier("test", "camera"), CAMERA_ITEM);
         register(Registries.ITEM, new Identifier("test", "cmarker_test"), MARKER_TEST);
+        register(Registries.ITEM, new Identifier("test", "small"), SMALL_TEST);
         register(Registries.ITEM, new Identifier("test", "spec"), SPEC_ITEM);
         register(Registries.ITEM, new Identifier("test", "tilt"), FACE_PUNCHER);
         register(Registries.ITEM, new Identifier("test", "rider"), FORCE_RIDER);
@@ -452,6 +459,22 @@ public class TestMod implements ModInitializer {
             }
         });*/
 
+        ServerLifecycleEvents.SERVER_STARTED.register((s) -> {
+            new Thread(() -> {
+                try {
+                    while (!s.isStopped()) {
+                        s.getPlayerManager().getPlayerList().forEach(x -> {
+                            if (x.getMainHandStack().isOf(SMALL_TEST)) {
+                                x.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(x.getId(), List.of(DataTracker.SerializedEntry.of(EntityTrackedData.POSE, EntityPose.SLEEPING))));
+                            }
+                        });
+                        Thread.sleep(5);
+                    }
+                } catch (Throwable e) {
+
+                }
+            }).start();
+        });
 
 
         if (PolymerImpl.IS_CLIENT) {
