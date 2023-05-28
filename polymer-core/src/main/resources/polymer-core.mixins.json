@@ -54,6 +54,7 @@
     "item.ItemStackMixin",
     "item.MiningToolItemAccessor",
     "item.ServerPlayNetworkHandlerMixin",
+    "item.StonecutterScreenHandlerMixin",
     "item.packet.PacketByteBufMixin",
     "item.packet.SynchronizeRecipesS2CPacketMixin",
     "other.BootstrapMixin",

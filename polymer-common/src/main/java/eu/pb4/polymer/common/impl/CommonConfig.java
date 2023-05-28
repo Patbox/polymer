@@ -1,5 +1,6 @@
 package eu.pb4.polymer.common.impl;
 
+import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
@@ -14,4 +15,7 @@ public class CommonConfig {
     public boolean enableTemplateEntityWarnings = true;
     public String _c5 = "Enables logging of more exceptions. Useful when debugging";
     public boolean logAllExceptions = false;
+    public String _c6 = "Forces all player resource pack checks to always return true (detect resource pack on client)";
+    @SerializedName("force_resource_pack_state_to_enabled")
+    public boolean forceResourcePackEnabled = false;
 }

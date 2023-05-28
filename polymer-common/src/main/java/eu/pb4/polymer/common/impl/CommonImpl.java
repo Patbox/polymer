@@ -35,6 +35,7 @@ public final class CommonImpl {
     public static final boolean IS_CLIENT = LOADER.getEnvironmentType() == EnvType.CLIENT;
     public static final boolean LOG_MORE_ERRORS;
     public static final boolean ENABLE_TEMPLATE_ENTITY_WARNINGS;
+    public static final boolean FORCE_RESOURCEPACK_ENABLED_STATE;
 
     private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer-common").get();
     public static final List<String> CONTRIBUTORS = new ArrayList<>();
@@ -63,6 +64,7 @@ public final class CommonImpl {
         MINIMAL_ABOUT = config.minimalisticAbout;
         LOG_MORE_ERRORS = config.logAllExceptions || CommonImpl.DEVELOPER_MODE;
         ENABLE_TEMPLATE_ENTITY_WARNINGS = config.enableTemplateEntityWarnings;
+        FORCE_RESOURCEPACK_ENABLED_STATE = config.forceResourcePackEnabled;
 
         CONTAINER.getMetadata().getAuthors().forEach(CommonImpl::addContributor);
         CONTAINER.getMetadata().getContributors().forEach(CommonImpl::addContributor);

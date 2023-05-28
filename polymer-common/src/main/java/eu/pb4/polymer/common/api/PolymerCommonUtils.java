@@ -3,6 +3,7 @@ package eu.pb4.polymer.common.api;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.common.impl.FakeWorld;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import net.minecraft.server.MinecraftServer;
@@ -96,6 +97,12 @@ public final class PolymerCommonUtils {
         }
 
         return player;
+    }
+
+    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
+        return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE || (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack())
+                || (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack())
+                || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
     public interface ResourcePackChangeCallback {
