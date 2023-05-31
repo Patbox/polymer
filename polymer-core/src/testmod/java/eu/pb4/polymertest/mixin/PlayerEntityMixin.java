@@ -17,11 +17,5 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         super(entityType, world);
     }
 
-    @Inject(method = "updatePose", at = @At("HEAD"), cancellable = true)
-    private void cancelIfHeld(CallbackInfo ci) {
-        if (this.getMainHandStack().isOf(TestMod.SMALL_TEST)) {
-            this.setPose(EntityPose.SLEEPING);
-            ci.cancel();
-        }
-    }
+
 }

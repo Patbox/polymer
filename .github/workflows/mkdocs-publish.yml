@@ -21,5 +21,5 @@ jobs:
           git config --global user.name Docs deploy
           git config --global user.email docs@dummy.bot.com
           mike set-default latest
-          mike deploy --push --update-aliases 0.4.x latest
+          mike deploy --push --update-aliases 0.5.x latest
 
