@@ -219,6 +219,10 @@ public final class PolymerItemUtils {
                     }
                 }
             } else if (itemStack.getItem() instanceof PotionItem) {
+                if (PotionUtil.getPotion(itemStack) instanceof PolymerObject) {
+                    return true;
+                }
+
                 for (StatusEffectInstance statusEffectInstance : PotionUtil.getPotionEffects(itemStack)) {
                     if (statusEffectInstance.getEffectType() instanceof PolymerObject) {
                         return true;
