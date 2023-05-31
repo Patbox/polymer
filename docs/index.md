@@ -48,6 +48,7 @@ Allows you to create virtual/packet based entities in a quick and simple way, wi
 attaching to any entity and chunks.
 
 * [Getting Started](polymer-virtual-entity/getting-started)
+* [Basics](polymer-virtual-entity/basics)
 
 ### Polymer Blocks
 `eu.pb4:polymer-blocks`

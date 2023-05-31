@@ -77,6 +77,7 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
         packetConsumer.accept(packet);
     }
 
+
     @Override
     public void onStoppedTrackingBy(ServerPlayerEntity player) {
         player.networkHandler.sendPacket(new PlayerRemoveS2CPacket(List.of(this.getUuid())));

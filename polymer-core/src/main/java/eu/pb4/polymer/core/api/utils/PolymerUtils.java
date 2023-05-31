@@ -1,9 +1,7 @@
 package eu.pb4.polymer.core.api.utils;
 
-import com.google.common.math.StatsAccumulator;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
@@ -16,7 +14,6 @@ import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -96,7 +93,7 @@ public final class PolymerUtils {
     }
 
     public static Collection<FeatureFlag> getClientEnabledFeatureFlags() {
-        return Collections.EMPTY_LIST;
+        return ENABLED_FEATURE_FLAGS;
     }
 
     /**
@@ -241,6 +238,6 @@ public final class PolymerUtils {
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
-        return (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack()) || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
+        return PolymerCommonUtils.hasResourcePack(player);
     }
 }

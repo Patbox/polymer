@@ -18,6 +18,9 @@ nav:
   - Polymer Textured Blocks:
       - polymer-blocks/getting-started.md
       - polymer-blocks/basics.md
+  - Polymer Virtual Entity:
+      - polymer-virtual-entity/getting-started.md
+      - polymer-virtual-entity/basics.md
   - Polymer Networking:
       - polymer-networking/getting-started.md
       - polymer-networking/basics.md

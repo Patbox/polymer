@@ -71,7 +71,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 if (!(state.getBlock() instanceof AbstractFireBlock)) {
                     this.world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, pos, Block.getRawIdFromState(state));
                 }
-
             }
         } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();
@@ -86,6 +85,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
             int k = (int) (f * 10.0F);
 
             this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, k));
+            PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, k));
         } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();
         }
@@ -116,6 +116,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
                     this.polymer$clearMiningEffect();
                 }
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
+                BlockState finalState = state;
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, finalState, -1));
             }
         } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();

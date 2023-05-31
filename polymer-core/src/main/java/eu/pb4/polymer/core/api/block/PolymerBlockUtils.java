@@ -1,12 +1,10 @@
 package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.common.api.events.BooleanEvent;
+import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
 import eu.pb4.polymer.core.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenCustomHashMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -38,6 +36,9 @@ public final class PolymerBlockUtils {
      * This event allows you to force server side mining for any block/item
      */
     public static final BooleanEvent<MineEventListener> SERVER_SIDE_MINING_CHECK = new BooleanEvent<>();
+
+    public static final SimpleEvent<BreakingProgressListener> BREAKING_PROGRESS_UPDATE = new SimpleEvent<>();
+
     /**
      * This event allows you to force syncing of light updates between server and clinet
      */
@@ -249,5 +250,10 @@ public final class PolymerBlockUtils {
     @FunctionalInterface
     public interface MineEventListener {
         boolean onBlockMine(BlockState state, BlockPos pos, ServerPlayerEntity player);
+    }
+
+    @FunctionalInterface
+    public interface BreakingProgressListener {
+        boolean onBreakingProgressUpdate(ServerPlayerEntity player, BlockPos pos, BlockState finalState, int i);
     }
 }
