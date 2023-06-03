@@ -94,10 +94,11 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
                 if (this.currentIterator == null || !this.currentIterator.hasNext()) {
                     var array = WorldChunkMixin.this.getSectionArray();
                     while (this.current < array.length) {
-                        var s = array[this.current++];
+                        var id = this.current++;
+                        var s = array[id];
                         var si = (PolymerBlockPosStorage) s;
                         if (s != null && si.polymer$hasAny()) {
-                            this.currentIterator = si.polymer$iterator(ChunkSectionPos.from(WorldChunkMixin.this.getPos(), WorldChunkMixin.this.sectionCoordToIndex(this.current)));
+                            this.currentIterator = si.polymer$iterator(ChunkSectionPos.from(WorldChunkMixin.this.getPos(), WorldChunkMixin.this.sectionIndexToCoord(id)));
                             break;
                         }
                     }
