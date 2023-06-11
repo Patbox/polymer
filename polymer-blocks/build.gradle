@@ -33,7 +33,6 @@ dependencies {
     implementation(project(path: ':polymer-core', configuration: 'namedElements'))
     implementation(project(path: ':polymer-common', configuration: 'namedElements'))
     implementation(project(path: ':polymer-resource-pack', configuration: 'namedElements'))
-    modImplementation "xyz.nucleoid:packet-tweaker:0.3.0+1.18.2"
     modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
 
     //modLocalRuntime "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"

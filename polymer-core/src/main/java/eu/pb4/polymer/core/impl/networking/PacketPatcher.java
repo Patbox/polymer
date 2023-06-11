@@ -76,9 +76,9 @@ public class PacketPatcher {
     public static void sendExtra(ServerPlayNetworkHandler handler, Packet<ClientPlayPacketListener> packet) {
         if (CompatStatus.IMMERSIVE_PORTALS) {
             ImmersivePortalsUtils.sendBlockPackets(handler, packet);
+        } else {
+            BlockPacketUtil.sendFromPacket(packet, handler);
         }
-
-        BlockPacketUtil.sendFromPacket(packet, handler);
     }
 
     public static boolean prevent(ServerPlayNetworkHandler handler, Packet<ClientPlayPacketListener> packet) {

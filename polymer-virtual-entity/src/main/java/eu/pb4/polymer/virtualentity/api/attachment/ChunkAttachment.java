@@ -2,8 +2,8 @@ package eu.pb4.polymer.virtualentity.api.attachment;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
-import eu.pb4.polymer.virtualentity.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
@@ -112,17 +112,24 @@ public class ChunkAttachment implements HolderAttachment {
 
     @Override
     public void updateTracking(ServerPlayNetworkHandler tracking) {
-        if (tracking.player.getWorld() != this.chunk.getWorld() || tracking.player.isDead()) {
-            this.stopWatching(tracking);
-            return;
-        }
-
-        var tacs = tracking.player.getServerWorld().getChunkManager().threadedAnvilChunkStorage;
-        var section = tracking.getPlayer().getWatchedSection();
-        if (!tacs.isWithinDistance(this.chunk.getPos().x, this.chunk.getPos().z, section.getX(), section.getZ(), ((ThreadedAnvilChunkStorageAccessor) tacs).getWatchDistance())) {
-            this.stopWatching(tracking);
+        //System.out.println("UPDATE-WATCHING: " + this.chunk.getWorld().getRegistryKey().getValue() + " | " + this.pos + " | " + tracking.player.isDead() + " | " + StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass());
+        if (tracking.player.isDead() || !VirtualEntityUtils.isPlayerTracking(tracking.getPlayer(), this.chunk)) {
+            VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.stopWatching(tracking));
         }
     }
+    /*
+
+       @Override
+    public void startWatching(ServerPlayNetworkHandler tracking) {
+        System.out.println("START-WATCHING: " + this.chunk.getWorld().getRegistryKey().getValue() + " | " + this.pos + " | " + tracking.player.isDead() + " | " + StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass());
+        HolderAttachment.super.startWatching(tracking);
+    }
+
+    @Override
+    public void stopWatching(ServerPlayNetworkHandler handler) {
+        System.out.println("STOP-WATCHING: " + this.chunk.getWorld().getRegistryKey().getValue() + " | " + this.pos + " | " + handler.player.isDead() + " | " + StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass());
+        HolderAttachment.super.stopWatching(handler);
+    }*/
 
     @Override
     public Vec3d getPos() {
@@ -133,5 +140,4 @@ public class ChunkAttachment implements HolderAttachment {
     public ServerWorld getWorld() {
         return (ServerWorld) this.chunk.getWorld();
     }
-
 }

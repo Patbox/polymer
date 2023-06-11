@@ -23,13 +23,11 @@ loom {
 dependencies {
     modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
     //modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-
-    modImplementation "xyz.nucleoid:packet-tweaker:0.3.0+1.18.2"
     //modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
 
-    implementation (project(path: ':polymer-common', configuration: 'namedElements'))
-    implementation (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
-    implementation (project(path: ':polymer-networking', configuration: 'namedElements'))
+    api (project(path: ':polymer-common', configuration: 'namedElements'))
+    api (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
+    api (project(path: ':polymer-networking', configuration: 'namedElements'))
 
 
     testmodImplementation sourceSets.main.output

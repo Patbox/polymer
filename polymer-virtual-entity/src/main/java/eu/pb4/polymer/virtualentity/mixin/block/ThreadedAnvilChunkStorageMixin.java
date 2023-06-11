@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class ThreadedAnvilChunkStorageMixin {
 
-    @Inject(method = "sendChunkDataPackets", at = @At("TAIL"))
+    @Inject(method = "sendChunkDataPackets", at = @At("TAIL"), require = 0)
     private void polymerVE$addToHolograms(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
         for (var hologram : ((HolderAttachmentHolder) chunk).polymerVE$getHolders()) {
             hologram.startWatching(player.networkHandler);

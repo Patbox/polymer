@@ -81,9 +81,12 @@ dependencies {
     modCompileOnly("xyz.nucleoid:server-translations-api:2.0.0-beta.2+1.19.4-pre2")
     modLocalRuntime("xyz.nucleoid:server-translations-api:2.0.0-beta.2+1.19.4-pre2")
 
-    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v2.5.1-mc1.19.3'
-    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v2.5.1-mc1.19.3'
+    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v3.0.2-mc1.20'
+    //modLocalRuntime 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v3.0.2-mc1.20'
+    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v3.0.2-mc1.20'
+    //modLocalRuntime 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v3.0.2-mc1.20'
 
+    //modLocalRuntime 'maven.modrinth:immersiveportals:v3.0.2-mc1.20'
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
 

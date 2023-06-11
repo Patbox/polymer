@@ -23,7 +23,6 @@ public class PolymerVirtualEntityMixinConfigPlugin implements IMixinConfigPlugin
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         var name = mixinClassName.substring(PACKAGE_ROOT.length());
-
         return CommonImpl.shouldApplyMixin("polymer-virtual-entity", name);
     }
 

@@ -24,7 +24,8 @@
     "accessors.ThreadedAnvilChunkStorageAccessor",
     "block.ServerWorldMixin",
     "block.ThreadedAnvilChunkStorageMixin",
-    "block.WorldChunkMixin"
+    "block.WorldChunkMixin",
+    "compat.ip_ChunkDataSyncManagerMixin"
   ],
   "client": [
   ],

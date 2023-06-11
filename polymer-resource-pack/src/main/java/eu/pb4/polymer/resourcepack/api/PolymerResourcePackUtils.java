@@ -32,6 +32,7 @@ public final class PolymerResourcePackUtils {
     private static final ResourcePackCreator INSTANCE = new ResourcePackCreator(PolymerResourcePackImpl.USE_OFFSET ? PolymerResourcePackImpl.OFFSET_VALUES : 1);
 
     public static final SimpleEvent<Consumer<ResourcePackBuilder>> RESOURCE_PACK_CREATION_EVENT = INSTANCE.creationEvent;
+    public static final SimpleEvent<Consumer<ResourcePackBuilder>> RESOURCE_PACK_AFTER_INITIAL_CREATION_EVENT = INSTANCE.afterInitialCreationEvent;
     public static final SimpleEvent<Runnable> RESOURCE_PACK_FINISHED_EVENT = INSTANCE.finishedEvent;
     private static boolean REQUIRED = PolymerResourcePackImpl.FORCE_REQUIRE;
     private static boolean DEFAULT_CHECK = true;

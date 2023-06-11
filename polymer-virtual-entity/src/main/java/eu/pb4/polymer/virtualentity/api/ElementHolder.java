@@ -12,6 +12,8 @@ import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +27,8 @@ public class ElementHolder {
     private final List<VirtualElement> elements = new ObjectArrayList<>();
     private final List<ServerPlayNetworkHandler> players = new ArrayList<>();
     protected Vec3d currentPos = Vec3d.ZERO;
+    private ChunkPos currentChunkPos = null;
+
     private final IntList entityIds = new IntArrayList();
 
     public boolean isPartOf(int entityId) {
@@ -161,7 +165,19 @@ public class ElementHolder {
             var delta = newPos.subtract(newPos);
             this.notifyElementsOfPositionUpdate(newPos, delta);
             this.currentPos = newPos;
+            this.currentChunkPos = null;
         }
+    }
+
+    protected void invalidateCaches() {
+        this.currentChunkPos = null;
+    }
+
+    public ChunkPos getChunkPos() {
+        if (this.currentChunkPos == null) {
+            this.currentChunkPos = new ChunkPos(BlockPos.ofFloored(this.currentPos));
+        }
+        return this.currentChunkPos;
     }
 
     protected void notifyElementsOfPositionUpdate(Vec3d newPos, Vec3d delta) {

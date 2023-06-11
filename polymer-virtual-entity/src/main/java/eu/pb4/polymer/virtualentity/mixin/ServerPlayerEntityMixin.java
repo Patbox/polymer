@@ -7,12 +7,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -32,7 +30,7 @@ public class ServerPlayerEntityMixin {
     @Inject(method = "sendUnloadChunkPacket", at = @At("HEAD"))
     private void polymerVE$chunkUnload(ChunkPos chunkPos, CallbackInfo ci) {
         for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
-            if (holder.getAttachment() != null && new ChunkPos(BlockPos.ofFloored(holder.getPos())).equals(chunkPos)) {
+            if (holder.getAttachment() != null && holder.getChunkPos().equals(chunkPos)) {
                 holder.getAttachment().updateTracking(this.networkHandler);
             }
         }

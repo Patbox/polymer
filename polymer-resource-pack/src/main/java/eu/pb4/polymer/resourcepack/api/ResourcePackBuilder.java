@@ -17,4 +17,6 @@ public interface ResourcePackBuilder {
     boolean addArmorModel(PolymerArmorModel model);
     @Nullable
     byte[] getData(String path);
+    @Nullable
+    byte[] getDataOrVanilla(String path);
 }

@@ -1,11 +1,14 @@
 package eu.pb4.polymer.virtualentity.api;
 
+import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.VirtualEntityImplUtils;
+import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityPositionS2CPacketAccessor;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import eu.pb4.polymer.virtualentity.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -13,9 +16,14 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
+
 
 public final class VirtualEntityUtils {
     private VirtualEntityUtils() {}
@@ -91,5 +99,31 @@ public final class VirtualEntityUtils {
         ((EntityPassengersSetS2CPacketAccessor) packet).setId(id);
         ((EntityPassengersSetS2CPacketAccessor) packet).setPassengerIds(list.toIntArray());
         return packet;
+    }
+
+    public static boolean isPlayerTracking(ServerPlayerEntity player, WorldChunk chunk) {
+        if (CompatStatus.IMMERSIVE_PORTALS) {
+            return ImmersivePortalsUtils.isPlayerTracking(player, chunk);
+        }
+
+        if (player.getWorld() != chunk.getWorld()) {
+            return false;
+        }
+
+
+        var tacs = ((ServerWorld) chunk.getWorld()).getChunkManager().threadedAnvilChunkStorage;
+        var section = player.getWatchedSection();
+        return ThreadedAnvilChunkStorage.isWithinDistance(chunk.getPos().x, chunk.getPos().z, section.getX(), section.getZ(), ((ThreadedAnvilChunkStorageAccessor) tacs).getWatchDistance());
+    }
+
+    /**
+     * Purely for compatibility with immersive portals.
+     */
+    public static void wrapCallWithContext(ServerWorld world, Runnable call) {
+        if (CompatStatus.IMMERSIVE_PORTALS) {
+            ImmersivePortalsUtils.callRedirected(world, call);
+        } else {
+            call.run();
+        }
     }
 }

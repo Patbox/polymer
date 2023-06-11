@@ -8,7 +8,9 @@ loom {
 
 dependencies {
     modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
-    modApi include("xyz.nucleoid:packet-tweaker:${packet_tweaker_version}")
+    modApi include("xyz.nucleoid:packet-tweaker:${packet_tweaker_version}") {
+        transitive(false)
+    }
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
 }
 
