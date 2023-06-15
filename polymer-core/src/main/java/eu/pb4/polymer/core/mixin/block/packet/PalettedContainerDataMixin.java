@@ -2,7 +2,13 @@ package eu.pb4.polymer.core.mixin.block.packet;
 
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.PolymerMetadataKeys;
+import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
+import eu.pb4.polymer.core.impl.networking.ServerPackets;
+import eu.pb4.polymer.networking.api.PolymerServerNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.util.collection.PackedIntegerArray;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.chunk.IdListPalette;
@@ -22,8 +28,20 @@ public class PalettedContainerDataMixin<T> {
         if (this.palette instanceof IdListPalette<T>  && this.palette.get(0) instanceof BlockState) {
             var palette = (IdListPalette<BlockState>) this.palette;
             var player = PolymerUtils.getPlayerContext();
+            if (player == null) {
+                return instance.getData();
+            }
+            int bits;
+
+            var playerBitCount = PolymerServerNetworking.getMetadata(player.networkHandler, PolymerMetadataKeys.BLOCKSTATE_BITS, NbtInt.TYPE);
+            if (playerBitCount == null) {
+                bits = ((PolymerIdList<?>) Block.STATE_IDS).polymer$getVanillaBitCount();
+            } else {
+                bits = playerBitCount.intValue();
+            }
+
             final int size = instance.getSize();
-            var data = new PackedIntegerArray(instance.getElementBits(), size);
+            var data = new PackedIntegerArray(bits, size);
 
             for (int i = 0; i < size; i++) {
                 data.set(i, palette.index(PolymerBlockUtils.getPolymerBlockState(palette.get(instance.get(i)), player)));

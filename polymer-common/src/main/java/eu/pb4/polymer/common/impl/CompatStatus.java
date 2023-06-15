@@ -10,6 +10,7 @@ public final class CompatStatus {
     public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
     public static final boolean POLYMER_CORE = LOADER.isModLoaded("polymer-core");
     public static final boolean POLYMER_AUTOHOST = LOADER.isModLoaded("polymer-autohost");
+    public static final boolean POLYMER_VIRTUAL_ENTITY = LOADER.isModLoaded("polymer-virtual-entity");
 
 
     public static final boolean POLYMER_RESOURCE_PACK = LOADER.isModLoaded("polymer-resource-pack");
@@ -18,7 +19,9 @@ public final class CompatStatus {
 
     public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");
     public static final boolean FABRIC_NETWORKING = LOADER.isModLoaded("fabric-networking-api-v1");
-    public static final boolean FABRIC_FLUID_RENDERERING = LOADER.isModLoaded("fabric-rendering-fluids-v1");
+    public static final boolean FABRIC_FLUID_RENDERING = LOADER.isModLoaded("fabric-rendering-fluids-v1");
+    @Deprecated
+    public static final boolean FABRIC_FLUID_RENDERERING = FABRIC_FLUID_RENDERING;
     public static final boolean FABRIC_ITEM_GROUP = LOADER.isModLoaded("fabric-item-group-api-v1");
     public static final boolean FABRIC_SCREEN_HANDLER = LOADER.isModLoaded("fabric-screen-handler-api-v1");
     public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
@@ -39,8 +42,11 @@ public final class CompatStatus {
     public static final boolean FABRIC_PROXY_LITE = LOADER.isModLoaded("fabricproxy-lite");
     public static final boolean FABRIC_PROXY = LOADER.isModLoaded("fabricproxy");
     public static final boolean QFORWARD = LOADER.isModLoaded("qforward");
+    public static final boolean FAPROXY = LOADER.isModLoaded("fabroxy");
 
-    public static final boolean PROXY_MODS = FABRIC_PROXY || FABRIC_PROXY_LITE || QFORWARD;
+    public static final boolean PROXY_MODS = FABRIC_PROXY || FABRIC_PROXY_LITE || QFORWARD || FAPROXY;
+
+    public static final boolean FLOODGATE = LOADER.isModLoaded("floodgate");
 
     public static final boolean IRIS = LOADER.isModLoaded("iris");
     public static final boolean CANVAS = LOADER.isModLoaded("canvas");

@@ -4,20 +4,22 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import eu.pb4.polymer.networking.api.client.PolymerClientPacketHandler;
 import eu.pb4.polymer.networking.impl.ClientPackets;
+import eu.pb4.polymer.networking.impl.ServerPacketRegistry;
 import eu.pb4.polymer.networking.impl.ServerPackets;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static eu.pb4.polymer.networking.api.PolymerServerNetworking.buf;
 
@@ -25,6 +27,8 @@ import static eu.pb4.polymer.networking.api.PolymerServerNetworking.buf;
 public class ClientPacketRegistry {
     public static final HashMap<Identifier, PolymerClientPacketHandler> PACKETS = new HashMap<>();
     public static final Object2IntMap<Identifier> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
+    public static final Map<Identifier, NbtElement> SERVER_METADATA = new HashMap<>();
+    public static final Map<Identifier, NbtElement> METADATA = new HashMap<>();
     public static String lastVersion;
 
     public static boolean handle(ClientPlayNetworkHandler handler, CustomPayloadS2CPacket packet) {
@@ -60,10 +64,21 @@ public class ClientPacketRegistry {
     public static void clear() {
         lastVersion = "";
         CLIENT_PROTOCOL.clear();
+        SERVER_METADATA.clear();
         PolymerClientNetworking.AFTER_DISABLE.invoke(Runnable::run);
     }
 
-    public static boolean handleHandshake(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+    public static void handleMetadata(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+        if (version > -1) {
+            try {
+                ServerPacketRegistry.decodeMetadata(buf, SERVER_METADATA::put);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void handleHandshake(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version > -1) {
             lastVersion = buf.readString(64);
             CLIENT_PROTOCOL.clear();
@@ -81,23 +96,33 @@ public class ClientPacketRegistry {
                 }
 
                 CLIENT_PROTOCOL.put(id, ClientPackets.getBestSupported(id, list.elements()));
-
             }
 
             PolymerClientNetworking.AFTER_HANDSHAKE_RECEIVED.invoke(Runnable::run);
-            return true;
+
+            if (CLIENT_PROTOCOL.getOrDefault(ClientPackets.METADATA, -1) != -1 ) {
+                sendMetadata(handler);
+            }
         }
-        return false;
     }
 
-    public static boolean handleDisable(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
+    private static void sendMetadata(ClientPlayNetworkHandler handler) {
+        try {
+            PolymerClientNetworking.BEFORE_METADATA_SYNC.invoke(Runnable::run);
+            var buf = buf(1);
+            ServerPacketRegistry.encodeMetadata(buf, METADATA);
+            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.METADATA, buf));
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void handleDisable(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version > -1) {
             MinecraftClient.getInstance().execute(() -> {
                 clear();
             });
-            return true;
         }
-        return false;
     }
 
     public static void sendHandshake(ClientPlayNetworkHandler handler) {
@@ -125,5 +150,6 @@ public class ClientPacketRegistry {
     static {
         PACKETS.put(ServerPackets.HANDSHAKE, ClientPacketRegistry::handleHandshake);
         PACKETS.put(ServerPackets.DISABLE, ClientPacketRegistry::handleDisable);
+        PACKETS.put(ServerPackets.METADATA, ClientPacketRegistry::handleMetadata);
     }
 }

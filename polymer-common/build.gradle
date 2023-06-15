@@ -12,6 +12,7 @@ dependencies {
         transitive(false)
     }
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
+    modCompileOnly "org.geysermc.floodgate:api:2.2.0-SNAPSHOT"
 }
 
 afterEvaluate {

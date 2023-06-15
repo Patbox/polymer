@@ -13,9 +13,7 @@ import org.jetbrains.annotations.ApiStatus;
 public record PolymerEntityEntry(Identifier identifier, int rawId, Text name) implements BufferWritable {
     public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeIdentifier(identifier);
-        if (version > 0) {
-            buf.writeVarInt(this.rawId);
-        }
+        buf.writeVarInt(this.rawId);
         buf.writeText(ServerTranslationUtils.parseFor(handler, name));
     }
 

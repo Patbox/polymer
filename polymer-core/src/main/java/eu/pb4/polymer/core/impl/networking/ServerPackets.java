@@ -13,8 +13,8 @@ public class ServerPackets {
     public static final Identifier SYNC_INFO = id("sync/info");
     public static final Identifier SYNC_FINISHED= id("sync/finished");
     public static final Identifier SYNC_BLOCK= id("sync/blocks");
-    public static final Identifier SYNC_BLOCK_ENTITY= id("sync/block_entities");
-    public static final Identifier SYNC_ITEM= id("sync/items");
+    public static final Identifier SYNC_BLOCK_ENTITY = id("sync/block_entities");
+    public static final Identifier SYNC_ITEM = id("sync/items");
     public static final Identifier SYNC_FLUID = id("sync/fluid");
     public static final Identifier SYNC_ENCHANTMENT= id("sync/enchantments");
     public static final Identifier SYNC_ENTITY= id("sync/entities");
@@ -30,9 +30,9 @@ public class ServerPackets {
     public static final Identifier SYNC_CLEAR= id("sync/clear_all");
     public static final Identifier WORLD_SET_BLOCK_UPDATE= id("world/set_block");
     public static final Identifier WORLD_CHUNK_SECTION_UPDATE= id("world/section");
-    public static final Identifier WORLD_ENTITY= id("world/entity");
+    public static final Identifier WORLD_ENTITY = id("world/entity");
 
-    public static final Identifier DEBUG_VALIDATE_STATES= id("debug/validate_states");
+    public static final Identifier DEBUG_VALIDATE_STATES = id("debug/validate_states");
 
     public static final void register(Identifier id, int... ver) {
         PolymerServerNetworking.registerSendPacket(id, ver);

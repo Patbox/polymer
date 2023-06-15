@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.mixin.other;
 
 import com.mojang.serialization.Lifecycle;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.ImplPolymerRegistryEvent;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
@@ -41,7 +41,7 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
             RegistrySyncUtils.setServerEntry(this, value);
         }
 
-        PolymerImplUtils.invokeRegistered((Registry<Object>) this, value);
+        ImplPolymerRegistryEvent.invokeRegistered(this, value);
     }
 
     @Override
@@ -49,7 +49,7 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
         if (this.polymer$objects == null) {
             this.polymer$objects = new ArrayList<>();
             for (var obj : this) {
-                if (PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) this, obj)) {
+                if (PolymerImplUtils.isServerSideSyncableEntry(this, obj)) {
                     this.polymer$objects.add(obj);
                 }
             }

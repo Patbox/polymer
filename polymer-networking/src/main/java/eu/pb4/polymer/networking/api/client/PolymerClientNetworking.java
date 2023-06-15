@@ -2,14 +2,20 @@ package eu.pb4.polymer.networking.api.client;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.networking.impl.ClientPackets;
+import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
+import eu.pb4.polymer.networking.impl.ServerPacketRegistry;
 import eu.pb4.polymer.networking.impl.ServerPackets;
 import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtType;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 
 /**
@@ -19,6 +25,7 @@ import net.minecraft.util.Identifier;
 public final class PolymerClientNetworking {
     public static final SimpleEvent<Runnable> AFTER_HANDSHAKE_RECEIVED = new SimpleEvent<>();
     public static final SimpleEvent<Runnable> AFTER_DISABLE = new SimpleEvent<>();
+    public static final SimpleEvent<Runnable> BEFORE_METADATA_SYNC = new SimpleEvent<>();
 
     private PolymerClientNetworking() {
     }
@@ -49,6 +56,24 @@ public final class PolymerClientNetworking {
 
     public static int getSupportedVersion(Identifier identifier) {
         return ClientPacketRegistry.CLIENT_PROTOCOL.getOrDefault(identifier, -1);
+    }
+
+    @Nullable
+    public static <T extends NbtElement> T getMetadata(Identifier identifier, NbtType<T> type) {
+        var x = ClientPacketRegistry.SERVER_METADATA.get(identifier);
+        if (x != null && x.getNbtType() == type) {
+            //noinspection unchecked
+            return (T) x;
+        }
+        return null;
+    }
+
+    public static void setClientMetadata(Identifier identifier, @Nullable NbtElement nbtElement) {
+        if (nbtElement == null) {
+            ClientPacketRegistry.METADATA.remove(identifier);
+        } else {
+            ClientPacketRegistry.METADATA.put(identifier, nbtElement);
+        }
     }
 
     static {

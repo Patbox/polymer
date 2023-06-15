@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.PolymerMetadataKeys;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientEntityExtension;
@@ -24,6 +25,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -33,6 +35,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -100,8 +103,10 @@ public class PolymerClientProtocolHandler {
             InternalClientRegistry.setVersion(PolymerClientNetworking.getServerVersion());
         });
 
-        PolymerClientNetworking.AFTER_DISABLE.register(() -> {
-            InternalClientRegistry.disable();
+        PolymerClientNetworking.AFTER_DISABLE.register(InternalClientRegistry::disable);
+
+        PolymerClientNetworking.BEFORE_METADATA_SYNC.register(() -> {
+            PolymerClientNetworking.setClientMetadata(PolymerMetadataKeys.BLOCKSTATE_BITS, NbtInt.of(MathHelper.ceilLog2(Block.STATE_IDS.size())));
         });
     }
 

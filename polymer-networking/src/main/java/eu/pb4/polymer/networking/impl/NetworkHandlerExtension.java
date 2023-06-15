@@ -1,6 +1,8 @@
 package eu.pb4.polymer.networking.impl;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -21,6 +23,7 @@ public interface NetworkHandlerExtension {
     int polymerNet$getSupportedVersion(Identifier identifier);
     void polymerNet$setSupportedVersion(Identifier identifier, int i);
     Object2IntMap<Identifier> polymerNet$getSupportMap();
+    Object2ObjectMap<Identifier, NbtElement> polymerNet$getMetadataMap();
 
     @Deprecated(forRemoval = true)
     default Object2IntMap<Identifier> polymer$getSupportMap() {

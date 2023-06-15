@@ -3,6 +3,7 @@ package eu.pb4.polymer.common.impl;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -136,6 +137,11 @@ public class CommonCommands {
             for (var consumer : COMMANDS_DEV) {
                 consumer.accept(dev, access);
             }
+
+            dev.then(literal("is_bedrock").executes((ctx) -> {
+                ctx.getSource().sendFeedback(() -> Text.literal("Bedrock: " + PolymerCommonUtils.isBedrockPlayer(ctx.getSource().getPlayer())), false);
+                return 0;
+            }));
 
             command.then(dev);
         }

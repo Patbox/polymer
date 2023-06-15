@@ -4,6 +4,7 @@ import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -34,6 +35,11 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
         for (var entry : protocolVersions.object2IntEntrySet()) {
             this.polymerHandler.polymerNet$setSupportedVersion(entry.getKey(), entry.getIntValue());
         }
+    }
+
+    @Override
+    public void setMetadataValue(Identifier identifier, NbtElement value) {
+        this.polymerHandler.polymerNet$getMetadataMap().put(identifier, value);
     }
 
     public boolean isPolymer() {

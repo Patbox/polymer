@@ -17,6 +17,7 @@ import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.core.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.core.impl.ui.PotionUi;
+import eu.pb4.polymer.core.mixin.block.PalettedContainerAccessor;
 import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandRegistryAccess;
@@ -156,7 +157,18 @@ public class Commands {
                             ctx.getSource().sendFeedback(() -> Text.literal("Resource pack status: " + status), false);
                             return 0;
                         })
-                );
+                )
+                .then(literal("chunk_section_info")
+                        .executes((ctx) -> {
+                            var chunk = ctx.getSource().getWorld().getChunk(ctx.getSource().getPlayer().getBlockPos());
+                            var s = chunk.getSection(ctx.getSource().getWorld().getSectionIndex(ctx.getSource().getPlayer().getBlockY()));
+
+                            var a = ((PalettedContainerAccessor) s.getBlockStateContainer()).getData();
+
+                            ctx.getSource().sendFeedback(() -> Text.literal("Chunk: " + chunk.getPos() + " Palette: " + a.palette() + " | " + " Storage: " + a.storage() + " | Bits: " + a.storage().getElementBits()), false);
+                            return 0;
+                        })
+        );
     }
 
     private static int targetBlock(CommandContext<ServerCommandSource> context) {

@@ -278,6 +278,10 @@ public class TestMod implements ModInitializer {
         register(Registries.ITEM, new Identifier("test", "animated"), ANIMATED_BLOCK_ITEM);
         register(Registries.BLOCK, new Identifier("test", "animated"), ANIMATED_BLOCK);
 
+        for (var i = 0; i < 16; i++) {
+            register(Registries.BLOCK, new Identifier("test", "filler_" + i), new TestBlock(AbstractBlock.Settings.create()));
+        }
+
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = new SimplePolymerBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN), Blocks.TINTED_GLASS);
             register(Registries.BLOCK, new Identifier("test", "server_block"), t);

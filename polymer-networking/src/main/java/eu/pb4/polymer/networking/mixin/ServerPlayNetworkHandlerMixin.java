@@ -3,10 +3,8 @@ package eu.pb4.polymer.networking.mixin;
 import eu.pb4.polymer.networking.api.DynamicPacket;
 import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
 import eu.pb4.polymer.networking.impl.ServerPacketRegistry;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
@@ -25,6 +23,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerPlayNetworkHandlerMixin implements NetworkHandlerExtension {
     @Unique
     private final Object2IntMap<Identifier> polymerNet$protocolMap = new Object2IntOpenHashMap<>();
+
+    @Unique
+    private final Object2ObjectMap<Identifier, NbtElement> polymerNet$metadata = new Object2ObjectOpenHashMap<>();
 
     @Unique
     private final Object2LongMap<Identifier> polymerNet$rateLimits = new Object2LongOpenHashMap<>();
@@ -83,6 +84,11 @@ public abstract class ServerPlayNetworkHandlerMixin implements NetworkHandlerExt
     @Override
     public Object2IntMap<Identifier> polymerNet$getSupportMap() {
         return this.polymerNet$protocolMap;
+    }
+
+    @Override
+    public Object2ObjectMap<Identifier, NbtElement> polymerNet$getMetadataMap() {
+        return this.polymerNet$metadata;
     }
 
     @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)

@@ -29,7 +29,7 @@ public abstract class ChunkDeltaUpdateS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"), require = 0)
     private Object polymer$decodeState(IdList instance, int index) {
-        return index > 0 ? InternalClientRegistry.decodeState(index) : instance.get(index);
+        return InternalClientRegistry.decodeState(index);
     }
 
     @Environment(EnvType.CLIENT)

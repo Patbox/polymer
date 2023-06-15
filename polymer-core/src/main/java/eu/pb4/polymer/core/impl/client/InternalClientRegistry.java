@@ -17,6 +17,7 @@ import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.mixin.client.CreativeInventoryScreenAccessor;
+import eu.pb4.polymer.core.mixin.other.IdListAccessor;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -67,7 +68,12 @@ public class InternalClientRegistry {
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
     public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
-    public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>();
+    public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>() {
+        @Override
+        public int size() {
+            return ((IdListAccessor) (Object) this).getList().size();
+        }
+    };
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>("item", "I");
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPES = new ImplPolymerRegistry<>("entity_type", "E");
     public static final ImplPolymerRegistry<ClientPolymerEntry<VillagerProfession>> VILLAGER_PROFESSIONS = new ImplPolymerRegistry<>("villager_profession", "VP");
@@ -109,15 +115,18 @@ public class InternalClientRegistry {
     }
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
-        if (MinecraftClient.getInstance().world != null) {
-            var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
-                    ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
-                    ChunkStatus.FULL,
-                    true
-            );
+        try {
+            if (MinecraftClient.getInstance().world != null) {
+                var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
+                        ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
+                        ChunkStatus.FULL,
+                        true
+                );
 
-            return ((ClientBlockStorageInterface) chunk).polymer$getClientBlock(pos.getX(), pos.getY(), pos.getZ());
-        }
+                return ((ClientBlockStorageInterface) chunk).polymer$getClientBlock(pos.getX(), pos.getY(), pos.getZ());
+            }
+        } catch (Throwable e) {}
+
 
         return ClientPolymerBlock.NONE_STATE;
     }

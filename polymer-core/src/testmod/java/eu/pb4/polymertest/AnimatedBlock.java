@@ -5,6 +5,7 @@ import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
+import eu.pb4.polymer.virtualentity.api.elements.EntityElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -14,8 +15,11 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -41,16 +45,17 @@ public class AnimatedBlock extends Block implements PolymerBlock, BlockWithEleme
 
     @Override
     public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
-        return new CustomHolder();
+        return new CustomHolder(world);
     }
 
     public static class CustomHolder extends ElementHolder {
+        private final EntityElement<SheepEntity> entity;
         private ItemDisplayElement centralElement;
         private ItemDisplayElement planetElement;
         private ItemDisplayElement moonElement;
         private int tick = 0;
 
-        public CustomHolder() {
+        public CustomHolder(ServerWorld world) {
             this.planetElement = this.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
             this.moonElement = this.addElement(new ItemDisplayElement(Items.DECORATED_POT));
             this.centralElement = this.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
@@ -60,6 +65,10 @@ public class AnimatedBlock extends Block implements PolymerBlock, BlockWithEleme
             this.centralElement.setInterpolationDuration(3);
             this.moonElement.setInterpolationDuration(3);
             this.planetElement.setInterpolationDuration(3);
+
+            this.entity = this.addElement(new EntityElement<>(EntityType.SHEEP, world));
+            entity.entity().setColor(DyeColor.PINK);
+            entity.setOffset(new Vec3d(0, 0.5, 0));
 
             this.centralElement.setGlowing(true);
             this.centralElement.setGlowColorOverride(0xfdffba);

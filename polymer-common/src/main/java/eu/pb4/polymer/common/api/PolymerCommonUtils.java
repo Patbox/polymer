@@ -1,11 +1,9 @@
 package eu.pb4.polymer.common.api;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
-import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
-import eu.pb4.polymer.common.impl.FakeWorld;
+import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
+import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -97,6 +95,13 @@ public final class PolymerCommonUtils {
         }
 
         return player;
+    }
+
+    public static boolean isBedrockPlayer(ServerPlayerEntity player) {
+        if (CompatStatus.FLOODGATE) {
+            return FloodGateUtils.isPlayerBroken(player);
+        }
+        return false;
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {

@@ -2,6 +2,7 @@ package eu.pb4.polymer.networking.api;
 
 import eu.pb4.polymer.networking.impl.PolymerHandshakeHandlerImplLate;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 public interface PolymerHandshakeHandler {
     void sendPacket(Packet<?> packet);
     void set(String polymerVersion, Object2IntMap<Identifier> protocolVersions);
+    void setMetadataValue(Identifier identifier, NbtElement value);
 
     boolean isPolymer();
 

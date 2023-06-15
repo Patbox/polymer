@@ -1,14 +1,13 @@
 package eu.pb4.polymer.core.impl.client.compat;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.ImplPolymerRegistryEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
@@ -28,14 +27,8 @@ public class FabricFluids {
             }
         };
 
-        for (var fluid : Registries.FLUID) {
+        ImplPolymerRegistryEvent.iterateAndRegister(Registries.FLUID, (fluid) -> {
             if (fluid instanceof PolymerObject && FluidRenderHandlerRegistry.INSTANCE.get(fluid) == null) {
-                FluidRenderHandlerRegistry.INSTANCE.register(fluid, renderer);
-            }
-        }
-
-        PolymerImplUtils.ON_REGISTERED.register((reg, obj) -> {
-            if (obj instanceof Fluid fluid && fluid instanceof PolymerObject && FluidRenderHandlerRegistry.INSTANCE.get(fluid) == null) {
                 FluidRenderHandlerRegistry.INSTANCE.register(fluid, renderer);
             }
         });

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings({"rawtypes", "unchecked", "ConstantConditions"})
 @Mixin(EntityTrackerUpdateS2CPacket.class)
 public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2CPacketExt {
     @Shadow @Final private int id;
@@ -44,7 +45,7 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
 
     @Nullable
     private List<DataTracker.SerializedEntry<?>> polymer$createEntries() {
-        Entity entity = EntityAttachedPacket.get(this, this.id);
+        var entity = EntityAttachedPacket.get(this, this.id);
         if (entity == null) {
             return this.trackedValues != null ? new ArrayList<>(this.trackedValues) : null;
         }
@@ -81,7 +82,7 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
             var entry = entries.get(i);
 
             if (isItemFrame && entry.id() == ItemFrameEntityAccessor.getITEM_STACK().getId() && entry.value() instanceof ItemStack stack) {
-                var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, PolymerUtils.getPlayerContext());
+                var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, player);
 
                 if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
                     var nbtCompound = polymerStack.getSubNbt("display");
@@ -123,6 +124,8 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
                     list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Optional.of(PolymerBlockUtils.getPolymerBlockState(state, player))));
                 } else if (entry.value() instanceof BlockState state) {
                     list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), PolymerBlockUtils.getPolymerBlockState(state, player)));
+                } else if (entry.value() instanceof ItemStack stack) {
+                    list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), PolymerItemUtils.getPolymerItemStack(stack, player)));
                 }
             }
 

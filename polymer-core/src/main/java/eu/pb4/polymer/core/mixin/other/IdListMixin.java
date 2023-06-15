@@ -5,9 +5,11 @@ import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
+import net.minecraft.block.Block;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.IdList;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,9 +32,12 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     @Shadow
     @Final
     private Object2IntMap<Object> idMap;
+    private int polymer$vanillaBitCount;
 
     @Shadow
     public abstract void add(T value);
+
+    @Shadow public abstract int size();
 
     @Unique
     private final List<T> polymer$lazyList = new ArrayList<>();
@@ -152,7 +157,13 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
             this.polymer$locked = false;
             this.polymer$lazyList.forEach(this::add);
             this.polymer$lazyList.clear();
+            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.size() - this.polymer$states.size());
         }
+    }
+
+    @Override
+    public int polymer$getVanillaBitCount() {
+        return this.polymer$vanillaBitCount;
     }
 
     @Override

@@ -36,7 +36,7 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 			ReiCompatibility.registerEvents();
 		}
 
-		if (CompatStatus.FABRIC_FLUID_RENDERERING) {
+		if (CompatStatus.FABRIC_FLUID_RENDERING) {
 			FabricFluids.register();
 		}
 	}

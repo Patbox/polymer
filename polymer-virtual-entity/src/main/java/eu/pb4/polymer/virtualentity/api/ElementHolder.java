@@ -169,6 +169,17 @@ public class ElementHolder {
         }
     }
 
+    protected void updateInitialPosition() {
+        var newPos = this.attachment.getPos();
+
+        for (var e : this.elements) {
+            e.setInitialPosition(newPos);
+        }
+
+        this.currentPos = newPos;
+        this.currentChunkPos = null;
+    }
+
     protected void invalidateCaches() {
         this.currentChunkPos = null;
     }
@@ -201,7 +212,7 @@ public class ElementHolder {
         this.attachment = attachment;
         if (attachment != null) {
             if (this.currentPos == Vec3d.ZERO && attachment.canUpdatePosition()) {
-                this.currentPos = attachment.getPos();
+                this.updateInitialPosition();
             }
             attachment.updateCurrentlyTracking(new ArrayList<>(this.players));
         }

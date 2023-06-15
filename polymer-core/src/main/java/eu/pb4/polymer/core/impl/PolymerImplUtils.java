@@ -42,7 +42,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class PolymerImplUtils {
-    public static final SimpleEvent<BiConsumer<Registry<Object>, Object>> ON_REGISTERED = new SimpleEvent<>();
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
 
     public static Identifier id(String path) {
@@ -236,10 +235,6 @@ public class PolymerImplUtils {
 
     public static boolean getStateIdsLock(boolean value) {
         return ((PolymerIdList) Block.STATE_IDS).polymer$getReorderLock();
-    }
-
-    public static void invokeRegistered(Registry<Object> ts, Object entry) {
-        ON_REGISTERED.invoke((a) -> a.accept(ts, entry));
     }
 
     public static boolean shouldSkipStateInitialization(Stream<StackWalker.StackFrame> s) {

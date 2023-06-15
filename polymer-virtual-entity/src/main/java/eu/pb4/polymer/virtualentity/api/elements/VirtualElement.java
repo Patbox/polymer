@@ -32,6 +32,9 @@ public interface VirtualElement {
 
     InteractionHandler getInteractionHandler(ServerPlayerEntity player);
 
+    default void setInitialPosition(Vec3d newPos) {
+    }
+
     interface InteractionHandler {
         InteractionHandler EMPTY = new InteractionHandler() {};
         default void interact(ServerPlayerEntity player, Hand hand) {};

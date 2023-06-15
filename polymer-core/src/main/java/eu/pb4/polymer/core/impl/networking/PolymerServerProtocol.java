@@ -335,7 +335,6 @@ public class PolymerServerProtocol {
     }
 
     public static void sendDebugValidateStatesPackets(ServerPlayNetworkHandler handler) {
-        var polymerHandler = PolymerNetworkHandlerExtension.of(handler);
         var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.DEBUG_VALIDATE_STATES);
 
         if (version != -1) {

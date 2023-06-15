@@ -8,6 +8,7 @@
     "EntityMixin",
     "EntityPassengersSetS2CPacketAccessor",
     "EntityPassengersSetS2CPacketMixin",
+    "accessors.EntityTrackerEntryAccessor",
     "EntityTrackerEntryMixin",
     "PlayerInteractEntityC2SPacketAccessor",
     "ServerPlayerEntityMixin",

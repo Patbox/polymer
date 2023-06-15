@@ -26,12 +26,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ConstantConditions")
-public abstract class GenericEntityElement implements VirtualElement {
+public abstract class GenericEntityElement extends AbstractElement {
     protected final DataTrackerLike dataTracker = createDataTracker();
     private final int id = VirtualEntityUtils.requestEntityId();
     private final UUID uuid = UUID.randomUUID();
-    private ElementHolder holder;
-    private Vec3d offset = Vec3d.ZERO;
     private float pitch;
     private float yaw;
     private boolean isRotationDirty;
@@ -83,27 +81,12 @@ public abstract class GenericEntityElement implements VirtualElement {
         return this.id;
     }
 
-    @Override
-    public @Nullable ElementHolder getHolder() {
-        return this.holder;
-    }
 
-    @Override
-    public void setHolder(@Nullable ElementHolder holder) {
-        this.holder = holder;
-    }
-
-    @Override
-    public Vec3d getOffset() {
-        return this.offset;
-    }
-
-    @Override
     public void setOffset(Vec3d offset) {
-        if (this.holder != null) {
-            this.holder.sendPacket(VirtualEntityUtils.createMovePacket(this.id, this.holder.getPos().add(this.offset), this.holder.getPos().add(offset), false, 0f, 0f));
+        super.setOffset(offset);
+        if (this.getHolder() != null) {
+            this.getHolder().sendPacket(VirtualEntityUtils.createMovePacket(this.id, this.getHolder().getPos().add(this.getOffset()), this.getHolder().getPos().add(offset), false, 0f, 0f));
         }
-        this.offset = offset;
     }
 
     protected abstract EntityType<? extends Entity> getEntityType();
@@ -116,7 +99,7 @@ public abstract class GenericEntityElement implements VirtualElement {
     }
 
     protected Packet<ClientPlayPacketListener> createSpawnPacket(ServerPlayerEntity player) {
-        var pos = this.holder.getPos().add(this.offset);
+        var pos = this.getHolder().getPos().add(this.getOffset());
         return new EntitySpawnS2CPacket(this.id, this.uuid, pos.x, pos.y, pos.z, this.pitch, this.yaw, this.getEntityType(), 0, Vec3d.ZERO, this.yaw);
     }
 
@@ -130,7 +113,7 @@ public abstract class GenericEntityElement implements VirtualElement {
 
     @Override
     public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
-        this.holder.sendPacket(VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.offset), newPos.add(this.offset), this.isRotationDirty, this.yaw, this.pitch));
+        this.getHolder().sendPacket(VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.getOffset()), newPos.add(this.getOffset()), this.isRotationDirty, this.yaw, this.pitch));
         this.isRotationDirty = false;
     }
 
@@ -148,7 +131,7 @@ public abstract class GenericEntityElement implements VirtualElement {
         if (this.dataTracker.isDirty()) {
             var dirty = this.dataTracker.getDirtyEntries();
             if (dirty != null) {
-                this.holder.sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
+                this.getHolder().sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
             }
         }
     }
@@ -157,7 +140,7 @@ public abstract class GenericEntityElement implements VirtualElement {
         if (this.isRotationDirty) {
             var i = MathHelper.floor(yaw * 256.0F / 360.0F);
             var j = MathHelper.floor(pitch * 256.0F / 360.0F);
-            this.holder.sendPacket(new EntityS2CPacket.Rotate(id, (byte) i, (byte) j, false));
+            this.getHolder().sendPacket(new EntityS2CPacket.Rotate(id, (byte) i, (byte) j, false));
             this.isRotationDirty = false;
         }
     }

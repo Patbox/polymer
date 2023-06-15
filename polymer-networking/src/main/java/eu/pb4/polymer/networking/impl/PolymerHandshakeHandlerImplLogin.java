@@ -1,11 +1,13 @@
 package eu.pb4.polymer.networking.impl;
 
+import com.ibm.icu.impl.ICUResourceBundle;
 import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
@@ -14,6 +16,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @ApiStatus.Internal
@@ -24,6 +28,7 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
     private String polymerVersion = "";
     private Object2IntMap<Identifier> protocolVersions = null;
     private final Object2LongMap<Identifier> lastUpdate = new Object2LongOpenHashMap<>();
+    private final Map<Identifier, NbtElement> metadata = new HashMap<>();
 
     public PolymerHandshakeHandlerImplLogin(Context context) {
         super(new Identifier("polymer", "early_handshake"), context);
@@ -39,6 +44,11 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
     public void set(String polymerVersion, Object2IntMap<Identifier> protocolVersions) {
         this.polymerVersion = polymerVersion;
         this.protocolVersions = protocolVersions;
+    }
+
+    @Override
+    public void setMetadataValue(Identifier identifier, NbtElement value) {
+        this.metadata.put(identifier, value);
     }
 
     public boolean isPolymer() {
@@ -68,6 +78,7 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
         var polymerHandler = NetworkHandlerExtension.of(handler);
 
         polymerHandler.polymerNet$setVersion(this.getPolymerVersion());
+        polymerHandler.polymerNet$getMetadataMap().putAll(this.metadata);
 
         if (this.protocolVersions != null) {
             for (var entry : this.protocolVersions.object2IntEntrySet()) {
@@ -101,6 +112,13 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
         if (packet.getChannel().equals(ClientPackets.HANDSHAKE)) {
             try {
                 ServerPacketRegistry.handleHandshake(this, data.readVarInt(), data);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            return true;
+        }  if (packet.getChannel().equals(ClientPackets.METADATA)) {
+            try {
+                ServerPacketRegistry.handleMetadata(this, data.readVarInt(), data);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
