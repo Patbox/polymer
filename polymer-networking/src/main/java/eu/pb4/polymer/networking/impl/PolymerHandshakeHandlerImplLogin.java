@@ -1,6 +1,6 @@
 package eu.pb4.polymer.networking.impl;
 
-import com.ibm.icu.impl.ICUResourceBundle;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
@@ -10,18 +10,16 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @ApiStatus.Internal
-public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler implements PolymerHandshakeHandler {
+public final class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler implements PolymerHandshakeHandler {
     public static long MAGIC_INIT_VALUE = 0xbb706c6d72627374L;
     public static int CONTINUE_LOGIN_ID = 1;
 
@@ -30,7 +28,7 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
     private final Object2LongMap<Identifier> lastUpdate = new Object2LongOpenHashMap<>();
     private final Map<Identifier, NbtElement> metadata = new HashMap<>();
 
-    public PolymerHandshakeHandlerImplLogin(Context context) {
+    private PolymerHandshakeHandlerImplLogin(Context context) {
         super(new Identifier("polymer", "early_handshake"), context);
         ((TempPlayerLoginAttachments) this.getPlayer()).polymerNet$setHandshakeHandler(this);
         if (NetImpl.SEND_GAME_JOIN_PACKET) {
@@ -39,6 +37,14 @@ public class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler im
         this.sendKeepAlive(MAGIC_INIT_VALUE);
 
         //PolymerSyncUtils.PREPARE_HANDSHAKE.invoke((c) -> c.accept(this));
+    }
+
+    @Nullable
+    public static EarlyPlayNetworkHandler create(Context context) {
+        if (PolymerCommonUtils.isBedrockPlayer(context.player())) {
+            return null;
+        }
+        return new PolymerHandshakeHandlerImplLogin(context);
     }
 
     public void set(String polymerVersion, Object2IntMap<Identifier> protocolVersions) {

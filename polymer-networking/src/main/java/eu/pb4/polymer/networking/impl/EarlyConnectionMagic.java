@@ -6,6 +6,7 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,28 +20,28 @@ public class EarlyConnectionMagic {
     public static void handle(ServerPlayerEntity player, MinecraftServer server, ClientConnection connection, Consumer<ContextImpl> finish) {
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
-        if (iterator.hasNext()) {
-            var context = new ContextImpl(server, player, connection, new ArrayList<>(), (c) -> {
-
-                if (iterator.hasNext()) {
-                    iterator.next().apply(c);
-                } else {
-                    finish.accept(c);
+        var context = new ContextImpl(server, player, connection, new ArrayList<>(), (c) -> {
+            while (iterator.hasNext()) {
+                var handler = iterator.next().apply(c);
+                if (handler != null) {
+                    return;
                 }
-            });
+            }
 
-            ((TempPlayerLoginAttachments) player).polymerNet$setLatePackets(context.storedPackets);
+            finish.accept(c);
+        });
 
-            iterator.next().apply(context);
-        }
+        ((TempPlayerLoginAttachments) player).polymerNet$setLatePackets(context.storedPackets);
+
+        context.continueRunning.accept(context);
     }
 
-    public static void register(Function<EarlyPlayNetworkHandler.Context, EarlyPlayNetworkHandler> constructor) {
+    public static void register(Function<EarlyPlayNetworkHandler.Context, @Nullable EarlyPlayNetworkHandler> constructor) {
         CONSTRUCTORS.add(constructor);
     }
 
     static {
-        EarlyConnectionMagic.register(PolymerHandshakeHandlerImplLogin::new);
+        EarlyConnectionMagic.register(PolymerHandshakeHandlerImplLogin::create);
     }
 
     public record ContextImpl(

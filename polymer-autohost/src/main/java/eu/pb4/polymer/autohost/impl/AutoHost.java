@@ -52,7 +52,7 @@ public class AutoHost implements ModInitializer {
         CommonImpl.saveConfig("auto-host", config);
 
 
-        EarlyPlayNetworkHandler.register(ResourcePackNetworkHandler::new);
+        EarlyPlayNetworkHandler.register(ResourcePackNetworkHandler::create);
         provider.serverStarted(server);
     }
 

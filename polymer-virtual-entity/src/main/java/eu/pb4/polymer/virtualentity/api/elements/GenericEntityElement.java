@@ -85,7 +85,10 @@ public abstract class GenericEntityElement extends AbstractElement {
     public void setOffset(Vec3d offset) {
         super.setOffset(offset);
         if (this.getHolder() != null) {
-            this.getHolder().sendPacket(VirtualEntityUtils.createMovePacket(this.id, this.getHolder().getPos().add(this.getOffset()), this.getHolder().getPos().add(offset), false, 0f, 0f));
+            var x = VirtualEntityUtils.createMovePacket(this.id, this.getHolder().getPos().add(this.getOffset()), this.getHolder().getPos().add(offset), false, 0f, 0f);
+            if (x != null) {
+                this.getHolder().sendPacket(x);
+            }
         }
     }
 
@@ -113,7 +116,10 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     @Override
     public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
-        this.getHolder().sendPacket(VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.getOffset()), newPos.add(this.getOffset()), this.isRotationDirty, this.yaw, this.pitch));
+        var x = VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.getOffset()), newPos.add(this.getOffset()), this.isRotationDirty, this.yaw, this.pitch);
+        if (x != null) {
+            this.getHolder().sendPacket(x);
+        }
         this.isRotationDirty = false;
     }
 

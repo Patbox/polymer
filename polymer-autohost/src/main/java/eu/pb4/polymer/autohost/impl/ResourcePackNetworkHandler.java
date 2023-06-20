@@ -47,6 +47,13 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         }
     }
 
+    public static ResourcePackNetworkHandler create(Context context) {
+        if (PolymerCommonUtils.isBedrockPlayer(context.player())) {
+            return null;
+        }
+        return new ResourcePackNetworkHandler(context);
+    }
+
     @Override
     public void onTick() {
         if (this.delayed && AutoHost.provider.isReady()) {

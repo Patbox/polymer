@@ -95,9 +95,13 @@ public final class VirtualEntityUtils {
     }
 
     public static EntityPassengersSetS2CPacket createRidePacket(int id, IntList list) {
+        return createRidePacket(id, list.toIntArray());
+    }
+
+    public static EntityPassengersSetS2CPacket createRidePacket(int id, int[] list) {
         var packet = VirtualEntityImplUtils.createUnsafe(EntityPassengersSetS2CPacket.class);
         ((EntityPassengersSetS2CPacketAccessor) packet).setId(id);
-        ((EntityPassengersSetS2CPacketAccessor) packet).setPassengerIds(list.toIntArray());
+        ((EntityPassengersSetS2CPacketAccessor) packet).setPassengerIds(list);
         return packet;
     }
 

@@ -40,7 +40,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     private final EarlyConnectionMagic.ContextImpl context;
     private final Identifier identifier;
 
-    private volatile long lastRespose = 0;
+    private volatile long lastResponse = 0;
 
     private volatile int keepAliveSent = 0;
     private volatile int keepAliveReceived = 0;
@@ -76,9 +76,9 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     @Override
     public final void tick() {
-        if (this.lastRespose++ == 1200) {
+        if (this.lastResponse++ == 1200) {
             this.disconnect(Text.translatable("multiplayer.disconnect.slow_login"));
-        } else if (this.lastRespose == 20) {
+        } else if (this.lastResponse == 20) {
             this.sendKeepAlive();
         }
 
@@ -98,7 +98,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
 
     @Override
     public final void onKeepAlive(KeepAliveC2SPacket packet) {
-        this.lastRespose = -20;
+        this.lastResponse = -20;
         this.keepAliveReceived++;
         if (this.canContinue) {
             this.handleKeepAlive(packet.getId());
@@ -443,7 +443,10 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     }
 
     @ApiStatus.NonExtendable
-    public interface Context {}
+    public interface Context {
+        MinecraftServer server();
+        ServerPlayerEntity player();
+    }
 
     @Override
     public final @Nullable ServerPlayerEntity getPlayerForPacketTweaker() {

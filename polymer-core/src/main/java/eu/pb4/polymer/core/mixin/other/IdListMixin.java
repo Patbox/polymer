@@ -119,6 +119,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
                     }
                 }
             }
+            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
         }
     }
 
@@ -157,7 +158,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
             this.polymer$locked = false;
             this.polymer$lazyList.forEach(this::add);
             this.polymer$lazyList.clear();
-            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.size() - this.polymer$states.size());
+            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
         }
     }
 
