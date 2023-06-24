@@ -26,7 +26,7 @@ public class ServerPackets {
     public static final Identifier SYNC_ITEM_GROUP_CONTENTS_CLEAR= id("sync/item_group/contents/clear");
     public static final Identifier SYNC_BLOCKSTATE= id("sync/blockstate");
     public static final Identifier SYNC_TAGS= id("sync/tags");
-    public static final Identifier SYNC_ITEM_GROUP_APPLY_UPDATE= id("sync/item_group/apply_update");
+    public static final Identifier SYNC_ITEM_GROUP_APPLY_UPDATE = id("sync/item_group/apply_update");
     public static final Identifier SYNC_CLEAR= id("sync/clear_all");
     public static final Identifier WORLD_SET_BLOCK_UPDATE= id("world/set_block");
     public static final Identifier WORLD_CHUNK_SECTION_UPDATE= id("world/section");

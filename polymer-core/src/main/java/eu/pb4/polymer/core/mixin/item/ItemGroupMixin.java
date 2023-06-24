@@ -27,15 +27,10 @@ import java.util.function.Consumer;
 @Mixin(value = ItemGroup.class, priority = 3000)
 public abstract class ItemGroupMixin implements ItemGroupExtra {
     @Shadow private Collection<ItemStack> displayStacks;
-
-
     @Shadow private Set<ItemStack> searchTabStacks;
 
     @Shadow @Nullable private Consumer<List<ItemStack>> searchProviderReloader;
-
-
     @Shadow public abstract void updateEntries(ItemGroup.DisplayContext arg);
-
     @Shadow public abstract void reloadSearchProvider();
 
     @Override

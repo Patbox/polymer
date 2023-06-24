@@ -49,7 +49,6 @@
     "entity.PlayerSpawnS2CPacketAccessor",
     "entity.ServerWorldAccessor",
     "entity.TrackedDataHandlerRegistryBlockStateMixin",
-    "item.AnvilScreenHandlerMixin",
     "item.ItemGroupMixin",
     "item.ItemGroupsMixin",
     "item.ItemStackContentMixin",
