@@ -179,6 +179,13 @@ and a present threat.
 - Modrinth: https://modrinth.com/mod/nox
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/nox-a-mob-and-difficulty-overhaul
 
+## Nox: Renoxed (1.20.1 / latest)
+*Nox: Renoxed* is a continuation of *Nox* for Minecraft 1.20 and beyond.
+
+### Links:
+- GitHub: https://github.com/qxeii/nox-renoxed
+- Modrinth: https://modrinth.com/mod/nox-renoxed
+
 
 ## Packy (1.19.2)
 *Packy* is a mod made for [ModFest: Singularity](https://modrinth.com/modpack/modfest-singularity) that adds backpacks
