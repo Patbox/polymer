@@ -167,7 +167,6 @@ Keep the `doFireTick` gamerule enabled without worrying about random fire destro
 ### Links:
 - GitHub: https://github.com/Oliver-makes-code/MapRender
 - Modrinth: https://modrinth.com/mod/maprender
-- CurseForge:
 
 
 ## Nox (1.19.2)
@@ -284,15 +283,6 @@ for people who need vanilla physics) and adds multiple new minecarts with their 
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/tatercart
 
 
-## Taterzens (1.20.1 / latest)
-*Taterzens* allows you to create custom NPCs that can have custom commands, walk around, and talk (and more is to come).
-
-### Links:
-- GitHub: https://github.com/samolego/Taterzens
-- Modrinth: https://modrinth.com/mod/taterzens
-- CurseForge: https://www.curseforge.com/minecraft/mc-mods/taterzens
-
-
 ## Trinkets (Polymer Port) (1.19.4)
 *Trinkets* is a data-driven accessory mod for Minecraft using Fabric.
 
@@ -321,14 +311,6 @@ It also checks against Common Protection API to make sure players have access to
 - GitHub: https://github.com/Patbox/UniversalShops
 - Modrinth: https://modrinth.com/mod/universal-shops
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/universal-shops
-
-
-## YetAnotherAuthMod (1.19.3)
-*YetAnotherAuthMod* is a Minecraft mod that provides a simple authentication system for Minecraft servers.
-It creates a limbo world where the player can login or register, after which they'll will be sent to the main world.
-
-### Links:
-- GitHub: https://github.com/Skidamek/YetAnotherAuthMod
 
 
 #### Is your mod is missing? Feel free to create an issue or PR it!
