@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 @Environment(EnvType.CLIENT)
 public final class PolymerClientNetworking {
     public static final SimpleEvent<Runnable> AFTER_HANDSHAKE_RECEIVED = new SimpleEvent<>();
+    public static final SimpleEvent<Runnable> AFTER_METADATA_RECEIVED = new SimpleEvent<>();
     public static final SimpleEvent<Runnable> AFTER_DISABLE = new SimpleEvent<>();
     public static final SimpleEvent<Runnable> BEFORE_METADATA_SYNC = new SimpleEvent<>();
 

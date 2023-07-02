@@ -64,7 +64,7 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getLeftText", at = @At("RETURN"))
     private void polymer$debugText(CallbackInfoReturnable<List<String>> cir) {
-        if (InternalClientRegistry.enabled && PolymerImpl.DISPLAY_DEBUG_INFO_CLIENT) {
+        if (InternalClientRegistry.serverHasPolymer && PolymerImpl.DISPLAY_DEBUG_INFO_CLIENT) {
             var list = cir.getReturnValue();
 
             list.add(InternalClientRegistry.debugServerInfo);

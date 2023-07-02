@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.mixin.client.item;
 
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
@@ -12,7 +12,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,9 +24,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("ConstantConditions")
 @Environment(EnvType.CLIENT)
-@Mixin(value = ItemGroup.class, priority = 2000)
-public class ItemGroupMixin implements ClientItemGroupExtension {
+@Mixin(value = ItemGroup.class, priority = 1200)
+public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @Shadow private ItemStack icon;
 
     @Shadow private Collection<ItemStack> displayStacks;
@@ -38,6 +38,9 @@ public class ItemGroupMixin implements ClientItemGroupExtension {
     @Shadow @Final private ItemGroup.Row row;
     @Mutable
     @Shadow @Final private int column;
+
+    @Shadow public abstract void reloadSearchProvider();
+
     @Unique private List<ItemStack> polymer$itemsGroup = new ArrayList<>();
     @Unique private List<ItemStack> polymer$itemsSearch = new ArrayList<>();
     @Unique
@@ -48,8 +51,18 @@ public class ItemGroupMixin implements ClientItemGroupExtension {
         return entry instanceof InternalClientItemGroup ? ItemGroups.getDefaultTab() : entry;
     }
 
-    @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE))
-    private void polymer$injectEntries(ItemGroup.DisplayContext arg, CallbackInfo ci) {
+    @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE), cancellable = true)
+    private void polymer$injectEntriesDynamic(ItemGroup.DisplayContext displayContext, CallbackInfo ci) {
+        if (((Object) this) instanceof InternalClientItemGroup) {
+            this.displayStacks.addAll(this.polymer$itemsGroup);
+            this.searchTabStacks.addAll(this.polymer$itemsSearch);
+            this.reloadSearchProvider();
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V"))
+    private void polymer$injectEntriesVanilla(ItemGroup.DisplayContext arg, CallbackInfo ci) {
         if (this.type == ItemGroup.Type.CATEGORY && ClientUtils.isClientThread()) {
             this.displayStacks.removeIf(PolymerImplUtils::isPolymerControlled);
             this.searchTabStacks.removeIf(PolymerImplUtils::isPolymerControlled);
@@ -61,7 +74,7 @@ public class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Inject(method = "getIcon", at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/function/Supplier;get()Ljava/lang/Object;", shift = At.Shift.AFTER))
     private void polymer$wrapIcon(CallbackInfoReturnable<ItemStack> cir) {
-        if (this.icon != null && this.icon.getItem() instanceof PolymerItem virtualItem) {
+        if (this.icon != null && this.icon.getItem() instanceof PolymerItem virtualItem && !PolymerClientDecoded.checkDecode(this.icon.getItem())) {
             this.icon = virtualItem.getPolymerItemStack(this.icon, PolymerTooltipContext.BASIC, ClientUtils.getPlayer());
         }
     }

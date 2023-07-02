@@ -59,7 +59,7 @@ public class WebServerProvider implements ResourcePackDataProvider {
                 updateHash();
             });
 
-            AutoHost.generateAndCall(minecraftServer, () -> {});
+            AutoHost.generateAndCall(minecraftServer, minecraftServer::sendMessage, () -> {});
         } catch (IOException e) {
             e.printStackTrace();
         }

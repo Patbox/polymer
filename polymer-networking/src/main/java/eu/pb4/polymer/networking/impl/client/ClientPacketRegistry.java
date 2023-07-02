@@ -64,24 +64,30 @@ public class ClientPacketRegistry {
     public static void clear() {
         lastVersion = "";
         CLIENT_PROTOCOL.clear();
-        SERVER_METADATA.clear();
+        synchronized (SERVER_METADATA) {
+            SERVER_METADATA.clear();
+        }
         PolymerClientNetworking.AFTER_DISABLE.invoke(Runnable::run);
     }
 
     public static void handleMetadata(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version > -1) {
-            try {
-                ServerPacketRegistry.decodeMetadata(buf, SERVER_METADATA::put);
-            } catch (Throwable e) {
-                e.printStackTrace();
+            synchronized (SERVER_METADATA) {
+                try {
+                    ServerPacketRegistry.decodeMetadata(buf, SERVER_METADATA::put);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
             }
         }
+        PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoke(Runnable::run);
     }
 
     public static void handleHandshake(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version > -1) {
             lastVersion = buf.readString(64);
             CLIENT_PROTOCOL.clear();
+            SERVER_METADATA.clear();
 
             var size = buf.readVarInt();
 
@@ -102,6 +108,8 @@ public class ClientPacketRegistry {
 
             if (CLIENT_PROTOCOL.getOrDefault(ClientPackets.METADATA, -1) != -1 ) {
                 sendMetadata(handler);
+            } else {
+                PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoke(Runnable::run);
             }
         }
     }

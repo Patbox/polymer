@@ -2,10 +2,13 @@ package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.ClientMetadataKeys;
+import eu.pb4.polymer.core.impl.ServerMetadataKeys;
 import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
+import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -13,6 +16,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SkullItem;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
@@ -31,6 +35,7 @@ public class PolymerServerProtocolHandler {
 
         PolymerServerNetworking.AFTER_HANDSHAKE_APPLY.register((handler, x) -> PolymerServerProtocol.sendSyncPackets(handler, false));
 
+        ServerMetadataKeys.setup();
         ServerPackets.SYNC_ENCHANTMENT.getNamespace();
     }
 

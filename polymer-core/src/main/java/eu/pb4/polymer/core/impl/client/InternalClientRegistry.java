@@ -26,6 +26,7 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -40,6 +41,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
@@ -95,6 +97,7 @@ public class InternalClientRegistry {
     public static boolean hasArmorTextures = false;
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";
+    public static boolean serverHasPolymer;
 
     private static Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMap() {
         var map = new HashMap<Registry<?>, ImplPolymerRegistry<?>>();
@@ -145,13 +148,34 @@ public class InternalClientRegistry {
         }
     }
 
-    public static void setVersion(String version) {
+    public static void setVersion(String version, @Nullable NbtInt protocolVersion) {
         serverVersion = version;
-        enabled = !version.isEmpty();
+        serverHasPolymer = !version.isEmpty();
+        enabled = serverHasPolymer && (protocolVersion == null
+                ? isLegacy120Version(version) : protocolVersion.intValue() == SharedConstants.getProtocolVersion());
+    }
+
+    // Remove for 1.20.2 (if breaking)
+    @Deprecated(forRemoval = true)
+    private static boolean isLegacy120Version(String version) {
+        if (!version.startsWith("0.5.")) {
+            return false;
+        }
+        var a = version.split("-");
+        if (a.length == 0) {
+            return false;
+        }
+        var b = a[0].split("\\.");
+        if (b.length != 3) {
+            return false;
+        }
+
+        version = b[2];
+        return version.equals("0") || version.equals("1") || version.equals("2") || version.equals("3");
     }
 
     public static void disable() {
-        setVersion("");
+        setVersion("", null);
         clear();
         DELAYED_ACTIONS.clear();
         CLIENT_PROTOCOL.clear();
@@ -269,6 +293,12 @@ public class InternalClientRegistry {
     }
 
     public static void tick() {
+        if (!enabled) {
+            debugServerInfo = "[Polymer] C: " + CommonImpl.VERSION + ", S: " + InternalClientRegistry.serverVersion;
+            debugRegistryInfo = "[Polymer] §cMismatched protocol versions!";
+            return;
+        }
+
         final var each = DELAYED_ACTIONS.object2ObjectEntrySet().iterator();
         while (each.hasNext()) {
             if (each.next().getValue().tryDoing()) {

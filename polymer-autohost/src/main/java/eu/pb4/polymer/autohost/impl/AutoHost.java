@@ -16,6 +16,7 @@ import net.minecraft.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static net.minecraft.server.command.CommandManager.literal;
@@ -56,17 +57,17 @@ public class AutoHost implements ModInitializer {
         provider.serverStarted(server);
     }
 
-    public static void generateAndCall(MinecraftServer server, Runnable runnable) {
+    public static void generateAndCall(MinecraftServer server, Consumer<Text> messageConsumer, Runnable runnable) {
         Util.getIoWorkerExecutor().execute(() -> {
-            server.sendMessage(Text.literal("Starting resource pack generation..."));
+            messageConsumer.accept(Text.literal("Starting resource pack generation..."));
             boolean success = PolymerResourcePackUtils.build();
 
             server.execute(() -> {
                 if (success) {
-                    server.sendMessage(Text.literal("Resource pack created successfully!"));
+                    messageConsumer.accept(Text.literal("Resource pack created successfully!"));
                     runnable.run();
                 } else {
-                    server.sendMessage(Text.literal("Found issues while creating resource pack! See logs above for more detail!"));
+                    messageConsumer.accept(Text.literal("Found issues while creating resource pack! See logs above for more detail!"));
                 }
             });
         });
@@ -101,6 +102,12 @@ public class AutoHost implements ModInitializer {
                 if (provider.isReady()) {
                     context.getSource().getPlayerOrThrow().networkHandler.sendPacket(new ResourcePackSendS2CPacket(provider.getAddress(), provider.getHash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
                 }
+                return 0;
+            }));
+            c.then(literal("rebuild_reload_rp").executes(context -> {
+                generateAndCall(context.getSource().getServer(), context.getSource()::sendMessage, () -> {
+                    context.getSource().getPlayer().networkHandler.sendPacket(new ResourcePackSendS2CPacket(provider.getAddress(), provider.getHash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
+                });
                 return 0;
             }));
         });

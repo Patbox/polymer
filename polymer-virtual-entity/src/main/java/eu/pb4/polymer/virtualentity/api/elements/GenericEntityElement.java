@@ -1,6 +1,5 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
-import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.tracker.DataTrackerLike;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
@@ -33,6 +32,7 @@ public abstract class GenericEntityElement extends AbstractElement {
     private float pitch;
     private float yaw;
     private boolean isRotationDirty;
+    private boolean sendPositionUpdates = true;
 
     protected DataTrackerLike createDataTracker() {
         return new SimpleDataTracker(this.getEntityType());
@@ -44,6 +44,18 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     public boolean isRotationDirty() {
         return isRotationDirty;
+    }
+
+    public void ignorePositionUpdates() {
+        setSendPositionUpdates(false);
+    }
+
+    public void setSendPositionUpdates(boolean b) {
+        this.sendPositionUpdates = b;
+    }
+
+    public boolean isSendingPositionUpdates() {
+        return this.sendPositionUpdates;
     }
 
     public void setPitch(float pitch) {
@@ -84,7 +96,7 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     public void setOffset(Vec3d offset) {
         super.setOffset(offset);
-        if (this.getHolder() != null) {
+        if (this.sendPositionUpdates && this.getHolder() != null) {
             var x = VirtualEntityUtils.createMovePacket(this.id, this.getHolder().getPos().add(this.getOffset()), this.getHolder().getPos().add(offset), false, 0f, 0f);
             if (x != null) {
                 this.getHolder().sendPacket(x);
@@ -116,11 +128,13 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     @Override
     public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
-        var x = VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.getOffset()), newPos.add(this.getOffset()), this.isRotationDirty, this.yaw, this.pitch);
-        if (x != null) {
-            this.getHolder().sendPacket(x);
+        if (this.sendPositionUpdates) {
+            var x = VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.getOffset()), newPos.add(this.getOffset()), this.isRotationDirty, this.yaw, this.pitch);
+            if (x != null) {
+                this.getHolder().sendPacket(x);
+            }
+            this.isRotationDirty = false;
         }
-        this.isRotationDirty = false;
     }
 
     @Override

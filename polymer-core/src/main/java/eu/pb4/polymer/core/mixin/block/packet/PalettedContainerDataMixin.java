@@ -2,9 +2,8 @@ package eu.pb4.polymer.core.mixin.block.packet;
 
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.PolymerMetadataKeys;
+import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
-import eu.pb4.polymer.core.impl.networking.ServerPackets;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -33,7 +32,7 @@ public class PalettedContainerDataMixin<T> {
             }
             int bits;
 
-            var playerBitCount = PolymerServerNetworking.getMetadata(player.networkHandler, PolymerMetadataKeys.BLOCKSTATE_BITS, NbtInt.TYPE);
+            var playerBitCount = PolymerServerNetworking.getMetadata(player.networkHandler, ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.TYPE);
             if (playerBitCount == null) {
                 bits = ((PolymerIdList<?>) Block.STATE_IDS).polymer$getVanillaBitCount();
             } else {

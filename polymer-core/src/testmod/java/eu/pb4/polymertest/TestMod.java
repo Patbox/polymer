@@ -17,6 +17,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
@@ -43,6 +44,8 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -457,11 +460,9 @@ public class TestMod implements ModInitializer {
             }
         }
 
-        /*ItemGroupEvents.modifyEntriesEvent(MinecraftItemGroups.FUNCTIONAL_ID).register(entries -> {
-            for (var item : REG_CACHE.get(Registries.ITEM)) {
-                entries.add(((Item) item.getRight()).getDefaultStack());
-            }
-        });*/
+        ItemGroupEvents.modifyEntriesEvent(RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier("op_blocks"))).register(entries -> {
+            entries.addAfter(Items.DEBUG_STICK, TEST_ENTITY_EGG);
+        });
 
         ServerLifecycleEvents.SERVER_STARTED.register((s) -> {
             var creep = new CreeperEntity(EntityType.CREEPER, s.getOverworld());

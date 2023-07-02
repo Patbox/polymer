@@ -46,7 +46,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
-        if (InternalClientRegistry.enabled) {
+        if (InternalClientRegistry.serverHasPolymer) {
             InternalClientRegistry.tick();
         }
     }
