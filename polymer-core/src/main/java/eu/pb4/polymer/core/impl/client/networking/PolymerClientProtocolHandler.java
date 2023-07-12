@@ -114,9 +114,14 @@ public class PolymerClientProtocolHandler {
         PolymerClientNetworking.AFTER_DISABLE.register(InternalClientRegistry::disable);
 
         PolymerClientNetworking.BEFORE_METADATA_SYNC.register(() -> {
+            var lang = MinecraftClient.getInstance().getLanguageManager().getLanguage();
+            if (lang == null) {
+                lang = "en_us";
+            }
+
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.of(MathHelper.ceilLog2(Block.STATE_IDS.size())));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.of(SharedConstants.getProtocolVersion()));
-            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.LANGUAGE, NbtString.of(MinecraftClient.getInstance().getLanguageManager().getLanguage()));
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.LANGUAGE, NbtString.of(lang));
         });
     }
 

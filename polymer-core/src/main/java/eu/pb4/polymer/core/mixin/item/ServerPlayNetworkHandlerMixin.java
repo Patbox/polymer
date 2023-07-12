@@ -50,7 +50,11 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onClientSettings", at = @At("TAIL"))
     private void polymerCore$resendLanguage(ClientSettingsC2SPacket packet, CallbackInfo ci) {
-        if (!this.polymerCore$language.equals(packet.language()) && !CommonImplUtils.isMainPlayer(this.player)) {
+        if (CommonImplUtils.isMainPlayer(this.player)) {
+            return;
+        }
+
+        if (!this.polymerCore$language.equals(packet.language())) {
             Runnable runnable = () -> {
                 PolymerServerProtocol.sendSyncPackets(player.networkHandler, true);
                 this.sendPacket(new SynchronizeTagsS2CPacket(TagPacketSerializer.serializeTags(this.player.getServerWorld().getServer().getCombinedDynamicRegistries())));

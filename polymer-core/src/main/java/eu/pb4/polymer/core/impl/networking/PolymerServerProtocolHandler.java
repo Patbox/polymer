@@ -35,7 +35,7 @@ public class PolymerServerProtocolHandler {
 
         PolymerServerNetworking.AFTER_HANDSHAKE_APPLY.register((handler, x) -> {
             var lang = PolymerServerNetworking.getMetadata(handler, ClientMetadataKeys.LANGUAGE, NbtString.TYPE);
-            PolymerServerProtocol.sendSyncPackets(handler, lang != null && lang.asString().equals("en_us"));
+            PolymerServerProtocol.sendSyncPackets(handler, (lang != null && lang.asString().equals("en_us")) || CommonImplUtils.isMainPlayer(handler.player));
         });
 
         ServerMetadataKeys.setup();
