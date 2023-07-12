@@ -49,7 +49,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final Path outputPath;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
-    private FileSystem clientJar = null;
+    private Path clientPath = null;
 
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
 
@@ -279,12 +279,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     @Nullable
     private InputStream getVanillaStream(String path) {
         try {
-            if (this.clientJar == null) {
+            if (this.clientPath == null) {
                 //noinspection ConstantConditions
-                this.clientJar = FileSystems.newFileSystem(PolymerCommonUtils.getClientJar());
+                this.clientPath = PolymerCommonUtils.getClientJarRoot();
             }
 
-            var entry = this.clientJar.getPath(path);
+            var entry = this.clientPath.resolve(path);
 
             if (Files.exists(entry)) {
                 return Files.newInputStream(entry);
@@ -625,14 +625,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 CommonImpl.LOGGER.error("Something went wrong while creating resource pack!");
                 e.printStackTrace();
                 return false;
-            } finally {
-                if (this.clientJar != null) {
-                    try {
-                        this.clientJar.close();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         });
     }

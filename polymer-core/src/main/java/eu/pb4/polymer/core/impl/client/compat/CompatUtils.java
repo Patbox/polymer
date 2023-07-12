@@ -10,8 +10,11 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemStackSet;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -20,6 +23,39 @@ import java.util.function.Consumer;
 public class CompatUtils {
     public static boolean areSamePolymerType(ItemStack a, ItemStack b) {
         return Objects.equals(getItemId(a), getItemId(b));
+    }
+
+    public static boolean areEqualItems(ItemStack a, ItemStack b) {
+        if (!areSamePolymerType(a, b)) {
+            return false;
+        }
+        var nbtA = getBackingNbt(a);
+        var nbtB = getBackingNbt(b);
+        return Objects.equals(nbtA, nbtB);
+    }
+
+    @Nullable
+    public static NbtCompound getBackingNbt(ItemStack stack) {
+        if (!stack.hasNbt()) {
+            return null;
+        }
+        var nbt = stack.getNbt();
+        if (PolymerItemUtils.getServerIdentifier(stack) == null) {
+            return nbt;
+        }
+
+        var maybeNbt = PolymerItemUtils.getPolymerNbt(stack);
+
+        if (maybeNbt != null) {
+            return maybeNbt;
+        }
+        maybeNbt = nbt.getCompound("PolyMcOriginal");
+
+        return maybeNbt != null && maybeNbt.contains("tag", NbtElement.COMPOUND_TYPE) ? maybeNbt.getCompound("tag") : null;
+    }
+
+    public static boolean isServerSide(ItemStack stack) {
+        return PolymerItemUtils.getServerIdentifier(stack) != null;
     }
 
     private static Identifier getItemId(ItemStack stack) {

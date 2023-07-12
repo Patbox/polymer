@@ -46,7 +46,6 @@ public class ClientPacketRegistry {
                 version = buf.readVarInt();
                 versionRead = true;
 
-
                 packetHandler.onPacket(handler, version, buf);
                 return true;
             } catch (Throwable e) {

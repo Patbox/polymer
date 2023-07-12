@@ -7,6 +7,8 @@ import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.comparison.ComparisonContext;
 import me.shedaniel.rei.plugin.client.entry.ItemEntryDefinition;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 // Yeah I know, but I wanted quick solution without requiring any changes on your side
 
 @Pseudo
+@Environment(EnvType.CLIENT)
 @Mixin(ItemEntryDefinition.class)
 public abstract class rei_ItemEntryDefinitionMixin {
 

@@ -21,9 +21,16 @@ public class ClientUtils {
     }
 
     public static ServerPlayerEntity getPlayer() {
-        return MinecraftClient.getInstance().getServer() != null && MinecraftClient.getInstance().player != null
-                ? MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid())
-                : backupPlayer;
+        if (MinecraftClient.getInstance().getServer() != null) {
+            if (MinecraftClient.getInstance().player != null) {
+                var p = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+                if (p != null) {
+                    return p;
+                }
+            }
+        }
+
+        return backupPlayer;
     }
 
     public static boolean isClientThread() {

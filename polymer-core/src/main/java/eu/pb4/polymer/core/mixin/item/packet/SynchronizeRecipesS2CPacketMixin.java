@@ -13,6 +13,8 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.SynchronizeRecipesS2CPacket;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
@@ -60,27 +63,45 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
         if (ClientUtils.isSingleplayer()) {
-            if (this.polymer$clientRewrittenRecipes == null) {
-                this.polymer$clientRewrittenRecipes = new ArrayList<>();
+            try {
+                if (this.polymer$clientRewrittenRecipes == null) {
+                    var rec = new ArrayList<Recipe<?>>();
 
-                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                    var buf = new PacketByteBuf(Unpooled.buffer(1024 * 40));
+                    var player = ClientUtils.getPlayer();
 
-                for (var recipe : this.recipes) {
-                    buf.clear();
-                    try {
-                        ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).write(buf, recipe);
-                        this.polymer$clientRewrittenRecipes.add(recipe.getSerializer().read(recipe.getId(), buf));
-                    } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
-                        this.polymer$clientRewrittenRecipes.add(recipe);
-                        if (PolymerImpl.LOG_MORE_ERRORS) {
-                            PolymerImpl.LOGGER.error("Couldn't rewrite recipe!", e);
+                    var brokenIds = new HashSet<Identifier>();
+                    for (var recipe : this.recipes) {
+                        if (recipe instanceof PolymerSyncedObject<?> syncedRecipe) {
+                            if (player == null) {
+                                continue;
+                            }
+                            recipe = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
+                            if (recipe == null) {
+                                continue;
+                            }
                         }
-
-                        this.polymer$clientRewrittenRecipes.add(recipe);
+                        buf.clear();
+                        try {
+                            ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).write(buf, recipe);
+                            rec.add(recipe.getSerializer().read(recipe.getId(), buf));
+                        } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
+                            rec.add(recipe);
+                            brokenIds.add(Registries.RECIPE_SERIALIZER.getId(recipe.getSerializer()));
+                            if (PolymerImpl.LOG_MORE_ERRORS) {
+                                PolymerImpl.LOGGER.error("Couldn't rewrite recipe!", e);
+                            }
+                        }
                     }
+                    if (!brokenIds.isEmpty()) {
+                        PolymerImpl.LOGGER.warn("Failed to rewrite recipes of types: {} ", brokenIds);
+                    }
+                    this.polymer$clientRewrittenRecipes = rec;
                 }
+                cir.setReturnValue(this.polymer$clientRewrittenRecipes);
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
-            cir.setReturnValue(this.polymer$clientRewrittenRecipes);
         }
     }
 

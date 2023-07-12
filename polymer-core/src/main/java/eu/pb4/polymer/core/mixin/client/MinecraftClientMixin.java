@@ -5,11 +5,9 @@ import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocol;
-import eu.pb4.polymer.core.impl.client.rendering.PolymerResourceReloader;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.RunArgs;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
@@ -34,15 +32,6 @@ public abstract class MinecraftClientMixin {
     @Shadow
     @Nullable
     public abstract ClientPlayNetworkHandler getNetworkHandler();
-
-    @Shadow @Final private TextureManager textureManager;
-
-    @Shadow @Final private ReloadableResourceManagerImpl resourceManager;
-
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;initFont(Z)V"))
-    private void polymer$registerCustom(RunArgs args, CallbackInfo ci) {
-        this.resourceManager.registerReloader(new PolymerResourceReloader(this.textureManager));
-    }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {

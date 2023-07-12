@@ -6,6 +6,8 @@ import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
 import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -13,6 +15,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -22,6 +25,9 @@ import static net.minecraft.server.command.CommandManager.literal;
 @ApiStatus.Internal
 public class PolymerResourcePackMod implements ModInitializer, ClientModInitializer {
 	public static boolean alreadyGeneration = false;
+    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
+    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
+    public static boolean hasArmorTextures = false;
 
 	@Override
 	public void onInitialize() {

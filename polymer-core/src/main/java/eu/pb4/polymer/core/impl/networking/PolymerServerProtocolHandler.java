@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl.networking;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
@@ -28,12 +29,14 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public class PolymerServerProtocolHandler {
     public static void register() {
-        PolymerServerNetworking.registerPacketHandler(ClientPackets.SYNC_REQUEST, PolymerServerProtocolHandler::handleSyncRequest, 0);
         PolymerServerNetworking.registerPacketHandler(ClientPackets.WORLD_PICK_BLOCK , PolymerServerProtocolHandler::handlePickBlock, 0);
         PolymerServerNetworking.registerPacketHandler(ClientPackets.WORLD_PICK_ENTITY , PolymerServerProtocolHandler::handlePickEntity, 0);
         PolymerServerNetworking.registerPacketHandler(ClientPackets.CHANGE_TOOLTIP , PolymerServerProtocolHandler::handleTooltipChange, 0);
 
-        PolymerServerNetworking.AFTER_HANDSHAKE_APPLY.register((handler, x) -> PolymerServerProtocol.sendSyncPackets(handler, false));
+        PolymerServerNetworking.AFTER_HANDSHAKE_APPLY.register((handler, x) -> {
+            var lang = PolymerServerNetworking.getMetadata(handler, ClientMetadataKeys.LANGUAGE, NbtString.TYPE);
+            PolymerServerProtocol.sendSyncPackets(handler, lang != null && lang.asString().equals("en_us"));
+        });
 
         ServerMetadataKeys.setup();
         ServerPackets.SYNC_ENCHANTMENT.getNamespace();
@@ -48,21 +51,6 @@ public class PolymerServerProtocolHandler {
                 if (PolymerServerNetworking.getLastPacketReceivedTime(handler, ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
                     PolymerSyncUtils.synchronizeCreativeTabs(handler);
                     PolymerUtils.reloadInventory(handler.player);
-                }
-            });
-        }
-    }
-
-    private static void handleSyncRequest(ServerPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        var lastPacketUpdate = PolymerServerNetworking.getLastPacketReceivedTime(handler, ClientPackets.SYNC_REQUEST);
-
-        if (version > -1 && System.currentTimeMillis() - lastPacketUpdate > 1000 * 20) {
-            handler.getPlayer().getServer().execute(() -> {
-                PolymerServerProtocol.sendSyncPackets(handler, true);
-
-                if (handler.getPlayer() != null && ((TempPlayerLoginAttachments) handler.getPlayer()).polymerNet$getWorldReload()) {
-                    ((TempPlayerLoginAttachments) handler.getPlayer()).polymerNet$setWorldReload(false);
-                    PolymerUtils.reloadWorld(handler.getPlayer());
                 }
             });
         }

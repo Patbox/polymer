@@ -28,6 +28,7 @@ import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtInt;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -115,6 +116,7 @@ public class PolymerClientProtocolHandler {
         PolymerClientNetworking.BEFORE_METADATA_SYNC.register(() -> {
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.of(MathHelper.ceilLog2(Block.STATE_IDS.size())));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.of(SharedConstants.getProtocolVersion()));
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.LANGUAGE, NbtString.of(MinecraftClient.getInstance().getLanguageManager().getLanguage()));
         });
     }
 

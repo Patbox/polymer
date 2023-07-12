@@ -62,7 +62,7 @@ public final class CommonImpl {
         CORE_COMMAND_MINIMAL_OP = config.coreCommandOperatorLevel;
         DEVELOPER_MODE = config.enableDevTools || DEV_ENV;
         MINIMAL_ABOUT = config.minimalisticAbout;
-        LOG_MORE_ERRORS = config.logAllExceptions || CommonImpl.DEVELOPER_MODE;
+        LOG_MORE_ERRORS = config.logAllExceptions || DEV_ENV;
         ENABLE_TEMPLATE_ENTITY_WARNINGS = config.enableTemplateEntityWarnings;
         FORCE_RESOURCEPACK_ENABLED_STATE = config.forceResourcePackEnabled;
 

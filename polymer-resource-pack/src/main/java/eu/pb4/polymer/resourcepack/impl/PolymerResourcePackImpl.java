@@ -1,5 +1,6 @@
 package eu.pb4.polymer.resourcepack.impl;
 
+import com.google.gson.annotations.SerializedName;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
 
@@ -7,6 +8,7 @@ public class PolymerResourcePackImpl {
     public static final boolean FORCE_REQUIRE;
     public static final boolean USE_OFFSET;
     public static final int OFFSET_VALUES;
+    public static final boolean USE_ALT_ARMOR_HANDLER;
 
 
     static {
@@ -17,6 +19,8 @@ public class PolymerResourcePackImpl {
         USE_OFFSET = config.forcePackOffset || CompatStatus.POLYMC;
 
         OFFSET_VALUES = config.offsetValue;
+
+        USE_ALT_ARMOR_HANDLER = config.useAlternativeArmorHandler || CompatStatus.REQUIRE_ALT_ARMOR_HANDLER;
     }
 
 
@@ -29,5 +33,8 @@ public class PolymerResourcePackImpl {
 
         public String _c3 = "Value of CustomModelData offset when enabled";
         public int offsetValue = 100000;
+        public String _c4 = "Enables usage of alternative armor rendering for increased mod compatibility";
+        @SerializedName("use_alternative_armor_rendering")
+        public boolean useAlternativeArmorHandler;
     }
 }

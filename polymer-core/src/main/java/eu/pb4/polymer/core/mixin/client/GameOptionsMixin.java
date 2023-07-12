@@ -23,7 +23,7 @@ public class GameOptionsMixin {
 
     @Inject(method = "sendClientSettings", at = @At("TAIL"))
     private void polymer$requestSync(CallbackInfo ci) {
-        if (this.client.player != null && (this.polymer$oldLang != this.language || InternalClientRegistry.syncRequestsPostGameJoin == 0)) {
+        if (this.client.player != null && (!(this.polymer$oldLang == null || this.polymer$oldLang.equals(this.language)) || InternalClientRegistry.syncRequestsPostGameJoin == 0)) {
             this.polymer$oldLang = this.language;
             PolymerClientProtocol.sendSyncRequest(this.client.player.networkHandler);
         }

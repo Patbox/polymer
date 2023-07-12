@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.compat;
 
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.minecraft.item.ItemStack;
@@ -13,7 +14,7 @@ import xyz.nucleoid.server.translations.api.Localization;
 public class ServerTranslationUtils {
     public static final boolean IS_PRESENT;
     public static Text parseFor(ServerPlayNetworkHandler handler, Text text) {
-        if (IS_PRESENT) {
+        if (IS_PRESENT && !CommonImplUtils.isMainPlayer(handler.player)) {
             return Localization.text(text, handler.player);
         } else {
             return text;
@@ -21,7 +22,7 @@ public class ServerTranslationUtils {
     }
 
     public static ItemStack parseFor(ServerPlayNetworkHandler handler, ItemStack stack) {
-        if (IS_PRESENT) {
+        if (IS_PRESENT && !CommonImplUtils.isMainPlayer(handler.player)) {
             return Localization.itemStack(stack, handler.player);
         }
         return stack.copy();

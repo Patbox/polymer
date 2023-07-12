@@ -1,6 +1,7 @@
 package eu.pb4.polymer.networking.mixin;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import eu.pb4.polymer.networking.api.ServerPacketWriter;
 import eu.pb4.polymer.networking.impl.CustomPayloadS2CExt;
@@ -66,6 +67,8 @@ public class CustomPayloadS2CPacketMixin implements CustomPayloadS2CExt {
                 var buf = cir.getReturnValue();
                 buf.writeVarInt(ver);
                 this.polymerNet$writer.write(player.networkHandler, buf, this.channel, ver);
+            } else {
+                CommonImpl.LOGGER.error("Player not found for packet with writer!", new RuntimeException());
             }
         }
     }

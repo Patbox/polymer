@@ -4,6 +4,7 @@ import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -14,6 +15,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -21,18 +23,66 @@ public final class PolymerCommonUtils {
     private PolymerCommonUtils(){}
 
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
-
+    private static Path cachedClientPath;
     private final static String SAFE_CLIENT_SHA1 = "e575a48efda46cf88111ba05b624ef90c520eef1";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
+    private static Path cachedClientJarRoot;
+
+    @Nullable
+    public static Path getClientJarRoot() {
+        if (cachedClientJarRoot != null) {
+            return cachedClientJarRoot;
+        }
+
+        if (CommonImpl.IS_CLIENT) {
+            var container = FabricLoader.getInstance().getModContainer("minecraft").get();
+            for (var x : container.getRootPaths()) {
+                if (Files.exists(x.resolve("assets"))) {
+                    cachedClientJarRoot = x;
+                    return x;
+                }
+            }
+        }
+        var source = getClientJar();
+
+        if (source == null) {
+            return null;
+        }
+
+        try {
+            var fs = FileSystems.newFileSystem(source);
+            for (var x : fs.getRootDirectories()) {
+                if (Files.exists(x.resolve("assets"))) {
+                    cachedClientJarRoot = x;
+                    return x;
+                }
+            }
+            fs.close();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     @Nullable
     public static Path getClientJar() {
+        if (cachedClientPath != null) {
+            return cachedClientPath;
+        }
+
         try {
             if (CommonImpl.IS_CLIENT) {
                 var clientFile = MinecraftServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
                 var clientJarPath = Path.of(clientFile);
-
                 if (Files.exists(clientJarPath)) {
-                    return clientJarPath;
+                    try (var fs = FileSystems.newFileSystem(clientJarPath)) {
+                        if (Files.exists(fs.getPath("/"))) {
+                            cachedClientPath = clientJarPath;
+                            return cachedClientPath;
+                        }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -46,7 +96,7 @@ public final class PolymerCommonUtils {
                 InputStream is = connection.getInputStream();
                 Files.copy(is, clientJarPath);
             }
-
+            cachedClientPath = clientJarPath;
             return clientJarPath;
         } catch (Exception e) {
             CommonImpl.LOGGER.error("Couldn't retrieve client jar!", e);
@@ -66,12 +116,12 @@ public final class PolymerCommonUtils {
         var oldTarget = PacketContext.get().getTarget();
 
         CommonImplUtils.setPlayer(player);
-        PacketContext.setReadContext(player.networkHandler);
+        PacketContext.setContext(player.networkHandler);
 
         runnable.run();
 
         CommonImplUtils.setPlayer(oldPlayer);
-        PacketContext.setReadContext(oldTarget != null ? oldTarget.networkHandler : null);
+        PacketContext.setContext(oldTarget != null ? oldTarget.networkHandler : null);
     }
 
 

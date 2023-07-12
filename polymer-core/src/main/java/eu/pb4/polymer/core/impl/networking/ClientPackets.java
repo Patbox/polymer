@@ -5,6 +5,7 @@ import net.minecraft.util.Identifier;
 import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
 
 public class ClientPackets {
+    @Deprecated
     public static final Identifier SYNC_REQUEST = id("sync/request");
     public static final Identifier WORLD_PICK_BLOCK = id("world/pick_block");
     public static final Identifier WORLD_PICK_ENTITY = id("world/pick_entity");

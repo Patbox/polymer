@@ -67,8 +67,6 @@ import java.util.stream.Collectors;
 public class InternalClientRegistry {
     public static final SimpleEvent<Runnable> TICK = new SimpleEvent<>();
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
-    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
-    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
     public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>() {
         @Override
@@ -94,7 +92,6 @@ public class InternalClientRegistry {
     public static int syncRequests = 0;
     public static int syncRequestsPostGameJoin = 0;
     public static String serverVersion = "";
-    public static boolean hasArmorTextures = false;
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";
     public static boolean serverHasPolymer;

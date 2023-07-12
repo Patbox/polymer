@@ -1,6 +1,7 @@
 package eu.pb4.polymer.resourcepack.mixin;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -24,7 +25,7 @@ public class PolymerResourcePackMixinConfigPlugin implements IMixinConfigPlugin 
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         var name = mixinClassName.substring(PACKAGE_ROOT.length());
 
-        return CommonImpl.shouldApplyMixin("polymer-resource-pack", name);
+        return CommonImpl.shouldApplyMixin("polymer-resource-pack", name, PolymerResourcePackImpl.USE_ALT_ARMOR_HANDLER);
     }
 
     @Override

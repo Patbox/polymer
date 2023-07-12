@@ -1,10 +1,10 @@
-package eu.pb4.polymer.core.impl.client.rendering;
+package eu.pb4.polymer.resourcepack.impl.client.rendering;
 
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.JsonOps;
-import eu.pb4.polymer.core.impl.ArmorTextureMetadata;
+import eu.pb4.polymer.resourcepack.impl.ArmorTextureMetadata;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.ResourceTexture;
 import net.minecraft.client.texture.TextureTickListener;

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.common.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
@@ -111,5 +112,18 @@ public class CommonImplUtils {
 
     public static String shortId(Identifier key) {
         return key.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) ? key.getPath() : key.toString();
+    }
+
+    public static Identifier id(String s) {
+        return new Identifier("polymer", s);
+    }
+
+    public static boolean isMainPlayer(ServerPlayerEntity player) {
+        if (CommonImpl.IS_CLIENT) {
+            if (ClientUtils.isSingleplayer()) {
+                return player == ClientUtils.getPlayer();
+            }
+        }
+        return false;
     }
 }

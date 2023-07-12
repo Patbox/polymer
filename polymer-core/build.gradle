@@ -44,7 +44,7 @@ dependencies {
 
     //modRuntime "supercoder79:databreaker:0.2.7"
 
-    modCompileOnly('com.github.CaffeineMC:lithium-fabric:mc1.19-0.8.0')
+    modCompileOnly('maven.modrinth:lithium:mc1.20.1-0.11.2')
 
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
     modCompileOnly('com.github.TheEpicBlock:PolyMc:5.1.0')

@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl.client.networking;
 
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.networking.ClientPackets;
@@ -20,9 +21,9 @@ import static eu.pb4.polymer.networking.api.PolymerServerNetworking.buf;
 @Environment(EnvType.CLIENT)
 public class PolymerClientProtocol {
 
-
+    @Deprecated
     public static void sendSyncRequest(ClientPlayNetworkHandler handler) {
-        if (InternalClientRegistry.enabled) {
+        if (InternalClientRegistry.enabled && !ClientUtils.isSingleplayer()) {
             InternalClientRegistry.delayAction(ClientPackets.SYNC_REQUEST.toString(), 200, () -> {
                 InternalClientRegistry.syncRequests++;
                 InternalClientRegistry.syncRequestsPostGameJoin++;

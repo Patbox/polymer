@@ -6,6 +6,8 @@ import io.github.theepicblock.polymc.api.item.ItemLocation;
 import io.github.theepicblock.polymc.api.misc.PolyMapProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class PolyMcUtils {
@@ -20,9 +22,17 @@ public class PolyMcUtils {
 
     public static ItemStack toVanilla(ItemStack stack, ServerPlayerEntity player) {
         if (CompatStatus.POLYMC) {
-            return PolyMapProvider.getPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
+            var out = PolyMapProvider.getPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
+            if (!ItemStack.canCombine(stack, out) && !stack.isEmpty()) {
+                out = out.copy();
+                out.setSubNbt("PolyMcOriginal", stack.writeNbt(new NbtCompound()));
+            }
         }
 
         return stack;
+    }
+
+    public static boolean isServerSide(Registry reg, Object obj) {
+        return !reg.getId(obj).getNamespace().equals("minecraft");
     }
 }

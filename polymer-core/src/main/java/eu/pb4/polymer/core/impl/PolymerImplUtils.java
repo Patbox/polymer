@@ -258,7 +258,7 @@ public class PolymerImplUtils {
     }
 
     public static boolean isServerSideSyncableEntry(Registry reg, Object obj) {
-        return PolymerUtils.isServerOnly(obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && !reg.getId(obj).getNamespace().equals("minecraft"));
+        return PolymerUtils.isServerOnly(obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && PolyMcUtils.isServerSide(reg, obj));
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player) {
