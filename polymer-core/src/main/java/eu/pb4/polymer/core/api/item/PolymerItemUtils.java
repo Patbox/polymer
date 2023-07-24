@@ -218,7 +218,7 @@ public final class PolymerItemUtils {
                         return true;
                     }
                 }
-            } else if (itemStack.getItem() instanceof PotionItem) {
+            } else if (itemStack.getItem() instanceof PotionItem || itemStack.getItem() instanceof TippedArrowItem) {
                 if (PotionUtil.getPotion(itemStack) instanceof PolymerObject) {
                     return true;
                 }
@@ -382,7 +382,7 @@ public final class PolymerItemUtils {
                 out.getNbt().put(ItemStack.ENCHANTMENTS_KEY, list);
             }
 
-            if (itemStack.getItem() instanceof PotionItem) {
+            if (itemStack.getItem() instanceof PotionItem || itemStack.getItem() instanceof TippedArrowItem) {
                 out.getOrCreateNbt().putInt("CustomPotionColor", PotionUtil.getColor(itemStack));
             }
 
