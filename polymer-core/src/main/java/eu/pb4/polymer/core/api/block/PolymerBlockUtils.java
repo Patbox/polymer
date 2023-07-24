@@ -2,7 +2,6 @@ package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
 import eu.pb4.polymer.core.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
@@ -18,6 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -45,6 +45,8 @@ public final class PolymerBlockUtils {
      */
     public static final BooleanEvent<BiPredicate<ServerWorld, ChunkSectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
     private static final Set<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+
+    private static boolean requireStrictBlockUpdates = false;
 
     /**
      * Marks BlockEntity type as server-side only
@@ -246,6 +248,15 @@ public final class PolymerBlockUtils {
 
     public static BlockEntityUpdateS2CPacket createBlockEntityPacket(BlockPos pos, BlockEntityType<?> type, NbtCompound nbtCompound) {
         return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos.toImmutable(), type, nbtCompound);
+    }
+
+    @ApiStatus.Experimental
+    public static void requireStrictBlockUpdates() {
+        requireStrictBlockUpdates = true;
+    }
+
+    public static boolean isStrictBlockUpdateRequired() {
+        return requireStrictBlockUpdates;
     }
 
     @FunctionalInterface

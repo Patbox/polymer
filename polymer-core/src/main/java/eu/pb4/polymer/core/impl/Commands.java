@@ -20,6 +20,7 @@ import eu.pb4.polymer.core.impl.ui.PotionUi;
 import eu.pb4.polymer.core.mixin.block.PalettedContainerAccessor;
 import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
@@ -163,7 +164,7 @@ public class Commands {
                             var chunk = ctx.getSource().getWorld().getChunk(ctx.getSource().getPlayer().getBlockPos());
                             var s = chunk.getSection(ctx.getSource().getWorld().getSectionIndex(ctx.getSource().getPlayer().getBlockY()));
 
-                            var a = ((PalettedContainerAccessor) s.getBlockStateContainer()).getData();
+                            var a = ((PalettedContainerAccessor<BlockState>) s.getBlockStateContainer()).getData();
 
                             ctx.getSource().sendFeedback(() -> Text.literal("Chunk: " + chunk.getPos() + " Palette: " + a.palette() + " | " + " Storage: " + a.storage() + " | Bits: " + a.storage().getElementBits()), false);
                             return 0;

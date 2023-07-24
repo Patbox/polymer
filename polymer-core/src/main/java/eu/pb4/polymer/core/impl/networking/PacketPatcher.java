@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
@@ -13,10 +14,7 @@ import eu.pb4.polymer.networking.api.DynamicPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.FeaturesS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.resource.featuretoggle.FeatureManager;

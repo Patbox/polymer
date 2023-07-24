@@ -1,5 +1,7 @@
 package eu.pb4.polymer.core.impl;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ServerConfig {
     public String _c7 = "Displays vanilla/modded creatives tabs in /polymer creative";
     public boolean displayNonPolymerCreativeTabs = true;
@@ -13,4 +15,7 @@ public class ServerConfig {
     public boolean polyMcSyncModdedEntries = true;
     public String _c2 = "Delay from last light updates to syncing it to clients, in ticks";
     public int lightUpdateTickDelay = 1;
+    public String _c3 = "Forcefully enables strict block updates, making client desyncs less likely to happen";
+    @SerializedName("force_strict_block_updates")
+    public boolean forceStrictUpdates = false;
 }

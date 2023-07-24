@@ -50,7 +50,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     private ArrayList<ScheduledPacket> polymer$scheduledPackets = new ArrayList<>();
     @Unique
     private BlockMapper polymer$blockMapper;
-    private List<Runnable> polymer$afterSequence = new ArrayList<>();
+    private final List<Runnable> polymer$afterSequence = new ArrayList<>();
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
@@ -59,8 +59,6 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerNetworkHan
     public abstract ServerPlayerEntity getPlayer();
 
     @Shadow private int sequence;
-
-    @Shadow protected abstract ParseResults<ServerCommandSource> parse(String command);
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void polymer$setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {

@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.impl;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.compat.FabricFluids;
 import eu.pb4.polymer.core.impl.client.compat.ReiCompatibility;
@@ -26,8 +27,11 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 				PolymerUtils.reloadWorld(handler.player);
 			}
 		}));
-	}
 
+		if (PolymerImpl.FORCE_STRICT_UPDATES) {
+			PolymerBlockUtils.requireStrictBlockUpdates();
+		}
+	}
 	@Override
 	public void onInitializeClient() {
 		PolymerClientProtocolHandler.register();

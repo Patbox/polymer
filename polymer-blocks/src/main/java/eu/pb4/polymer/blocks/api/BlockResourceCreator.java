@@ -7,6 +7,7 @@ import eu.pb4.polymer.blocks.impl.DefaultModelData;
 import eu.pb4.polymer.blocks.impl.PolymerBlocksInternal;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.BlockMapper;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
@@ -51,6 +52,7 @@ public final class BlockResourceCreator {
 
     protected void registerEvent() {
         if (!this.registered) {
+            PolymerBlockUtils.requireStrictBlockUpdates();
             creator.creationEvent.register((b) -> {
                 if (b instanceof DefaultRPBuilder defaultRPBuilder) {
                     defaultRPBuilder.buildEvent.register((c) -> this.generateResources(defaultRPBuilder, c));

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class SimpleDataTracker implements DataTrackerLike {
+public class SimpleDataTracker implements DataTrackerLike {
     private final Entry<?>[] entries;
     private boolean dirty;
 
