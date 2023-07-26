@@ -5,8 +5,6 @@ import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.MathHelper;
@@ -60,7 +58,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     @Unique
     private boolean polymer$isPolymerAware;
     @Unique
-    private Function<T, String> polymer$namer;
+    private Function<T, String> polymer$nameCreator;
 
     @Inject(method = "add", at = @At("HEAD"), cancellable = true)
     private void polymer$moveToEnd(T value, CallbackInfo ci) {
@@ -89,7 +87,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
 
             if (this.polymer$hasPolymer && !isPolymerObj && this.polymer$offset <= this.nextId) {
                 if (this.polymer$reorderLock) {
-                    PolymerImpl.LOGGER.warn("Someone registered object while IdList is locked! Related: " + this.polymer$namer.apply(value));
+                    PolymerImpl.LOGGER.warn("Someone registered object while IdList is locked! Related: " + this.polymer$nameCreator.apply(value));
                 } else {
                     if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {
                         var trace = Thread.currentThread().getStackTrace();
@@ -97,7 +95,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
                             PolymerImpl.LOGGER.warn("Rebuilding IdList! Someone accessed it too early...");
                             var builder = new StringBuilder();
                             var line = 0;
-                            for (var stackTrace : Thread.currentThread().getStackTrace()) {
+                            for (var stackTrace : trace) {
                                 if (line > 0) {
                                     builder.append("\t").append(stackTrace.toString()).append("\n");
                                 }
@@ -172,7 +170,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
         this.polymer$checker = polymerChecker;
         this.polymer$checkerList = serverChecker;
         this.polymer$isPolymerAware = polymerChecker != null;
-        this.polymer$namer = namer;
+        this.polymer$nameCreator = namer;
     }
 
     @Override

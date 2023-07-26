@@ -16,7 +16,7 @@
     "polymer-common.mixins.json"
   ],
   "license": "LGPLv3",
-  "icon": "assets/icon.png",
+  "icon": "assets/iconm.png",
   "environment": "*",
   "depends": {
     "minecraft": ">=1.20",
@@ -28,7 +28,15 @@
   "custom": {
     "modmenu": {
       "badges": [ "library" ],
-      "discord": "https://pb4.eu/discord"
+      "discord": "https://pb4.eu/discord",
+      "parent": {
+        "id": "polymer-bundled",
+        "name": "Polymer",
+        "description": "Set of libraries for creation of better server driven content!",
+        "icon": "assets/icon.png",
+        "badges": [ "library" ]
+      },
+      "update_checker": false
     }
   }
 }

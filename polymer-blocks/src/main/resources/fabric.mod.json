@@ -30,7 +30,9 @@
     "modmenu": {
       "badges": [
         "library"
-      ]
+      ],
+      "parent": "polymer-bundled",
+      "update-checker": false
     }
   }
 }

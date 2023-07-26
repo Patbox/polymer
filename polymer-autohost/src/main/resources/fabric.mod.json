@@ -27,5 +27,11 @@
   },
   "mixins": [
     "polymer-autohost.mixins.json"
-  ]
+  ],
+  "custom": {
+    "modmenu": {
+      "parent": "polymer-bundled",
+      "update_checker": false
+    }
+  }
 }

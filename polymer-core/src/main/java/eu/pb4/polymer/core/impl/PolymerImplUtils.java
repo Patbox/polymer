@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.impl;
 
-import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
@@ -28,7 +27,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Property;
-import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,8 +34,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -249,6 +245,12 @@ public class PolymerImplUtils {
         return trace.length <= 4 || !trace[4].getClassName().startsWith("org.quiltmc.qsl.registry.impl.sync");
     }
 
+    public static boolean removeFromItemGroup(ItemStack stack) {
+        if (stack == null) {
+            return true;
+        }
+        return isPolymerControlled(stack);
+    }
     public static boolean isPolymerControlled(ItemStack stack) {
         return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null || PolymerUtils.isServerOnly(stack);
     }

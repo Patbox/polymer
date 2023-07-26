@@ -14,7 +14,7 @@
   },
 
   "license": "MIT",
-  "icon": "assets/icon.png",
+  "icon": "assets/iconm.png",
   "environment": "*",
   "mixins": [
     "polymer-rsm.mixins.json"
@@ -25,7 +25,15 @@
   "custom": {
     "modmenu": {
       "badges": [ "library" ],
-      "discord": "https://pb4.eu/discord"
+      "discord": "https://pb4.eu/discord",
+      "parent": {
+        "id": "polymer-bundled",
+        "name": "Polymer",
+        "description": "Set of libraries for creation of better server driven content!",
+        "icon": "assets/icon.png",
+        "badges": [ "library" ]
+      },
+      "update_checker": false
     }
   }
 }

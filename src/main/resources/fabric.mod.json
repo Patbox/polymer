@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "polymer-bundled",
   "version": "${version}",
-  "name": "Polymer (Bundled)",
+  "name": "Polymer",
   "description": "Set of libraries for creation of better server driven content!",
   "authors": [
     "Patbox"

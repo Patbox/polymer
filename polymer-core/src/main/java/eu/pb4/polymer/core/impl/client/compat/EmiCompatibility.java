@@ -5,8 +5,6 @@ import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.EmiStack;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.Version;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;

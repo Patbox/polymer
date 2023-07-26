@@ -195,7 +195,7 @@ public final class PolymerBlockUtils {
     public static Block getBlockSafely(PolymerBlock block, BlockState state, int maxDistance, @Nullable ServerPlayerEntity player) {
         int req = 0;
         Block out = player != null
-                ? block.getPolymerBlock(state)
+                ? block.getPolymerBlock(state, player)
                 : block.getPolymerBlock(state);
 
         while (out instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
