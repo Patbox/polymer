@@ -1,20 +1,29 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
+import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.mixin.LivingEntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityTrackerEntryAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class EntityElement<T extends Entity> extends AbstractElement {
@@ -100,5 +109,29 @@ public class EntityElement<T extends Entity> extends AbstractElement {
     @Override
     public void tick() {
         this.entry.tick();
+        if (this.entity instanceof LivingEntity livingEntity) {
+            this.sendEquipmentChanges(livingEntity);
+        }
+    }
+
+    private void sendEquipmentChanges(LivingEntity livingEntity) {
+        var ac = ((LivingEntityAccessor) livingEntity);
+        var equipmentChanges = ac.callGetEquipmentChanges();
+        if (equipmentChanges != null && !equipmentChanges.isEmpty()) {
+            List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(equipmentChanges.size());
+            equipmentChanges.forEach((slot, stack) -> {
+                ItemStack itemStack = stack.copy();
+                list.add(Pair.of(slot, itemStack));
+                switch (slot.getType()) {
+                    case HAND:
+                        ac.callSetSyncedHandStack(slot, itemStack);
+                        break;
+                    case ARMOR:
+                       ac.callSetSyncedArmorStack(slot, itemStack);
+                }
+            });
+
+            this.sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));
+        }
     }
 }

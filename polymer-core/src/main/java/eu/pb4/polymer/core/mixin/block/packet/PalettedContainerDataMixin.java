@@ -16,19 +16,22 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(targets = "net/minecraft/world/chunk/PalettedContainer$Data")
 public class PalettedContainerDataMixin<T> {
     @Shadow @Final private Palette<T> palette;
 
-    @Redirect(method = "writePacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/PaletteStorage;getData()[J"))
-    private long[] polymer$replaceData(PaletteStorage instance) {
-        if (this.palette instanceof IdListPalette<T>  && this.palette.get(0) instanceof BlockState) {
+    @Shadow @Final private PaletteStorage storage;
+
+    @ModifyArg(method = "writePacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeLongArray([J)Lnet/minecraft/network/PacketByteBuf;"), require = 0)
+    private long[] polymer$replaceData(long[] initialReturn) {
+        if (this.palette instanceof IdListPalette<T> && this.palette.get(0) instanceof BlockState) {
             var palette = (IdListPalette<BlockState>) this.palette;
             var player = PolymerUtils.getPlayerContext();
             if (player == null) {
-                return instance.getData();
+                return initialReturn;
             }
             int bits;
 
@@ -38,7 +41,7 @@ public class PalettedContainerDataMixin<T> {
             } else {
                 bits = playerBitCount.intValue();
             }
-
+            final var instance = new PackedIntegerArray(this.storage.getElementBits(), this.storage.getSize(), initialReturn);
             final int size = instance.getSize();
             var data = new PackedIntegerArray(bits, size);
 
@@ -49,6 +52,6 @@ public class PalettedContainerDataMixin<T> {
             return data.getData();
         }
 
-        return instance.getData();
+        return initialReturn;
     }
 }

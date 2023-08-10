@@ -19,7 +19,6 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.*;
 import net.minecraft.item.trim.ArmorTrim;
-import net.minecraft.item.trim.ArmorTrimMaterial;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -87,7 +86,7 @@ public final class PolymerItemUtils {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {
             return item.getPolymerItemStack(itemStack, tooltipContext, player);
-        } else if (shouldPolymerConvert(itemStack, player)) {
+        } else if (isPolymerServerItem(itemStack, player)) {
             return createItemStack(itemStack, tooltipContext, player);
         }
 
@@ -180,10 +179,10 @@ public final class PolymerItemUtils {
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack) {
-        return shouldPolymerConvert(itemStack, null);
+        return isPolymerServerItem(itemStack, PolymerUtils.getPlayerContext());
     }
 
-    private static boolean shouldPolymerConvert(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public static boolean isPolymerServerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;
         }
@@ -232,7 +231,7 @@ public final class PolymerItemUtils {
 
             if (itemStack.getNbt().contains("ChargedProjectiles", NbtElement.LIST_TYPE)) {
                 for (var itemNbt : itemStack.getNbt().getList("ChargedProjectiles", NbtElement.COMPOUND_TYPE)) {
-                    if (shouldPolymerConvert(ItemStack.fromNbt((NbtCompound) itemNbt), player)) {
+                    if (isPolymerServerItem(ItemStack.fromNbt((NbtCompound) itemNbt), player)) {
                         return true;
                     }
                 }
@@ -240,7 +239,7 @@ public final class PolymerItemUtils {
 
             if (itemStack.getNbt().contains("Items", NbtElement.LIST_TYPE)) {
                 for (var itemNbt : itemStack.getNbt().getList("Items", NbtElement.COMPOUND_TYPE)) {
-                    if (shouldPolymerConvert(ItemStack.fromNbt((NbtCompound) itemNbt), player)) {
+                    if (isPolymerServerItem(ItemStack.fromNbt((NbtCompound) itemNbt), player)) {
                         return true;
                     }
                 }

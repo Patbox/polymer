@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CommandManager.class)
 public abstract class CommandManagerMixin {
-    @Inject(method = "argument", at = @At("TAIL"), cancellable = true)
+    @Inject(method = "argument", at = @At("TAIL"))
     private static void polymer$handleSuggestions(String name, ArgumentType<?> type, CallbackInfoReturnable<RequiredArgumentBuilder<ServerCommandSource, ?>> cir) {
         if (type instanceof ItemStackArgumentType || type instanceof BlockStateArgumentType || type instanceof RegistryEntryArgumentType<?>) {
             cir.getReturnValue().suggests(type::listSuggestions);

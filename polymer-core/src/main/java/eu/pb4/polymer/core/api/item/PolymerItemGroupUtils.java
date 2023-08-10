@@ -17,17 +17,20 @@ import net.minecraft.util.Identifier;
 
 import java.util.*;
 
+
 /**
  * An server side item group that can be synchronized with polymer clients
  * It also has it's own server side functionality
  */
 public final class PolymerItemGroupUtils {
     public static final PolymerRegistry<ItemGroup> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
-    private PolymerItemGroupUtils() {}
     /**
      * Even called on synchronization of ItemGroups
      */
     public static final SimpleEvent<ItemGroupEventListener> LIST_EVENT = new SimpleEvent<>();
+
+    private PolymerItemGroupUtils() {
+    }
 
     public static Contents getContentsFor(ServerPlayerEntity player, ItemGroup group) {
         return getContentsFor(group, player.getServer().getRegistryManager(), player.getServerWorld().getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
@@ -51,14 +54,22 @@ public final class PolymerItemGroupUtils {
         var list = new LinkedHashSet<ItemGroup>();
 
         for (var g : ItemGroups.getGroups()) {
-            if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
-                list.add(g);
+            try {
+                if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
+                    list.add(g);
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
         }
 
         for (var g : InternalServerRegistry.ITEM_GROUPS) {
-            if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
-                list.add(g);
+            try {
+                if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
+                    list.add(g);
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
         }
 
@@ -106,8 +117,10 @@ public final class PolymerItemGroupUtils {
 
     public interface ItemGroupListBuilder {
         void add(ItemGroup group);
+
         void remove(ItemGroup group);
     }
 
-    public record Contents(Collection<ItemStack> main, Collection<ItemStack> search) {}
+    public record Contents(Collection<ItemStack> main, Collection<ItemStack> search) {
+    }
 }

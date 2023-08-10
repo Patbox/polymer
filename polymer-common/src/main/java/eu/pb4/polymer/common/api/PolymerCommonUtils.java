@@ -18,6 +18,8 @@ import java.net.URLConnection;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public final class PolymerCommonUtils {
     private PolymerCommonUtils(){}
@@ -134,17 +136,27 @@ public final class PolymerCommonUtils {
      */
     @Nullable
     public static ServerPlayerEntity getPlayerContext() {
+        ServerPlayerEntity player = getPlayerContextNoClient();
+        if (player == null && CommonImpl.IS_CLIENT) {
+            player = ClientUtils.getPlayer();
+        }
+
+        return player;
+    }
+
+    @Nullable
+    public static ServerPlayerEntity getPlayerContextNoClient() {
         ServerPlayerEntity player = PacketContext.get().getTarget();
 
         if (player == null) {
             player = CommonImplUtils.getPlayer();
-
-            if (player == null && CommonImpl.IS_CLIENT) {
-                player = ClientUtils.getPlayer();
-            }
         }
 
         return player;
+    }
+
+    public static boolean isNetworkingThread() {
+       return Thread.currentThread().getName().startsWith("Netty");
     }
 
     public static boolean isBedrockPlayer(ServerPlayerEntity player) {

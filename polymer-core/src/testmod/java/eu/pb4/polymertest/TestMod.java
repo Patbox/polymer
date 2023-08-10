@@ -492,6 +492,11 @@ public class TestMod implements ModInitializer {
             }).start();
         });
 
+
+        var local = new ThreadLocal<Boolean>();
+        local.set(Boolean.TRUE);
+        long localTime = System.currentTimeMillis();
+
         if (PolymerImpl.IS_CLIENT) {
             InternalClientRegistry.decodeState(-1);
         }

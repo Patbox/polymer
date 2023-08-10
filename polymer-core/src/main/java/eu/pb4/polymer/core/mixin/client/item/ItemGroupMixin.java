@@ -41,8 +41,8 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Shadow public abstract void reloadSearchProvider();
 
-    @Unique private List<ItemStack> polymer$itemsGroup = new ArrayList<>();
-    @Unique private List<ItemStack> polymer$itemsSearch = new ArrayList<>();
+    @Unique private final List<ItemStack> polymer$itemsGroup = new ArrayList<>();
+    @Unique private final List<ItemStack> polymer$itemsSearch = new ArrayList<>();
     @Unique
     private int polymerCore$page;
 

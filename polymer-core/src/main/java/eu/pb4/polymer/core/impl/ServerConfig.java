@@ -18,4 +18,7 @@ public class ServerConfig {
     public String _c3 = "Forcefully enables strict block updates, making client desyncs less likely to happen";
     @SerializedName("force_strict_block_updates")
     public boolean forceStrictUpdates = false;
+    public String _c4 = "Enables experimental passing of ItemStack context through nbt, allowing for better mod compat";
+    @SerializedName("item_stack_nbt_hack")
+    public boolean itemStackNbtHack = true;
 }

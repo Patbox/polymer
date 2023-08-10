@@ -55,6 +55,8 @@
     "item.ItemStackContentMixin",
     "item.ItemStackMixin",
     "item.MiningToolItemAccessor",
+    "item.NbtCompoundFallbackMixin",
+    "item.NbtCompoundMixin",
     "item.ServerPlayNetworkHandlerMixin",
     "item.StonecutterScreenHandlerMixin",
     "item.packet.PacketByteBufMixin",
