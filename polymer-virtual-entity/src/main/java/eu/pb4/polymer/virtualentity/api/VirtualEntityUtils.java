@@ -44,7 +44,7 @@ public final class VirtualEntityUtils {
     }
 
     public static void removeVirtualPassenger(Entity entity, int passengerId) {
-        ((EntityExt) entity).polymerVE$getVirtualRidden().removeInt(passengerId);
+        ((EntityExt) entity).polymerVE$getVirtualRidden().rem(passengerId);
         ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
     }
 

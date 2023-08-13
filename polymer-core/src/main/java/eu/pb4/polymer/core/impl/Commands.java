@@ -413,7 +413,7 @@ public class Commands {
 
     private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player);
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player).copy();
         stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
         stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
 

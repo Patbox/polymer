@@ -22,8 +22,15 @@ public abstract class emi_ItemEmiStackMixin {
 
     @Shadow @Final private ItemStack stack;
 
+    /*@Inject(method = "getKey", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
+    private void polymer$getKey(CallbackInfoReturnable<Object> cir) {
+        if (CompatUtils.isServerSide(this.stack)) {
+            cir.setReturnValue(CompatUtils.getKey(this.stack));
+        }
+    }*/
+
     @Inject(method = "getNbt", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
-    private void polymer$areEqual(CallbackInfoReturnable<NbtCompound> cir) {
+    private void polymer$getNbt(CallbackInfoReturnable<NbtCompound> cir) {
         if (CompatUtils.isServerSide(this.stack)) {
             cir.setReturnValue(CompatUtils.getBackingNbt(this.stack));
         }

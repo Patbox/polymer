@@ -5,7 +5,6 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.ItemStackAwareNbtCompound;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -26,33 +25,35 @@ import java.io.DataOutput;
 @Mixin(NbtCompound.class)
 public class NbtCompoundMixin implements ItemStackAwareNbtCompound {
     @Unique
-    private ItemStack polymerCore$stack;
+    private boolean polymerCore$stack;
 
     @Override
-    public void polymerCore$setItemStack(ItemStack stack) {
-        this.polymerCore$stack = stack;
+    public void polymerCore$setItemStack(boolean value) {
+        this.polymerCore$stack = value;
     }
 
 
     @Inject(method = "write(Ljava/io/DataOutput;)V", at = @At("HEAD"))
     private void polymerCore$storePlayerContextedItemStack(DataOutput output, CallbackInfo ci, @Share("polymerCore:stack") LocalRef<ItemStack> polymerStack) {
-        if (this.polymerCore$stack != null && PolymerCommonUtils.isNetworkingThread()) {
+        if (this.polymerCore$stack && PolymerCommonUtils.isNetworkingThread()) {
             var player = PolymerCommonUtils.getPlayerContextNoClient();
-            if (player != null) {
-                polymerStack.set(PolymerItemUtils.getPolymerItemStack(this.polymerCore$stack, player));
+            var stack = ItemStack.fromNbt((NbtCompound) (Object) this);
+            if (player != null && stack != null && !stack.isEmpty()) {
+                polymerStack.set(PolymerItemUtils.getPolymerItemStack(stack, player));
             }
         }
     }
 
     @ModifyArg(method = "write(Ljava/io/DataOutput;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/NbtCompound;write(Ljava/lang/String;Lnet/minecraft/nbt/NbtElement;Ljava/io/DataOutput;)V"))
     private NbtElement polymerCore$swapNbt(NbtElement nbtElement, @Local(ordinal = 0) String key, @Share("polymerCore:stack") LocalRef<ItemStack> polymerStack) {
-        if (PolymerImpl.ITEMSTACK_NBT_HACK && this.polymerCore$stack != null && PolymerCommonUtils.isNetworkingThread()) {
-            if (key.equals("id") && nbtElement.getType() == NbtElement.STRING_TYPE) {
-                var stack = polymerStack.get();
-                return stack != null ? NbtString.of(Registries.ITEM.getId(stack.getItem()).toString()) : nbtElement;
-            } else if (key.equals("tag") && nbtElement.getType() == NbtElement.COMPOUND_TYPE) {
-                var stack = polymerStack.get();
-                return stack != null ? stack.getOrCreateNbt() : nbtElement;
+        if (this.polymerCore$stack && PolymerCommonUtils.isNetworkingThread()) {
+            var stack = polymerStack.get();
+            if (stack != null) {
+                if (key.equals("id") && nbtElement.getType() == NbtElement.STRING_TYPE) {
+                    return NbtString.of(Registries.ITEM.getId(stack.getItem()).toString());
+                } else if (key.equals("tag") && nbtElement.getType() == NbtElement.COMPOUND_TYPE) {
+                    return stack.getOrCreateNbt();
+                }
             }
         }
 

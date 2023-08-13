@@ -99,7 +99,7 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
         }
     }
 
-    @Inject(method = "setBlockState", at = @At(value = "FIELD", target = "Lnet/minecraft/world/chunk/WorldChunk;needsSaving:Z"), locals = LocalCapture.CAPTURE_FAILSOFT)
+    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;hasBlockEntity()Z", ordinal = 1), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymerVE$addNew(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir,
                                      int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
 

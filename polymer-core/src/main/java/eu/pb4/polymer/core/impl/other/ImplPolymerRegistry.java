@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.other;
 
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
+import eu.pb4.polymer.core.impl.PolymerImpl;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -29,7 +30,8 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     private final String shortName;
 
     private int currentId = 0;
-    private Map<T, Set<Identifier>> entryTags = new Object2ObjectOpenHashMap<>();
+    private final Map<T, Set<Identifier>> entryTags = new Object2ObjectOpenHashMap<>();
+    private WeakHashMap<Identifier, Key> keys = new WeakHashMap<>();
 
     public ImplPolymerRegistry(String name, String shortName) {
         this(name, shortName, null, null);
@@ -60,7 +62,14 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
 
     @Override
     public T get(int id) {
-        return this.rawIdMap.get(id);
+        try {
+            return this.rawIdMap.get(id);
+        } catch (Throwable e) {
+            if (PolymerImpl.LOG_INVALID_SERVER_IDS_CLIENT) {
+                e.printStackTrace();
+            }
+            return this.defaultValue;
+        }
     }
 
 
@@ -183,5 +192,19 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
                 remove(x);
             }
         }
+    }
+
+    public Key getKey(Identifier id) {
+        var key = this.getId(this.get(id));
+
+        if (key == null) {
+            return Key.EMPTY;
+        }
+
+        return this.keys.computeIfAbsent(id, Key::new);
+    }
+
+    public record Key(Identifier identifier) {
+        public static final Key EMPTY = new Key(new Identifier("polymer:empty"));
     }
 }

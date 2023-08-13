@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 @Mixin(ItemGroups.class)
 public class ItemGroupsMixin {
     @Environment(EnvType.SERVER)
-    @Inject(method = "stream", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "stream", at = @At("RETURN"), cancellable = true, require = 0)
     private static void polymerCore$injectServerItemGroups(CallbackInfoReturnable<Stream<ItemGroup>> cir) {
         if (PolymerItemGroupUtils.REGISTRY.size() > 0) {
             cir.setReturnValue(Stream.concat(cir.getReturnValue(), PolymerItemGroupUtils.REGISTRY.stream()));
@@ -28,7 +28,7 @@ public class ItemGroupsMixin {
     }
 
     @Environment(EnvType.SERVER)
-    @Inject(method = "method_51316", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup$Entries;addAll(Ljava/util/Collection;)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT)
+    @Inject(method = "method_51316", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup$Entries;addAll(Ljava/util/Collection;)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT, require = 0)
     private static void polymerCore$injectServerSearch(Registry<ItemGroup> registry, ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries, CallbackInfo ci, Set<ItemStack> set) {
         for (var group : PolymerItemGroupUtils.REGISTRY) {
             set.addAll(group.getSearchTabStacks());

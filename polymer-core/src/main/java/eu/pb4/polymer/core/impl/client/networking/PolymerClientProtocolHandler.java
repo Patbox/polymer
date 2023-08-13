@@ -93,11 +93,11 @@ public class PolymerClientProtocolHandler {
         registerGenericHandler(ServerPackets.SYNC_FLUID, InternalClientRegistry.FLUID, Registries.FLUID);
 
         registerPacketHandler(ServerPackets.SYNC_TAGS, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerTagEntry::read, PolymerClientProtocolHandler::registerTag));
-        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_DEFINE, (handler, version, buf) -> handleItemGroupDefine(handler, version, buf));
-        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD, (handler, version, buf) -> handleItemGroupContentsAdd(handler, version, buf));
-        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, (handler, version, buf) -> handleItemGroupContentsClear(handler, version, buf));
-        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_REMOVE, (handler, version, buf) -> handleItemGroupRemove(handler, version, buf));
-        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, (handler, version, buf) -> handleItemGroupApplyUpdates(handler, version, buf));
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_DEFINE, PolymerClientProtocolHandler::handleItemGroupDefine);
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD, PolymerClientProtocolHandler::handleItemGroupContentsAdd);
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, PolymerClientProtocolHandler::handleItemGroupContentsClear);
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_REMOVE, PolymerClientProtocolHandler::handleItemGroupRemove);
+        registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerClientProtocolHandler::handleItemGroupApplyUpdates);
         registerPacketHandler(ServerPackets.SYNC_CLEAR, (handler, version, buf) -> {
             MinecraftClient.getInstance().execute(InternalClientRegistry::clear);
         });
@@ -389,11 +389,13 @@ public class PolymerClientProtocolHandler {
             }
         }
 
-        MinecraftClient.getInstance().execute(() -> {
+        try {
             for (var entry : list) {
                 entryConsumer.accept(entry);
             }
-        });
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     interface EntryReader<T> {

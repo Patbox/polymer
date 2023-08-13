@@ -15,13 +15,12 @@ import eu.pb4.polymer.core.impl.interfaces.IndexedNetwork;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.EventRunners;
+import eu.pb4.polymer.core.impl.other.FixedIdList;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.mixin.client.CreativeInventoryScreenAccessor;
-import eu.pb4.polymer.core.mixin.other.IdListAccessor;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -68,12 +67,7 @@ public class InternalClientRegistry {
     public static final SimpleEvent<Runnable> TICK = new SimpleEvent<>();
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
-    public static final IdList<ClientPolymerBlock.State> BLOCK_STATES = new IdList<>() {
-        @Override
-        public int size() {
-            return ((IdListAccessor) (Object) this).getList().size();
-        }
-    };
+    public static final FixedIdList<ClientPolymerBlock.State> BLOCK_STATES = new FixedIdList<>();
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>("item", "I");
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPES = new ImplPolymerRegistry<>("entity_type", "E");
     public static final ImplPolymerRegistry<ClientPolymerEntry<VillagerProfession>> VILLAGER_PROFESSIONS = new ImplPolymerRegistry<>("villager_profession", "VP");
@@ -296,12 +290,7 @@ public class InternalClientRegistry {
             return;
         }
 
-        final var each = DELAYED_ACTIONS.object2ObjectEntrySet().iterator();
-        while (each.hasNext()) {
-            if (each.next().getValue().tryDoing()) {
-                each.remove();
-            }
-        }
+        DELAYED_ACTIONS.object2ObjectEntrySet().removeIf(stringDelayedActionEntry -> stringDelayedActionEntry.getValue().tryDoing());
 
         debugServerInfo = "[Polymer] C: " + CommonImpl.VERSION + ", S: " + InternalClientRegistry.serverVersion;
 
@@ -314,7 +303,7 @@ public class InternalClientRegistry {
             regInfo.append(", ");
         }
 
-        regInfo.append("BS: " + InternalClientRegistry.BLOCK_STATES.size());
+        regInfo.append("BS: " + InternalClientRegistry.BLOCK_STATES.mapSize());
 
         debugRegistryInfo = regInfo.toString();
 
@@ -335,11 +324,19 @@ public class InternalClientRegistry {
         clearTabs(i -> true);
         for (var group : Registries.ITEM_GROUP) {
             if (group.getType() == ItemGroup.Type.CATEGORY) {
-                ((ClientItemGroupExtension) group).polymer$clearStacks();
+                try {
+                    ((ClientItemGroupExtension) group).polymer$clearStacks();
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
             }
         }
-        if (ItemGroupsAccessor.getDisplayContext() != null) {
-            ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
+        try {
+            if (ItemGroupsAccessor.getDisplayContext() != null) {
+                ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }

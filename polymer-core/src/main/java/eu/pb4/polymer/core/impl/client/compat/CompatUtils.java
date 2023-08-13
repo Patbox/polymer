@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
@@ -12,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemStackSet;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +58,19 @@ public class CompatUtils {
 
     public static boolean isServerSide(ItemStack stack) {
         return PolymerItemUtils.getServerIdentifier(stack) != null;
+    }
+
+    public static Object getKey(ItemStack stack) {
+        var id = PolymerItemUtils.getServerIdentifier(stack);
+        if (id == null) {
+            return stack.getItem();
+        }
+
+        if (InternalClientRegistry.ITEMS.contains(id)) {
+            return InternalClientRegistry.ITEMS.getKey(id);
+        }
+
+        return Registries.ITEM.get(id);
     }
 
     private static Identifier getItemId(ItemStack stack) {
@@ -116,5 +131,7 @@ public class CompatUtils {
         }
         return null;
     }
+
+    public record Key(Identifier identifier) {}
 }
 

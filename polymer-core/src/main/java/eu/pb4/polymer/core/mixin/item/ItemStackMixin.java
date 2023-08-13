@@ -31,7 +31,7 @@ public class ItemStackMixin {
             var self = (ItemStack) (Object) this;
             var player = PolymerUtils.getPlayerContext();
             if (PolymerItemUtils.isPolymerServerItem(self, player)) {
-                ((ItemStackAwareNbtCompound) nbt).polymerCore$setItemStack(self.copy());
+                ((ItemStackAwareNbtCompound) nbt).polymerCore$setItemStack(true);
             }
         }
     }
