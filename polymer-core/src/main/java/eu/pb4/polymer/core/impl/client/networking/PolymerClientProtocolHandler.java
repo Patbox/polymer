@@ -99,7 +99,7 @@ public class PolymerClientProtocolHandler {
         registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_REMOVE, PolymerClientProtocolHandler::handleItemGroupRemove);
         registerPacketHandler(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerClientProtocolHandler::handleItemGroupApplyUpdates);
         registerPacketHandler(ServerPackets.SYNC_CLEAR, (handler, version, buf) -> {
-            MinecraftClient.getInstance().execute(InternalClientRegistry::clear);
+            InternalClientRegistry.clear();
         });
         registerPacketHandler(ServerPackets.DEBUG_VALIDATE_STATES, (handler, version, buf) -> handleGenericSync(handler, version, buf, DebugBlockStateEntry::read, PolymerClientProtocolHandler::handleDebugValidateStates));
 

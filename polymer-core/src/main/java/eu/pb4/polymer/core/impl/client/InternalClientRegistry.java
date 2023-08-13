@@ -321,23 +321,27 @@ public class InternalClientRegistry {
         ((PolymerIdList) BLOCK_STATES).polymer$clear();
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
 
-        clearTabs(i -> true);
-        for (var group : Registries.ITEM_GROUP) {
-            if (group.getType() == ItemGroup.Type.CATEGORY) {
-                try {
-                    ((ClientItemGroupExtension) group).polymer$clearStacks();
-                } catch (Throwable e) {
-                    e.printStackTrace();
+
+        MinecraftClient.getInstance().execute(() -> {
+            clearTabs(i -> true);
+
+            for (var group : Registries.ITEM_GROUP) {
+                if (group.getType() == ItemGroup.Type.CATEGORY) {
+                    try {
+                        ((ClientItemGroupExtension) group).polymer$clearStacks();
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        }
-        try {
-            if (ItemGroupsAccessor.getDisplayContext() != null) {
-                ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
+            try {
+                if (ItemGroupsAccessor.getDisplayContext() != null) {
+                    ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+        });
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
     }
 
