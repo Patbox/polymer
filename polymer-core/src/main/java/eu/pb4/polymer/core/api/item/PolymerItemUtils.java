@@ -160,9 +160,9 @@ public final class PolymerItemUtils {
 
     @Nullable
     private static Identifier getIdentifierFrom(NbtCompound compound, String nbtKey) {
-        String id = compound.getString(nbtKey);
-        if (id != null && !id.isEmpty()) {
-            return Identifier.tryParse(id);
+        var id = compound.get(nbtKey);
+        if (id instanceof NbtString string) {
+            return Identifier.tryParse(string.asString());
         }
         return null;
     }

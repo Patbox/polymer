@@ -28,6 +28,7 @@ public final class PolymerItemGroupUtils {
      * Even called on synchronization of ItemGroups
      */
     public static final SimpleEvent<ItemGroupEventListener> LIST_EVENT = new SimpleEvent<>();
+    private static final Map<ItemGroupKey, Contents> CONTENT_CACHE = new HashMap<>();
 
     private PolymerItemGroupUtils() {
     }
@@ -37,14 +38,20 @@ public final class PolymerItemGroupUtils {
     }
 
     public static Contents getContentsFor(ItemGroup group, RegistryWrapper.WrapperLookup lookup, FeatureSet featureSet, boolean operator) {
-        try {
-            return ((ItemGroupExtra) group).polymer$getContentsWith(featureSet, operator, lookup);
-        } catch (Throwable t) {
-            // Some 1.20 mods use client classes in their item groups because vanilla doesn't call them on the server anymore
-            // Catch instead of letting the game crash, even though it's their fault...
-            PolymerImpl.LOGGER.warn("Failed to load contents for an ItemGroup", t);
-            return new Contents(List.of(), List.of());
+        var key = new ItemGroupKey(getId(group), operator);
+        var value = CONTENT_CACHE.get(key);
+        if (value == null) {
+            try {
+                 value = ((ItemGroupExtra) group).polymer$getContentsWith(featureSet, operator, lookup);
+            } catch (Throwable t) {
+                // Some 1.20 mods use client classes in their item groups because vanilla doesn't call them on the server anymore
+                // Catch instead of letting the game crash, even though it's their fault...
+                PolymerImpl.LOGGER.warn("Failed to load contents for an ItemGroup", t);
+                value = new Contents(List.of(), List.of());
+            }
+            CONTENT_CACHE.put(key, value);
         }
+        return value;
     }
 
     /**
@@ -110,6 +117,10 @@ public final class PolymerItemGroupUtils {
         return x;
     }
 
+    public static void invalidateItemGroupCache() {
+        CONTENT_CACHE.clear();
+    }
+
     @FunctionalInterface
     public interface ItemGroupEventListener {
         void onItemGroupGet(ServerPlayerEntity player, ItemGroupListBuilder builder);
@@ -123,4 +134,6 @@ public final class PolymerItemGroupUtils {
 
     public record Contents(Collection<ItemStack> main, Collection<ItemStack> search) {
     }
+
+    private record ItemGroupKey(Identifier identifier, boolean operator) {}
 }

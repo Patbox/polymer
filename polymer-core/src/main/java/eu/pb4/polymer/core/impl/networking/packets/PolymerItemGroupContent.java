@@ -17,21 +17,27 @@ import java.util.List;
 
 public record PolymerItemGroupContent(Identifier identifier, List<ItemStack> stacksMain, List<ItemStack> stacksSearch) implements ServerPacketWriter {
     public static PolymerItemGroupContent of(ItemGroup group, ServerPlayNetworkHandler handler) {
-        var stacksMain = new ArrayList<ItemStack>();
-        var stacksSearch = new ArrayList<ItemStack>();
+        List<ItemStack> stacksMain;
+        List<ItemStack> stacksSearch;
 
-        var anyContent = PolymerItemGroupUtils.isPolymerItemGroup(group);
         var contents = PolymerItemGroupUtils.getContentsFor(handler.player, group);
 
-        for (var item : contents.main()) {
-            if (anyContent || PolymerItemUtils.isPolymerServerItem(item) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
-                stacksMain.add(item);
+        if (PolymerItemGroupUtils.isPolymerItemGroup(group)) {
+            stacksMain = List.copyOf(contents.main());
+            stacksSearch = List.copyOf(contents.search());
+        } else {
+            stacksMain = new ArrayList<>();
+            stacksSearch = new ArrayList<>();
+            for (var item : contents.main()) {
+                if (PolymerItemUtils.isPolymerServerItem(item, handler.player) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                    stacksMain.add(item);
+                }
             }
-        }
 
-        for (var item : contents.search()) {
-            if (anyContent || PolymerItemUtils.isPolymerServerItem(item) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
-                stacksSearch.add(item);
+            for (var item : contents.search()) {
+                if (PolymerItemUtils.isPolymerServerItem(item, handler.player) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                    stacksSearch.add(item);
+                }
             }
         }
 

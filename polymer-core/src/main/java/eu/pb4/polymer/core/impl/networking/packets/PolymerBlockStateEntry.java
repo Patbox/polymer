@@ -9,10 +9,13 @@ import net.minecraft.state.property.Property;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 @ApiStatus.Internal
 public record PolymerBlockStateEntry(Map<String, String> states, int numId, int blockId) implements BufferWritable {
+    public static final IdentityHashMap<BlockState, PolymerBlockStateEntry> CACHE = new IdentityHashMap<>();
+
     public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeVarInt(numId);
         buf.writeVarInt(blockId);
@@ -20,13 +23,18 @@ public record PolymerBlockStateEntry(Map<String, String> states, int numId, int 
     }
 
     public static PolymerBlockStateEntry of(BlockState state, ServerPlayNetworkHandler player, int version) {
-        var list = new HashMap<String, String>();
+        var value = CACHE.get(state);
+        if (value == null) {
+            var list = new HashMap<String, String>();
 
-        for (var entry : state.getEntries().entrySet()) {
-            list.put(entry.getKey().getName(), ((Property) (Object) entry.getKey()).name(entry.getValue()));
+            for (var entry : state.getEntries().entrySet()) {
+                list.put(entry.getKey().getName(), ((Property) (Object) entry.getKey()).name(entry.getValue()));
+            }
+            value = new PolymerBlockStateEntry(list, Block.STATE_IDS.getRawId(state), Registries.BLOCK.getRawId(state.getBlock()));
+            CACHE.put(state, value);
         }
 
-        return new PolymerBlockStateEntry(list, Block.STATE_IDS.getRawId(state), Registries.BLOCK.getRawId(state.getBlock()));
+        return value;
     }
 
     public static PolymerBlockStateEntry read(PacketByteBuf buf, int version) {
