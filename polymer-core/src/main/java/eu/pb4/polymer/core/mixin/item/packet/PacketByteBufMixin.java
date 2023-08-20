@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.item.packet;
 
-import eu.pb4.polymer.common.impl.client.ClientUtils;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
@@ -38,9 +39,9 @@ public abstract class PacketByteBufMixin {
     }
 
     @Environment(EnvType.SERVER)
-    @Inject(method = "readItemStack", at = @At("RETURN"), cancellable = true)
-    private void polymer$decodeItemStackServer(CallbackInfoReturnable<ItemStack> cir) {
-        cir.setReturnValue(PolymerItemUtils.getRealItemStack(cir.getReturnValue()));
+    @ModifyReturnValue(method = "readItemStack", at = @At(value = "RETURN", ordinal = 1))
+    private ItemStack polymerCore$decodeItemStackServer(ItemStack stack) {
+        return (PolymerItemUtils.getRealItemStack(stack));
     }
 
     @Environment(EnvType.CLIENT)
@@ -50,9 +51,8 @@ public abstract class PacketByteBufMixin {
     }
 
     @Environment(EnvType.CLIENT)
-    @Inject(method = "readItemStack", at = @At("TAIL"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    private void polymer$decodeItemStackClient(CallbackInfoReturnable<ItemStack> cir, Item decodedItem, int i, ItemStack itemStack) {
-        ItemStack stack = cir.getReturnValue();
+    @ModifyReturnValue(method = "readItemStack", at = @At(value = "RETURN", ordinal = 1))
+    private ItemStack polymerCore$decodeItemStackClient(ItemStack stack) {
         var currentIndex = this.readerIndex();
         this.readerIndex(this.polymer$readerIndex);
         var rawId = this.readVarInt();
@@ -62,15 +62,12 @@ public abstract class PacketByteBufMixin {
             var item = InternalClientRegistry.ITEMS.get(rawId);
 
             if (item != null) {
-                var count = stack.getCount();
-
-                stack = item.visualStack().copy();
-                stack.setCount(count);
-
-                cir.setReturnValue(stack);
+                return item.visualStack().copyWithCount(stack.getCount());
             }
-        } else if (PolymerUtils.isOnPlayerNetworking() && !ClientUtils.isClientThread()) {
-            cir.setReturnValue(PolymerItemUtils.getRealItemStack(stack));
+        } else if (PolymerCommonUtils.isNetworkingThread()) {
+            return PolymerItemUtils.getRealItemStack(stack);
         }
+
+        return stack;
     }
 }

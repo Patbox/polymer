@@ -26,6 +26,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public final class PolymerBlockUtils {
+    private static final NbtCompound STATIC_COMPOUND = new NbtCompound();
+
     private PolymerBlockUtils() {
     }
 
@@ -246,8 +248,8 @@ public final class PolymerBlockUtils {
         return getBlockSafely(block, state, NESTED_DEFAULT_DISTANCE);
     }
 
-    public static BlockEntityUpdateS2CPacket createBlockEntityPacket(BlockPos pos, BlockEntityType<?> type, NbtCompound nbtCompound) {
-        return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos.toImmutable(), type, nbtCompound);
+    public static BlockEntityUpdateS2CPacket createBlockEntityPacket(BlockPos pos, BlockEntityType<?> type, @Nullable NbtCompound nbtCompound) {
+        return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos.toImmutable(), type, nbtCompound != null ? nbtCompound : STATIC_COMPOUND);
     }
 
     @ApiStatus.Experimental
