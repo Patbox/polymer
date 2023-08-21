@@ -64,7 +64,7 @@ public abstract class PacketByteBufMixin {
             if (item != null) {
                 return item.visualStack().copyWithCount(stack.getCount());
             }
-        } else if (PolymerCommonUtils.isNetworkingThread()) {
+        } else if (PolymerCommonUtils.isNetworkingThread() && PolymerUtils.isSingleplayer()) {
             return PolymerItemUtils.getRealItemStack(stack);
         }
 
