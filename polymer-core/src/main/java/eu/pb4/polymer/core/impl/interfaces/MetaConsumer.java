@@ -14,7 +14,6 @@ public interface MetaConsumer<T, E> extends Consumer<T> {
     E getAttached();
 
     static MetaConsumer<Packet<?>, Collection<EntityTrackingListener>> sendToOtherPlayers(ThreadedAnvilChunkStorage.EntityTracker entityTracker, Set<EntityTrackingListener> listeners, Entity entity) {
-
         if (entity instanceof PolymerEntity polymerEntity) {
             return new MetaConsumer<>() {
                 private final Consumer<Packet<?>> consumer = entityTracker::sendToOtherNearbyPlayers;

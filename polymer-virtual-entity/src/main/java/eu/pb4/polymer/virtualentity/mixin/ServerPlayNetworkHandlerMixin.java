@@ -55,7 +55,7 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
 
     @ModifyVariable(method = "onPlayerInteractEntity", at = @At(value = "STORE", ordinal = 0))
     private Entity polymerVE$onInteract(Entity entity, PlayerInteractEntityC2SPacket packet) {
-        if (entity == null) {
+        if (entity == null && !this.polymerVE$holders.isEmpty()) {
             var id = ((PlayerInteractEntityC2SPacketAccessor) packet).getEntityId();
             for (var x : this.polymerVE$holders) {
                 if (x.isPartOf(id)) {

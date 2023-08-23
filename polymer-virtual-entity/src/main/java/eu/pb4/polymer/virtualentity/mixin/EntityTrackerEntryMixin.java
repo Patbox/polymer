@@ -3,6 +3,7 @@ package eu.pb4.polymer.virtualentity.mixin;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
+import eu.pb4.polymer.virtualentity.impl.HolderHolder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet;
@@ -30,8 +31,11 @@ public class EntityTrackerEntryMixin {
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymerVE$startTracking(ServerPlayerEntity player, CallbackInfo ci) {
-        for (var x : ((HolderAttachmentHolder) this.entity).polymerVE$getHolders()) {
-            x.startWatching(player);
+        var a = ((HolderAttachmentHolder) this.entity).polymerVE$getHolders();
+        if (!a.isEmpty()) {
+            for (var x : a) {
+                x.startWatching(player);
+            }
         }
 
         if (!((EntityExt) this.entity).polymerVE$getVirtualRidden().isEmpty()) {
@@ -41,8 +45,12 @@ public class EntityTrackerEntryMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void polymerVE$tick(CallbackInfo ci) {
-        for (var x : new ArrayList<>(((HolderAttachmentHolder) this.entity).polymerVE$getHolders())) {
-            x.tick();
+        var a = ((HolderAttachmentHolder) this.entity).polymerVE$getHolders();
+        if (!a.isEmpty()) {
+            var arr = a.toArray(HolderHolder.HOLDER_ATTACHMENTS);
+            for (int i = 0; i < arr.length; i++) {
+                arr[i].tick();
+            }
         }
 
         if (((EntityExt) this.entity).polymerVE$getAndClearVirtualRiddenDirty() && this.entity.getPassengerList().equals(this.lastPassengers)) {

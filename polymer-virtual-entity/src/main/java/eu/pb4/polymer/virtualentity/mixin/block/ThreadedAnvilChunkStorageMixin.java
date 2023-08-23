@@ -32,9 +32,14 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     @Inject(method = "handlePlayerAddedOrRemoved", at = @At("TAIL"))
     private void polymerVE$clearHolograms(ServerPlayerEntity player, boolean added, CallbackInfo ci) {
         if (!added) {
-            for (var holder : new ArrayList<>(((HolderHolder) player.networkHandler).polymer$getHolders())) {
-                if (holder.getAttachment() != null) {
-                    holder.getAttachment().updateTracking(player.networkHandler);
+            var holders = ((HolderHolder) player.networkHandler).polymer$getHolders();
+            if (!holders.isEmpty()) {
+                var arr = holders.toArray(HolderHolder.ELEMENT_HOLDERS);
+                for (int i = 0; i < arr.length; i++) {
+                    var holder = arr[i];
+                    if (holder.getAttachment() != null) {
+                        holder.getAttachment().updateTracking(player.networkHandler);
+                    }
                 }
             }
         }
@@ -43,7 +48,16 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     @Inject(method = "method_18843", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;setLoadedToWorld(Z)V", shift = At.Shift.AFTER))
     private void onChunkUnload(ChunkHolder chunkHolder, CompletableFuture completableFuture, long l, Chunk chunk, CallbackInfo ci) {
         if (chunk instanceof HolderAttachmentHolder x) {
-            new ArrayList<>(x.polymerVE$getHolders()).forEach(HolderAttachment::destroy);
+            var holders = x.polymerVE$getHolders();
+            if (!holders.isEmpty()) {
+                var arr = holders.toArray(HolderHolder.HOLDER_ATTACHMENTS);
+                for (int i = 0; i < arr.length; i++) {
+                    var holder = arr[i];
+                    if (holder != null) {
+                        holder.destroy();
+                    }
+                }
+            }
         }
     }
 }
