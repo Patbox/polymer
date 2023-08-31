@@ -1,8 +1,9 @@
 # Mods using Polymer
-A list of server-side Fabric/Quilt mods using Polymer, ordered alphabetically.
+A list of server-side Fabric/Quilt mods using Polymer, ordered alphabetically.  
+*Some mods work best with Polymer's auto-generated resource pack: `/polymer generate-packs`*
 
 
-## Advanced Golems (1.19.4)
+## Advanced Golems (1.20.1 / latest)
 *Advanced Golems* adds a small golem that helps the player defend an area from hostile mobs.
 
 ### Links:
@@ -18,6 +19,14 @@ into itself from any connected hopper chain.
 - GitHub: https://github.com/pcal43/amazing-chest
 - Modrinth: https://modrinth.com/mod/amazing-chest
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/amazing-chest
+
+
+## Biome Compass (1.19.2)
+*Biome Compass* adds a compass that works like [Nature's Compass](https://www.curseforge.com/minecraft/mc-mods/natures-compass), but is completely server-side!
+
+### Links:
+- GitHub: https://github.com/MayaqqDev/biome-compass
+- Modrinth: https://modrinth.com/mod/biome-compass
 
 
 ## Brewery (1.20.1 / latest)
@@ -40,6 +49,15 @@ modified in a way to allow nearly all functionality of the regular version to wo
 ### Links:
 - GitHub: https://github.com/PolymerPorts/cc-restitched
 - Modrinth: https://modrinth.com/mod/cc-polymer
+
+
+## DCDServBack (1.19)
+*DCDServBack,* or *Decrafted Server Backpacks,* is a fork of [Server Backpacks](https://modrinth.com/mod/servback) for 1.19,
+introducing support for some new features while adding new content. 
+
+### Links:
+- GitHub: https://github.com/DecraftedMC/DCDServback
+- Modrinth: https://modrinth.com/mod/dcdservback
 
 
 ## Eldritch Mobs (1.19.2)
@@ -69,6 +87,14 @@ Hoppers and droppers do interact with the table.
 ### Links:
 - GitHub: https://github.com/PolymerPorts/FabricWaystones
 - Modrinth: https://modrinth.com/mod/polymer-ports-waystones
+
+
+## Fishing 101 (1.20.1 / latest)
+*Fishing 101* adds 23 new aquatic life forms to the game (items, not entities).
+
+### Links:
+- GitHub: https://github.com/Macck209/Fishing101
+- Modrinth: https://modrinth.com/mod/fishing-101
 
 
 ## FlashFreeze (1.19)
@@ -130,7 +156,7 @@ of the Illagers before it's too late?
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/interdimensional
 
 
-## Jump Vader (1.19.2)
+## Jump Vader (1.20.1 / latest)
 *Jump Vader* is a mod that lets you place "Jump Vader" blocks similar to the OpenBlocks mod's elevators.
 You simply place one above the other at any vertical distance, and jump/sneak on top of the block
 to go between the different heights.
@@ -140,7 +166,16 @@ to go between the different heights.
 - Modrinth: https://modrinth.com/mod/jumpvader
 
 
-## LifeSteal (1.19.2)
+## Labyrinth (1.20.1 / latest)
+*Labyrinth* adds new weapons and a new custom crafting (forging) system!
+
+### Links:
+- GitHub: https://github.com/MayaqqDev/labyrinth/
+- Modrinth: https://modrinth.com/mod/labyrinth
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/labyrinth
+
+
+## LifeSteal (1.20.1 / latest)
 *LifeSteal* is an implementation of [LifeSteal SMP](https://store.lifestealsmp.com).
 > We are a semi-vanilla Minecraft server with an additional feature where you can steal hearts from other players.
 > When you kill another player, you receive their heart while they lose a heart.
@@ -178,12 +213,22 @@ and a present threat.
 - Modrinth: https://modrinth.com/mod/nox
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/nox-a-mob-and-difficulty-overhaul
 
+
 ## Nox: Renoxed (1.20.1 / latest)
 *Nox: Renoxed* is a continuation of *Nox* for Minecraft 1.20 and beyond.
 
 ### Links:
 - GitHub: https://github.com/qxeii/nox-renoxed
 - Modrinth: https://modrinth.com/mod/nox-renoxed
+
+
+## Physics Toys (1.19.4)
+*Physics Toys* adds a few items that allow you to move and destroy things with the power of "realistic" physics!
+You can also kill things with it!
+
+### Links:
+- GitHub: https://github.com/Patbox/PhysicsToys
+- Modrinth: https://modrinth.com/mod/physics-toys
 
 
 ## Packy (1.19.2)
@@ -203,7 +248,7 @@ that lets players access their ender chest from anywhere.
 - Modrinth: https://modrinth.com/mod/polysit
 
 
-## Power Networks (1.19.4)
+## Power Networks (1.20.1 / latest)
 *Power Networks* adds coils and wires that the player can use to build energy transfer networks.
 (does not include any energy producers or consumers)
 
@@ -227,6 +272,15 @@ that lets players access their ender chest from anywhere.
 ### Links:
 - GitHub: https://github.com/Oliver-makes-code/server-backpacks
 - Modrinth: https://modrinth.com/mod/servback
+
+
+## Server Side Tetris (1.17.1)
+*Server Side Tetris* adds *Tetris* to the game, fully rendered using particles.
+Just craft some old console, and you'll be on your way!
+
+### Links:
+- GitHub: https://github.com/TheEpicBlock/server-side-tetris/
+- Modrinth: https://modrinth.com/mod/serversidetetris
 
 
 ## ServerMobs (1.19.2)
@@ -258,7 +312,7 @@ and various blocks to speed up breeding and curing.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/simplevillagers
 
 
-## Spice of Fabric (1.19.3)
+## Spice of Fabric (1.20.1 / latest)
 With *Spice of Fabric,* as you eat food, the nutrition value of the different kinds of food will decrease,
 so you're forced to have a diverse diet.
 By default, the last 20 meals are considered when calculating the nutrition values and the drop in the nutrition
@@ -283,12 +337,26 @@ for people who need vanilla physics) and adds multiple new minecarts with their 
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/tatercart
 
 
-## Trinkets (Polymer Port) (1.19.4)
+## Trinkets (Polymer Port) (1.20 / latest)
 *Trinkets* is a data-driven accessory mod for Minecraft using Fabric.
 
 ### Links:
 - GitHub: https://github.com/PolymerPorts/trinkets
 - Modrinth: https://modrinth.com/mod/trinkets-polymer
+
+
+## URLium (1.20.1 / latest)
+*URLium* transmits redstone and blockstate data over HTTP(S) to a configurable URL.
+Get data from the URLium Block, a Post Wand on any block, or Config Wand to turn
+Chests, Lecterns, and Signs into HTTP-reporting blocks!
+*URLium only transmits outbound requests and logs the HTTP response data to the server log.*
+*URLium does not allow incoming commands or controls.*
+*Any in-bound control of the server is performed by existing native RCON connections, not any feature of URLium.*
+
+### Links:
+- Github: https://github.com/JacobMunoz/urlium_1_20_1_public
+- Modirnth: https://modrinth.com/mod/urlium
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/urlium
 
 
 ## Universal Graves (1.20.1 / latest)
@@ -313,4 +381,4 @@ It also checks against Common Protection API to make sure players have access to
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/universal-shops
 
 
-#### Is your mod is missing? Feel free to create an issue or PR it!
+#### Is your mod missing? Feel free to create an issue or PR it!
