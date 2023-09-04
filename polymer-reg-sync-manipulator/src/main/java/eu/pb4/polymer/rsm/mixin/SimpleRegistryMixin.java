@@ -21,7 +21,8 @@ import java.util.Set;
 
 @Mixin(value = SimpleRegistry.class)
 public abstract class SimpleRegistryMixin<T> implements RegistrySyncExtension<T>, MutableRegistry<T> {
-    private Object2BooleanMap<T> polymer_registry_sync$entryStatus = new Object2BooleanOpenHashMap<>();
+    @Unique
+    private final Object2BooleanMap<T> polymer_registry_sync$entryStatus = new Object2BooleanOpenHashMap<>();
 
     @Shadow public abstract Set<Identifier> getIds();
 

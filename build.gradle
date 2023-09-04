@@ -75,6 +75,8 @@ allprojects {
         mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
         modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
         modLocalRuntime "net.fabricmc:fabric-loader:${project.loader_version}"
+
+        annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")
     }
 
     loom {

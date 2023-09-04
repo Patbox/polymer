@@ -4,6 +4,7 @@ import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -17,10 +18,10 @@ import java.util.function.Function;
 public class EarlyConnectionMagic {
     private static final List<Function<EarlyPlayNetworkHandler.Context, EarlyPlayNetworkHandler>> CONSTRUCTORS = new ArrayList<>();
 
-    public static void handle(ServerPlayerEntity player, MinecraftServer server, ClientConnection connection, Consumer<ContextImpl> finish) {
+    public static void handle(ServerPlayerEntity player, ServerLoginNetworkHandler loginHandler, MinecraftServer server, ClientConnection connection, Consumer<ContextImpl> finish) {
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
-        var context = new ContextImpl(server, player, connection, new ArrayList<>(), (c) -> {
+        var context = new ContextImpl(server, player, connection, loginHandler, new ArrayList<>(), (c) -> {
             while (iterator.hasNext()) {
                 var handler = iterator.next().apply(c);
                 if (handler != null) {
@@ -48,7 +49,9 @@ public class EarlyConnectionMagic {
             MinecraftServer server,
             ServerPlayerEntity player,
             ClientConnection connection,
+            ServerLoginNetworkHandler loginHandler,
             List<CustomPayloadC2SPacket> storedPackets,
             Consumer<ContextImpl> continueRunning
-    ) implements EarlyPlayNetworkHandler.Context {}
+    ) implements EarlyPlayNetworkHandler.Context {
+    }
 }

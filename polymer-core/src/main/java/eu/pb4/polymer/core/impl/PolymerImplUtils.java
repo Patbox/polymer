@@ -268,6 +268,6 @@ public class PolymerImplUtils {
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipContext context) {
-        return ServerTranslationUtils.parseFor(player.networkHandler,  PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, player), player));
+        return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, player), player));
     }
 }

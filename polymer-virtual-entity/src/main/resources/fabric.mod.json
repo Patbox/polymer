@@ -17,6 +17,7 @@
   "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
+    "main": ["eu.pb4.polymer.virtualentity.impl.VirtualEntityMod"]
   },
   "accessWidener": "polymer-virtual-entity.accesswidener",
   "mixins": [

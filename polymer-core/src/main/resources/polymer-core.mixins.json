@@ -26,6 +26,7 @@
     "block.packet.WorldEventS2CPacketMixin",
     "block.storage.ChunkSectionMixin",
     "block.storage.WorldChunkMixin",
+    "client.compat.emi_EmiScreenManager",
     "command.ArgumentNodeMixin",
     "command.CommandManagerMixin",
     "compat.lithium_BlockPaletteMixin",

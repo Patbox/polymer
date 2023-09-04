@@ -58,6 +58,13 @@ public final class CommonImpl {
     static {
         new CompatStatus();
 
+        if (CompatStatus.FORGE_CONNECTOR) {
+            LOGGER.warn("==================================================================================");
+            LOGGER.warn("Polymer (" + VERSION + ") support for Connector/Forge is highly experimental!");
+            LOGGER.warn("Things might not work correctly if at all, so you are on your own!");
+            LOGGER.warn("=================================================================================");
+        }
+
         var config = loadConfig("common", CommonConfig.class);
         CORE_COMMAND_MINIMAL_OP = config.coreCommandOperatorLevel;
         DEVELOPER_MODE = config.enableDevTools || DEV_ENV;

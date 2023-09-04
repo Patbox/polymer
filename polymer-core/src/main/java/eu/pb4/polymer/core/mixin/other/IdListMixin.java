@@ -30,7 +30,12 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     @Shadow
     @Final
     private Object2IntMap<Object> idMap;
+    @Unique
+    private int polymer$nonPolymerBitCount;
+    @Unique
     private int polymer$vanillaBitCount;
+    @Unique
+    private int polymer$vanillaEntryCount;
 
     @Shadow
     public abstract void add(T value);
@@ -52,9 +57,9 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     @Unique
     private boolean polymer$reorderLock = false;
     @Unique
-    private Predicate<T> polymer$checker;
+    private Predicate<T> polymer$polymerEntryChecker;
     @Unique
-    private Predicate<T> polymer$checkerList;
+    private Predicate<T> polymer$serverEntryChecker;
     @Unique
     private boolean polymer$isPolymerAware;
     @Unique
@@ -68,10 +73,12 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
                 return;
             }
 
-            var isPolymerObj = this.polymer$checker.test(value);
+            var isPolymerObj = this.polymer$polymerEntryChecker.test(value);
 
-            if (isPolymerObj || this.polymer$checkerList.test(value)) {
+            if (isPolymerObj || this.polymer$serverEntryChecker.test(value)) {
                 this.polymer$states.add(value);
+            } else {
+                this.polymer$vanillaEntryCount++;
             }
 
             if (isPolymerObj) {
@@ -117,7 +124,8 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
                     }
                 }
             }
-            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
+            this.polymer$nonPolymerBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
+            this.polymer$vanillaEntryCount = MathHelper.ceilLog2(this.polymer$vanillaEntryCount);
         }
     }
 
@@ -156,8 +164,13 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
             this.polymer$locked = false;
             this.polymer$lazyList.forEach(this::add);
             this.polymer$lazyList.clear();
-            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
+            this.polymer$nonPolymerBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
         }
+    }
+
+    @Override
+    public int polymer$getNonPolymerBitCount() {
+        return this.polymer$nonPolymerBitCount;
     }
 
     @Override
@@ -167,8 +180,8 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
 
     @Override
     public void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker,  Function<T, String> namer) {
-        this.polymer$checker = polymerChecker;
-        this.polymer$checkerList = serverChecker;
+        this.polymer$polymerEntryChecker = polymerChecker;
+        this.polymer$serverEntryChecker = serverChecker;
         this.polymer$isPolymerAware = polymerChecker != null;
         this.polymer$nameCreator = namer;
     }
@@ -198,6 +211,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
         this.nextId = 0;
         this.idMap.clear();
         this.list.clear();
+        this.polymer$vanillaEntryCount = 0;
         this.polymer$lazyList.clear();
         this.polymer$states.clear();
         this.polymer$offset = Integer.MAX_VALUE;

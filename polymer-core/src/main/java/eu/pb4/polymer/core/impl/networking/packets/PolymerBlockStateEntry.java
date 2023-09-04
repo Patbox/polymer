@@ -13,13 +13,13 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 @ApiStatus.Internal
-public record PolymerBlockStateEntry(Map<String, String> states, int numId, int blockId) implements BufferWritable {
+public record PolymerBlockStateEntry(Map<String, String> properties, int numId, int blockId) implements BufferWritable {
     public static final IdentityHashMap<BlockState, PolymerBlockStateEntry> CACHE = new IdentityHashMap<>();
 
     public void write(PacketByteBuf buf, int version, ServerPlayNetworkHandler handler) {
         buf.writeVarInt(numId);
         buf.writeVarInt(blockId);
-        buf.writeMap(states, PacketByteBuf::writeString, PacketByteBuf::writeString);
+        buf.writeMap(properties, PacketByteBuf::writeString, PacketByteBuf::writeString);
     }
 
     public static PolymerBlockStateEntry of(BlockState state, ServerPlayNetworkHandler player, int version) {

@@ -35,7 +35,7 @@ public abstract class ServerLoginNetworkHandlerMixin {
     @Inject(method = "addToServer", at = @At("HEAD"), cancellable = true)
     private void polymerNet$prePlayHandshakeHackfest(ServerPlayerEntity player, CallbackInfo ci) {
         if (!this.polymerNet$passPlayer) {
-            EarlyConnectionMagic.handle(player, server, connection, (context) -> {
+            EarlyConnectionMagic.handle(player, (ServerLoginNetworkHandler) (Object) this, server,  connection, (context) -> {
                 if (!this.polymerNet$passPlayer) {
                     this.polymerNet$passPlayer = true;
                     ((ExtClientConnection) this.connection).polymerNet$ignorePacketsUntilChange(context.storedPackets()::add);

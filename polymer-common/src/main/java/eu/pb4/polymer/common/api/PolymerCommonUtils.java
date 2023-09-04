@@ -172,6 +172,14 @@ public final class PolymerCommonUtils {
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
+    public static boolean isServerBound() {
+        if (CommonImpl.IS_CLIENT) {
+            return ClientUtils.isSingleplayer();
+        }
+
+        return true;
+    }
+
     public interface ResourcePackChangeCallback {
         void onResourcePackChange(ServerPlayNetworkHandler handler, boolean oldStatus, boolean newStatus);
     }

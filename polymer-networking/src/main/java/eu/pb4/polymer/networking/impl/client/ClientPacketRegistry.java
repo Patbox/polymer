@@ -126,9 +126,7 @@ public class ClientPacketRegistry {
 
     public static void handleDisable(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
         if (version > -1) {
-            MinecraftClient.getInstance().execute(() -> {
-                clear();
-            });
+            clear();
         }
     }
 

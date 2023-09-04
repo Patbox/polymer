@@ -81,7 +81,7 @@ public class PolymerClientProtocolHandler {
                             ));
                 }));
         registerPacketHandler(ServerPackets.SYNC_BLOCKSTATE, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerBlockStateEntry::read,
-                (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.states(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId())));
+                (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.properties(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.properties(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId())));
 
         registerPacketHandler(ServerPackets.SYNC_ENTITY, (handler, version, buf) -> handleGenericSync(handler, version, buf, PolymerEntityEntry::read,
                 (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registries.ENTITY_TYPE.get(entry.identifier())))));

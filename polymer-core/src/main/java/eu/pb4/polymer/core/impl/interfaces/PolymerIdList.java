@@ -14,8 +14,9 @@ public interface PolymerIdList<T> {
     int polymer$getOffset();
     void polymer$clear();
 
-    int polymer$getVanillaBitCount();
+    int polymer$getNonPolymerBitCount();
 
     void polymer$setReorderLock(boolean value);
     boolean polymer$getReorderLock();
+    int polymer$getVanillaBitCount();
 }

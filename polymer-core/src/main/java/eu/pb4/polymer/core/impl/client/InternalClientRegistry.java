@@ -303,7 +303,7 @@ public class InternalClientRegistry {
             regInfo.append(", ");
         }
 
-        regInfo.append("BS: " + InternalClientRegistry.BLOCK_STATES.mapSize());
+        regInfo.append("BS: ").append(InternalClientRegistry.BLOCK_STATES.mapSize());
 
         debugRegistryInfo = regInfo.toString();
 
@@ -330,7 +330,7 @@ public class InternalClientRegistry {
                     try {
                         ((ClientItemGroupExtension) group).polymer$clearStacks();
                     } catch (Throwable e) {
-                        e.printStackTrace();
+                        PolymerImpl.LOGGER.warn("Can't clear stacks of ItemGroup!", e);
                     }
                 }
             }
@@ -339,7 +339,7 @@ public class InternalClientRegistry {
                     ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                PolymerImpl.LOGGER.warn("Can't update entries of ItemGroups!", e);
             }
         });
         PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
@@ -352,17 +352,7 @@ public class InternalClientRegistry {
             ITEM_GROUPS.removeIf(removePredicate);
             CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.getDefaultTab());
 
-            if (CompatStatus.FABRIC_ITEM_GROUP) {
-                try {
-                    /*ItemGroupHelper.sortedGroups = validated.stream().sorted((a, b) -> {
-                        if (a.isSpecial() && !b.isSpecial()) return 1;
-                        if (!a.isSpecial() && b.isSpecial()) return -1;
-                        return 0;
-                    }).toList();*/
-                } catch (Throwable e) {
-
-                }
-
+            if (CompatStatus.FABRIC_ITEM_GROUP && !CompatStatus.FORGE_CONNECTOR) {
                 try {
                     var f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
                     f1.setAccessible(true);
@@ -388,7 +378,18 @@ public class InternalClientRegistry {
                         PolymerImpl.LOGGER.error("Failed to change item group page (QUILT)!", e);
                     }
                 }
+            }
 
+            if (CompatStatus.FORGE_CONNECTOR) {
+                try {
+                    var f1 = Class.forName("net.minecraftforge.common.CreativeModeTabRegistry").getDeclaredField("SORTED_TABS");
+                    f1.setAccessible(true);
+                    ((List<ItemGroup>) f1.get(null)).removeIf((x) -> x instanceof InternalClientItemGroup ig && removePredicate.test(ig));
+                } catch (Throwable e) {
+                    if (PolymerImpl.LOG_MORE_ERRORS) {
+                        PolymerImpl.LOGGER.error("Failed to change item group page (FORGE)!", e);
+                    }
+                }
             }
 
             int count = Registries.ITEM_GROUP.size() - 4;
@@ -408,11 +409,11 @@ public class InternalClientRegistry {
 
     private static void setItemGroupPage(ItemGroup group, int page) {
         ((ClientItemGroupExtension) group).polymerCore$setPage(page);
-        if (CompatStatus.FABRIC_ITEM_GROUP) {
+        if (CompatStatus.FABRIC_ITEM_GROUP && !CompatStatus.FORGE_CONNECTOR) {
             try {
                 ((net.fabricmc.fabric.impl.itemgroup.FabricItemGroup) group).setPage(page);
             } catch (Throwable e) {
-                e.printStackTrace();
+                PolymerImpl.LOGGER.warn("Couldn't set page of ItemGroup (FABRIC)", e);
             }
         }
     }
@@ -432,6 +433,19 @@ public class InternalClientRegistry {
 
             var group = new InternalClientItemGroup(row, c, id, name, icon);
             ITEM_GROUPS.set(id, group);
+
+            if (CompatStatus.FORGE_CONNECTOR) {
+                try {
+                    var f1 = Class.forName("net.minecraftforge.common.CreativeModeTabRegistry").getDeclaredField("SORTED_TABS");
+                    f1.setAccessible(true);
+                    ((List<ItemGroup>) f1.get(null)).add(group);
+                } catch (Throwable e) {
+                    if (PolymerImpl.LOG_MORE_ERRORS) {
+                        PolymerImpl.LOGGER.error("Failed to change item group page (FORGE)!", e);
+                    }
+                }
+            }
+
             setItemGroupPage(group, page);
         } catch(Throwable e) {
 

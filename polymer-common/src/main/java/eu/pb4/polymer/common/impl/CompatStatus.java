@@ -30,6 +30,8 @@ public final class CompatStatus {
     public static final boolean QUILT_ITEM_GROUP = LOADER.isModLoaded("quilt_item_group");
     public static final boolean QUILT_REGISTRY = LOADER.isModLoaded("quilt_registry");
 
+    public static final boolean FORGE_CONNECTOR = LOADER.isModLoaded("connectormod");
+
     public static final boolean POLYMC = LOADER.isModLoaded("polymc");
     public static final boolean LITHIUM = LOADER.isModLoaded("lithium");
     public static final boolean DISGUISELIB = LOADER.isModLoaded("disguiselib");

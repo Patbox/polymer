@@ -334,7 +334,7 @@ public final class PolymerItemUtils {
         NbtList lore = new NbtList();
 
         if (itemStack.getNbt() != null) {
-            out.getNbt().put(PolymerItemUtils.REAL_TAG, itemStack.getNbt());
+            out.getNbt().put(PolymerItemUtils.REAL_TAG, removeStackMarker(itemStack.getNbt()));
             assert out.getNbt() != null;
             cmd = cmd == -1 && itemStack.getNbt().contains("CustomModelData") ? itemStack.getNbt().getInt("CustomModelData") : cmd;
 
@@ -510,6 +510,24 @@ public final class PolymerItemUtils {
 
             return custom;
         });
+    }
+
+    private static NbtElement removeStackMarker(NbtElement nbt) {
+        if (nbt instanceof NbtCompound compound) {
+            var out = new NbtCompound();
+            for (var entry : compound.getKeys()) {
+                out.put(entry, removeStackMarker(compound.get(entry)));
+            }
+            return out;
+        } else if (nbt instanceof NbtList list) {
+            var out = new NbtList();
+            for (var entry : list) {
+                out.add(removeStackMarker(entry));
+            }
+            return out;
+        }
+
+        return nbt;
     }
 
     /**

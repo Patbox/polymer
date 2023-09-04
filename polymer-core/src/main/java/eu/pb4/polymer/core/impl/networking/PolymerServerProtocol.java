@@ -54,19 +54,19 @@ public class PolymerServerProtocol {
 
     }
 
-    public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockSTATE_IDS) {
+    public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {
         var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
 
         if (version > -1) {
             var list = new LongArrayList();
 
-            for (int i = 0; i < blockSTATE_IDS.length; i++) {
-                if (PolymerImplUtils.POLYMER_STATES.contains(blockSTATE_IDS[i])) {
-                    list.add(((long) Block.STATE_IDS.getRawId(blockSTATE_IDS[i])) << 12 | positions[i]);
+            for (int i = 0; i < blockStates.length; i++) {
+                if (PolymerImplUtils.POLYMER_STATES.contains(blockStates[i])) {
+                    list.add(((long) Block.STATE_IDS.getRawId(blockStates[i])) << 12 | positions[i]);
                 }
             }
 
-            if (list.size() != 0) {
+            if (!list.isEmpty()) {
                 var buf = buf(version);
                 buf.writeChunkSectionPos(chunkPos);
                 buf.writeVarInt(list.size());

@@ -13,6 +13,7 @@ import net.minecraft.network.listener.TickablePacketListener;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -451,5 +452,9 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     @Override
     public final @Nullable ServerPlayerEntity getPlayerForPacketTweaker() {
         return this.getPlayer();
+    }
+
+    protected final ServerLoginNetworkHandler getLoginNetworkHandler() {
+        return this.context.loginHandler();
     }
 }

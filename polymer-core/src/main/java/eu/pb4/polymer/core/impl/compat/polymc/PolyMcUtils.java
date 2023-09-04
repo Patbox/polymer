@@ -21,11 +21,12 @@ public class PolyMcUtils {
     }
 
     public static ItemStack toVanilla(ItemStack stack, ServerPlayerEntity player) {
-        if (CompatStatus.POLYMC) {
+        if (CompatStatus.POLYMC && !stack.isEmpty()) {
             var out = PolyMapProvider.getPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
-            if (!ItemStack.canCombine(stack, out) && !stack.isEmpty()) {
+            if (!ItemStack.canCombine(stack, out)) {
                 out = out.copy();
                 out.setSubNbt("PolyMcOriginal", stack.writeNbt(new NbtCompound()));
+                return out;
             }
         }
 

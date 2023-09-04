@@ -11,7 +11,7 @@ dependencies {
     modApi include("xyz.nucleoid:packet-tweaker:${packet_tweaker_version}") {
         transitive(false)
     }
-    modApi(include(annotationProcessor("com.llamalad7.mixinextras:mixinextras-fabric:0.2.0-beta.9")))
+    modApi(include(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
     modCompileOnly "org.geysermc.floodgate:api:2.2.0-SNAPSHOT"
 }

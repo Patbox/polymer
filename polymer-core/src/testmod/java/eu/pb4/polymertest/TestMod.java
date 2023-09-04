@@ -472,6 +472,7 @@ public class TestMod implements ModInitializer {
                         s.getPlayerManager().getPlayerList().forEach(x -> {
                             var i = x.getMainHandStack();
                             if (i.isOf(Items.EGG)) {
+                                x.setPose(EntityPose.SLEEPING);
                                 x.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(x.getId(), List.of(DataTracker.SerializedEntry.of(EntityTrackedData.POSE, EntityPose.SLEEPING))));
                             } else if (i.isOf(Items.CREEPER_HEAD)) {
                                 var l = new ArrayList<Packet<ClientPlayPacketListener>>();
