@@ -162,7 +162,7 @@ public class ElementHolder {
         var newPos = this.attachment.getPos();
 
         if (!this.currentPos.equals(newPos)) {
-            var delta = newPos.subtract(newPos);
+            var delta = newPos.subtract(this.currentPos);
             this.notifyElementsOfPositionUpdate(newPos, delta);
             this.currentPos = newPos;
             this.currentChunkPos = null;
