@@ -8,8 +8,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
+import net.minecraft.network.packet.c2s.common.CommonPongC2SPacket;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
@@ -114,7 +114,7 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHand
 
     @Override
     public boolean handleCustomPayload(CustomPayloadC2SPacket packet) {
-        var data = packet.getData();
+        /*var data = packet.getData();
         if (packet.getChannel().equals(ClientPackets.HANDSHAKE)) {
             try {
                 ServerPacketRegistry.handleHandshake(this, data.readVarInt(), data);
@@ -131,7 +131,9 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHand
             return true;
         } else {
             return false;
-        }
+        }*/
+
+        return false;
     }
 
     @Override
@@ -142,7 +144,7 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHand
     }
 
     @Override
-    public void onPong(PlayPongC2SPacket packet) {
+    public void onPong(CommonPongC2SPacket packet) {
         if (packet.getParameter() == CONTINUE_LOGIN_ID) {
             this.continueJoining();
         }

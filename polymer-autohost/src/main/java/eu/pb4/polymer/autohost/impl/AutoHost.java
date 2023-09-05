@@ -8,7 +8,7 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.network.packet.s2c.play.ResourcePackSendS2CPacket;
+import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;

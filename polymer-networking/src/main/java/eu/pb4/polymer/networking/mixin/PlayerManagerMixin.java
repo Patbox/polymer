@@ -5,6 +5,7 @@ import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.class_8792;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
@@ -19,8 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerManager.class)
 public class PlayerManagerMixin {
-    @Inject(method = "onPlayerConnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/CustomPayloadS2CPacket;<init>(Lnet/minecraft/util/Identifier;Lnet/minecraft/network/PacketByteBuf;)V", shift = At.Shift.AFTER))
-    private void polymerNet$setupHandler(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    @Inject(method = "onPlayerConnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/DifficultyS2CPacket;<init>(Lnet/minecraft/world/Difficulty;Z)V", shift = At.Shift.AFTER))
+    private void polymerNet$setupHandler(ClientConnection connection, ServerPlayerEntity player, class_8792 arg, CallbackInfo ci) {
         var handshake = ((TempPlayerLoginAttachments) player).polymerNet$getAndRemoveHandshakeHandler();
 
         if (handshake != null) {
@@ -42,14 +43,14 @@ public class PlayerManagerMixin {
         }
 
         if (((TempPlayerLoginAttachments) player).polymerNet$getForceRespawnPacket()) {
-            var world = player.getWorld();
-            connection.send(new PlayerRespawnS2CPacket(world.getDimensionKey(), world.getRegistryKey(), BiomeAccess.hashSeed(((ServerWorld) world).getSeed()),player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), world.isDebugWorld(), ((ServerWorld) world).isFlat(), (byte) 0xFF, player.getLastDeathPos(), player.getPortalCooldown()));
+            var world = player.getServerWorld();
+            connection.send(new PlayerRespawnS2CPacket(player.createCommonPlayerSpawnInfo(world), PlayerRespawnS2CPacket.KEEP_ALL));
         }
     }
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "onPlayerConnect", at = @At("HEAD"))
-    private void polymerNet$storePlayer(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    private void polymerNet$storePlayer(ClientConnection connection, ServerPlayerEntity player, class_8792 arg, CallbackInfo ci) {
         if (player.server.isHost(player.getGameProfile())) {
             ClientUtils.backupPlayer = player;
         }
@@ -57,7 +58,7 @@ public class PlayerManagerMixin {
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "onPlayerConnect", at = @At("TAIL"))
-    private void polymerNet$removePlayer(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    private void polymerNet$removePlayer(ClientConnection connection, ServerPlayerEntity player, class_8792 arg, CallbackInfo ci) {
         if (player.server.isHost(player.getGameProfile())) {
             ClientUtils.backupPlayer = null;
         }

@@ -115,7 +115,7 @@ public final class PolymerCommonUtils {
      */
     public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
         var oldPlayer = CommonImplUtils.getPlayer();
-        var oldTarget = PacketContext.get().getTarget();
+        var oldTarget = PacketContext.get().getTargetPlayer();
 
         CommonImplUtils.setPlayer(player);
         PacketContext.setContext(player.networkHandler);
@@ -146,7 +146,7 @@ public final class PolymerCommonUtils {
 
     @Nullable
     public static ServerPlayerEntity getPlayerContextNoClient() {
-        ServerPlayerEntity player = PacketContext.get().getTarget();
+        ServerPlayerEntity player = PacketContext.get().getTargetPlayer();
 
         if (player == null) {
             player = CommonImplUtils.getPlayer();

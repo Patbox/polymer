@@ -12,8 +12,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtType;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
+
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +32,7 @@ public final class PolymerClientNetworking {
 
 
     public static boolean sendDirect(ClientPlayNetworkHandler player, Identifier identifier, PacketByteBuf packetByteBuf) {
-        player.sendPacket(new CustomPayloadC2SPacket(identifier, packetByteBuf));
+        //player.sendPacket(new CustomPayloadC2SPacket(identifier, packetByteBuf));
         return true;
     }
 

@@ -7,8 +7,8 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
@@ -29,8 +29,8 @@ public interface PolymerEntity extends PolymerObject {
     /**
      * This method is used for replacing entity's equipment on client for a player
      *
-     * @param items List of Pair of EquipmentSlot and ItemStack on entity server-side
-     * @return List of Pair of EquipmentSlot and ItemStack sent to client
+     * @param items List of a Pair of EquipmentSlot and ItemStack on entity server-side
+     * @return List of a Pair of EquipmentSlot and ItemStack sent to client
      */
     default List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(List<Pair<EquipmentSlot, ItemStack>> items, ServerPlayerEntity player) {
         return items;
@@ -102,9 +102,9 @@ public interface PolymerEntity extends PolymerObject {
     /**
      * This method is executed after tracker tick
      */
-    default void onEntityTrackerTick(Set<EntityTrackingListener> listeners) {};
+    default void onEntityTrackerTick(Set<PlayerAssociatedNetworkHandler> listeners) {};
 
-    default void beforeEntityTrackerTick(Set<EntityTrackingListener> listeners) {}
+    default void beforeEntityTrackerTick(Set<PlayerAssociatedNetworkHandler> listeners) {}
 
     /**
      * Sends real id to clients with polymer

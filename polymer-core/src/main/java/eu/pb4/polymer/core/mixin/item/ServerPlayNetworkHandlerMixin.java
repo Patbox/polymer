@@ -5,21 +5,26 @@ import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
+import net.minecraft.class_8792;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Equipment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClientSettingsC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
+import net.minecraft.network.packet.s2c.common.SynchronizeTagsS2CPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.tag.TagPacketSerializer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
@@ -35,18 +40,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(value = ServerPlayNetworkHandler.class, priority = 1200)
-public abstract class ServerPlayNetworkHandlerMixin {
+public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler {
     @Shadow
     public ServerPlayerEntity player;
     private boolean polymerCore$sentFirstLang = false;
 
-    @Shadow
-    public abstract void sendPacket(Packet<?> packet);
-
     @Unique
     private final List<ItemStack> polymerCore$armorItems = new ArrayList<>();
     @Unique
-    private String polymerCore$language = "en_us";
+    private String polymerCore$language;
+
+    public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, class_8792 arg) {
+        super(server, connection, arg);
+        polymerCore$language = arg.clientInformation().language();
+    }
 
     @Inject(method = "onClientSettings", at = @At("TAIL"))
     private void polymerCore$resendLanguage(ClientSettingsC2SPacket packet, CallbackInfo ci) {
@@ -54,7 +61,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
             return;
         }
 
-        if (!this.polymerCore$language.equals(packet.language())) {
+        if (!this.polymerCore$language.equals(packet.information().language())) {
             Runnable runnable = () -> {
                 PolymerServerProtocol.sendSyncPackets(player.networkHandler, true);
                 this.sendPacket(new SynchronizeTagsS2CPacket(TagPacketSerializer.serializeTags(this.player.getServerWorld().getServer().getCombinedDynamicRegistries())));
@@ -63,7 +70,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
             };
 
             if (this.polymerCore$sentFirstLang) {
-                PolymerNetworkHandlerExtension.of(this.player).polymer$delayAction("language_update", 1500, runnable);
+                PolymerPlayNetworkHandlerExtension.of(this.player).polymer$delayAction("language_update", 1500, runnable);
             } else {
                 runnable.run();
             }
@@ -71,7 +78,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
             PolymerServerProtocol.sendSyncPackets(player.networkHandler, true);
         }
         this.polymerCore$sentFirstLang = true;
-        this.polymerCore$language = packet.language();
+        this.polymerCore$language = packet.information().language();
     }
 
     @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))

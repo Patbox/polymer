@@ -114,10 +114,7 @@ public final class VirtualEntityUtils {
             return false;
         }
 
-
-        var tacs = ((ServerWorld) chunk.getWorld()).getChunkManager().threadedAnvilChunkStorage;
-        var section = player.getWatchedSection();
-        return ThreadedAnvilChunkStorage.isWithinDistance(chunk.getPos().x, chunk.getPos().z, section.getX(), section.getZ(), ((ThreadedAnvilChunkStorageAccessor) tacs).getWatchDistance());
+        return player.getChunkFilter().isWithinDistance(chunk.getPos().x, chunk.getPos().z);
     }
 
     /**

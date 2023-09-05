@@ -26,16 +26,6 @@ public class ServerPlayerEntityMixin {
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
 
-
-    @Inject(method = "sendUnloadChunkPacket", at = @At("HEAD"))
-    private void polymerVE$chunkUnload(ChunkPos chunkPos, CallbackInfo ci) {
-        for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
-            if (holder.getAttachment() != null && holder.getChunkPos().equals(chunkPos)) {
-                holder.getAttachment().updateTracking(this.networkHandler);
-            }
-        }
-    }
-
     @Inject(method = "onDisconnect", at = @At("HEAD"))
     private void polymerVE$removeFromHologramsOnDisconnect(CallbackInfo ci) {
         for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {

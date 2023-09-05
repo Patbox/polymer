@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CreativeInventoryActionC2SPacketMixin {
     @Unique ItemStack polymer$cachedItemStack = null;
 
-    @Inject(method = "getItemStack", at = @At("TAIL"), cancellable = true)
+    @Inject(method = "getStack", at = @At("TAIL"), cancellable = true)
     private void polymer$replaceWithReal(CallbackInfoReturnable<ItemStack> cir) {
         if (this.polymer$cachedItemStack == null) {
             this.polymer$cachedItemStack = PolymerItemUtils.getRealItemStack(cir.getReturnValue());

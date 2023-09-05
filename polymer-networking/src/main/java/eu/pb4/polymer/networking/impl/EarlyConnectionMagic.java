@@ -2,7 +2,7 @@ package eu.pb4.polymer.networking.impl;
 
 import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +19,7 @@ public class EarlyConnectionMagic {
     private static final List<Function<EarlyPlayNetworkHandler.Context, EarlyPlayNetworkHandler>> CONSTRUCTORS = new ArrayList<>();
 
     public static void handle(ServerPlayerEntity player, ServerLoginNetworkHandler loginHandler, MinecraftServer server, ClientConnection connection, Consumer<ContextImpl> finish) {
-        var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
+        /*var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
         var context = new ContextImpl(server, player, connection, loginHandler, new ArrayList<>(), (c) -> {
             while (iterator.hasNext()) {
@@ -34,7 +34,7 @@ public class EarlyConnectionMagic {
 
         ((TempPlayerLoginAttachments) player).polymerNet$setLatePackets(context.storedPackets);
 
-        context.continueRunning.accept(context);
+        context.continueRunning.accept(context);*/
     }
 
     public static void register(Function<EarlyPlayNetworkHandler.Context, @Nullable EarlyPlayNetworkHandler> constructor) {

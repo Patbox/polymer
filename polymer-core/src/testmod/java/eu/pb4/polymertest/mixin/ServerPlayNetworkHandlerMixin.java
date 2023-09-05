@@ -1,9 +1,13 @@
 package eu.pb4.polymertest.mixin;
 
+import net.minecraft.class_8792;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -18,13 +22,15 @@ import java.util.Collections;
 import java.util.List;
 
 @Mixin(ServerPlayNetworkHandler.class)
-public abstract class ServerPlayNetworkHandlerMixin {
+public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler {
     @Shadow public ServerPlayerEntity player;
-
-    @Shadow public abstract void sendPacket(Packet<?> packet);
 
     @Unique
     private List<Entity> lastPassengers = Collections.emptyList();
+
+    public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, class_8792 arg) {
+        super(server, connection, arg);
+    }
 
     @Inject(method = "onPlayerInput", at = @At("TAIL"))
     private void polymtest_hrte(PlayerInputC2SPacket packet, CallbackInfo ci) {

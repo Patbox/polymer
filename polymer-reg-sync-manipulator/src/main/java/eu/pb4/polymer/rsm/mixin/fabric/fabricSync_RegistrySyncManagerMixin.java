@@ -26,12 +26,11 @@ public class fabricSync_RegistrySyncManagerMixin {
     }
 
     @Redirect(method = "createAndPopulateRegistryMap", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), require = 0)
-    private static Identifier polymer_registry_sync$skipServerEntries(Registry<Object> registry, Object obj, boolean isClientSync) {
-        if (isClientSync && RegistrySyncUtils.isServerEntry(registry, obj)) {
+    private static Identifier polymer_registry_sync$skipServerEntries(Registry registry, Object obj) {
+        if (RegistrySyncUtils.isServerEntry(registry, obj)) {
             return null;
-        } else {
-            return registry.getId(obj);
         }
+        return registry.getId(obj);
     }
 }
 

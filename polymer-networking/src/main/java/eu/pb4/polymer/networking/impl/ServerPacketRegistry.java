@@ -3,6 +3,7 @@ package eu.pb4.polymer.networking.impl;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
 import eu.pb4.polymer.networking.api.PolymerServerPacketHandler;
+import eu.pb4.polymer.networking.api.VersionedPayload;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -11,8 +12,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtTagSizeTracker;
 import net.minecraft.nbt.NbtTypes;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -27,21 +28,18 @@ public class ServerPacketRegistry {
     public static final HashMap<Identifier, PolymerServerPacketHandler> PACKETS = new HashMap<>();
     public static final HashMap<Identifier, NbtElement> METADATA = new HashMap<>();
 
-    public static boolean handle(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf buf) {
+    public static boolean handle(ServerCommonNetworkHandler handler, CustomPayload payload) {
         boolean versionRead = false;
-        int version = -1;
+        int version = payload instanceof VersionedPayload versionedPayload ? versionedPayload.version() : -1;
 
-        var packetHandler = PACKETS.get(identifier);
+        var packetHandler = PACKETS.get(payload.id());
 
 
         if (packetHandler != null) {
             try {
-                version = buf.readVarInt();
-                versionRead = true;
-
-                packetHandler.onPacket(handler, version, buf);
+                //packetHandler.onPacket(handler, version, payload);
             } catch (Throwable e) {
-                CommonImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", identifier, versionRead ? version : "Unknown", handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
+               // CommonImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", payload.id(), versionRead ? version : "Unknown", handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
             }
             return true;
         }
@@ -98,14 +96,14 @@ public class ServerPacketRegistry {
             }
         }
 
-        handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.HANDSHAKE, buf));
+        //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.HANDSHAKE, buf));
     }
 
     private static void sendMetadata(PolymerHandshakeHandler handler) {
         try {
             var buf = buf(1);
             ServerPacketRegistry.encodeMetadata(buf, METADATA);
-            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.METADATA, buf));
+            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.METADATA, buf));
         } catch (Throwable e) {
             e.printStackTrace();
         }

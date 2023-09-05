@@ -13,46 +13,43 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public class PolymerResourcePack extends ZipResourcePack {
+public class PolymerResourcePack  {
     public static boolean generated = false;
 
-    private PolymerResourcePack(String string, File file) {
-        super(string, file, true);
-    }
-
     @Nullable
-    public static PolymerResourcePack setup() {
+    public static ResourcePackProfile.PackFactory setup() {
         Path outputPath = PolymerResourcePackUtils.DEFAULT_PATH;
         if ((outputPath.toFile().exists() && generated) || PolymerResourcePackUtils.build(outputPath)) {
             generated = true;
-            return new PolymerResourcePack(ClientUtils.PACK_ID, outputPath.toFile());
+            return new ZipResourcePack.ZipBackedFactory(outputPath.toFile(), true);
         } else {
             return null;
         }
-    }
-
-    @Override
-    public String getName() {
-        return ClientUtils.PACK_ID;
     }
 
     public static class Provider implements ResourcePackProvider {
         @Override
         public void register(Consumer<ResourcePackProfile> profileAdder) {
             if (PolymerResourcePackUtils.hasResources()) {
-                ResourcePack pack = PolymerResourcePack.setup();
+                var pack = PolymerResourcePack.setup();
 
                 if (pack != null) {
-                    profileAdder.accept(ResourcePackProfile.of(pack.getName(),
+                    profileAdder.accept(ResourcePackProfile.of(ClientUtils.PACK_ID,
                             Text.translatable("text.polymer.resource_pack.name"),
                             PolymerResourcePackUtils.isRequired(),
-                            (x) -> pack,
-                            new ResourcePackProfile.Metadata(Text.translatable("text.polymer.resource_pack.description" + (PolymerResourcePackUtils.isRequired() ? ".required" : "")), SharedConstants.RESOURCE_PACK_VERSION, FeatureSet.empty()),
-                            ResourceType.CLIENT_RESOURCES,
+                            pack,
+                            new ResourcePackProfile.Metadata(
+                                    Text.translatable("text.polymer.resource_pack.description" + (PolymerResourcePackUtils.isRequired() ? ".required" : "")),
+                                    ResourcePackCompatibility.COMPATIBLE,
+                                    FeatureSet.empty(),
+                                    List.of()
+                            ),
                             ResourcePackProfile.InsertionPosition.TOP,
                             false,
                             ResourcePackSource.BUILTIN

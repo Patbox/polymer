@@ -480,7 +480,7 @@ public class TestMod implements ModInitializer {
                                 l.add(new EntitySpawnS2CPacket(creep));
                                 l.add(new SetCameraEntityS2CPacket(creep));
                                 l.add(new EntitiesDestroyS2CPacket(creep.getId()));
-                                l.add(new PlayerRespawnS2CPacket(x.getWorld().getDimensionKey(), x.getWorld().getRegistryKey(), BiomeAccess.hashSeed(x.getServerWorld().getSeed()), x.interactionManager.getGameMode(), x.interactionManager.getPreviousGameMode(), x.getWorld().isDebugWorld(), x.getServerWorld().isFlat(), PlayerRespawnS2CPacket.KEEP_ALL, x.getLastDeathPos(), x.getPortalCooldown()));
+                                l.add(new PlayerRespawnS2CPacket(x.createCommonPlayerSpawnInfo(x.getServerWorld()), PlayerRespawnS2CPacket.KEEP_ALL));
 
                                 x.networkHandler.sendPacket(new BundleS2CPacket(l));
                             }

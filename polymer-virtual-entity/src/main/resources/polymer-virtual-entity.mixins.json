@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "eu.pb4.polymer.virtualentity.mixin.PolymerVirtualEntityMixinConfigPlugin",
   "mixins": [
+    "ChunkDataSenderMixin",
     "EntityMixin",
     "EntityPassengersSetS2CPacketAccessor",
     "EntityPassengersSetS2CPacketMixin",

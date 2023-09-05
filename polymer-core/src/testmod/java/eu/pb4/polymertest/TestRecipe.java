@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
 import eu.pb4.polymer.core.api.item.PolymerRecipe;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -16,11 +17,9 @@ import net.minecraft.world.World;
 
 public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
 
-    private final Identifier id;
     private final ItemStack output;
 
-    public TestRecipe(Identifier id, ItemStack output) {
-        this.id = id;
+    public TestRecipe(ItemStack output) {
         this.output = output;
     }
 
@@ -45,13 +44,8 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
     }
 
     @Override
-    public ItemStack getOutput(DynamicRegistryManager dynamicRegistryManager) {
+    public ItemStack getResult(DynamicRegistryManager dynamicRegistryManager) {
         return this.output;
-    }
-
-    @Override
-    public Identifier getId() {
-        return this.id;
     }
 
     @Override
@@ -65,22 +59,23 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<TestRecipe> {
-
         @Override
-        public TestRecipe read(Identifier id, JsonObject json) {
-            ItemStack output = ShapedRecipe.outputFromJson(json.getAsJsonObject("output"));
-            return new TestRecipe(id, output);
+        public Codec<TestRecipe> codec() {
+            return ItemStack.CODEC.xmap(TestRecipe::new, TestRecipe::stack);
         }
 
         @Override
-        public TestRecipe read(Identifier id, PacketByteBuf buf) {
-            ItemStack output = buf.readItemStack();
-            return new TestRecipe(id, output);
+        public TestRecipe read(PacketByteBuf buf) {
+            return new TestRecipe(buf.readItemStack());
         }
 
         @Override
         public void write(PacketByteBuf buf, TestRecipe recipe) {
             buf.writeItemStack(recipe.output);
         }
+    }
+
+    private ItemStack stack() {
+        return this.output;
     }
 }

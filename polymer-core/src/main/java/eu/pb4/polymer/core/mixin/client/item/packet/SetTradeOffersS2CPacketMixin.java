@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Environment(EnvType.CLIENT)
 @Mixin(SetTradeOffersS2CPacket.class)
 public class SetTradeOffersS2CPacketMixin {
-    @Shadow @Final private TradeOfferList recipes;
+    @Shadow @Final private TradeOfferList offers;
     @Unique private TradeOfferList polymer$trades = null;
 
     @Environment(EnvType.CLIENT)
@@ -31,7 +31,7 @@ public class SetTradeOffersS2CPacketMixin {
             if (this.polymer$trades == null) {
                 TradeOfferList list = new TradeOfferList();
 
-                for (TradeOffer tradeOffer : this.recipes) {
+                for (TradeOffer tradeOffer : this.offers) {
                     var offer = new TradeOffer(
                             PolymerItemUtils.getPolymerItemStack(tradeOffer.getOriginalFirstBuyItem(), player),
                             PolymerItemUtils.getPolymerItemStack(tradeOffer.getSecondBuyItem(), player),

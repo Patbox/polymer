@@ -17,13 +17,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.EntityTrackingListener;
+import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -105,7 +105,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     }
     /*
     @Override
-    public void beforeEntityTrackerTick(Set<EntityTrackingListener> listeners) {
+    public void beforeEntityTrackerTick(Set<PlayerAssociatedNetworkHandler> listeners) {
         this.trackerPos = this.trackerNext;
         this.trackerNext = Convert.toMinecraft(this.getPhysicsLocation(new com.jme3.math.Vector3f(), 1));
         rotationLeft = Convert.toMinecraft(this.getPhysicsRotation(new Quaternion(), 1));

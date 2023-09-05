@@ -8,8 +8,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.PlayPongC2SPacket;
-import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -37,10 +35,10 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
             this.sendPacket(FAKE_ENTITY.createSpawnPacket());
             this.sendPacket(new EntityTrackerUpdateS2CPacket(FAKE_ENTITY.getId(), FAKE_ENTITY.getDataTracker().getChangedEntries()));
             this.sendPacket(new SetCameraEntityS2CPacket(FAKE_ENTITY));
-            this.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, (new PacketByteBuf(Unpooled.buffer())).writeString(this.getServer().getServerModName() + "/" + "polymer_loading_pack")));
+            //this.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, (new PacketByteBuf(Unpooled.buffer())).writeString(this.getServer().getServerModName() + "/" + "polymer_loading_pack")));
             this.sendPacket(new WorldTimeUpdateS2CPacket(0, 18000, false));
             if (AutoHost.provider.isReady()) {
-                this.sendPacket(new ResourcePackSendS2CPacket(AutoHost.provider.getAddress(), AutoHost.provider.getHash(), this.required, AutoHost.message));
+                //this.sendPacket(new ResourcePackSendS2CPacket(AutoHost.provider.getAddress(), AutoHost.provider.getHash(), this.required, AutoHost.message));
             } else {
                 this.delayed = true;
             }
@@ -58,11 +56,11 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
     public void onTick() {
         if (this.delayed && AutoHost.provider.isReady()) {
             this.delayed = false;
-            this.sendPacket(new ResourcePackSendS2CPacket(AutoHost.provider.getAddress(), AutoHost.provider.getHash(), this.required, AutoHost.message));
+            //this.sendPacket(new ResourcePackSendS2CPacket(AutoHost.provider.getAddress(), AutoHost.provider.getHash(), this.required, AutoHost.message));
         }
     }
 
-    @Override
+    /*@Override
     public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
         switch (packet.getStatus()) {
             case ACCEPTED -> PolymerResourcePackUtils.setPlayerStatus(this.getPlayer(), true);
@@ -85,7 +83,7 @@ public class ResourcePackNetworkHandler extends EarlyPlayNetworkHandler {
         if (packet.getParameter() == 0) {
             this.continueJoining();
         }
-    }
+    }*/
 
     static {
         {

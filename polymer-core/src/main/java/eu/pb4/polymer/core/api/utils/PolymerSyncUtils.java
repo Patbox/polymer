@@ -5,7 +5,6 @@ import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.networking.ServerPackets;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 
 import java.util.function.BiConsumer;
@@ -74,7 +73,7 @@ public final class PolymerSyncUtils {
     public static void rebuildItemGroups(ServerPlayNetworkHandler handler) {
         var ver = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE);
         if (ver > -1) {
-            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerServerNetworking.buf(ver)));
+            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerServerNetworking.buf(ver)));
         }
     }
 

@@ -10,7 +10,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
@@ -28,7 +27,7 @@ public class PolymerClientProtocol {
                 InternalClientRegistry.syncRequests++;
                 InternalClientRegistry.syncRequestsPostGameJoin++;
                 PolymerClientUtils.ON_SYNC_REQUEST.invoke(EventRunners.RUN);
-                handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.SYNC_REQUEST, buf(0)));
+                //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.SYNC_REQUEST, buf(0)));
             });
         }
     }
@@ -38,7 +37,7 @@ public class PolymerClientProtocol {
             var buf = buf(0);
             buf.writeBlockPos(pos);
             buf.writeBoolean(Screen.hasControlDown());
-            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.WORLD_PICK_BLOCK, buf));
+            //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.WORLD_PICK_BLOCK, buf));
         }
     }
 
@@ -47,7 +46,7 @@ public class PolymerClientProtocol {
             InternalClientRegistry.delayAction(ClientPackets.CHANGE_TOOLTIP.toString(), 200, () -> {
                 var buf = buf(0);
                 buf.writeBoolean(MinecraftClient.getInstance().options.advancedItemTooltips);
-                handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.CHANGE_TOOLTIP, buf));
+                //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.CHANGE_TOOLTIP, buf));
             });
         }
     }
@@ -57,7 +56,7 @@ public class PolymerClientProtocol {
             var buf = buf(0);
             buf.writeVarInt(id);
             buf.writeBoolean(Screen.hasControlDown());
-            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.WORLD_PICK_ENTITY, buf));
+            //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.WORLD_PICK_ENTITY, buf));
         }
     }
 }

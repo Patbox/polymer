@@ -22,7 +22,4 @@ public interface ThreadedAnvilChunkStorageAccessor {
 
     @Accessor("entityTrackers")
     Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> polymer$getEntityTrackers();
-
-    @Invoker("sendChunkDataPackets")
-    void polymer$sendChunkDataPackets(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk);
 }

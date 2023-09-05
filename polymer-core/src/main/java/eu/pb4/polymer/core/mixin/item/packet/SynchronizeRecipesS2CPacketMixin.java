@@ -12,6 +12,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.SynchronizeRecipesS2CPacket;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -31,23 +32,23 @@ import java.util.List;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
-    @Unique List<Recipe<?>> polymer$clientRewrittenRecipes = null;
+    @Unique List<RecipeEntry<?>> polymer$clientRewrittenRecipes = null;
 
     @Shadow public abstract void write(PacketByteBuf buf);
 
-    @Shadow @Final private List<Recipe<?>> recipes;
+    @Shadow @Final private List<RecipeEntry<?>> recipes;
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
-    public Collection<Recipe<?>> polymer$remapRecipes(Collection<Recipe<?>> recipes) {
-        List<Recipe<?>> list = new ArrayList<>();
+    public Collection<RecipeEntry<?>> polymer$remapRecipes(Collection<RecipeEntry<?>> recipes) {
+        List<RecipeEntry<?>> list = new ArrayList<>();
         var player = PolymerUtils.getPlayerContext();
-        for (Recipe<?> recipe : recipes) {
-            if (recipe instanceof PolymerSyncedObject<?> syncedRecipe) {
+        for (var recipe : recipes) {
+            if (recipe.value() instanceof PolymerSyncedObject<?> syncedRecipe) {
                 Recipe<?> polymerRecipe = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
                 if (polymerRecipe != null) {
-                    list.add(polymerRecipe);
+                    list.add(new RecipeEntry<Recipe<?>>(recipe.id(), polymerRecipe));
                 }
-            } else if (!(PolymerObject.is(recipe.getSerializer()) || PolymerObject.is(recipe))) {
+            } else if (!(PolymerObject.is(recipe.value().getSerializer()) || PolymerObject.is(recipe))) {
                 list.add(recipe);
             }
         }
@@ -61,33 +62,34 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
      */
     @Environment(EnvType.CLIENT)
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceOnClient(CallbackInfoReturnable<List<Recipe<?>>> cir) {
+    private void polymer$replaceOnClient(CallbackInfoReturnable<List<RecipeEntry<?>>> cir) {
         if (ClientUtils.isSingleplayer()) {
             try {
                 if (this.polymer$clientRewrittenRecipes == null) {
-                    var rec = new ArrayList<Recipe<?>>();
+                    var rec = new ArrayList<RecipeEntry<?>>();
 
                     var buf = new PacketByteBuf(Unpooled.buffer(1024 * 40));
                     var player = ClientUtils.getPlayer();
 
                     var brokenIds = new HashSet<Identifier>();
                     for (var recipe : this.recipes) {
-                        if (recipe instanceof PolymerSyncedObject<?> syncedRecipe) {
+                        if (recipe.value() instanceof PolymerSyncedObject<?> syncedRecipe) {
                             if (player == null) {
                                 continue;
                             }
-                            recipe = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
-                            if (recipe == null) {
+                            var recipeData = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
+                            if (recipeData == null) {
                                 continue;
                             }
+                            recipe = new RecipeEntry<Recipe<?>>(recipe.id(), recipeData);
                         }
                         buf.clear();
                         try {
-                            ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).write(buf, recipe);
-                            rec.add(recipe.getSerializer().read(recipe.getId(), buf));
+                            ((RecipeSerializer<Recipe<?>>) recipe.value().getSerializer()).write(buf, recipe.value());
+                            rec.add(new RecipeEntry<Recipe<?>>(recipe.id(), recipe.value().getSerializer().read(buf)));
                         } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
                             rec.add(recipe);
-                            brokenIds.add(Registries.RECIPE_SERIALIZER.getId(recipe.getSerializer()));
+                            brokenIds.add(Registries.RECIPE_SERIALIZER.getId(recipe.value().getSerializer()));
                             if (PolymerImpl.LOG_MORE_ERRORS) {
                                 PolymerImpl.LOGGER.error("Couldn't rewrite recipe!", e);
                             }

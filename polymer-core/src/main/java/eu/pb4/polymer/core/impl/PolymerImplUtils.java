@@ -8,7 +8,7 @@ import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipContext;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
@@ -19,7 +19,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
@@ -256,7 +255,7 @@ public class PolymerImplUtils {
     }
 
     public static PolymerTooltipContext getTooltipContext(ServerPlayerEntity player) {
-        return player != null && player.networkHandler instanceof PolymerNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
+        return player != null && player.networkHandler instanceof PolymerPlayNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
     }
 
     public static boolean isServerSideSyncableEntry(Registry reg, Object obj) {

@@ -7,8 +7,8 @@
     "CommandManagerMixin",
     "DataTrackerAccessor",
     "ReferenceAccessor",
+    "ServerCommonNetworkHandlerMixin",
     "ServerPlayerEntityMixin",
-    "ServerPlayNetworkHandlerMixin",
     "WorldAccessor"
   ],
   "injectors": {

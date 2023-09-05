@@ -8,23 +8,19 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 @SuppressWarnings({"unused"})
-public interface PolymerNetworkHandlerExtension {
-    void polymer$schedulePacket(Packet<?> packet, int duration);
-
+public interface PolymerPlayNetworkHandlerExtension extends PolymerCommonNetworkHandlerExtension {
     boolean polymer$advancedTooltip();
     void polymer$setAdvancedTooltip(boolean value);
-
-    void polymer$delayAction(String identifier, int delay, Runnable action);
 
     BlockMapper polymer$getBlockMapper();
     void polymer$setBlockMapper(BlockMapper mapper);
 
-    static PolymerNetworkHandlerExtension of(ServerPlayerEntity player) {
-        return (PolymerNetworkHandlerExtension) player.networkHandler;
+    static PolymerPlayNetworkHandlerExtension of(ServerPlayerEntity player) {
+        return (PolymerPlayNetworkHandlerExtension) player.networkHandler;
     }
 
-    static PolymerNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {
-        return (PolymerNetworkHandlerExtension) handler;
+    static PolymerPlayNetworkHandlerExtension of(ServerPlayNetworkHandler handler) {
+        return (PolymerPlayNetworkHandlerExtension) handler;
     }
 
     void polymer$delayAfterSequence(Runnable runnable);

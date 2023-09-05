@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.other;
 
 import com.mojang.serialization.DynamicOps;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import net.minecraft.registry.Registries;
@@ -23,9 +24,9 @@ public class RegistryFixedCodecMixin {
             at = @At("HEAD")
     )
     private RegistryEntry<?> polymerCore$swapEntry(RegistryEntry<?> entry) {
-        var player = PolymerUtils.getPlayerContext();
 
-        if (player != null) {
+        if (false && PolymerCommonUtils.isNetworkingThread()) {
+            var player = PolymerUtils.getPlayerContext();
             try {
                 if (entry.value() instanceof PolymerSyncedObject polymerSyncedObject) {
                     return ((Registry<Registry>) (Object) Registries.REGISTRIES).get(this.registry).getEntry(polymerSyncedObject.getPolymerReplacement(player));

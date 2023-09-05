@@ -4,7 +4,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.mixin.block.packet.BlockUpdateS2CPacketAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ChunkDeltaUpdateS2CPacketAccessor;
 import net.minecraft.block.BlockState;
@@ -22,7 +22,7 @@ public class BlockPacketUtil {
         if (packet instanceof BlockUpdateS2CPacket blockUpdatePacket) {
             BlockState blockState = ((BlockUpdateS2CPacketAccessor) blockUpdatePacket).polymer$getState();
             if (PolymerImplUtils.POLYMER_STATES.contains(blockState)) {
-                PolymerNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSingleBlockInfo(handler, blockUpdatePacket.getPos(), blockState));
+                PolymerPlayNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSingleBlockInfo(handler, blockUpdatePacket.getPos(), blockState));
             }
         } else if (packet instanceof ChunkDataS2CPacket) {
             WorldChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer$getWorldChunk();
@@ -42,7 +42,7 @@ public class BlockPacketUtil {
         } else if (packet instanceof ChunkDeltaUpdateS2CPacket) {
             var chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
 
-            PolymerNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSequanceBlockInfo(handler,
+            PolymerPlayNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSequanceBlockInfo(handler,
                     chunk.polymer_getSectionPos(), chunk.polymer_getBlockStates(),  chunk.polymer_getPositions()));
         }
     }

@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.other.BlockMapperImpl;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -55,20 +55,20 @@ public interface BlockMapper {
     }
 
     static BlockMapper getFrom(@Nullable ServerPlayerEntity player) {
-        return player != null ? PolymerNetworkHandlerExtension.of(player).polymer$getBlockMapper() : BlockMapper.createDefault();
+        return player != null ? PolymerPlayNetworkHandlerExtension.of(player).polymer$getBlockMapper() : BlockMapper.createDefault();
     }
 
     static void resetMapper(@Nullable ServerPlayerEntity player) {
         if (player != null) {
-            PolymerNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(player));
+            PolymerPlayNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(player));
         }
     }
 
     static void set(ServerPlayNetworkHandler handler, BlockMapper mapper) {
-        PolymerNetworkHandlerExtension.of(handler).polymer$setBlockMapper(mapper);
+        PolymerPlayNetworkHandlerExtension.of(handler).polymer$setBlockMapper(mapper);
     }
 
     static BlockMapper get(ServerPlayNetworkHandler handler) {
-        return PolymerNetworkHandlerExtension.of(handler).polymer$getBlockMapper();
+        return PolymerPlayNetworkHandlerExtension.of(handler).polymer$getBlockMapper();
     }
 }

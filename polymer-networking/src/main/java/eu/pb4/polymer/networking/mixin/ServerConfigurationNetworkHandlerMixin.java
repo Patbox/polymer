@@ -6,6 +6,7 @@ import eu.pb4.polymer.networking.impl.ExtClientConnection;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -18,21 +19,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = ServerLoginNetworkHandler.class, priority = 900)
-public abstract class ServerLoginNetworkHandlerMixin {
-    @Shadow @Final private MinecraftServer server;
-    @Shadow @Final public ClientConnection connection;
-
-    @Shadow protected abstract void addToServer(ServerPlayerEntity player);
-
-    @Shadow private @Nullable GameProfile profile;
-
-    @Shadow public abstract void disconnect(Text reason);
+@Mixin(value = ServerConfigurationNetworkHandler.class, priority = 900)
+public abstract class ServerConfigurationNetworkHandlerMixin {
 
     @Unique
     private boolean polymerNet$passPlayer = false;
 
-    @Inject(method = "addToServer", at = @At("HEAD"), cancellable = true)
+    // Todo port this
+    /*@Inject(method = "endConfiguration", at = @At("HEAD"), cancellable = true)
     private void polymerNet$prePlayHandshakeHackfest(ServerPlayerEntity player, CallbackInfo ci) {
         if (!this.polymerNet$passPlayer) {
             EarlyConnectionMagic.handle(player, (ServerLoginNetworkHandler) (Object) this, server,  connection, (context) -> {
@@ -53,5 +47,5 @@ public abstract class ServerLoginNetworkHandlerMixin {
             });
             ci.cancel();
         }
-    }
+    }*/
 }

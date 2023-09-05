@@ -61,7 +61,7 @@ public abstract class EntityAttributesS2CPacketMixin {
             DefaultAttributeContainer vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) type);
             List<EntityAttributesS2CPacket.Entry> list = new ArrayList<>();
             for (EntityAttributesS2CPacket.Entry entry : value) {
-                if (vanillaContainer.has(entry.getId())) {
+                if (vanillaContainer.has(entry.getAttribute())) {
                     list.add(entry);
                 }
             }

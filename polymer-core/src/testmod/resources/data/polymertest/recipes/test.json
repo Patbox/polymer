@@ -1,6 +1,5 @@
 {
   "type": "test:test",
-  "output": {
-    "item": "minecraft:barrier"
-  }
+  "id": "minecraft:barrier",
+  "Count": 1
 }

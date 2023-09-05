@@ -10,7 +10,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtType;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +38,7 @@ public final class PolymerServerNetworking {
     }
 
     public static boolean sendDirect(ServerPlayNetworkHandler handler, Identifier identifier, PacketByteBuf packetByteBuf) {
-        handler.sendPacket(new CustomPayloadS2CPacket(identifier, packetByteBuf));
+        //handler.sendPacket(new CustomPayloadS2CPacket(identifier, packetByteBuf));
         return true;
     }
 

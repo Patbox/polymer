@@ -8,7 +8,6 @@ import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.core.impl.networking.packets.*;
 import eu.pb4.polymer.networking.api.ServerPacketWriter;
@@ -20,7 +19,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -49,7 +47,7 @@ public class PolymerServerProtocol {
             buf.writeBlockPos(pos);
             buf.writeVarInt(Block.STATE_IDS.getRawId(state));
 
-            player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_SET_BLOCK_UPDATE, buf));
+            //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_SET_BLOCK_UPDATE, buf));
         }
 
     }
@@ -75,7 +73,7 @@ public class PolymerServerProtocol {
                     buf.writeVarLong(value);
                 }
 
-                player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, buf));
+                //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, buf));
             }
         }
     }
@@ -108,7 +106,7 @@ public class PolymerServerProtocol {
                             buf.writeVarLong((((long) Block.STATE_IDS.getRawId(state)) << 12 | pos));
                         }
 
-                        player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, buf));
+                        //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, buf));
                     }
                 }
             }
@@ -124,12 +122,12 @@ public class PolymerServerProtocol {
         var startTime = System.nanoTime();
         int version;
 
-        handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_STARTED, buf(0)));
+        //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_STARTED, buf(0)));
         PolymerSyncUtils.ON_SYNC_STARTED.invoke((c) -> c.accept(handler));
 
         version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_CLEAR);
         if (version != -1) {
-            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_CLEAR, buf(version)));
+            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_CLEAR, buf(version)));
         }
 
         version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_INFO);
@@ -138,7 +136,7 @@ public class PolymerServerProtocol {
 
             buf.writeVarInt(PolymerImplUtils.getBlockStateOffset());
 
-            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_INFO, buf));
+            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_INFO, buf));
         }
         sendSync(handler, ServerPackets.SYNC_ENCHANTMENT, getServerSideEntries(Registries.ENCHANTMENT), false,
                 type -> new IdValueEntry(Registries.ENCHANTMENT.getRawId(type), Registries.ENCHANTMENT.getId(type)));
@@ -182,7 +180,7 @@ public class PolymerServerProtocol {
 
         PolymerSyncUtils.ON_SYNC_FINISHED.invoke((c) -> c.accept(handler));
 
-        handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_FINISHED, buf(0)));
+        //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_FINISHED, buf(0)));
 
 
         if (PolymerImpl.LOG_SYNC_TIME) {
@@ -213,7 +211,7 @@ public class PolymerServerProtocol {
                 syncItemGroup(group, handler);
             }
 
-            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE))));
+            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE))));
         }
     }
 
@@ -233,7 +231,7 @@ public class PolymerServerProtocol {
             {
                 var buf = buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR));
                 buf.writeIdentifier(PolymerItemGroupUtils.getId(group));
-                handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
+                //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
             }
 
 
@@ -258,7 +256,7 @@ public class PolymerServerProtocol {
             buf.writeIdentifier(PolymerItemGroupUtils.getId(group));
             buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));
             PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(group.getIcon(), handler.player));
-            handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_DEFINE, buf));
+            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_DEFINE, buf));
         }
     }
 
@@ -266,7 +264,7 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.SYNC_ITEM_GROUP_REMOVE);
 
         if (version > -1 && PolymerItemGroupUtils.isPolymerItemGroup(group)) {
-            player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_REMOVE, buf(version).writeIdentifier(PolymerItemGroupUtils.REGISTRY.getId(group))));
+            //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_REMOVE, buf(version).writeIdentifier(PolymerItemGroupUtils.REGISTRY.getId(group))));
         }
     }
 
@@ -281,7 +279,7 @@ public class PolymerServerProtocol {
             var buf = buf(0);
             buf.writeVarInt(id);
             buf.writeIdentifier(Registries.ENTITY_TYPE.getId(type));
-            player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_ENTITY, buf));
+            //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_ENTITY, buf));
         }
     }
 

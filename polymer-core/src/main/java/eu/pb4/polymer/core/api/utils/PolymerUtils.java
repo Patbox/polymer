@@ -8,11 +8,9 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
-import eu.pb4.polymer.core.impl.networking.ServerPackets;
+import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
-import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
@@ -40,13 +38,11 @@ import java.util.*;
  * General use case utils that can be useful in multiple situations
  */
 public final class PolymerUtils {
-    private static final Set<FeatureFlag> ENABLED_FEATURE_FLAGS = new HashSet<>();
-
-    private PolymerUtils() {
-    }
-
     public static final String ID = "polymer";
     public static final String NO_TEXTURE_HEAD_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGUyY2UzMzcyYTNhYzk3ZmRkYTU2MzhiZWYyNGIzYmM0OWY0ZmFjZjc1MWZlOWNhZDY0NWYxNWE3ZmI4Mzk3YyJ9fX0=";
+    private static final Set<FeatureFlag> ENABLED_FEATURE_FLAGS = new HashSet<>();
+    private PolymerUtils() {
+    }
 
     public static String getVersion() {
         return CommonImpl.VERSION;
@@ -106,7 +102,7 @@ public final class PolymerUtils {
      * @param duration time (in ticks) waited before packet is send
      */
     public static void schedulePacket(ServerPlayNetworkHandler handler, Packet<?> packet, int duration) {
-        ((PolymerNetworkHandlerExtension) handler).polymer$schedulePacket(packet, duration);
+        ((PolymerPlayNetworkHandlerExtension) handler).polymer$schedulePacket(packet, duration);
     }
 
     /**
@@ -119,9 +115,6 @@ public final class PolymerUtils {
 
             var world = player.getWorld();
             var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).threadedAnvilChunkStorage);
-            int dist = tacsAccess.polymer$getWatchDistance();
-            int playerX = player.getWatchedSection().getX();
-            int playerZ = player.getWatchedSection().getZ();
 
             for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
                 var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
@@ -130,36 +123,15 @@ public final class PolymerUtils {
                 }
             }
 
-            var toSend = new ArrayList<WorldChunk>();
 
-            for (int x = -dist; x <= dist; x++) {
-                for (int z = -dist; z <= dist; z++) {
-                    var chunk = (WorldChunk) world.getChunk(x + playerX, z + playerZ, ChunkStatus.FULL, false);
-                    if (chunk != null) {
-                        toSend.add(chunk);
-                    }
-                }
-            }
+            player.getChunkFilter().forEach((chunkPos) -> {
+                var chunk = world.getChunk(chunkPos.x, chunkPos.z);
+                player.networkHandler.chunkDataSender.unload(player, chunk.getPos());
+                player.networkHandler.chunkDataSender.add(chunk);
+            });
 
-            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer$delayAction("polymer:reload/send_chunks/0", 1, () -> nestedSend(player, 0, toSend));
+
         });
-    }
-
-    private static void nestedSend(ServerPlayerEntity player, int iteration, List<WorldChunk> chunks) {
-        var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).threadedAnvilChunkStorage);
-
-        var iterator = chunks.listIterator();
-        int pos = 0;
-        while (iterator.hasNext() && pos < 15) {
-            var chunk = iterator.next();
-            pos++;
-            iterator.remove();
-            tacsAccess.polymer$sendChunkDataPackets(player, new MutableObject<>(), chunk);
-        }
-        if (chunks.size() != 0) {
-            int finalIteration = iteration + 1;
-            PolymerNetworkHandlerExtension.of(player.networkHandler).polymer$delayAction("polymer:reload/send_chunks/" + finalIteration, 1, () -> nestedSend(player, finalIteration, chunks));
-        }
     }
 
     /**

@@ -31,6 +31,15 @@ public class ServerPlayerEntityMixin implements CommonResourcePackInfoHolder {
     }
 
     @Override
+    public void polymerCommon$setResourcePackNoEvent(boolean value) {
+        if (this.networkHandler != null) {
+            ((CommonResourcePackInfoHolder) this.networkHandler).polymerCommon$setResourcePackNoEvent(value);
+        }
+
+        this.polymerCommon$hasResourcePack = value;
+    }
+
+    @Override
     public void polymerCommon$setIgnoreNextResourcePack() {
 
     }

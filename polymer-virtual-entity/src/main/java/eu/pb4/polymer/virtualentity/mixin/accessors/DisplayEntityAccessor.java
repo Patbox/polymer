@@ -78,4 +78,9 @@ public interface DisplayEntityAccessor {
     static TrackedData<Integer> getSTART_INTERPOLATION() {
         throw new UnsupportedOperationException();
     }
+
+    @Accessor
+    static TrackedData<Integer> getTELEPORT_DURATION() {
+        throw new UnsupportedOperationException();
+    }
 }

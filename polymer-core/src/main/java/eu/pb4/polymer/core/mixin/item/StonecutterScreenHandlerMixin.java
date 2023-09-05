@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.StonecuttingRecipe;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.StonecutterScreenHandler;
@@ -24,11 +25,9 @@ import java.util.List;
 @Mixin(StonecutterScreenHandler.class)
 public class StonecutterScreenHandlerMixin {
     @Shadow
-    private List<StonecuttingRecipe> availableRecipes;
-
-    @Shadow
     @Final
     private World world;
+    @Shadow private List<RecipeEntry<StonecuttingRecipe>> availableRecipes;
     @Unique
     private ServerPlayerEntity polymerCore$player;
 
@@ -43,7 +42,7 @@ public class StonecutterScreenHandlerMixin {
             var list = new ArrayList<>(this.availableRecipes);
 
             list.sort(Comparator.comparing(
-                    (recipe) -> PolymerItemUtils.getPolymerItemStack(recipe.getOutput(this.world.getRegistryManager()), this.polymerCore$player).getTranslationKey()
+                    (recipe) -> PolymerItemUtils.getPolymerItemStack(recipe.value().getResult(this.world.getRegistryManager()), this.polymerCore$player).getTranslationKey()
             ));
             this.availableRecipes = list;
         }

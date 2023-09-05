@@ -25,7 +25,7 @@ public class WorldEventS2CPacketMixin {
 
     @Shadow @Final private int data;
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeInt(I)Lio/netty/buffer/ByteBuf;", ordinal = 1))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
         if (this.eventId == WorldEvents.BLOCK_BROKEN) {
             var state = Block.getStateFromRawId(data);

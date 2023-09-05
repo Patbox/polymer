@@ -16,8 +16,8 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
+import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.EntityTrackingListener;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -77,14 +77,14 @@ public abstract class EntityTrackerEntryMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void polymer$tickHead(CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {
-            polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet((Set<EntityTrackingListener>) receiver.getAttached()));
+            polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet((Set<PlayerAssociatedNetworkHandler>) receiver.getAttached()));
         }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {
-            polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet((Set<EntityTrackingListener>) receiver.getAttached()));
+            polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet((Set<PlayerAssociatedNetworkHandler>) receiver.getAttached()));
         }
     }
 

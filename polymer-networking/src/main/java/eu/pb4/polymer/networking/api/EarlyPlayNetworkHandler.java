@@ -4,13 +4,21 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.impl.EarlyConnectionMagic;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
+import net.minecraft.class_8791;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.listener.TickablePacketListener;
+import net.minecraft.network.packet.c2s.common.CommonPongC2SPacket;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.common.KeepAliveC2SPacket;
+import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.c2s.play.*;
+import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
+import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
+import net.minecraft.network.packet.s2c.common.KeepAliveS2CPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
@@ -20,7 +28,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PlayerProvidingPacketListener;
+import xyz.nucleoid.packettweaker.ContextProvidingPacketListener;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -32,7 +40,7 @@ import java.util.function.Function;
  * Use this only if you know what you are doing and you need to do sync/packets before player joins a world.
  */
 
-public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener, PlayerProvidingPacketListener {
+public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener, ContextProvidingPacketListener {
 
     public static void register(Function<Context, EarlyPlayNetworkHandler> constructor) {
         EarlyConnectionMagic.register(constructor);
@@ -54,7 +62,6 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         this.identifier = identifier;
 
         this.context.connection().setPacketListener(this);
-        this.context.connection().setState(NetworkState.PLAY);
 
         this.sendKeepAlive();
     }
@@ -109,11 +116,16 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         }
     }
 
+    @Override
+    public void onPong(CommonPongC2SPacket packet) {
+
+    }
+
     public final void sendPacket(Packet<?> packet) {
         this.context.connection().send(packet);
         if (packet instanceof GameJoinS2CPacket packet1) {
             if (this.isForcingRespawnPacket()) {
-                this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), (byte) 0, packet1.lastDeathLocation(), packet1.portalCooldown()));
+                //this.context.connection().send(new PlayerRespawnS2CPacket(packet1.dimensionType(), packet1.dimensionId(), packet1.sha256Seed(), packet1.gameMode(), packet1.previousGameMode(), packet1.debugWorld(), packet1.flatWorld(), (byte) 0, packet1.lastDeathLocation(), packet1.portalCooldown()));
             }
 
             this.forceRespawnPacket();
@@ -130,7 +142,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     }
 
     public final void sendPing(int id) {
-        this.sendPacket(new PlayPingS2CPacket(id));
+        this.sendPacket(new CommonPongC2SPacket(id));
     }
 
     public final int sendPing() {
@@ -142,22 +154,27 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     @Override
     public final void onCustomPayload(CustomPayloadC2SPacket packet) {
         if (!handleCustomPayload(packet)) {
-            this.context.storedPackets().add(new CustomPayloadC2SPacket(packet.getChannel(), new PacketByteBuf(packet.getData().copy())));
+            //this.context.storedPackets().add(new CustomPayloadC2SPacket(packet.getChannel(), new PacketByteBuf(packet.getData().copy())));
         }
+    }
+
+    @Override
+    public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
+
     }
 
     public final void sendInitialGameJoin() {
         if (!this.isForcingRespawnPacket()) {
             var player = this.getPlayer();
             var server = this.getServer();
-            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty(), 0));
+            //this.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.SPECTATOR, null, server.getWorldRegistryKeys(), server.getRegistryManager(), server.getOverworld().getDimensionKey(), server.getOverworld().getRegistryKey(), 0, server.getPlayerManager().getMaxPlayerCount(), 2, 2, false, false, false, true, Optional.empty(), 0));
         }
     }
 
     @Override
     public final void onDisconnected(Text reason) {
         for (var packets : this.context.storedPackets()) {
-            packets.getData().release();
+            //packets.getData().release();
         }
         this.context.storedPackets().clear();
         this.handleDisconnect(reason);
@@ -174,7 +191,7 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
             this.context.connection().disconnect(reason);
 
             for (var packets : this.context.storedPackets()) {
-                packets.getData().release();
+                //packets.getData().release();
             }
             this.context.storedPackets().clear();
         } catch (Exception var3) {
@@ -205,11 +222,6 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
         } else {
             return String.valueOf(this.context.connection().getAddress());
         }
-    }
-
-    @Override
-    public void onPong(PlayPongC2SPacket packet) {
-
     }
 
     @Override
@@ -324,11 +336,6 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     }
 
     @Override
-    public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
-
-    }
-
-    @Override
     public void onBoatPaddleState(BoatPaddleStateC2SPacket packet) {
 
     }
@@ -439,8 +446,23 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     }
 
     @Override
+    public void onAcknowledgeReconfiguration(AcknowledgeReconfigurationC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onAcknowledgeChunks(AcknowledgeChunksC2SPacket packet) {
+
+    }
+
+    @Override
     public boolean isConnectionOpen() {
         return this.getConnection().isOpen();
+    }
+
+    @Override
+    public void onQueryPing(QueryPingC2SPacket packet) {
+
     }
 
     @ApiStatus.NonExtendable
@@ -452,6 +474,17 @@ public abstract class EarlyPlayNetworkHandler implements ServerPlayPacketListene
     @Override
     public final @Nullable ServerPlayerEntity getPlayerForPacketTweaker() {
         return this.getPlayer();
+    }
+
+
+    @Override
+    public GameProfile getGameProfileForPacketTweaker() {
+        return this.getPlayer().getGameProfile();
+    }
+
+    @Override
+    public class_8791 getClientSettingsForPacketTweaker() {
+        return this.getPlayer().method_53823();
     }
 
     protected final ServerLoginNetworkHandler getLoginNetworkHandler() {

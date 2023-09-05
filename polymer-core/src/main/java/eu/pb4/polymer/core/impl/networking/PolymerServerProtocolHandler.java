@@ -5,11 +5,8 @@ import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.ServerMetadataKeys;
-import eu.pb4.polymer.core.impl.interfaces.PolymerNetworkHandlerExtension;
-import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
+import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
-import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
-import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -17,7 +14,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SkullItem;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
@@ -46,7 +42,7 @@ public class PolymerServerProtocolHandler {
         if (version > -1) {
             var tooltip = buf.readBoolean();
             handler.getPlayer().getServer().execute(() -> {
-                PolymerNetworkHandlerExtension.of(handler).polymer$setAdvancedTooltip(tooltip);
+                PolymerPlayNetworkHandlerExtension.of(handler).polymer$setAdvancedTooltip(tooltip);
 
                 if (PolymerServerNetworking.getLastPacketReceivedTime(handler, ClientPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {
                     PolymerSyncUtils.synchronizeCreativeTabs(handler);

@@ -9,12 +9,12 @@ import eu.pb4.polymer.networking.impl.ServerPackets;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.CustomPayload;
+
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -31,8 +31,8 @@ public class ClientPacketRegistry {
     public static final Map<Identifier, NbtElement> METADATA = new HashMap<>();
     public static String lastVersion;
 
-    public static boolean handle(ClientPlayNetworkHandler handler, CustomPayloadS2CPacket packet) {
-        boolean versionRead = false;
+    public static boolean handle(ClientCommonNetworkHandler handler, CustomPayload packet) {
+        /*boolean versionRead = false;
         int version = -1;
 
         var identifier = packet.getChannel();
@@ -55,7 +55,7 @@ public class ClientPacketRegistry {
                 buf.release();
             } catch (Throwable e) {}
             return true;
-        }
+        }*/
 
         return false;
     }
@@ -118,7 +118,7 @@ public class ClientPacketRegistry {
             PolymerClientNetworking.BEFORE_METADATA_SYNC.invoke(Runnable::run);
             var buf = buf(1);
             ServerPacketRegistry.encodeMetadata(buf, METADATA);
-            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.METADATA, buf));
+            //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.METADATA, buf));
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -148,7 +148,7 @@ public class ClientPacketRegistry {
                 }
             }
 
-            handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.HANDSHAKE, buf));
+            //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.HANDSHAKE, buf));
     }
 
 
