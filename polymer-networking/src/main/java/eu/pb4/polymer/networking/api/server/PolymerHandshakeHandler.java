@@ -1,0 +1,47 @@
+package eu.pb4.polymer.networking.api.server;
+
+import eu.pb4.polymer.networking.impl.PolymerHandshakeHandlerImplLate;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+
+@ApiStatus.NonExtendable
+public interface PolymerHandshakeHandler {
+    void sendPacket(Packet<?> packet);
+    void set(String polymerVersion, Object2IntMap<Identifier> protocolVersions);
+    void setMetadataValue(Identifier identifier, NbtElement value);
+
+    boolean isPolymer();
+
+    String getPolymerVersion();
+
+    int getSupportedProtocol(Identifier identifier);
+
+    void setLastPacketTime(Identifier identifier);
+
+    long getLastPacketTime(Identifier identifier);
+
+    MinecraftServer getServer();
+
+    @Nullable
+    ServerPlayerEntity getPlayer();
+
+    static PolymerHandshakeHandler of(MinecraftServer server, ServerCommonNetworkHandler handler) {
+        return PolymerHandshakeHandlerImplLate.of(server, handler);
+    }
+
+    void apply(ServerPlayNetworkHandler handler);
+
+    boolean getPackStatus();
+
+    void reset();
+
+    void setPackStatus(boolean status);
+}

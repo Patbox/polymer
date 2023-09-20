@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin({
         EntityS2CPacket.class,
         EntitySpawnS2CPacket.class,
-        PlayerSpawnS2CPacket.class,
         EntityTrackerUpdateS2CPacket.class,
         EntityPositionS2CPacket.class,
         EntitySetHeadYawS2CPacket.class,

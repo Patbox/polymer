@@ -1,9 +1,13 @@
 package eu.pb4.polymer.networking.impl;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
-import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
-import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
+import eu.pb4.polymer.common.impl.CommonClientConnectionExt;
+import eu.pb4.polymer.networking.api.server.EarlyConfigurationNetworkHandler;
+import eu.pb4.polymer.networking.api.server.EarlyPlayNetworkHandler;
+import eu.pb4.polymer.networking.api.server.PolymerHandshakeHandler;
+import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
+import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
+import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -11,62 +15,56 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.c2s.common.CommonPongC2SPacket;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @ApiStatus.Internal
-public final class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHandler implements PolymerHandshakeHandler {
-    public static long MAGIC_INIT_VALUE = 0xbb706c6d72627374L;
-    public static int CONTINUE_LOGIN_ID = 1;
+public final class PolymerHandshakeHandlerImplLogin extends EarlyConfigurationNetworkHandler implements PolymerHandshakeHandler {
+    public static int PING_ID = 0x91776;
 
-    private String polymerVersion = "";
-    private Object2IntMap<Identifier> protocolVersions = null;
+    private int pings = 0;
     private final Object2LongMap<Identifier> lastUpdate = new Object2LongOpenHashMap<>();
-    private final Map<Identifier, NbtElement> metadata = new HashMap<>();
+    private final ExtClientConnection extClientConnection;
 
     private PolymerHandshakeHandlerImplLogin(Context context) {
         super(new Identifier("polymer", "early_handshake"), context);
-        ((TempPlayerLoginAttachments) this.getPlayer()).polymerNet$setHandshakeHandler(this);
-        if (NetImpl.SEND_GAME_JOIN_PACKET) {
-            this.sendInitialGameJoin();
-        }
-        this.sendKeepAlive(MAGIC_INIT_VALUE);
-
-        //PolymerSyncUtils.PREPARE_HANDSHAKE.invoke((c) -> c.accept(this));
+        this.sendPacket(new HelloS2CPayload());
+        this.sendPing(PING_ID);
+        this.extClientConnection = ExtClientConnection.of(this.getConnection());
     }
 
     @Nullable
-    public static EarlyPlayNetworkHandler create(Context context) {
-        if (PolymerCommonUtils.isBedrockPlayer(context.player())) {
+    public static EarlyConfigurationNetworkHandler create(Context context) {
+        if (PolymerCommonUtils.isBedrockPlayer(context.profile())) {
             return null;
         }
         return new PolymerHandshakeHandlerImplLogin(context);
     }
 
     public void set(String polymerVersion, Object2IntMap<Identifier> protocolVersions) {
-        this.polymerVersion = polymerVersion;
-        this.protocolVersions = protocolVersions;
+        this.extClientConnection.polymerNet$setVersion(polymerVersion);
+        for (var entry : protocolVersions.object2IntEntrySet()) {
+            this.extClientConnection.polymerNet$setSupportedVersion(entry.getKey(), entry.getIntValue());
+        }
     }
 
     @Override
     public void setMetadataValue(Identifier identifier, NbtElement value) {
-        this.metadata.put(identifier, value);
+        this.extClientConnection.polymerNet$getMetadataMap().put(identifier, value);
     }
 
     public boolean isPolymer() {
-        return !this.polymerVersion.isEmpty();
+        return this.extClientConnection.polymerNet$hasPolymer();
     }
 
     public String getPolymerVersion() {
-        return this.polymerVersion;
+        return this.extClientConnection.polymerNet$version();
     }
 
     public int getSupportedProtocol(Identifier identifier) {
-        return this.protocolVersions != null ? this.protocolVersions.getOrDefault(identifier, -1) : -1;
+        return this.extClientConnection.polymerNet$getSupportedVersion(identifier);
     }
 
     @Override
@@ -80,17 +78,13 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHand
     }
 
     @Override
+    public @Nullable ServerPlayerEntity getPlayer() {
+        return null;
+    }
+
+    @Override
     public void apply(ServerPlayNetworkHandler handler) {
         var polymerHandler = NetworkHandlerExtension.of(handler);
-
-        polymerHandler.polymerNet$setVersion(this.getPolymerVersion());
-        polymerHandler.polymerNet$getMetadataMap().putAll(this.metadata);
-
-        if (this.protocolVersions != null) {
-            for (var entry : this.protocolVersions.object2IntEntrySet()) {
-                polymerHandler.polymerNet$setSupportedVersion(entry.getKey(), entry.getIntValue());
-            }
-        }
 
         for (var entry : this.lastUpdate.keySet()) {
             polymerHandler.polymerNet$savePacketTime(entry);
@@ -99,54 +93,46 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyPlayNetworkHand
 
     @Override
     public boolean getPackStatus() {
-        return ((CommonResourcePackInfoHolder) this.getPlayer()).polymerCommon$hasResourcePack();
+        return ((CommonClientConnectionExt) this.getConnection()).polymerCommon$hasResourcePack();
     }
 
     @Override
     public void reset() {
-        this.protocolVersions.clear();
+        this.extClientConnection.polymerNet$getSupportMap().clear();
     }
 
     @Override
     public void setPackStatus(boolean status) {
-        ((CommonResourcePackInfoHolder) this.getPlayer()).polymerCommon$setResourcePack(status);
+        ((CommonClientConnectionExt) this.getConnection()).polymerCommon$setResourcePack(status);
     }
 
     @Override
     public boolean handleCustomPayload(CustomPayloadC2SPacket packet) {
-        /*var data = packet.getData();
-        if (packet.getChannel().equals(ClientPackets.HANDSHAKE)) {
+        if (packet.payload() instanceof HandshakePayload handshakePayload) {
             try {
-                ServerPacketRegistry.handleHandshake(this, data.readVarInt(), data);
+                ServerPacketRegistry.handleHandshake(this, handshakePayload);
             } catch (Throwable e) {
-                e.printStackTrace();
+                NetImpl.LOGGER.error("Packet Handling failed!", e);
             }
             return true;
-        }  if (packet.getChannel().equals(ClientPackets.METADATA)) {
+        }  if (packet.payload() instanceof MetadataPayload payload) {
             try {
-                ServerPacketRegistry.handleMetadata(this, data.readVarInt(), data);
+                ServerPacketRegistry.handleMetadata(this, payload);
             } catch (Throwable e) {
-                e.printStackTrace();
+                NetImpl.LOGGER.error("Packet Handling failed!", e);
             }
             return true;
         } else {
             return false;
-        }*/
-
-        return false;
-    }
-
-    @Override
-    public void handleKeepAlive(long value) {
-        if (value == MAGIC_INIT_VALUE) {
-            this.sendPing(CONTINUE_LOGIN_ID);
         }
     }
-
     @Override
     public void onPong(CommonPongC2SPacket packet) {
-        if (packet.getParameter() == CONTINUE_LOGIN_ID) {
-            this.continueJoining();
+        if (packet.getParameter() == PING_ID) {
+            switch (this.pings++) {
+                case 0 -> this.sendPing(PING_ID);
+                case 1 -> this.continueJoining();
+            }
         }
     }
 }

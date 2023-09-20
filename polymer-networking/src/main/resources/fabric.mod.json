@@ -12,6 +12,10 @@
     "sources": "https://github.com/Patbox/polymer",
     "issues": "https://github.com/Patbox/polymer/issues"
   },
+  "entrypoints": {
+    "main": ["eu.pb4.polymer.networking.impl.ServerPacketRegistry::register"],
+    "client": ["eu.pb4.polymer.networking.impl.client.ClientPacketRegistry::register"]
+  },
   "mixins": [
     "polymer-networking.mixins.json"
   ],

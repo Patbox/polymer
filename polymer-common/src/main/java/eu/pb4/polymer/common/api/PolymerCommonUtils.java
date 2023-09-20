@@ -1,10 +1,12 @@
 package eu.pb4.polymer.common.api;
 
+import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -18,8 +20,6 @@ import java.net.URLConnection;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
-import java.util.WeakHashMap;
 
 public final class PolymerCommonUtils {
     private PolymerCommonUtils(){}
@@ -115,15 +115,16 @@ public final class PolymerCommonUtils {
      */
     public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
         var oldPlayer = CommonImplUtils.getPlayer();
-        var oldTarget = PacketContext.get().getTargetPlayer();
+        var oldTarget = PacketContext.get().getPlayer();
+        var oldPacket = PacketContext.get().getEncodedPacket();
 
         CommonImplUtils.setPlayer(player);
-        PacketContext.setContext(player.networkHandler);
+        PacketContext.setContext(((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection(), null);
 
         runnable.run();
 
         CommonImplUtils.setPlayer(oldPlayer);
-        PacketContext.setContext(oldTarget != null ? oldTarget.networkHandler : null);
+        PacketContext.setContext(oldTarget != null ? ((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection() : null, oldPacket);
     }
 
 
@@ -146,7 +147,7 @@ public final class PolymerCommonUtils {
 
     @Nullable
     public static ServerPlayerEntity getPlayerContextNoClient() {
-        ServerPlayerEntity player = PacketContext.get().getTargetPlayer();
+        ServerPlayerEntity player = PacketContext.get().getPlayer();
 
         if (player == null) {
             player = CommonImplUtils.getPlayer();
@@ -159,6 +160,10 @@ public final class PolymerCommonUtils {
        return Thread.currentThread().getName().startsWith("Netty");
     }
 
+    public static boolean isServerNetworkingThread() {
+        return isNetworkingThread() && Thread.currentThread().getName().contains("Server");
+    }
+
     public static boolean isBedrockPlayer(ServerPlayerEntity player) {
         if (CompatStatus.FLOODGATE) {
             return FloodGateUtils.isPlayerBroken(player);
@@ -166,9 +171,23 @@ public final class PolymerCommonUtils {
         return false;
     }
 
+    public static boolean isBedrockPlayer(GameProfile profile) {
+        if (CompatStatus.FLOODGATE) {
+            return FloodGateUtils.isPlayerBroken(profile);
+        }
+        return false;
+    }
+
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
-        return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE || (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack())
-                || (player != null && ((CommonResourcePackInfoHolder) player).polymerCommon$hasResourcePack())
+        return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
+                || (player != null && player.networkHandler != null && ((CommonClientConnectionExt) ((CommonNetworkHandlerExt) player.networkHandler)
+                .polymerCommon$getConnection()).polymerCommon$hasResourcePack())
+                || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
+    }
+
+    public static boolean hasResourcePack(ClientConnection connection) {
+        return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
+                || ((CommonClientConnectionExt) connection).polymerCommon$hasResourcePack()
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
@@ -178,6 +197,10 @@ public final class PolymerCommonUtils {
         }
 
         return true;
+    }
+
+    public static void setHasResourcePack(ServerPlayerEntity player, boolean status) {
+        ((CommonClientConnectionExt) ((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$getConnection()).polymerCommon$setResourcePack(status);
     }
 
     public interface ResourcePackChangeCallback {

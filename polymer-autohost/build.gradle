@@ -27,13 +27,13 @@ dependencies {
 
     api (project(path: ':polymer-common', configuration: 'namedElements'))
     api (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
-    api (project(path: ':polymer-networking', configuration: 'namedElements'))
 
 
     testmodImplementation sourceSets.main.output
     testmodImplementation (project(path: ':polymer-core', configuration: 'namedElements'))
     testmodImplementation (project(path: ':polymer-blocks', configuration: 'namedElements'))
     testmodImplementation (project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
+    testmodImplementation (project(path: ':polymer-networking', configuration: 'namedElements'))
 
     compileOnly (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
     localRuntime (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))

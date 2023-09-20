@@ -5,20 +5,21 @@ import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
-import eu.pb4.polymer.core.impl.networking.packets.*;
-import eu.pb4.polymer.networking.api.ServerPacketWriter;
-import eu.pb4.polymer.networking.api.PolymerServerNetworking;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
+import eu.pb4.polymer.core.impl.networking.entry.*;
+import eu.pb4.polymer.core.impl.networking.payloads.*;
+import eu.pb4.polymer.core.impl.networking.payloads.s2c.*;
+import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -34,52 +35,38 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import static eu.pb4.polymer.networking.api.PolymerServerNetworking.buf;
-
 @ApiStatus.Internal
 public class PolymerServerProtocol {
     public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
-        var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_SET_BLOCK_UPDATE);
+        var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.WORLD_SET_BLOCK_UPDATE);
 
         if (PolymerImplUtils.POLYMER_STATES.contains(state) && version > -1) {
-            var buf = buf(version);
-
-            buf.writeBlockPos(pos);
-            buf.writeVarInt(Block.STATE_IDS.getRawId(state));
-
-            //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_SET_BLOCK_UPDATE, buf));
+            player.sendPacket(new CustomPayloadS2CPacket(new PolymerBlockUpdateS2CPayload(pos, Block.STATE_IDS.getRawId(state))));
         }
-
     }
 
     public static void sendMultiBlockUpdate(ServerPlayNetworkHandler player, ChunkSectionPos chunkPos, short[] positions, BlockState[] blockStates) {
-        var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
+        var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.WORLD_CHUNK_SECTION_UPDATE);
 
         if (version > -1) {
-            var list = new LongArrayList();
+            var blocks = new IntArrayList();
+            var pos = new ShortArrayList();
 
             for (int i = 0; i < blockStates.length; i++) {
                 if (PolymerImplUtils.POLYMER_STATES.contains(blockStates[i])) {
-                    list.add(((long) Block.STATE_IDS.getRawId(blockStates[i])) << 12 | positions[i]);
+                    blocks.add(Block.STATE_IDS.getRawId(blockStates[i]));
+                    pos.add(positions[i]);
                 }
             }
 
-            if (!list.isEmpty()) {
-                var buf = buf(version);
-                buf.writeChunkSectionPos(chunkPos);
-                buf.writeVarInt(list.size());
-
-                for (var value : list) {
-                    buf.writeVarLong(value);
-                }
-
-                //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, buf));
+            if (blocks.isEmpty()) {
+                player.sendPacket(new CustomPayloadS2CPacket(new PolymerSectionUpdateS2CPayload(chunkPos, pos.toShortArray(), blocks.toIntArray())));
             }
         }
     }
 
     public static void sendSectionUpdate(ServerPlayNetworkHandler player, WorldChunk chunk) {
-        var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_CHUNK_SECTION_UPDATE);
+        var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.WORLD_CHUNK_SECTION_UPDATE);
 
         if (version > -1) {
             var wci = (PolymerBlockPosStorage) chunk;
@@ -90,23 +77,21 @@ public class PolymerServerProtocol {
                     var storage = (PolymerBlockPosStorage) section;
 
                     if (section != null && storage.polymer$hasAny()) {
-                        var buf = buf(version);
                         var set = storage.polymer$getBackendSet();
-                        buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), chunk.sectionIndexToCoord(i)));
+                        var blocks = new IntArrayList();
+
 
                         assert set != null;
-                        var size = set.size();
-                        buf.writeVarInt(size);
-
                         for (var pos : set) {
                             int x = ChunkSectionPos.unpackLocalX(pos);
                             int y = ChunkSectionPos.unpackLocalY(pos);
                             int z = ChunkSectionPos.unpackLocalZ(pos);
                             var state = section.getBlockState(x, y, z);
-                            buf.writeVarLong((((long) Block.STATE_IDS.getRawId(state)) << 12 | pos));
+                            blocks.add(Block.STATE_IDS.getRawId(state));
                         }
 
-                        //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, buf));
+                        player.sendPacket(new CustomPayloadS2CPacket(new PolymerSectionUpdateS2CPayload(ChunkSectionPos.from(chunk.getPos(), chunk.sectionIndexToCoord(i)),
+                                set.toShortArray(), blocks.toIntArray())));
                     }
                 }
             }
@@ -115,34 +100,26 @@ public class PolymerServerProtocol {
 
 
     public static void sendSyncPackets(ServerPlayNetworkHandler handler, boolean fullSync) {
-        if (PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_STARTED) == -1) {
+        if (PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_STARTED) == -1) {
             return;
         }
 
         var startTime = System.nanoTime();
         int version;
 
-        //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_STARTED, buf(0)));
+        handler.sendPacket(new CustomPayloadS2CPacket(new PolymerSyncStartedS2CPayload()));
         PolymerSyncUtils.ON_SYNC_STARTED.invoke((c) -> c.accept(handler));
 
-        version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_CLEAR);
+        version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_CLEAR);
         if (version != -1) {
-            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_CLEAR, buf(version)));
+            handler.sendPacket(new CustomPayloadS2CPacket(new PolymerSyncClearS2CPayload()));
         }
 
-        version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_INFO);
-        if (version != -1) {
-            var buf = buf(version);
-
-            buf.writeVarInt(PolymerImplUtils.getBlockStateOffset());
-
-            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_INFO, buf));
-        }
-        sendSync(handler, ServerPackets.SYNC_ENCHANTMENT, getServerSideEntries(Registries.ENCHANTMENT), false,
+        sendSync(handler, S2CPackets.SYNC_ENCHANTMENT, getServerSideEntries(Registries.ENCHANTMENT), false,
                 type -> new IdValueEntry(Registries.ENCHANTMENT.getRawId(type), Registries.ENCHANTMENT.getId(type)));
 
         PolymerSyncUtils.BEFORE_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_ITEM, getServerSideEntries(Registries.ITEM), false, PolymerItemEntry::of);
+        sendSync(handler, S2CPackets.SYNC_ITEM, getServerSideEntries(Registries.ITEM), false, PolymerItemEntry::of);
         PolymerSyncUtils.AFTER_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         if (fullSync) {
@@ -154,33 +131,33 @@ public class PolymerServerProtocol {
         }
 
         PolymerSyncUtils.BEFORE_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCK, getServerSideEntries(Registries.BLOCK), false, PolymerBlockEntry::of);
+        sendSync(handler, S2CPackets.SYNC_BLOCK, getServerSideEntries(Registries.BLOCK), false, PolymerBlockEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
         PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_BLOCKSTATE, getServerSideEntries(Block.STATE_IDS), false, PolymerBlockStateEntry::of);
+        sendSync(handler, S2CPackets.SYNC_BLOCKSTATE, getServerSideEntries(Block.STATE_IDS), false, PolymerBlockStateEntry::of);
         PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
         PolymerSyncUtils.BEFORE_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
-        sendSync(handler, ServerPackets.SYNC_ENTITY, getServerSideEntries(Registries.ENTITY_TYPE), false, PolymerEntityEntry::of);
+        sendSync(handler, S2CPackets.SYNC_ENTITY, getServerSideEntries(Registries.ENTITY_TYPE), false, PolymerEntityEntry::of);
         PolymerSyncUtils.AFTER_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
 
 
-        sendSync(handler, ServerPackets.SYNC_VILLAGER_PROFESSION, Registries.VILLAGER_PROFESSION);
-        sendSync(handler, ServerPackets.SYNC_STATUS_EFFECT, Registries.STATUS_EFFECT);
-        sendSync(handler, ServerPackets.SYNC_BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
-        sendSync(handler, ServerPackets.SYNC_FLUID, Registries.FLUID);
+        sendSync(handler, S2CPackets.SYNC_VILLAGER_PROFESSION, Registries.VILLAGER_PROFESSION);
+        sendSync(handler, S2CPackets.SYNC_STATUS_EFFECT, Registries.STATUS_EFFECT);
+        sendSync(handler, S2CPackets.SYNC_BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
+        sendSync(handler, S2CPackets.SYNC_FLUID, Registries.FLUID);
 
         if (fullSync) {
-            sendSync(handler, ServerPackets.SYNC_TAGS, (Registry<Registry<Object>>) Registries.REGISTRIES, true, PolymerTagEntry::of);
+            sendSync(handler, S2CPackets.SYNC_TAGS, (Registry<Registry<Object>>) Registries.REGISTRIES, true, PolymerTagEntry::of);
         }
 
         PolymerSyncUtils.ON_SYNC_CUSTOM.invoke((c) -> c.accept(handler, fullSync));
 
         PolymerSyncUtils.ON_SYNC_FINISHED.invoke((c) -> c.accept(handler));
 
-        //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_FINISHED, buf(0)));
+        handler.sendPacket(new CustomPayloadS2CPacket(new PolymerSyncFinishedS2CPayload()));
 
 
         if (PolymerImpl.LOG_SYNC_TIME) {
@@ -204,14 +181,14 @@ public class PolymerServerProtocol {
     }
 
     public static void sendCreativeSyncPackets(ServerPlayNetworkHandler handler) {
-        var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_DEFINE);
+        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_DEFINE);
 
         if (version != -1) {
             for (var group : PolymerItemGroupUtils.getItemGroups(handler.getPlayer())) {
                 syncItemGroup(group, handler);
             }
 
-            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_APPLY_UPDATE))));
+            handler.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupApplyUpdateS2CPayload()));
         }
     }
 
@@ -225,20 +202,18 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroupContents(ItemGroup group, ServerPlayNetworkHandler handler) {
-        var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
+        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
 
         if (version != -1) {
-            {
-                var buf = buf(PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR));
-                buf.writeIdentifier(PolymerItemGroupUtils.getId(group));
-                //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_CLEAR, buf));
-            }
+            var id = PolymerItemGroupUtils.getId(group);
+            handler.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupContentClearS2CPayload(id)));
+
 
 
             try {
-                var entry = PolymerItemGroupContent.of(group, handler);
+                var entry = PolymerItemGroupContentAddS2CPayload.of(group, handler);
                 if (entry.isNonEmpty()) {
-                    handler.sendPacket(entry.toPacket(ServerPackets.SYNC_ITEM_GROUP_CONTENTS_ADD));
+                    handler.sendPacket(new CustomPayloadS2CPacket(entry));
                 }
             } catch (Exception e) {
 
@@ -248,23 +223,18 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroupDefinition(ItemGroup group, ServerPlayNetworkHandler handler) {
-        var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.SYNC_ITEM_GROUP_DEFINE);
+        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_DEFINE);
 
         if (version > -1 && (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerItemGroupUtils.isPolymerItemGroup(group))) {
-            var buf = buf(version);
-
-            buf.writeIdentifier(PolymerItemGroupUtils.getId(group));
-            buf.writeText(ServerTranslationUtils.parseFor(handler, group.getDisplayName()));
-            PolymerImplUtils.writeStack(buf, PolymerImplUtils.convertStack(group.getIcon(), handler.player));
-            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_DEFINE, buf));
+            handler.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupDefineS2CPayload(PolymerItemGroupUtils.getId(group), group.getDisplayName(), group.getIcon())));
         }
     }
 
     public static void removeItemGroup(ItemGroup group, ServerPlayNetworkHandler player) {
-        var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.SYNC_ITEM_GROUP_REMOVE);
+        var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.SYNC_ITEM_GROUP_REMOVE);
 
         if (version > -1 && PolymerItemGroupUtils.isPolymerItemGroup(group)) {
-            //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.SYNC_ITEM_GROUP_REMOVE, buf(version).writeIdentifier(PolymerItemGroupUtils.REGISTRY.getId(group))));
+            player.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupRemoveS2CPayload(PolymerItemGroupUtils.REGISTRY.getId(group))));
         }
     }
 
@@ -273,34 +243,20 @@ public class PolymerServerProtocol {
     }
 
     public static void sendEntityInfo(ServerPlayNetworkHandler player, int id, EntityType<?> type) {
-        var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_ENTITY);
+        var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.WORLD_ENTITY);
 
         if (version != -1) {
-            var buf = buf(0);
-            buf.writeVarInt(id);
-            buf.writeIdentifier(Registries.ENTITY_TYPE.getId(type));
-            //player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_ENTITY, buf));
+            player.sendPacket(new CustomPayloadS2CPacket(new PolymerEntityS2CPayload(id, Registries.ENTITY_TYPE.getId(type))));
         }
     }
 
 
-    private static void sendSync(ServerPlayNetworkHandler handler, Identifier id, int version, List<BufferWritable> entries) {
-        handler.sendPacket(new SyncPacket(List.copyOf(entries)).toPacket(id));
+    private static void sendSync(ServerPlayNetworkHandler handler, Identifier id, List<WritableEntry> entries) {
+        handler.sendPacket(new CustomPayloadS2CPacket(new PolymerGenericListPayload<>(id, List.copyOf(entries))));
         entries.clear();
     }
 
-    private record SyncPacket(List<BufferWritable> entries) implements ServerPacketWriter {
-        @Override
-        public void write(ServerPlayNetworkHandler handler, PacketByteBuf buf, Identifier packetId, int version) {
-            buf.writeVarInt(entries.size());
-
-            for (var entry : entries) {
-                entry.write(buf, version, handler);
-            }
-        }
-    }
-
-    private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, Function<T, BufferWritable> writableFunction) {
+    private static <T> void sendSync(ServerPlayNetworkHandler handler, Identifier packetId, Iterable<T> iterable, boolean bypassPolymerCheck, Function<T, WritableEntry> writableFunction) {
         sendSync(handler, packetId, iterable, bypassPolymerCheck, (a, b, c) -> writableFunction.apply(a));
     }
 
@@ -312,7 +268,7 @@ public class PolymerServerProtocol {
         }
 
         if (version != -1) {
-            var entries = new ArrayList<BufferWritable>();
+            var entries = new ArrayList<WritableEntry>();
             for (var entry : iterable) {
                 if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(handler.player))) {
                     var val = writableFunction.serialize(entry, handler, version);
@@ -321,26 +277,26 @@ public class PolymerServerProtocol {
                     }
 
                     if (entries.size() > 100) {
-                        sendSync(handler, packetId, version, entries);
+                        sendSync(handler, packetId, entries);
                     }
                 }
             }
 
-            if (entries.size() != 0) {
-                sendSync(handler, packetId, version, entries);
+            if (!entries.isEmpty()) {
+                sendSync(handler, packetId, entries);
             }
         }
     }
 
     public static void sendDebugValidateStatesPackets(ServerPlayNetworkHandler handler) {
-        var version = PolymerServerNetworking.getSupportedVersion(handler, ServerPackets.DEBUG_VALIDATE_STATES);
+        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.DEBUG_VALIDATE_STATES);
 
         if (version != -1) {
-            sendSync(handler, ServerPackets.DEBUG_VALIDATE_STATES, Block.STATE_IDS, true, DebugBlockStateEntry::of);
+            sendSync(handler, S2CPackets.DEBUG_VALIDATE_STATES, Block.STATE_IDS, true, DebugBlockStateEntry::of);
         }
     }
 
     public interface BufferWritableCreator<T> {
-        BufferWritable serialize(T object, ServerPlayNetworkHandler handler, int version);
+        WritableEntry serialize(T object, ServerPlayNetworkHandler handler, int version);
     }
 }

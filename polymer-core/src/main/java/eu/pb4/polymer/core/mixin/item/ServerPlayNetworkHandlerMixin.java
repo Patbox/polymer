@@ -7,23 +7,22 @@ import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
-import eu.pb4.polymer.networking.api.PolymerServerNetworking;
-import net.minecraft.class_8792;
+import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Equipment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.common.ClientOptionsC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
-import net.minecraft.network.packet.c2s.play.ClientSettingsC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.network.packet.s2c.common.SynchronizeTagsS2CPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.tag.TagPacketSerializer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ConnectedClientData;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,42 +42,34 @@ import java.util.List;
 public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler {
     @Shadow
     public ServerPlayerEntity player;
-    private boolean polymerCore$sentFirstLang = false;
-
     @Unique
     private final List<ItemStack> polymerCore$armorItems = new ArrayList<>();
     @Unique
     private String polymerCore$language;
 
-    public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, class_8792 arg) {
-        super(server, connection, arg);
-        polymerCore$language = arg.clientInformation().language();
+    public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData clientData) {
+        super(server, connection, clientData);
     }
 
-    @Inject(method = "onClientSettings", at = @At("TAIL"))
-    private void polymerCore$resendLanguage(ClientSettingsC2SPacket packet, CallbackInfo ci) {
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void polymerCore$storeLanguage(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
+        this.polymerCore$language = clientData.syncedOptions().language();
+    }
+
+
+    @Inject(method = "onClientOptions", at = @At("TAIL"))
+    private void polymerCore$resendLanguage(ClientOptionsC2SPacket packet, CallbackInfo ci) {
         if (CommonImplUtils.isMainPlayer(this.player)) {
             return;
         }
 
-        if (!this.polymerCore$language.equals(packet.information().language())) {
-            Runnable runnable = () -> {
-                PolymerServerProtocol.sendSyncPackets(player.networkHandler, true);
-                this.sendPacket(new SynchronizeTagsS2CPacket(TagPacketSerializer.serializeTags(this.player.getServerWorld().getServer().getCombinedDynamicRegistries())));
-                this.sendPacket(new SynchronizeRecipesS2CPacket(this.player.getServerWorld().getRecipeManager().values()));
-                this.player.getRecipeBook().sendInitRecipesPacket(this.player);
-            };
-
-            if (this.polymerCore$sentFirstLang) {
-                PolymerPlayNetworkHandlerExtension.of(this.player).polymer$delayAction("language_update", 1500, runnable);
-            } else {
-                runnable.run();
-            }
-        } else if (!this.polymerCore$sentFirstLang && PolymerServerNetworking.getMetadata(this.player.networkHandler, ClientMetadataKeys.LANGUAGE, NbtString.TYPE) == null) {
+        if (!this.polymerCore$language.equals(packet.options().language())) {
+            this.polymerCore$language = packet.options().language();
             PolymerServerProtocol.sendSyncPackets(player.networkHandler, true);
+            this.sendPacket(new SynchronizeTagsS2CPacket(TagPacketSerializer.serializeTags(this.player.getServerWorld().getServer().getCombinedDynamicRegistries())));
+            this.sendPacket(new SynchronizeRecipesS2CPacket(this.player.getServerWorld().getRecipeManager().values()));
+            this.player.getRecipeBook().sendInitRecipesPacket(this.player);
         }
-        this.polymerCore$sentFirstLang = true;
-        this.polymerCore$language = packet.information().language();
     }
 
     @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))

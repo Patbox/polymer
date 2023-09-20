@@ -4,14 +4,17 @@
   "package": "eu.pb4.polymer.common.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ClientConnectionMixin",
     "CommandManagerMixin",
     "DataTrackerAccessor",
     "ReferenceAccessor",
     "ServerCommonNetworkHandlerMixin",
-    "ServerPlayerEntityMixin",
     "WorldAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "client.ClientCommonNetworkHandlerMixin"
+  ]
 }

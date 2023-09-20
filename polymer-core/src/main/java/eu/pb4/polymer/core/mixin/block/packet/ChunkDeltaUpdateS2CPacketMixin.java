@@ -21,11 +21,6 @@ public abstract class ChunkDeltaUpdateS2CPacketMixin {
         return PolymerBlockUtils.getPolymerBlockState(state, PolymerUtils.getPlayerContext());
     }
 
-    // Ok, you might ask why does polymer need to do these negative/null checks.
-    // They shouldn't normally happen unless polymer is broken right?
-    // Heh, you wish. Vanilla write method is broken, limiting max blockstate size to 524288
-    // Just see this issue... https://github.com/ConsistencyPlus/ConsistencyPlus/issues/108
-
     @Environment(EnvType.CLIENT)
     @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"), require = 0)
     private Object polymer$decodeState(IdList instance, int index) {

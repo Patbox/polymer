@@ -43,6 +43,30 @@ public class PolymerImplUtils {
         return new Identifier(PolymerUtils.ID, path);
     }
 
+    public static Item decodeItem(int rawId) {
+        if (PolymerImpl.IS_CLIENT) {
+            return InternalClientRegistry.decodeItem(rawId);
+        } else {
+            return Item.byRawId(rawId);
+        }
+    }
+
+    /**
+     * Why you may ask? Some mods just like to make my life harder by modifying vanilla packet format...
+     * So method above would get invalid data
+     */
+    /*public static void writeStack(PacketByteBuf buf, ItemStack stack) {
+        if (stack.isEmpty()) {
+            buf.writeBoolean(false);
+        } else {
+            buf.writeBoolean(true);
+            Item item = stack.getItem();
+            buf.writeVarInt(Item.getRawId(item));
+            buf.writeByte(stack.getCount());
+            buf.writeNbt(stack.getNbt());
+        }
+    }
+
     public static ItemStack readStack(PacketByteBuf buf) {
         if (!buf.readBoolean()) {
             return ItemStack.EMPTY;
@@ -59,31 +83,7 @@ public class PolymerImplUtils {
             itemStack.setNbt(buf.readNbt());
             return itemStack;
         }
-    }
-
-    public static Item decodeItem(int rawId) {
-        if (PolymerImpl.IS_CLIENT) {
-            return InternalClientRegistry.decodeItem(rawId);
-        } else {
-            return Item.byRawId(rawId);
-        }
-    }
-
-    /**
-     * Why you may ask? Some mods just like to make my life harder by modifying vanilla packet format...
-     * So method above would get invalid data
-     */
-    public static void writeStack(PacketByteBuf buf, ItemStack stack) {
-        if (stack.isEmpty()) {
-            buf.writeBoolean(false);
-        } else {
-            buf.writeBoolean(true);
-            Item item = stack.getItem();
-            buf.writeVarInt(Item.getRawId(item));
-            buf.writeByte(stack.getCount());
-            buf.writeNbt(stack.getNbt());
-        }
-    }
+    }*/
 
     public static String getAsString(BlockState state) {
         var builder = new StringBuilder();

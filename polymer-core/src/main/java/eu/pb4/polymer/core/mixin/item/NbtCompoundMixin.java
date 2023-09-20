@@ -47,7 +47,7 @@ public abstract class NbtCompoundMixin implements ItemStackAwareNbtCompound {
 
     @Inject(method = "write(Ljava/io/DataOutput;)V", at = @At("HEAD"))
     private void polymerCore$storePlayerContextedItemStack(DataOutput output, CallbackInfo ci, @Share("polymerCore:stack") LocalRef<ItemStack> polymerStack) {
-        if (this.polymerCore$stack && PolymerCommonUtils.isNetworkingThread()) {
+        if (this.polymerCore$stack && PolymerCommonUtils.isServerNetworkingThread()) {
             var player = PolymerCommonUtils.getPlayerContextNoClient();
             var stack = ItemStack.fromNbt((NbtCompound) (Object) this);
             if (player != null && stack != null && !stack.isEmpty()) {
@@ -61,7 +61,7 @@ public abstract class NbtCompoundMixin implements ItemStackAwareNbtCompound {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/NbtCompound;write(Ljava/lang/String;Lnet/minecraft/nbt/NbtElement;Ljava/io/DataOutput;)V")
     )
     private boolean polymerCore$ignoreIdAndTag(String key, NbtElement element, DataOutput output, @Share("polymerCore:stack") LocalRef<ItemStack> polymerStack) {
-        if (this.polymerCore$stack && PolymerCommonUtils.isNetworkingThread()) {
+        if (this.polymerCore$stack && PolymerCommonUtils.isServerNetworkingThread()) {
             var stack = polymerStack.get();
             if (stack != null) {
                 return !key.equals("id") && !key.equals("tag");
@@ -72,7 +72,7 @@ public abstract class NbtCompoundMixin implements ItemStackAwareNbtCompound {
     }
     @Inject(method = "write(Ljava/io/DataOutput;)V", at = @At(value = "INVOKE", target = "Ljava/io/DataOutput;writeByte(I)V", ordinal = 0))
     private void polymerCore$writeNbtIfMissing(DataOutput output, CallbackInfo ci, @Share("polymerCore:stack") LocalRef<ItemStack> polymerStack) throws IOException {
-        if (this.polymerCore$stack && PolymerCommonUtils.isNetworkingThread()) {
+        if (this.polymerCore$stack && PolymerCommonUtils.isServerNetworkingThread()) {
             var stack = polymerStack.get();
             if (stack != null) {
                 write(MARKER_KEY, MARKER_VALUE, output);

@@ -1,160 +1,169 @@
 package eu.pb4.polymer.networking.impl.client;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
+import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import eu.pb4.polymer.networking.api.client.PolymerClientPacketHandler;
-import eu.pb4.polymer.networking.impl.ClientPackets;
-import eu.pb4.polymer.networking.impl.ServerPacketRegistry;
-import eu.pb4.polymer.networking.impl.ServerPackets;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import eu.pb4.polymer.networking.api.payload.SingleplayerSerialization;
+import eu.pb4.polymer.networking.impl.*;
+import eu.pb4.polymer.networking.impl.packets.DisableS2CPayload;
+import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
+import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
+import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
+import eu.pb4.polymer.networking.mixin.CustomPayloadS2CPacketAccessor;
+import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientCommonNetworkHandler;
+import net.minecraft.client.network.ClientConfigurationNetworkHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import static eu.pb4.polymer.networking.api.PolymerServerNetworking.buf;
 
 @ApiStatus.Internal
 public class ClientPacketRegistry {
-    public static final HashMap<Identifier, PolymerClientPacketHandler> PACKETS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientCommonNetworkHandler, ?>>> COMMON_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientPlayNetworkHandler, ?>>> PLAY_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientConfigurationNetworkHandler, ?>>> CONFIG_PACKET_LISTENERS = new HashMap<>();
     public static final Object2IntMap<Identifier> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
     public static final Map<Identifier, NbtElement> SERVER_METADATA = new HashMap<>();
     public static final Map<Identifier, NbtElement> METADATA = new HashMap<>();
     public static String lastVersion;
-
-    public static boolean handle(ClientCommonNetworkHandler handler, CustomPayload packet) {
-        /*boolean versionRead = false;
-        int version = -1;
-
-        var identifier = packet.getChannel();
-
-        var packetHandler = PACKETS.get(identifier);
-
-
-        if (packetHandler != null) {
-            var buf = packet.getData();
-            try {
-                version = buf.readVarInt();
-                versionRead = true;
-
-                packetHandler.onPacket(handler, version, buf);
-                return true;
-            } catch (Throwable e) {
-                CommonImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from server!", identifier, versionRead ? version : "Unknown"), e);
-            }
-            try {
-                buf.release();
-            } catch (Throwable e) {}
-            return true;
-        }*/
-
-        return false;
+    public static void register() {
+        PolymerClientNetworking.registerCommonHandler(HandshakePayload.class, ClientPacketRegistry::handleHandshake);
+        PolymerClientNetworking.registerCommonHandler(MetadataPayload.class, ClientPacketRegistry::handleMetadata);
+        PolymerClientNetworking.registerCommonHandler(DisableS2CPayload.class, ClientPacketRegistry::handleDisable);
+        PolymerClientNetworking.registerCommonHandler(HelloS2CPayload.class, ClientPacketRegistry::handleHello);
     }
 
-    public static void clear() {
+    private static void handleHello(MinecraftClient client, ClientCommonNetworkHandler handler, HelloS2CPayload payload) {
+        sendHandshake(handler);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes", "UnstableApiUsage"})
+    public static boolean handle(MinecraftClient client, ClientCommonNetworkHandler handler, CustomPayload packet) {
+        if (packet instanceof SingleplayerSerialization && ClientUtils.isSingleplayer()) {
+            var player = ClientUtils.getPlayer();
+            var reader = CustomPayloadS2CPacketAccessor.getID_TO_READER().get(packet.id());
+            if (player != null && reader != null) {
+                var con = PacketContext.get();
+                var conn = con.getClientConnection();
+                var pck = con.getEncodedPacket();
+
+                PacketContext.setContext(((NetworkHandlerExtension) player.networkHandler).polymerNet$getConnection(), pck);
+                var buf = new PacketByteBuf(Unpooled.buffer());
+                try {
+                    packet.write(buf);
+                    PacketContext.setContext(conn, pck);
+                    packet = reader.apply(buf);
+                } catch (Throwable e) {
+                    NetImpl.LOGGER.error("Error occurred while transforming " + packet.id() + " packet!", e);
+                    PacketContext.setContext(conn, pck);
+                }
+            }
+        }
+
+        var packetHandlers = COMMON_PACKET_LISTENERS.get(packet.getClass());
+        boolean handled = false;
+        if (packetHandlers != null) {
+            for (var pHandler : packetHandlers) {
+                ((PolymerClientPacketHandler) pHandler).onPacket(client, handler, packet);
+            }
+            handled = !packetHandlers.isEmpty();
+        }
+
+        if (handler instanceof ClientPlayNetworkHandler playNetworkHandler) {
+            var packetHandlers2 = PLAY_PACKET_LISTENERS.get(packet.getClass());
+            if (packetHandlers2 != null) {
+                for (var pHandler : packetHandlers2) {
+                    ((PolymerClientPacketHandler) pHandler).onPacket(client, playNetworkHandler, packet);
+                }
+                handled = handled || !packetHandlers2.isEmpty();
+            }
+        } else if (handler instanceof ClientConfigurationNetworkHandler networkHandler) {
+            var packetHandlers2 = CONFIG_PACKET_LISTENERS.get(packet.getClass());
+            if (packetHandlers2 != null) {
+                for (var pHandler : packetHandlers2) {
+                    ((PolymerClientPacketHandler) pHandler).onPacket(client, networkHandler, packet);
+                }
+                handled = handled || !packetHandlers2.isEmpty();
+            }
+        }
+
+        return handled;
+    }
+
+    public static void clear(@Nullable ClientCommonNetworkHandler handler) {
         lastVersion = "";
         CLIENT_PROTOCOL.clear();
         synchronized (SERVER_METADATA) {
             SERVER_METADATA.clear();
         }
+        if (handler != null) {
+            var ext = (ExtClientConnection) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection();
+            ext.polymerNet$getMetadataMap().clear();
+            ext.polymerNet$getSupportMap().clear();
+            ext.polymerNet$setVersion("");
+        }
+
         PolymerClientNetworking.AFTER_DISABLE.invoke(Runnable::run);
     }
 
-    public static void handleMetadata(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version > -1) {
-            synchronized (SERVER_METADATA) {
-                try {
-                    ServerPacketRegistry.decodeMetadata(buf, SERVER_METADATA::put);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-            }
+    public static void handleMetadata(MinecraftClient client, ClientCommonNetworkHandler handler, MetadataPayload payload) {
+        synchronized (SERVER_METADATA) {
+            SERVER_METADATA.putAll(payload.map());
         }
+
+        var ext = (ExtClientConnection) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection();
+        ext.polymerNet$getMetadataMap().putAll(payload.map());
+
         PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoke(Runnable::run);
     }
 
-    public static void handleHandshake(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version > -1) {
-            lastVersion = buf.readString(64);
-            CLIENT_PROTOCOL.clear();
-            SERVER_METADATA.clear();
+    public static void handleHandshake(MinecraftClient client, ClientCommonNetworkHandler handler, HandshakePayload payload) {
+        CLIENT_PROTOCOL.clear();
+        SERVER_METADATA.clear();
 
-            var size = buf.readVarInt();
+        lastVersion = payload.version();
 
-            for (int i = 0; i < size; i++) {
-                var id = buf.readIdentifier();
+        payload.packetVersions().forEach((id, ver) -> CLIENT_PROTOCOL.put(id, ClientPackets.getBestSupported(id, ver)));
 
-                var size2 = buf.readVarInt();
-                var list = new IntArrayList();
+        var ext = (ExtClientConnection) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection();
+        ext.polymerNet$getSupportMap().putAll(CLIENT_PROTOCOL);
+        ext.polymerNet$setVersion(lastVersion);
 
-                for (int i2 = 0; i2 < size2; i2++) {
-                    list.add(buf.readVarInt());
-                }
-
-                CLIENT_PROTOCOL.put(id, ClientPackets.getBestSupported(id, list.elements()));
-            }
-
-            PolymerClientNetworking.AFTER_HANDSHAKE_RECEIVED.invoke(Runnable::run);
-
-            if (CLIENT_PROTOCOL.getOrDefault(ClientPackets.METADATA, -1) != -1 ) {
-                sendMetadata(handler);
-            } else {
-                PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoke(Runnable::run);
-            }
-        }
+        PolymerClientNetworking.AFTER_HANDSHAKE_RECEIVED.invoke(Runnable::run);
+        sendMetadata(handler);
     }
 
-    private static void sendMetadata(ClientPlayNetworkHandler handler) {
+    private static void sendMetadata(ClientCommonNetworkHandler handler) {
         try {
             PolymerClientNetworking.BEFORE_METADATA_SYNC.invoke(Runnable::run);
-            var buf = buf(1);
-            ServerPacketRegistry.encodeMetadata(buf, METADATA);
-            //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.METADATA, buf));
+            handler.sendPacket(new CustomPayloadC2SPacket(new MetadataPayload(METADATA)));
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
-    public static void handleDisable(ClientPlayNetworkHandler handler, int version, PacketByteBuf buf) {
-        if (version > -1) {
-            clear();
-        }
+    public static void handleDisable(MinecraftClient client, ClientCommonNetworkHandler handler, DisableS2CPayload payload) {
+        clear(handler);
     }
 
-    public static void sendHandshake(ClientPlayNetworkHandler handler) {
-            var buf = buf(0);
-
-            buf.writeString(CommonImpl.VERSION);
-            buf.writeVarInt(ServerPackets.REGISTRY.size());
-
-            for (var id : ServerPackets.REGISTRY.keySet()) {
-                buf.writeIdentifier(id);
-
-                var entry = ServerPackets.REGISTRY.get(id);
-
-                buf.writeVarInt(entry.length);
-
-                for (int i : entry) {
-                    buf.writeVarInt(i);
-                }
-            }
-
-            //handler.sendPacket(new CustomPayloadC2SPacket(ClientPackets.HANDSHAKE, buf));
-    }
-
-
-    static {
-        PACKETS.put(ServerPackets.HANDSHAKE, ClientPacketRegistry::handleHandshake);
-        PACKETS.put(ServerPackets.DISABLE, ClientPacketRegistry::handleDisable);
-        PACKETS.put(ServerPackets.METADATA, ClientPacketRegistry::handleMetadata);
+    public static void sendHandshake(ClientCommonNetworkHandler handler) {
+        handler.sendPacket(new CustomPayloadC2SPacket(new HandshakePayload(CommonImpl.VERSION, ServerPackets.REGISTRY)));
     }
 }

@@ -2,9 +2,9 @@ package eu.pb4.polymer.core.mixin.other;
 
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
-import net.minecraft.class_8792;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ConnectedClientData;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,8 +21,6 @@ import java.util.List;
 public abstract class ServerPlayNetworkHandlerMixin implements PolymerPlayNetworkHandlerExtension {
     @Shadow
     public ServerPlayerEntity player;
-    @Shadow
-    private int ticks;
     @Unique
     private boolean polymer$advancedTooltip = false;
     @Unique
@@ -36,7 +34,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerPlayNetwor
     @Shadow private int sequence;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void polymer$setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, class_8792 arg, CallbackInfo ci) {
+    private void polymer$setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
         this.polymer$blockMapper = BlockMapper.getDefault(player);
     }
 

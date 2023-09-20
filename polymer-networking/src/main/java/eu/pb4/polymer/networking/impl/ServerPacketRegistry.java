@@ -1,149 +1,108 @@
 package eu.pb4.polymer.networking.impl;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
-import eu.pb4.polymer.networking.api.PolymerServerPacketHandler;
-import eu.pb4.polymer.networking.api.VersionedPayload;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import eu.pb4.polymer.networking.api.PolymerNetworking;
+import eu.pb4.polymer.networking.api.server.PolymerHandshakeHandler;
+import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
+import eu.pb4.polymer.networking.api.server.PolymerServerPacketHandler;
+import eu.pb4.polymer.networking.impl.packets.DisableS2CPayload;
+import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
+import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
+import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtTagSizeTracker;
-import net.minecraft.nbt.NbtTypes;
-import net.minecraft.network.PacketByteBuf;
+
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-
-import static eu.pb4.polymer.networking.api.PolymerServerNetworking.buf;
 
 @ApiStatus.Internal
 public class ServerPacketRegistry {
-    public static final HashMap<Identifier, PolymerServerPacketHandler> PACKETS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerCommonNetworkHandler, ?>>> COMMON_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerPlayNetworkHandler, ?>>> PLAY_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerConfigurationNetworkHandler, ?>>> CONFIG_PACKET_LISTENERS = new HashMap<>();
+
     public static final HashMap<Identifier, NbtElement> METADATA = new HashMap<>();
+    public static void register() {
+        PolymerNetworking.registerCommonPayload(HandshakePayload.ID, 2, HandshakePayload::read);
+        PolymerNetworking.registerCommonPayload(MetadataPayload.ID, 2, MetadataPayload::read);
+        PolymerNetworking.registerS2CPayload(DisableS2CPayload.ID, 2, DisableS2CPayload::read);
+        PolymerNetworking.registerS2CPayload(HelloS2CPayload.ID, 2, HelloS2CPayload::read);
 
-    public static boolean handle(ServerCommonNetworkHandler handler, CustomPayload payload) {
-        boolean versionRead = false;
-        int version = payload instanceof VersionedPayload versionedPayload ? versionedPayload.version() : -1;
 
-        var packetHandler = PACKETS.get(payload.id());
-
-
-        if (packetHandler != null) {
-            try {
-                //packetHandler.onPacket(handler, version, payload);
-            } catch (Throwable e) {
-               // CommonImpl.LOGGER.error(String.format("Invalid %s (%s) packet received from client %s (%s)!", payload.id(), versionRead ? version : "Unknown", handler.getPlayer().getName().getString(), handler.getPlayer().getUuidAsString()), e);
-            }
-            return true;
-        }
-
-        return false;
+        PolymerServerNetworking.registerCommonHandler(HandshakePayload.class,
+                (server, handler, packet) -> handleHandshake(PolymerHandshakeHandler.of(server, handler), packet));
+        PolymerServerNetworking.registerCommonHandler(MetadataPayload.class,
+                (server, handler, packet) -> handleMetadata(PolymerHandshakeHandler.of(server, handler), packet));
     }
 
-    public static void handleHandshake(PolymerHandshakeHandler handler, int version, PacketByteBuf buf) {
-        if (version > -1 && !handler.isPolymer()) {
-            var polymerVersion = buf.readString(64);
-            var versionMap = new Object2IntOpenHashMap<Identifier>();
-
-            var size = buf.readVarInt();
-
-            for (int i = 0; i < size; i++) {
-                var id = buf.readIdentifier();
-
-                var size2 = buf.readVarInt();
-                var list = new IntArrayList();
-
-                for (int i2 = 0; i2 < size2; i2++) {
-                    list.add(buf.readVarInt());
-                }
-
-                versionMap.put(id, ServerPackets.getBestSupported(id, list.elements()));
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static boolean handle(MinecraftServer server, ServerCommonNetworkHandler handler, CustomPayload packet) {
+        var packetHandlers = COMMON_PACKET_LISTENERS.get(packet.getClass());
+        boolean handled = false;
+        if (packetHandlers != null) {
+            for (var pHandler : packetHandlers) {
+                ((PolymerServerPacketHandler) pHandler).onPacket(server, handler, packet);
             }
-
-            handler.getServer().execute(() -> {
-                handler.set(polymerVersion, versionMap);
-                handler.setLastPacketTime(ClientPackets.HANDSHAKE);
-
-                sendHandshake(handler);
-                if (handler.getSupportedProtocol(ServerPackets.METADATA) > -1) {
-                    sendMetadata(handler);
-                }
-            });
+            handled = !packetHandlers.isEmpty();
         }
-    }
 
+        if (handler instanceof ServerPlayNetworkHandler playNetworkHandler) {
+            var packetHandlers2 = PLAY_PACKET_LISTENERS.get(packet.getClass());
+            if (packetHandlers2 != null) {
+                for (var pHandler : packetHandlers2) {
+                    ((PolymerServerPacketHandler) pHandler).onPacket(server, playNetworkHandler, packet);
+                }
+                handled = handled || !packetHandlers2.isEmpty();
+            }
+        } else if (handler instanceof ServerConfigurationNetworkHandler networkHandler) {
+            var packetHandlers2 = CONFIG_PACKET_LISTENERS.get(packet.getClass());
+            if (packetHandlers2 != null) {
+                for (var pHandler : packetHandlers2) {
+                    ((PolymerServerPacketHandler) pHandler).onPacket(server, networkHandler, packet);
+                }
+                handled = handled || !packetHandlers2.isEmpty();
+            }
+        }
+
+        return handled;
+    }
     public static void sendHandshake(PolymerHandshakeHandler handler) {
-        var buf = buf(0);
-
-        buf.writeString(CommonImpl.VERSION);
-        buf.writeVarInt(ClientPackets.REGISTRY.size());
-
-        for (var id : ClientPackets.REGISTRY.keySet()) {
-            buf.writeIdentifier(id);
-
-            var entry = ClientPackets.REGISTRY.get(id);
-
-            buf.writeVarInt(entry.length);
-            for (int i : entry) {
-                buf.writeVarInt(i);
-            }
-        }
-
-        //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.HANDSHAKE, buf));
+        handler.sendPacket(new CustomPayloadS2CPacket(new HandshakePayload(CommonImpl.VERSION, ClientPackets.REGISTRY)));
     }
 
     private static void sendMetadata(PolymerHandshakeHandler handler) {
-        try {
-            var buf = buf(1);
-            ServerPacketRegistry.encodeMetadata(buf, METADATA);
-            //handler.sendPacket(new CustomPayloadS2CPacket(ServerPackets.METADATA, buf));
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+        handler.sendPacket(new CustomPayloadS2CPacket(new MetadataPayload(METADATA)));
     }
 
-    public static void handleMetadata(PolymerHandshakeHandler handler, int version, PacketByteBuf buf) {
-        if (version > -1) {
-            try {
-                decodeMetadata(buf, handler::setMetadataValue);
-            } catch (Throwable e) {
+    public static void handleHandshake(PolymerHandshakeHandler handler, HandshakePayload payload) {
+        var versionMap = new Object2IntOpenHashMap<Identifier>();
 
-            }
-        }
+        payload.packetVersions().forEach((id, versions) -> {
+            versionMap.put(id, ServerPackets.getBestSupported(id, versions));
+        });
+
+        handler.getServer().execute(() -> {
+            handler.set(handler.getPolymerVersion(), versionMap);
+            handler.setLastPacketTime(HandshakePayload.ID);
+
+            sendHandshake(handler);
+            sendMetadata(handler);
+        });
     }
 
-    static {
-        PACKETS.put(ClientPackets.HANDSHAKE, (handler, version, buf) -> handleHandshake(PolymerHandshakeHandler.of(handler), version, buf));
-        PACKETS.put(ClientPackets.METADATA, (handler, version, buf) -> handleMetadata(PolymerHandshakeHandler.of(handler), version, buf));
-    }
-
-
-
-    public static void decodeMetadata(PacketByteBuf buf, BiConsumer<Identifier, NbtElement> map) throws Exception {
-        var size = buf.readVarInt();
-        var str = new ByteBufInputStream(buf);
-        for (int i = 0; i < size; i++) {
-            var id = buf.readIdentifier();
-            var type= NbtTypes.byId(buf.readByte());
-            var data = type.read(str, 0, NbtTagSizeTracker.EMPTY);
-            map.accept(id, data);
-        }
-    }
-
-    public static void encodeMetadata(PacketByteBuf buf, Map<Identifier, NbtElement> map) throws Exception {
-        buf.writeVarInt(map.size());
-        var str = new ByteBufOutputStream(buf);
-        for (var e : map.entrySet()) {
-            buf.writeIdentifier(e.getKey());
-            buf.writeByte(e.getValue().getType());
-            e.getValue().write(str);
-        }
+    public static void handleMetadata(PolymerHandshakeHandler handler, MetadataPayload payload) {
+        payload.map().forEach(handler::setMetadataValue);
     }
 }

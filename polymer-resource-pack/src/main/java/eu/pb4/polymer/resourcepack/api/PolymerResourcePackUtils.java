@@ -2,10 +2,7 @@ package eu.pb4.polymer.resourcepack.api;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
-import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
-import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
@@ -106,9 +103,9 @@ public final class PolymerResourcePackUtils {
      * @param status true if player has resource pack, otherwise false
      */
     public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
-        ((CommonResourcePackInfoHolder) player).polymerCommon$setResourcePack(status);
+        //((CommonClientConnectionExt) player).polymerCommon$setResourcePack(status);
         if (player.networkHandler != null) {
-            ((CommonResourcePackInfoHolder) player.networkHandler).polymerCommon$setResourcePack(status);
+            ((CommonClientConnectionExt) player.networkHandler).polymerCommon$setResourcePack(status);
         }
     }
 
@@ -140,7 +137,7 @@ public final class PolymerResourcePackUtils {
     }
 
     public static void ignoreNextDefaultCheck(ServerPlayerEntity player) {
-        ((CommonResourcePackInfoHolder) player.networkHandler).polymerCommon$setIgnoreNextResourcePack();
+        ((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$setIgnoreNextResourcePack();
     }
 
     public static ResourcePackBuilder createBuilder(Path output) {

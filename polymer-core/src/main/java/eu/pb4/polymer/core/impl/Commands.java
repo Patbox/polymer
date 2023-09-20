@@ -4,8 +4,9 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.common.impl.CommonClientConnectionExt;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CommonResourcePackInfoHolder;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
@@ -18,7 +19,7 @@ import eu.pb4.polymer.core.impl.ui.CreativeTabListUi;
 import eu.pb4.polymer.core.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.core.impl.ui.PotionUi;
 import eu.pb4.polymer.core.mixin.block.PalettedContainerAccessor;
-import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
+import eu.pb4.polymer.networking.impl.ExtClientConnection;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
@@ -44,7 +45,6 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.stat.StatType;
-import net.minecraft.stat.Stats;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
@@ -53,7 +53,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -131,7 +130,7 @@ public class Commands {
                 .then(literal("protocol-info")
                         .executes((ctx) -> {
                             ctx.getSource().sendFeedback(() -> Text.literal("Protocol supported by your client:"), false);
-                            for (var entry : NetworkHandlerExtension.of(ctx.getSource().getPlayer().networkHandler).polymerNet$getSupportMap().object2IntEntrySet()) {
+                            for (var entry : ExtClientConnection.of(ctx.getSource().getPlayer().networkHandler).polymerNet$getSupportMap().object2IntEntrySet()) {
                                 ctx.getSource().sendFeedback(() -> Text.literal("- " + entry.getKey() + " = " + entry.getIntValue()), false);
                             }
                             return 0;
@@ -147,7 +146,7 @@ public class Commands {
                         .then(argument("status", BoolArgumentType.bool())
                                 .executes((ctx) -> {
                                     var status = ctx.getArgument("status", Boolean.class);
-                                    ((CommonResourcePackInfoHolder) ctx.getSource().getPlayer()).polymerCommon$setResourcePack(status);
+                                    PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrThrow(), status);
                                     ctx.getSource().sendFeedback(() -> Text.literal("New resource pack status: " + status), false);
                                     return 0;
                                 }))

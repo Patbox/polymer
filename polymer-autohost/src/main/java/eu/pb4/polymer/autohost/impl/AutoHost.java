@@ -5,7 +5,6 @@ import eu.pb4.polymer.autohost.impl.providers.EmptyProvider;
 import eu.pb4.polymer.autohost.impl.providers.WebServerProvider;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.networking.api.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
@@ -53,7 +52,7 @@ public class AutoHost implements ModInitializer {
         CommonImpl.saveConfig("auto-host", config);
 
 
-        EarlyPlayNetworkHandler.register(ResourcePackNetworkHandler::create);
+        //EarlyPlayNetworkHandler.register(ResourcePackNetworkHandler::create);
         provider.serverStarted(server);
     }
 

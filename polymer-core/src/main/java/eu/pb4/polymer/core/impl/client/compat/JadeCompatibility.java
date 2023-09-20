@@ -8,7 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.SkullItem;
+import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -50,7 +50,7 @@ public class JadeCompatibility implements IWailaPlugin {
 
                     var itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
 
-                    if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof SkullItem) {
+                    if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof PlayerHeadItem) {
                         var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
 
                         if (blockEntity != null) {

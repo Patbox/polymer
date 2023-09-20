@@ -1,12 +1,11 @@
 package eu.pb4.polymertest.mixin;
 
-import net.minecraft.class_8792;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ConnectedClientData;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -28,8 +27,8 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @Unique
     private List<Entity> lastPassengers = Collections.emptyList();
 
-    public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, class_8792 arg) {
-        super(server, connection, arg);
+    public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData clientData) {
+        super(server, connection, clientData);
     }
 
     @Inject(method = "onPlayerInput", at = @At("TAIL"))

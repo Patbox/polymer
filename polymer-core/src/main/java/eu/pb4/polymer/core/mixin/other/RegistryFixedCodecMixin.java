@@ -25,7 +25,7 @@ public class RegistryFixedCodecMixin {
     )
     private RegistryEntry<?> polymerCore$swapEntry(RegistryEntry<?> entry) {
 
-        if (PolymerCommonUtils.isNetworkingThread()) {
+        if (PolymerCommonUtils.isServerNetworkingThread()) {
             var player = PolymerUtils.getPlayerContext();
             try {
                 if (entry.value() instanceof PolymerSyncedObject polymerSyncedObject) {

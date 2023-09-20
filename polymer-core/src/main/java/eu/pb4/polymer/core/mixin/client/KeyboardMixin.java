@@ -1,11 +1,10 @@
 package eu.pb4.polymer.core.mixin.client;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocol;
-import eu.pb4.polymer.core.impl.networking.ClientPackets;
+import eu.pb4.polymer.core.impl.networking.C2SPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Keyboard;
@@ -29,7 +28,7 @@ public abstract class KeyboardMixin {
     @Inject(method = "debugLog(Ljava/lang/String;[Ljava/lang/Object;)V", at = @At("HEAD"))
     private void polymer_catchChange(String key, Object[] args, CallbackInfo ci) {
         if (key.startsWith("debug.advanced_tooltips")) {
-            InternalClientRegistry.delayAction(ClientPackets.CHANGE_TOOLTIP + "|pre", 1000, () -> {
+            InternalClientRegistry.delayAction(C2SPackets.CHANGE_TOOLTIP + "|pre", 1000, () -> {
                 PolymerClientProtocol.sendTooltipContext(this.client.getNetworkHandler());
             });
         }

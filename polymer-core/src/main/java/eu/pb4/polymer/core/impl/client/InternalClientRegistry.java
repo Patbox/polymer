@@ -89,6 +89,7 @@ public class InternalClientRegistry {
     public static String debugRegistryInfo = "";
     public static String debugServerInfo = "";
     public static boolean serverHasPolymer;
+    public static boolean limitedF3;
 
     private static Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMap() {
         var map = new HashMap<Registry<?>, ImplPolymerRegistry<?>>();
@@ -142,27 +143,7 @@ public class InternalClientRegistry {
     public static void setVersion(String version, @Nullable NbtInt protocolVersion) {
         serverVersion = version;
         serverHasPolymer = !version.isEmpty();
-        enabled = serverHasPolymer && (protocolVersion == null
-                ? isLegacy120Version(version) : protocolVersion.intValue() == SharedConstants.getProtocolVersion());
-    }
-
-    // Remove for 1.20.2 (if breaking)
-    @Deprecated(forRemoval = true)
-    private static boolean isLegacy120Version(String version) {
-        if (!version.startsWith("0.5.")) {
-            return false;
-        }
-        var a = version.split("-");
-        if (a.length == 0) {
-            return false;
-        }
-        var b = a[0].split("\\.");
-        if (b.length != 3) {
-            return false;
-        }
-
-        version = b[2];
-        return version.equals("0") || version.equals("1") || version.equals("2") || version.equals("3");
+        enabled = serverHasPolymer && protocolVersion != null && protocolVersion.intValue() == SharedConstants.getProtocolVersion();
     }
 
     public static void disable() {
@@ -291,9 +272,13 @@ public class InternalClientRegistry {
         }
 
         DELAYED_ACTIONS.object2ObjectEntrySet().removeIf(stringDelayedActionEntry -> stringDelayedActionEntry.getValue().tryDoing());
+        TICK.invoke(Runnable::run);
 
         debugServerInfo = "[Polymer] C: " + CommonImpl.VERSION + ", S: " + InternalClientRegistry.serverVersion;
-
+        if (limitedF3) {
+            debugRegistryInfo = "";
+            return;
+        }
         var regInfo = new StringBuilder();
         regInfo.append("[Polymer] ");
         for (var reg : REGISTRIES) {
@@ -306,8 +291,6 @@ public class InternalClientRegistry {
         regInfo.append("BS: ").append(InternalClientRegistry.BLOCK_STATES.mapSize());
 
         debugRegistryInfo = regInfo.toString();
-
-        TICK.invoke(Runnable::run);
     }
 
     public static void clear() {

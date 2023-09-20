@@ -46,11 +46,6 @@ public class TestEntity2 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public Packet<ClientPlayPacketListener> createSpawnPacket() {
-        return PolymerEntityUtils.createPlayerSpawnPacket(this);
-    }
-
-    @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
         if (player.getStackInHand(hand).isOf(Items.STICK)) {
             this.setPose(EntityPose.SWIMMING);

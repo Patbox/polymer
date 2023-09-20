@@ -5,9 +5,7 @@ import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.core.mixin.entity.PlayerListS2CPacketAccessor;
-import eu.pb4.polymer.core.mixin.entity.PlayerSpawnS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
@@ -17,7 +15,6 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
@@ -111,33 +108,6 @@ public final class PolymerEntityUtils {
      */
     public static boolean isMobEntity(EntityType<?> type) {
         return InternalEntityHelpers.isMobEntity(type);
-    }
-
-    /**
-     * @return Creates PlayerEntity spawn packet, that can be used by VirtualEntities
-     */
-    public static PlayerSpawnS2CPacket createPlayerSpawnPacket(int entityId, UUID uuid, double x, double y, double z, float yaw, float pitch) {
-        try {
-            PlayerSpawnS2CPacket packet = (PlayerSpawnS2CPacket) UnsafeAccess.UNSAFE.allocateInstance(PlayerSpawnS2CPacket.class);
-            var accessor = (PlayerSpawnS2CPacketAccessor) packet;
-            accessor.setId(entityId);
-            accessor.setUuid(uuid);
-            accessor.setYaw((byte) ((int) (yaw * 256.0F / 360.0F)));
-            accessor.setPitch((byte) ((int) (pitch * 256.0F / 360.0F)));
-            accessor.setX(x);
-            accessor.setY(y);
-            accessor.setZ(z);
-            return packet;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * @return Creates PlayerEntity spawn packet, that can be used by VirtualEntities
-     */
-    public static PlayerSpawnS2CPacket createPlayerSpawnPacket(Entity entity) {
-        return createPlayerSpawnPacket(entity.getId(), entity.getUuid(), entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
     }
 
     /**

@@ -2,19 +2,22 @@ package eu.pb4.polymer.networking.api.client;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.networking.impl.ClientPackets;
-import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
-import eu.pb4.polymer.networking.impl.ServerPacketRegistry;
 import eu.pb4.polymer.networking.impl.ServerPackets;
 import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
+import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.network.ClientCommonNetworkHandler;
+import net.minecraft.client.network.ClientConfigurationNetworkHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtType;
-import net.minecraft.network.PacketByteBuf;
 
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 
 
 /**
@@ -30,28 +33,16 @@ public final class PolymerClientNetworking {
     private PolymerClientNetworking() {
     }
 
-
-    public static boolean sendDirect(ClientPlayNetworkHandler player, Identifier identifier, PacketByteBuf packetByteBuf) {
-        //player.sendPacket(new CustomPayloadC2SPacket(identifier, packetByteBuf));
-        return true;
+    public static <T extends CustomPayload> void registerCommonHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientCommonNetworkHandler, T> handler) {
+        ClientPacketRegistry.COMMON_PACKET_LISTENERS.computeIfAbsent(payloadClass, (x) -> new ArrayList<>()).add(handler);
     }
 
-    public static boolean registerPacketHandler(Identifier identifier, PolymerClientPacketHandler handler) {
-        return registerPacketHandler(identifier, handler, ServerPackets.REGISTRY.getOrDefault(identifier, new int[0]));
+    public static <T extends CustomPayload> void registerPlayHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientPlayNetworkHandler, T> handler) {
+        ClientPacketRegistry.PLAY_PACKET_LISTENERS.computeIfAbsent(payloadClass, (x) -> new ArrayList<>()).add(handler);
     }
 
-    public static boolean registerPacketHandler(Identifier identifier, PolymerClientPacketHandler handler, int... supportedVersions) {
-        if (!ClientPacketRegistry.PACKETS.containsKey(identifier)) {
-            ServerPackets.register(identifier, supportedVersions);
-            ClientPacketRegistry.PACKETS.put(identifier, handler);
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean registerSendPacket(Identifier identifier, int... supportedVersions) {
-        ClientPackets.register(identifier, supportedVersions);
-        return true;
+    public static <T extends CustomPayload> void registerConfigurationHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientConfigurationNetworkHandler, T> handler) {
+        ClientPacketRegistry.CONFIG_PACKET_LISTENERS.computeIfAbsent(payloadClass, (x) -> new ArrayList<>()).add(handler);
     }
 
     public static int getSupportedVersion(Identifier identifier) {
@@ -74,11 +65,6 @@ public final class PolymerClientNetworking {
         } else {
             ClientPacketRegistry.METADATA.put(identifier, nbtElement);
         }
-    }
-
-    static {
-        ClientPackets.register();
-        ServerPackets.register();
     }
 
     public static String getServerVersion() {

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.networking.impl;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -11,8 +12,7 @@ import java.util.stream.IntStream;
 @ApiStatus.Internal
 public class ClientPackets {
     public static final Map<Identifier, int[]> REGISTRY = new HashMap<>();
-    public static final Identifier HANDSHAKE = new Identifier("polymer", "handshake");
-    public static final Identifier METADATA = new Identifier("polymer", "metadata");
+    public static final Object2IntOpenHashMap<Identifier> LATEST = new Object2IntOpenHashMap<>();
 
     public static int getBestSupported(Identifier identifier, int[] ver) {
 
@@ -31,13 +31,6 @@ public class ClientPackets {
 
     public static void register(Identifier id, int... ver) {
         REGISTRY.put(id, ver);
-    }
-
-    static {
-        register(HANDSHAKE, 1);
-        register(METADATA, 1);
-    }
-
-    public static void register() {
+        LATEST.put(id, getBestSupported(id, ver));
     }
 }

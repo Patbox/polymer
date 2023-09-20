@@ -102,9 +102,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @param input the Modded recipe
      * @return the Vanilla recipe
      */
-    @Deprecated
     static Recipe<?> createStonecuttingRecipe(Recipe<?> input) {
-        var stack = input.getResult(null);
-        return new StonecuttingRecipe("impossible", Ingredient.EMPTY, stack.getItem(), stack.getCount());
+        return new StonecuttingRecipe("impossible", Ingredient.EMPTY, input.getResult(null));
     }
 }

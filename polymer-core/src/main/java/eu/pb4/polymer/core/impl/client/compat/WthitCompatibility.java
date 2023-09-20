@@ -14,7 +14,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SkullItem;
+import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -63,7 +63,7 @@ public class WthitCompatibility implements IWailaPlugin {
 
                 var itemStack = state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
 
-                if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof SkullItem) {
+                if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof PlayerHeadItem) {
                     var blockEntity = accessor.getWorld().getBlockEntity(accessor.getPosition());
 
                     if (blockEntity != null) {

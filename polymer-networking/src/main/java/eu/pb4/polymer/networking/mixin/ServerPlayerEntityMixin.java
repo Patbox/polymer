@@ -1,6 +1,6 @@
 package eu.pb4.polymer.networking.mixin;
 
-import eu.pb4.polymer.networking.api.PolymerHandshakeHandler;
+import eu.pb4.polymer.networking.api.server.PolymerHandshakeHandler;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
