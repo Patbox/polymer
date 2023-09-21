@@ -31,8 +31,8 @@ public class EarlyConfigurationConnectionMagic {
             connection.disableAutoRead();
             while (iterator.hasNext()) {
                 var handler = iterator.next().apply(c);
-                connection.enableAutoRead();
                 if (handler != null) {
+                    connection.enableAutoRead();
                     return;
                 }
             }

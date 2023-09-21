@@ -28,15 +28,13 @@ public class EarlyPlayConnectionMagic {
             connection.disableAutoRead();
             while (iterator.hasNext()) {
                 var handler = iterator.next().apply(c);
-                connection.enableAutoRead();
                 if (handler != null) {
+                    connection.enableAutoRead();
                     return;
                 }
             }
             finish.accept(c);
         }, new MutableObject<>(options));
-
-        ((TempPlayerLoginAttachments) player).polymerNet$setLatePackets(context.storedPackets);
 
         context.continueRunning.accept(context);
     }

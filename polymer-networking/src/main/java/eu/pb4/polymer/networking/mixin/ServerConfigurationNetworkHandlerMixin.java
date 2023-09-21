@@ -8,6 +8,8 @@ import eu.pb4.polymer.networking.impl.ExtClientConnection;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
+import net.minecraft.network.listener.ServerConfigurationPacketListener;
+import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.*;
@@ -27,12 +29,13 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
     @WrapOperation(method = "onReady", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;onPlayerConnect(Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/server/network/ConnectedClientData;)V"))
     private void polymerNet$prePlayHandshakeHackfest(PlayerManager manager, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, Operation<Void> original) {
         EarlyPlayConnectionMagic.handle(player, clientData.syncedOptions(), (ServerConfigurationNetworkHandler) (Object) this, player.server, connection, (context) -> {
-            ((ExtClientConnection) connection).polymerNet$ignorePacketsUntilChange(context.storedPackets()::add);
+            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
             connection.disableAutoRead();
             var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
             attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
             connection.setPacketListener(this);
             attr.set(NetworkState.PLAY.getHandler(NetworkSide.SERVERBOUND));
+            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
 
             if (connection.isOpen()) {
                 var oldPlayer = player.server.getPlayerManager().getPlayer(this.getProfile().getId());
@@ -40,6 +43,15 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
                     this.disconnect(Text.translatable("multiplayer.disconnect.duplicate_login"));
                 } else {
                     original.call(manager, connection, player, new ConnectedClientData(clientData.gameProfile(), clientData.latency(), context.options().getValue()));
+                    if (this.connection.getPacketListener() instanceof ServerPlayPacketListener listener) {
+                        for (var packetx : context.storedPackets()) {
+                            try {
+                                packetx.apply(listener);
+                            } catch (Throwable e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                     connection.enableAutoRead();
                 }
             }

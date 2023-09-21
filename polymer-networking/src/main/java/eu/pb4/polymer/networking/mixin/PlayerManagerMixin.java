@@ -27,20 +27,6 @@ public class PlayerManagerMixin {
         }
         PolymerServerNetworking.ON_PLAY_SYNC.invoke(x -> x.accept(player.networkHandler, handshake));
 
-
-
-        var packets = ((TempPlayerLoginAttachments) player).polymerNet$getLatePackets();
-        if (packets != null) {
-            ((TempPlayerLoginAttachments) player).polymerNet$setLatePackets(null);
-            for (var packet : packets) {
-                try {
-                    packet.apply(player.networkHandler);
-                } catch (Throwable e) {
-
-                }
-            }
-        }
-
         if (((TempPlayerLoginAttachments) player).polymerNet$getForceRespawnPacket()) {
             var world = player.getServerWorld();
             connection.send(new PlayerRespawnS2CPacket(player.createCommonPlayerSpawnInfo(world), PlayerRespawnS2CPacket.KEEP_ALL));

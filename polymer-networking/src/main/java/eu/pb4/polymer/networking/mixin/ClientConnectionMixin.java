@@ -38,9 +38,6 @@ public class ClientConnectionMixin implements ExtClientConnection {
     private final Object2ObjectMap<Identifier, NbtElement> polymerNet$metadata = new Object2ObjectOpenHashMap<>();
     @Unique
     private Consumer<CustomPayloadC2SPacket> polymerNet$packetConsumer;
-    @Unique
-    private boolean polymerNet$packetActive;
-
     @Override
     public boolean polymerNet$hasPolymer() {
         return !this.polymerNet$version.isEmpty();
@@ -76,17 +73,9 @@ public class ClientConnectionMixin implements ExtClientConnection {
         return this.polymerNet$metadata;
     }
 
-    @Inject(method = "setPacketListener", at = @At("HEAD"))
-    private void polymerNet$removeConsumer(PacketListener listener, CallbackInfo ci) {
-        this.polymerNet$packetActive = listener instanceof ServerLoginNetworkHandler;
-        if (listener instanceof ServerPlayNetworkHandler) {
-            this.polymerNet$packetConsumer = null;
-        }
-    }
-
     @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void polymerNet$handlePacket(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci) {
-        if (this.polymerNet$packetActive && this.polymerNet$packetConsumer != null) {
+        if (this.polymerNet$packetConsumer != null) {
             if (packet instanceof CustomPayloadC2SPacket c) {
                 this.polymerNet$packetConsumer.accept(c);
             }
@@ -96,7 +85,7 @@ public class ClientConnectionMixin implements ExtClientConnection {
     }
 
     @Override
-    public void polymerNet$ignorePacketsUntilChange(Consumer<CustomPayloadC2SPacket> consumer) {
+    public void polymerNet$wrongPacketConsumer(Consumer<CustomPayloadC2SPacket> consumer) {
         this.polymerNet$packetConsumer = consumer;
     }
 

@@ -1,26 +1,15 @@
 package eu.pb4.polymer.networking.mixin;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
-import eu.pb4.polymer.networking.api.util.ServerDynamicPacket;
 import eu.pb4.polymer.networking.impl.*;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
-import net.minecraft.network.PacketCallbacks;
-import net.minecraft.network.listener.ServerCommonPacketListener;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.network.packet.c2s.login.EnterConfigurationC2SPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.*;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -30,7 +19,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLoginNetworkHandler.class)
@@ -72,11 +60,13 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
         }
         ci.cancel();
         EarlyConfigurationConnectionMagic.handle(this.profile, SyncedClientOptions.createDefault(), (ServerLoginNetworkHandler) (Object) this, this.server, connection, (context) -> {
+            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
             connection.disableAutoRead();
             var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
             attr.set(NetworkState.LOGIN.getHandler(NetworkSide.SERVERBOUND));
             connection.setPacketListener((ServerLoginNetworkHandler) (Object) this);
             attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
+            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
 
             if (connection.isOpen()) {
                 this.polymerNet$ignoreCall = true;
