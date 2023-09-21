@@ -17,7 +17,6 @@
   "depends": {
     "polymer-resource-pack": ">=${version}",
     "polymer-common": ">=${version}",
-    "polymer-networking": ">=${version}",
     "fabricloader": ">=0.14.0"
   },
   "entrypoints": {
