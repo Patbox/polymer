@@ -1,7 +1,11 @@
 package eu.pb4.polymer.core.mixin.other;
 
 import eu.pb4.polymer.core.api.block.BlockMapper;
+import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
+import eu.pb4.polymer.networking.api.PolymerNetworking;
+import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
+import net.minecraft.nbt.NbtByte;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ConnectedClientData;
@@ -36,6 +40,9 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerPlayNetwor
     @Inject(method = "<init>", at = @At("TAIL"))
     private void polymer$setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
         this.polymer$blockMapper = BlockMapper.getDefault(player);
+        var advTool = PolymerNetworking.getMetadata(connection, ClientMetadataKeys.ADVANCED_TOOLTIP, NbtByte.TYPE);
+
+        this.polymer$advancedTooltip = advTool != null && advTool.intValue() > 0;
     }
 
 

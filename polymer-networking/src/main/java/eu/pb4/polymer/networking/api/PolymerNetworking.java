@@ -5,17 +5,33 @@ import eu.pb4.polymer.networking.api.payload.ContextPayload;
 import eu.pb4.polymer.networking.api.payload.PayloadDecoder;
 import eu.pb4.polymer.networking.api.payload.VersionedPayload;
 import eu.pb4.polymer.networking.impl.ClientPackets;
+import eu.pb4.polymer.networking.impl.ExtClientConnection;
 import eu.pb4.polymer.networking.impl.ServerPackets;
 import eu.pb4.polymer.networking.mixin.CustomPayloadC2SPacketAccessor;
 import eu.pb4.polymer.networking.mixin.CustomPayloadS2CPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtType;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 public final class PolymerNetworking {
     private PolymerNetworking() {}
+
+    @Nullable
+    public static <T extends NbtElement> T getMetadata(ClientConnection handler, Identifier identifier, NbtType<T> type) {
+        var x = ExtClientConnection.of(handler).polymerNet$getMetadataMap().get(identifier);
+        if (x != null && x.getNbtType() == type) {
+            //noinspection unchecked
+            return (T) x;
+        }
+        return null;
+    }
 
     public static <T extends ContextPayload> void registerS2CPayload(Identifier identifier, ContextPayload.Decoder<T> decoder) {
         registerS2CPayload(identifier, 0, decoder);

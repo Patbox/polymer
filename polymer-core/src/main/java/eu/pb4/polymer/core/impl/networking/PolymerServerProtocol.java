@@ -59,7 +59,7 @@ public class PolymerServerProtocol {
                 }
             }
 
-            if (blocks.isEmpty()) {
+            if (!blocks.isEmpty()) {
                 player.sendPacket(new CustomPayloadS2CPacket(new PolymerSectionUpdateS2CPayload(chunkPos, pos.toShortArray(), blocks.toIntArray())));
             }
         }

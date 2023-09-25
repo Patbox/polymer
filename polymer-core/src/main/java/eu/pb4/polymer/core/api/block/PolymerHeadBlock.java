@@ -21,6 +21,9 @@ public interface PolymerHeadBlock extends PolymerBlock {
      * @return Skin Value
      */
     String getPolymerSkinValue(BlockState state, BlockPos pos, ServerPlayerEntity player);
+    default String getPolymerSkinSignature(BlockState state, BlockPos pos, ServerPlayerEntity player) {
+        return null;
+    };
 
     default Block getPolymerBlock() {
         return Blocks.PLAYER_HEAD;
@@ -35,7 +38,10 @@ public interface PolymerHeadBlock extends PolymerBlock {
      * @return NbtCompound representing client-side
      */
     default NbtCompound getPolymerHeadSkullOwner(BlockState state, BlockPos pos, ServerPlayerEntity player) {
-        return PolymerUtils.createSkullOwner(((PolymerHeadBlock) state.getBlock()).getPolymerSkinValue(state, pos, player));
+        return PolymerUtils.createSkullOwner(
+                ((PolymerHeadBlock) state.getBlock()).getPolymerSkinValue(state, pos, player),
+                ((PolymerHeadBlock) state.getBlock()).getPolymerSkinSignature(state, pos, player)
+        );
     }
 
     /**

@@ -7,7 +7,7 @@ import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public record PolymerPickEntityC2SPayload(int entityId, boolean control) implements VersionedPayload {
-    public static final Identifier ID = C2SPackets.WORLD_PICK_BLOCK;
+    public static final Identifier ID = C2SPackets.WORLD_PICK_ENTITY;
 
     @Override
     public void write(PacketContext context, int version, PacketByteBuf buf) {

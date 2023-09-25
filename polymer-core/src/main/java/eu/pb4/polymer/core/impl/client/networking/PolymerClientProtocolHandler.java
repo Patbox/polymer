@@ -129,6 +129,7 @@ public class PolymerClientProtocolHandler {
         PolymerClientNetworking.AFTER_DISABLE.register(InternalClientRegistry::disable);
 
         PolymerClientNetworking.BEFORE_METADATA_SYNC.register(() -> {
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.ADVANCED_TOOLTIP, NbtByte.of(MinecraftClient.getInstance().options.advancedItemTooltips));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.of(MathHelper.ceilLog2(Block.STATE_IDS.size())));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.of(SharedConstants.getProtocolVersion()));
         });

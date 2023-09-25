@@ -7,7 +7,7 @@ import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public record PolymerChangeTooltipC2SPayload(boolean advanced) implements VersionedPayload {
-    public static final Identifier ID = C2SPackets.WORLD_PICK_BLOCK;
+    public static final Identifier ID = C2SPackets.CHANGE_TOOLTIP;
 
     @Override
     public void write(PacketContext context, int version, PacketByteBuf buf) {

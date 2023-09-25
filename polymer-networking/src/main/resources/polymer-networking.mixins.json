@@ -11,11 +11,11 @@
     "ServerCommonNetworkHandlerMixin",
     "ServerConfigurationNetworkHandlerMixin",
     "ServerLoginNetworkHandlerMixin",
-    "ServerPlayerEntityMixin",
-    "client.ClientCommonNetworkHandlerMixin"
+    "ServerPlayerEntityMixin"
   ],
   "client": [
-    "client.ClientPlayNetworkHandlerMixin"
+    "client.ClientPlayNetworkHandlerMixin",
+    "client.ClientCommonNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -41,6 +41,7 @@ public final class PolymerUtils {
     public static final String ID = "polymer";
     public static final String NO_TEXTURE_HEAD_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGUyY2UzMzcyYTNhYzk3ZmRkYTU2MzhiZWYyNGIzYmM0OWY0ZmFjZjc1MWZlOWNhZDY0NWYxNWE3ZmI4Mzk3YyJ9fX0=";
     private static final Set<FeatureFlag> ENABLED_FEATURE_FLAGS = new HashSet<>();
+
     private PolymerUtils() {
     }
 
@@ -156,19 +157,32 @@ public final class PolymerUtils {
     }
 
     /**
+     * With 1.20.2, client logs errors when signature is missing, which might cause a lot of spam in some cases.
+     * This method will be un-deprecated if the issue gets fixed.
+     * <p>
+     * <a href="https://bugs.mojang.com/browse/MC-264966">MC-264966</a>
+     */
+    @Deprecated
+    public static NbtCompound createSkullOwner(String value) {
+        return createSkullOwner(value, null);
+    }
+
+    /**
      * Creates SkullOwner NbtCompound from provided skin value
      *
      * @param value Skin value
      * @return NbtCompound representing SkullOwner
      */
-    public static NbtCompound createSkullOwner(String value) {
+    public static NbtCompound createSkullOwner(String value, String signature) {
         NbtCompound skullOwner = new NbtCompound();
         NbtCompound properties = new NbtCompound();
         NbtCompound data = new NbtCompound();
         NbtList textures = new NbtList();
         textures.addElement(0, data);
-
         data.putString("Value", value);
+        if (signature != null) {
+            data.putString("Signature", signature);
+        }
         properties.put("textures", textures);
         skullOwner.put("Properties", properties);
         skullOwner.putIntArray("Id", new int[]{0, 0, 0, 0});
@@ -176,9 +190,20 @@ public final class PolymerUtils {
         return skullOwner;
     }
 
+    /**
+     * With 1.20.2, client logs errors when signature is missing, which might cause a lot of spam in some cases.
+     * This method will be un-deprecated if the issue gets fixed.
+     * <p>
+     * <a href="https://bugs.mojang.com/browse/MC-264966">MC-264966</a>
+     */
+    @Deprecated
     public static ItemStack createPlayerHead(String value) {
+        return createPlayerHead(value, null);
+    }
+
+    public static ItemStack createPlayerHead(String value, String signature) {
         var stack = new ItemStack(Items.PLAYER_HEAD);
-        stack.getOrCreateNbt().put("SkullOwner", createSkullOwner(value));
+        stack.getOrCreateNbt().put("SkullOwner", createSkullOwner(value, signature));
         return stack;
     }
 
@@ -203,11 +228,7 @@ public final class PolymerUtils {
     }
 
     public static boolean isServerOnly(Object obj) {
-        return obj instanceof PolymerObject
-                || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack))
-                || (obj instanceof EntityType<?> type && PolymerEntityUtils.isRegisteredEntityType(type))
-                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE))
-                || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
+        return obj instanceof PolymerObject || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack)) || (obj instanceof EntityType<?> type && PolymerEntityUtils.isRegisteredEntityType(type)) || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE)) || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
 
     }
 
