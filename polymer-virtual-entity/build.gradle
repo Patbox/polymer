@@ -17,8 +17,8 @@ dependencies {
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
     api include(project(path: ':polymer-common', configuration: 'namedElements'))
 
-    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v3.0.2-mc1.20'
-    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v3.0.2-mc1.20'
+    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:v4.0.1-mc1.20.2'
+    modCompileOnly 'com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:v4.0.1-mc1.20.2'
 }
 
 afterEvaluate {

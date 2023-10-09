@@ -31,7 +31,7 @@
     "compat.lithium_BlockPaletteMixin",
     "compat.fabric.fabricNetworking_ServerPlayNetworking",
     "compat.fabric.fabricSync_StateIdTrackerMixin",
-    "compat.immersive_portals.ip_ChunkDataSyncManagerMixin",
+    "compat.immersive_portals.ip_PlayerChunkLoadingMixin",
     "compat.polymc.polymc_BlockPolyGeneratorMixin",
     "entity.AbstractMinecartEntityAccessor",
     "entity.DataTrackerAccessor",

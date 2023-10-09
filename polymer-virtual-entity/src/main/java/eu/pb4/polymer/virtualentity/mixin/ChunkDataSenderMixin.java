@@ -26,7 +26,7 @@ public class ChunkDataSenderMixin {
         }
     }
 
-    @Inject(method = "unload", at = @At("HEAD"))
+    @Inject(method = "unload", at = @At("HEAD"), require = 0)
     private void polymerVE$chunkUnload(ServerPlayerEntity player, ChunkPos pos, CallbackInfo ci) {
         for (var holder : new ArrayList<>(((HolderHolder) player.networkHandler).polymer$getHolders())) {
             if (holder.getAttachment() != null && holder.getChunkPos().equals(pos)) {
