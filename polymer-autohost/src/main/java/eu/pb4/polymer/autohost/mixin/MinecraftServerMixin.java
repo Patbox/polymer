@@ -13,4 +13,9 @@ public class MinecraftServerMixin {
     private void polymer_autohost_init(CallbackInfo ci) {
         AutoHost.init((MinecraftServer) (Object) this);
     }
+
+    @Inject(method = "shutdown", at = @At("TAIL"))
+    private void polymer_autohost_end(CallbackInfo ci) {
+        AutoHost.end((MinecraftServer) (Object) this);
+    }
 }

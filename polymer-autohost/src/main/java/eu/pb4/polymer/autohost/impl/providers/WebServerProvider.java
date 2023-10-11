@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 
 public class WebServerProvider implements ResourcePackDataProvider {
     private Config config;
+    private HttpServer server;
     public long size = 0;
     public String hash = "";
     public long lastUpdate = 0;
@@ -35,7 +36,7 @@ public class WebServerProvider implements ResourcePackDataProvider {
     public void serverStarted(MinecraftServer minecraftServer) {
         try {
             var address = createBindAddress(minecraftServer, config);
-            var server = HttpServer.create(address, 0);
+            server = HttpServer.create(address, 0);
 
             server.createContext("/", this::handle);
             server.setExecutor(Executors.newFixedThreadPool(2));
@@ -63,6 +64,11 @@ public class WebServerProvider implements ResourcePackDataProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Nullable
+    public void serverStopped(MinecraftServer minecraftServer) {
+        server.stop(0);
     }
 
     private void updateHash() {
