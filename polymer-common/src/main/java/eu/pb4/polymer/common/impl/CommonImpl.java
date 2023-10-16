@@ -146,7 +146,6 @@ public final class CommonImpl {
         try {
             var obj = clazz.getConstructor().newInstance();
             saveConfig(name, obj);
-
             return obj;
         } catch (Exception e) {
             LOGGER.error("Invalid config class! " + clazz.toString());
