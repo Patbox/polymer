@@ -15,7 +15,9 @@ loom {
 
 dependencies {
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
-    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.1.0')
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.4.0') {
+        exclude(group: "org.quiltmc", module: "quilt-loader")
+    }
     api include(project(path: ':polymer-common', configuration: 'namedElements'))
 }
 

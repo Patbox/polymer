@@ -47,7 +47,9 @@ dependencies {
     modCompileOnly('maven.modrinth:lithium:mc1.20.2-0.12.0')
 
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
-    modCompileOnly('com.github.TheEpicBlock:PolyMc:5.1.0')
+    modCompileOnly('com.github.TheEpicBlock:PolyMc:5.4.0') {
+        exclude(group: "org.quiltmc", module: "quilt-loader")
+    }
 
 
     modCompileOnly /*modLocalRuntime*/("curse.maven:jade-324717:4328555")
@@ -64,7 +66,7 @@ dependencies {
 
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")
-    modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:12.2.0.17")
+    modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:lIRFslED")
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")

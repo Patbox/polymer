@@ -56,6 +56,10 @@ public class AutoHost implements ModInitializer {
         provider.serverStarted(server);
     }
 
+    public static void end(MinecraftServer server) {
+        provider.serverStopped(server);
+    }
+
     public static void generateAndCall(MinecraftServer server, Consumer<Text> messageConsumer, Runnable runnable) {
         Util.getIoWorkerExecutor().execute(() -> {
             messageConsumer.accept(Text.literal("Starting resource pack generation..."));
