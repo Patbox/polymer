@@ -15,6 +15,7 @@ public interface ResourcePackDataProvider {
     JsonElement saveSettings();
     void loadSettings(JsonElement settings);
     void serverStarted(MinecraftServer server);
+    void serverStopped(MinecraftServer server);
 
     static ResourcePackDataProvider getActive() {
         return AutoHost.provider;

@@ -38,4 +38,9 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     public void serverStarted(MinecraftServer server) {
 
     }
+
+    @Override
+    public void serverStopped(MinecraftServer server) {
+
+    }
 }
