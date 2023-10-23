@@ -36,7 +36,7 @@
     "jade": [
       "eu.pb4.polymer.core.impl.client.compat.JadeCompatibility"
     ],
-    "jei_mod_plugin": [
+    "__jei_mod_plugin": [
       "eu.pb4.polymer.core.impl.client.compat.JeiCompatibility"
     ],
     "emi": [
