@@ -38,7 +38,7 @@ public class ReiCompatibility implements REIClientPlugin {
     }
 
     public static void registerEvents() {
-        CompatUtils.registerSyncReload(() -> {
+        /*CompatUtils.registerSyncReload(() -> {
             try {
                 RoughlyEnoughItemsCoreClient.reloadPlugins(null, null);
             }catch (Throwable e) {
@@ -46,7 +46,7 @@ public class ReiCompatibility implements REIClientPlugin {
             }
 
             //update(EntryRegistry.getInstance());
-        });
+        });*/
     }
 
     @Override
