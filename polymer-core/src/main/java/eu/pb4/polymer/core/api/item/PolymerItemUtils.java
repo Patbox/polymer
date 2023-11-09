@@ -245,6 +245,16 @@ public final class PolymerItemUtils {
                 }
             }
 
+            if (itemStack.getNbt().contains(BlockItem.BLOCK_ENTITY_TAG_KEY, NbtElement.COMPOUND_TYPE)
+                    && itemStack.getNbt().getCompound(BlockItem.BLOCK_ENTITY_TAG_KEY).contains("Items", NbtElement.LIST_TYPE)
+            ) {
+                for (var itemNbt : itemStack.getNbt().getCompound(BlockItem.BLOCK_ENTITY_TAG_KEY).getList("Items", NbtElement.COMPOUND_TYPE)) {
+                    if (isPolymerServerItem(ItemStack.fromNbt((NbtCompound) itemNbt), player)) {
+                        return true;
+                    }
+                }
+            }
+
             if (CompatStatus.POLYMER_RESOURCE_PACK) {
                 var display = itemStack.getSubNbt("display");
                 if (display != null && display.contains("color", NbtElement.INT_TYPE)) {
@@ -428,6 +438,28 @@ public final class PolymerItemUtils {
                     }
 
                     out.getNbt().put("Items", outList);
+                }
+            } catch (Throwable e) {
+                if (PolymerImpl.LOG_MORE_ERRORS) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                if (out.getNbt().contains(BlockItem.BLOCK_ENTITY_TAG_KEY, NbtElement.COMPOUND_TYPE)) {
+                    var blockEntity = out.getNbt().getCompound(BlockItem.BLOCK_ENTITY_TAG_KEY);
+                    if (blockEntity.contains("Items")) {
+                        var list = blockEntity.getList("Items", NbtElement.COMPOUND_TYPE);
+                        for (var i = 0; i < list.size(); i++) {
+                            var itemNbt = list.getCompound(i);
+                            var base = new NbtCompound();
+                            var slot = itemNbt.get("Slot");
+                            if (slot != null) {
+                                base.put("Slot", slot);
+                            }
+                            list.set(i, getPolymerItemStack(ItemStack.fromNbt(itemNbt), tooltipContext, player).writeNbt(base));
+                        }
+                    }
                 }
             } catch (Throwable e) {
                 if (PolymerImpl.LOG_MORE_ERRORS) {

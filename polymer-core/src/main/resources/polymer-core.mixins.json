@@ -57,6 +57,7 @@
     "item.MiningToolItemAccessor",
     "item.NbtCompoundFallbackMixin",
     "item.NbtCompoundMixin",
+    "item.NbtHelperMixin",
     "item.PlayerManagerMixin",
     "item.ServerPlayNetworkHandlerMixin",
     "item.StonecutterScreenHandlerMixin",
@@ -80,7 +81,6 @@
     "other.TagPacketSerializerMixin"
   ],
   "client": [
-    "client.compat.emi_EmiScreenManager",
     "client.ClientPlayNetworkHandlerMixin",
     "client.CreativeInventoryScreenAccessor",
     "client.DebugHudMixin",
@@ -92,6 +92,7 @@
     "client.block.ChunkSectionMixin",
     "client.block.EmptyChunkMixin",
     "client.block.WorldChunkMixin",
+    "client.compat.emi_EmiScreenManager",
     "client.compat.emi_EmiStackMixin",
     "client.compat.emi_ItemEmiStackMixin",
     "client.compat.jei_StackHelperMixin",

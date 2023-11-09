@@ -22,7 +22,7 @@ public class TestBlock extends Block implements PolymerBlock {
         super(settings);
     }
 
-    private static final IntProperty TEST = IntProperty.of("test", 0, 1000);
+    private static final IntProperty TEST = IntProperty.of("test", 0, 10);
 
     @Nullable
     @Override
