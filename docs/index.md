@@ -5,17 +5,12 @@ are represented on server the same as normal (vanilla/modded) ones allowing for 
 
 It is also should be fully compatible with close to all other mods and in case of found issues they are patched as soon as possible.
 
-## Updating from 0.2.x
-With Minecraft 1.19.3 being globally breaking update. I took this as a good time to make breaking changes to polymer itself.
-
-[See this update guide for more informations!](other/updating-0.2.x-to-0.3)
-
 ## Modules
 
 ### Polymer Core
 `eu.pb4:polymer-core`
 
-It's a heart of Polymer. It allows you to create server side content. It also contains lots of extra mod compatibility for client mods,
+It's the heart of Polymer. It allows you to create server side content. It also contains lots of extra mod compatibility for client mods,
 to make your mod better fit for any modpack.
 
 * [Getting Started](polymer-core/getting-started)

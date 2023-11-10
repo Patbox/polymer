@@ -36,12 +36,14 @@ theme:
 
   palette:
     - scheme: slate
+      primary: custom
       features:
         - navigation.expand
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
     - scheme: default
+      primary: custom
       features:
         - navigation.expand
       toggle:

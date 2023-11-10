@@ -1,10 +1,23 @@
 # Server Translation API
-It's a library for handling translations server side. It supports 
+It's a library for handling translations server side. It supports
 per player language, by using one provided by client on join/language change.
 
 ## Adding as dependency:
 Add it to your dependencies like this:
 
+```groovy
+repositories {
+	maven { url 'https://maven.nucleoid.xyz' }
+}
+
+dependencies {
+	modImplementation include("xyz.nucleoid:server-translations-api:[TAG]")
+}
+```
+
+For `[TAG]`/translations api version I recommend you checking [this maven](https://maven.nucleoid.xyz/xyz/nucleoid/server-translations-api/).
+
+### For versions before 1.19.4:
 ```groovy
 repositories {
 	maven { url 'https://maven.nucleoid.xyz' }
@@ -18,10 +31,10 @@ dependencies {
 For `[TAG]`/translations api version I recommend you checking [this maven](https://maven.nucleoid.xyz/fr/catcore/server-translations-api/).
 
 ## Usage
-To use i, you just need to use vanilla `TranslationText` with key specified by you in your code.
+To use it, you just need to use vanilla `Text.translation(...)` with key specified by you in your code.
 
-Then you just need to create `data/modid/lang` folder in your mod resources. 
-Then you can create there `en_us.json` for default translation and other language files for other.
+Then you just need to create `data/modid/lang` folder in your mod's resources.
+Then you can create there `en_us.json` for default translation and similar files for other languages (same format as vanilla translations).
 
 Example valid language file looks like this:
 ```
