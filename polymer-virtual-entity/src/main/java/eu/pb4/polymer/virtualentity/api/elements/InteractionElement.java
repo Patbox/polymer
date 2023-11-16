@@ -20,22 +20,7 @@ public class InteractionElement extends GenericEntityElement {
     }
 
     public static InteractionElement redirect(Entity redirectedEntity) {
-        return new InteractionElement(new InteractionHandler() {
-            @Override
-            public void interact(ServerPlayerEntity player, Hand hand) {
-                player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.interact(redirectedEntity, player.isSneaking(), hand));
-            }
-
-            @Override
-            public void interactAt(ServerPlayerEntity player, Hand hand, Vec3d pos) {
-                player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.interactAt(redirectedEntity, player.isSneaking(), hand, pos));
-            }
-
-            @Override
-            public void attack(ServerPlayerEntity player) {
-                player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.attack(redirectedEntity, player.isSneaking()));
-            }
-        });
+        return new InteractionElement(InteractionHandler.redirect(redirectedEntity));
     }
 
     public void setHandler(InteractionHandler handler) {

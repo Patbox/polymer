@@ -124,19 +124,22 @@ public final class CommonImpl {
     public static <T> T loadConfig(String name, Class<T> clazz) {
         try {
             var folder = configDir();
-            if (!folder.toFile().isDirectory()) {
-                if (folder.toFile().exists()) {
+            if (!Files.isDirectory(folder)) {
+                if (Files.exists(folder)) {
                     Files.deleteIfExists(folder);
                 }
-                folder.toFile().mkdirs();
+                Files.createDirectories(folder);
             }
             var path = folder.resolve(name + ".json");
 
             if (path.toFile().isFile()) {
                 String json = IOUtils.toString(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8));
                 var obj = GSON.fromJson(json, clazz);
-                saveConfig(name, obj);
-                return obj;
+
+                if (obj != null) {
+                    saveConfig(name, obj);
+                    return obj;
+                }
             }
         } catch (Exception e) {
             LOGGER.warn("Couldn't load config! " + clazz.toString());
@@ -149,24 +152,24 @@ public final class CommonImpl {
             return obj;
         } catch (Exception e) {
             LOGGER.error("Invalid config class! " + clazz.toString());
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
     public static void saveConfig(String name, Object obj) {
         try {
             var folder = configDir();
-            if (!folder.toFile().isDirectory()) {
-                if (folder.toFile().exists()) {
+            if (!Files.isDirectory(folder)) {
+                if (Files.exists(folder)) {
                     Files.deleteIfExists(folder);
                 }
-                folder.toFile().mkdirs();
+                Files.createDirectories(folder);
             }
             var path = folder.resolve(name + ".json");
 
             Files.writeString(path, GSON_PRETTY.toJson(obj), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (Exception e) {
-            LOGGER.warn("Couldn't save config! " + obj.getClass().toString());
+            LOGGER.warn("Couldn't save config! " + obj.getClass());
         }
     }
 

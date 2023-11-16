@@ -9,10 +9,18 @@ import java.nio.file.Path;
 public interface ResourcePackBuilder {
     boolean addData(String path, byte[] data);
     boolean copyAssets(String modId);
-    default boolean copyFromPath(Path path) {
-        return this.copyFromPath(path, true);
+
+    boolean copyFromPath(Path path, String targetPrefix, boolean override);
+    default boolean copyFromPath(Path path, String targetPrefix) {
+        return this.copyFromPath(path, targetPrefix, true);
     }
-    boolean copyFromPath(Path path, boolean override);
+    default boolean copyFromPath(Path path) {
+        return this.copyFromPath(path, "", true);
+    }
+    default boolean copyFromPath(Path path, boolean override) {
+        return this.copyFromPath(path, "", override);
+    }
+
     boolean addCustomModelData(PolymerModelData itemModel);
     boolean addArmorModel(PolymerArmorModel model);
     @Nullable

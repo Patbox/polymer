@@ -29,8 +29,8 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
     @WrapOperation(method = "onReady", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;onPlayerConnect(Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/server/network/ConnectedClientData;)V"))
     private void polymerNet$prePlayHandshakeHackfest(PlayerManager manager, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, Operation<Void> original) {
         EarlyPlayConnectionMagic.handle(player, clientData.syncedOptions(), (ServerConfigurationNetworkHandler) (Object) this, player.server, connection, (context) -> {
-            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
             connection.disableAutoRead();
+            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
             var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
             attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
             connection.setPacketListener(this);

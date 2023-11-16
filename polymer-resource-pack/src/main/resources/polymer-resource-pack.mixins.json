@@ -9,7 +9,7 @@
     "compat.polymc.polymc_FancyPantsItemPolyMixin"
   ],
   "client": [
-    "MinecraftClientMixin",
+    "client.MinecraftClientMixin",
     "client.ArmorFeatureRendererAccessor",
     "client.ResourcePackManagerMixin",
     "client.compat.armor_ArmorFeatureRendererMixin"

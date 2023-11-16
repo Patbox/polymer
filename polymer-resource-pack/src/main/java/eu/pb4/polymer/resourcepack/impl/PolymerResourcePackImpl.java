@@ -4,11 +4,16 @@ import com.google.gson.annotations.SerializedName;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PolymerResourcePackImpl {
     public static final boolean FORCE_REQUIRE;
     public static final boolean USE_OFFSET;
     public static final int OFFSET_VALUES;
     public static final boolean USE_ALT_ARMOR_HANDLER;
+    public static final List<String> INCLUDE_MOD_IDS;
+    public static final List<String> INCLUDE_ZIPS;
 
 
     static {
@@ -21,6 +26,10 @@ public class PolymerResourcePackImpl {
         OFFSET_VALUES = config.offsetValue;
 
         USE_ALT_ARMOR_HANDLER = config.useAlternativeArmorHandler || CompatStatus.REQUIRE_ALT_ARMOR_HANDLER;
+
+        INCLUDE_MOD_IDS = config.includeModAssets;
+
+        INCLUDE_ZIPS = config.includeZips;
     }
 
 
@@ -36,5 +45,12 @@ public class PolymerResourcePackImpl {
         public String _c4 = "Enables usage of alternative armor rendering for increased mod compatibility";
         @SerializedName("use_alternative_armor_rendering")
         public boolean useAlternativeArmorHandler;
+
+        public String _c5 = "Included resource packs from mods!";
+        @SerializedName("include_mod_assets")
+        public List<String> includeModAssets = new ArrayList<>();
+        public String _c6 = "Included resource packs from zips!";
+        @SerializedName("include_zips")
+        public List<String> includeZips = List.of("world/resources.zip");
     }
 }

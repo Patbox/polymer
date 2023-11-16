@@ -61,8 +61,8 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
         ci.cancel();
         var defaultOptions = SyncedClientOptions.createDefault();
         EarlyConfigurationConnectionMagic.handle(this.profile, defaultOptions, (ServerLoginNetworkHandler) (Object) this, this.server, connection, (context) -> {
-            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
             connection.disableAutoRead();
+            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
             var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
             attr.set(NetworkState.LOGIN.getHandler(NetworkSide.SERVERBOUND));
             connection.setPacketListener((ServerLoginNetworkHandler) (Object) this);
@@ -75,6 +75,7 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
                     this.polymerNet$overrideOptions = context.options().getValue();
                 }
                 this.onEnterConfiguration(packet);
+                this.connection.enableAutoRead();
                 if (this.connection.getPacketListener() instanceof ServerConfigurationPacketListener listener) {
                     for (var packetx : context.storedPackets()) {
                         try {
@@ -84,7 +85,6 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
                         }
                     }
                 }
-                this.connection.enableAutoRead();
             }
         });
     }

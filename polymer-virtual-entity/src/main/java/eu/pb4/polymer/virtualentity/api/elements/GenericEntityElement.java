@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("ConstantConditions")
 public abstract class GenericEntityElement extends AbstractElement {
-    protected final DataTrackerLike dataTracker = createDataTracker();
+    protected final DataTrackerLike dataTracker = this.createDataTracker();
     private final int id = VirtualEntityUtils.requestEntityId();
     private final UUID uuid = UUID.randomUUID();
     private float pitch;
@@ -274,20 +274,5 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     public void setNoGravity(boolean noGravity) {
         this.dataTracker.set(EntityTrackedData.NO_GRAVITY, noGravity);
-    }
-
-    @Override
-    public InteractionHandler getInteractionHandler(ServerPlayerEntity player) {
-        return InteractionHandler.EMPTY;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, uuid);
     }
 }

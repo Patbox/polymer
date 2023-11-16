@@ -1,4 +1,4 @@
-package eu.pb4.polymer.resourcepack.mixin;
+package eu.pb4.polymer.resourcepack.mixin.client;
 
 import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourceReloader;
 import net.fabricmc.api.EnvType;

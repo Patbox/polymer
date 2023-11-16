@@ -5,11 +5,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public abstract class AbstractElement implements VirtualElement {
     private ElementHolder holder;
     private Vec3d offset = Vec3d.ZERO;
     private InteractionHandler handler = InteractionHandler.EMPTY;
-
 
     @Override
     public Vec3d getOffset() {

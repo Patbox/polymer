@@ -2,6 +2,7 @@ package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
@@ -37,6 +38,26 @@ public interface VirtualElement {
 
     interface InteractionHandler {
         InteractionHandler EMPTY = new InteractionHandler() {};
+
+        static InteractionHandler redirect(Entity redirectedEntity) {
+            return new InteractionHandler() {
+                @Override
+                public void interact(ServerPlayerEntity player, Hand hand) {
+                    player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.interact(redirectedEntity, player.isSneaking(), hand));
+                }
+
+                @Override
+                public void interactAt(ServerPlayerEntity player, Hand hand, Vec3d pos) {
+                    player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.interactAt(redirectedEntity, player.isSneaking(), hand, pos));
+                }
+
+                @Override
+                public void attack(ServerPlayerEntity player) {
+                    player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.attack(redirectedEntity, player.isSneaking()));
+                }
+            };
+        }
+
         default void interact(ServerPlayerEntity player, Hand hand) {};
         default void interactAt(ServerPlayerEntity player, Hand hand, Vec3d pos) {};
         default void attack(ServerPlayerEntity player) {};

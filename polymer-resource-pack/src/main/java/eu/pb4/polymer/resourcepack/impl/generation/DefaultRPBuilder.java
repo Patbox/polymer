@@ -24,7 +24,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,9 +48,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final Path outputPath;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
-    private Path clientPath = null;
-
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
+    private Path clientPath = null;
 
     public DefaultRPBuilder(Path outputPath) {
         outputPath.getParent().toFile().mkdirs();
@@ -108,7 +106,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
-    public boolean copyFromPath(Path basePath, boolean override) {
+    public boolean copyFromPath(Path basePath, String targetPrefix, boolean override) {
         try {
             if (Files.isSymbolicLink(basePath)) {
                 basePath = Files.readSymbolicLink(basePath);
@@ -116,30 +114,31 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
             if (Files.isDirectory(basePath)) {
                 Path finalBasePath = basePath;
-                Files.walk(basePath).forEach((file) -> {
-                    var relative = finalBasePath.relativize(file);
-                    var path = relative.toString().replace("\\", "/");
-                    if ((override || !fileMap.containsKey(path)) && Files.isRegularFile(file)) {
-                        try {
-                            this.addData(path, Files.readAllBytes(file));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                try (var str = Files.walk(basePath)) {
+                    str.forEach((file) -> {
+                        var relative = finalBasePath.relativize(file);
+                        var path = targetPrefix + relative.toString().replace("\\", "/");
+                        if ((override || !fileMap.containsKey(path)) && Files.isRegularFile(file)) {
+                            try {
+                                this.addData(path, Files.readAllBytes(file));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
 
-                    }
-                });
+                        }
+                    });
+                }
 
                 return true;
             } else if (Files.isRegularFile(basePath)) {
                 try (var fs = FileSystems.newFileSystem(basePath, Collections.emptyMap())) {
-                    fs.getRootDirectories().forEach(this::copyFromPath);
+                    fs.getRootDirectories().forEach((path) -> copyFromPath(path, targetPrefix, override));
                 }
                 return true;
             }
             return false;
         } catch (Exception e) {
-            CommonImpl.LOGGER.error("Something went wrong while copying data from: " + basePath);
-            e.printStackTrace();
+            CommonImpl.LOGGER.error("Something went wrong while copying data from: " + basePath, e);
             return false;
         }
     }
@@ -152,22 +151,39 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             this.modsList.add(container);
             try {
                 for (var rootPaths : container.getRootPaths()) {
-                    Path assets = rootPaths.resolve("assets");
-                    if (Files.exists(assets)) {
-                        Files.walk(assets).forEach((file) -> {
-                            var relative = assets.relativize(file);
-                            var path = relative.toString().replace("\\", "/");
-                            if (Files.isRegularFile(file)) {
-                                try {
-                                    this.addData("assets/" + path, Files.readAllBytes(file));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                    try (var str = Files.list(rootPaths)) {
+                        str.forEach(file -> {
+                            try {
+                                var name = file.getFileName().toString();
+                                if (name.toLowerCase(Locale.ROOT).contains("license")
+                                        || name.toLowerCase(Locale.ROOT).contains("licence")) {
+                                    this.addData("licenses/"
+                                            + modId + "/" + name, Files.readAllBytes(file));
                                 }
+                            } catch (Throwable ignored) {
                             }
                         });
+                    } catch (Throwable e) {
+                        CommonImpl.LOGGER.warn("Failed while copying the license!", e);
+                    }
+
+                    Path assets = rootPaths.resolve("assets");
+                    if (Files.exists(assets)) {
+                        try(var str = Files.walk(assets))  {
+                            str.forEach((file) -> {
+                                var relative = assets.relativize(file);
+                                var path = relative.toString().replace("\\", "/");
+                                if (Files.isRegularFile(file)) {
+                                    try {
+                                        this.addData("assets/" + path, Files.readAllBytes(file));
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
-
                 return true;
             } catch (Exception e) {
                 CommonImpl.LOGGER.error("Something went wrong while copying assets of mod: " + modId);
@@ -177,14 +193,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         }
         CommonImpl.LOGGER.warn("Tried to copy assets from non existing mod " + modId);
         return false;
-    }
-
-    public enum OverridePlace {
-        BEFORE_EXISTING,
-        EXISTING,
-        BEFORE_CUSTOM_MODEL_DATA,
-        CUSTOM_MODEL_DATA,
-        END
     }
 
     @Override
@@ -316,11 +324,28 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 credits.add("");
                 credits.add("Vanilla assets by Mojang Studios");
                 credits.add("");
-                credits.add("Used mod assets: ");
+                credits.add("Contains assets from mods: ");
 
                 for (var entry : this.modsList) {
-                    credits.add(" - " + entry.getMetadata().getName() + " (" + entry.getMetadata().getId() + ")");
+                    var b = new StringBuilder(" - ").append( entry.getMetadata().getName()).append(" (").append(entry.getMetadata().getId()).append(")");
+                    if (!entry.getMetadata().getLicense().isEmpty()) {
+                        b.append(" / License: ");
+                        var iter = entry.getMetadata().getLicense().iterator();
+                        while(iter.hasNext()) {
+                            b.append(iter.next());
+                            if (iter.hasNext()) {
+                                b.append(", ");
+                            }
+                        }
+                    }
+
+                    entry.getMetadata().getContact().get("homepage").ifPresent(s -> b.append(" / Website: ").append(s));
+                    entry.getMetadata().getContact().get("source").ifPresent(s -> b.append(" / Source: ").append(s));
+
+                    credits.add(b.toString());
                 }
+                credits.add("");
+                credits.add("See licenses folder for more information!");
                 credits.add("");
 
                 this.buildEvent.invoke((c) -> c.accept(credits));
@@ -329,7 +354,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 {
                     var jsonObject = new JsonObject();
                     var sorted = new ArrayList<>(this.customModelData.entrySet());
-                    sorted.sort(Comparator.comparing(e -> e.getKey()));
+                    sorted.sort(Map.Entry.comparingByKey());
                     for (var entry : sorted) {
                         var jsonObject2 = new JsonObject();
                         for (var model : entry.getValue()) {
@@ -385,7 +410,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     this.fileMap.put(entry.getKey(), obj.toString().getBytes(StandardCharsets.UTF_8));
                 }
 
-                if (this.armors.size() > 0) {
+                if (!this.armors.isEmpty()) {
                     credits.add("Armor texture support is based on https://github.com/Ancientkingg/fancyPants");
                     credits.add("");
 
@@ -633,6 +658,13 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         return new Identifier(path);
     }
 
+    public enum OverridePlace {
+        BEFORE_EXISTING,
+        EXISTING,
+        BEFORE_CUSTOM_MODEL_DATA,
+        CUSTOM_MODEL_DATA,
+        END
+    }
 
     private record ArmorData(Identifier identifier, int color, BufferedImage[] images,
                              ArmorTextureMetadata[] metadata) {

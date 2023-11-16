@@ -12,9 +12,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
@@ -167,6 +169,43 @@ public final class PolymerResourcePackUtils {
             Path path = CommonImpl.getGameDir().resolve("polymer/source_assets");
             if (Files.isDirectory(path)) {
                 builder.copyFromPath(path);
+            }
+
+            try {
+                for (var field : PolymerResourcePackImpl.INCLUDE_MOD_IDS) {
+                    builder.copyAssets(field);
+                }
+                var gamePath = FabricLoader.getInstance().getGameDir();
+
+                for (var field : PolymerResourcePackImpl.INCLUDE_ZIPS) {
+                    var zipPath = gamePath.resolve(field);
+
+                    if (Files.exists(zipPath)) {
+                        try (var fs = FileSystems.newFileSystem(zipPath)) {
+                            builder.copyFromPath(fs.getPath("assets"), "assets/");
+
+                            for (var root : fs.getRootDirectories()) {
+                                try (var str = Files.list(root)) {
+                                    str.forEach(file -> {
+                                        try {
+                                            var name = file.getFileName().toString();
+                                            if (name.toLowerCase(Locale.ROOT).contains("license")
+                                                    || name.toLowerCase(Locale.ROOT).contains("licence")) {
+                                                builder.addData("licenses/"
+                                                        + field.replace("/", "_").replace("\\", "_") + "/" + name, Files.readAllBytes(file));
+                                            }
+                                        } catch (Throwable ignored) {}
+                                    });
+                                }
+                            }
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
 
             if (CompatStatus.POLYMC) {
