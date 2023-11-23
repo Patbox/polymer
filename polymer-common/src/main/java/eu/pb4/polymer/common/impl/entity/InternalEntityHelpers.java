@@ -2,6 +2,7 @@ package eu.pb4.polymer.common.impl.entity;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.common.impl.FakeWorld;
 import eu.pb4.polymer.common.mixin.DataTrackerAccessor;
@@ -28,7 +29,7 @@ import java.util.Map;
 @SuppressWarnings({"unused", "unchecked"})
 public class InternalEntityHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
-    private static final Map<EntityType<?>, @Nullable Int2ObjectMap<DataTracker.Entry<?>>> TRACKED_DATA = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+    private static final Map<EntityType<?>, @Nullable Int2ObjectMap<DataTracker.Entry<?>>> TRACKED_DATA = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
 
     static {
         try {

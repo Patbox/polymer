@@ -29,17 +29,17 @@ public class TestArmor extends ArmorItem implements PolymerItem {
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerResourcePackUtils.hasPack(player) ? this.itemModel.item() : this.itemDefault;
+        return PolymerResourcePackUtils.hasMainPack(player) ? this.itemModel.item() : this.itemDefault;
     }
 
     @Override
     public int getPolymerArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerResourcePackUtils.hasPack(player) ? this.armorModel.color() : -1;
+        return PolymerResourcePackUtils.hasMainPack(player) ? this.armorModel.color() : -1;
     }
 
     @Override
     public int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerResourcePackUtils.hasPack(player) ? this.itemModel.value() : -1;
+        return PolymerResourcePackUtils.hasMainPack(player) ? this.itemModel.value() : -1;
     }
 
     private static Item getItemFor(EquipmentSlot slot, boolean bool) {

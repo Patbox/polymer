@@ -496,7 +496,7 @@ public final class PolymerItemUtils {
             }
 
             for (Text t : tooltip) {
-                lore.add(NbtString.of(Text.Serializer.toJson(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
+                lore.add(NbtString.of(Text.Serialization.toJsonString(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE))));
             }
         } catch (Throwable e) {
             if (PolymerImpl.LOG_MORE_ERRORS) {

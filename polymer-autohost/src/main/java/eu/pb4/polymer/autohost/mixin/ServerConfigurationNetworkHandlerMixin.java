@@ -21,15 +21,14 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
         super(server, connection, clientData);
     }
 
-    @Shadow protected abstract void queueSendResourcePackTask();
-
     @Shadow @Final private Queue<ServerPlayerConfigurationTask> tasks;
 
-    @Inject(method = "queueSendResourcePackTask", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "queueSendResourcePackTask", at = @At("TAIL"))
     private void polymerAutoHost$addTask(CallbackInfo ci) {
-        if (AutoHost.config.enabled && !PolymerCommonUtils.hasResourcePack(this.connection)) {
-            this.tasks.add(new SendResourcePackTask(AutoHost.provider.getProperties()));
-            ci.cancel();
+        if (AutoHost.config.enabled) {
+            for (var x : AutoHost.provider.getProperties()) {
+                this.tasks.add(new SendResourcePackTask(x));
+            }
         }
     }
 }

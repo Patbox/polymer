@@ -11,6 +11,8 @@ import net.minecraft.server.network.*;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.UUID;
+
 @ApiStatus.Internal
 public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler {
     private final MinecraftServer server;
@@ -88,8 +90,8 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     }
 
     @Override
-    public boolean getPackStatus() {
-        return ((CommonClientConnectionExt) this.polymerHandler).polymerCommon$hasResourcePack();
+    public boolean getPackStatus(UUID uuid) {
+        return ((CommonClientConnectionExt) this.polymerHandler).polymerCommon$hasResourcePack(uuid);
     }
 
     @Override
@@ -98,7 +100,7 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     }
 
     @Override
-    public void setPackStatus(boolean status) {
-        ((CommonClientConnectionExt) this.polymerHandler).polymerCommon$setResourcePack(status);
+    public void setPackStatus(UUID uuid, boolean status) {
+        ((CommonClientConnectionExt) this.polymerHandler).polymerCommon$setResourcePack(uuid, status);
     }
 }

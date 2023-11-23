@@ -12,6 +12,8 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 @ApiStatus.NonExtendable
 public interface PolymerHandshakeHandler {
     void sendPacket(Packet<?> packet);
@@ -39,9 +41,9 @@ public interface PolymerHandshakeHandler {
 
     void apply(ServerPlayNetworkHandler handler);
 
-    boolean getPackStatus();
+    boolean getPackStatus(UUID uuid);
 
     void reset();
 
-    void setPackStatus(boolean status);
+    void setPackStatus(UUID uuid, boolean status);
 }

@@ -24,11 +24,11 @@ public abstract class ServerCommonNetworkHandlerMixin implements CommonNetworkHa
 
     @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
     private void polymer$changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
-        if (!CommonImplUtils.disableResourcePackCheck && packet.getStatus() != ResourcePackStatusC2SPacket.Status.ACCEPTED) {
+        if (!CommonImplUtils.disableResourcePackCheck) {
             if (!this.polymerCommon$ignoreNextStatus) {
-                ((CommonClientConnectionExt) this.connection).polymerCommon$setResourcePack(switch (packet.getStatus()) {
-                    case SUCCESSFULLY_LOADED -> true;
-                    case DECLINED, FAILED_DOWNLOAD, ACCEPTED -> false;
+                ((CommonClientConnectionExt) this.connection).polymerCommon$setResourcePack(packet.id(), switch (packet.status()) {
+                    case SUCCESSFULLY_LOADED, ACCEPTED -> true;
+                    case DECLINED, FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD, DISCARDED -> false;
                 });
             }
 

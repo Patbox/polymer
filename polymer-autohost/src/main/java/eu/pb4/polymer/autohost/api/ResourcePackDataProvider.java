@@ -6,12 +6,13 @@ import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface ResourcePackDataProvider {
-    String getAddress();
-    String getHash();
     boolean isReady();
     JsonElement saveSettings();
     void loadSettings(JsonElement settings);
@@ -25,8 +26,9 @@ public interface ResourcePackDataProvider {
     static <T> void register(Identifier identifier, Supplier<ResourcePackDataProvider> providerCreator) {
         AutoHost.TYPES.put(identifier, providerCreator);
     };
+    Collection<MinecraftServer.ServerResourcePackProperties> getProperties();
 
-    default MinecraftServer.ServerResourcePackProperties getProperties() {
-        return new MinecraftServer.ServerResourcePackProperties(this.getAddress(), this.getHash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message);
+    static MinecraftServer.ServerResourcePackProperties createProperties(@Nullable UUID uuid, String address, @Nullable String hash) {
+        return new MinecraftServer.ServerResourcePackProperties(uuid, address, hash, AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message);
     }
 }

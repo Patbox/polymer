@@ -8,6 +8,7 @@ import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
@@ -20,6 +21,7 @@ import java.net.URLConnection;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
 public final class PolymerCommonUtils {
     private PolymerCommonUtils(){}
@@ -178,16 +180,16 @@ public final class PolymerCommonUtils {
         return false;
     }
 
-    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
+    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
                 || (player != null && player.networkHandler != null && ((CommonClientConnectionExt) ((CommonNetworkHandlerExt) player.networkHandler)
-                .polymerCommon$getConnection()).polymerCommon$hasResourcePack())
+                .polymerCommon$getConnection()).polymerCommon$hasResourcePack(uuid))
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
-    public static boolean hasResourcePack(ClientConnection connection) {
+    public static boolean hasResourcePack(ClientConnection connection, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || ((CommonClientConnectionExt) connection).polymerCommon$hasResourcePack()
+                || ((CommonClientConnectionExt) connection).polymerCommon$hasResourcePack(uuid)
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
@@ -199,11 +201,15 @@ public final class PolymerCommonUtils {
         return true;
     }
 
-    public static void setHasResourcePack(ServerPlayerEntity player, boolean status) {
-        ((CommonClientConnectionExt) ((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$getConnection()).polymerCommon$setResourcePack(status);
+    public static void setHasResourcePack(ServerPlayerEntity player, UUID uuid, boolean status) {
+        ((CommonClientConnectionExt) ((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$getConnection()).polymerCommon$setResourcePack(uuid, status);
+    }
+
+    public static void setHasResourcePack(ClientConnection player, UUID uuid, boolean status) {
+        ((CommonClientConnectionExt) player).polymerCommon$setResourcePack(uuid, status);
     }
 
     public interface ResourcePackChangeCallback {
-        void onResourcePackChange(ServerPlayNetworkHandler handler, boolean oldStatus, boolean newStatus);
+        void onResourcePackChange(ServerCommonNetworkHandler handler, UUID uuid, boolean oldStatus, boolean newStatus);
     }
 }

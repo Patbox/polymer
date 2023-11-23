@@ -20,6 +20,8 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 @ApiStatus.Internal
 public final class PolymerHandshakeHandlerImplLogin extends EarlyConfigurationNetworkHandler implements PolymerHandshakeHandler {
     public static int PING_ID = 0x91776;
@@ -92,8 +94,8 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyConfigurationNe
     }
 
     @Override
-    public boolean getPackStatus() {
-        return ((CommonClientConnectionExt) this.getConnection()).polymerCommon$hasResourcePack();
+    public boolean getPackStatus(UUID uuid) {
+        return ((CommonClientConnectionExt) this.getConnection()).polymerCommon$hasResourcePack(uuid);
     }
 
     @Override
@@ -102,8 +104,8 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyConfigurationNe
     }
 
     @Override
-    public void setPackStatus(boolean status) {
-        ((CommonClientConnectionExt) this.getConnection()).polymerCommon$setResourcePack(status);
+    public void setPackStatus(UUID uuid, boolean status) {
+        ((CommonClientConnectionExt) this.getConnection()).polymerCommon$setResourcePack(uuid, status);
     }
 
     @Override

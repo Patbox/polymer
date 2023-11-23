@@ -86,8 +86,7 @@ public class PacketPatcher {
         if (handler.getClass() == ServerPlayNetworkHandler.class) {
             var player = ((ServerPlayNetworkHandler) handler).player;
             if ((
-                    (packet instanceof PlaySoundS2CPacket soundPacket && soundPacket.getSound().value() == PolymerSoundEvent.EMPTY_SOUND)
-                            || packet instanceof StatusEffectPacketExtension packet2
+                    packet instanceof StatusEffectPacketExtension packet2
                             && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerReplacement(player) == null))
             ) || !EntityAttachedPacket.shouldSend(packet, player)
             ) {

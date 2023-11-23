@@ -54,14 +54,18 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.*;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeAccess;
+import xyz.nucleoid.server.translations.api.LocalizationTarget;
+import xyz.nucleoid.server.translations.impl.ServerTranslations;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -176,7 +180,7 @@ public class TestMod implements ModInitializer {
     public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().hunger(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
     public static final Item TEST_FOOD_2 = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().hunger(1).saturationModifier(2).build()), Items.CAKE);
 
-    public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(new Identifier("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
+    public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(PolymerResourcePackUtils.getMainUuid(), new Identifier("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
     
     private static final Map<Registry<?>, List<Pair<Identifier, ?>>> REG_CACHE = new HashMap<>();
 
@@ -192,6 +196,17 @@ public class TestMod implements ModInitializer {
         attributes.add(tmp);
 
         player.networkHandler.sendPacket(new EntityAttributesS2CPacket(player.getId(), attributes));
+
+        TranslatableTextContent.
+        CODEC.xmap(Function.identity(), (content) -> {
+            if (content.getFallback() != null) {
+                var target = LocalizationTarget.forPacket();
+                if (target != null) {
+                    return new TranslatableTextContent(content.getKey(), target.getLanguage().serverTranslations().get(content.getKey()), content.getArgs());
+                }
+            }
+            return content;
+        });
     });
 
     public static SimplePolymerItem SPEC_ITEM = new ClickItem(new Item.Settings(), Items.ENDER_EYE, (player, hand) -> {
@@ -354,7 +369,7 @@ public class TestMod implements ModInitializer {
             d.register(literal("test")
                     .executes((ctx) -> {
                         try {
-                            ctx.getSource().sendFeedback(() -> Text.literal("" + PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer())), false);
+                            ctx.getSource().sendFeedback(() -> Text.literal("" + PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer(), PolymerResourcePackUtils.getMainUuid())), false);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

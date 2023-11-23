@@ -20,12 +20,14 @@ import eu.pb4.polymer.core.impl.ui.CreativeTabUi;
 import eu.pb4.polymer.core.impl.ui.PotionUi;
 import eu.pb4.polymer.core.mixin.block.PalettedContainerAccessor;
 import eu.pb4.polymer.networking.impl.ExtClientConnection;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.command.argument.RegistryEntryArgumentType;
+import net.minecraft.command.argument.UuidArgumentType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -144,16 +146,18 @@ public class Commands {
                 )
                 .then(literal("set-pack-status")
                         .then(argument("status", BoolArgumentType.bool())
+                                .then(argument("uuid", UuidArgumentType.uuid())
                                 .executes((ctx) -> {
                                     var status = ctx.getArgument("status", Boolean.class);
-                                    PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrThrow(), status);
+                                    PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrThrow(), UuidArgumentType.getUuid(ctx, "uuid"), status);
                                     ctx.getSource().sendFeedback(() -> Text.literal("New resource pack status: " + status), false);
                                     return 0;
                                 }))
+                        )
                 )
                 .then(literal("get-pack-status")
                         .executes((ctx) -> {
-                            var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer());
+                            var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer(), PolymerResourcePackUtils.getMainUuid());
                             ctx.getSource().sendFeedback(() -> Text.literal("Resource pack status: " + status), false);
                             return 0;
                         })
@@ -232,14 +236,14 @@ public class Commands {
             line++;
 
             if (line == 13) {
-                list.add(NbtString.of(Text.Serializer.toJson(text)));
+                list.add(NbtString.of(Text.Serialization.toJsonString(text)));
                 text = null;
                 line = 0;
             }
         }
 
         if (text != null) {
-            list.add(NbtString.of(Text.Serializer.toJson(text)));
+            list.add(NbtString.of(Text.Serialization.toJsonString(text)));
         }
 
         var stack = new ItemStack(Items.WRITTEN_BOOK);
@@ -330,7 +334,7 @@ public class Commands {
                 line++;
 
                 if (line == 13) {
-                    list.add(NbtString.of(Text.Serializer.toJson(text)));
+                    list.add(NbtString.of(Text.Serialization.toJsonString(text)));
                     text = null;
                     line = 0;
                 }
@@ -338,7 +342,7 @@ public class Commands {
         }
 
         if (text != null) {
-            list.add(NbtString.of(Text.Serializer.toJson(text)));
+            list.add(NbtString.of(Text.Serialization.toJsonString(text)));
         }
 
         var stack = new ItemStack(Items.WRITTEN_BOOK);

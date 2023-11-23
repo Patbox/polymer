@@ -49,10 +49,16 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
-    private Path clientPath = null;
+    private List<Path> rootPaths = new ArrayList<>();
+    private boolean hasVanilla;
 
     public DefaultRPBuilder(Path outputPath) {
-        outputPath.getParent().toFile().mkdirs();
+        try {
+            Files.createDirectories(outputPath.getParent());
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.warn("Couldn't create " + outputPath.getParent() + " directory!");
+            e.printStackTrace();
+        }
         this.outputPath = outputPath;
 
         try {
@@ -263,18 +269,28 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     @Override
     @Nullable
-    public byte[] getDataOrVanilla(String path) {
+    public byte[] getDataOrSource(String path) {
         if (this.fileMap.containsKey(path)) {
             return this.fileMap.get(path);
         } else {
-            return this.getVanillaData(path);
+            return this.getSourceData(path);
         }
     }
 
+    @Override
+    public boolean addAssetsSource(String modId) {
+        if (FabricLoader.getInstance().isModLoaded(modId)) {
+            this.rootPaths.addAll(FabricLoader.getInstance().getModContainer(modId).get().getRootPaths());
+            return true;
+        }
+
+        return false;
+    }
+
     @Nullable
-    private byte[] getVanillaData(String path) {
+    private byte[] getSourceData(String path) {
         try {
-            var stream = getVanillaStream(path);
+            var stream = getSourceStream(path);
             if (stream != null) {
                 return stream.readAllBytes();
             }
@@ -285,17 +301,19 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Nullable
-    private InputStream getVanillaStream(String path) {
+    private InputStream getSourceStream(String path) {
         try {
-            if (this.clientPath == null) {
-                //noinspection ConstantConditions
-                this.clientPath = PolymerCommonUtils.getClientJarRoot();
+            if (!this.hasVanilla && path.startsWith("assets/minecraft/")) {
+                this.rootPaths.add(PolymerCommonUtils.getClientJarRoot());
+                this.hasVanilla = true;
             }
 
-            var entry = this.clientPath.resolve(path);
+            for (var rootPath : this.rootPaths) {
+                var entry = rootPath.resolve(path);
 
-            if (Files.exists(entry)) {
-                return Files.newInputStream(entry);
+                if (Files.exists(entry)) {
+                    return Files.newInputStream(entry);
+                }
             }
         } catch (Exception e) {
             CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar!", e);
@@ -379,7 +397,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             baseModelPath = "assets/" + itemId.getNamespace() + "/models/item/" + itemId.getPath() + ".json";
                         }
 
-                        modelObject = JsonParser.parseString(new String(this.getDataOrVanilla(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
+                        modelObject = JsonParser.parseString(new String(this.getDataOrSource(baseModelPath), StandardCharsets.UTF_8)).getAsJsonObject();
 
 
                         if (modelObject.has("overrides")) {
@@ -435,7 +453,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                                     if (data == null) {
                                         try {
-                                            InputStream stream = this.getVanillaStream(path);
+                                            InputStream stream = this.getSourceStream(path);
                                             if (stream != null) {
                                                 bi = ImageIO.read(stream);
                                             }
@@ -479,10 +497,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     list.sort(Comparator.comparing(e -> -e.color()));
 
                     this.fileMap.put("assets/polymer/armors.json", GSON.toJson(armorDataMap).getBytes(StandardCharsets.UTF_8));
-                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 1), this.getVanillaData(armorTexture(new Identifier("leather"), 1)));
-                    this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 1), this.getVanillaData(armorOverlayTexture(vId("leather"), 1)));
-                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 2), this.getVanillaData(armorTexture(new Identifier("leather"), 2)));
-                    this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 2), this.getVanillaData(armorOverlayTexture(vId("leather"), 2)));
+                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 1), this.getSourceData(armorTexture(new Identifier("leather"), 1)));
+                    this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 1), this.getSourceData(armorOverlayTexture(vId("leather"), 1)));
+                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 2), this.getSourceData(armorTexture(new Identifier("leather"), 2)));
+                    this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 2), this.getSourceData(armorOverlayTexture(vId("leather"), 2)));
                     int[] width = new int[]{64 * globalScale, 64 * globalScale};
                     int[] height = new int[]{32 * globalScale, 32 * globalScale};
 
@@ -520,12 +538,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         for (int i = 0; i <= 1; i++) {
                             {
                                 //noinspection ConstantConditions
-                                var tex = ImageIO.read(this.getVanillaStream(armorTexture(vId("leather"), i + 1)));
+                                var tex = ImageIO.read(this.getSourceStream(armorTexture(vId("leather"), i + 1)));
                                 graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
                             {
                                 //noinspection ConstantConditions
-                                var tex = ImageIO.read(this.getVanillaStream(armorOverlayTexture(vId("leather"), i + 1)));
+                                var tex = ImageIO.read(this.getSourceStream(armorOverlayTexture(vId("leather"), i + 1)));
                                 graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
                             }
                             graphics[i].setColor(Color.WHITE);
@@ -612,7 +630,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     }
                 }
 
-                this.fileMap.put("polymer-about.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
+                this.fileMap.put("polymer-credits.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
 
                 {
                     var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
@@ -630,7 +648,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     }
 
                     var sorted = new ArrayList<>(this.fileMap.entrySet());
-                    sorted.sort(Comparator.comparing(e -> e.getKey()));
+                    sorted.sort(Map.Entry.comparingByKey());
                     for (var entry : sorted) {
                         var zipEntry = new ZipEntry(entry.getKey());
                         zipEntry.setTime(0);

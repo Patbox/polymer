@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.other;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.registry.Registries;
@@ -9,7 +10,7 @@ import net.minecraft.util.Util;
 import java.util.Set;
 
 public final class PolymerScreenHandlerUtils {
-    private static final Set<ScreenHandlerType<?>> POLYMER_TYPES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+    private static final Set<ScreenHandlerType<?>> POLYMER_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
     private PolymerScreenHandlerUtils() {}
 

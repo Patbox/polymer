@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Util;
@@ -12,7 +13,7 @@ import java.util.function.Consumer;
 
 @ApiStatus.Internal
 public class ImplPolymerRegistryEvent {
-    private static final Map<Registry<?>, List<Consumer<?>>> EVENTS = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+    private static final Map<Registry<?>, List<Consumer<?>>> EVENTS = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
     public static void invokeRegistered(Registry<?> ts, Object entry) {
         //noinspection unchecked
         var x = (List<Consumer<Object>>) (Object) EVENTS.get(ts);

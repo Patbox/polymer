@@ -53,6 +53,8 @@ import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.QueryableTickScheduler;
+import net.minecraft.world.tick.Tick;
+import net.minecraft.world.tick.TickManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -255,6 +257,8 @@ public final class FakeWorld extends World implements LightSourceView {
         INSTANCE = worldUnsafe != null ? worldUnsafe : worldDefault;
     }
 
+    private TickManager tickManager = new TickManager();
+
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, REGISTRY_MANAGER, dimensionType, profiler, isClient, debugWorld, seed, 0);
     }
@@ -293,6 +297,11 @@ public final class FakeWorld extends World implements LightSourceView {
     @Override
     public Entity getEntityById(int id) {
         return null;
+    }
+
+    @Override
+    public TickManager getTickManager() {
+        return this.tickManager;
     }
 
     @Nullable

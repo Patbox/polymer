@@ -89,13 +89,13 @@ public class AutoHost implements ModInitializer {
         }
 
         try {
-            AutoHost.message = Text.Serializer.fromJson(AutoHost.config.message);
+            AutoHost.message = Text.Serialization.fromJsonTree(AutoHost.config.message);
         } catch (Exception e) {
             AutoHost.message = null;
         }
 
         try {
-            AutoHost.disconnectMessage = Text.Serializer.fromJson(AutoHost.config.disconnectMessage);
+            AutoHost.disconnectMessage = Text.Serialization.fromJsonTree(AutoHost.config.disconnectMessage);
         } catch (Exception e) {
             AutoHost.disconnectMessage = Text.literal("This server requires resource pack enabled to play!");
         }
@@ -103,13 +103,17 @@ public class AutoHost implements ModInitializer {
         CommonImplUtils.registerDevCommands((c) -> {
             c.then(literal("reload_resourcepack").executes(context -> {
                 if (provider.isReady()) {
-                    context.getSource().getPlayerOrThrow().networkHandler.sendPacket(new ResourcePackSendS2CPacket(provider.getAddress(), provider.getHash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
+                    for (var x : provider.getProperties()) {
+                        context.getSource().getPlayerOrThrow().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
+                    }
                 }
                 return 0;
             }));
             c.then(literal("rebuild_reload_rp").executes(context -> {
                 generateAndCall(context.getSource().getServer(), context.getSource()::sendMessage, () -> {
-                    context.getSource().getPlayer().networkHandler.sendPacket(new ResourcePackSendS2CPacket(provider.getAddress(), provider.getHash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
+                    for (var x : provider.getProperties()) {
+                        context.getSource().getPlayer().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
+                    }
                 });
                 return 0;
             }));

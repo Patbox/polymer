@@ -3,6 +3,7 @@ package eu.pb4.polymer.resourcepack.api;
 import com.google.gson.JsonObject;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.model.ItemOverride;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.impl.generation.PolymerArmorModelImpl;
@@ -17,7 +18,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,12 +34,13 @@ public final class ResourcePackCreator {
     public final SimpleEvent<Consumer<ResourcePackBuilder>> creationEvent = new SimpleEvent<>();
     public final SimpleEvent<Runnable> finishedEvent = new SimpleEvent<>();
     public final SimpleEvent<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
-    private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
-    private final Object2IntMap<Item> itemIds = new Object2IntOpenCustomHashMap<>(Util.identityHashStrategy());
-    private final Map<Item, Map<Identifier, PolymerModelData>> itemModels = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
-    private final Map<Item, List<ItemOverride>> itemOverrides = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+    private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    private final Object2IntMap<Item> itemIds = new Object2IntOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    private final Map<Item, Map<Identifier, PolymerModelData>> itemModels = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    private final Map<Item, List<ItemOverride>> itemOverrides = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
 
     private final Set<String> modIds = new HashSet<>();
+    private final Set<String> modIdsNoCopy = new HashSet<>();
     private final IntSet takenArmorColors = new IntOpenHashSet();
     private final Map<Identifier, PolymerArmorModel> armorModelMap = new HashMap<>();
     private final int cmdOffset;
@@ -141,6 +142,15 @@ public final class ResourcePackCreator {
         return false;
     }
 
+    public boolean addAssetSourceWithoutCopy(String modId) {
+        if (CommonImpl.isModLoaded(modId)) {
+            this.modIdsNoCopy.add(modId);
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Adds mod with provided mod id as a source of assets
      *
@@ -149,6 +159,7 @@ public final class ResourcePackCreator {
     public boolean addAssetSource(Path sourcePath) {
         return this.sourcePaths.add(sourcePath);
     }
+
 
     /**
      * Returns true if color is taken
@@ -224,7 +235,7 @@ public final class ResourcePackCreator {
 
             var pack = new JsonObject();
             pack.addProperty("pack_format", SharedConstants.RESOURCE_PACK_VERSION);
-            pack.add("description", Text.Serializer.toJsonTree(this.packDescription));
+            pack.add("description", Text.Serialization.toJsonTree(this.packDescription));
 
             obj.add("pack", pack);
             builder.addData("pack.mcmeta", obj.toString().getBytes(StandardCharsets.UTF_8));
@@ -243,6 +254,12 @@ public final class ResourcePackCreator {
             status.accept("action:copy_path_start/" + path);
             successful = builder.copyFromPath(path) && successful;
             status.accept("action:copy_path_end/" + path);
+        }
+
+        for (String modId : this.modIdsNoCopy) {
+            status.accept("action:add_source_mod_start/" + modId);
+            successful = builder.addAssetsSource(modId) && successful;
+            status.accept("action:add_source_mod_end/" + modId);
         }
 
         for (String modId : this.modIds) {

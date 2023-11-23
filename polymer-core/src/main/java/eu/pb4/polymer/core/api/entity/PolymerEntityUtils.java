@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.entity;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
@@ -27,9 +28,9 @@ public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
     }
 
-    private static final Set<EntityType<?>> ENTITY_TYPES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+    private static final Set<EntityType<?>> ENTITY_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
-    private static final Map<VillagerProfession, PolymerVillagerProfession> VILLAGER_PROFESSIONS = new Object2ObjectOpenCustomHashMap<>(Util.identityHashStrategy());
+    private static final Map<VillagerProfession, PolymerVillagerProfession> VILLAGER_PROFESSIONS = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
 
     /**
      * Allows to get next free entity id you can use for networking

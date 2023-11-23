@@ -35,7 +35,6 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
             attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
             connection.setPacketListener(this);
             attr.set(NetworkState.PLAY.getHandler(NetworkSide.SERVERBOUND));
-            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
 
             if (connection.isOpen()) {
                 var oldPlayer = player.server.getPlayerManager().getPlayer(this.getProfile().getId());
@@ -43,6 +42,7 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
                     this.disconnect(Text.translatable("multiplayer.disconnect.duplicate_login"));
                 } else {
                     original.call(manager, connection, player, new ConnectedClientData(clientData.gameProfile(), clientData.latency(), context.options().getValue()));
+                    ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
                     if (this.connection.getPacketListener() instanceof ServerPlayPacketListener listener) {
                         for (var packetx : context.storedPackets()) {
                             try {

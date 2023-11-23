@@ -232,7 +232,7 @@ public final class PolymerUtils {
 
     }
 
-    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player) {
-        return PolymerCommonUtils.hasResourcePack(player);
+    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {
+        return PolymerCommonUtils.hasResourcePack(player, uuid);
     }
 }

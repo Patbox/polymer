@@ -10,6 +10,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.FileSystems;
@@ -17,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -67,6 +69,15 @@ public final class PolymerResourcePackUtils {
     }
 
     /**
+     * Adds mod with provided mod id as a source of assets
+     *
+     * @param modId Id of mods used as a source
+     */
+    public static boolean addModAssetsWithoutCopy(String modId) {
+        return INSTANCE.addAssetSourceWithoutCopy(modId);
+    }
+
+    /**
      * Allows to check if there are any provided resources
      */
     public static boolean hasResources() {
@@ -88,14 +99,29 @@ public final class PolymerResourcePackUtils {
     }
 
     /**
-     * Allows to check if player has server side resoucepack installed
+     * Allows to check if player has selected server side resoucepack installed
      * However it's impossible to check if it's polymer one or not
      *
      * @param player Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasPack(@Nullable ServerPlayerEntity player) {
-        return PolymerCommonUtils.hasResourcePack(player);
+    public static boolean hasPack(@Nullable ServerPlayerEntity player, UUID uuid) {
+        return PolymerCommonUtils.hasResourcePack(player, uuid);
+    }
+
+    /**
+     * Allows to check if player has selected server side resoucepack installed
+     * However it's impossible to check if it's polymer one or not
+     *
+     * @param player Player to check
+     * @return True if player has a server resourcepack
+     */
+    public static boolean hasMainPack(@Nullable ServerPlayerEntity player) {
+        return hasPack(player, getMainUuid());
+    }
+
+    public static UUID getMainUuid() {
+        return PolymerResourcePackImpl.MAIN_UUID;
     }
 
     /**
@@ -104,10 +130,10 @@ public final class PolymerResourcePackUtils {
      * @param player Player to change status
      * @param status true if player has resource pack, otherwise false
      */
-    public static void setPlayerStatus(ServerPlayerEntity player, boolean status) {
+    public static void setPlayerStatus(ServerPlayerEntity player, UUID uuid, boolean status) {
         //((CommonClientConnectionExt) player).polymerCommon$setResourcePack(status);
         if (player.networkHandler != null) {
-            ((CommonClientConnectionExt) player.networkHandler).polymerCommon$setResourcePack(status);
+            ((CommonClientConnectionExt) player.networkHandler).polymerCommon$setResourcePack(uuid, status);
         }
     }
 

@@ -19,6 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 
 public class WebServerProvider implements ResourcePackDataProvider {
@@ -118,13 +121,8 @@ public class WebServerProvider implements ResourcePackDataProvider {
     }
 
     @Override
-    public String getAddress() {
-        return this.fullAddress;
-    }
-
-    @Override
-    public String getHash() {
-        return this.hash;
+    public Collection<MinecraftServer.ServerResourcePackProperties> getProperties() {
+        return List.of(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.fullAddress, this.hash));
     }
 
     @Override

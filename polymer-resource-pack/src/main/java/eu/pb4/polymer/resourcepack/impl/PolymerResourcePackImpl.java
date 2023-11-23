@@ -6,6 +6,7 @@ import eu.pb4.polymer.common.impl.CompatStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PolymerResourcePackImpl {
     public static final boolean FORCE_REQUIRE;
@@ -14,10 +15,13 @@ public class PolymerResourcePackImpl {
     public static final boolean USE_ALT_ARMOR_HANDLER;
     public static final List<String> INCLUDE_MOD_IDS;
     public static final List<String> INCLUDE_ZIPS;
+    public static final UUID MAIN_UUID;
 
 
     static {
         var config = CommonImpl.loadConfig("resource-pack", Config.class);
+
+        MAIN_UUID = config.mainUuid;
 
         FORCE_REQUIRE = config.markResourcePackAsRequiredByDefault || CompatStatus.POLYMC;
 
@@ -34,6 +38,10 @@ public class PolymerResourcePackImpl {
 
 
     public static class Config {
+        public String _c0 = "UUID of default/main resource pack.";
+        @SerializedName("main_uuid")
+        public UUID mainUuid = UUID.randomUUID();
+
         public String _c1 = "Marks resource pack as required, only effects clients and mods using api to check it";
         public boolean markResourcePackAsRequiredByDefault = false;
 

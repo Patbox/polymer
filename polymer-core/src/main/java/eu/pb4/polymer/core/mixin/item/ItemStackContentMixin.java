@@ -2,6 +2,11 @@ package eu.pb4.polymer.core.mixin.item;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.serialization.Codec;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import net.minecraft.item.ItemStack;
@@ -11,28 +16,24 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.function.Function;
 
 @Mixin(HoverEvent.ItemStackContent.class)
 public abstract class ItemStackContentMixin {
-    @Shadow public abstract ItemStack asStack();
-
-    @Inject(method = "toJson", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceItem(CallbackInfoReturnable<JsonElement> cir) {
-        if (PolymerItemUtils.isPolymerServerItem(this.asStack())) {
-            var stack = PolymerItemUtils.getPolymerItemStack(this.asStack(), PolymerUtils.getPlayerContext());
-
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("id", Registries.ITEM.getId(stack.getItem()).toString());
-            if (stack.getCount() != 1) {
-                jsonObject.addProperty("count", stack.getCount());
+    @ModifyExpressionValue(
+            method = "<clinit>",
+            at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/codecs/RecordCodecBuilder;create(Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;", ordinal = 0)
+    )
+    private static Codec<HoverEvent.ItemStackContent> patchCodec(Codec<HoverEvent.ItemStackContent> codec) {
+        return codec.xmap(Function.identity(), content -> {
+            if (PolymerCommonUtils.isServerNetworkingThread()) {
+                var stack = content.asStack();
+                return new HoverEvent.ItemStackContent(PolymerItemUtils.getPolymerItemStack(stack, PolymerCommonUtils.getPlayerContext()));
             }
-
-            if (stack.hasNbt()) {
-                jsonObject.addProperty("tag", stack.getNbt().toString());
-            }
-
-            cir.setReturnValue(jsonObject);
-        }
+            return content;
+        });
     }
 }

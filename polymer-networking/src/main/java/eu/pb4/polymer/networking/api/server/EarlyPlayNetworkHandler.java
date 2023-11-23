@@ -427,6 +427,11 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     }
 
     @Override
+    public void onSlotChangedState(SlotChangedStateC2SPacket packet) {
+
+    }
+
+    @Override
     public void onQueryBlockNbt(QueryBlockNbtC2SPacket packet) {
 
     }

@@ -67,7 +67,6 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
             attr.set(NetworkState.LOGIN.getHandler(NetworkSide.SERVERBOUND));
             connection.setPacketListener((ServerLoginNetworkHandler) (Object) this);
             attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
-            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
 
             if (connection.isOpen()) {
                 this.polymerNet$ignoreCall = true;
@@ -75,6 +74,7 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
                     this.polymerNet$overrideOptions = context.options().getValue();
                 }
                 this.onEnterConfiguration(packet);
+                ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
                 this.connection.enableAutoRead();
                 if (this.connection.getPacketListener() instanceof ServerConfigurationPacketListener listener) {
                     for (var packetx : context.storedPackets()) {

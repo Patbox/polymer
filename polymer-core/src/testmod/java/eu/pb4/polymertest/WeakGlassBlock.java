@@ -4,14 +4,14 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.GlassBlock;
+import net.minecraft.block.TranslucentBlock;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 
-public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
+public class WeakGlassBlock extends TranslucentBlock implements PolymerBlock {
     public static final int DAMAGE_STATES = 4;
     public static final IntProperty DAMAGE = IntProperty.of("damage", 0, DAMAGE_STATES);
 

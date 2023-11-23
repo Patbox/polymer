@@ -55,6 +55,6 @@ public class TestBlock extends Block implements PolymerBlock {
 
     @Override
     public BlockState getPolymerBreakEventBlockState(BlockState state, ServerPlayerEntity player) {
-        return Blocks.GRASS.getDefaultState();
+        return Blocks.SHORT_GRASS.getDefaultState();
     }
 }

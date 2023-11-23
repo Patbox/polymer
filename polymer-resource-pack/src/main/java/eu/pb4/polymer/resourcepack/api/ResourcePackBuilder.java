@@ -26,5 +26,7 @@ public interface ResourcePackBuilder {
     @Nullable
     byte[] getData(String path);
     @Nullable
-    byte[] getDataOrVanilla(String path);
+    byte[] getDataOrSource(String path);
+
+    boolean addAssetsSource(String modId);
 }

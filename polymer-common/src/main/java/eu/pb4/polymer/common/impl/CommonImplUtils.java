@@ -3,6 +3,7 @@ package eu.pb4.polymer.common.impl;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
+import it.unimi.dsi.fastutil.Hash;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
@@ -15,12 +16,25 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class CommonImplUtils {
     private static final ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
+
+    public static final Hash.Strategy<Object> IDENTITY_HASH = new Hash.Strategy<Object>() {
+        @Override
+        public int hashCode(Object o) {
+            return System.identityHashCode(o);
+        }
+
+        @Override
+        public boolean equals(Object a, Object b) {
+            return a == b;
+        }
+    };
 
     @Nullable
     public static ServerPlayerEntity getPlayer() {

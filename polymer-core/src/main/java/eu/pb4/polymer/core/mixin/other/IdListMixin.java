@@ -1,10 +1,12 @@
 package eu.pb4.polymer.core.mixin.other;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.math.MathHelper;
@@ -29,7 +31,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     private int nextId;
     @Shadow
     @Final
-    private Object2IntMap<Object> idMap;
+    private Reference2IntMap<T> idMap;
     @Unique
     private int polymer$nonPolymerBitCount;
     @Unique
@@ -45,7 +47,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     @Unique
     private final List<T> polymer$lazyList = new ArrayList<>();
     @Unique
-    private final Set<T> polymer$states = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+    private final Set<T> polymer$states = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
     @Unique
     private boolean polymer$locked = true;
     @Unique

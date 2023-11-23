@@ -58,7 +58,7 @@ public class VirtualClientItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         if (this.polymerItem.visualStack().hasNbt()) {
             for (var text : this.polymerItem.visualStack().getNbt().getCompound(ItemStack.DISPLAY_KEY).getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE)) {
-                tooltip.add(Text.Serializer.fromLenientJson(text.asString()));
+                tooltip.add(Text.Serialization.fromLenientJson(text.asString()));
             }
         }
     }

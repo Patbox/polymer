@@ -8,31 +8,43 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 /**
  * This class allows for creation of custom sound effects
  * It can be used to play custom sounds for players with resourcepack while keeping fallback for vanilla clients
  */
 public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject<SoundEvent> {
-    public static final SoundEvent EMPTY_SOUND = new SoundEvent(PolymerImplUtils.id("empty_sound"), 0, false);
-    private final SoundEvent polymerSound;
+    @Nullable
+    protected final SoundEvent polymerSound;
+
+    @Nullable
+    protected final UUID source;
 
     public static PolymerSoundEvent of(Identifier identifier, @Nullable SoundEvent vanillaEvent) {
-        return new PolymerSoundEvent(identifier, 16.0F, false, vanillaEvent);
+        return new PolymerSoundEvent(null, identifier, 16.0F, false, vanillaEvent);
     }
 
     static PolymerSoundEvent of(Identifier identifier, float distanceToTravel, @Nullable SoundEvent vanillaEvent) {
-        return new PolymerSoundEvent(identifier, distanceToTravel, true, vanillaEvent);
+        return new PolymerSoundEvent(null, identifier, distanceToTravel, true, vanillaEvent);
     }
 
+    public static PolymerSoundEvent of(UUID uuid, Identifier identifier, @Nullable SoundEvent vanillaEvent) {
+        return new PolymerSoundEvent(uuid, identifier, 16.0F, false, vanillaEvent);
+    }
 
-    public PolymerSoundEvent(Identifier id, float distanceToTravel, boolean useStaticDistance, @Nullable SoundEvent vanillaEvent) {
+    static PolymerSoundEvent of(UUID uuid, Identifier identifier, float distanceToTravel, @Nullable SoundEvent vanillaEvent) {
+        return new PolymerSoundEvent(uuid, identifier, distanceToTravel, true, vanillaEvent);
+    }
+
+    public PolymerSoundEvent(@Nullable UUID uuid, Identifier id, float distanceToTravel, boolean useStaticDistance, @Nullable SoundEvent vanillaEvent) {
         super(id, distanceToTravel, useStaticDistance);
-
-        this.polymerSound = vanillaEvent != null ? vanillaEvent : EMPTY_SOUND;
+        this.source = uuid;
+        this.polymerSound = vanillaEvent;
     }
 
     @Override
     public SoundEvent getPolymerReplacement(ServerPlayerEntity player) {
-        return PolymerUtils.hasResourcePack(player) ? this : (this.polymerSound instanceof PolymerSoundEvent pe ? pe.getPolymerReplacement(player) : this.polymerSound);
+        return this.source == null || this.polymerSound == null || PolymerUtils.hasResourcePack(player, this.source) ? this : (this.polymerSound instanceof PolymerSoundEvent pe ? pe.getPolymerReplacement(player) : this.polymerSound);
     }
 }
