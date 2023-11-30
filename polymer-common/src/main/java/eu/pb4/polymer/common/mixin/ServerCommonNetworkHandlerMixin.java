@@ -27,7 +27,7 @@ public abstract class ServerCommonNetworkHandlerMixin implements CommonNetworkHa
         if (!CommonImplUtils.disableResourcePackCheck) {
             if (!this.polymerCommon$ignoreNextStatus) {
                 ((CommonClientConnectionExt) this.connection).polymerCommon$setResourcePack(packet.id(), switch (packet.status()) {
-                    case SUCCESSFULLY_LOADED, ACCEPTED -> true;
+                    case SUCCESSFULLY_LOADED, DOWNLOADED, ACCEPTED -> true;
                     case DECLINED, FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD, DISCARDED -> false;
                 });
             }

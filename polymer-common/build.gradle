@@ -11,7 +11,6 @@ dependencies {
     modApi include("xyz.nucleoid:packet-tweaker:${packet_tweaker_version}") {
         transitive(false)
     }
-    modApi(include(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
     modCompileOnly "org.geysermc.floodgate:api:2.2.0-SNAPSHOT"
 }
@@ -20,7 +19,6 @@ afterEvaluate {
     // Disable the gen sources task on sub projects
     genSourcesWithFernFlower.enabled = true
     genSourcesWithCfr.enabled = false
-    unpickJar.enabled = true
 }
 
 processResources {

@@ -10,7 +10,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Uuids;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.FileSystems;
@@ -25,7 +24,7 @@ import java.util.function.Consumer;
  * Global utilities allowing creation of single, polymer mod compatible resource pack
  */
 public final class PolymerResourcePackUtils {
-    public static final Path DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip").toAbsolutePath().normalize();
+    private static final Path DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip").toAbsolutePath().normalize();
 
     private PolymerResourcePackUtils() {
     }
@@ -120,6 +119,10 @@ public final class PolymerResourcePackUtils {
         return hasPack(player, getMainUuid());
     }
 
+    public static Path getMainPath() {
+        return DEFAULT_PATH;
+    }
+
     public static UUID getMainUuid() {
         return PolymerResourcePackImpl.MAIN_UUID;
     }
@@ -172,15 +175,15 @@ public final class PolymerResourcePackUtils {
         return new DefaultRPBuilder(output);
     }
 
-    public static boolean build() {
-        return build(PolymerResourcePackUtils.DEFAULT_PATH);
+    public static boolean buildMain() {
+        return buildMain(PolymerResourcePackUtils.getMainPath());
     }
 
-    public static boolean build(Path output) {
-        return build(output, (s) -> {});
+    public static boolean buildMain(Path output) {
+        return buildMain(output, (s) -> {});
     }
 
-    public static boolean build(Path output, Consumer<String> status) {
+    public static boolean buildMain(Path output, Consumer<String> status) {
         try {
             return INSTANCE.build(output, status);
         } catch (Exception e) {

@@ -4,17 +4,14 @@ import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.SharedConstants;
 import net.minecraft.resource.*;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 @ApiStatus.Internal
@@ -24,8 +21,8 @@ public class PolymerResourcePack  {
 
     @Nullable
     public static ResourcePackProfile.PackFactory setup() {
-        Path outputPath = PolymerResourcePackUtils.DEFAULT_PATH;
-        if ((outputPath.toFile().exists() && generated) || PolymerResourcePackUtils.build(outputPath)) {
+        Path outputPath = PolymerResourcePackUtils.getMainPath();
+        if ((outputPath.toFile().exists() && generated) || PolymerResourcePackUtils.buildMain(outputPath)) {
             generated = true;
             return new ZipResourcePack.ZipBackedFactory(outputPath.toFile(), true);
         } else {

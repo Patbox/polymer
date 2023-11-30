@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.0+'
+    id 'fabric-loom' version '1.4.+'
     id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
@@ -75,8 +75,6 @@ allprojects {
         mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
         modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
         modLocalRuntime "net.fabricmc:fabric-loader:${project.loader_version}"
-
-        annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")
     }
 
     loom {
@@ -113,7 +111,6 @@ subprojects {
         // Disable the gen sources task on sub projects
         genSourcesWithFernFlower.enabled = false
         genSourcesWithCfr.enabled = false
-        unpickJar.enabled = false
     }
 }
 

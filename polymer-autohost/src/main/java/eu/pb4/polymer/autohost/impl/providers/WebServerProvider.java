@@ -76,9 +76,9 @@ public class WebServerProvider implements ResourcePackDataProvider {
 
     private void updateHash() {
         try {
-            hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.DEFAULT_PATH.toFile()).hash(Hashing.sha1()).toString();
-            size = Files.size(PolymerResourcePackUtils.DEFAULT_PATH);
-            lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.DEFAULT_PATH).toMillis();
+            hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.getMainPath().toFile()).hash(Hashing.sha1()).toString();
+            size = Files.size(PolymerResourcePackUtils.getMainPath());
+            lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.getMainPath()).toMillis();
             this.fullAddress = this.baseAddress + this.hash + ".zip";
         } catch (Exception e) {
             hash = "";
@@ -99,14 +99,14 @@ public class WebServerProvider implements ResourcePackDataProvider {
 
     public void handle(HttpExchange exchange) throws IOException {
         if ("GET".equals(exchange.getRequestMethod())) {
-            if (Files.exists(PolymerResourcePackUtils.DEFAULT_PATH)) {
-                var updateTime = Files.getLastModifiedTime(PolymerResourcePackUtils.DEFAULT_PATH).toMillis();
+            if (Files.exists(PolymerResourcePackUtils.getMainPath())) {
+                var updateTime = Files.getLastModifiedTime(PolymerResourcePackUtils.getMainPath()).toMillis();
                 if (updateTime > lastUpdate) {
                     updateHash();
                 }
 
                 try (
-                        var input = Files.newInputStream(PolymerResourcePackUtils.DEFAULT_PATH);
+                        var input = Files.newInputStream(PolymerResourcePackUtils.getMainPath());
                         var output = exchange.getResponseBody()
                 ) {
                     exchange.getResponseHeaders().add("Server", "polymer-autohost");

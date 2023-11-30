@@ -7,6 +7,7 @@ import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -28,7 +29,7 @@ public final class PolymerCommonUtils {
 
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
     private static Path cachedClientPath;
-    private final static String SAFE_CLIENT_SHA1 = "8e9187433bab399843d78585e83bf812422a507d";
+    private final static String SAFE_CLIENT_SHA1 = "224c056f3cc6c6e1b5b90e63a0c621811f6a0681";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientJarRoot;
 
@@ -207,6 +208,20 @@ public final class PolymerCommonUtils {
 
     public static void setHasResourcePack(ClientConnection player, UUID uuid, boolean status) {
         ((CommonClientConnectionExt) player).polymerCommon$setResourcePack(uuid, status);
+    }
+
+    /**
+     * Creates instance of object by using unsafe, bypassing initializers.
+     * All of its fields will be set to null or similar.
+     *
+     * Useful for bad packet implementations™™
+     *
+     * @param clazz class to instantiate
+     * @return New instance
+     * @param <T> Anything you want
+     */
+    public static <T> T createUnsafe(Class<T> clazz) {
+        return CommonImplUtils.createUnsafe(clazz);
     }
 
     public interface ResourcePackChangeCallback {

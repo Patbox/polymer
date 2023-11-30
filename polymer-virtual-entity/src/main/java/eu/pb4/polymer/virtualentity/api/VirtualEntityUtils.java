@@ -1,14 +1,13 @@
 package eu.pb4.polymer.virtualentity.api;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
-import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.impl.EntityExt;
-import eu.pb4.polymer.virtualentity.impl.VirtualEntityImplUtils;
 import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityPositionS2CPacketAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.PlaySoundFromEntityS2CPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -16,9 +15,12 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.WorldChunk;
@@ -55,6 +57,19 @@ public final class VirtualEntityUtils {
         ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
     }
 
+    public static PlaySoundFromEntityS2CPacket createPlaySoundFromEntityPacket(int entityId, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {
+        var packet = PolymerCommonUtils.createUnsafe(PlaySoundFromEntityS2CPacket.class);
+        var ac = (PlaySoundFromEntityS2CPacketAccessor) packet;
+        ac.setEntityId(entityId);
+        ac.setSound(sound);
+        ac.setCategory(category);
+        ac.setVolume(volume);
+        ac.setPitch(pitch);
+        ac.setSeed(seed);
+        return packet;
+    }
+
+
     @Nullable
     public static Packet<ClientPlayPacketListener> createMovePacket(int id, Vec3d oldPos, Vec3d newPos, boolean rotate, float yaw, float pitch) {
         var i = MathHelper.floor(yaw * 256.0F / 360.0F);
@@ -82,7 +97,7 @@ public final class VirtualEntityUtils {
     }
 
     public static Packet<ClientPlayPacketListener> createSimpleMovePacket(int id, Vec3d newPos, byte yaw, byte pitch) {
-        var packet = VirtualEntityImplUtils.createUnsafe(EntityPositionS2CPacket.class);
+        var packet = PolymerCommonUtils.createUnsafe(EntityPositionS2CPacket.class);
         var accessor = (EntityPositionS2CPacketAccessor) packet;
         accessor.setId(id);
         accessor.setX(newPos.x);
@@ -99,7 +114,7 @@ public final class VirtualEntityUtils {
     }
 
     public static EntityPassengersSetS2CPacket createRidePacket(int id, int[] list) {
-        var packet = VirtualEntityImplUtils.createUnsafe(EntityPassengersSetS2CPacket.class);
+        var packet = PolymerCommonUtils.createUnsafe(EntityPassengersSetS2CPacket.class);
         ((EntityPassengersSetS2CPacketAccessor) packet).setId(id);
         ((EntityPassengersSetS2CPacketAccessor) packet).setPassengerIds(list);
         return packet;

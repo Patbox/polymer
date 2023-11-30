@@ -23,6 +23,7 @@
     "accessors.EntityTrackerEntryAccessor",
     "accessors.InteractionEntityAccessor",
     "accessors.ItemDisplayEntityAccessor",
+    "accessors.PlaySoundFromEntityS2CPacketAccessor",
     "accessors.TextDisplayEntityAccessor",
     "accessors.ThreadedAnvilChunkStorageAccessor",
     "block.ServerWorldMixin",
