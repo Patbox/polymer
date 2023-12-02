@@ -157,12 +157,11 @@ public final class PolymerUtils {
     }
 
     /**
-     * With 1.20.2, client logs errors when signature is missing, which might cause a lot of spam in some cases.
-     * This method will be un-deprecated if the issue gets fixed.
-     * <p>
-     * <a href="https://bugs.mojang.com/browse/MC-264966">MC-264966</a>
+     * Creates SkullOwner NbtCompound from provided skin value
+     *
+     * @param value Skin value
+     * @return NbtCompound representing SkullOwner
      */
-    @Deprecated
     public static NbtCompound createSkullOwner(String value) {
         return createSkullOwner(value, null);
     }
