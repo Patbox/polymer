@@ -189,13 +189,8 @@ public final class PolymerUtils {
         return skullOwner;
     }
 
-    /**
-     * With 1.20.2, client logs errors when signature is missing, which might cause a lot of spam in some cases.
-     * This method will be un-deprecated if the issue gets fixed.
-     * <p>
-     * <a href="https://bugs.mojang.com/browse/MC-264966">MC-264966</a>
-     */
-    @Deprecated
+
+
     public static ItemStack createPlayerHead(String value) {
         return createPlayerHead(value, null);
     }
