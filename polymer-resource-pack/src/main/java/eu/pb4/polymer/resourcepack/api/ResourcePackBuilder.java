@@ -4,6 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.util.function.BiFunction;
 
 @ApiStatus.NonExtendable
 public interface ResourcePackBuilder {
@@ -29,4 +30,5 @@ public interface ResourcePackBuilder {
     byte[] getDataOrSource(String path);
 
     boolean addAssetsSource(String modId);
+    void addWriteConverter(BiFunction<String, byte[], @Nullable byte[]> converter);
 }

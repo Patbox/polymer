@@ -4,8 +4,10 @@
   "package": "eu.pb4.polymer.autohost.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ClientConnectionMixin",
     "MinecraftServerMixin",
-    "ServerConfigurationNetworkHandlerMixin"
+    "ServerConfigurationNetworkHandlerMixin",
+    "ServerHandshakeNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

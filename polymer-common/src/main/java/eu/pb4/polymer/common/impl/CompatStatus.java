@@ -49,6 +49,8 @@ public final class CompatStatus {
 
     public static final boolean PROXY_MODS = FABRIC_PROXY || FABRIC_PROXY_LITE || QFORWARD || FAPROXY;
 
+    public static final boolean E4MC = LOADER.isModLoaded("e4mc_minecraft");
+
     public static final boolean FLOODGATE = LOADER.isModLoaded("floodgate");
 
     public static final boolean IRIS = LOADER.isModLoaded("iris");

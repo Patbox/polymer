@@ -24,8 +24,6 @@ import java.util.function.Consumer;
  * Global utilities allowing creation of single, polymer mod compatible resource pack
  */
 public final class PolymerResourcePackUtils {
-    private static final Path DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve("polymer-resourcepack.zip").toAbsolutePath().normalize();
-
     private PolymerResourcePackUtils() {
     }
 
@@ -120,7 +118,7 @@ public final class PolymerResourcePackUtils {
     }
 
     public static Path getMainPath() {
-        return DEFAULT_PATH;
+        return PolymerResourcePackImpl.DEFAULT_PATH;
     }
 
     public static UUID getMainUuid() {

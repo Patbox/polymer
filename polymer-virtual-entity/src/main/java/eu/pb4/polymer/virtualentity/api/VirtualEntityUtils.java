@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
+import eu.pb4.polymer.virtualentity.mixin.SetCameraEntityS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityPositionS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.PlaySoundFromEntityS2CPacketAccessor;
@@ -12,10 +13,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -55,6 +53,13 @@ public final class VirtualEntityUtils {
             ((EntityExt) entity).polymerVE$getVirtualRidden().rem(i);
         }
         ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
+    }
+
+    public static SetCameraEntityS2CPacket createSetCameraEntityPacket(int entityId) {
+        var packet = PolymerCommonUtils.createUnsafe(SetCameraEntityS2CPacket.class);
+        var ac = (SetCameraEntityS2CPacketAccessor) packet;
+        ac.setEntityId(entityId);
+        return packet;
     }
 
     public static PlaySoundFromEntityS2CPacket createPlaySoundFromEntityPacket(int entityId, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {

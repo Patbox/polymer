@@ -1,17 +1,13 @@
 package eu.pb4.polymer.autohost.impl.providers;
 
 import com.google.common.base.Strings;
-import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
-import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
@@ -19,21 +15,13 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 
-public class WebServerProvider implements ResourcePackDataProvider {
+public class StandaloneWebServerProvider extends AbstractProvider  {
     private Config config;
     private HttpServer server;
-    public long size = 0;
-    public String hash = "";
-    public long lastUpdate = 0;
     public String baseAddress = "";
     public String fullAddress = "";
-    public boolean enabled;
-    public boolean isPackReady = false;
 
     @Nullable
     public void serverStarted(MinecraftServer minecraftServer) {
@@ -45,25 +33,12 @@ public class WebServerProvider implements ResourcePackDataProvider {
             server.setExecutor(Executors.newFixedThreadPool(2));
             server.start();
 
-            this.enabled = true;
             this.baseAddress = config.externalAddress;
-
             if (!this.baseAddress.endsWith("/")) {
                 this.baseAddress += "/";
             }
-            this.isPackReady = true;
-            updateHash();
 
-            PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register((x) -> {
-                isPackReady = false;
-            });
-
-            PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.register(() -> {
-                isPackReady = true;
-                updateHash();
-            });
-
-            AutoHost.generateAndCall(minecraftServer, minecraftServer::sendMessage, () -> {});
+            super.serverStarted(minecraftServer);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,17 +49,17 @@ public class WebServerProvider implements ResourcePackDataProvider {
         server.stop(0);
     }
 
-    private void updateHash() {
-        try {
-            hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.getMainPath().toFile()).hash(Hashing.sha1()).toString();
-            size = Files.size(PolymerResourcePackUtils.getMainPath());
-            lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.getMainPath()).toMillis();
+    protected boolean updateHash() {
+        if (super.updateHash()) {
             this.fullAddress = this.baseAddress + this.hash + ".zip";
-        } catch (Exception e) {
-            hash = "";
-            size = 0;
+            return true;
         }
+        return false;
+    }
 
+    @Override
+    protected String getAddress(ClientConnection connection) {
+        return this.fullAddress;
     }
 
     private static InetSocketAddress createBindAddress(MinecraftServer server, Config config) {
@@ -118,16 +93,6 @@ public class WebServerProvider implements ResourcePackDataProvider {
                 }
             }
          }
-    }
-
-    @Override
-    public Collection<MinecraftServer.ServerResourcePackProperties> getProperties() {
-        return List.of(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.fullAddress, this.hash));
-    }
-
-    @Override
-    public boolean isReady() {
-        return this.isPackReady;
     }
 
     @Override

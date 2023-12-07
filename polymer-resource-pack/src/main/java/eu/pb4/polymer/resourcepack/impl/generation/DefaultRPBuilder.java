@@ -30,7 +30,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -49,7 +51,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
-    private List<Path> rootPaths = new ArrayList<>();
+    private final List<Path> rootPaths = new ArrayList<>();
+    private final List<BiFunction<String, byte[], @Nullable byte[]>> converters = new ArrayList<>();
     private boolean hasVanilla;
 
     public DefaultRPBuilder(Path outputPath) {
@@ -285,6 +288,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         }
 
         return false;
+    }
+
+    @Override
+    public void addWriteConverter(BiFunction<String, byte[], @Nullable byte[]> converter) {
+        this.converters.add(converter);
     }
 
     @Nullable
@@ -650,12 +658,26 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var sorted = new ArrayList<>(this.fileMap.entrySet());
                     sorted.sort(Map.Entry.comparingByKey());
                     for (var entry : sorted) {
-                        var zipEntry = new ZipEntry(entry.getKey());
+                        var outByte = entry.getValue();
+                        var path = entry.getKey();
+                        if (outByte != null) {
+                            for (var conv : converters) {
+                                outByte = conv.apply(path, outByte);
+                                if (outByte == null) {
+                                    break;
+                                }
+                            }
+
+                            if (outByte == null) {
+                                continue;
+                            }
+                        }
+
+                        var zipEntry = new ZipEntry(path);
                         zipEntry.setTime(0);
                         outputStream.putNextEntry(zipEntry);
-                        var value = entry.getValue();
-                        if (value != null) {
-                            outputStream.write(entry.getValue());
+                        if (outByte != null) {
+                            outputStream.write(outByte);
                         }
                         outputStream.closeEntry();
                     }
@@ -665,8 +687,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 return bool;
             } catch (Exception e) {
-                CommonImpl.LOGGER.error("Something went wrong while creating resource pack!");
-                e.printStackTrace();
+                CommonImpl.LOGGER.error("Something went wrong while creating resource pack!", e);
                 return false;
             }
         });

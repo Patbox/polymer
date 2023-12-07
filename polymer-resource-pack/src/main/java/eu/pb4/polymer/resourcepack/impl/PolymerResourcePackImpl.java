@@ -3,7 +3,9 @@ package eu.pb4.polymer.resourcepack.impl;
 import com.google.gson.annotations.SerializedName;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
+import net.fabricmc.loader.api.FabricLoader;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -16,10 +18,13 @@ public class PolymerResourcePackImpl {
     public static final List<String> INCLUDE_MOD_IDS;
     public static final List<String> INCLUDE_ZIPS;
     public static final UUID MAIN_UUID;
+    public static final Path DEFAULT_PATH;
 
 
     static {
         var config = CommonImpl.loadConfig("resource-pack", Config.class);
+
+        DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve(config.resourcePackPath);
 
         MAIN_UUID = config.mainUuid;
 
@@ -60,5 +65,8 @@ public class PolymerResourcePackImpl {
         public String _c6 = "Included resource packs from zips!";
         @SerializedName("include_zips")
         public List<String> includeZips = List.of("world/resources.zip");
+        public String _c7 = "Path used for creation of default resourcepack!";
+        @SerializedName("resource_pack_location")
+        public String resourcePackPath = "polymer/resource_pack.zip";
     }
 }

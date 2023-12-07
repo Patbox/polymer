@@ -11,7 +11,9 @@ import java.util.function.Supplier;
 public record ManualAttachment(ElementHolder holder, ServerWorld world, Supplier<Vec3d> posSupplier) implements HolderAttachment  {
     @Override
     public void destroy() {
-        this.holder.destroy();
+        if (this.holder.getAttachment() == this) {
+            this.holder.setAttachment(null);
+        }
     }
 
     @Override

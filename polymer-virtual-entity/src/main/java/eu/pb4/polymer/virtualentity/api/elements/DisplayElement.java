@@ -80,6 +80,14 @@ public abstract class DisplayElement extends GenericEntityElement {
         this.dataTracker.set(DisplayTrackedData.INTERPOLATION_DURATION, interpolationDuration);
     }
 
+    public int getTeleportDuration() {
+        return this.dataTracker.get(DisplayTrackedData.TELEPORTATION_DURATION);
+    }
+
+    public void setTeleportDuration(int interpolationDuration) {
+        this.dataTracker.set(DisplayTrackedData.TELEPORTATION_DURATION, interpolationDuration);
+    }
+
     public int getStartInterpolation() {
         return this.dataTracker.get(DisplayTrackedData.START_INTERPOLATION);
     }
