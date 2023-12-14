@@ -10,11 +10,11 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 public class AutoHostConfig {
     public String _c1 = "Enables Polymer's ResourcePack Auto Hosting";
     @SerializedName("enabled")
-    public boolean enabled = CommonImpl.DEV_ENV || PolymerResourcePackUtils.isRequired();
+    public boolean enabled = CommonImpl.DEV_ENV;
     public String _c2 = "Marks resource pack as required";
     @SerializedName("required")
     public boolean require = false;
-    public String _c3 = "Type of resource pack provider. Default: 'polymer:http_server'";
+    public String _c3 = "Type of resource pack provider. Default: 'polymer:automatic'";
     public String type = "polymer:automatic";
     public String _c4 = "Configuration of type, see provider's source for more details";
     @SerializedName("settings")

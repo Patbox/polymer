@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.ServerMetadataKeys;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.payloads.c2s.PolymerChangeTooltipC2SPayload;
@@ -57,93 +58,19 @@ public class PolymerServerProtocolHandler {
 
 
         server.execute(() -> {
-            var isCreative = handler.getPlayer().isCreative();
-
             if (pos.getManhattanDistance(handler.player.getBlockPos()) <= 32) {
-                BlockState blockState = handler.player.getWorld().getBlockState(pos);
-                if (blockState.isAir()) {
-                    return;
-                }
-
-                Block block = blockState.getBlock();
-                var itemStack = block.getPickStack(handler.player.getWorld(), pos, blockState);
-                if (itemStack.isEmpty()) {
-                    return;
-                }
-
-                BlockEntity blockEntity = null;
-                if (isCreative && ctr && blockState.hasBlockEntity()) {
-                    blockEntity = handler.player.getWorld().getBlockEntity(pos);
-                }
-
-
-                PlayerInventory playerInventory = handler.player.getInventory();
-                if (blockEntity != null) {
-                    addBlockEntityNbt(itemStack, blockEntity);
-                }
-
-                int i = playerInventory.getSlotWithStack(itemStack);
-                if (isCreative) {
-                    playerInventory.addPickBlock(itemStack);
-                    handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
-                } else if (i != -1) {
-                    if (PlayerInventory.isValidHotbarIndex(i)) {
-                        playerInventory.selectedSlot = i;
-                    } else {
-                        handler.player.getInventory().swapSlotWithHotbar(i);
-                        handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, playerInventory.selectedSlot, playerInventory.getStack(playerInventory.selectedSlot)));
-                        handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
-                    }
-                    handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
-                }
+                PolymerImplUtils.pickBlock(handler.player, pos, ctr);
             }
         });
     }
 
     private static void handlePickEntity(MinecraftServer server, ServerPlayNetworkHandler handler, PolymerPickEntityC2SPayload payload) {
-        var isCreative = handler.getPlayer().isCreative();
-
         server.execute(() -> {
-
             var entity = handler.player.getServerWorld().getEntityById(payload.entityId());
 
             if (entity != null && entity.getPos().relativize(handler.player.getPos()).lengthSquared() < 1024) {
-                var itemStack = entity.getPickBlockStack();
-
-                if (itemStack != null && !itemStack.isEmpty()) {
-                    PlayerInventory playerInventory = handler.player.getInventory();
-                    int i = playerInventory.getSlotWithStack(itemStack);
-                    if (isCreative) {
-                        playerInventory.addPickBlock(itemStack);
-                        handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
-                    } else if (i != -1) {
-                        if (PlayerInventory.isValidHotbarIndex(i)) {
-                            playerInventory.selectedSlot = i;
-                        } else {
-                            handler.player.getInventory().swapSlotWithHotbar(i);
-                            handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, playerInventory.selectedSlot, playerInventory.getStack(playerInventory.selectedSlot)));
-                            handler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
-                        }
-                        handler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
-                    }
-                }
+                PolymerImplUtils.pickEntity(handler.player, entity);
             }
         });
-    }
-
-    private static void addBlockEntityNbt(ItemStack stack, BlockEntity blockEntity) {
-        NbtCompound nbtCompound = blockEntity.createNbtWithId();
-        NbtCompound nbtCompound3;
-        if (stack.getItem() instanceof PlayerHeadItem && nbtCompound.contains("SkullOwner")) {
-            nbtCompound3 = nbtCompound.getCompound("SkullOwner");
-            stack.getOrCreateNbt().put("SkullOwner", nbtCompound3);
-        } else {
-            stack.setSubNbt("BlockEntityTag", nbtCompound);
-            nbtCompound3 = new NbtCompound();
-            NbtList nbtList = new NbtList();
-            nbtList.add(NbtString.of("\"(+NBT)\""));
-            nbtCompound3.put("Lore", nbtList);
-            stack.setSubNbt("display", nbtCompound3);
-        }
     }
 }

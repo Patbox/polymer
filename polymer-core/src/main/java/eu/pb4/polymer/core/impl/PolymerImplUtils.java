@@ -17,16 +17,26 @@ import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.PlayerHeadItem;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
@@ -268,5 +278,87 @@ public class PolymerImplUtils {
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipContext context) {
         return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, player), player));
+    }
+
+    public static void pickBlock(ServerPlayerEntity player, BlockPos pos, boolean withNbt) {
+        var isCreative = player.isCreative();
+
+        BlockState blockState = player.getWorld().getBlockState(pos);
+        if (blockState.isAir()) {
+            return;
+        }
+
+        Block block = blockState.getBlock();
+        var itemStack = block.getPickStack(player.getWorld(), pos, blockState);
+        if (itemStack.isEmpty()) {
+            return;
+        }
+
+        BlockEntity blockEntity = null;
+        if (isCreative && withNbt && blockState.hasBlockEntity()) {
+            blockEntity = player.getWorld().getBlockEntity(pos);
+        }
+
+
+        PlayerInventory playerInventory = player.getInventory();
+        if (blockEntity != null) {
+            addBlockEntityNbt(itemStack, blockEntity);
+        }
+
+        int i = playerInventory.getSlotWithStack(itemStack);
+        if (isCreative) {
+            playerInventory.addPickBlock(itemStack);
+            player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
+        } else if (i != -1) {
+            if (PlayerInventory.isValidHotbarIndex(i)) {
+                playerInventory.selectedSlot = i;
+            } else {
+                player.getInventory().swapSlotWithHotbar(i);
+                player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, playerInventory.selectedSlot, playerInventory.getStack(playerInventory.selectedSlot)));
+                player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
+            }
+            player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
+        }
+    }
+
+
+    private static void addBlockEntityNbt(ItemStack stack, BlockEntity blockEntity) {
+        NbtCompound nbtCompound = blockEntity.createNbtWithId();
+        NbtCompound nbtCompound3;
+        if (stack.getItem() instanceof PlayerHeadItem && nbtCompound.contains("SkullOwner")) {
+            nbtCompound3 = nbtCompound.getCompound("SkullOwner");
+            stack.getOrCreateNbt().put("SkullOwner", nbtCompound3);
+        } else {
+            stack.setSubNbt("BlockEntityTag", nbtCompound);
+            nbtCompound3 = new NbtCompound();
+            NbtList nbtList = new NbtList();
+            nbtList.add(NbtString.of("\"(+NBT)\""));
+            nbtCompound3.put("Lore", nbtList);
+            stack.setSubNbt("display", nbtCompound3);
+        }
+    }
+
+    public static void pickEntity(ServerPlayerEntity player, Entity entity) {
+        var isCreative = player.isCreative();
+
+        var itemStack = entity.getPickBlockStack();
+
+        if (itemStack != null && !itemStack.isEmpty()) {
+            PlayerInventory playerInventory = player.getInventory();
+            int i = playerInventory.getSlotWithStack(itemStack);
+            if (isCreative) {
+                playerInventory.addPickBlock(itemStack);
+                player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
+            } else if (i != -1) {
+                if (PlayerInventory.isValidHotbarIndex(i)) {
+                    playerInventory.selectedSlot = i;
+                } else {
+                    player.getInventory().swapSlotWithHotbar(i);
+                    player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, playerInventory.selectedSlot, playerInventory.getStack(playerInventory.selectedSlot)));
+                    player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
+                }
+                player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
+            }
+        }
     }
 }

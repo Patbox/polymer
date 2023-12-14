@@ -5,7 +5,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.impl.CommonClientConnectionExt;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
@@ -31,6 +30,7 @@ import net.minecraft.command.argument.UuidArgumentType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -55,12 +55,15 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-import static net.minecraft.server.command.CommandManager.*;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
@@ -88,6 +91,14 @@ public class Commands {
                         .requires(CommonImplUtils.permission("command.target-block", 3))
                         .executes(Commands::targetBlock)
                 )
+                .then(literal("pick")
+                        .requires(CommonImplUtils.permission("command.pick", 0))
+                        .executes((ctx) -> Commands.pickTarget(ctx, false))
+                        .then(
+                                literal("withnbt").executes((ctx) -> Commands.pickTarget(ctx, true))
+                        )
+
+                )
                 .then(literal("creative")
                         .requires(CommonImplUtils.permission("command.creative", 0))
                         .then(argument("itemGroup", IdentifierArgumentType.identifier())
@@ -102,6 +113,31 @@ public class Commands {
                                 .executes(Commands::creativeTab)
                         )
                         .executes(Commands::creativeTab));
+    }
+
+    private static int pickTarget(CommandContext<ServerCommandSource> serverCommandSourceCommandContext, boolean withNbt) throws CommandSyntaxException {
+        var player = serverCommandSourceCommandContext.getSource().getPlayerOrThrow();
+        var range = PlayerEntity.getReachDistance(player.isCreative());
+
+        var min = player.getCameraPosVec(0);
+        var rot = player.getRotationVec(0);
+        var max = min.add(rot.x * range, rot.y * range, rot.z * range);
+
+        var box = player.getBoundingBox().stretch(rot.multiply(range)).expand(1.0, 1.0, 1.0);
+        var entityHit = ProjectileUtil.raycast(player, min, max, box, entity -> !player.isSpectator() && entity.canHit(), range);
+
+        if (entityHit != null) {
+            PolymerImplUtils.pickEntity(player, entityHit.getEntity());
+            return 1;
+        }
+
+        var hit = player.raycast(range, 0, false);
+        if (hit instanceof BlockHitResult result && hit.getType() != HitResult.Type.MISS) {
+            PolymerImplUtils.pickBlock(player, result.getBlockPos(), withNbt);
+            return 2;
+        }
+
+        return 0;
     }
 
     public static void registerDev(LiteralArgumentBuilder<ServerCommandSource> dev) {
@@ -147,12 +183,12 @@ public class Commands {
                 .then(literal("set-pack-status")
                         .then(argument("status", BoolArgumentType.bool())
                                 .then(argument("uuid", UuidArgumentType.uuid())
-                                .executes((ctx) -> {
-                                    var status = ctx.getArgument("status", Boolean.class);
-                                    PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrThrow(), UuidArgumentType.getUuid(ctx, "uuid"), status);
-                                    ctx.getSource().sendFeedback(() -> Text.literal("New resource pack status: " + status), false);
-                                    return 0;
-                                }))
+                                        .executes((ctx) -> {
+                                            var status = ctx.getArgument("status", Boolean.class);
+                                            PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrThrow(), UuidArgumentType.getUuid(ctx, "uuid"), status);
+                                            ctx.getSource().sendFeedback(() -> Text.literal("New resource pack status: " + status), false);
+                                            return 0;
+                                        }))
                         )
                 )
                 .then(literal("get-pack-status")
@@ -172,7 +208,7 @@ public class Commands {
                             ctx.getSource().sendFeedback(() -> Text.literal("Chunk: " + chunk.getPos() + " Palette: " + a.palette() + " | " + " Storage: " + a.storage() + " | Bits: " + a.storage().getElementBits()), false);
                             return 0;
                         })
-        );
+                );
     }
 
     private static int targetBlock(CommandContext<ServerCommandSource> context) {
