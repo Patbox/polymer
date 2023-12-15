@@ -31,54 +31,63 @@ import java.util.List;
 @Mixin(ServerChunkManager.class)
 public abstract class ServerChunkManagerMixin {
 
+    @Unique
+    private final Object2LongMap<ChunkSectionPos> polymer$lastUpdates = new Object2LongArrayMap<>();
     @Shadow
     @Final
     public ThreadedAnvilChunkStorage threadedAnvilChunkStorage;
-
     @Shadow
     @Final
     private ServerWorld world;
+    @Shadow
+    @Final
+    private ServerLightingProvider lightingProvider;
 
     @Shadow
     @Nullable
     public abstract WorldChunk getWorldChunk(int chunkX, int chunkZ);
 
-    @Shadow @Final private ServerLightingProvider lightingProvider;
-
-    @Shadow public abstract ServerLightingProvider getLightingProvider();
-
-    @Unique
-    private final Object2LongMap<ChunkSectionPos> polymer$lastUpdates = new Object2LongArrayMap<>();
+    @Shadow
+    public abstract ServerLightingProvider getLightingProvider();
 
     @Inject(method = "tickChunks", at = @At("TAIL"))
     private void polymer$sendChunkUpdates(CallbackInfo ci) {
-        this.world.getServer().execute(() -> {
-            if (this.polymer$lastUpdates.size() != 0) {
-                var t = this.world.getServer().getTicks();
-                for (var entry : new ArrayList<>(this.polymer$lastUpdates.object2LongEntrySet())) {
-                    var pos = entry.getKey();
-                    var time = entry.getLongValue();
+        if (!this.polymer$lastUpdates.isEmpty()) {
+            var t = this.world.getServer().getTicks();
+            for (var entry : new ArrayList<>(this.polymer$lastUpdates.object2LongEntrySet())) {
+                var pos = entry.getKey();
+                var time = entry.getLongValue();
 
-                    if (t - time > PolymerImpl.LIGHT_UPDATE_TICK_DELAY) {
-                        BitSet bitSet = new BitSet();
-                        int i = this.lightingProvider.getBottomY();
-                        int j = this.lightingProvider.getTopY();
-                        int y = pos.getSectionY();
-                        if (y >= i && y <= j) {
-                            bitSet.set(y - i);
-                        }
+                if (t - time > PolymerImpl.LIGHT_UPDATE_TICK_DELAY) {
+                    this.polymer$lastUpdates.removeLong(pos);
+
+                    var chunk = this.getWorldChunk(pos.getX(), pos.getZ());
+                    if (chunk == null) {
+                        continue;
+                    }
+                    BitSet bitSet = new BitSet();
+                    int i = this.lightingProvider.getBottomY();
+                    int j = this.lightingProvider.getTopY();
+                    int y = pos.getSectionY();
+                    if (y >= i && y <= j) {
+                        bitSet.set(y - i);
+                    }
+
+                    var section = chunk.getSection(chunk.sectionCoordToIndex(pos.getSectionY()));
+                    if (section != null) {
+                        ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
+                    }
+
+                    List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false);
+                    if (!players.isEmpty()) {
                         Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet);
-                        List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false);
-                        if (players.size() > 0) {
-                            for (ServerPlayerEntity player : players) {
-                                player.networkHandler.sendPacket(packet);
-                            }
+                        for (ServerPlayerEntity player : players) {
+                            player.networkHandler.sendPacket(packet);
                         }
-                        this.polymer$lastUpdates.removeLong(pos);
                     }
                 }
             }
-        });
+        }
     }
 
     @Inject(method = "onLightUpdate", at = @At("TAIL"))
@@ -96,7 +105,6 @@ public abstract class ServerChunkManagerMixin {
                                 var section = sections[i];
                                 if (section != null && !section.isEmpty() && ((PolymerBlockPosStorage) section).polymer$requireLights()) {
                                     this.polymer$lastUpdates.put(pos, this.world.getServer().getTicks());
-                                    ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
                                     return;
                                 }
                             }

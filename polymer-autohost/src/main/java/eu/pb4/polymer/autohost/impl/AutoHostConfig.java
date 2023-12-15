@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+
 
 public class AutoHostConfig {
     public String _c1 = "Enables Polymer's ResourcePack Auto Hosting";
