@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl.networking;
 
+import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
@@ -14,6 +15,7 @@ import eu.pb4.polymer.core.impl.networking.packets.*;
 import eu.pb4.polymer.networking.api.ServerPacketWriter;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -42,8 +44,9 @@ import static eu.pb4.polymer.networking.api.PolymerServerNetworking.buf;
 public class PolymerServerProtocol {
     public static void sendBlockUpdate(ServerPlayNetworkHandler player, BlockPos pos, BlockState state) {
         var version = PolymerServerNetworking.getSupportedVersion(player, ServerPackets.WORLD_SET_BLOCK_UPDATE);
+        var p = state.getBlock() instanceof PolymerBlock polymerBlock ? polymerBlock : null;
 
-        if (PolymerImplUtils.POLYMER_STATES.contains(state) && version > -1) {
+        if (PolymerImplUtils.POLYMER_STATES.contains(state) && version > -1 && (p == null || p.canSynchronizeToPolymerClient(player.player))) {
             var buf = buf(version);
 
             buf.writeBlockPos(pos);
@@ -61,7 +64,8 @@ public class PolymerServerProtocol {
             var list = new LongArrayList();
 
             for (int i = 0; i < blockStates.length; i++) {
-                if (PolymerImplUtils.POLYMER_STATES.contains(blockStates[i])) {
+                var p = blockStates[i].getBlock() instanceof PolymerBlock polymerBlock ? polymerBlock : null;
+                if (PolymerImplUtils.POLYMER_STATES.contains(blockStates[i]) && (p == null || p.canSynchronizeToPolymerClient(player.player))) {
                     list.add(((long) Block.STATE_IDS.getRawId(blockStates[i])) << 12 | positions[i]);
                 }
             }
@@ -97,16 +101,22 @@ public class PolymerServerProtocol {
                         buf.writeChunkSectionPos(ChunkSectionPos.from(chunk.getPos(), chunk.sectionIndexToCoord(i)));
 
                         assert set != null;
-                        var size = set.size();
-                        buf.writeVarInt(size);
+                        var data = new LongArrayList(set.size());
 
                         for (var pos : set) {
                             int x = ChunkSectionPos.unpackLocalX(pos);
                             int y = ChunkSectionPos.unpackLocalY(pos);
                             int z = ChunkSectionPos.unpackLocalZ(pos);
                             var state = section.getBlockState(x, y, z);
-                            buf.writeVarLong((((long) Block.STATE_IDS.getRawId(state)) << 12 | pos));
+                            var p = state.getBlock() instanceof PolymerBlock polymerBlock ? polymerBlock : null;
+
+                            if (p == null || p.canSynchronizeToPolymerClient(player.player)) {
+                                data.add((((long) Block.STATE_IDS.getRawId(state)) << 12 | pos));
+                            }
                         }
+
+                        buf.writeVarInt(data.size());
+                        data.forEach(buf::writeVarLong);
 
                         player.sendPacket(new CustomPayloadS2CPacket(ServerPackets.WORLD_CHUNK_SECTION_UPDATE, buf));
                     }
