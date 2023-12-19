@@ -67,10 +67,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 this.polymer$blockBreakingCooldown = 5;
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
                 this.finishMining(pos, this.polymer$sequence, "destroyed");
-
-                if (!(state.getBlock() instanceof AbstractFireBlock)) {
-                    this.world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, pos, Block.getRawIdFromState(state));
-                }
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, -1));
             }
         } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();
