@@ -125,10 +125,12 @@ public class ClientPacketRegistry {
 
     public static void handleMetadata(MinecraftClient client, ClientCommonNetworkHandler handler, MetadataPayload payload) {
         synchronized (SERVER_METADATA) {
+            SERVER_METADATA.clear();
             SERVER_METADATA.putAll(payload.map());
         }
 
         var ext = (ExtClientConnection) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection();
+        ext.polymerNet$getMetadataMap().clear();
         ext.polymerNet$getMetadataMap().putAll(payload.map());
 
         PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoke(Runnable::run);

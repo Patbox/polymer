@@ -142,7 +142,7 @@ public class InternalClientRegistry {
 
     public static void setVersion(String version, @Nullable NbtInt protocolVersion) {
         serverVersion = version;
-        serverHasPolymer = !version.isEmpty();
+        serverHasPolymer = !version.isEmpty() && serverVersion.startsWith("0.7.");
         enabled = serverHasPolymer && protocolVersion != null && protocolVersion.intValue() == SharedConstants.getProtocolVersion();
     }
 

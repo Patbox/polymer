@@ -38,8 +38,8 @@ public class S2CPackets {
 
     public static final Identifier DEBUG_VALIDATE_STATES = id("debug/validate_states");
 
-    public static final void register(Identifier id, VersionedPayload.Decoder<?> decoder, int... ver) {
-        PolymerNetworking.registerS2CPayload(id, IntList.of(ver), decoder);
+    public static void register(Identifier id, VersionedPayload.Decoder<?> decoder, int... ver) {
+        PolymerNetworking.registerS2CPayload(id, IntList.of(ver), PayloadUtil.checked(decoder));
     }
 
     static {
