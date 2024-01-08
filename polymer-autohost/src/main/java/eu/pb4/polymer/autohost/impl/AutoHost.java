@@ -16,7 +16,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
+import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -92,6 +94,19 @@ public class AutoHost implements ModInitializer {
                 }
             });
         });
+    }
+
+    public static File getFile(String path) {
+        var x = getPath(path);
+        return x != null ? x.toFile() : null;
+    }
+
+    public static Path getPath(String path) {
+        if (path.equals("main.zip")) {
+            return PolymerResourcePackUtils.getMainPath();
+        }
+
+        return null;
     }
 
     @Override

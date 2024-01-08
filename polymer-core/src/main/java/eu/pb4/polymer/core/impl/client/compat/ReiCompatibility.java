@@ -36,19 +36,6 @@ public class ReiCompatibility implements REIClientPlugin {
             e.printStackTrace();
         }
     }
-
-    public static void registerEvents() {
-        CompatUtils.registerSyncReload(() -> {
-            try {
-                RoughlyEnoughItemsCoreClient.reloadPlugins(null, null);
-            }catch (Throwable e) {
-                e.printStackTrace();
-            }
-
-            //update(EntryRegistry.getInstance());
-        });
-    }
-
     @Override
     public void registerItemComparators(ItemComparatorRegistry registry) {
         try {

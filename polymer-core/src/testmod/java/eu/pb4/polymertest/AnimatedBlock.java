@@ -1,16 +1,15 @@
 package eu.pb4.polymertest;
 
+import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
+import eu.pb4.polymer.virtualentity.api.BlockWithMovingElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.EntityElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -19,18 +18,41 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4x3f;
 
-public class AnimatedBlock extends Block implements PolymerBlock, BlockWithElementHolder {
+public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWithMovingElementHolder {
+    public static final BooleanProperty CAN_FALL = BooleanProperty.of("can_fall");
+
     public AnimatedBlock(Settings settings) {
         super(settings);
+    }
+
+
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(CAN_FALL);
+    }
+
+    @Override
+    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        if (state.get(CAN_FALL)) {
+            super.scheduledTick(state, world, pos, random);
+        }
+    }
+
+    @Override
+    protected MapCodec<? extends FallingBlock> getCodec() {
+        return null;
     }
 
     @Override
@@ -50,9 +72,9 @@ public class AnimatedBlock extends Block implements PolymerBlock, BlockWithEleme
 
     public static class CustomHolder extends ElementHolder {
         private final EntityElement<SheepEntity> entity;
-        private ItemDisplayElement centralElement;
-        private ItemDisplayElement planetElement;
-        private ItemDisplayElement moonElement;
+        private final ItemDisplayElement centralElement;
+        private final ItemDisplayElement planetElement;
+        private final ItemDisplayElement moonElement;
         private int tick = 0;
 
         public CustomHolder(ServerWorld world) {
@@ -65,7 +87,9 @@ public class AnimatedBlock extends Block implements PolymerBlock, BlockWithEleme
             this.centralElement.setInterpolationDuration(3);
             this.moonElement.setInterpolationDuration(3);
             this.planetElement.setInterpolationDuration(3);
-
+            this.centralElement.setTeleportDuration(1);
+            this.moonElement.setTeleportDuration(1);
+            this.planetElement.setTeleportDuration(1);
             this.entity = this.addElement(new EntityElement<>(EntityType.SHEEP, world));
             entity.entity().setColor(DyeColor.PINK);
             entity.setOffset(new Vec3d(0, 0.5, 0));

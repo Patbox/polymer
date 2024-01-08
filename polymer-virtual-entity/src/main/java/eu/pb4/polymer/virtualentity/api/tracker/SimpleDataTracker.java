@@ -49,6 +49,12 @@ public class SimpleDataTracker implements DataTrackerLike {
     }
 
     @Override
+    public boolean isDirty(TrackedData<?> key) {
+        var x = getEntry(key);
+        return x != null && x.isDirty();
+    }
+
+    @Override
     public <T> void set(TrackedData<T> key, T value, boolean forceDirty) {
         var entry = getEntry(key);
         if (entry != null && (forceDirty || ObjectUtils.notEqual(value, entry.get()))) {

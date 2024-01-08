@@ -35,7 +35,7 @@ public class WorldEventS2CPacketMixin {
                 state = polymerBlock.getPolymerBreakEventBlockState(state, player);
             }
 
-            return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(state, player));
+            return Block.getRawIdFromState(PolymerBlockUtils.getServerSideBlockState(state, player));
         }
 
         return data;

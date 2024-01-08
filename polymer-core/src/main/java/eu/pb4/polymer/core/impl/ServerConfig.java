@@ -21,4 +21,7 @@ public class ServerConfig {
     public String _c4 = "Enables experimental passing of ItemStack context through nbt, allowing for better mod compat";
     @SerializedName("item_stack_nbt_hack")
     public boolean itemStackNbtHack = true;
+
+    @SerializedName("override_polymc_mining_check")
+    public boolean overridePolyMcMining = false;
 }

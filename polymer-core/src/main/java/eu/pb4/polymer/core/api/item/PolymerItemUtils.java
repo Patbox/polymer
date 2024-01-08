@@ -9,6 +9,7 @@ import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
@@ -594,6 +595,14 @@ public final class PolymerItemUtils {
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
         return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
+    }
+
+    public static ItemStack getClientItemStack(ItemStack stack, ServerPlayerEntity player) {
+        var out = getPolymerItemStack(stack, player);
+        if (CompatStatus.POLYMC) {
+            out = PolyMcUtils.toVanilla(out, player);
+        }
+        return out;
     }
 
     @FunctionalInterface

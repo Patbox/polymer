@@ -34,6 +34,11 @@ public class WrappingDataTracker implements DataTrackerLike {
     }
 
     @Override
+    public boolean isDirty(TrackedData<?> key) {
+        return dataTracker.isDirty(key);
+    }
+
+    @Override
     public @Nullable List<DataTracker.SerializedEntry<?>> getDirtyEntries() {
         return dataTracker.getDirtyEntries();
     }

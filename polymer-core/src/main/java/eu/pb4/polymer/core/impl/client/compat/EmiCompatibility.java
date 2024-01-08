@@ -22,18 +22,6 @@ public class EmiCompatibility implements EmiPlugin {
 */
     private static final Predicate<EmiStack> SHOULD_REMOVE = (stack) -> PolymerImplUtils.isPolymerControlled(stack.getItemStack());
 
-    static {
-        CompatUtils.registerSyncReload(EmiCompatibility::tryReloading);
-    }
-
-    private static void tryReloading() {
-        try {
-            Class.forName("dev.emi.emi.runtime.EmiReloadManager").getMethod("reload").invoke(null);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void register(EmiRegistry registry) {
         if (PolymerImpl.IS_CLIENT) {

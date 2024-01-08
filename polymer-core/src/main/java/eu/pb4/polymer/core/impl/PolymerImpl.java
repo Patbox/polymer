@@ -29,6 +29,8 @@ public final class PolymerImpl {
     public static final boolean FORCE_STRICT_UPDATES;
     public static final boolean ITEMSTACK_NBT_HACK;
 
+    public static final boolean OVERRIDE_POLYMC_MINING;
+
     static {
         var serverConfig =  CommonImpl.loadConfig("server", ServerConfig.class);
 
@@ -41,7 +43,7 @@ public final class PolymerImpl {
         LIGHT_UPDATE_TICK_DELAY = serverConfig.lightUpdateTickDelay;
         FORCE_STRICT_UPDATES = serverConfig.forceStrictUpdates;
         ITEMSTACK_NBT_HACK = serverConfig.itemStackNbtHack;
-
+        OVERRIDE_POLYMC_MINING = serverConfig.overridePolyMcMining;
 
         if (PolymerImpl.IS_CLIENT) {
             var clientConfig =  CommonImpl.loadConfig("client", ClientConfig.class);

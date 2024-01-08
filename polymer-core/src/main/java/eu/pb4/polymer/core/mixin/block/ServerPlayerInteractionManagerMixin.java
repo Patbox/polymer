@@ -2,9 +2,6 @@ package eu.pb4.polymer.core.mixin.block;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -18,7 +15,6 @@ import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.WorldEvents;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,8 +25,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// Part of this mixin is based on https://github.com/TheEpicBlock/PolyMc/blob/master/src/main/java/io/github/theepicblock/polymc/mixins/block/BlockBreakingPatch.java
-
 @Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
     @Shadow
@@ -38,14 +32,15 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Shadow
     protected ServerWorld world;
     @Shadow
-    private int tickCounter;
-    @Shadow
     private int startMiningTime;
 
     @Shadow public abstract void finishMining(BlockPos pos, int sequence, String reason);
 
     @Unique
     private int polymer$sequence = 0;
+
+    @Unique
+    private float polymer$currentBreakingProgress;
 
     @Unique
     private int polymer$blockBreakingCooldown;
@@ -56,33 +51,23 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Inject(method = "continueMining", at = @At("TAIL"))
     private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
         if (this.polymer$shouldMineServerSide(pos, state)) {
-            int j = this.tickCounter - i;
-            float f = state.calcBlockBreakingDelta(this.player, this.player.getWorld(), pos) * (float) (j);
-
             if (this.polymer$blockBreakingCooldown > 0) {
                 --this.polymer$blockBreakingCooldown;
+                return;
             }
+            this.polymer$currentBreakingProgress += state.calcBlockBreakingDelta(this.player, this.player.getWorld(), pos);
 
-            if (f >= 1.0F) {
+            if (this.polymer$currentBreakingProgress >= 1.0F) {
                 this.polymer$blockBreakingCooldown = 5;
+                this.polymer$currentBreakingProgress = 0;
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
                 this.finishMining(pos, this.polymer$sequence, "destroyed");
                 PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, -1));
+            } else {
+                var k = this.polymer$currentBreakingProgress > 0.0F ? (int)(this.polymer$currentBreakingProgress * 10) : -1;
+                this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, k));
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, k));
             }
-        } else if (this.polymer$hasMiningFatigue) {
-            this.polymer$clearMiningEffect();
-        }
-    }
-
-    @Inject(method = "continueMining", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockBreakingInfo(ILnet/minecraft/util/math/BlockPos;I)V"))
-    private void polymer$onUpdateBreakStatus(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
-        if (this.polymer$shouldMineServerSide(pos, state)) {
-            int j = tickCounter - i;
-            float f = state.calcBlockBreakingDelta(this.player, this.player.getWorld(), pos) * (float) (j + 1);
-            int k = (int) (f * 10.0F);
-
-            this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, k));
-            PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, k));
         } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();
         }
@@ -94,9 +79,10 @@ public abstract class ServerPlayerInteractionManagerMixin {
         var state = this.player.getWorld().getBlockState(pos);
         if (this.polymer$shouldMineServerSide(pos, state)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
+                this.polymer$currentBreakingProgress = 0;
                 var ogDelta = state.calcBlockBreakingDelta(this.player, this.world, pos);;
                 if (state.getBlock() instanceof PolymerBlock virtualBlock) {
-                    state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state);
+                    state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, this.player);
                 }
 
                 float delta = state.calcBlockBreakingDelta(this.player, this.world, pos);
@@ -121,6 +107,10 @@ public abstract class ServerPlayerInteractionManagerMixin {
         }
     }
 
+    @Inject(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockBreakingInfo(ILnet/minecraft/util/math/BlockPos;I)V", ordinal = 0))
+    private void polymer$clearBreakingTime(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
+        this.polymer$currentBreakingProgress = 0;
+    }
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
     private void polymer$enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         if (this.polymer$shouldMineServerSide(pos, this.player.getWorld().getBlockState(pos))) {
@@ -139,9 +129,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
     @Unique
     private boolean polymer$shouldMineServerSide(BlockPos pos, BlockState state) {
-        return (state.getBlock() instanceof PolymerBlock block && block.handleMiningOnServer(player.getMainHandStack(), state, pos, this.player))
-                || (this.player.getMainHandStack().getItem() instanceof PolymerItem item && item.handleMiningOnServer(player.getMainHandStack(), state, pos, player))
-                || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, this.player));
+        return PolymerBlockUtils.shouldMineServerSide(this.player, pos, state);
     }
 
     @Unique

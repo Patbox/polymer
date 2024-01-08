@@ -1,10 +1,12 @@
 package eu.pb4.polymer.virtualentity.api.tracker;
 
+import eu.pb4.polymer.common.mixin.DataTrackerAccessor;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public interface DataTrackerLike {
     @Nullable
@@ -21,6 +23,11 @@ public interface DataTrackerLike {
     <T> void setDirty(TrackedData<T> key, boolean isDirty);
 
     boolean isDirty();
+
+    default boolean isDirty(TrackedData<?> key) {
+        // 1.20.5, remove this from being a default implementation, as it's incorrect. See SimpleDataTracker for correct implementation
+        return isDirty();
+    }
 
     @Nullable
     List<DataTracker.SerializedEntry<?>> getDirtyEntries();
@@ -50,6 +57,11 @@ public interface DataTrackerLike {
             @Override
             public boolean isDirty() {
                 return dataTracker.isDirty();
+            }
+
+            @Override
+            public boolean isDirty(TrackedData<?> key) {
+                return ((DataTrackerAccessor) dataTracker).getEntries().get(key.getId()).isDirty();
             }
 
             @Override

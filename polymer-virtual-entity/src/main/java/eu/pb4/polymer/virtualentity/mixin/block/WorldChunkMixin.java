@@ -36,6 +36,13 @@ import java.util.*;
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentHolder {
 
+    @Unique
+    private final Collection<HolderAttachment> polymerVE$holders = new ArrayList<>();
+    @Unique
+    private final Map<BlockPos, BlockBoundAttachment> polymerVE$posHolders = new Object2ObjectOpenHashMap<>();
+    @Shadow
+    @Final
+    private World world;
     public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biome, long inhabitedTime, @Nullable ChunkSection[] sectionArrayInitializer, @Nullable BlendingData blendingData) {
         super(pos, upgradeData, heightLimitView, biome, inhabitedTime, sectionArrayInitializer, blendingData);
     }
@@ -43,17 +50,7 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
     @Shadow
     public abstract World getWorld();
 
-    @Shadow @Final private World world;
-    @Unique
-    private final Collection<HolderAttachment> polymerVE$holders = new ArrayList<>();
-
-    @Unique
-    private final Map<BlockPos, BlockBoundAttachment> polymerVE$posHolders = new Object2ObjectOpenHashMap<>();
-
-    @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V",
-            at = @At("TAIL")
-    )
+    @Inject(method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V", at = @At("TAIL"))
     private void polymer$polymerBlocksInit(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler blockTickScheduler, ChunkTickScheduler fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
         if (world instanceof ServerWorld serverWorld) {
             var sections = this.getSectionArray();
@@ -73,7 +70,7 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
 
                                         var holder = blockWithElementHolder.createElementHolder(serverWorld, blockPos, state);
                                         if (holder != null) {
-                                            new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, blockPos, Vec3d.ofCenter(blockPos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, blockPos, state)), blockWithElementHolder.tickElementHolder(serverWorld, blockPos, state));
+                                            BlockBoundAttachment.of(holder, serverWorld, (WorldChunk) (Object) this, blockPos, state);
                                         }
                                     }
                                 }
@@ -81,34 +78,32 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
                         }
                     }
                 }
-            }        }
+            }
+        }
     }
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onStateReplaced(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)V"), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymerVE$removeOld(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir,
-                                     int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
-        if (oldBlockState.getBlock() instanceof BlockWithElementHolder) {
-            if (oldBlockState.getBlock() != state.getBlock()) {
+    private void polymerVE$removeOld(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
+        var x = this.polymerVE$posHolders.get(pos);
+        if (x != null) {
+            if (x.getBlockState().getBlock() != state.getBlock()) {
                 this.polymerVE$removePosHolder(pos);
             } else {
-                var x = this.polymerVE$posHolders.get(pos);
-                if (x != null) {
-                    x.setBlockState(state);
-                }
+                x.setBlockState(state);
             }
         }
     }
 
     @Inject(method = "setBlockState", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isClient:Z", ordinal = 1, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymerVE$addNew(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir,
-                                     int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
-        if (oldBlockState.getBlock() != state.getBlock() && state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder && this.world instanceof ServerWorld serverWorld) {
+    private void polymerVE$addNew(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
+        var x = this.polymerVE$posHolders.get(pos);
+        if (x == null && state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder && this.world instanceof ServerWorld serverWorld) {
             var holder = blockWithElementHolder.createElementHolder(serverWorld, pos, state);
             if (holder != null) {
                 new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, pos.toImmutable(), Vec3d.ofCenter(pos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, pos, state)), blockWithElementHolder.tickElementHolder(serverWorld, pos, state));
             }
         }
-    };
+    }
 
     @Override
     public void polymerVE$addHolder(HolderAttachment holderAttachment) {

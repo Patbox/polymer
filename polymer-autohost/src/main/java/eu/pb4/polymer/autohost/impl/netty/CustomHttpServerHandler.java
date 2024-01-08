@@ -1,24 +1,17 @@
 package eu.pb4.polymer.autohost.impl.netty;
 
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import io.netty.buffer.ByteBuf;
+import eu.pb4.polymer.autohost.impl.AutoHost;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
-import io.netty.util.internal.SystemPropertyUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Pattern;
 
 import static io.netty.handler.codec.http.HttpMethod.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -30,7 +23,7 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
 
         this.request = request;
-        if (!request.decoderResult().isSuccess()) {
+        if (!request.decoderResult().isSuccess() || request.uri().length() < "/eu.pb4.polymer.autohost/".length()) {
             sendError(ctx, BAD_REQUEST);
             return;
         }
@@ -42,9 +35,12 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
 
         final boolean keepAlive = HttpUtil.isKeepAlive(request);
 
-        File file = PolymerResourcePackUtils.getMainPath().toFile();
+        var path = request.uri().substring("/eu.pb4.polymer.autohost/".length());
 
-        if (!file.isFile() || !ResourcePackDataProvider.getActive().isReady()) {
+        var file = AutoHost.getFile(path);
+
+
+        if (file == null || !file.isFile() || !ResourcePackDataProvider.getActive().isReady()) {
             sendError(ctx, FORBIDDEN);
             return;
         }

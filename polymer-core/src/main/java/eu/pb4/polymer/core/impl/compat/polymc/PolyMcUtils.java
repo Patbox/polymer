@@ -1,7 +1,8 @@
 package eu.pb4.polymer.core.impl.compat.polymc;
 
 import eu.pb4.polymer.common.impl.CompatStatus;
-import io.github.theepicblock.polymc.PolyMc;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.impl.PolymerImpl;
 import io.github.theepicblock.polymc.api.item.ItemLocation;
 import io.github.theepicblock.polymc.api.misc.PolyMapProvider;
 import net.minecraft.block.BlockState;
@@ -35,5 +36,11 @@ public class PolyMcUtils {
 
     public static boolean isServerSide(Registry reg, Object obj) {
         return !reg.getId(obj).getNamespace().equals("minecraft");
+    }
+
+    public static void register() {
+        if (CompatStatus.POLYMC && PolymerImpl.OVERRIDE_POLYMC_MINING) {
+            PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.register(new MiningCheck());
+        }
     }
 }

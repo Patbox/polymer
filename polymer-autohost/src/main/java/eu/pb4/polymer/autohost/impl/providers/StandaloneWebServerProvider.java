@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.network.ClientConnection;
@@ -51,7 +52,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
 
     protected boolean updateHash() {
         if (super.updateHash()) {
-            this.fullAddress = this.baseAddress + this.hash + ".zip";
+            this.fullAddress = this.baseAddress + "main.zip";
             return true;
         }
         return false;
@@ -74,8 +75,10 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
 
     public void handle(HttpExchange exchange) throws IOException {
         if ("GET".equals(exchange.getRequestMethod())) {
-            if (Files.exists(PolymerResourcePackUtils.getMainPath())) {
-                var updateTime = Files.getLastModifiedTime(PolymerResourcePackUtils.getMainPath()).toMillis();
+            var path = AutoHost.getPath(exchange.getRequestURI().getPath().substring(1));
+
+            if (Files.exists(path)) {
+                var updateTime = Files.getLastModifiedTime(path).toMillis();
                 if (updateTime > lastUpdate) {
                     updateHash();
                 }

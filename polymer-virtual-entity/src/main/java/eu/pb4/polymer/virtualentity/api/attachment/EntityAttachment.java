@@ -14,7 +14,7 @@ import java.util.Collection;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class EntityAttachment implements HolderAttachment {
-    private final Entity entity;
+    protected final Entity entity;
     private final ElementHolder holder;
     private final boolean autoTick;
 
@@ -56,6 +56,10 @@ public class EntityAttachment implements HolderAttachment {
 
     @Override
     public void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking) {
+        if (this.holder.getAttachment() != this) {
+            return;
+        }
+
         var entry = getTrackerEntry();
 
         if (entry == null) {

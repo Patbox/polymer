@@ -6,8 +6,8 @@ import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.compat.FabricFluids;
-import eu.pb4.polymer.core.impl.client.compat.ReiCompatibility;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocolHandler;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocolHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
@@ -29,6 +29,8 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 			}
 		}));
 
+		PolyMcUtils.register();
+
 		if (PolymerImpl.FORCE_STRICT_UPDATES) {
 			PolymerBlockUtils.requireStrictBlockUpdates();
 		}
@@ -36,10 +38,6 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		PolymerClientProtocolHandler.register();
-
-		if (CompatStatus.REI) {
-			ReiCompatibility.registerEvents();
-		}
 
 		if (CompatStatus.FABRIC_FLUID_RENDERING) {
 			FabricFluids.register();

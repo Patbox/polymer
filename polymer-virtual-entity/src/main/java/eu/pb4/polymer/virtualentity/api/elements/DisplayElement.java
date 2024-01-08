@@ -40,6 +40,13 @@ public abstract class DisplayElement extends GenericEntityElement {
         this.dataTracker.set(DisplayTrackedData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
     }
 
+    public boolean isTransformationDirty() {
+        return this.dataTracker.isDirty(DisplayTrackedData.TRANSLATION)
+                || this.dataTracker.isDirty(DisplayTrackedData.LEFT_ROTATION)
+                || this.dataTracker.isDirty(DisplayTrackedData.SCALE)
+                || this.dataTracker.isDirty(DisplayTrackedData.RIGHT_ROTATION);
+    }
+
     public void setTranslation(Vector3fc vector3f) {
         this.dataTracker.set(DisplayTrackedData.TRANSLATION, new Vector3f(vector3f));
     }
@@ -98,6 +105,12 @@ public abstract class DisplayElement extends GenericEntityElement {
 
     public void setStartInterpolation(int startInterpolation) {
         this.dataTracker.set(DisplayTrackedData.START_INTERPOLATION, startInterpolation, true);
+    }
+
+    public void startInterpolationIfDirty() {
+        if (this.isTransformationDirty()) {
+            this.startInterpolation();
+        }
     }
 
     public DisplayEntity.BillboardMode getBillboardMode() {

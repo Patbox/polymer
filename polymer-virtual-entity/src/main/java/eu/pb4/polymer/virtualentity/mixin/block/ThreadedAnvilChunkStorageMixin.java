@@ -22,8 +22,6 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class ThreadedAnvilChunkStorageMixin {
 
-
-
     @Inject(method = "handlePlayerAddedOrRemoved", at = @At("TAIL"))
     private void polymerVE$clearHolograms(ServerPlayerEntity player, boolean added, CallbackInfo ci) {
         if (!added) {

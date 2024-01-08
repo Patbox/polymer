@@ -22,25 +22,35 @@ public interface HolderAttachment {
     void updateTracking(ServerPlayNetworkHandler tracking);
 
     default void startWatching(ServerPlayerEntity handler) {
-        this.holder().startWatching(handler);
+        if (this.holder().getAttachment() == this) {
+            this.holder().startWatching(handler);
+        }
     }
 
     default void startWatching(ServerPlayNetworkHandler handler) {
-        this.holder().startWatching(handler);
+        if (this.holder().getAttachment() == this) {
+            this.holder().startWatching(handler);
+        }
     }
 
     default void startWatchingExtraPackets(ServerPlayNetworkHandler handler, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {};
 
     default void stopWatching(ServerPlayerEntity handler) {
-        this.holder().stopWatching(handler);
+        if (this.holder().getAttachment() == this) {
+            this.holder().stopWatching(handler);
+        }
     }
 
     default void stopWatching(ServerPlayNetworkHandler handler) {
-        this.holder().stopWatching(handler);
+        if (this.holder().getAttachment() == this) {
+            this.holder().stopWatching(handler);
+        }
     }
 
     default void tick() {
-        this.holder().tick();
+        if (this.holder().getAttachment() == this) {
+            this.holder().tick();
+        }
     }
 
     /**

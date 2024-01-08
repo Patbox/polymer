@@ -20,7 +20,7 @@ import java.util.List;
 public class ChunkAttachment implements HolderAttachment {
     private final ElementHolder holder;
     private final WorldChunk chunk;
-    private final Vec3d pos;
+    protected Vec3d pos;
     private final boolean autoTick;
 
     public ChunkAttachment(ElementHolder holder, WorldChunk chunk, Vec3d position, boolean autoTick) {
@@ -112,24 +112,10 @@ public class ChunkAttachment implements HolderAttachment {
 
     @Override
     public void updateTracking(ServerPlayNetworkHandler tracking) {
-        //System.out.println("UPDATE-WATCHING: " + this.chunk.getWorld().getRegistryKey().getValue() + " | " + this.pos + " | " + tracking.player.isDead() + " | " + StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass());
         if (tracking.player.isDead() || !VirtualEntityUtils.isPlayerTracking(tracking.getPlayer(), this.chunk)) {
             VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.stopWatching(tracking));
         }
     }
-    /*
-
-       @Override
-    public void startWatching(ServerPlayNetworkHandler tracking) {
-        System.out.println("START-WATCHING: " + this.chunk.getWorld().getRegistryKey().getValue() + " | " + this.pos + " | " + tracking.player.isDead() + " | " + StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass());
-        HolderAttachment.super.startWatching(tracking);
-    }
-
-    @Override
-    public void stopWatching(ServerPlayNetworkHandler handler) {
-        System.out.println("STOP-WATCHING: " + this.chunk.getWorld().getRegistryKey().getValue() + " | " + this.pos + " | " + handler.player.isDead() + " | " + StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass());
-        HolderAttachment.super.stopWatching(handler);
-    }*/
 
     @Override
     public Vec3d getPos() {

@@ -23,11 +23,6 @@ public class JeiCompatibility implements IModPlugin {
         }
     }
 
-    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
-        CompatUtils.registerSyncReload(() -> update(jeiRuntime.getIngredientManager()));
-    }
-
-
     private static void update(IIngredientManager manager) {
         synchronized (manager) {
             try {

@@ -32,7 +32,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -164,10 +163,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         str.forEach(file -> {
                             try {
                                 var name = file.getFileName().toString();
-                                if (name.toLowerCase(Locale.ROOT).contains("license")
-                                        || name.toLowerCase(Locale.ROOT).contains("licence")) {
-                                    this.addData("licenses/"
-                                            + modId + "/" + name, Files.readAllBytes(file));
+                                if (name.toLowerCase(Locale.ROOT).contains("license") || name.toLowerCase(Locale.ROOT).contains("licence")) {
+                                    this.addData("licenses/" + modId + "/" + name, Files.readAllBytes(file));
                                 }
                             } catch (Throwable ignored) {
                             }
@@ -178,7 +175,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                     Path assets = rootPaths.resolve("assets");
                     if (Files.exists(assets)) {
-                        try(var str = Files.walk(assets))  {
+                        try (var str = Files.walk(assets)) {
                             str.forEach((file) -> {
                                 var relative = assets.relativize(file);
                                 var path = relative.toString().replace("\\", "/");
@@ -353,11 +350,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 credits.add("Contains assets from mods: ");
 
                 for (var entry : this.modsList) {
-                    var b = new StringBuilder(" - ").append( entry.getMetadata().getName()).append(" (").append(entry.getMetadata().getId()).append(")");
+                    var b = new StringBuilder(" - ").append(entry.getMetadata().getName()).append(" (").append(entry.getMetadata().getId()).append(")");
                     if (!entry.getMetadata().getLicense().isEmpty()) {
                         b.append(" / License: ");
                         var iter = entry.getMetadata().getLicense().iterator();
-                        while(iter.hasNext()) {
+                        while (iter.hasNext()) {
                             b.append(iter.next());
                             if (iter.hasNext()) {
                                 b.append(", ");
@@ -480,8 +477,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                                     if (data != null) {
                                         int finalI = i;
-                                        ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(data))).result()
-                                                .ifPresentOrElse((r) -> metadata[finalI] = r.getFirst(), () -> metadata[finalI] = ArmorTextureMetadata.DEFAULT);
+                                        ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(data))).result().ifPresentOrElse((r) -> metadata[finalI] = r.getFirst(), () -> metadata[finalI] = ArmorTextureMetadata.DEFAULT);
                                     } else {
                                         metadata[i] = ArmorTextureMetadata.DEFAULT;
                                     }
@@ -607,24 +603,13 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     }
 
                     for (String string : new String[]{"fsh", "json", "vsh"}) {
-                        this.fileMap.put(
-                                "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string,
-                                Files.readString(getSelfPath("base-armor/rendertype_armor_cutout_no_cull." + string))
-                                        .replace("${polymer_texture_resolution}", "" + (16 * globalScale))
-                                        .getBytes(StandardCharsets.UTF_8)
-                        );
+                        this.fileMap.put("assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string, Files.readString(getSelfPath("base-armor/rendertype_armor_cutout_no_cull." + string)).replace("${polymer_texture_resolution}", "" + (16 * globalScale)).getBytes(StandardCharsets.UTF_8));
                     }
 
                 }
 
                 if (!this.fileMap.containsKey(AssetPaths.PACK_METADATA)) {
-                    this.fileMap.put(AssetPaths.PACK_METADATA, ("" +
-                            "{\n" +
-                            "   \"pack\":{\n" +
-                            "      \"pack_format\":" + SharedConstants.RESOURCE_PACK_VERSION + ",\n" +
-                            "      \"description\":\"Server resource pack\"\n" +
-                            "   }\n" +
-                            "}\n").getBytes(StandardCharsets.UTF_8));
+                    this.fileMap.put(AssetPaths.PACK_METADATA, ("{\n" + "   \"pack\":{\n" + "      \"pack_format\":" + SharedConstants.RESOURCE_PACK_VERSION + ",\n" + "      \"description\":\"Server resource pack\"\n" + "   }\n" + "}\n").getBytes(StandardCharsets.UTF_8));
                 }
 
 
@@ -640,50 +625,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 this.fileMap.put("polymer-credits.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
 
-                {
-                    var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()));
-
-                    {
-                        for (var path : this.fileMap.keySet().toArray(new String[0])) {
-                            var split = new ArrayList<>(List.of(path.split("/")));
-                            while (split.size() > 1) {
-                                split.remove(split.size() - 1);
-
-                                this.fileMap.put(String.join("/", split) + "/", null);
-                            }
-
-                        }
-                    }
-
-                    var sorted = new ArrayList<>(this.fileMap.entrySet());
-                    sorted.sort(Map.Entry.comparingByKey());
-                    for (var entry : sorted) {
-                        var outByte = entry.getValue();
-                        var path = entry.getKey();
-                        if (outByte != null) {
-                            for (var conv : converters) {
-                                outByte = conv.apply(path, outByte);
-                                if (outByte == null) {
-                                    break;
-                                }
-                            }
-
-                            if (outByte == null) {
-                                continue;
-                            }
-                        }
-
-                        var zipEntry = new ZipEntry(path);
-                        zipEntry.setTime(0);
-                        outputStream.putNextEntry(zipEntry);
-                        if (outByte != null) {
-                            outputStream.write(outByte);
-                        }
-                        outputStream.closeEntry();
-                    }
-
-                    outputStream.close();
-                }
+                bool &= this.writeSingleZip();
 
                 return bool;
             } catch (Exception e) {
@@ -693,16 +635,59 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         });
     }
 
+    private boolean writeSingleZip() {
+        try (var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()))) {
+            for (var path : this.fileMap.keySet().toArray(new String[0])) {
+                var split = new ArrayList<>(List.of(path.split("/")));
+                while (split.size() > 1) {
+                    split.remove(split.size() - 1);
+
+                    this.fileMap.put(String.join("/", split) + "/", null);
+                }
+
+            }
+
+
+            var sorted = new ArrayList<>(this.fileMap.entrySet());
+            sorted.sort(Map.Entry.comparingByKey());
+            for (var entry : sorted) {
+                var path = entry.getKey();
+                var outByte = entry.getValue();
+
+                if (outByte != null) {
+                    for (var conv : converters) {
+                        outByte = conv.apply(path, outByte);
+                        if (outByte == null) {
+                            break;
+                        }
+                    }
+
+                    if (outByte == null) {
+                        continue;
+                    }
+                }
+
+                var zipEntry = new ZipEntry(path);
+                zipEntry.setTime(0);
+                outputStream.putNextEntry(zipEntry);
+                if (outByte != null) {
+                    outputStream.write(outByte);
+                }
+                outputStream.closeEntry();
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
     private Identifier vId(String path) {
         return new Identifier(path);
     }
 
     public enum OverridePlace {
-        BEFORE_EXISTING,
-        EXISTING,
-        BEFORE_CUSTOM_MODEL_DATA,
-        CUSTOM_MODEL_DATA,
-        END
+        BEFORE_EXISTING, EXISTING, BEFORE_CUSTOM_MODEL_DATA, CUSTOM_MODEL_DATA, END
     }
 
     private record ArmorData(Identifier identifier, int color, BufferedImage[] images,

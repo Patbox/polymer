@@ -3,9 +3,12 @@ package eu.pb4.polymer.core.api.block;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
 import eu.pb4.polymer.core.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
+import io.github.theepicblock.polymc.PolyMc;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -260,6 +263,16 @@ public final class PolymerBlockUtils {
 
     public static boolean isStrictBlockUpdateRequired() {
         return requireStrictBlockUpdates;
+    }
+
+    public static boolean shouldMineServerSide(ServerPlayerEntity player, BlockPos pos, BlockState state) {
+        return (state.getBlock() instanceof PolymerBlock block && block.handleMiningOnServer(player.getMainHandStack(), state, pos, player))
+                || (player.getMainHandStack().getItem() instanceof PolymerItem item && item.handleMiningOnServer(player.getMainHandStack(), state, pos, player))
+                || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, player));
+    }
+
+    public static BlockState getServerSideBlockState(BlockState state, ServerPlayerEntity player) {
+        return PolyMcUtils.toVanilla(getPolymerBlockState(state, player), player);
     }
 
     @FunctionalInterface
