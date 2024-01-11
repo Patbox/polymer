@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.Queue;
 
 @Mixin(ServerConfigurationNetworkHandler.class)
@@ -37,7 +38,11 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
     @Inject(method = "queueSendResourcePackTask", at = @At("TAIL"))
     private void polymerAutoHost$addTask(CallbackInfo ci) {
         if (AutoHost.config.enabled) {
-            this.tasks.add(new AutoHostTask(AutoHost.provider.getProperties(this.connection)));
+            var x = new ArrayList<MinecraftServer.ServerResourcePackProperties>();
+            x.addAll(AutoHost.provider.getProperties(this.connection));
+            x.addAll(AutoHost.GLOBAL_RESOURCE_PACKS);
+
+            this.tasks.add(new AutoHostTask(x));
         }
     }
 

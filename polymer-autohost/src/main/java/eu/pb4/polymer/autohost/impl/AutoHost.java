@@ -19,7 +19,9 @@ import net.minecraft.util.Util;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -33,6 +35,9 @@ public class AutoHost implements ModInitializer {
     public static Text disconnectMessage = Text.empty();
 
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
+
+    public static final List<MinecraftServer.ServerResourcePackProperties> GLOBAL_RESOURCE_PACKS = new ArrayList<>();
+
 
     public static void init(MinecraftServer server) {
         var config = CommonImpl.loadConfig("auto-host", AutoHostConfig.class);
@@ -70,6 +75,14 @@ public class AutoHost implements ModInitializer {
         }
 
         config.providerSettings = provider.saveSettings();
+
+        GLOBAL_RESOURCE_PACKS.clear();
+        for (var x : config.externalResourcePacks) {
+            if (x.url != null) {
+                GLOBAL_RESOURCE_PACKS.add(ResourcePackDataProvider.createProperties(x.id, x.url, x.hash));
+            }
+        }
+
 
         CommonImpl.saveConfig("auto-host", config);
 

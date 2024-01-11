@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +39,10 @@ public interface ResourcePackDataProvider {
     };
 
     static MinecraftServer.ServerResourcePackProperties createProperties(@Nullable UUID uuid, String address, @Nullable String hash) {
-        return new MinecraftServer.ServerResourcePackProperties(uuid, address, hash, AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message);
+        return new MinecraftServer.ServerResourcePackProperties(uuid != null
+                ? uuid : UUID.nameUUIDFromBytes(address.getBytes(StandardCharsets.UTF_8)),
+                address,
+                hash != null ? hash : "",
+                AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message);
     }
 }
