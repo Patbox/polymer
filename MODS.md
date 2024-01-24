@@ -3,7 +3,7 @@ A list of server-side Fabric or Quilt mods using Polymer, ordered alphabetically
 *Some mods work best with Polymer's auto-generated resource pack: `/polymer generate-packs`*
 
 
-## Advanced Golems (1.20.1 / latest)
+## Advanced Golems (1.20.1)
 *Advanced Golems* adds a small golem that helps the player defend an area from hostile mobs.
 
 ### Links:
@@ -21,7 +21,14 @@ into itself from any connected hopper chain.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/amazing-chest
 
 
-## Biome Compass (1.20.2 / latest)
+## Arcana Novum (1.20.1)
+*Arcana Novum* is a very large magic mod, featuring powerful tools and weapons with multiblock constructs to match.
+
+### Links:
+- GitHub: https://github.com/borisshoes/ArcanaNovum
+
+
+## Biome Compass (1.20.2)
 *Biome Compass* adds a compass that works like [Nature's Compass](https://www.curseforge.com/minecraft/mc-mods/natures-compass), but is completely server-side!
 
 ### Links:
@@ -29,7 +36,7 @@ into itself from any connected hopper chain.
 - Modrinth: https://modrinth.com/mod/biome-compass
 
 
-## Brewery (1.20.2 / latest)
+## Brewery (1.20.4 / latest)
 *Brewery* allows you to create alcoholic and non-alcoholic drinks with cauldrons and barrels.
 Aside from a few that are built-in, you can add any number of custom drinks with their own recipes and functionality
 using datapacks. Additionally, this mod can work purely server side, allowing vanilla clients to join and use
@@ -39,6 +46,16 @@ its capabilities.
 - GitHub: https://github.com/Patbox/brewery
 - Modrinth: https://modrinth.com/mod/brewery
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/patboxs-brewery
+
+
+## Cave Survery (1.20.1)
+*Cave Survery* adds advanced cave maps to Minecraft, using a 3D path-finding algorithm
+to deliver accurate maps even on slopes and complicated cave systems.
+
+### Links:
+- GitHub: https://github.com/MehradN/CaveSurvey
+- Modrinth: https://modrinth.com/mod/cave-survey
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/cave-survey
 
 
 ## ComputerCraft: Restitched with Polymer (1.19.4)
@@ -53,7 +70,7 @@ modified in a way to allow nearly all functionality of the regular version to wo
 
 ## DCDServBack (1.19)
 *DCDServBack,* or *Decrafted Server Backpacks,* is a fork of [Server Backpacks](https://modrinth.com/mod/servback) for 1.19,
-introducing support for some new features while adding new content. 
+introducing support for some new features while adding new content.
 
 ### Links:
 - GitHub: https://github.com/DecraftedMC/DCDServback
@@ -70,7 +87,7 @@ This mod randomly imbues mobs in your world with powerful abilities that make th
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/eldritch-mobs
 
 
-## FabricAutoCrafter (1.20.2 / latest)
+## FabricAutoCrafter (1.20.4 / latest)
 *FabricAutoCrafter* adds a new block, the AutoCrafter.
 It allows you to put items in the crafting table and get an output.
 Hoppers and droppers do interact with the table.
@@ -108,7 +125,7 @@ or turn content mods on and off one by one to nail down that pesky bug.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/flashfreeze
 
 
-## Get Off My Lawn ReServed (1.20.2 / latest)
+## Get Off My Lawn ReServed (1.20.4 / latest)
 *Get Off My Lawn ReServed* is a take on the popular concept of player claims for Survival/Freebuild servers.
 This mod works fully server-side (no client mod required!) while being compatible with major Fabric modpacks.
 
@@ -119,6 +136,14 @@ on improving and building on top of the original.
 - GitHub: https://github.com/Patbox/get-off-my-lawn-reserved
 - Modrinth: https://modrinth.com/mod/goml-reserved
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/get-off-my-lawn-reserved
+
+
+## Glide Away (1.20.4 / latest)
+Get your Hang Glider and glide away from the dangers! *Glide Away* adds hangliders!
+
+### Links:
+- GitHub: https://github.com/Patbox/GlideAway
+- Modrinth: https://modrinth.com/mod/glide-away
 
 
 ## Grappling Hook (1.18.1)
@@ -175,7 +200,7 @@ to go between the different heights.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/labyrinth
 
 
-## LifeSteal (1.20.2 / latest)
+## LifeSteal (1.20.2)
 *LifeSteal* is an implementation of [LifeSteal SMP](https://store.lifestealsmp.com).
 > We are a semi-vanilla Minecraft server with an additional feature where you can steal hearts from other players.
 > When you kill another player, you receive their heart while they lose a heart.
@@ -187,7 +212,7 @@ to go between the different heights.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/lifesteal
 
 
-## Lightning Podoboo (1.20.2 / latest)
+## Lightning Podoboo (1.20.4 / latest)
 *Lightning Podoboo* makes fire created by natural lightning cosmetic, meaning no blocks are destroyed from bad weather.
 Keep the `doFireTick` gamerule enabled without worrying about random fire destroying your builds or nearby trees!
 
@@ -213,12 +238,20 @@ and a present threat.
 - Modrinth: https://modrinth.com/mod/nox
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/nox-a-mob-and-difficulty-overhaul
 
-## Nox: Renoxed (1.20.2 / latest)
+## Nox: Renoxed (1.20.2)
 *Nox: Renoxed* is a continuation of *Nox* for Minecraft 1.20 and beyond.
 
 ### Links:
 - GitHub: https://github.com/qxeii/nox-renoxed
 - Modrinth: https://modrinth.com/mod/nox-renoxed
+
+
+## Nylon (1.20.4 / latest)
+*Nylon* is a library for creating server-side content using Animated-Java for custom models and animations.
+
+### Links:
+- GitHub: https://github.com/Provim-Gaming/nylon
+- Modrinth: https://modrinth.com/mod/nylon
 
 
 ## Physics Toys (1.19.4)
@@ -238,19 +271,36 @@ that lets players access their ender chest from anywhere.
 - GitHub: https://github.com/NotNite/packy
 - Modrinth: https://modrinth.com/mod/packy
 
-## PolyFactory (1.20.2 / latest)
-Ever wanted to play with tech mods, but people you play with don't want to install them? 
+
+## PolyDecorations (1.20.4 / latest)
+Decorate your world! *PolyDecorations* is a server-side furniture/decorations mod!
+
+### Links:
+- GitHub: https://github.com/Patbox/PolyDecorations
+- Modrinth: https://modrinth.com/mod/polydecorations
+
+
+## PolyFactory (1.20.4 / latest)
+Ever wanted to play with tech mods, but people you play with don't want to install them?
 Or maybe you are making a server, but vanilla gameplay isn't enough? If so, this project will be ideal for you!
 
-PolyFactory is Fabric (and Quilt) server side modification powered by Polymer 
-which adds new mechanics, blocks and tools allowing for further automation, 
+PolyFactory is Fabric (and Quilt) server side modification powered by Polymer
+which adds new mechanics, blocks and tools allowing for further automation,
 processing and storage (or in simpler terms, it's a tech mod)!
 
 ### Links:
 - GitHub: https://github.com/patbox/polyfactory
 - Modrinth: https://modrinth.com/mod/polyfactory
 
-## Polysit (1.20.2 / latest)
+
+## PolyForgery (1.20.1)
+*PolyForgery* restores [Alloy Forgery](https://github.com/wisp-forest/alloy-forgery)'s Forge Controller GUI when using it with [PolyMC](https://github.com/TheEpicBlock/PolyMc) (kinda).
+
+### Links:
+- GitHub: https://github.com/CamperSamu/PolyForgery
+
+
+## Polysit (1.20.2)
 *Polysit* allows you to right-click to sit on slabs or stairs.
 
 ### Links:
@@ -258,7 +308,7 @@ processing and storage (or in simpler terms, it's a tech mod)!
 - Modrinth: https://modrinth.com/mod/polysit
 
 
-## Power Networks (1.20.2 / latest)
+## Power Networks (1.20.4 / latest)
 *Power Networks* adds coils and wires that the player can use to build energy transfer networks.
 (does not include any energy producers or consumers)
 
@@ -274,6 +324,14 @@ processing and storage (or in simpler terms, it's a tech mod)!
 ### Links:
 - GitHub: https://github.com/ayumi-chizuru189/Random-Server-Blocks
 - Modrinth: https://modrinth.com/mod/randomserverblocks
+
+
+## Reel Fishing (1.20.4 / latest)
+*Reel Fishing* adds a fishing minigame, modular fishing rods, new fish, terrible puns, and more!
+
+### Links:
+- GitHub: https://github.com/Gibatron/reel-fishing
+- Modrinth: https://modrinth.com/mod/reel
 
 
 ## Server Backpacks (1.17.1)
@@ -311,7 +369,7 @@ Oh, and there's missiles. For added fun!
 - Modrinth: https://modrinth.com/mod/set-bonuses
 
 
-## Simple Villagers (1.20 / latest)
+## Simple Villagers (1.20)
 Having frustrations with villagers? No more! *Simple Villagers* adds several utilities to
 ease trading with villagers, including rerolling trades, simpler forms of villager transportation,
 and various blocks to speed up breeding and curing.
@@ -322,7 +380,7 @@ and various blocks to speed up breeding and curing.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/simplevillagers
 
 
-## Spice of Fabric (1.20.2 / latest)
+## Spice of Fabric (1.20.4 / latest)
 With *Spice of Fabric,* as you eat food, the nutrition value of the different kinds of food will decrease,
 so you're forced to have a diverse diet.
 By default, the last 20 meals are considered when calculating the nutrition values and the drop in the nutrition
@@ -347,7 +405,7 @@ for people who need vanilla physics) and adds multiple new minecarts with their 
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/tatercart
 
 
-## Trinkets (Polymer Port) (1.20.2 / latest)
+## Trinkets (Polymer Port) (1.20.4 / latest)
 *Trinkets* is a data-driven accessory mod for Minecraft using Fabric.
 
 ### Links:
@@ -355,7 +413,7 @@ for people who need vanilla physics) and adds multiple new minecarts with their 
 - Modrinth: https://modrinth.com/mod/trinkets-polymer
 
 
-## URLium (1.20.2 / latest)
+## URLium (1.20.2)
 *URLium* transmits redstone and blockstate data over HTTP(S) to a configurable URL.
 Get data from the URLium Block, a Post Wand on any block, or Config Wand to turn
 Chests, Lecterns, and Signs into HTTP-reporting blocks!
@@ -369,7 +427,7 @@ Chests, Lecterns, and Signs into HTTP-reporting blocks!
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/urlium
 
 
-## Universal Graves (1.20.2 / latest)
+## Universal Graves (1.20.4 / latest)
 *Universal Graves* is a simple, but really customizable grave/death chest mod!
 You can customize as you like, by modifying messages, blocks, and hologram texts,
 how long graves will be protected, whether items should be dropped after expiring, etc.
@@ -380,7 +438,7 @@ how long graves will be protected, whether items should be dropped after expirin
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/universal-graves
 
 
-## Universal Shops (1.20.2 / latest)
+## Universal Shops (1.20.4 / latest)
 *Universal Shops* is a trade shop mod designed to be flexible and usable in many types of servers.
 It includes craftable Trade Shop blocks for players and Admin Trade Shop blocks for admins/map makers. Setup of both is the same.
 It also checks against Common Protection API to make sure players have access to source chests/containers.
@@ -391,4 +449,4 @@ It also checks against Common Protection API to make sure players have access to
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/universal-shops
 
 
-#### Is your mod missing? Feel free to create an issue or PR it!
+#### Is your mod missing? Feel free to create an issue or pull request!
