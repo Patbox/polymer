@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../other/">
+        <link rel="prev" href="../..">
       
       
-        <link rel="next" href="../../polymer-resource-pack/getting-started/">
+        <link rel="next" href="../resource-pack-custom-assets/">
       
       
       <link rel="icon" href="../../images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Client side features - Polymer</title>
+        <title>Hosting Resource Packs - Polymer</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#client-side-features" class="md-skip">
+        <a href="#hosting-resource-packs" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Client side features
+              Hosting Resource Packs
             
           </span>
         </div>
@@ -268,17 +268,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -292,7 +294,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             User Guides
@@ -303,10 +305,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../user/resource-pack-hosting/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Hosting Resource Packs
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -315,6 +337,77 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation-checking-if-its-present" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation / Checking if it's present
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enabling-autohost" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enabling AutoHost
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enabling AutoHost">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-basic-server-setup-direct-server-without-proxies-reusing-port-0711204-or-newer" class="md-nav__link">
+    <span class="md-ellipsis">
+      For basic server setup (direct server without proxies, reusing port, 0.7.1+1.20.4 or newer)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-proxy-setups-reuses-port-0711204-or-newer" class="md-nav__link">
+    <span class="md-ellipsis">
+      For proxy setups (reuses port, 0.7.1+1.20.4 or newer)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-port-setup-0481194-or-newer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom port setup (0.4.8+1.19.4 or newer)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -327,7 +420,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../user/resource-pack-custom-assets/" class="md-nav__link">
+      <a href="../resource-pack-custom-assets/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -352,19 +445,17 @@
       
   
   
-    
   
   
-  
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -378,7 +469,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Polymer Core
@@ -392,7 +483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../../polymer-core/getting-started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -413,7 +504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../items/" class="md-nav__link">
+      <a href="../../polymer-core/items/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -434,7 +525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../blocks/" class="md-nav__link">
+      <a href="../../polymer-core/blocks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -455,7 +546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../entities/" class="md-nav__link">
+      <a href="../../polymer-core/entities/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -476,7 +567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../other/" class="md-nav__link">
+      <a href="../../polymer-core/other/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -494,30 +585,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Client side features
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../polymer-core/client-side/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -526,50 +597,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#keeping-modded-itemblockentity-on-compatible-client" class="md-nav__link">
-    <span class="md-ellipsis">
-      Keeping modded item/block/entity on compatible client.
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Keeping modded item/block/entity on compatible client.">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#this-section-is-incomplete-i-hope-in-code-comments-will-guide-you-well" class="md-nav__link">
-    <span class="md-ellipsis">
-      This section is incomplete... I hope in code comments will guide you well...
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1029,19 +1056,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#keeping-modded-itemblockentity-on-compatible-client" class="md-nav__link">
+  <a href="#installation-checking-if-its-present" class="md-nav__link">
     <span class="md-ellipsis">
-      Keeping modded item/block/entity on compatible client.
+      Installation / Checking if it's present
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Keeping modded item/block/entity on compatible client.">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enabling-autohost" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enabling AutoHost
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enabling AutoHost">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#this-section-is-incomplete-i-hope-in-code-comments-will-guide-you-well" class="md-nav__link">
+  <a href="#for-basic-server-setup-direct-server-without-proxies-reusing-port-0711204-or-newer" class="md-nav__link">
     <span class="md-ellipsis">
-      This section is incomplete... I hope in code comments will guide you well...
+      For basic server setup (direct server without proxies, reusing port, 0.7.1+1.20.4 or newer)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-proxy-setups-reuses-port-0711204-or-newer" class="md-nav__link">
+    <span class="md-ellipsis">
+      For proxy setups (reuses port, 0.7.1+1.20.4 or newer)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-port-setup-0481194-or-newer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom port setup (0.4.8+1.19.4 or newer)
     </span>
   </a>
   
@@ -1070,28 +1124,35 @@
   
 
 
-<h1 id="client-side-features">Client side features</h1>
-<p>While Polymer by itself is mainly server side api, it includes some 
-client side functionality for mods to use. It allows you for example to display 
-vanilla friendly item for normal clients and custom models if it's present on server.</p>
-<h2 id="keeping-modded-itemblockentity-on-compatible-client">Keeping modded item/block/entity on compatible client.</h2>
-<p>To keep client side model for loading, you need to implement <code>PolymerKeepModel</code> interface
-on your modded object. To enable it's decoding, just add <code>PolymerClientDecoded</code> interface for it.</p>
-<p>After that, you just need to return server side items/block 
-in corresponding player-aware <code>getPolymerX</code> methods.</p>
-<p>To "sync" presence/version of your mod you can use Polymer's handshake feature.</p>
-<p>You can do that by registering packets for which you should check <a href="/polymer-networking/basics">Polymer Networking documentation</a></p>
-<p>After that you can just validate if player supports it with this check it like this</p>
-<pre><code>SomeObject getPolymerX(ServerPlayerEntity player) {
-    if (PolymerServerNetworking.getSupportedVersion(player.networkHandler, PACKET_ID) &gt; 0) {
-        // Client state for modded
-        return this;
-    } else {
-        // Client state for vanilla
-        return VanillaObjects.SOMETHING;
-    }}
+<h1 id="hosting-resource-packs">Hosting Resource Packs</h1>
+<p>Some Polymer mods (or if you use PolyMc) might require or allow for optional resource packs.
+Polymer has builtin module (AutoHost) to allow for automatic generation and hosting of resource packs
+on server start.</p>
+<h2 id="installation-checking-if-its-present">Installation / Checking if it's present</h2>
+<p>To check if it's present, start the server and check if <code>config/polymer/auto-host.json</code> exists.
+If it doesn't install correct version of <a href="https://modrinth.com/mod/polymer">Polymer from Modrinth</a>.</p>
+<h2 id="enabling-autohost">Enabling AutoHost</h2>
+<h3 id="for-basic-server-setup-direct-server-without-proxies-reusing-port-0711204-or-newer">For basic server setup (direct server without proxies, reusing port, 0.7.1+1.20.4 or newer)</h3>
+<p>Start the server at least once. Then open the config file in <code>config/polymer/auto-host.json</code>
+and change the value in field <code>"enabled"</code> from <code>false</code> to <code>true</code>. Then save the file and restart the server!
+It should automatically apply the resource pack after it finishes generation.</p>
+<h3 id="for-proxy-setups-reuses-port-0711204-or-newer">For proxy setups (reuses port, 0.7.1+1.20.4 or newer)</h3>
+<p>Do everything as above.
+If your server is behind proxy, you need to change the string for <code>"forced_address"</code> from <code>""</code> to
+<code>"http://serveraddress.net:port"</code> (for example <code>"http://server.net:25565"</code>). The port and address isn't required
+to match server internal one, if you use http proxies.</p>
+<h3 id="custom-port-setup-0481194-or-newer">Custom port setup (0.4.8+1.19.4 or newer)</h3>
+<p>Start the server at least once. Then open the config file in <code>config/polymer/auto-host.json</code>
+and change the value in field <code>"enabled"</code> from <code>false</code> to <code>true</code>.
+Next set <code>"type"</code> to <code>"polymer:http_server"</code>. Then replace <code>"settings"</code> with</p>
+<pre><code class="language-json">{
+  &quot;port&quot;: 25567,
+  &quot;external_address&quot;: &quot;http://localhost:25567/&quot;
+}
 </code></pre>
-<h3 id="this-section-is-incomplete-i-hope-in-code-comments-will-guide-you-well">This section is incomplete... I hope in code comments will guide you well...</h3>
+<p>You can change port to any other you need, just make sure the external address is accessible from the outside.
+Then save the file and restart the server!
+It should automatically apply the resource pack after it finishes generation.</p>
 
 
 
