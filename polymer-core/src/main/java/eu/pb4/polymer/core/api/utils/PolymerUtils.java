@@ -9,6 +9,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import net.minecraft.block.entity.BlockEntityType;
@@ -21,14 +22,12 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -190,7 +189,6 @@ public final class PolymerUtils {
     }
 
 
-
     public static ItemStack createPlayerHead(String value) {
         return createPlayerHead(value, null);
     }
@@ -228,5 +226,13 @@ public final class PolymerUtils {
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {
         return PolymerCommonUtils.hasResourcePack(player, uuid);
+    }
+
+    public static Packet<?> replacePacket(ServerCommonNetworkHandler handler, Packet<?> packet) {
+        return PacketPatcher.replace(handler, packet);
+    }
+
+    public static boolean shouldPreventPacket(ServerCommonNetworkHandler handler, Packet<?> packet) {
+        return PacketPatcher.prevent(handler, packet);
     }
 }

@@ -72,7 +72,7 @@ public class PacketPatcher {
         return packet;
     }
 
-    public static void sendExtra(ServerCommonNetworkHandler handler, Packet<ClientPlayPacketListener> packet) {
+    public static void sendExtra(ServerCommonNetworkHandler handler, Packet<?> packet) {
         if (handler.getClass() == ServerPlayNetworkHandler.class) {
             if (CompatStatus.IMMERSIVE_PORTALS) {
                 ImmersivePortalsUtils.sendBlockPackets((ServerPlayNetworkHandler) handler, packet);

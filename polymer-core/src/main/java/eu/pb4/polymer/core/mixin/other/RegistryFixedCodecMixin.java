@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.mixin.other;
 
-import com.mojang.serialization.DynamicOps;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
@@ -24,7 +23,6 @@ public class RegistryFixedCodecMixin {
             at = @At("HEAD")
     )
     private RegistryEntry<?> polymerCore$swapEntry(RegistryEntry<?> entry) {
-
         if (PolymerCommonUtils.isServerNetworkingThread()) {
             var player = PolymerUtils.getPlayerContext();
             try {
