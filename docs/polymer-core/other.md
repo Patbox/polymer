@@ -15,6 +15,6 @@ Then you can use it just like vanilla ones.
 ## StatusEffects
 
 To create custom, server side status effects, you just need to implement PolymerStatusEffect on your 
-custom StatusEffect class. You can also override `StatusEffect getPolymerStatusEffect()` to display it
-as vanilla one (otherwise they are hidden).
+custom StatusEffect class. You can also override `StatusEffect getPolymerReplacement(ServerPlayerEntity player)` to display it
+as vanilla one or null to make it invisible (default).
 

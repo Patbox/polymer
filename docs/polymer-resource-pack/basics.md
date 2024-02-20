@@ -11,7 +11,7 @@ returns `true` if `modid` is valid.
 
 This should be called ideally in your mod initializer.
 
-Additionally, you can add assets manually by calling `PolymerRPBuilder.addData(String path, byte[] data)`.
+Additionally, you can add assets manually by calling `ResourcePackBuilder.addData(String path, byte[] data)`.
 You can get instance of it by listening to `PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT`.
 Just keep in minds that new one will be created every time resource pack is generated.
 

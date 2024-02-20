@@ -16,7 +16,7 @@ public record EmptyProvider() implements ResourcePackDataProvider {
 
     @Override
     public boolean isReady() {
-        return false;
+        return true;
     }
 
     @Override

@@ -82,8 +82,9 @@ public int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayer
 You can create server side Item Groups, which will be later synced with Polymer-compatible clients.
 They also allow you to create server side Creative categories, that are accessible via `/polymer creative` command.
 
-To create, it, you just need to call one of provided `PolymerItemGroupUtils.builder(Identifier)` static method.
-Then you can create it just like regular ItemGroup.
+To create, it, you just need to call one of provided `PolymerItemGroupUtils.builder()` static method.
+Then you can create it just like regular ItemGroup, but instead of registering into vanilla registry, you use
+`PolymerItemGroupUtils.registerPolymerItemGroup(Identifier id, ItemGroup group)
 
 ## Manipulation of non-polymer items
 Sometimes, you might want to manipulate other vanilla/modded items without implementing
@@ -148,7 +149,7 @@ PolymerItemUtils.ITEM_MODIFICATION_EVENT.register(
 You can also force item's mining speed to be calculated server side 
 (which happens by default to every PolymerItem).
 
-Only thing you need to do is just listening to `BlockHelper.SERVER_SIDE_MINING_CHECK` event.
+Only thing you need to do is just listening to `PolymerBlockUtils.SERVER_SIDE_MINING_CHECK` event.
 
 Example use:
 ```

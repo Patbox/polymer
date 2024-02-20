@@ -19,9 +19,9 @@ For most basic uses, there are default implementation of `PolymerBlock`:
 * `SimplePolymerBlock` - Same as vanilla `Block`.
 
 ### Selecting base polymer block type.
-To change base block, you need to override `Block getPolymerBlock(BlockState)` method.
+To change base block, you need to override `Block getPolymerBlock(BlockState state)` method.
 
-You can also override `Block getPolymerBlock(ServerPlayerEntity, BlockState)` to replace blocks per player,
+You can also override `Block getPolymerBlock(ServerPlayerEntity player, BlockState state)` to replace blocks per player,
 however keep in mind they should ideally have same collisions.
 
 Both of these methods can't return null. They can also point to other PolymerBlock instances, but keep

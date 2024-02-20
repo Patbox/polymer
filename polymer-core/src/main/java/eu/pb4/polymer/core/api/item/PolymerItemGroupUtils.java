@@ -101,6 +101,10 @@ public final class PolymerItemGroupUtils {
         return InternalServerRegistry.ITEM_GROUPS.containsEntry(group);
     }
 
+    public static ItemGroup.Builder builder() {
+        return new ItemGroup.Builder(ItemGroup.Row.BOTTOM, -1);
+    }
+
     public static void registerPolymerItemGroup(Identifier identifier, ItemGroup group) {
         InternalServerRegistry.ITEM_GROUPS.set(identifier, group);
         if (Registries.ITEM_GROUP.containsId(identifier)) {

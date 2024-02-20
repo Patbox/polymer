@@ -20,8 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.Queue;
+import java.util.*;
 
 @Mixin(ServerConfigurationNetworkHandler.class)
 public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommonNetworkHandler {
@@ -39,10 +38,13 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
     private void polymerAutoHost$addTask(CallbackInfo ci) {
         if (AutoHost.config.enabled) {
             var x = new ArrayList<MinecraftServer.ServerResourcePackProperties>();
-            x.addAll(AutoHost.provider.getProperties(this.connection));
+            var ready = AutoHost.provider.isReady();
+            if (ready) {
+                x.addAll(AutoHost.provider.getProperties(this.connection));
+            }
             x.addAll(AutoHost.GLOBAL_RESOURCE_PACKS);
 
-            this.tasks.add(new AutoHostTask(x));
+            this.tasks.add(new AutoHostTask(x, !ready, () -> AutoHost.provider.getProperties(this.connection), AutoHost.provider::isReady));
         }
     }
 
@@ -50,6 +52,13 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
     private void onStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
         if (this.currentTask instanceof AutoHostTask task && task.onStatus((ServerConfigurationNetworkHandler) (Object) this, packet.id(), packet.status())) {
             this.onTaskFinished(AutoHostTask.KEY);
+        }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void tickTask(CallbackInfo ci) {
+        if (this.currentTask instanceof AutoHostTask task) {
+            task.tick(this::sendPacket);
         }
     }
 

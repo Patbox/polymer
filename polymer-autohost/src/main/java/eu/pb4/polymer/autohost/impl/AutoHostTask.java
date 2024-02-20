@@ -12,7 +12,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class AutoHostTask implements ServerPlayerConfigurationTask {
     public static final Key KEY = new Key("polymer:autohost/send_packs");
@@ -20,14 +22,37 @@ public class AutoHostTask implements ServerPlayerConfigurationTask {
 
     private final Set<UUID> requiredPacks = new HashSet<>();
     private final Set<UUID> waitingFor = new HashSet<>();
+    private final Supplier<Collection<MinecraftServer.ServerResourcePackProperties>> delayed;
+    private final BooleanSupplier isReady;
+    private boolean hasDelayed;
 
-    public AutoHostTask(Collection<MinecraftServer.ServerResourcePackProperties> properties) {
+    public AutoHostTask(Collection<MinecraftServer.ServerResourcePackProperties> properties, boolean hasDelayed,
+                        Supplier<Collection<MinecraftServer.ServerResourcePackProperties>> delayed, BooleanSupplier isReady) {
         this.packs = properties;
         for (var pack : packs) {
             if (pack.isRequired()) {
                 requiredPacks.add(pack.id());
             }
             waitingFor.add(pack.id());
+        }
+        this.hasDelayed = hasDelayed;
+        this.delayed = delayed;
+        this.isReady = isReady;
+    }
+
+    public void tick(Consumer<Packet<?>> sender) {
+        if (this.hasDelayed && this.isReady.getAsBoolean()) {
+            var delayed = this.delayed.get();
+            for (var pack : delayed) {
+                if (pack.isRequired()) {
+                    requiredPacks.add(pack.id());
+                }
+                waitingFor.add(pack.id());
+            }
+            for (var pack : delayed) {
+                sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), pack.prompt()));
+            }
+            this.hasDelayed = false;
         }
     }
 
@@ -56,6 +81,6 @@ public class AutoHostTask implements ServerPlayerConfigurationTask {
             this.waitingFor.remove(id);
         }
 
-        return this.waitingFor.isEmpty();
+        return this.waitingFor.isEmpty() && !this.hasDelayed;
     }
 }

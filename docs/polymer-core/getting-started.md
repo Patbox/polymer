@@ -28,7 +28,7 @@ All your code that interacts with Polymer should:
 
 * Be thread safe - code can run on main server thread, player's connection thread
   or client side rendering thread.
-* Make sure to check every time you cast if it's really instance of it. Sometimes `World` won't be `ServerWorld`.
+* Make sure to check every time you cast if it's really instance of it. Sometimes `World` won't be a `ServerWorld` instance.
 * Never implement Polymer interfaces on Vanilla Items/Blocks with mixins, it will end up really, really badly.
 * Never add new BlockStates to non-polymer blocks, as it will cause desyncs (see previous point)!
 * Please don't even try using registry replacement, it will break many other mods (and polymer itself).

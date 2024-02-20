@@ -28,7 +28,7 @@ your mod pack.
 
 If you have a server and polymer based mods you are using include a resource pack, you might want to install
 "bundled/packed/all" version of polymer contains AutoHost module, allowing you to set up automatic building and sending of packs
-to clients.
+to clients. See [this page](https://polymer.pb4.eu/latest/user/resource-pack-hosting) to learn about the setup.
 
 If you use 1.18.x or older, use this instead: https://github.com/aws404/polypack-host
 

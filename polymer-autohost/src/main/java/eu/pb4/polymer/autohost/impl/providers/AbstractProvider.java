@@ -9,6 +9,7 @@ import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class AbstractProvider implements ResourcePackDataProvider {
     public long size = 0;
@@ -26,38 +28,46 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     public long lastUpdate = 0;
     public boolean enabled;
     public boolean isPackReady = false;
+    private Consumer<ResourcePackBuilder> eventA;
+    private Runnable eventB;
 
     public void serverStarted(MinecraftServer minecraftServer) {
         this.enabled = true;
 
-        this.isPackReady = true;
-        updateHash();
+        this.isPackReady = false;
 
-        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register((x) -> {
+        this.eventA = PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.registerRet((x) -> {
             isPackReady = false;
         });
 
-        PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.register(() -> {
-            isPackReady = true;
+        this.eventB = PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.registerRet(() -> {
             updateHash();
+            isPackReady = true;
         });
 
-        AutoHost.generateAndCall(minecraftServer, minecraftServer::sendMessage, () -> {
-        });
+        AutoHost.generateAndCall(minecraftServer, minecraftServer::sendMessage, () -> {});
+    }
+
+    @Override
+    public void serverStopped(MinecraftServer server) {
+        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.unregister(this.eventA);
+        PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.unregister(this.eventB);
     }
 
     protected boolean updateHash() {
         try {
-            hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.getMainPath().toFile()).hash(Hashing.sha1()).toString();
-            size = Files.size(PolymerResourcePackUtils.getMainPath());
-            lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.getMainPath()).toMillis();
-            return true;
+            if (Files.exists(PolymerResourcePackUtils.getMainPath())) {
+                hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.getMainPath().toFile()).hash(Hashing.sha1()).toString();
+                size = Files.size(PolymerResourcePackUtils.getMainPath());
+                lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.getMainPath()).toMillis();
+                return true;
+            }
         } catch (Exception e) {
-            hash = "";
-            size = 0;
-            return false;
-        }
 
+        }
+        hash = "";
+        size = 0;
+        return false;
     }
 
     @Override

@@ -5,7 +5,12 @@ are represented on server the same as normal (vanilla/modded) ones allowing for 
 
 It is also should be fully compatible with close to all other mods and in case of found issues they are patched as soon as possible.
 
-## Modules
+## User guides
+
+* [Resource Pack hosting](user/resource-pack-hosting)
+* [Adding/Overriding assets in Resource Pack](user/resource-pack-custom-assets)
+
+## Mod development / Library usage
 
 ### Polymer Core
 `eu.pb4:polymer-core`

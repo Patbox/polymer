@@ -1,6 +1,8 @@
 package eu.pb4.polymer.autohost.impl;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
+import eu.pb4.polymer.autohost.impl.providers.AbstractProvider;
 import eu.pb4.polymer.autohost.impl.providers.NettyProvider;
 import eu.pb4.polymer.autohost.impl.providers.EmptyProvider;
 import eu.pb4.polymer.autohost.impl.providers.StandaloneWebServerProvider;
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class AutoHost implements ModInitializer {
@@ -151,6 +154,13 @@ public class AutoHost implements ModInitializer {
                 });
                 return 0;
             }));
+
+            c.then(literal("force_ready").then(argument("value", BoolArgumentType.bool()).executes((ctx) -> {
+                if (provider instanceof AbstractProvider abs) {
+                    abs.isPackReady = BoolArgumentType.getBool(ctx, "value");
+                }
+                return 0;
+            })));
         });
     }
 }

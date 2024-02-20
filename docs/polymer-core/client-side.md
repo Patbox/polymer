@@ -3,7 +3,7 @@ While Polymer by itself is mainly server side api, it includes some
 client side functionality for mods to use. It allows you for example to display 
 vanilla friendly item for normal clients and custom models if it's present on server.
 
-## Keeping modded item/block on compatible client.
+## Keeping modded item/block/entity on compatible client.
 
 To keep client side model for loading, you need to implement `PolymerKeepModel` interface
 on your modded object. To enable it's decoding, just add `PolymerClientDecoded` interface for it.
