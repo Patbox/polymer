@@ -197,7 +197,7 @@ public final class PolymerItemUtils {
                     Enchantment ench = Registries.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
-                        if (ench instanceof PolymerSyncedObject polymerEnchantment && polymerEnchantment.getPolymerReplacement(player) == ench) {
+                        if (ench instanceof PolymerSyncedObject polymerEnchantment && ((player == null || polymerEnchantment.canSyncRawToClient(player)) || polymerEnchantment.getPolymerReplacement(player) == ench)) {
                             continue;
                         }
 
@@ -211,7 +211,7 @@ public final class PolymerItemUtils {
                     Enchantment ench = Registries.ENCHANTMENT.get(Identifier.tryParse(id));
 
                     if (ench instanceof PolymerObject) {
-                        if (ench instanceof PolymerSyncedObject polymerEnchantment && polymerEnchantment.getPolymerReplacement(player) == ench) {
+                        if (ench instanceof PolymerSyncedObject polymerEnchantment && ((player == null || polymerEnchantment.canSyncRawToClient(player)) || polymerEnchantment.getPolymerReplacement(player) == ench)) {
                             continue;
                         }
 
@@ -370,13 +370,14 @@ public final class PolymerItemUtils {
                 for (var enchNbt : itemStack.getEnchantments()) {
                     var ench = Registries.ENCHANTMENT.get(EnchantmentHelper.getIdFromNbt((NbtCompound) enchNbt));
 
-                    if (ench instanceof PolymerSyncedObject polyEnch) {
+                    //TODO: Check if removing !(ench instanceof PolymerObject) has unseen consequences.
+                    if (ench instanceof PolymerSyncedObject polyEnch && !(player != null && polyEnch.canSynchronizeToPolymerClient(player))) {
                         var possible = (Enchantment) polyEnch.getPolymerReplacement(player);
 
                         if (possible != null) {
                             list.add(EnchantmentHelper.createNbt(Registries.ENCHANTMENT.getId(possible), EnchantmentHelper.getLevelFromNbt((NbtCompound) enchNbt)));
                         }
-                    } else if (!(ench instanceof PolymerObject)) {
+                    } else {
                         list.add(enchNbt.copy());
                     }
                 }
@@ -573,14 +574,17 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player, int maxDistance) {
-        Item out = item.getPolymerItem(stack, player);
+        Item out = (Item) item;
         PolymerItem lastVirtual = item;
+        if(player == null || !item.canSyncRawToClient(player)) {
+            out = item.getPolymerItem(stack, player);
 
-        int req = 0;
-        while (out instanceof PolymerItem newItem && newItem != item && req < maxDistance) {
-            out = newItem.getPolymerItem(stack, player);
-            lastVirtual = newItem;
-            req++;
+            int req = 0;
+            while (out instanceof PolymerItem newItem && newItem != item && req < maxDistance) {
+                out = newItem.getPolymerItem(stack, player);
+                lastVirtual = newItem;
+                req++;
+            }
         }
         return new ItemWithMetadata(out, lastVirtual.getPolymerCustomModelData(stack, player), lastVirtual.getPolymerArmorColor(stack, player));
     }

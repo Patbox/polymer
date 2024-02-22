@@ -48,7 +48,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
                 if (polymerRecipe != null) {
                     list.add(new RecipeEntry<Recipe<?>>(recipe.id(), polymerRecipe));
                 }
-            } else if (!(PolymerObject.is(recipe.value().getSerializer()) || PolymerObject.is(recipe))) {
+            } else if (!(PolymerObject.is(recipe.value().getSerializer()))) {
                 list.add(recipe);
             }
         }

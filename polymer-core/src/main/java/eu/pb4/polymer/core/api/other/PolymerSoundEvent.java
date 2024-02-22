@@ -45,6 +45,6 @@ public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject
 
     @Override
     public SoundEvent getPolymerReplacement(ServerPlayerEntity player) {
-        return this.source == null || this.polymerSound == null || PolymerUtils.hasResourcePack(player, this.source) || this.canSyncRawToClient(player) ? this : (this.polymerSound instanceof PolymerSoundEvent pe ? pe.getPolymerReplacement(player) : this.polymerSound);
+        return this.source == null || this.polymerSound == null || PolymerUtils.hasResourcePack(player, this.source) || this.canSyncRawToClient(player) ? this : (this.polymerSound instanceof PolymerSoundEvent pe && !this.canSyncRawToClient(player) ? pe.getPolymerReplacement(player) : this.polymerSound);
     }
 }
