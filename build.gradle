@@ -115,12 +115,12 @@ subprojects {
 }
 
 dependencies {
-    api include(project(":polymer-autohost"))
-    api include(project(":polymer-core"))
-    api include(project(":polymer-common"))
-    api include(project(":polymer-resource-pack"))
-    api include(project(":polymer-blocks"))
-    api include(project(":polymer-virtual-entity"))
+    api include(project(path: ":polymer-autohost", configuration: "namedElements"))
+    api include(project(path: ":polymer-core", configuration: "namedElements"))
+    api include(project(path: ":polymer-common", configuration: "namedElements"))
+    api include(project(path: ":polymer-resource-pack", configuration: "namedElements"))
+    api include(project(path: ":polymer-blocks", configuration: "namedElements"))
+    api include(project(path: ":polymer-virtual-entity", configuration: "namedElements"))
     //include(project(":polymer-client-extensions"))
 }
 
