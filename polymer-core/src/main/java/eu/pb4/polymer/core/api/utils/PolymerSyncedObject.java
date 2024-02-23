@@ -25,7 +25,6 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
 
     /**
      * Allows to mark it to still send it to supported clients (for client optional setups)
-     * Currently used for tags
      */
     default boolean canSyncRawToClient(ServerPlayerEntity player) {
         return false;

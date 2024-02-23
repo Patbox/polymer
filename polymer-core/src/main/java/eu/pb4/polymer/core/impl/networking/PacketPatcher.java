@@ -87,7 +87,7 @@ public class PacketPatcher {
             var player = ((ServerPlayNetworkHandler) handler).player;
             if ((
                     packet instanceof StatusEffectPacketExtension packet2
-                            && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerReplacement(player) == null))
+                            && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && (pol.canSyncRawToClient(player) || pol.getPolymerReplacement(player) == null)))
             ) || !EntityAttachedPacket.shouldSend(packet, player)
             ) {
                 return true;

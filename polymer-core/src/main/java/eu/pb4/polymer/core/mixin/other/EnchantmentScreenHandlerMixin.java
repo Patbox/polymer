@@ -17,7 +17,7 @@ public class EnchantmentScreenHandlerMixin implements ScreenHandlerPlayerContext
 
     @ModifyArg(method = "method_17411", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getRawId(Ljava/lang/Object;)I"))
     private Object polymer$replaceEnchantment(@Nullable Object value) {
-        if (value instanceof PolymerSyncedObject<?> polymerEnchantment) {
+        if (value instanceof PolymerSyncedObject<?> polymerEnchantment && !polymerEnchantment.canSyncRawToClient(this.polymer$player)) {
             return polymerEnchantment.getPolymerReplacement(this.polymer$player);
         } else {
             return value;

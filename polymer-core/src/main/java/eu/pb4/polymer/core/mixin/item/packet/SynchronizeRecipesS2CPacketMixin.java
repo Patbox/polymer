@@ -43,12 +43,12 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
         List<RecipeEntry<?>> list = new ArrayList<>();
         var player = PolymerUtils.getPlayerContext();
         for (var recipe : recipes) {
-            if (recipe.value() instanceof PolymerSyncedObject<?> syncedRecipe) {
+            if (recipe.value() instanceof PolymerSyncedObject<?> syncedRecipe && !syncedRecipe.canSyncRawToClient(player)) {
                 Recipe<?> polymerRecipe = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
                 if (polymerRecipe != null) {
                     list.add(new RecipeEntry<Recipe<?>>(recipe.id(), polymerRecipe));
                 }
-            } else if (!(PolymerObject.is(recipe.value().getSerializer()) || PolymerObject.is(recipe))) {
+            } else if (!(PolymerObject.is(recipe.value().getSerializer()))) {
                 list.add(recipe);
             }
         }
@@ -74,7 +74,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
                     var brokenIds = new HashSet<Identifier>();
                     for (var recipe : this.recipes) {
                         if (recipe.value() instanceof PolymerSyncedObject<?> syncedRecipe) {
-                            if (player == null) {
+                            if (player == null || syncedRecipe.canSyncRawToClient(player)) {
                                 continue;
                             }
                             var recipeData = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
