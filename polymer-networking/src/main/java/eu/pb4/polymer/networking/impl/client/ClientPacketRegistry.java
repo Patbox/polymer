@@ -1,6 +1,5 @@
 package eu.pb4.polymer.networking.impl.client;
 
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
@@ -12,7 +11,6 @@ import eu.pb4.polymer.networking.impl.packets.DisableS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
-import eu.pb4.polymer.networking.mixin.CustomPayloadS2CPacketAccessor;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -56,27 +54,6 @@ public class ClientPacketRegistry {
 
     @SuppressWarnings({"unchecked", "rawtypes", "UnstableApiUsage"})
     public static boolean handle(MinecraftClient client, ClientCommonNetworkHandler handler, CustomPayload packet) {
-        if (packet instanceof SingleplayerSerialization && ClientUtils.isSingleplayer()) {
-            var player = ClientUtils.getPlayer();
-            var reader = CustomPayloadS2CPacketAccessor.getID_TO_READER().get(packet.id());
-            if (player != null && reader != null) {
-                var con = PacketContext.get();
-                var conn = con.getClientConnection();
-                var pck = con.getEncodedPacket();
-
-                PacketContext.setContext(((NetworkHandlerExtension) player.networkHandler).polymerNet$getConnection(), pck);
-                var buf = new PacketByteBuf(Unpooled.buffer());
-                try {
-                    packet.write(buf);
-                    PacketContext.setContext(conn, pck);
-                    packet = reader.apply(buf);
-                } catch (Throwable e) {
-                    NetImpl.LOGGER.error("Error occurred while transforming " + packet.id() + " packet!", e);
-                    PacketContext.setContext(conn, pck);
-                }
-            }
-        }
-
         var packetHandlers = COMMON_PACKET_LISTENERS.get(packet.getClass());
         boolean handled = false;
         if (packetHandlers != null) {

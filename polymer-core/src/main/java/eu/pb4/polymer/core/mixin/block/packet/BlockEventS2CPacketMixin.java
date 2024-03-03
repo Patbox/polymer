@@ -25,15 +25,8 @@ public abstract class BlockEventS2CPacketMixin {
     @Shadow
     public abstract Block getBlock();
 
-    @Environment(EnvType.CLIENT)
-    @Inject(method = "getBlock", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceBlockClient(CallbackInfoReturnable<Block> cir) {
-        if (ClientUtils.isSingleplayer() && !(PolymerClientDecoded.checkDecode(this.block))) {
-            cir.setReturnValue(PolymerBlockUtils.getPolymerBlock(block, ClientUtils.getPlayer()));
-        }
-    }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;encode(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer$replaceBlockLocal(Object block) {
         return PolymerBlockUtils.getPolymerBlock((Block) block, PolymerUtils.getPlayerContext());
     }

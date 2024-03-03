@@ -14,6 +14,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
@@ -64,10 +65,10 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
 
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
-            if (mod.size() > 0 && legalTrackedData != null && legalTrackedData.size() > 0) {
+            if (mod.size() > 0 && legalTrackedData != null && legalTrackedData.length > 0) {
                 for (var entry : mod) {
-                    var x = legalTrackedData.get(entry.id());
-                    if (x != null && x.getData().getType() == entry.handler()) {
+                    var x = legalTrackedData[entry.id()];
+                    if (x != null && x.getData().dataType() == entry.handler()) {
                         entries.add(entry);
                     }
                 }
@@ -86,22 +87,15 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
         for (int i = 0; i < size; i++) {
             var entry = entries.get(i);
 
-            if (isItemFrame && entry.id() == ItemFrameEntityAccessor.getITEM_STACK().getId() && entry.value() instanceof ItemStack stack) {
+            if (isItemFrame && entry.id() == ItemFrameEntityAccessor.getITEM_STACK().id() && entry.value() instanceof ItemStack stack) {
                 var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, player);
 
-                if (!stack.hasCustomName() && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
-                    var nbtCompound = polymerStack.getSubNbt("display");
-                    if (nbtCompound != null) {
-                        var name = nbtCompound.get("Name");
-                        if (name != null) {
-                            polymerStack.getNbt().put(PolymerItemUtils.ITEM_FRAME_NAME_TAG, name);
-                        }
-                        nbtCompound.remove("Name");
-                    }
+                if (!stack.contains(DataComponentTypes.CUSTOM_NAME) && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
+                    stack.remove(DataComponentTypes.CUSTOM_NAME);
                 }
 
                 entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), polymerStack));
-            } else if (isMinecart && entry.id() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID().getId()) {
+            } else if (isMinecart && entry.id() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID().id()) {
                 entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.value()), player))));
             }
         }
@@ -109,7 +103,7 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
         return entries;
     }
 
-    @ModifyArg(method = "write(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "net/minecraft/network/packet/s2c/play/EntityTrackerUpdateS2CPacket.write(Ljava/util/List;Lnet/minecraft/network/PacketByteBuf;)V", ordinal = 0))
+    @ModifyArg(method = "write(Lnet/minecraft/network/RegistryByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/EntityTrackerUpdateS2CPacket;write(Ljava/util/List;Lnet/minecraft/network/RegistryByteBuf;)V"))
     private List<DataTracker.SerializedEntry<?>> polymer$changeForPacket(List<DataTracker.Entry<?>> value) {
         return this.polymer$createEntries();
     }

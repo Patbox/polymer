@@ -28,9 +28,4 @@ public class NullEntityRenderer extends EmptyEntityRenderer<Entity> {
     public void render(Entity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
 
     }
-
-    @Override
-    protected void renderLabelIfPresent(Entity entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-
-    }
 }

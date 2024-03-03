@@ -8,10 +8,7 @@ import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerPlayerConfigurationTask;
 import net.minecraft.text.Text;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -50,7 +47,7 @@ public class AutoHostTask implements ServerPlayerConfigurationTask {
                 waitingFor.add(pack.id());
             }
             for (var pack : delayed) {
-                sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), pack.prompt()));
+                sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), Optional.ofNullable(pack.prompt())));
             }
             this.hasDelayed = false;
         }
@@ -59,7 +56,7 @@ public class AutoHostTask implements ServerPlayerConfigurationTask {
     @Override
     public void sendPacket(Consumer<Packet<?>> sender) {
         for (var pack : packs) {
-            sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), pack.prompt()));
+            sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), Optional.ofNullable(pack.prompt())));
         }
     }
 

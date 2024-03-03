@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.4.+'
+    id 'fabric-loom' version '1.5.+'
     id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }

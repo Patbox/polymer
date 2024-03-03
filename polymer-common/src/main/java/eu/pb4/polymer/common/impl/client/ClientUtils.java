@@ -13,7 +13,7 @@ public class ClientUtils {
     public static volatile ServerPlayerEntity backupPlayer;
 
     public static boolean isResourcePackLoaded() {
-        return MinecraftClient.getInstance().getResourcePackManager().getEnabledNames().contains(PACK_ID);
+        return MinecraftClient.getInstance().getResourcePackManager().getEnabledIds().contains(PACK_ID);
     }
 
     public static boolean isSingleplayer() {

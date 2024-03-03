@@ -27,12 +27,13 @@ import java.util.List;
 @Mixin(EntityAttributesS2CPacket.class)
 public abstract class EntityAttributesS2CPacketMixin {
 
-    @Shadow @Final private int entityId;
+    // Todo
+    /*@Shadow @Final private int entityId;
 
     /**
      * If the entity is not living, use an invalid entity ID so the client ignores it.
      * No error is printed, packet is just silently ignored.
-     */
+     *//*
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 0))
     private int polymer$replaceWithPolymer(int input) {
         if (EntityAttachedPacket.get(this, this.entityId) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayerContext()))) {
@@ -61,13 +62,14 @@ public abstract class EntityAttributesS2CPacketMixin {
             DefaultAttributeContainer vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) type);
             List<EntityAttributesS2CPacket.Entry> list = new ArrayList<>();
             for (EntityAttributesS2CPacket.Entry entry : value) {
-                if (vanillaContainer.has(entry.getAttribute())) {
+                // todo
+                //if (vanillaContainer.has(entry.getAttribute())) {
                     list.add(entry);
-                }
+                //}
             }
             return list;
         }
 
         return value;
-    }
+    }*/
 }

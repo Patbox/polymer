@@ -1,8 +1,11 @@
 package eu.pb4.polymer.core.api.item;
 
 import eu.pb4.polymer.core.api.block.PolymerHeadBlock;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,7 +32,11 @@ public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
 
     public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext tooltipContext, ServerPlayerEntity player) {
         ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, tooltipContext, player);
-        out.getOrCreateNbt().put("SkullOwner", this.polymerBlock.getPolymerHeadSkullOwner(this.getBlock().getDefaultState(), BlockPos.ORIGIN, player));
+
+        out.set(DataComponentTypes.PROFILE, new ProfileComponent(PolymerUtils.createSkinGameProfile(
+                this.polymerBlock.getPolymerSkinValue(this.getBlock().getDefaultState(), BlockPos.ORIGIN, player),
+                this.polymerBlock.getPolymerSkinSignature(this.getBlock().getDefaultState(), BlockPos.ORIGIN, player)
+        )));
         return out;
     }
 }

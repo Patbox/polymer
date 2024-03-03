@@ -24,10 +24,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ParticleS2CPacketMixin {
     @Shadow @Final private ParticleEffect parameters;
 
-    @Redirect(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/particle/ParticleEffect;write(Lnet/minecraft/network/PacketByteBuf;)V"))
+    /*@Redirect(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/particle/ParticleEffect;write(Lnet/minecraft/network/PacketByteBuf;)V"))
     private void polymer$modifyParticle(ParticleEffect instance, PacketByteBuf buf) {
         this.polymer$remap(instance).write(buf);
-    }
+    }*/
 
     @Environment(EnvType.CLIENT)
     @Inject(method = "getParameters", at = @At("HEAD"), cancellable = true)

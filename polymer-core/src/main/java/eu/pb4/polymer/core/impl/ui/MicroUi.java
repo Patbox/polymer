@@ -86,7 +86,8 @@ public class MicroUi {
         playSound(player, soundEvent.value());
     }
     public static void playSound(ServerPlayerEntity player, SoundEvent soundEvent) {
-        player.playSound(soundEvent, SoundCategory.MASTER, 0.2f, 1);
+        // todo
+        //player.playSound(soundEvent, SoundCategory.MASTER, 0.2f, 1);
     }
 
     @FunctionalInterface

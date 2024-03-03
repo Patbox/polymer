@@ -42,7 +42,7 @@ public class ElementHolder {
     public <T extends VirtualElement> T addElement(T element) {
         if (this.addElementWithoutUpdates(element)) {
             for (var player : this.players) {
-                var x = new ArrayList<Packet<ClientPlayPacketListener>>();
+                var x = new ArrayList<Packet<? super ClientPlayPacketListener>>();
                 element.startWatching(player.getPlayer(), x::add);
                 player.sendPacket(new BundleS2CPacket(x));
             }
@@ -92,7 +92,7 @@ public class ElementHolder {
         }
         this.players.add(player);
         ((HolderHolder) player).polymer$addHolder(this);
-        var packets = new ArrayList<Packet<ClientPlayPacketListener>>();
+        var packets = new ArrayList<Packet<? super ClientPlayPacketListener>>();
 
         for (var e : this.elements) {
             e.startWatching(player.getPlayer(), packets::add);

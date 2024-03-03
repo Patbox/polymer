@@ -6,6 +6,8 @@ import eu.pb4.polymer.core.api.item.PolymerRecipe;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -65,13 +67,8 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
         }
 
         @Override
-        public TestRecipe read(PacketByteBuf buf) {
-            return new TestRecipe(buf.readItemStack());
-        }
-
-        @Override
-        public void write(PacketByteBuf buf, TestRecipe recipe) {
-            buf.writeItemStack(recipe.output);
+        public PacketCodec<RegistryByteBuf, TestRecipe> packetCodec() {
+            return null;
         }
     }
 

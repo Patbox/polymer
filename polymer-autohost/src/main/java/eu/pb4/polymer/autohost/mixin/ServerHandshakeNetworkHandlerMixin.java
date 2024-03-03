@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerHandshakeNetworkHandlerMixin {
     @Shadow @Final private ClientConnection connection;
 
-    @Inject(method = "onHandshake", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerLoginNetworkHandler;<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/ClientConnection;)V"))
-    private void storeConnectionData(HandshakeC2SPacket packet, CallbackInfo ci) {
+    @Inject(method = "login", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionInbound(Lnet/minecraft/network/NetworkState;Lnet/minecraft/network/listener/PacketListener;)V"))
+    private void storeConnectionData(HandshakeC2SPacket packet, boolean transfer, CallbackInfo ci) {
         ((ClientConnectionExt) this.connection).polymerAutoHost$setAddress(packet.address(), packet.port());
     }
 }

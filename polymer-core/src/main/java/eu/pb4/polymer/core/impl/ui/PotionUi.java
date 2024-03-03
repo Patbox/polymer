@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.ui;
 
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -38,17 +39,18 @@ public class PotionUi extends MicroUi {
                 }
             } else {
                 icon = Items.POTION.getDefaultStack();
-                icon.getOrCreateNbt().putInt("CustomPotionColor", effectInstance.getEffectType().getColor());
+                // todo
+                //icon.getOrCreateNbt().putInt("CustomPotionColor", effectInstance.getEffectType().getColor());
             }
-            icon.setCustomName(Text.empty().setStyle(Style.EMPTY.withItalic(false))
-                    .append(effectInstance.getEffectType().getName())
+            icon.set(DataComponentTypes.CUSTOM_NAME, Text.empty().setStyle(Style.EMPTY.withItalic(false))
+                    .append(effectInstance.getEffectType().value().getName())
                     .append(Text.literal(" (")
                             .append(StatusEffectUtil.getDurationText(effectInstance, 1.0F, this.player.getServer().getTickManager().getTickRate()))
                             .append(")")
                             .formatted(Formatting.GRAY))
             );
 
-            icon.getNbt().putInt("HideFlags", 255);
+            //icon.getNbt().putInt("HideFlags", 255);
             this.slot(id++, icon);
         }
     }

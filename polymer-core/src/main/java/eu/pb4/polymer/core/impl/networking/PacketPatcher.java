@@ -36,7 +36,7 @@ public class PacketPatcher {
             }
 
             if (packet instanceof BundleS2CPacket bundleS2CPacket) {
-                var list = new ArrayList<Packet<ClientPlayPacketListener>>();
+                var list = new ArrayList<Packet<? super ClientPlayPacketListener>>();
                 var iterator = bundleS2CPacket.getPackets().iterator();
                 while (iterator.hasNext()) {
                     var x = replace(handler, iterator.next());

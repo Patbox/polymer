@@ -323,7 +323,9 @@ public class PolymerImplUtils {
 
 
     private static void addBlockEntityNbt(ItemStack stack, BlockEntity blockEntity) {
-        NbtCompound nbtCompound = blockEntity.createNbtWithId();
+        // todo
+
+        /*NbtCompound nbtCompound = blockEntity.createNbtWithId(blockEntity.getWorld().getRegistryManager());
         NbtCompound nbtCompound3;
         if (stack.getItem() instanceof PlayerHeadItem && nbtCompound.contains("SkullOwner")) {
             nbtCompound3 = nbtCompound.getCompound("SkullOwner");
@@ -335,7 +337,7 @@ public class PolymerImplUtils {
             nbtList.add(NbtString.of("\"(+NBT)\""));
             nbtCompound3.put("Lore", nbtList);
             stack.setSubNbt("display", nbtCompound3);
-        }
+        }*/
     }
 
     public static void pickEntity(ServerPlayerEntity player, Entity entity) {

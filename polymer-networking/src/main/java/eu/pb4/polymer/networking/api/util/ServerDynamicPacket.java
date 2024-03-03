@@ -4,6 +4,7 @@ import net.minecraft.network.listener.ClientCommonPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.PacketType;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,9 +20,9 @@ public interface ServerDynamicPacket extends Packet<ClientCommonPacketListener> 
     Packet<ClientCommonPacketListener> createPacket(ServerCommonNetworkHandler handler, @Nullable ServerPlayerEntity player);
 
     @Override
-    default void write(PacketByteBuf buf) {
+    default PacketType<? extends Packet<ClientCommonPacketListener>> getPacketId() {
         throw new UnsupportedOperationException();
-    }
+    };
 
     @Override
     default void apply(ClientCommonPacketListener listener) {

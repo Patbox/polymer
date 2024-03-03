@@ -25,7 +25,7 @@ import snownee.jade.util.ModIdentification;
 @ApiStatus.Internal
 @SuppressWarnings("UnstableApiUsage")
 public class JadeCompatibility implements IWailaPlugin {
-
+    /*
     @Override
     public void registerClient(IWailaClientRegistration registrar) {
         if (PolymerImpl.IS_CLIENT) {
@@ -212,5 +212,5 @@ public class JadeCompatibility implements IWailaPlugin {
         public boolean isRequired() {
             return true;
         }
-    }
+    }*/
 }

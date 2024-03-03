@@ -24,18 +24,13 @@ public interface DataTrackerLike {
 
     boolean isDirty();
 
-    default boolean isDirty(TrackedData<?> key) {
-        // 1.20.5, remove this from being a default implementation, as it's incorrect. See SimpleDataTracker for correct implementation
-        return isDirty();
-    }
+    boolean isDirty(TrackedData<?> key);
 
     @Nullable
     List<DataTracker.SerializedEntry<?>> getDirtyEntries();
 
     @Nullable
     List<DataTracker.SerializedEntry<?>> getChangedEntries();
-
-    boolean isEmpty();
 
     static DataTrackerLike wrap(DataTracker dataTracker) {
         return new DataTrackerLike() {
@@ -61,7 +56,7 @@ public interface DataTrackerLike {
 
             @Override
             public boolean isDirty(TrackedData<?> key) {
-                return ((DataTrackerAccessor) dataTracker).getEntries().get(key.getId()).isDirty();
+                return ((DataTrackerAccessor) dataTracker).getEntries()[key.id()].isDirty();
             }
 
             @Override
@@ -72,11 +67,6 @@ public interface DataTrackerLike {
             @Override
             public @Nullable List<DataTracker.SerializedEntry<?>> getChangedEntries() {
                 return dataTracker.getChangedEntries();
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return dataTracker.isEmpty();
             }
         };
     }

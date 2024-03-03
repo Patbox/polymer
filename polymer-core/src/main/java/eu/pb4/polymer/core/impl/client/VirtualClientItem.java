@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.client.ClientPolymerItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
@@ -56,10 +57,8 @@ public class VirtualClientItem extends Item {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        if (this.polymerItem.visualStack().hasNbt()) {
-            for (var text : this.polymerItem.visualStack().getNbt().getCompound(ItemStack.DISPLAY_KEY).getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE)) {
-                tooltip.add(Text.Serialization.fromLenientJson(text.asString()));
-            }
+        if (this.polymerItem.visualStack().contains(DataComponentTypes.LORE)) {
+            tooltip.addAll(this.polymerItem.visualStack().get(DataComponentTypes.LORE).lines());
         }
     }
 

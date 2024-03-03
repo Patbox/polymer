@@ -29,7 +29,7 @@ import java.util.Map;
 @SuppressWarnings({"unused", "unchecked"})
 public class InternalEntityHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
-    private static final Map<EntityType<?>, @Nullable Int2ObjectMap<DataTracker.Entry<?>>> TRACKED_DATA = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    private static final Map<EntityType<?>, DataTracker.Entry<?>[]> TRACKED_DATA = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
 
     static {
         try {
@@ -68,7 +68,7 @@ public class InternalEntityHelpers {
         }
     }
 
-    public static Int2ObjectMap<DataTracker.Entry<?>> getExampleTrackedDataOfEntityType(EntityType<?> type) {
+    public static DataTracker.Entry<?>[] getExampleTrackedDataOfEntityType(EntityType<?> type) {
         var val = TRACKED_DATA.get(type);
 
         if (val == null) {

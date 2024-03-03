@@ -1,6 +1,7 @@
 package eu.pb4.polymer.resourcepack.api;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
@@ -17,6 +18,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -235,7 +237,7 @@ public final class ResourcePackCreator {
 
             var pack = new JsonObject();
             pack.addProperty("pack_format", SharedConstants.RESOURCE_PACK_VERSION);
-            pack.add("description", Text.Serialization.toJsonTree(this.packDescription));
+            pack.add("description", TextCodecs.CODEC.encodeStart(JsonOps.INSTANCE, this.packDescription).result().get());
 
             obj.add("pack", pack);
             builder.addData("pack.mcmeta", obj.toString().getBytes(StandardCharsets.UTF_8));

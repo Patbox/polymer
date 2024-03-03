@@ -30,7 +30,7 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
     @Override
     public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
         if (initial) {
-            data.add(new DataTracker.SerializedEntry(VillagerEntityAccessor.get().getId(), VillagerEntityAccessor.get().getType(), new VillagerData(VillagerType.SWAMP, VillagerProfession.CARTOGRAPHER, 1)));
+            data.add(new DataTracker.SerializedEntry(VillagerEntityAccessor.get().id(), VillagerEntityAccessor.get().dataType(), new VillagerData(VillagerType.SWAMP, VillagerProfession.CARTOGRAPHER, 1)));
         }
     }
 

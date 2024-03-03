@@ -10,6 +10,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryInfo;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import org.jetbrains.annotations.Nullable;
@@ -28,14 +29,12 @@ import java.util.Map;
 public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Registry<T> {
     @Shadow private volatile Map<TagKey<T>, RegistryEntryList.Named<T>> tagToEntryList;
 
-    @Shadow public abstract RegistryEntry.Reference<T> add(RegistryKey<T> key, T entry, Lifecycle lifecycle);
-
     @Nullable
     @Unique
     private List<T> polymer$objects = null;
 
-    @Inject(method = "set", at = @At("TAIL"))
-    private <V extends T> void polymer$storeStatus(int rawId, RegistryKey<T> key, T value, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {
+    @Inject(method = "add", at = @At("TAIL"))
+    private <V extends T> void polymer$storeStatus(RegistryKey<T> key, T value, RegistryEntryInfo info, CallbackInfoReturnable<RegistryEntry.Reference<T>> cir) {
         this.polymer$objects = null;
         if (PolymerObject.is(value)) {
             RegistrySyncUtils.setServerEntry(this, value);

@@ -25,7 +25,11 @@ import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 public class WthitCompatibility implements IWailaPlugin {
-    private static final Identifier BLOCK_STATES = Identifier.tryParse("waila:show_states");
+    @Override
+    public void register(IRegistrar registrar) {
+
+    }
+    /*private static final Identifier BLOCK_STATES = Identifier.tryParse("waila:show_states");
 
     @Override
     public void register(IRegistrar registrar) {
@@ -202,5 +206,5 @@ public class WthitCompatibility implements IWailaPlugin {
                 }
             }
         }
-    }
+    }*/
 }

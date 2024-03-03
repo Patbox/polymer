@@ -5,9 +5,12 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.packet.s2c.play.SetTradeOffersS2CPacket;
+import net.minecraft.predicate.ComponentPredicate;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
+import net.minecraft.village.TradedItem;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,9 +35,14 @@ public class SetTradeOffersS2CPacketMixin {
                 TradeOfferList list = new TradeOfferList();
 
                 for (TradeOffer tradeOffer : this.offers) {
+                    var s1 = PolymerItemUtils.getPolymerItemStack(tradeOffer.getOriginalFirstBuyItem(), player);
+
                     var offer = new TradeOffer(
-                            PolymerItemUtils.getPolymerItemStack(tradeOffer.getOriginalFirstBuyItem(), player),
-                            PolymerItemUtils.getPolymerItemStack(tradeOffer.getSecondBuyItem(), player),
+                            new TradedItem(Registries.ITEM.getEntry(s1.getItem()), s1.getCount(), ComponentPredicate.EMPTY, s1),
+                            tradeOffer.getSecondBuyItem().map(stack -> {
+                                var s = PolymerItemUtils.getPolymerItemStack(stack.itemStack(), player);
+                                return new TradedItem(Registries.ITEM.getEntry(s.getItem()), s.getCount(), stack.components(), s);
+                            }),
                             PolymerItemUtils.getPolymerItemStack(tradeOffer.getSellItem(), player),
                             tradeOffer.getUses(),
                             tradeOffer.getMaxUses(),

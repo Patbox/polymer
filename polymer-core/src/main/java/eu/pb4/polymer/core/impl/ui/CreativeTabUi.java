@@ -126,7 +126,7 @@ public class CreativeTabUi extends MicroUi {
                 return;
             }
 
-            if (!i.isEmpty() && !itemStack.isEmpty() && ItemStack.canCombine(itemStack, i)) {
+            if (!i.isEmpty() && !itemStack.isEmpty() && ItemStack.areItemsAndComponentsEqual(itemStack, i)) {
                 if (button == 0) {
                     if (bl) {
                         i.setCount(i.getMaxCount());

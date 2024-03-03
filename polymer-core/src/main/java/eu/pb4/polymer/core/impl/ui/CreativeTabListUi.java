@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.impl.ui;
 
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
@@ -39,8 +40,8 @@ public class CreativeTabListUi extends MicroUi {
             if (!text.getStyle().isItalic()) {
                 text.setStyle(text.getStyle().withItalic(false));
             }
-            icon.setCustomName(text);
-            icon.getOrCreateNbt().putInt("HideFlags", 255);
+            icon.set(DataComponentTypes.CUSTOM_NAME, text);
+            //icon.getOrCreateNbt().putInt("HideFlags", 255);
             this.slot(i - start, icon, (player, slotIndex, button, actionType) -> {
                 playSound(player, SoundEvents.UI_BUTTON_CLICK);
                 new CreativeTabUi(player, itemGroup);

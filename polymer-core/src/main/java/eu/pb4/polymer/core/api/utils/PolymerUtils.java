@@ -1,5 +1,7 @@
 package eu.pb4.polymer.core.api.utils;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
@@ -14,6 +16,8 @@ import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -26,6 +30,7 @@ import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.util.Util;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -171,7 +176,7 @@ public final class PolymerUtils {
      * @param value Skin value
      * @return NbtCompound representing SkullOwner
      */
-    public static NbtCompound createSkullOwner(String value, String signature) {
+    public static NbtCompound createSkullOwner(String value, @Nullable String signature) {
         NbtCompound skullOwner = new NbtCompound();
         NbtCompound properties = new NbtCompound();
         NbtCompound data = new NbtCompound();
@@ -188,6 +193,12 @@ public final class PolymerUtils {
         return skullOwner;
     }
 
+    public static GameProfile createSkinGameProfile(String value, @Nullable String signature) {
+        var profile = new GameProfile(Util.NIL_UUID, "");
+        profile.getProperties().put("textures", new Property("textures", value, signature));
+        return profile;
+    }
+
 
     public static ItemStack createPlayerHead(String value) {
         return createPlayerHead(value, null);
@@ -195,7 +206,7 @@ public final class PolymerUtils {
 
     public static ItemStack createPlayerHead(String value, String signature) {
         var stack = new ItemStack(Items.PLAYER_HEAD);
-        stack.getOrCreateNbt().put("SkullOwner", createSkullOwner(value, signature));
+        stack.set(DataComponentTypes.PROFILE, new ProfileComponent(createSkinGameProfile(value, signature)));
         return stack;
     }
 

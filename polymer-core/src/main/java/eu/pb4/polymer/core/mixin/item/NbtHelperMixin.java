@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.mixin.item;
 
-import eu.pb4.polymer.core.impl.interfaces.TypeAwareNbtCompound;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;

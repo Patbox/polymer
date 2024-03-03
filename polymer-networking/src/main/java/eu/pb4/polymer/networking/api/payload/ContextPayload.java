@@ -10,7 +10,6 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public interface ContextPayload extends CustomPayload {
     void write(PacketContext context, PacketByteBuf buf);
 
-    @Override
     default void write(PacketByteBuf buf) {
         write(PacketContext.get(), buf);
     }

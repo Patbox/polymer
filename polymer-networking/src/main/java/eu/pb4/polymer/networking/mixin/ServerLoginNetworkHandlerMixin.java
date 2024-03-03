@@ -55,18 +55,19 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
 
     @Inject(method = "onEnterConfiguration", at = @At("HEAD"), cancellable = true)
     private void polymerNet$prePlayHandshakeHackfest(EnterConfigurationC2SPacket packet, CallbackInfo ci) {
-        if (this.polymerNet$ignoreCall) {
+        // todo
+        if (this.polymerNet$ignoreCall || true) {
             return;
         }
         ci.cancel();
         var defaultOptions = SyncedClientOptions.createDefault();
         EarlyConfigurationConnectionMagic.handle(this.profile, defaultOptions, (ServerLoginNetworkHandler) (Object) this, this.server, connection, (context) -> {
-            connection.disableAutoRead();
+            //connection.disableAutoRead();
             ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
-            var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
-            attr.set(NetworkState.LOGIN.getHandler(NetworkSide.SERVERBOUND));
-            connection.setPacketListener((ServerLoginNetworkHandler) (Object) this);
-            attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
+            //var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
+            //attr.set(NetworkState.LOGIN.getHandler(NetworkSide.SERVERBOUND));
+            //connection.setPacketListener((ServerLoginNetworkHandler) (Object) this);
+            //attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
 
             if (connection.isOpen()) {
                 this.polymerNet$ignoreCall = true;
@@ -75,7 +76,7 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
                 }
                 this.onEnterConfiguration(packet);
                 ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
-                this.connection.enableAutoRead();
+                //this.connection.enableAutoRead();
                 if (this.connection.getPacketListener() instanceof ServerConfigurationPacketListener listener) {
                     for (var packetx : context.storedPackets()) {
                         try {
@@ -92,7 +93,7 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
     @ModifyArg(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerConfigurationNetworkHandler;<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ConnectedClientData;)V"))
     private ConnectedClientData polymerNet$swapClientData(ConnectedClientData clientData) {
         if (this.polymerNet$overrideOptions != null) {
-            return new ConnectedClientData(clientData.gameProfile(), clientData.latency(), this.polymerNet$overrideOptions);
+            //return new ConnectedClientData(clientData.gameProfile(), clientData.latency(), this.polymerNet$overrideOptions);
         }
         return clientData;
     }

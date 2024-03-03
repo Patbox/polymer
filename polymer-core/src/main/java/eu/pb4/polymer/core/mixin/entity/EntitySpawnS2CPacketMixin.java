@@ -53,7 +53,7 @@ public class EntitySpawnS2CPacketMixin {
 
     @Shadow @Final private int id;
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeRegistryValue(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;)V"))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;encode(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer$replaceWithPolymer(@Nullable Object value) {
         if (EntityAttachedPacket.get(this, this.id) instanceof PolymerEntity polymerEntity && value == ((Entity) polymerEntity).getType()) {
             return polymerEntity.getPolymerEntityType(PolymerUtils.getPlayerContext());
@@ -70,7 +70,7 @@ public class EntitySpawnS2CPacketMixin {
         }
     }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/RegistryByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
         if (this.entityType == EntityType.FALLING_BLOCK) {
             return Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId(data), PolymerUtils.getPlayerContext()));

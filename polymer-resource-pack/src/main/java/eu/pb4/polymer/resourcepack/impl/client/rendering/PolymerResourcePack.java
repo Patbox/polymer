@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @ApiStatus.Internal
@@ -24,7 +25,7 @@ public class PolymerResourcePack  {
         Path outputPath = PolymerResourcePackUtils.getMainPath();
         if ((outputPath.toFile().exists() && generated) || PolymerResourcePackUtils.buildMain(outputPath)) {
             generated = true;
-            return new ZipResourcePack.ZipBackedFactory(outputPath.toFile(), true);
+            return new ZipResourcePack.ZipBackedFactory(outputPath.toFile());
         } else {
             return null;
         }
@@ -37,19 +38,12 @@ public class PolymerResourcePack  {
                 var pack = PolymerResourcePack.setup();
 
                 if (pack != null) {
-                    profileAdder.accept(ResourcePackProfile.of(ClientUtils.PACK_ID,
-                            Text.translatable("text.polymer.resource_pack.name"),
-                            PolymerResourcePackUtils.isRequired(),
+                    profileAdder.accept(ResourcePackProfile.create(
+                            new ResourcePackInfo(ClientUtils.PACK_ID,
+                            Text.translatable("text.polymer.resource_pack.name"), ResourcePackSource.BUILTIN, Optional.empty()),
                             pack,
-                            new ResourcePackProfile.Metadata(
-                                    Text.translatable("text.polymer.resource_pack.description" + (PolymerResourcePackUtils.isRequired() ? ".required" : "")),
-                                    ResourcePackCompatibility.COMPATIBLE,
-                                    FeatureSet.empty(),
-                                    List.of()
-                            ),
-                            ResourcePackProfile.InsertionPosition.TOP,
-                            false,
-                            ResourcePackSource.BUILTIN
+                            ResourceType.CLIENT_RESOURCES,
+                            new ResourcePackPosition(PolymerResourcePackUtils.isRequired(), ResourcePackProfile.InsertionPosition.TOP, false)
                     ));
                 }
             }

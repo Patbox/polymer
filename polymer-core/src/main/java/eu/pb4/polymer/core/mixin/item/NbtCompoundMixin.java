@@ -45,10 +45,10 @@ public abstract class NbtCompoundMixin implements TypeAwareNbtCompound {
     public NbtString polymerCore$getType() {
         return this.polymerCore$type;
     }
-
+// todo
     @Inject(method = "write(Ljava/io/DataOutput;)V", at = @At("HEAD"))
     private void polymerCore$storePlayerContextedItemStack(DataOutput output, CallbackInfo ci, @Share("polymerCore:stack") LocalRef<Object> polymerStack) {
-        if (this.polymerCore$type != null && PolymerCommonUtils.isServerNetworkingThread()) {
+        /*if (this.polymerCore$type != null && PolymerCommonUtils.isServerNetworkingThread()) {
             var player = PolymerCommonUtils.getPlayerContextNoClient();
             if (this.polymerCore$type == TypeAwareNbtCompound.STACK_TYPE) {
                 var stack = ItemStack.fromNbt((NbtCompound) (Object) this);
@@ -61,7 +61,7 @@ public abstract class NbtCompoundMixin implements TypeAwareNbtCompound {
                     polymerStack.set(PolymerBlockUtils.getPolymerBlockState(stack, player));
                 }
             }
-        }
+        }*/
     }
 
     @WrapWithCondition(
@@ -85,6 +85,7 @@ public abstract class NbtCompoundMixin implements TypeAwareNbtCompound {
     }
     @Inject(method = "write(Ljava/io/DataOutput;)V", at = @At(value = "INVOKE", target = "Ljava/io/DataOutput;writeByte(I)V", ordinal = 0))
     private void polymerCore$writeNbtIfMissing(DataOutput output, CallbackInfo ci, @Share("polymerCore:stack") LocalRef<Object> polymerStack) throws IOException {
+        /*
         if (this.polymerCore$type != null && PolymerCommonUtils.isServerNetworkingThread()) {
             write(MARKER_KEY, this.polymerCore$type, output);
             if (this.polymerCore$type == TypeAwareNbtCompound.STACK_TYPE) {
@@ -115,7 +116,7 @@ public abstract class NbtCompoundMixin implements TypeAwareNbtCompound {
                     }
                 }
             }
-        }
+        }*/
     }
 
     @Inject(method = "copy()Lnet/minecraft/nbt/NbtCompound;", at = @At("RETURN"))

@@ -47,7 +47,7 @@ public abstract class ServerCommonNetworkHandlerMixin implements NetworkHandlerE
     @Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
     private void polymerNet$catchPackets(CustomPayloadC2SPacket packet, CallbackInfo ci) {
         if (ServerPacketRegistry.handle(this.server, (ServerCommonNetworkHandler) (Object) this, packet.payload())) {
-            this.polymerNet$savePacketTime(packet.payload().id());
+            this.polymerNet$savePacketTime(packet.payload().getId().id());
             ci.cancel();
         }
     }

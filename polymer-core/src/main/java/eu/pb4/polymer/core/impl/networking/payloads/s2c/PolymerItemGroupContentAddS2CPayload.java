@@ -9,6 +9,7 @@ import eu.pb4.polymer.networking.api.payload.VersionedPayload;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
@@ -50,8 +51,10 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Item
     @Override
     public void write(PacketContext context, int version, PacketByteBuf buf) {
         buf.writeIdentifier(this.groupId);
-        buf.writeCollection(this.stacksMain, PacketByteBuf::writeItemStack);
-        buf.writeCollection(this.stacksSearch, PacketByteBuf::writeItemStack);
+
+        // todo
+        //buf.writeCollection(this.stacksMain, ItemStack.PACKET_CODEC::encode);
+        //buf.writeCollection(this.stacksSearch, PacketByteBuf::writeItemStack);
     }
 
     public boolean isNonEmpty() {
@@ -60,8 +63,8 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Item
 
     public static PolymerItemGroupContentAddS2CPayload read(PacketContext context, Identifier identifier, int version, PacketByteBuf buf) {
         return new PolymerItemGroupContentAddS2CPayload(buf.readIdentifier(),
-                buf.readCollection(ArrayList::new, PacketByteBuf::readItemStack),
-                buf.readCollection(ArrayList::new, PacketByteBuf::readItemStack)
+                null,//buf.readCollection(ArrayList::new, PacketByteBuf::readItemStack),
+                null//buf.readCollection(ArrayList::new, PacketByteBuf::readItemStack)
         );
     }
     @Override

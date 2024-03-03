@@ -38,7 +38,7 @@ public class CompatUtils {
 
     @Nullable
     public static NbtCompound getBackingNbt(ItemStack stack) {
-        if (!stack.hasNbt()) {
+        /*if (!stack.hasNbt()) {
             return null;
         }
         var nbt = stack.getNbt();
@@ -53,7 +53,8 @@ public class CompatUtils {
         }
         maybeNbt = nbt.getCompound("PolyMcOriginal");
 
-        return maybeNbt != null && maybeNbt.contains("tag", NbtElement.COMPOUND_TYPE) ? maybeNbt.getCompound("tag") : null;
+        return maybeNbt != null && maybeNbt.contains("tag", NbtElement.COMPOUND_TYPE) ? maybeNbt.getCompound("tag") : null;*/
+        return null;
     }
 
     public static boolean isServerSide(ItemStack stack) {

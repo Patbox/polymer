@@ -12,7 +12,7 @@ public record PolymerEntityEntry(Identifier identifier, int rawId, Text name) im
     public void write(PacketByteBuf buf, int version) {
         buf.writeIdentifier(identifier);
         buf.writeVarInt(this.rawId);
-        buf.writeText(name);
+        //buf.writeText(name);
     }
 
     public static PolymerEntityEntry of(EntityType<?> entityType) {
@@ -25,7 +25,7 @@ public record PolymerEntityEntry(Identifier identifier, int rawId, Text name) im
 
     public static PolymerEntityEntry read(PacketByteBuf buf, int version) {
         if (version >= 1) {
-            return new PolymerEntityEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText());
+            //return new PolymerEntityEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText());
         }
         return null;
     }

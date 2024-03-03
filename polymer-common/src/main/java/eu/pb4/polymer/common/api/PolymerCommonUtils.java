@@ -10,6 +10,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Unit;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -23,6 +24,8 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 public final class PolymerCommonUtils {
+    private static final ThreadLocal<Unit> FORCE_NETWORKING = new ThreadLocal<>();
+
     private PolymerCommonUtils(){}
 
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
@@ -107,6 +110,13 @@ public final class PolymerCommonUtils {
         }
     }
 
+    public static void executeWithNetworkingLogic(Runnable runnable) {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(Unit.INSTANCE);
+        runnable.run();
+        FORCE_NETWORKING.set(val);
+    }
+
     /**
      * Allows to execute code with selected player being returned for {@link PolymerCommonUtils#getPlayerContext()}
      * calls. Useful for custom packets using writeItemStack and similar methods.
@@ -158,11 +168,11 @@ public final class PolymerCommonUtils {
     }
 
     public static boolean isNetworkingThread() {
-       return Thread.currentThread().getName().startsWith("Netty");
+       return FORCE_NETWORKING.get() == Unit.INSTANCE || Thread.currentThread().getName().startsWith("Netty");
     }
 
     public static boolean isServerNetworkingThread() {
-        return isNetworkingThread() && Thread.currentThread().getName().contains("Server");
+        return FORCE_NETWORKING.get() == Unit.INSTANCE || (isNetworkingThread() && Thread.currentThread().getName().contains("Server"));
     }
 
     public static boolean isBedrockPlayer(ServerPlayerEntity player) {

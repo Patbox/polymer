@@ -27,13 +27,13 @@ public class TestBlock extends Block implements PolymerBlock {
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return super.getPlacementState(ctx).with(TEST, ctx.getPlayer().getStackInHand(ctx.getHand()).getOrCreateNbt().getInt("y"));
+        return super.getPlacementState(ctx);
     }
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        itemStack.getOrCreateNbt().putInt("y", itemStack.getOrCreateNbt().getInt("y") + 1);
+        //itemStack.getOrCreateNbt().putInt("y", itemStack.getOrCreateNbt().getInt("y") + 1);
     }
 
     @Override

@@ -2,6 +2,7 @@ package eu.pb4.polymer.networking.impl.packets;
 
 import eu.pb4.polymer.networking.api.payload.VersionedPayload;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 

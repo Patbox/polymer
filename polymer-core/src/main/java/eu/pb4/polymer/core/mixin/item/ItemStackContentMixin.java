@@ -25,7 +25,7 @@ import java.util.function.Function;
 public abstract class ItemStackContentMixin {
     @ModifyExpressionValue(
             method = "<clinit>",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/codecs/RecordCodecBuilder;create(Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;", ordinal = 0)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/dynamic/Codecs;alternatively(Lcom/mojang/serialization/Codec;Lcom/mojang/serialization/Codec;)Lcom/mojang/serialization/Codec;")
     )
     private static Codec<HoverEvent.ItemStackContent> patchCodec(Codec<HoverEvent.ItemStackContent> codec) {
         return codec.xmap(Function.identity(), content -> {

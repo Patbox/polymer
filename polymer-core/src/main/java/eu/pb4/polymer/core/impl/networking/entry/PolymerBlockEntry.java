@@ -14,8 +14,8 @@ public record PolymerBlockEntry(Identifier identifier, int numId, Text text, Blo
     public void write(PacketByteBuf buf, int version) {
         buf.writeIdentifier(identifier);
         buf.writeVarInt(numId);
-        buf.writeText(text);
-        buf.writeRegistryValue(Block.STATE_IDS, visual);
+        //buf.writeText(text);
+        //buf.writeRegistryValue(Block.STATE_IDS, visual);
     }
 
     public static PolymerBlockEntry of(Block block) {
@@ -23,6 +23,7 @@ public record PolymerBlockEntry(Identifier identifier, int numId, Text text, Blo
     }
 
     public static PolymerBlockEntry read(PacketByteBuf buf, int version) {
-        return new PolymerBlockEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText(), Block.getStateFromRawId(buf.readVarInt()));
+        return null;
+        //return new PolymerBlockEntry(buf.readIdentifier(), buf.readVarInt(), buf.readText(), Block.getStateFromRawId(buf.readVarInt()));
     }
 }

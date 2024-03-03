@@ -64,8 +64,8 @@ public class InteractionElement extends GenericEntityElement {
     }
 
     public void setSize(EntityDimensions dimensions) {
-        setWidth(dimensions.width);
-        setHeight(dimensions.height);
+        setWidth(dimensions.width());
+        setHeight(dimensions.height());
     }
 
     public boolean shouldRespond() {

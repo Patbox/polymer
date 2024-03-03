@@ -18,11 +18,12 @@ public class SimpleDataTracker implements DataTrackerLike {
     @SuppressWarnings("rawtypes")
     public SimpleDataTracker(EntityType<?> baseEntity) {
         var entries = InternalEntityHelpers.getExampleTrackedDataOfEntityType(baseEntity);
-        this.entries = new Entry[entries.size()];
+        this.entries = new Entry[entries.length];
 
-        for (var x : entries.values()) {
+        for (int i = 0; i < entries.length; i++) {
+            var x = entries[i];
             //noinspection unchecked
-            this.entries[x.getData().getId()] = new Entry(x.getData(), x.get());
+            this.entries[i] = new Entry(x.getData(), x.get());
         }
     }
 
@@ -34,11 +35,11 @@ public class SimpleDataTracker implements DataTrackerLike {
 
     @Nullable
     public <T> Entry<T> getEntry(TrackedData<T> data) {
-        if (data.getId() > this.entries.length) {
+        if (data.id() > this.entries.length) {
             return null;
         }
 
-        var x = this.entries[data.getId()];
+        var x = this.entries[data.id()];
 
         if (x.data != data) {
             return null;
@@ -116,11 +117,6 @@ public class SimpleDataTracker implements DataTrackerLike {
         }
 
         return list;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.entries.length == 0;
     }
 
     public static class Entry<T> {

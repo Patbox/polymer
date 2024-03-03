@@ -5,8 +5,9 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record UnhandledPayload(Identifier id) implements CustomPayload {
-    @Override
-    public void write(PacketByteBuf buf) {
 
+    @Override
+    public Id<? extends CustomPayload> getId() {
+        return null;
     }
 }

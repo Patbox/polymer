@@ -1,20 +1,19 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 
 public class TestEnchantment extends Enchantment implements PolymerSyncedObject<Enchantment> {
     public TestEnchantment() {
-        super(Rarity.COMMON, EnchantmentTarget.WEAPON, new EquipmentSlot[] {EquipmentSlot.MAINHAND});
+        super(Rarity.COMMON, ItemTags.SWORD_ENCHANTABLE, new EquipmentSlot[] {EquipmentSlot.MAINHAND});
     }
 
     @Override

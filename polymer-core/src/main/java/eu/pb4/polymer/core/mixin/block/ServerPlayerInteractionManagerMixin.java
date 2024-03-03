@@ -135,7 +135,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Unique
     private void polymer$sendMiningFatigue() {
         this.polymer$hasMiningFatigue = true;
-        this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false)));
+        this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false), false));
     }
 
     @Unique
@@ -144,7 +144,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
         if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
             StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
-            this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance));
+            this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance, false));
         }
     }
 

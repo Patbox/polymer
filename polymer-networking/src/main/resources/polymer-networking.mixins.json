@@ -5,8 +5,6 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ClientConnectionMixin",
-    "CustomPayloadC2SPacketAccessor",
-    "CustomPayloadS2CPacketAccessor",
     "PlayerManagerMixin",
     "ServerCommonNetworkHandlerMixin",
     "ServerConfigurationNetworkHandlerMixin",

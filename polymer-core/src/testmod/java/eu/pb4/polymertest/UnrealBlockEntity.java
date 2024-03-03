@@ -117,8 +117,8 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     }
     */
     @Override
-    protected void initDataTracker() {
-        this.dataTracker.startTracking(DIRTY_MARKER, 0l);
+    protected void initDataTracker(DataTracker.Builder builder) {
+        builder.add(DIRTY_MARKER, 0l);
     }
 
     @Override

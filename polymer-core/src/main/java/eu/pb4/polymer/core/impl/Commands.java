@@ -27,6 +27,8 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.command.argument.RegistryEntryArgumentType;
 import net.minecraft.command.argument.UuidArgumentType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.WrittenBookContentComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -36,6 +38,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.nbt.visitor.NbtTextFormatter;
 import net.minecraft.registry.Registries;
@@ -50,16 +53,18 @@ import net.minecraft.stat.StatType;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.RawFilteredPair;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import javax.naming.spi.StateFactory;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -117,7 +122,7 @@ public class Commands {
 
     private static int pickTarget(CommandContext<ServerCommandSource> serverCommandSourceCommandContext, boolean withNbt) throws CommandSyntaxException {
         var player = serverCommandSourceCommandContext.getSource().getPlayerOrThrow();
-        var range = PlayerEntity.getReachDistance(player.isCreative());
+        var range = player.getEntityInteractionRange();
 
         var min = player.getCameraPosVec(0);
         var rot = player.getRotationVec(0);
@@ -131,7 +136,7 @@ public class Commands {
             return 1;
         }
 
-        var hit = player.raycast(range, 0, false);
+        var hit = player.raycast(player.getBlockInteractionRange(), 0, false);
         if (hit instanceof BlockHitResult result && hit.getType() != HitResult.Type.MISS) {
             PolymerImplUtils.pickBlock(player, result.getBlockPos(), withNbt);
             return 2;
@@ -259,7 +264,7 @@ public class Commands {
     private static int statsGeneral(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
 
-        var list = new NbtList();
+        var list = new ArrayList<RawFilteredPair<Text>>();
 
         int line = 0;
         MutableText text = null;
@@ -272,20 +277,24 @@ public class Commands {
             line++;
 
             if (line == 13) {
-                list.add(NbtString.of(Text.Serialization.toJsonString(text)));
+                list.add(RawFilteredPair.of(text));
                 text = null;
                 line = 0;
             }
         }
 
         if (text != null) {
-            list.add(NbtString.of(Text.Serialization.toJsonString(text)));
+            list.add(RawFilteredPair.of(text));
         }
 
         var stack = new ItemStack(Items.WRITTEN_BOOK);
-        stack.getOrCreateNbt().put("pages", list);
-        stack.getOrCreateNbt().putString("title", "/polymer starts");
-        stack.getOrCreateNbt().putString("author", player.getGameProfile().getName());
+        stack.set(DataComponentTypes.WRITTEN_BOOK_CONTENT, new WrittenBookContentComponent(
+                RawFilteredPair.of("/polymer start"),
+                player.getGameProfile().getName(),
+                0,
+                list,
+                false
+        ));
 
 
         player.openHandledScreen(new NamedScreenHandlerFactory() {
@@ -333,7 +342,7 @@ public class Commands {
     private static int stats(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
 
-        var list = new NbtList();
+        var list = new ArrayList<RawFilteredPair<Text>>();
 
         int line = 0;
         MutableText text = null;
@@ -370,7 +379,7 @@ public class Commands {
                 line++;
 
                 if (line == 13) {
-                    list.add(NbtString.of(Text.Serialization.toJsonString(text)));
+                    list.add(RawFilteredPair.of(text));
                     text = null;
                     line = 0;
                 }
@@ -378,13 +387,17 @@ public class Commands {
         }
 
         if (text != null) {
-            list.add(NbtString.of(Text.Serialization.toJsonString(text)));
+            list.add(RawFilteredPair.of(text));
         }
 
         var stack = new ItemStack(Items.WRITTEN_BOOK);
-        stack.getOrCreateNbt().put("pages", list);
-        stack.getOrCreateNbt().putString("title", "/polymer starts");
-        stack.getOrCreateNbt().putString("author", player.getGameProfile().getName());
+        stack.set(DataComponentTypes.WRITTEN_BOOK_CONTENT, new WrittenBookContentComponent(
+                RawFilteredPair.of("/polymer start"),
+                player.getGameProfile().getName(),
+                0,
+                list,
+                false
+        ));
 
 
         player.openHandledScreen(new NamedScreenHandlerFactory() {
@@ -453,10 +466,9 @@ public class Commands {
     private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
         var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player).copy();
-        stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
-        stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
+        stack.remove(DataComponentTypes.CUSTOM_DATA);
 
-        context.getSource().sendFeedback(() -> (new NbtTextFormatter("", 3)).apply(ServerTranslationUtils.parseFor(player.networkHandler, stack).writeNbt(new NbtCompound())), false);
+        context.getSource().sendFeedback(() -> (new NbtTextFormatter("", 3)).apply(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, ServerTranslationUtils.parseFor(player.networkHandler, stack)).result().get()), false);
 
         return 1;
     }
@@ -465,8 +477,7 @@ public class Commands {
         var player = context.getSource().getPlayer();
 
         var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player);
-        stack.getOrCreateNbt().remove(PolymerItemUtils.POLYMER_ITEM_ID);
-        stack.getOrCreateNbt().remove(PolymerItemUtils.REAL_TAG);
+        stack.remove(DataComponentTypes.CUSTOM_DATA);
         player.giveItemStack(ServerTranslationUtils.parseFor(player.networkHandler, stack));
         context.getSource().sendFeedback(() -> Text.literal("Given client representation to player"), true);
 

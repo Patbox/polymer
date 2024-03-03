@@ -7,6 +7,7 @@ import io.github.theepicblock.polymc.impl.misc.logging.SimpleLogger;
 import io.github.theepicblock.polymc.impl.poly.item.ArmorColorManager;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.item.ArmorMaterial;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.*;
 
@@ -36,24 +37,26 @@ public class polymc_ArmorColorManagerMixin {
         for (int layer = 1; layer <= 2; layer++) {
             // Collect all modded textures and calculate the size of the output
             for (var material : material2Color.keySet()) {
+                var id = Registries.ARMOR_MATERIAL.getId(material);
                 try {
-                    var texturePath = "models/armor/" + material.getName() + "_layer_" + layer;
-                    var texture = moddedResources.getTexture("minecraft", texturePath);
+                    assert id != null;
+                    var texturePath = "models/armor/" + id.getPath() + "_layer_" + layer;
+                    var texture = moddedResources.getTexture(id.getNamespace(), texturePath);
                     if (texture == null) {
-                        logger.warn("Couldn't find armor texture for " + material.getName() + ", it won't display correctly when worn");
+                        logger.warn("Couldn't find armor texture for " + id + ", it won't display correctly when worn");
                         continue;
                     }
 
                     var moddedImage = ImageIO.read(texture.getTexture());
                     if (moddedImage == null) {
-                        logger.warn("Couldn't read layer " + layer + " armor texture for " + material.getName());
+                        logger.warn("Couldn't read layer " + layer + " armor texture for " + id);
                         continue;
                     }
 
                     // Write the modded armor textures standalone
                     pack.setTexture("minecraft", texturePath, moddedResources.getTexture("minecraft", texturePath));
                 } catch (Throwable e) {
-                    logger.error("Couldn't read armor texture " + material.getName() + " (layer #" + layer + ")");
+                    logger.error("Couldn't read armor texture " + id + " (layer #" + layer + ")");
                     e.printStackTrace();
                 }
             }
@@ -76,7 +79,7 @@ public class polymc_ArmorColorManagerMixin {
     @Overwrite
     public int getColorForMaterial(ArmorMaterial material) {
         if (!material2Color.containsKey(material)) {
-            var color = PolymerResourcePackUtils.requestArmor(new Identifier("minecraft", material.getName()));
+            var color = PolymerResourcePackUtils.requestArmor(Registries.ARMOR_MATERIAL.getId(material));
             material2Color.put(material, color.color());
         }
         return material2Color.getInt(material);

@@ -177,8 +177,8 @@ public abstract class DisplayElement extends GenericEntityElement {
     }
 
     public void setDisplaySize(EntityDimensions dimensions) {
-        this.setDisplayWidth(dimensions.width);
-        this.setDisplayHeight(dimensions.height);
+        this.setDisplayWidth(dimensions.width());
+        this.setDisplayHeight(dimensions.height());
     }
 
     public int getGlowColorOverride() {

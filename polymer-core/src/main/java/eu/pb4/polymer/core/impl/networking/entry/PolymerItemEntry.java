@@ -11,7 +11,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
-
+// todo
 @ApiStatus.Internal
 public record PolymerItemEntry(int numId, Identifier identifier, ItemStack representation, int foodLevels,
                                float saturation, Identifier miningTool, int miningLevel,
@@ -26,14 +26,15 @@ public record PolymerItemEntry(int numId, Identifier identifier, ItemStack repre
     }
 
     public static PolymerItemEntry read(PacketByteBuf buf, int version) {
-        return new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readItemStack(), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), buf.readVarInt());
+        return null;
+        //return new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), buf.readItemStack(), buf.readVarInt(), buf.readFloat(), buf.readIdentifier(), buf.readVarInt(), buf.readVarInt());
     }
 
     public void write(PacketByteBuf buf, int version) {
         buf.writeVarInt(this.numId);
 
         buf.writeIdentifier(this.identifier);
-        buf.writeItemStack(this.representation);
+        //buf.writeItemStack(this.representation);
 
         buf.writeVarInt(this.foodLevels);
         buf.writeFloat(this.saturation);

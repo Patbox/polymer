@@ -14,10 +14,11 @@ public class TestStatusEffect extends StatusEffect implements PolymerStatusEffec
     }
 
     @Override
-    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
+    public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
         if (entity.getMainHandStack().isDamageable()) {
-            entity.getMainHandStack().damage(amplifier + 1, entity, entity1 -> entity1.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
+            entity.getMainHandStack().damage(amplifier + 1, entity, EquipmentSlot.MAINHAND);
         }
+        return true;
     }
 
     @Override
@@ -27,6 +28,6 @@ public class TestStatusEffect extends StatusEffect implements PolymerStatusEffec
 
     @Override
     public StatusEffect getPolymerReplacement(ServerPlayerEntity player) {
-        return StatusEffects.CONDUIT_POWER;
+        return StatusEffects.CONDUIT_POWER.value();
     }
 }

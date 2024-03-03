@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.item.packet;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
@@ -34,12 +35,10 @@ import java.util.List;
 public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
     @Unique List<RecipeEntry<?>> polymer$clientRewrittenRecipes = null;
 
-    @Shadow public abstract void write(PacketByteBuf buf);
-
     @Shadow @Final private List<RecipeEntry<?>> recipes;
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"))
-    public Collection<RecipeEntry<?>> polymer$remapRecipes(Collection<RecipeEntry<?>> recipes) {
+    @ModifyReturnValue(method = "method_55955", at = @At("TAIL"))
+    private static List<RecipeEntry<?>> polymer$remapRecipes(List<RecipeEntry<?>> recipes) {
         List<RecipeEntry<?>> list = new ArrayList<>();
         var player = PolymerUtils.getPlayerContext();
         for (var recipe : recipes) {
@@ -60,7 +59,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
      * It's not great but I didn't have any better idea how to do it in better way
      * I could do it manually but it would require way more work + this one works just fine
      */
-    @Environment(EnvType.CLIENT)
+    /*@Environment(EnvType.CLIENT)
     @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceOnClient(CallbackInfoReturnable<List<RecipeEntry<?>>> cir) {
         if (ClientUtils.isSingleplayer()) {
@@ -105,7 +104,7 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 
 
     @Override

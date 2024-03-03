@@ -47,9 +47,4 @@ public class WrappingDataTracker implements DataTrackerLike {
     public @Nullable List<DataTracker.SerializedEntry<?>> getChangedEntries() {
         return dataTracker.getChangedEntries();
     }
-
-    @Override
-    public boolean isEmpty() {
-        return dataTracker.isEmpty();
-    }
 }

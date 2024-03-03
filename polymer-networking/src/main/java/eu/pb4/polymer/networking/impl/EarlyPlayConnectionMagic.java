@@ -25,11 +25,11 @@ public class EarlyPlayConnectionMagic {
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
         var context = new ContextImpl(server, player, connection, loginHandler, new ArrayList<>(), (c) -> {
-            connection.disableAutoRead();
+            //connection.disableAutoRead();
             while (iterator.hasNext()) {
                 var handler = iterator.next().apply(c);
                 if (handler != null) {
-                    connection.enableAutoRead();
+                    //connection.enableAutoRead();
                     return;
                 }
             }

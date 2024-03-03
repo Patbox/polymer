@@ -13,6 +13,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.*;
 import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
+import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
 import net.minecraft.network.packet.s2c.common.CommonPingS2CPacket;
@@ -64,7 +65,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
         this.context = (EarlyConfigurationConnectionMagic.ContextImpl) context;
         this.identifier = identifier;
 
-        this.context.connection().setPacketListener(this);
+        this.context.connection().transitionInbound(null, this);
 
         this.sendKeepAlive();
     }
@@ -209,6 +210,16 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
 
     @Override
     public void onReady(ReadyC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onSelectKnownPacks(SelectKnownPacksC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onCookieResponse(CookieResponseC2SPacket packet) {
 
     }
 

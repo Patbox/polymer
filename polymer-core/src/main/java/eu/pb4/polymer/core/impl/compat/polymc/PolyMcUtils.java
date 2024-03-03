@@ -6,6 +6,7 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import io.github.theepicblock.polymc.api.item.ItemLocation;
 import io.github.theepicblock.polymc.api.misc.PolyMapProvider;
 import net.minecraft.block.BlockState;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
@@ -24,9 +25,10 @@ public class PolyMcUtils {
     public static ItemStack toVanilla(ItemStack stack, ServerPlayerEntity player) {
         if (CompatStatus.POLYMC && !stack.isEmpty()) {
             var out = PolyMapProvider.getPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
-            if (!ItemStack.canCombine(stack, out)) {
+            if (!ItemStack.areItemsAndComponentsEqual(stack, out)) {
                 out = out.copy();
-                out.setSubNbt("PolyMcOriginal", stack.writeNbt(new NbtCompound()));
+                // todo
+                //out.set(DataComponentTypes.CUSTOM_DATA, "PolyMcOriginal", stack.writeNbt(new NbtCompound()));
                 return out;
             }
         }

@@ -13,6 +13,8 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -21,10 +23,7 @@ import net.minecraft.util.Util;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -52,13 +51,13 @@ public class AutoHost implements ModInitializer {
         }
 
         try {
-            AutoHost.message = Text.Serialization.fromJsonTree(AutoHost.config.message);
+            AutoHost.message = Text.Serialization.fromJsonTree(AutoHost.config.message, server.getRegistryManager());
         } catch (Exception e) {
             AutoHost.message = null;
         }
 
         try {
-            AutoHost.disconnectMessage = Text.Serialization.fromJsonTree(AutoHost.config.disconnectMessage);
+            AutoHost.disconnectMessage = Text.Serialization.fromJsonTree(AutoHost.config.disconnectMessage, server.getRegistryManager());
         } catch (Exception e) {
             AutoHost.disconnectMessage = Text.literal("This server requires resource pack enabled to play!");
         }
@@ -140,7 +139,7 @@ public class AutoHost implements ModInitializer {
                 if (provider.isReady()) {
                     for (var x : provider.getProperties(((CommonNetworkHandlerExt) context.getSource().getPlayerOrThrow().networkHandler).polymerCommon$getConnection()
                     )) {
-                        context.getSource().getPlayerOrThrow().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
+                        context.getSource().getPlayerOrThrow().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
                     }
                 }
                 return 0;
@@ -149,7 +148,7 @@ public class AutoHost implements ModInitializer {
                 generateAndCall(context.getSource().getServer(), context.getSource()::sendMessage, () -> {
                     for (var x : provider.getProperties(((CommonNetworkHandlerExt) context.getSource().getPlayer().networkHandler).polymerCommon$getConnection()
                     )) {
-                        context.getSource().getPlayer().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), AutoHost.message));
+                        context.getSource().getPlayer().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
                     }
                 });
                 return 0;

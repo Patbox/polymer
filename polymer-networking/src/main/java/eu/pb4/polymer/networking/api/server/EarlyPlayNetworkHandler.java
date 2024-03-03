@@ -59,7 +59,7 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
         this.context = (EarlyPlayConnectionMagic.ContextImpl) context;
         this.identifier = identifier;
 
-        this.context.connection().setPacketListener(this);
+        this.context.connection().transitionInbound(null, this);
 
         this.sendKeepAlive();
     }
@@ -180,8 +180,9 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
         if (!this.isForcingRespawnPacket()) {
             var player = this.getPlayer();
             var world = this.getServer().getOverworld();
-            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, this.getServer().getWorldRegistryKeys(), 0, 2, 2, true, false, true, new CommonPlayerSpawnInfo(
-                    world.getDimensionKey(),
+            this.sendPacket(new GameJoinS2CPacket(player.getId(), false, this.getServer().getWorldRegistryKeys(), 0, 2, 2,
+                    true, false, true, new CommonPlayerSpawnInfo(
+                    world.getDimensionEntry(),
                     world.getRegistryKey(),
                     0,
                     GameMode.ADVENTURE,
@@ -190,7 +191,7 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
                     true,
                     Optional.empty(),
                     0
-            )));
+            ), this.getServer().shouldEnforceSecureProfile()));
         }
     }
 
@@ -472,12 +473,22 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     }
 
     @Override
+    public void onDebugSampleSubscription(DebugSampleSubscriptionC2SPacket packet) {
+
+    }
+
+    @Override
     public boolean isConnectionOpen() {
         return this.getConnection().isOpen();
     }
 
     @Override
     public void onQueryPing(QueryPingC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onCookieResponse(CookieResponseC2SPacket packet) {
 
     }
 

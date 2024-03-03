@@ -46,6 +46,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -138,7 +139,7 @@ public class TestMod implements ModInitializer {
         public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
             if (user instanceof ServerPlayerEntity serverPlayer) {
                 var stack = user.getStackInHand(hand);
-                var x = stack.hasNbt() && stack.getNbt().contains("value", NbtElement.NUMBER_TYPE) ? stack.getNbt().getFloat("value") : Math.random() * 360;
+                var x = /*stack.hasNbt() && stack.getNbt().contains("value", NbtElement.NUMBER_TYPE) ? stack.getNbt().getFloat("value") :*/ Math.random() * 360;
 
                 serverPlayer.networkHandler.sendPacket(new DamageTiltS2CPacket(user.getId(), (float) x));
             }
@@ -164,16 +165,16 @@ public class TestMod implements ModInitializer {
 
     public static final StatusEffect STATUS_EFFECT = new TestStatusEffect();
     public static final StatusEffect STATUS_EFFECT_2 = new Test2StatusEffect();
-    public static final Potion POTION = new Potion(new StatusEffectInstance(STATUS_EFFECT, 300));
-    public static final Potion POTION_2 = new Potion(new StatusEffectInstance(STATUS_EFFECT_2, 300));
-    public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT, 600));
-    public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(STATUS_EFFECT_2, 600));
+    public static final Potion POTION = new Potion(new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT), 300));
+    public static final Potion POTION_2 = new Potion(new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT_2), 300));
+    public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT), 600));
+    public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT_2), 600));
 
-    public static final EntityType<TestEntity> ENTITY = EntityType.Builder.create(TestEntity::new, SpawnGroup.CREATURE).setDimensions(0.75f, 1.8f).build("ig");
-    public static final EntityType<TestEntity2> ENTITY_2 = EntityType.Builder.create(TestEntity2::new, SpawnGroup.CREATURE).setDimensions(0.75f, 1.8f).build("no");
-    public static final EntityType<TestEntity3> ENTITY_3 = EntityType.Builder.create(TestEntity3::new, SpawnGroup.CREATURE).setDimensions(0.75f, 1.8f).build("re");
+    public static final EntityType<TestEntity> ENTITY = EntityType.Builder.create(TestEntity::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f).build("ig");
+    public static final EntityType<TestEntity2> ENTITY_2 = EntityType.Builder.create(TestEntity2::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f).build("no");
+    public static final EntityType<TestEntity3> ENTITY_3 = EntityType.Builder.create(TestEntity3::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f).build("re");
 
-    public static final EntityType<UnrealBlockEntity> PHYSIC_ENTITY_3 = EntityType.Builder.create(UnrealBlockEntity::new, SpawnGroup.CREATURE).setDimensions(1, 1)
+    public static final EntityType<UnrealBlockEntity> PHYSIC_ENTITY_3 = EntityType.Builder.create(UnrealBlockEntity::new, SpawnGroup.CREATURE).dimensions(1, 1)
             .trackingTickInterval(1).build("re");
 
     public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings());
@@ -185,9 +186,9 @@ public class TestMod implements ModInitializer {
     private static final Map<Registry<?>, List<Pair<Identifier, ?>>> REG_CACHE = new HashMap<>();
 
     public static SimplePolymerItem ICE_ITEM = new ClickItem(new Item.Settings(), Items.SNOWBALL, (player, hand) -> {
-        var tracker = new DataTracker(null);
-        tracker.startTracking(EntityAccessor.getFROZEN_TICKS(), Integer.MAX_VALUE);
-        player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(player.getId(), tracker.getChangedEntries()));
+        //var tracker = new DataTracker(null);
+        //tracker.startTracking(EntityAccessor.getFROZEN_TICKS(), Integer.MAX_VALUE);
+        //player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(player.getId(), tracker.getChangedEntries()));
 
         var attributes = player.getAttributes().getAttributesToSend();
         var tmp = new EntityAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED, (x) -> {});
@@ -351,15 +352,15 @@ public class TestMod implements ModInitializer {
 
         PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3, PHYSIC_ENTITY_3);
 
-        PolymerItemUtils.ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
+        //PolymerItemUtils.ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
 
         PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original, virtual, player) -> {
-            if (original.hasNbt() && original.getNbt().contains("Test", NbtElement.STRING_TYPE)) {
-                ItemStack out = new ItemStack(Items.DIAMOND_SWORD, virtual.getCount());
-                out.setNbt(virtual.getNbt());
-                out.setCustomName(Text.literal("TEST VALUE: " + original.getNbt().getString("Test")).formatted(Formatting.WHITE));
-                return out;
-            }
+            //if (original.hasNbt() && original.getNbt().contains("Test", NbtElement.STRING_TYPE)) {
+            //    ItemStack out = new ItemStack(Items.DIAMOND_SWORD, virtual.getCount());
+            //    out.setNbt(virtual.getNbt());
+            //    out.setCustomName(Text.literal("TEST VALUE: " + original.getNbt().getString("Test")).formatted(Formatting.WHITE));
+            //    return out;
+           // }
             return virtual;
         });
 
@@ -490,7 +491,7 @@ public class TestMod implements ModInitializer {
                                 x.setPose(EntityPose.SLEEPING);
                                 x.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(x.getId(), List.of(DataTracker.SerializedEntry.of(EntityTrackedData.POSE, EntityPose.SLEEPING))));
                             } else if (i.isOf(Items.CREEPER_HEAD)) {
-                                var l = new ArrayList<Packet<ClientPlayPacketListener>>();
+                                var l = new ArrayList<Packet<? super ClientPlayPacketListener>>();
                                 creep.setPos(x.getX(), x.getY() - 255, x.getZ());
                                 l.add(new EntitySpawnS2CPacket(creep));
                                 l.add(new SetCameraEntityS2CPacket(creep));

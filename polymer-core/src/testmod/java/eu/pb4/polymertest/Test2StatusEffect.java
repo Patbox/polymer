@@ -12,10 +12,11 @@ public class Test2StatusEffect extends StatusEffect implements PolymerStatusEffe
     }
 
     @Override
-    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
+    public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
         if (entity.getMainHandStack().isDamageable()) {
-            entity.getMainHandStack().damage(amplifier + 1, entity, entity1 -> entity1.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
+            entity.getMainHandStack().damage(amplifier + 1, entity, EquipmentSlot.MAINHAND);
         }
+        return true;
     }
 
     @Override
