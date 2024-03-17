@@ -97,6 +97,11 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
                 entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), polymerStack));
             } else if (isMinecart && entry.id() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID().id()) {
                 entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.value()), player))));
+            } else if (entry.value() instanceof VillagerData data) {
+                var x = PolymerEntityUtils.getPolymerProfession(data.getProfession());
+                if (x != null) {
+                    entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), data.withProfession(x.getPolymerProfession(data.getProfession(), player)));
+                }
             }
         }
 
@@ -106,41 +111,6 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
     @ModifyArg(method = "write(Lnet/minecraft/network/RegistryByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/EntityTrackerUpdateS2CPacket;write(Ljava/util/List;Lnet/minecraft/network/RegistryByteBuf;)V"))
     private List<DataTracker.SerializedEntry<?>> polymer$changeForPacket(List<DataTracker.Entry<?>> value) {
         return this.polymer$createEntries();
-    }
-
-    @Environment(EnvType.CLIENT)
-    @Inject(method = "trackedValues", at = @At("RETURN"), cancellable = true)
-    private void polymer$patchDataClient(CallbackInfoReturnable<List<DataTracker.SerializedEntry<?>>> cir) {
-        if (ClientUtils.isSingleplayer() && this.trackedValues != null) {
-            var list = this.polymer$createEntries();
-
-            ServerPlayerEntity player = ClientUtils.getPlayer();
-
-            for (int i = 0; i < list.size(); i++) {
-                var entry = list.get(i);
-                Object value = entry.value();
-
-                if (value instanceof Optional<?> optionalO && optionalO.isPresent()
-                        && optionalO.get() instanceof BlockState state) {
-                    value = Optional.of(PolymerBlockUtils.getPolymerBlockState(state, player));
-                } else if (value instanceof BlockState state) {
-                    value = PolymerBlockUtils.getPolymerBlockState(state, player);
-                } else if (value instanceof ItemStack stack) {
-                    value = PolymerItemUtils.getPolymerItemStack(stack, player);
-                } else if (value instanceof VillagerData data) {
-                    var x = PolymerEntityUtils.getPolymerProfession(data.getProfession());
-                    if (x != null) {
-                        value = data.withProfession(x.getPolymerProfession(data.getProfession(), player));
-                    }
-                }
-
-                if (value != entry.value()) {
-                    list.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), value));
-                }
-            }
-
-            cir.setReturnValue(list);
-        }
     }
 
     @Override

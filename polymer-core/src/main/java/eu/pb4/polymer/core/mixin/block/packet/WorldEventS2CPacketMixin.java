@@ -20,11 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WorldEventS2CPacket.class)
 public class WorldEventS2CPacketMixin {
-
     @Shadow @Final private int eventId;
-
     @Shadow @Final private int data;
-
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
         if (this.eventId == WorldEvents.BLOCK_BROKEN) {
@@ -39,18 +36,5 @@ public class WorldEventS2CPacketMixin {
         }
 
         return data;
-    }
-
-    @Environment(EnvType.CLIENT)
-    @Inject(method = "getData", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceClientData(CallbackInfoReturnable<Integer> cir) {
-        if (this.eventId == WorldEvents.BLOCK_BROKEN) {
-            var state = InternalClientRegistry.decodeState(this.data);
-            var player = ClientUtils.getPlayer();
-            if (state.getBlock() instanceof PolymerBlock polymerBlock && player != null) {
-                state = polymerBlock.getPolymerBreakEventBlockState(state, player);
-            }
-            cir.setReturnValue(Block.getRawIdFromState(state));
-        }
     }
 }

@@ -20,16 +20,4 @@ public abstract class ChunkDeltaUpdateS2CPacketMixin {
     private BlockState polymer$replaceWithPolymerBlockState(BlockState state) {
         return PolymerBlockUtils.getPolymerBlockState(state, PolymerUtils.getPlayerContext());
     }
-
-    @Environment(EnvType.CLIENT)
-    @Redirect(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IdList;get(I)Ljava/lang/Object;"), require = 0)
-    private Object polymer$decodeState(IdList instance, int index) {
-        return InternalClientRegistry.decodeState(index);
-    }
-
-    @Environment(EnvType.CLIENT)
-    @ModifyArg(method = "visitUpdates", at = @At(value = "INVOKE", target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
-    private Object polymer$replaceState(Object obj) {
-        return obj != null ? PolymerBlockUtils.getPolymerBlockState((BlockState) obj, ClientUtils.getPlayer()) : null;
-    }
 }

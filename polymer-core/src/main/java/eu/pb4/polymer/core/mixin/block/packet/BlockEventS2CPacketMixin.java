@@ -19,12 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockEventS2CPacket.class)
 public abstract class BlockEventS2CPacketMixin {
     @Shadow
-    @Mutable
-    private Block block;
-
-    @Shadow
     public abstract Block getBlock();
-
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;encode(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer$replaceBlockLocal(Object block) {

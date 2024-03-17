@@ -42,14 +42,6 @@ public abstract class EntityAttributesS2CPacketMixin {
         return input;
     }
 
-    @Environment(EnvType.CLIENT)
-    @Inject(method = "getEntityId", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceWithPolymer2(CallbackInfoReturnable<Integer> cir) {
-        if (EntityAttachedPacket.get(this, this.entityId) instanceof PolymerEntity entity && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(PolymerUtils.getPlayerContext()))) {
-            cir.setReturnValue(-1);
-        }
-    }
-
     @SuppressWarnings("unchecked")
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V", ordinal = 0))
     private Collection<EntityAttributesS2CPacket.Entry> polymer$replaceWithPolymer(Collection<EntityAttributesS2CPacket.Entry> value) {

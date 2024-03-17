@@ -53,60 +53,6 @@ public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
         }
         return list;
     }
-
-    /*
-     * This is a hack, which converts all itemStack to client side version while running on singleplayer,
-     * It's not great but I didn't have any better idea how to do it in better way
-     * I could do it manually but it would require way more work + this one works just fine
-     */
-    /*@Environment(EnvType.CLIENT)
-    @Inject(method = "getRecipes", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceOnClient(CallbackInfoReturnable<List<RecipeEntry<?>>> cir) {
-        if (ClientUtils.isSingleplayer()) {
-            try {
-                if (this.polymer$clientRewrittenRecipes == null) {
-                    var rec = new ArrayList<RecipeEntry<?>>();
-
-                    var buf = new PacketByteBuf(Unpooled.buffer(1024 * 40));
-                    var player = ClientUtils.getPlayer();
-
-                    var brokenIds = new HashSet<Identifier>();
-                    for (var recipe : this.recipes) {
-                        if (recipe.value() instanceof PolymerSyncedObject<?> syncedRecipe) {
-                            if (player == null) {
-                                continue;
-                            }
-                            var recipeData = (Recipe<?>) syncedRecipe.getPolymerReplacement(player);
-                            if (recipeData == null) {
-                                continue;
-                            }
-                            recipe = new RecipeEntry<Recipe<?>>(recipe.id(), recipeData);
-                        }
-                        buf.clear();
-                        try {
-                            ((RecipeSerializer<Recipe<?>>) recipe.value().getSerializer()).write(buf, recipe.value());
-                            rec.add(new RecipeEntry<Recipe<?>>(recipe.id(), recipe.value().getSerializer().read(buf)));
-                        } catch (Throwable e) { // Ofc some mods have weird issues with their serializers, because why not
-                            rec.add(recipe);
-                            brokenIds.add(Registries.RECIPE_SERIALIZER.getId(recipe.value().getSerializer()));
-                            if (PolymerImpl.LOG_MORE_ERRORS) {
-                                PolymerImpl.LOGGER.error("Couldn't rewrite recipe!", e);
-                            }
-                        }
-                    }
-                    if (!brokenIds.isEmpty()) {
-                        PolymerImpl.LOGGER.warn("Failed to rewrite recipes of types: {} ", brokenIds);
-                    }
-                    this.polymer$clientRewrittenRecipes = rec;
-                }
-                cir.setReturnValue(this.polymer$clientRewrittenRecipes);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
-
-
     @Override
     public boolean isWritingErrorSkippable() {
         return true;

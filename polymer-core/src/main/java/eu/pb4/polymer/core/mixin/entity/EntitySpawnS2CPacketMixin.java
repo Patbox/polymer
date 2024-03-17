@@ -62,14 +62,6 @@ public class EntitySpawnS2CPacketMixin {
         }
     }
 
-    @Environment(EnvType.CLIENT)
-    @Inject(method = "getEntityType", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceWithPolymer(CallbackInfoReturnable<EntityType<?>> cir) {
-        if (EntityAttachedPacket.get(this, this.id) instanceof PolymerEntity polymerEntity && !PolymerClientDecoded.checkDecode(polymerEntity)) {
-            cir.setReturnValue(polymerEntity.getPolymerEntityType(ClientUtils.getPlayer()));
-        }
-    }
-
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/RegistryByteBuf;writeVarInt(I)Lnet/minecraft/network/PacketByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
         if (this.entityType == EntityType.FALLING_BLOCK) {
@@ -100,15 +92,6 @@ public class EntitySpawnS2CPacketMixin {
             this.z = vec3d.z;
             this.yaw = (byte)((int)(virtualEntity.getClientSideYaw(entity.getYaw()) * 256.0F / 360.0F));
             this.pitch = (byte)((int)(virtualEntity.getClientSidePitch(entity.getPitch()) * 256.0F / 360.0F));
-        }
-    }
-
-    @Environment(EnvType.CLIENT)
-    @Inject(method = "getEntityData", at = @At("HEAD"), cancellable = true)
-    private void polymer$replaceClientData(CallbackInfoReturnable<Integer> cir) {
-        if (this.entityType == EntityType.FALLING_BLOCK) {
-            var state = InternalClientRegistry.decodeState(this.entityData);
-            cir.setReturnValue(Block.getRawIdFromState(state));
         }
     }
 }
