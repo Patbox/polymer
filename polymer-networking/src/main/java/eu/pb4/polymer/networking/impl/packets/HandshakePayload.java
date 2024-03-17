@@ -1,31 +1,30 @@
 package eu.pb4.polymer.networking.impl.packets;
 
-import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.networking.api.payload.VersionedPayload;
-import eu.pb4.polymer.networking.impl.ClientPackets;
-import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.nbt.NbtElement;
+import eu.pb4.polymer.networking.api.ContextByteBuf;
+import eu.pb4.polymer.networking.api.PolymerNetworking;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 
-public record HandshakePayload(String version, Map<Identifier, int[]> packetVersions) implements VersionedPayload {
-    public static final Identifier ID = new Identifier("polymer", "handshake");
+public record HandshakePayload(String version, Map<Identifier, int[]> packetVersions) implements CustomPayload {
+    public static final Id<HandshakePayload> ID = PolymerNetworking.id("polymer", "handshake");
+    public static PacketCodec<ContextByteBuf, HandshakePayload> CODEC = PacketCodec.of(HandshakePayload::write, HandshakePayload::read);
 
-    @Override
-    public void write(PacketContext context, int version, PacketByteBuf buf) {
+    public void write(ContextByteBuf buf) {
         buf.writeString(this.version);
         buf.writeMap(packetVersions, PacketByteBuf::writeIdentifier, PacketByteBuf::writeIntArray);
     }
 
-    @Override
-    public Identifier id() {
-        return ID;
+    public static HandshakePayload read(ContextByteBuf buf) {
+        return new HandshakePayload(buf.readString(), buf.readMap(PacketByteBuf::readIdentifier, PacketByteBuf::readIntArray));
     }
 
-    public static HandshakePayload read(PacketContext context, Identifier identifier, int version, PacketByteBuf buf) {
-        return new HandshakePayload(buf.readString(), buf.readMap(PacketByteBuf::readIdentifier, PacketByteBuf::readIntArray));
+    @Override
+    public Id<? extends CustomPayload> getId() {
+        return ID;
     }
 }

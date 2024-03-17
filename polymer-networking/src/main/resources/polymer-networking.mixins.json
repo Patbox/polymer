@@ -5,15 +5,20 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ClientConnectionMixin",
+    "CustomPayloadC2SPacketMixin",
+    "CustomPayloadCodecMixin",
+    "CustomPayloadS2CPacketMixin",
     "PlayerManagerMixin",
     "ServerCommonNetworkHandlerMixin",
     "ServerConfigurationNetworkHandlerMixin",
     "ServerLoginNetworkHandlerMixin",
-    "ServerPlayerEntityMixin"
+    "ServerPlayerEntityMixin",
+    "ServerPlayNetworkHandlerMixin"
   ],
   "client": [
-    "client.ClientPlayNetworkHandlerMixin",
-    "client.ClientCommonNetworkHandlerMixin"
+    "client.ClientCommonNetworkHandlerMixin",
+    "client.ClientConfigurationNetworkHandlerMixin",
+    "client.ClientPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

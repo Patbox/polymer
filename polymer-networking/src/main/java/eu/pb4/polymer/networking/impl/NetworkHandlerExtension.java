@@ -4,11 +4,13 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 @SuppressWarnings({"unused"})
@@ -21,6 +23,9 @@ public interface NetworkHandlerExtension {
     }
 
     ClientConnection polymerNet$getConnection();
+
+    @Nullable
+    DynamicRegistryManager polymer$getDynamicRegistryManager();
 
     static NetworkHandlerExtension of(ServerCommonNetworkHandler handler) {
         return (NetworkHandlerExtension) handler;

@@ -4,7 +4,6 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.ServerMetadataKeys;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
-import eu.pb4.polymer.networking.api.payload.VersionedPayload;
 import net.minecraft.SharedConstants;
 import net.minecraft.nbt.NbtInt;
 import net.minecraft.network.PacketByteBuf;
@@ -27,7 +26,7 @@ public interface PayloadUtil {
         return true;
     }
 
-    static <T extends VersionedPayload> VersionedPayload.Decoder<T> checked(VersionedPayload.Decoder<T> decoder) {
+    /*static <T extends VersionedPayload> VersionedPayload.Decoder<T> checked(VersionedPayload.Decoder<T> decoder) {
         return (PacketContext context, Identifier identifier, int version, PacketByteBuf buf) -> {
             if (matchesProtocol(context)) {
                 try {
@@ -36,5 +35,5 @@ public interface PayloadUtil {
             }
             return null;
         };
-    }
+    }*/
 }

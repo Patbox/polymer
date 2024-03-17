@@ -348,7 +348,7 @@ public class PolymerClientProtocolHandler {
         }
 
         //noinspection unchecked
-        var consumer = (Consumer<Object>) GENERIC_LIST_HANDLERS.get(payload.id());
+        var consumer = (Consumer<Object>) GENERIC_LIST_HANDLERS.get(payload.id().id());
 
         if (consumer != null) {
             try {

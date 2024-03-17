@@ -4,11 +4,15 @@ package eu.pb4.polymer.core.impl.networking;
 import eu.pb4.polymer.core.impl.networking.entry.*;
 import eu.pb4.polymer.core.impl.networking.payloads.*;
 import eu.pb4.polymer.core.impl.networking.payloads.s2c.*;
+import eu.pb4.polymer.networking.api.ContextByteBuf;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
-import eu.pb4.polymer.networking.api.payload.VersionedPayload;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.function.Supplier;
 
 import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
 
@@ -20,8 +24,8 @@ public class S2CPackets {
     public static final Identifier SYNC_BLOCK_ENTITY = id("sync/block_entities");
     public static final Identifier SYNC_ITEM = id("sync/items");
     public static final Identifier SYNC_FLUID = id("sync/fluid");
-    public static final Identifier SYNC_ENCHANTMENT= id("sync/enchantments");
-    public static final Identifier SYNC_ENTITY= id("sync/entities");
+    public static final Identifier SYNC_ENCHANTMENT = id("sync/enchantments");
+    public static final Identifier SYNC_ENTITY = id("sync/entities");
     public static final Identifier SYNC_STATUS_EFFECT= id("sync/status_effect");
     public static final Identifier SYNC_VILLAGER_PROFESSION= id("sync/villager_profession");
     public static final Identifier SYNC_ITEM_GROUP_DEFINE= id("sync/item_group/define");
@@ -38,44 +42,59 @@ public class S2CPackets {
 
     public static final Identifier DEBUG_VALIDATE_STATES = id("debug/validate_states");
 
-    public static void register(Identifier id, VersionedPayload.Decoder<?> decoder, int... ver) {
-        PolymerNetworking.registerS2CPayload(id, IntList.of(ver), PayloadUtil.checked(decoder));
+    public static <T extends CustomPayload> void register(Identifier id, PacketCodec<ContextByteBuf, T> codec, int... ver) {
+        PolymerNetworking.registerS2CVersioned(id, IntList.of(ver), codec);
     }
 
+    public static <T extends CustomPayload> void register(Identifier id, Supplier<T> t, int... ver) {
+        PolymerNetworking.registerS2CVersioned(id, IntList.of(ver), PacketCodec.unit(t.get()));
+    }
+
+    public static <T> CustomPayload.Id<PolymerGenericListPayload<T>> registerList(Identifier id, PacketCodec<ContextByteBuf, T> entry, int... ver) {
+        var ide = new CustomPayload.Id<PolymerGenericListPayload<T>>(id);
+        PolymerNetworking.registerS2CVersioned(ide, IntList.of(ver), PolymerGenericListPayload.codec(ide, entry));
+        return ide;
+    }
+
+    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerBlockEntry>> SYNC_BLOCK_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerBlockStateEntry>> SYNC_BLOCKSTATE_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerItemEntry>> SYNC_ITEM_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerEntityEntry>> SYNC_ENTITY_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerTagEntry>> SYNC_TAGS_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<DebugBlockStateEntry>> DEBUG_VALIDATE_STATES_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_FLUID_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_ENCHANTMENT_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_VILLAGER_PROFESSION_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_BLOCK_ENTITY_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_STATUS_EFFECT_ID;
+
     static {
-        register(SYNC_STARTED, PolymerSyncStartedS2CPayload::read,5);
-        register(SYNC_FINISHED, PolymerSyncFinishedS2CPayload::read,5);
-        register(SYNC_CLEAR, PolymerSyncClearS2CPayload::read,5);
+        register(SYNC_STARTED, PolymerSyncStartedS2CPayload::new, 6);
+        register(SYNC_FINISHED, PolymerSyncFinishedS2CPayload::new, 6);
+        register(SYNC_CLEAR, PolymerSyncClearS2CPayload::new, 6);
 
-        register(SYNC_BLOCK, PolymerGenericListPayload::read,5);
-        PolymerGenericListPayload.ENTRIES.put(SYNC_BLOCK, PolymerBlockEntry::read);
-        register(SYNC_BLOCKSTATE, PolymerGenericListPayload::read,5);
-        PolymerGenericListPayload.ENTRIES.put(SYNC_BLOCKSTATE, PolymerBlockStateEntry::read);
-        register(SYNC_ITEM, PolymerGenericListPayload::read,5);
-        PolymerGenericListPayload.ENTRIES.put(SYNC_ITEM, PolymerItemEntry::read);
-        register(SYNC_ENTITY, PolymerGenericListPayload::read,5);
-        PolymerGenericListPayload.ENTRIES.put(SYNC_ENTITY, PolymerEntityEntry::read);
-        register(SYNC_TAGS, PolymerGenericListPayload::read,5);
-        PolymerGenericListPayload.ENTRIES.put(SYNC_TAGS, PolymerTagEntry::read);
-        register(DEBUG_VALIDATE_STATES, PolymerGenericListPayload::read, 5);
-        PolymerGenericListPayload.ENTRIES.put(DEBUG_VALIDATE_STATES, DebugBlockStateEntry::read);
+        SYNC_BLOCK_ID = registerList(SYNC_BLOCK, PolymerBlockEntry.CODEC,6);
+        SYNC_BLOCKSTATE_ID = registerList(SYNC_BLOCKSTATE, PolymerBlockStateEntry.CODEC, 6);
+        SYNC_ITEM_ID = registerList(SYNC_ITEM, PolymerItemEntry.CODEC, 6);
+        SYNC_ENTITY_ID = registerList(SYNC_ENTITY, PolymerEntityEntry.CODEC,6);
+        SYNC_TAGS_ID = registerList(SYNC_TAGS, PolymerTagEntry.CODEC, 6);
+        DEBUG_VALIDATE_STATES_ID = registerList(DEBUG_VALIDATE_STATES, DebugBlockStateEntry.CODEC, 6);
 
-
-        register(SYNC_FLUID, PolymerGenericListPayload::read,5);
-        register(SYNC_ENCHANTMENT, PolymerGenericListPayload::read,5);
-        register(SYNC_VILLAGER_PROFESSION, PolymerGenericListPayload::read,5);
-        register(SYNC_BLOCK_ENTITY, PolymerGenericListPayload::read,5);
-        register(SYNC_STATUS_EFFECT, PolymerGenericListPayload::read,5);
+        SYNC_FLUID_ID = registerList(SYNC_FLUID, IdValueEntry.CODEC, 6);
+        SYNC_ENCHANTMENT_ID = registerList(SYNC_ENCHANTMENT, IdValueEntry.CODEC, 6);
+        SYNC_VILLAGER_PROFESSION_ID = registerList(SYNC_VILLAGER_PROFESSION, IdValueEntry.CODEC, 6);
+        SYNC_BLOCK_ENTITY_ID = registerList(SYNC_BLOCK_ENTITY, IdValueEntry.CODEC, 6);
+        SYNC_STATUS_EFFECT_ID = registerList(SYNC_STATUS_EFFECT, IdValueEntry.CODEC, 6);
 
 
-        register(SYNC_ITEM_GROUP_DEFINE, PolymerItemGroupDefineS2CPayload::read,5);
-        register(SYNC_ITEM_GROUP_CONTENTS_CLEAR, PolymerItemGroupContentClearS2CPayload::read,5);
-        register(SYNC_ITEM_GROUP_REMOVE, PolymerItemGroupRemoveS2CPayload::read,5);
-        register(SYNC_ITEM_GROUP_CONTENTS_ADD, PolymerItemGroupContentAddS2CPayload::read,5);
-        register(SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerItemGroupApplyUpdateS2CPayload::read,5);
+        register(SYNC_ITEM_GROUP_DEFINE, PolymerItemGroupDefineS2CPayload.CODEC,6);
+        register(SYNC_ITEM_GROUP_CONTENTS_CLEAR, PolymerItemGroupContentClearS2CPayload.CODEC, 6);
+        register(SYNC_ITEM_GROUP_REMOVE, PolymerItemGroupRemoveS2CPayload.CODEC,6);
+        register(SYNC_ITEM_GROUP_CONTENTS_ADD, PolymerItemGroupContentAddS2CPayload.CODEC,6);
+        register(SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerItemGroupApplyUpdateS2CPayload::new, 6);
 
-        register(WORLD_SET_BLOCK_UPDATE, PolymerBlockUpdateS2CPayload::read,5);
-        register(WORLD_CHUNK_SECTION_UPDATE, PolymerSectionUpdateS2CPayload::read, 5);
-        register(WORLD_ENTITY, PolymerEntityS2CPayload::read, 5);
+        register(WORLD_SET_BLOCK_UPDATE, PolymerBlockUpdateS2CPayload.CODEC,6);
+        register(WORLD_CHUNK_SECTION_UPDATE, PolymerSectionUpdateS2CPayload.CODEC, 6);
+        register(WORLD_ENTITY, PolymerEntityS2CPayload.CODEC, 6);
     }
 }

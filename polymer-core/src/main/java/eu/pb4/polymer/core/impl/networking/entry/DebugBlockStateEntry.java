@@ -1,8 +1,10 @@
 package eu.pb4.polymer.core.impl.networking.entry;
 
+import eu.pb4.polymer.networking.api.ContextByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.state.property.Property;
@@ -13,8 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ApiStatus.Internal
-public record DebugBlockStateEntry(Map<String, String> states, int numId, Identifier blockId) implements WritableEntry {
-    public void write(PacketByteBuf buf, int version) {
+public record DebugBlockStateEntry(Map<String, String> states, int numId, Identifier blockId) {
+    public static final PacketCodec<ContextByteBuf, DebugBlockStateEntry> CODEC = PacketCodec.of(DebugBlockStateEntry::write, DebugBlockStateEntry::read);
+
+
+    public void write(PacketByteBuf buf) {
         buf.writeVarInt(numId);
         buf.writeIdentifier(blockId);
         buf.writeMap(states, PacketByteBuf::writeString, PacketByteBuf::writeString);
@@ -33,15 +38,11 @@ public record DebugBlockStateEntry(Map<String, String> states, int numId, Identi
         );
     }
 
-    public static DebugBlockStateEntry read(PacketByteBuf buf, int version) {
-        if (version == 0) {
-            var numId = buf.readVarInt();
-            var blockId = buf.readIdentifier();
-            var states = buf.readMap(PacketByteBuf::readString, PacketByteBuf::readString);
-            return new DebugBlockStateEntry(states, numId, blockId);
-        }
-
-        return null;
+    public static DebugBlockStateEntry read(PacketByteBuf buf) {
+        var numId = buf.readVarInt();
+        var blockId = buf.readIdentifier();
+        var states = buf.readMap(PacketByteBuf::readString, PacketByteBuf::readString);
+        return new DebugBlockStateEntry(states, numId, blockId);
     }
 
     public String asString() {

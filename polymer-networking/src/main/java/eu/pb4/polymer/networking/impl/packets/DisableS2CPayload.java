@@ -1,25 +1,15 @@
 package eu.pb4.polymer.networking.impl.packets;
 
-import eu.pb4.polymer.networking.api.payload.ContextPayload;
-import eu.pb4.polymer.networking.api.payload.VersionedPayload;
+import eu.pb4.polymer.networking.api.PolymerNetworking;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public record DisableS2CPayload() implements VersionedPayload {
-    public static final Identifier ID = new Identifier("polymer", "disable");
-
+public record DisableS2CPayload() implements CustomPayload {
+    public static final Id<DisableS2CPayload> ID = PolymerNetworking.id("polymer", "disable");
     @Override
-    public void write(PacketContext context, int version, PacketByteBuf buf) {
-
-    }
-
-    @Override
-    public Identifier id() {
+    public Id<? extends CustomPayload> getId() {
         return ID;
-    }
-
-    public static DisableS2CPayload read(PacketContext context, Identifier identifier, int version, PacketByteBuf buf) {
-        return new DisableS2CPayload();
     }
 }

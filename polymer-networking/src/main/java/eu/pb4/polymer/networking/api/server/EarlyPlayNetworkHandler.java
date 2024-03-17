@@ -6,6 +6,7 @@ import eu.pb4.polymer.networking.impl.EarlyPlayConnectionMagic;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
 import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.ServerPlayPacketListener;
@@ -18,6 +19,8 @@ import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.network.packet.s2c.common.KeepAliveS2CPacket;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.network.state.ConfigurationStates;
+import net.minecraft.network.state.PlayStateFactories;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -59,7 +62,8 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
         this.context = (EarlyPlayConnectionMagic.ContextImpl) context;
         this.identifier = identifier;
 
-        this.context.connection().transitionInbound(null, this);
+        this.context.connection().transitionInbound(PlayStateFactories.C2S.bind(RegistryByteBuf.makeFactory(this.getServer().getRegistryManager())),
+                this);
 
         this.sendKeepAlive();
     }

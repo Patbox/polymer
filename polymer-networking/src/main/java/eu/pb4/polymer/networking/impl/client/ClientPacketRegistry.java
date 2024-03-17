@@ -2,16 +2,13 @@ package eu.pb4.polymer.networking.impl.client;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
-import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import eu.pb4.polymer.networking.api.client.PolymerClientPacketHandler;
-import eu.pb4.polymer.networking.api.payload.SingleplayerSerialization;
 import eu.pb4.polymer.networking.impl.*;
 import eu.pb4.polymer.networking.impl.packets.DisableS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
-import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.MinecraftClient;
@@ -19,14 +16,12 @@ import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.client.network.ClientConfigurationNetworkHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.HashMap;
 import java.util.List;
@@ -143,6 +138,6 @@ public class ClientPacketRegistry {
     }
 
     public static void sendHandshake(ClientCommonNetworkHandler handler) {
-        handler.sendPacket(new CustomPayloadC2SPacket(new HandshakePayload(CommonImpl.VERSION, ServerPackets.REGISTRY)));
+        handler.sendPacket(new CustomPayloadC2SPacket(new HandshakePayload(CommonImpl.VERSION, ServerPackets.VERSION_REGISTRY)));
     }
 }

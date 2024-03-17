@@ -26,7 +26,7 @@ public abstract class MinecraftClientMixin {
     @Final
     private ReloadableResourceManagerImpl resourceManager;
 
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;initFont(Z)V"))
+    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;onFontOptionsChanged()V"))
     private void polymer$registerCustom(RunArgs args, CallbackInfo ci) {
         this.resourceManager.registerReloader(new PolymerResourceReloader(this.textureManager));
     }

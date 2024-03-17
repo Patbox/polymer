@@ -5,7 +5,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -30,21 +32,6 @@ public interface PolymerHeadBlock extends PolymerBlock {
     }
 
     /**
-     * Creates tag of Skull block entity
-     *
-     * @param state Server-side BlockState
-     * @param pos
-     * @param player
-     * @return NbtCompound representing client-side
-     */
-    default NbtCompound getPolymerHeadSkullOwner(BlockState state, BlockPos pos, ServerPlayerEntity player) {
-        return PolymerUtils.createSkullOwner(
-                ((PolymerHeadBlock) state.getBlock()).getPolymerSkinValue(state, pos, player),
-                ((PolymerHeadBlock) state.getBlock()).getPolymerSkinSignature(state, pos, player)
-        );
-    }
-
-    /**
      * Creates client-side skull BlockEntity
      *
      * @param state Server-side BlockState
@@ -53,9 +40,10 @@ public interface PolymerHeadBlock extends PolymerBlock {
      */
     default Packet<?> getPolymerHeadPacket(BlockState state, BlockPos pos, ServerPlayerEntity player) {
         NbtCompound main = new NbtCompound();
-        NbtCompound skullOwner = this.getPolymerHeadSkullOwner(state, pos, player);
         main.putString("id", "minecraft:skull");
-        main.put("SkullOwner", skullOwner);
+        main.put("profile", ProfileComponent.CODEC.encodeStart(NbtOps.INSTANCE,
+                new ProfileComponent(PolymerUtils.createSkinGameProfile(getPolymerSkinValue(state, pos, player),
+                        getPolymerSkinSignature(state, pos, player)))).result().get());
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());

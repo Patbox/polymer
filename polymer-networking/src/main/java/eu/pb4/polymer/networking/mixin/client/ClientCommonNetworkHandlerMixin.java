@@ -6,7 +6,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,5 +42,10 @@ public class ClientCommonNetworkHandlerMixin implements NetworkHandlerExtension 
     @Override
     public ClientConnection polymerNet$getConnection() {
         return this.connection;
+    }
+
+    @Override
+    public @Nullable DynamicRegistryManager polymer$getDynamicRegistryManager() {
+        return null;
     }
 }

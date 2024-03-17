@@ -9,11 +9,10 @@ import eu.pb4.polymer.networking.impl.packets.DisableS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.fabricmc.api.ModInitializer;
 import net.minecraft.nbt.NbtElement;
 
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @ApiStatus.Internal
 public class ServerPacketRegistry {
@@ -35,11 +33,10 @@ public class ServerPacketRegistry {
 
     public static final HashMap<Identifier, NbtElement> METADATA = new HashMap<>();
     public static void register() {
-        PolymerNetworking.registerCommonPayload(HandshakePayload.ID, 2, HandshakePayload::read);
-        PolymerNetworking.registerCommonPayload(MetadataPayload.ID, 2, MetadataPayload::read);
-        PolymerNetworking.registerS2CPayload(DisableS2CPayload.ID, 2, DisableS2CPayload::read);
-        PolymerNetworking.registerS2CPayload(HelloS2CPayload.ID, 2, HelloS2CPayload::read);
-
+        PolymerNetworking.registerCommonVersioned(HandshakePayload.ID, 2, HandshakePayload.CODEC);
+        PolymerNetworking.registerCommonVersioned(MetadataPayload.ID, 2, MetadataPayload.CODEC);
+        PolymerNetworking.registerS2CVersioned(DisableS2CPayload.ID, 2, PacketCodec.unit(new DisableS2CPayload()));
+        PolymerNetworking.registerS2CVersioned(HelloS2CPayload.ID, 2, PacketCodec.unit(new HelloS2CPayload()));
 
         PolymerServerNetworking.registerCommonHandler(HandshakePayload.class,
                 (server, handler, packet) -> handleHandshake(PolymerHandshakeHandler.of(server, handler), packet));
@@ -79,7 +76,7 @@ public class ServerPacketRegistry {
         return handled;
     }
     public static void sendHandshake(PolymerHandshakeHandler handler) {
-        handler.sendPacket(new CustomPayloadS2CPacket(new HandshakePayload(CommonImpl.VERSION, ClientPackets.REGISTRY)));
+        handler.sendPacket(new CustomPayloadS2CPacket(new HandshakePayload(CommonImpl.VERSION, ClientPackets.VERSION_REGISTRY)));
     }
 
     private static void sendMetadata(PolymerHandshakeHandler handler) {
@@ -95,7 +92,7 @@ public class ServerPacketRegistry {
 
         handler.getServer().execute(() -> {
             handler.set(handler.getPolymerVersion(), versionMap);
-            handler.setLastPacketTime(HandshakePayload.ID);
+            handler.setLastPacketTime(HandshakePayload.ID.id());
 
             sendHandshake(handler);
             sendMetadata(handler);

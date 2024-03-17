@@ -12,8 +12,5 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Environment(EnvType.CLIENT)
 @Mixin(PacketByteBuf.class)
 public class PacketByteBufMixin {
-    @Redirect(method = "readRegistryValue", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;get(I)Ljava/lang/Object;"))
-    private Object polymer$clientRemapToIds(IndexedIterable instance, int i) {
-        return InternalClientRegistry.decodeRegistry(instance, i);
-    }
+
 }

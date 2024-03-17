@@ -60,7 +60,7 @@ public final class PolymerItemUtils {
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
     private static final DataComponentType<?>[] COMPONENTS_TO_COPY = { DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_BREAK,
             DataComponentTypes.BLOCK_ENTITY_DATA, DataComponentTypes.TRIM,
-            DataComponentTypes.LODESTONE_TARGET
+            DataComponentTypes.LODESTONE_TRACKER
     };
 
     private PolymerItemUtils() {

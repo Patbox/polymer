@@ -160,39 +160,6 @@ public final class PolymerUtils {
         return PolymerImplUtils.getTooltipContext(player).withCreative();
     }
 
-    /**
-     * Creates SkullOwner NbtCompound from provided skin value
-     *
-     * @param value Skin value
-     * @return NbtCompound representing SkullOwner
-     */
-    public static NbtCompound createSkullOwner(String value) {
-        return createSkullOwner(value, null);
-    }
-
-    /**
-     * Creates SkullOwner NbtCompound from provided skin value
-     *
-     * @param value Skin value
-     * @return NbtCompound representing SkullOwner
-     */
-    public static NbtCompound createSkullOwner(String value, @Nullable String signature) {
-        NbtCompound skullOwner = new NbtCompound();
-        NbtCompound properties = new NbtCompound();
-        NbtCompound data = new NbtCompound();
-        NbtList textures = new NbtList();
-        textures.addElement(0, data);
-        data.putString("Value", value);
-        if (signature != null) {
-            data.putString("Signature", signature);
-        }
-        properties.put("textures", textures);
-        skullOwner.put("Properties", properties);
-        skullOwner.putIntArray("Id", new int[]{0, 0, 0, 0});
-
-        return skullOwner;
-    }
-
     public static GameProfile createSkinGameProfile(String value, @Nullable String signature) {
         var profile = new GameProfile(Util.NIL_UUID, "");
         profile.getProperties().put("textures", new Property("textures", value, signature));

@@ -8,6 +8,7 @@ import net.minecraft.network.NetworkState;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.network.packet.c2s.login.EnterConfigurationC2SPacket;
+import net.minecraft.network.state.ConfigurationStates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.*;
 import net.minecraft.util.Identifier;
@@ -55,12 +56,12 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
 
     @Inject(method = "onEnterConfiguration", at = @At("HEAD"), cancellable = true)
     private void polymerNet$prePlayHandshakeHackfest(EnterConfigurationC2SPacket packet, CallbackInfo ci) {
-        // todo
-        if (this.polymerNet$ignoreCall || true) {
+        if (this.polymerNet$ignoreCall) {
             return;
         }
         ci.cancel();
         var defaultOptions = SyncedClientOptions.createDefault();
+        this.connection.transitionOutbound(ConfigurationStates.S2C);
         EarlyConfigurationConnectionMagic.handle(this.profile, defaultOptions, (ServerLoginNetworkHandler) (Object) this, this.server, connection, (context) -> {
             //connection.disableAutoRead();
             ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
@@ -93,7 +94,7 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
     @ModifyArg(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerConfigurationNetworkHandler;<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ConnectedClientData;)V"))
     private ConnectedClientData polymerNet$swapClientData(ConnectedClientData clientData) {
         if (this.polymerNet$overrideOptions != null) {
-            //return new ConnectedClientData(clientData.gameProfile(), clientData.latency(), this.polymerNet$overrideOptions);
+            return new ConnectedClientData(clientData.gameProfile(), clientData.latency(), this.polymerNet$overrideOptions, clientData.transferred());
         }
         return clientData;
     }

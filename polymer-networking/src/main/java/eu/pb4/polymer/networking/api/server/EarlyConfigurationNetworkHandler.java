@@ -6,6 +6,7 @@ import eu.pb4.polymer.networking.impl.EarlyConfigurationConnectionMagic;
 import eu.pb4.polymer.networking.impl.EarlyPlayConnectionMagic;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.NetworkState;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.listener.TickablePacketListener;
@@ -23,6 +24,7 @@ import net.minecraft.network.packet.s2c.common.KeepAliveS2CPacket;
 import net.minecraft.network.packet.s2c.play.CommonPlayerSpawnInfo;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
+import net.minecraft.network.state.ConfigurationStates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
@@ -65,7 +67,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
         this.context = (EarlyConfigurationConnectionMagic.ContextImpl) context;
         this.identifier = identifier;
 
-        this.context.connection().transitionInbound(null, this);
+        this.context.connection().transitionInbound(ConfigurationStates.C2S, this);
 
         this.sendKeepAlive();
     }

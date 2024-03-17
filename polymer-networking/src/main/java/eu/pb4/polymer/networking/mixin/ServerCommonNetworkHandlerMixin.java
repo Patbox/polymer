@@ -9,10 +9,12 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -75,5 +77,10 @@ public abstract class ServerCommonNetworkHandlerMixin implements NetworkHandlerE
         if (packet instanceof ServerDynamicPacket) {
             ci.cancel();
         }
+    }
+
+    @Override
+    public @Nullable DynamicRegistryManager polymer$getDynamicRegistryManager() {
+        return this.server.getRegistryManager();
     }
 }

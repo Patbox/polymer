@@ -73,7 +73,7 @@ public final class PolymerSyncUtils {
     public static void rebuildItemGroups(ServerPlayNetworkHandler handler) {
         var ver = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_APPLY_UPDATE);
         if (ver > -1) {
-            //handler.sendPacket(new CustomPayloadS2CPacket(S2CPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerServerNetworking.buf(ver)));
+            //handler.sendPacket(new CustomPayloadS2CPacketMixin(S2CPackets.SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerServerNetworking.buf(ver)));
         }
     }
 
