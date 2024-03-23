@@ -1,29 +1,28 @@
 package eu.pb4.polymer.core.api.item;
 
-import com.google.common.collect.Multimap;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.RecordBuilder;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.TransformingDataComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
-import eu.pb4.polymer.core.mixin.item.ItemEnchantmentsComponentAccessor;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
@@ -58,10 +57,30 @@ public final class PolymerItemUtils {
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
-    private static final DataComponentType<?>[] COMPONENTS_TO_COPY = { DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_BREAK,
+    private static final DataComponentType<?>[] COMPONENTS_TO_COPY = { DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_PLACE_ON,
             DataComponentTypes.BLOCK_ENTITY_DATA, DataComponentTypes.TRIM,
-            DataComponentTypes.LODESTONE_TRACKER
+            DataComponentTypes.TOOL,
+            DataComponentTypes.MAX_STACK_SIZE,
+            DataComponentTypes.FOOD,
+            DataComponentTypes.FIRE_RESISTANT,
+            DataComponentTypes.FIREWORKS,
+            DataComponentTypes.FIREWORK_EXPLOSION,
+            DataComponentTypes.DAMAGE,
+            DataComponentTypes.MAX_DAMAGE,
+            DataComponentTypes.ATTRIBUTE_MODIFIERS,
+            DataComponentTypes.BANNER_PATTERNS,
+            DataComponentTypes.BASE_COLOR,
+            DataComponentTypes.HIDE_TOOLTIP,
+            DataComponentTypes.REPAIR_COST,
+            DataComponentTypes.BUNDLE_CONTENTS,
+            DataComponentTypes.RARITY,
+            DataComponentTypes.LODESTONE_TRACKER,
+            DataComponentTypes.ENCHANTMENTS,
+            DataComponentTypes.STORED_ENCHANTMENTS,
+            DataComponentTypes.POTION_CONTENTS
     };
+
+    private static final Set<DataComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
     private PolymerItemUtils() {
     }
@@ -144,29 +163,7 @@ public final class PolymerItemUtils {
      */
     @Nullable
     public static Identifier getServerIdentifier(ItemStack itemStack) {
-        /*if (itemStack.hasNbt()) {
-            var id = getIdentifierFrom(itemStack.getNbt(), POLYMER_STACK);
-
-            if (id == null) {
-                id = getIdentifierFrom(itemStack.getNbt(), "PolyMcId");
-            }
-
-            return id;
-        }*/
-
         return getPolymerIdentifier(itemStack);
-    }
-
-    @Nullable
-    public static NbtCompound getPolymerNbt(ItemStack itemStack) {
-        // todo
-        //if (getPolymerIdentifier(itemStack) != null) {
-        //    if (itemStack.getNbt().contains(REAL_TAG, NbtElement.COMPOUND_TYPE)) {
-        //        return itemStack.getNbt().getCompound(REAL_TAG);
-        //    }
-        //}
-
-        return null;
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack) {
@@ -181,41 +178,35 @@ public final class PolymerItemUtils {
             return true;
         }
 
-        {
-            var comp = itemStack.getOrDefault(DataComponentTypes.ENCHANTMENTS, itemStack.get(DataComponentTypes.STORED_ENCHANTMENTS));
-
-            if (comp != null && !comp.isEmpty()) {
-                for (var ench : comp.getEnchantments()) {
-                    if (ench.value() instanceof PolymerObject) {
-                        if (ench.value() instanceof PolymerSyncedObject polymerEnchantment && polymerEnchantment.getPolymerReplacement(player) == ench.value()) {
-                            continue;
-                        }
-
-                        return true;
-                    }
-                }
+        for (var x : itemStack.getComponentChanges().entrySet()) {
+            if (x.getValue() != null && x.getValue().isPresent()
+                    && x.getValue().get() instanceof PolymerItemComponent c && c.canSyncRawToClient(player)) {
+                return true;
+            } else if (isPolymerComponent(x.getKey())) {
+                return true;
+            } else if (x.getValue() != null && x.getValue().isPresent()
+                    && x.getValue().get() instanceof TransformingDataComponent t
+                    && t.polymer$requireModification(player)) {
+                return true;
             }
         }
-        {
-            var comp = itemStack.get(DataComponentTypes.POTION_CONTENTS);
 
-            if (comp != null) {
-                if (comp.potion().isPresent() && comp.potion().get() instanceof PolymerObject) {
-                    return true;
-                }
-
-                for (StatusEffectInstance statusEffectInstance : comp.customEffects()) {
-                    if (statusEffectInstance.getEffectType() instanceof PolymerObject) {
-                        return true;
-                    }
-                }
-            }
-        }
         {
             var comp = itemStack.get(DataComponentTypes.CONTAINER);
             if (comp != null) {
                 for (var it = comp.iterator(); it.hasNext(); ) {
                     var nStack = it.next();
+                    if (isPolymerServerItem(nStack, player)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        {
+            var comp = itemStack.get(DataComponentTypes.BUNDLE_CONTENTS);
+            if (comp != null) {
+                for (var i = 0; i < comp.size(); i++) {
+                    var nStack = comp.get(i);
                     if (isPolymerServerItem(nStack, player)) {
                         return true;
                     }
@@ -242,7 +233,8 @@ public final class PolymerItemUtils {
      */
     public static ItemStack createMinimalItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
-        int cmd = -1;
+        var x = itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA);
+        int cmd = x != null ? x.value() : -1;
         if (itemStack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, player);
             item = data.item();
@@ -298,6 +290,22 @@ public final class PolymerItemUtils {
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
+        for (var x : out.getComponents().getTypes()) {
+            if (itemStack.getComponents().get(x) == null) {
+                out.set(x, null);
+            }
+        }
+
+        for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {
+            var key = COMPONENTS_TO_COPY[i];
+            var x = itemStack.get(key);
+
+            if (x instanceof TransformingDataComponent t) {
+                out.set((DataComponentType) key, t.polymer$getTransformed(player));
+            } else {
+                out.set((DataComponentType) key, (Object) itemStack.get(key));
+            }
+        }
 
         out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_CODEC, itemStack).result().get());
 
@@ -308,50 +316,13 @@ public final class PolymerItemUtils {
         }
 
         if (color == -1 && itemStack.contains(DataComponentTypes.DYED_COLOR)) {
-            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(itemStack.get(DataComponentTypes.DYED_COLOR).rgb(), true));
+            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(getSafeColor(itemStack.get(DataComponentTypes.DYED_COLOR).rgb()), true));
         } else if (color != -1) {
             out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color, true));
         }
 
-        if (itemStack.contains(DataComponentTypes.DAMAGE) && out.isDamageable()) {
-            out.set(DataComponentTypes.DAMAGE, (int)
-                    ((((double) itemStack.getDamage()) / itemStack.getItem().getMaxDamage()) * item.getMaxDamage()));
-        }
-
-        if (itemStack.contains(DataComponentTypes.ENCHANTMENTS)) {
-            var enchantments = new Object2IntLinkedOpenHashMap<RegistryEntry<Enchantment>>();
-            for (var e : itemStack.get(DataComponentTypes.ENCHANTMENTS).getEnchantmentsMap()) {
-                if (e.getKey().value() instanceof PolymerSyncedObject polyEnch) {
-                    var possible = (Enchantment) polyEnch.getPolymerReplacement(player);
-
-                    if (possible != null) {
-                        enchantments.put(Registries.ENCHANTMENT.getEntry(possible), e.getIntValue());
-                    }
-                } else if (!(e.getKey().value() instanceof PolymerObject)) {
-                    enchantments.put(e.getKey(), e.getIntValue());
-                }
-            }
-
-            if (!enchantments.isEmpty()) {
-                out.set(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponentAccessor.create(enchantments, true));
-            }
-        }
-
-        if (itemStack.contains(DataComponentTypes.POTION_CONTENTS)) {
-            var comp = itemStack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
-            out.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Optional.empty(), Optional.of(comp.getColor()), List.of()));
-        }
-
-
-        for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {
-            var key = COMPONENTS_TO_COPY[i];
-            out.set((DataComponentType) key, (Object) itemStack.get(key));
-        }
-
         out.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
         out.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, itemStack.hasGlint());
-        out.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, itemStack.get(DataComponentTypes.ATTRIBUTE_MODIFIERS));
-
 
         try {
             var tooltip = itemStack.getTooltip(player, tooltipContext);
@@ -380,10 +351,8 @@ public final class PolymerItemUtils {
             try {
                 MutableText name = itemStack.getName().copy();
 
-                if (!out.getName().equals(name)) {
-                    name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
-                    out.set(DataComponentTypes.CUSTOM_NAME, name);
-                }
+                name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
+                out.set(DataComponentTypes.CUSTOM_NAME, name);
             } catch (Throwable e2) {
                 // Fallback for mods that can't even handle names correctly...
                 // Do nothing and hope for the best™
@@ -394,6 +363,7 @@ public final class PolymerItemUtils {
                 }
             }
         }
+        out.apply(DataComponentTypes.ENCHANTMENTS, null, (x) -> x != null ? x.withShowInTooltip(false) : null);
 
         return ITEM_MODIFICATION_EVENT.invoke((col) -> {
             var custom = out;
@@ -456,6 +426,17 @@ public final class PolymerItemUtils {
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
         return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
+    }
+
+    public static void markAsPolymer(DataComponentType<?>... types) {
+        for (var x : types) {
+            UNSYNCED_COMPONENTS.add(x);
+            RegistrySyncUtils.setServerEntry(Registries.DATA_COMPONENT_TYPE, x);
+        }
+    }
+
+    public static boolean isPolymerComponent(DataComponentType<?> type) {
+        return UNSYNCED_COMPONENTS.add(type);
     }
 
     public static ItemStack getClientItemStack(ItemStack stack, ServerPlayerEntity player) {

@@ -37,11 +37,6 @@ public class VirtualClientItem extends Item {
     }
 
     @Override
-    public Rarity getRarity(ItemStack stack) {
-        return Rarity.COMMON;
-    }
-
-    @Override
     public Text getName() {
         return this.polymerItem.visualStack().getName();
     }

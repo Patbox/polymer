@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.networking.impl.EarlyPlayConnectionMagic;
 import eu.pb4.polymer.networking.impl.ExtClientConnection;
+import eu.pb4.polymer.networking.impl.NetImpl;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
@@ -26,22 +27,16 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
     @Shadow
     protected abstract GameProfile getProfile();
 
+
     @WrapOperation(method = "onReady", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;onPlayerConnect(Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/server/network/ConnectedClientData;)V"))
     private void polymerNet$prePlayHandshakeHackfest(PlayerManager manager, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, Operation<Void> original) {
-        // Todo
-        if (true) {
+        if (NetImpl.IS_DISABLED || true) {
             original.call(manager, connection, player, clientData);
             return;
         }
 
-
         EarlyPlayConnectionMagic.handle(player, clientData.syncedOptions(), (ServerConfigurationNetworkHandler) (Object) this, player.server, connection, (context) -> {
-            //connection.disableAutoRead();
             ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
-            //var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
-            //attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
-            //connection.setPacketListener(this);
-            //attr.set(NetworkState.PLAY.getHandler(NetworkSide.SERVERBOUND));
 
             if (connection.isOpen()) {
                 var oldPlayer = player.server.getPlayerManager().getPlayer(this.getProfile().getId());

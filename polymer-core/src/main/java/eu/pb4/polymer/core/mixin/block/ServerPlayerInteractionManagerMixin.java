@@ -3,13 +3,12 @@ package eu.pb4.polymer.core.mixin.block;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket;
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
-import net.minecraft.network.packet.s2c.play.RemoveEntityStatusEffectS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -24,6 +23,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.List;
+import java.util.Objects;
 
 @Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
@@ -66,6 +68,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
             } else {
                 var k = this.polymer$currentBreakingProgress > 0.0F ? (int)(this.polymer$currentBreakingProgress * 10) : -1;
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, k));
+                polymer$sendMiningFatigue();
                 PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, k));
             }
         } else if (this.polymer$hasMiningFatigue) {
@@ -135,17 +138,19 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Unique
     private void polymer$sendMiningFatigue() {
         this.polymer$hasMiningFatigue = true;
-        this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 20, -1, true, false), false));
+        var x = new EntityAttributeInstance(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED, (a) -> {});
+        x.setBaseValue(-9999);
+        this.player.networkHandler.sendPacket(new EntityAttributesS2CPacket(this.player.getId(), List.of(x)));
     }
 
     @Unique
     private void polymer$clearMiningEffect() {
         this.polymer$hasMiningFatigue = false;
-        this.player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.MINING_FATIGUE));
-        if (this.player.hasStatusEffect(StatusEffects.MINING_FATIGUE)) {
-            StatusEffectInstance effectInstance = this.player.getStatusEffect(StatusEffects.MINING_FATIGUE);
-            this.player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.player.getId(), effectInstance, false));
-        }
+        var x = new EntityAttributeInstance(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED, (a) -> {});
+        x.setBaseValue(-9999);
+        this.player.networkHandler.sendPacket(new EntityAttributesS2CPacket(this.player.getId(),
+                List.of(Objects.requireNonNull(this.player.getAttributeInstance(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED)))));
+
     }
 
     @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)

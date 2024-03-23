@@ -13,11 +13,6 @@ import org.jetbrains.annotations.Nullable;
 public record ClientPolymerItem(
         Identifier identifier,
         ItemStack visualStack,
-        int foodValue,
-        float saturation,
-        Identifier miningTool,
-        int miningLevel,
-        int stackSize,
         @Nullable Item registryEntry
 ) implements ClientPolymerEntry<Item> {
     public static final PolymerRegistry<ClientPolymerItem> REGISTRY = InternalClientRegistry.ITEMS;

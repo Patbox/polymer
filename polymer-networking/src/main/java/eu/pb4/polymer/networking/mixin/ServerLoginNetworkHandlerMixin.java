@@ -1,10 +1,13 @@
 package eu.pb4.polymer.networking.mixin;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.networking.impl.*;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
+import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.network.packet.c2s.login.EnterConfigurationC2SPacket;
@@ -54,21 +57,32 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
         return this.connection;
     }
 
+    @WrapWithCondition(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionOutbound(Lnet/minecraft/network/NetworkState;)V"))
+    private boolean dontDuplicateCalls(ClientConnection instance, NetworkState<?> newState) {
+        return NetImpl.IS_DISABLED;
+    }
+
+    @WrapOperation(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionInbound(Lnet/minecraft/network/NetworkState;Lnet/minecraft/network/listener/PacketListener;)V"))
+    private void dontDuplicateCalls2(ClientConnection instance, NetworkState<PacketListener> state, PacketListener packetListener, Operation<Void> original) {
+        if (NetImpl.IS_DISABLED) {
+            original.call(instance, state, packetListener);
+        } else {
+            ((ClientConnectionAccessor) instance).setPacketListener(packetListener);
+        }
+    }
+
     @Inject(method = "onEnterConfiguration", at = @At("HEAD"), cancellable = true)
     private void polymerNet$prePlayHandshakeHackfest(EnterConfigurationC2SPacket packet, CallbackInfo ci) {
-        if (this.polymerNet$ignoreCall) {
+        if (this.polymerNet$ignoreCall || NetImpl.IS_DISABLED) {
             return;
         }
         ci.cancel();
         var defaultOptions = SyncedClientOptions.createDefault();
         this.connection.transitionOutbound(ConfigurationStates.S2C);
+        this.connection.transitionInbound(ConfigurationStates.C2S, EmptyServerPacketHandler.CONFIGURATION);
+
         EarlyConfigurationConnectionMagic.handle(this.profile, defaultOptions, (ServerLoginNetworkHandler) (Object) this, this.server, connection, (context) -> {
-            //connection.disableAutoRead();
             ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
-            //var attr = ((ExtClientConnection) connection).polymerNet$getChannel().attr(ClientConnection.SERVERBOUND_PROTOCOL_KEY);
-            //attr.set(NetworkState.LOGIN.getHandler(NetworkSide.SERVERBOUND));
-            //connection.setPacketListener((ServerLoginNetworkHandler) (Object) this);
-            //attr.set(NetworkState.CONFIGURATION.getHandler(NetworkSide.SERVERBOUND));
 
             if (connection.isOpen()) {
                 this.polymerNet$ignoreCall = true;

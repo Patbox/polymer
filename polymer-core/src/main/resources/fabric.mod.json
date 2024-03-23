@@ -30,9 +30,6 @@
     "rei_client": [
       "eu.pb4.polymer.core.impl.client.compat.ReiCompatibility"
     ],
-    "appleskin": [
-      "eu.pb4.polymer.core.impl.client.compat.AppleSkinCompatibility"
-    ],
     "jade": [
       "eu.pb4.polymer.core.impl.client.compat.JadeCompatibility"
     ],

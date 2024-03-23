@@ -26,6 +26,7 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.command.argument.RegistryEntryArgumentType;
+import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
 import net.minecraft.command.argument.UuidArgumentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.WrittenBookContentComponent;
@@ -77,7 +78,7 @@ public class Commands {
         command.then(literal("stats")
                         .requires(CommonImplUtils.permission("command.stats", 0))
                         .executes(Commands::statsGeneral)
-                        .then(argument("type", RegistryEntryArgumentType.registryEntry(access, RegistryKeys.STAT_TYPE)).executes(Commands::stats))
+                        .then(argument("type", RegistryEntryReferenceArgumentType.registryEntry(access, RegistryKeys.STAT_TYPE)).executes(Commands::stats))
                 )
                 .then(literal("effects")
                         .requires(CommonImplUtils.permission("command.effects", 0))
@@ -347,7 +348,7 @@ public class Commands {
         int line = 0;
         MutableText text = null;
 
-        var type = (StatType<Object>) RegistryEntryArgumentType.getRegistryEntry(context, "type", RegistryKeys.STAT_TYPE).value();
+        var type = (StatType<Object>) RegistryEntryReferenceArgumentType.getRegistryEntry(context, "type", RegistryKeys.STAT_TYPE).value();
 
         for (var statObj : type.getRegistry()) {
             if (PolymerUtils.isServerOnly(statObj) && type.hasStat(statObj)) {

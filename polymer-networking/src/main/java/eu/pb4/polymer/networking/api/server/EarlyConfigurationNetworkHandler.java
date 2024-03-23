@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.impl.EarlyConfigurationConnectionMagic;
 import eu.pb4.polymer.networking.impl.EarlyPlayConnectionMagic;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
+import eu.pb4.polymer.networking.mixin.ClientConnectionAccessor;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
@@ -67,8 +68,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
         this.context = (EarlyConfigurationConnectionMagic.ContextImpl) context;
         this.identifier = identifier;
 
-        this.context.connection().transitionInbound(ConfigurationStates.C2S, this);
-
+        ((ClientConnectionAccessor) this.context.connection()).setPacketListener(this);
         this.sendKeepAlive();
     }
 

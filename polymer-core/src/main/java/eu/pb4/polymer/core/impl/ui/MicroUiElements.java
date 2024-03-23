@@ -6,6 +6,7 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Unit;
 
 public class MicroUiElements {
     public static final MicroUi.PlayerClickAction EMPTY_ACTION = (player, slotIndex, button, actionType) -> { };
@@ -20,7 +21,7 @@ public class MicroUiElements {
 
     static {
         EMPTY = Items.GRAY_STAINED_GLASS_PANE.getDefaultStack();
-        EMPTY.set(DataComponentTypes.CUSTOM_NAME, Text.empty());
+        EMPTY.set(DataComponentTypes.HIDE_TOOLTIP, Unit.INSTANCE);
 
         BUTTON_PREVIOUS = Items.GREEN_STAINED_GLASS_PANE.getDefaultStack();
         BUTTON_PREVIOUS.set(DataComponentTypes.CUSTOM_NAME, Text.translatable("createWorld.customize.custom.prev").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GREEN)));

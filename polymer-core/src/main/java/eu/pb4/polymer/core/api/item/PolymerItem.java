@@ -87,6 +87,6 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
     }
 
     default boolean handleMiningOnServer(ItemStack tool, BlockState targetBlock, BlockPos pos, ServerPlayerEntity player) {
-        return true;
+        return false;
     }
 }

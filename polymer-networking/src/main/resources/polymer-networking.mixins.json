@@ -4,6 +4,7 @@
   "package": "eu.pb4.polymer.networking.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ClientConnectionAccessor",
     "ClientConnectionMixin",
     "CustomPayloadC2SPacketMixin",
     "CustomPayloadCodecMixin",

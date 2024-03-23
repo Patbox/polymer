@@ -100,7 +100,7 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
             } else if (entry.value() instanceof VillagerData data) {
                 var x = PolymerEntityUtils.getPolymerProfession(data.getProfession());
                 if (x != null) {
-                    entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), data.withProfession(x.getPolymerProfession(data.getProfession(), player)));
+                    entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), data.withProfession(x.getPolymerProfession(data.getProfession(), player))));
                 }
             }
         }

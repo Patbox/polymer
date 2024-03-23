@@ -28,11 +28,9 @@ public class EarlyConfigurationConnectionMagic {
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
         var context = new ContextImpl(server, profile, connection, loginHandler, new ArrayList<>(), (c) -> {
-            //connection.tryDisableAutoRead();
             while (iterator.hasNext()) {
                 var handler = iterator.next().apply(c);
                 if (handler != null) {
-                    //connection.enableAutoRead();
                     return;
                 }
             }

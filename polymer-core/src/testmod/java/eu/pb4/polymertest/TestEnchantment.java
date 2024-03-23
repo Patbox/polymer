@@ -9,21 +9,14 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Rarity;
+
+import java.util.Optional;
 
 
 public class TestEnchantment extends Enchantment implements PolymerSyncedObject<Enchantment> {
     public TestEnchantment() {
-        super(Rarity.COMMON, ItemTags.SWORD_ENCHANTABLE, new EquipmentSlot[] {EquipmentSlot.MAINHAND});
-    }
-
-    @Override
-    public int getMinPower(int level) {
-        return 1;
-    }
-
-    @Override
-    public int getMaxLevel() {
-        return 10;
+        super(new Properties(ItemTags.SWORD_ENCHANTABLE, Optional.empty(), 5, 10, new Cost(0, 30), new Cost(0, 30), 2, new EquipmentSlot[] {EquipmentSlot.MAINHAND}));
     }
 
     @Override

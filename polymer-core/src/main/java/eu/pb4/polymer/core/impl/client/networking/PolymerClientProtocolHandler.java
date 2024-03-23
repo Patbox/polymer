@@ -91,11 +91,6 @@ public class PolymerClientProtocolHandler {
                             new ClientPolymerItem(
                                     entry.identifier(),
                                     entry.representation(),
-                                    entry.foodLevels(),
-                                    entry.saturation(),
-                                    entry.miningTool(),
-                                    entry.miningLevel(),
-                                    entry.stackSize(),
                                     regEntry.isPresent() ? regEntry.get().value() : null
                             ));
                 });
