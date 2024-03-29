@@ -98,15 +98,15 @@ public class AutoHost implements ModInitializer {
 
     public static void generateAndCall(MinecraftServer server, Consumer<Text> messageConsumer, Runnable runnable) {
         Util.getIoWorkerExecutor().execute(() -> {
-            messageConsumer.accept(Text.literal("Starting resource pack generation..."));
+            messageConsumer.accept(Text.literal("[Polymer] Starting resource pack generation..."));
             boolean success = PolymerResourcePackUtils.buildMain();
 
             server.execute(() -> {
                 if (success) {
-                    messageConsumer.accept(Text.literal("Resource pack created successfully!"));
+                    messageConsumer.accept(Text.literal("[Polymer] Resource pack created successfully!"));
                     runnable.run();
                 } else {
-                    messageConsumer.accept(Text.literal("Found issues while creating resource pack! See logs above for more detail!"));
+                    messageConsumer.accept(Text.literal("[Polymer] Found issues while creating resource pack! See logs above for more detail!"));
                 }
             });
         });

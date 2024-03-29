@@ -32,7 +32,8 @@ public class WorldEventS2CPacketMixin {
             var player = PolymerUtils.getPlayerContext();
 
             if (state.getBlock() instanceof PolymerBlock polymerBlock) {
-                state = polymerBlock.getPolymerBreakEventBlockState(state, player);
+                state =  PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,
+                        PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, player);
             }
 
             return Block.getRawIdFromState(PolymerBlockUtils.getServerSideBlockState(state, player));
@@ -44,13 +45,17 @@ public class WorldEventS2CPacketMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "getData", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceClientData(CallbackInfoReturnable<Integer> cir) {
-        if (this.eventId == WorldEvents.BLOCK_BROKEN) {
-            var state = InternalClientRegistry.decodeState(this.data);
-            var player = ClientUtils.getPlayer();
-            if (state.getBlock() instanceof PolymerBlock polymerBlock && player != null) {
-                state = polymerBlock.getPolymerBreakEventBlockState(state, player);
+        var player = PolymerUtils.getPlayerContext();
+
+        if (this.eventId == WorldEvents.BLOCK_BROKEN && player != null) {
+            var state = Block.getStateFromRawId(data);
+
+            if (state.getBlock() instanceof PolymerBlock polymerBlock) {
+                state =  PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,
+                        PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, player);
             }
-            cir.setReturnValue(Block.getRawIdFromState(state));
+
+            cir.setReturnValue(Block.getRawIdFromState(PolymerBlockUtils.getServerSideBlockState(state, player)));
         }
     }
 }

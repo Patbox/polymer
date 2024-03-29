@@ -65,13 +65,6 @@ public final class PolymerNetworking {
         registerS2CPayload(identifier, IntList.of(version), decoder);
     }
 
-    public static <T extends CustomPayload> void registerS2CPayload(Identifier identifier, IntList versions, PayloadDecoder<T> decoder) {
-        var builder = ImmutableMap.<Identifier, PacketByteBuf.PacketReader<? extends CustomPayload>>builder().putAll(CustomPayloadS2CPacketAccessor.getID_TO_READER());
-        builder.put(identifier, decoder.forPacket(identifier));
-        CustomPayloadS2CPacketAccessor.setID_TO_READER(builder.build());
-        ServerPackets.register(identifier, versions.toIntArray());
-    }
-
     public static <T extends ContextPayload> void registerC2SPayload(Identifier identifier, ContextPayload.Decoder<T> decoder) {
         registerC2SPayload(identifier, 0, decoder);
     }
@@ -104,10 +97,26 @@ public final class PolymerNetworking {
         registerC2SPayload(identifier, IntList.of(version), decoder);
     }
 
+    public static <T extends CustomPayload> void registerS2CPayload(Identifier identifier, IntList versions, PayloadDecoder<T> decoder) {
+        try {
+            CustomPayloadS2CPacketAccessor.getID_TO_READER().put(identifier, decoder.forPacket(identifier));
+        } catch (Throwable e) {
+            var builder = ImmutableMap.<Identifier, PacketByteBuf.PacketReader<? extends CustomPayload>>builder().putAll(CustomPayloadS2CPacketAccessor.getID_TO_READER());
+            builder.put(identifier, decoder.forPacket(identifier));
+            CustomPayloadS2CPacketAccessor.setID_TO_READER(builder.build());
+        }
+
+        ServerPackets.register(identifier, versions.toIntArray());
+    }
+
     public static <T extends CustomPayload> void registerC2SPayload(Identifier identifier, IntList versions, PayloadDecoder<T> decoder) {
-        var builder = ImmutableMap.<Identifier, PacketByteBuf.PacketReader<? extends CustomPayload>>builder().putAll(CustomPayloadC2SPacketAccessor.getID_TO_READER());
-        builder.put(identifier, decoder.forPacket(identifier));
-        CustomPayloadC2SPacketAccessor.setID_TO_READER(builder.build());
+        try {
+            CustomPayloadC2SPacketAccessor.getID_TO_READER().put(identifier, decoder.forPacket(identifier));
+        } catch (Throwable e) {
+            var builder = ImmutableMap.<Identifier, PacketByteBuf.PacketReader<? extends CustomPayload>>builder().putAll(CustomPayloadC2SPacketAccessor.getID_TO_READER());
+            builder.put(identifier, decoder.forPacket(identifier));
+            CustomPayloadC2SPacketAccessor.setID_TO_READER(builder.build());
+        }
         ClientPackets.register(identifier, versions.toIntArray());
     }
 

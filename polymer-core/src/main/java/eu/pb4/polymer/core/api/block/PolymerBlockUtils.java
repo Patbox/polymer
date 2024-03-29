@@ -163,6 +163,21 @@ public final class PolymerBlockUtils {
         return out;
     }
 
+    public static BlockState getBlockBreakBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, @Nullable ServerPlayerEntity player) {
+        if (player == null) {
+            return getBlockStateSafely(block, blockState, maxDistance);
+        }
+
+        BlockState out = block.getPolymerBreakEventBlockState(blockState, player);
+
+        int req = 0;
+        while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
+            out = newBlock.getPolymerBreakEventBlockState(blockState, player);
+            req++;
+        }
+        return out;
+    }
+
     /**
      * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
      * It gets replaced if it represents other PolymerBlock
