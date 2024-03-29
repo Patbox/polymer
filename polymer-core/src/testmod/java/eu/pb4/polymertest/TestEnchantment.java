@@ -8,6 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Rarity;
 
@@ -16,7 +17,8 @@ import java.util.Optional;
 
 public class TestEnchantment extends Enchantment implements PolymerSyncedObject<Enchantment> {
     public TestEnchantment() {
-        super(new Properties(ItemTags.SWORD_ENCHANTABLE, Optional.empty(), 5, 10, new Cost(0, 30), new Cost(0, 30), 2, new EquipmentSlot[] {EquipmentSlot.MAINHAND}));
+        super(new Properties(ItemTags.SWORD_ENCHANTABLE, Optional.empty(), 5, 10, new Cost(0, 30),
+                new Cost(0, 30), 2, FeatureSet.empty(), new EquipmentSlot[] {EquipmentSlot.MAINHAND}));
     }
 
     @Override

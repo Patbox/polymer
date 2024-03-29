@@ -2,6 +2,7 @@ package eu.pb4.polymertest;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.item.PolymerRecipe;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -63,8 +64,8 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
 
     public static class Serializer implements RecipeSerializer<TestRecipe> {
         @Override
-        public Codec<TestRecipe> codec() {
-            return ItemStack.CODEC.xmap(TestRecipe::new, TestRecipe::stack);
+        public MapCodec<TestRecipe> codec() {
+            return ItemStack.CODEC.xmap(TestRecipe::new, TestRecipe::stack).fieldOf("item");
         }
 
         @Override

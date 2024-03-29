@@ -13,11 +13,6 @@ public interface AECAccessor {
         throw new AssertionError();
     }
 
-    @Accessor("COLOR")
-    static TrackedData<Integer> getColor() {
-        throw new AssertionError();
-    }
-
     @Accessor("WAITING")
     static TrackedData<Boolean> getWaiting() {
         throw new AssertionError();

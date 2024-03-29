@@ -85,6 +85,11 @@ public record EmptyServerPacketHandler(NetworkPhase phase) implements ServerConf
     }
 
     @Override
+    public void onChatCommandSigned(ChatCommandSignedC2SPacket packet) {
+
+    }
+
+    @Override
     public void onMessageAcknowledgment(MessageAcknowledgmentC2SPacket packet) {
 
     }

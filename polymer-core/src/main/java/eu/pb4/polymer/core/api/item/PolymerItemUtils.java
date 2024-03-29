@@ -77,7 +77,8 @@ public final class PolymerItemUtils {
             DataComponentTypes.LODESTONE_TRACKER,
             DataComponentTypes.ENCHANTMENTS,
             DataComponentTypes.STORED_ENCHANTMENTS,
-            DataComponentTypes.POTION_CONTENTS
+            DataComponentTypes.POTION_CONTENTS,
+            DataComponentTypes.CUSTOM_NAME,
     };
 
     private static final Set<DataComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
@@ -296,6 +297,9 @@ public final class PolymerItemUtils {
             }
         }
 
+        out.set(DataComponentTypes.ITEM_NAME, itemStack.getOrDefault(DataComponentTypes.ITEM_NAME,
+                itemStack.getItem().getName(itemStack)));
+
         for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {
             var key = COMPONENTS_TO_COPY[i];
             var x = itemStack.get(key);
@@ -326,41 +330,22 @@ public final class PolymerItemUtils {
 
         try {
             var tooltip = itemStack.getTooltip(player, tooltipContext);
-            var name = (MutableText) tooltip.remove(0);
+            if (!tooltip.isEmpty()) {
+                tooltip.remove(0);
 
-            if (!out.getName().equals(name)) {
-                name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
-                out.set(DataComponentTypes.CUSTOM_NAME, name);
-            }
+                if (itemStack.getItem() instanceof PolymerItem) {
+                    ((PolymerItem) itemStack.getItem()).modifyClientTooltip(tooltip, itemStack, player);
+                }
 
-            if (itemStack.getItem() instanceof PolymerItem) {
-                ((PolymerItem) itemStack.getItem()).modifyClientTooltip(tooltip, itemStack, player);
+                var lore = new ArrayList<Text>();
+                for (Text t : tooltip) {
+                    lore.add(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE));
+                }
+                out.set(DataComponentTypes.LORE, new LoreComponent(lore));
             }
-
-            var lore = new ArrayList<Text>();
-            for (Text t : tooltip) {
-                lore.add(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE));
-            }
-            out.set(DataComponentTypes.LORE, new LoreComponent(lore));
         } catch (Throwable e) {
             if (PolymerImpl.LOG_MORE_ERRORS) {
                 PolymerImpl.LOGGER.error("Failed to get tooltip of " + itemStack, e);
-            }
-
-            // Fallback for mods that require client side methods for tooltips
-            try {
-                MutableText name = itemStack.getName().copy();
-
-                name.setStyle(name.getStyle().withParent(NON_ITALIC_STYLE));
-                out.set(DataComponentTypes.CUSTOM_NAME, name);
-            } catch (Throwable e2) {
-                // Fallback for mods that can't even handle names correctly...
-                // Do nothing and hope for the best™
-
-                if (PolymerImpl.LOG_MORE_ERRORS) {
-                    PolymerImpl.LOGGER.error("Failed for second time. Ignoring.", e2);
-
-                }
             }
         }
         out.apply(DataComponentTypes.ENCHANTMENTS, null, (x) -> x != null ? x.withShowInTooltip(false) : null);
