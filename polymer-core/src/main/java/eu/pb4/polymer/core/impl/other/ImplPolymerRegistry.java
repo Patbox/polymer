@@ -24,6 +24,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     private final Object2IntMap<T> entryIdMap = new Object2IntOpenHashMap<>();
     private final Map<T, Identifier> identifierMap = new Object2ObjectOpenHashMap<>();
     private final Map<Identifier, Set<T>> tags = new Object2ObjectOpenHashMap<>();
+    private final List<T> entries = new ArrayList<>();
     private final T defaultValue;
     private final Identifier defaultIdentifier;
     private final String name;
@@ -31,7 +32,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
 
     private int currentId = 0;
     private final Map<T, Set<Identifier>> entryTags = new Object2ObjectOpenHashMap<>();
-    private WeakHashMap<Identifier, Key> keys = new WeakHashMap<>();
+    private final WeakHashMap<Identifier, Key> keys = new WeakHashMap<>();
 
     public ImplPolymerRegistry(String name, String shortName) {
         this(name, shortName, null, null);
@@ -106,7 +107,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
 
     @Override
     public Stream<T> stream() {
-        return this.entryMap.values().stream();
+        return this.entries.stream();
     }
 
     public void set(Identifier identifier, int rawId, T entry) {
@@ -114,6 +115,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
         this.identifierMap.put(entry, identifier);
         this.rawIdMap.put(rawId, entry);
         this.entryIdMap.put(entry, rawId);
+        this.entries.add(entry);
         this.currentId = Math.max(this.currentId, rawId) + 1;
     }
 
@@ -126,13 +128,14 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
         this.identifierMap.clear();
         this.entryMap.clear();
         this.entryIdMap.clear();
+        this.entries.clear();
         this.currentId = 0;
     }
 
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return this.rawIdMap.values().iterator();
+        return this.entries.iterator();
     }
 
     public Iterable<Identifier> ids() {
@@ -183,6 +186,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
             this.entryIdMap.removeInt(entry);
             this.identifierMap.remove(entry);
             this.entryTags.remove(entry);
+            this.entries.remove(entry);
         }
     }
 

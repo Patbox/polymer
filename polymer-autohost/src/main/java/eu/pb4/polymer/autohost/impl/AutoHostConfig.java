@@ -31,6 +31,8 @@ public class AutoHostConfig {
 
     @SerializedName("external_resource_packs")
     public List<ExternalResourcePack> externalResourcePacks = new ArrayList<>();
+    @SerializedName("setup_early")
+    public boolean loadEarly = CommonImpl.DEV_ENV;
 
     public static class ExternalResourcePack {
         public UUID id;

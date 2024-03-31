@@ -29,7 +29,8 @@ public class WorldEventS2CPacketMixin {
             var player = PolymerUtils.getPlayerContext();
 
             if (state.getBlock() instanceof PolymerBlock polymerBlock) {
-                state = polymerBlock.getPolymerBreakEventBlockState(state, player);
+                state =  PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,
+                        PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, player);
             }
 
             return Block.getRawIdFromState(PolymerBlockUtils.getServerSideBlockState(state, player));

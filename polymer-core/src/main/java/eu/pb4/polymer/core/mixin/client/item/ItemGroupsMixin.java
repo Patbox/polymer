@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.mixin.client.item;
 
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -8,24 +8,26 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
 @Mixin(ItemGroups.class)
-public class ItemGroupsMixin {
+public abstract class ItemGroupsMixin {
     @Environment(EnvType.CLIENT)
-    @Inject(method = "stream", at = @At("RETURN"), cancellable = true, require = 0)
-    private static void polymerCore$injectClientItemGroups(CallbackInfoReturnable<Stream<ItemGroup>> cir) {
+    @ModifyReturnValue(method = "stream", at = @At("RETURN"),require = 0)
+    private static Stream<ItemGroup> polymerCore$injectClientItemGroups(Stream<ItemGroup> original) {
         if (InternalClientRegistry.ITEM_GROUPS.size() > 0) {
-            cir.setReturnValue(Stream.concat(cir.getReturnValue(), InternalClientRegistry.ITEM_GROUPS.stream()));
+            return Stream.concat(original, InternalClientRegistry.ITEM_GROUPS.stream());
         }
+        return original;
     }
 
     @Environment(EnvType.CLIENT)
