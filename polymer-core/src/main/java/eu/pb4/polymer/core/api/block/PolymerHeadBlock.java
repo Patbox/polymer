@@ -27,8 +27,9 @@ public interface PolymerHeadBlock extends PolymerBlock {
         return null;
     };
 
-    default Block getPolymerBlock() {
-        return Blocks.PLAYER_HEAD;
+    @Override
+    default BlockState getPolymerBlockState(BlockState state) {
+        return Blocks.PLAYER_HEAD.getDefaultState();
     }
 
     /**

@@ -15,7 +15,7 @@ public class SimplePolymerBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return this.polymerBlock;
+    public BlockState getPolymerBlockState(BlockState state) {
+        return this.polymerBlock.getDefaultState();
     }
 }

@@ -30,11 +30,6 @@ public class BlockExtBlockMapper implements BlockMapper {
     }
 
     @Override
-    public Block toClientSideBlock(Block block, ServerPlayerEntity player) {
-        return this.baseMapper.toClientSideBlock(block, player);
-    }
-
-    @Override
     public String getMapperName() {
         return "polymer:textured_blocks";
     }

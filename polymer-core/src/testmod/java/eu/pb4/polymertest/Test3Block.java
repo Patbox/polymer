@@ -11,11 +11,6 @@ public class Test3Block extends Block implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.AIR;
-    }
-
-    @Override
     public BlockState getPolymerBlockState(BlockState state) {
         return Blocks.COBWEB.getDefaultState();
     }

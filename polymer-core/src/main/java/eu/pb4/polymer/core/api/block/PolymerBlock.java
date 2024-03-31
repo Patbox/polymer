@@ -13,31 +13,13 @@ import net.minecraft.util.math.BlockPos;
 public interface PolymerBlock extends PolymerSyncedObject<Block> {
 
     /**
-     * Returns main/default block used on client
-     *
-     * @return Vanilla (or other) Block instance
-     */
-    Block getPolymerBlock(BlockState state);
-
-    /**
-     * Returns block used on client for player
-     *
-     * @return Vanilla (or other) Block instance
-     */
-    default Block getPolymerBlock(BlockState state, ServerPlayerEntity player) {
-        return this.getPolymerBlock(state);
-    }
-
-    /**
      * Generic method used for replacing BlockStates in case of no player context
      * It also controls some server side things like collisions
      *
      * @param state Server side/real BlockState
      * @return BlockState visible on client
      */
-    default BlockState getPolymerBlockState(BlockState state) {
-        return this.getPolymerBlock(state).getDefaultState();
-    }
+    BlockState getPolymerBlockState(BlockState state);
 
     /**
      * Main method used for replacing BlockStates for players
@@ -81,7 +63,7 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
 
     @Override
     default Block getPolymerReplacement(ServerPlayerEntity player) {
-        return this.getPolymerBlock(((Block) this).getDefaultState(), player);
+        return PolymerBlockUtils.getPolymerBlock((Block) this, player);
     }
 
     default boolean handleMiningOnServer(ItemStack tool, BlockState state, BlockPos pos, ServerPlayerEntity player) {

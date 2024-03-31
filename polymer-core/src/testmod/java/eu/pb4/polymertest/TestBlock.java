@@ -37,12 +37,6 @@ public class TestBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.DISPENSER;
-    }
-
-
-    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
         builder.add(TEST);

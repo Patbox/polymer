@@ -11,7 +11,7 @@ public class SelfReferenceBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return /*this*/Blocks.STONE;
+    public BlockState getPolymerBlockState(BlockState state) {
+        return /*this*/Blocks.STONE.getDefaultState();
     }
 }

@@ -13,12 +13,6 @@ public class TestFluidBlock extends FluidBlock implements PolymerBlock {
     protected TestFluidBlock(FlowableFluid fluid, Settings settings) {
         super(fluid, settings);
     }
-
-    @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.WATER;
-    }
-
     @Override
     public BlockState getPolymerBlockState(BlockState state) {
         var id = state.get(Properties.LEVEL_15);

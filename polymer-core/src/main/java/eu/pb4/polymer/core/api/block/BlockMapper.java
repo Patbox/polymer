@@ -25,8 +25,6 @@ public interface BlockMapper {
     SimpleEvent<BiFunction<ServerPlayerEntity, BlockMapper, @Nullable BlockMapper>> DEFAULT_MAPPER_EVENT = new SimpleEvent<>();
 
     BlockState toClientSideState(BlockState state, ServerPlayerEntity player);
-    Block toClientSideBlock(Block block, ServerPlayerEntity player);
-
     String getMapperName();
 
     static BlockMapper createDefault() {

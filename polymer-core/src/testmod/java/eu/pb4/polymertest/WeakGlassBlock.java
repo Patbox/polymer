@@ -26,11 +26,6 @@ public class WeakGlassBlock extends TranslucentBlock implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.GLASS;
-    }
-
-    @Override
     public BlockState getPolymerBlockState(BlockState state) {
     return switch (state.get(DAMAGE)) {
             case 0 -> Blocks.GLASS.getDefaultState();

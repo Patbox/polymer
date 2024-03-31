@@ -18,11 +18,6 @@ public class BlockMapperImpl {
         }
 
         @Override
-        public Block toClientSideBlock(Block block, ServerPlayerEntity player) {
-            return block instanceof PolymerBlock polymerBlock ? PolymerBlockUtils.getBlockSafely(polymerBlock, block.getDefaultState(), player) : block;
-        }
-
-        @Override
         public String getMapperName() {
             return "polymer:default";
         }
@@ -37,13 +32,6 @@ public class BlockMapperImpl {
             }
 
             @Override
-            public Block toClientSideBlock(Block block, ServerPlayerEntity player) {
-                var clientState = blockStateMap.get(block.getDefaultState());
-
-                return clientState != null ? DEFAULT.toClientSideBlock(clientState.getBlock(), player) : Blocks.AIR;
-            }
-
-            @Override
             public String getMapperName() {
                 return "polymer:from_map";
             }
@@ -55,11 +43,6 @@ public class BlockMapperImpl {
             @Override
             public BlockState toClientSideState(BlockState state, ServerPlayerEntity player) {
                 return base.toClientSideState(overlay.toClientSideState(state, player), player);
-            }
-
-            @Override
-            public Block toClientSideBlock(Block block, ServerPlayerEntity player) {
-                return base.toClientSideBlock(overlay.toClientSideBlock(block, player), player);
             }
 
             @Override

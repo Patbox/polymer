@@ -16,11 +16,6 @@ public class TestClientBlock extends Block implements PolymerBlock, PolymerKeepM
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.DISPENSER;
-    }
-
-    @Override
     public BlockState getPolymerBlockState(BlockState state) {
         return Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP);
     }

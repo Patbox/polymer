@@ -13,11 +13,6 @@ public class TinyPotatoBlock extends Block implements PolymerHeadBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.PLAYER_HEAD;
-    }
-
-    @Override
     public BlockState getPolymerBlockState(BlockState state) {
         return Blocks.PLAYER_HEAD.getDefaultState();
     }

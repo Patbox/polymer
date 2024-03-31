@@ -12,11 +12,6 @@ public class TestPerPlayerBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.DISPENSER;
-    }
-
-    @Override
     public BlockState getPolymerBlockState(BlockState state) {
         return Blocks.BARRIER.getDefaultState();
     }
