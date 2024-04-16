@@ -15,14 +15,12 @@ import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
@@ -149,14 +147,14 @@ public final class PolymerUtils {
     /**
      * Returns current TooltipContext of player,
      */
-    public static TooltipContext getTooltipContext(@Nullable ServerPlayerEntity player) {
+    public static TooltipType getTooltipType(@Nullable ServerPlayerEntity player) {
         return PolymerImplUtils.getTooltipContext(player);
     }
 
     /**
      * Returns current TooltipContext of player,
      */
-    public static TooltipContext getCreativeTooltipContext(@Nullable ServerPlayerEntity player) {
+    public static TooltipType getCreativeTooltipType(@Nullable ServerPlayerEntity player) {
         return PolymerImplUtils.getTooltipContext(player).withCreative();
     }
 

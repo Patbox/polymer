@@ -20,6 +20,6 @@ public class CoreClientUtils {
             stack.setCount(og.getCount());
         }
 
-        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipContext(ClientUtils.getPlayer()), ClientUtils.getPlayer()) : stack;
+        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipType(ClientUtils.getPlayer()), ClientUtils.getPlayer()) : stack;
     }
 }

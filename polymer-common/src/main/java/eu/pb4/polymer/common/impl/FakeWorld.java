@@ -1,7 +1,6 @@
 package eu.pb4.polymer.common.impl;
 
 
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.mixin.ReferenceAccessor;
 import eu.pb4.polymer.common.mixin.WorldAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
@@ -16,6 +15,7 @@ import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
+import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -318,7 +318,7 @@ public final class FakeWorld extends World implements LightSourceView {
 
     @Override
     public MapIdComponent getNextMapId() {
-        return new MapIdComponent(-1);
+        return null;
     }
 
     @Override
@@ -365,10 +365,14 @@ public final class FakeWorld extends World implements LightSourceView {
     public void emitGameEvent(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter) {
 
     }
-
     @Override
     public DynamicRegistryManager getRegistryManager() {
         return REGISTRY_MANAGER;
+    }
+
+    @Override
+    public BrewingRecipeRegistry getBrewingRecipeRegistry() {
+        return null;
     }
 
     @Override
@@ -403,10 +407,9 @@ public final class FakeWorld extends World implements LightSourceView {
 
 
     static class FakeWorldProperties implements MutableWorldProperties {
-
         @Override
         public BlockPos getSpawnPos() {
-            return null;
+            return BlockPos.ORIGIN;
         }
 
         @Override

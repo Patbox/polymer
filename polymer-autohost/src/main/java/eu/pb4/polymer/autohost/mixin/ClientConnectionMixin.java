@@ -38,7 +38,7 @@ public class ClientConnectionMixin implements ClientConnectionExt {
     }
 
     @Inject(method = "addHandlers", at = @At("TAIL"))
-    private static void addHttpHandlers(ChannelPipeline pipeline, NetworkSide side, PacketSizeLogger packetSizeLogger, CallbackInfo ci) {
+    private static void addHttpHandlers(ChannelPipeline pipeline, NetworkSide side, boolean bl, PacketSizeLogger packetSizeLogger, CallbackInfo ci) {
         if (side == NetworkSide.SERVERBOUND && ResourcePackDataProvider.getActive() instanceof NettyProvider) {
             pipeline.addFirst(ProtocolSwitcher.ID, new ProtocolSwitcher());
         }

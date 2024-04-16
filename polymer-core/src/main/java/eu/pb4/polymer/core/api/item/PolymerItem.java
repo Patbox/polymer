@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.api.item;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,8 +34,8 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
      * @param player    Player for which it's send
      * @return Client-side ItemStack
      */
-    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
-        return PolymerItemUtils.createItemStack(itemStack, context, player);
+    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, @Nullable ServerPlayerEntity player) {
+        return PolymerItemUtils.createItemStack(itemStack, tooltipType, player);
     }
 
 
@@ -65,7 +65,7 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
 
     /**
      * This method allows to modify tooltip text
-     * If you just want to add your own one, use {@link Item#appendTooltip(ItemStack, World, List, TooltipContext)}
+     * If you just want to add your own one, use {@link Item#appendTooltip(ItemStack, Item.TooltipContext, List, TooltipType)}
      *
      * @param tooltip Current tooltip text
      * @param stack   Server-side ItemStack

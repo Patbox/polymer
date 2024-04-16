@@ -469,7 +469,7 @@ public class Commands {
         var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player).copy();
         stack.remove(DataComponentTypes.CUSTOM_DATA);
 
-        context.getSource().sendFeedback(() -> (new NbtTextFormatter("", 3)).apply(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, ServerTranslationUtils.parseFor(player.networkHandler, stack)).result().get()), false);
+        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, ServerTranslationUtils.parseFor(player.networkHandler, stack)).result().get()), false);
 
         return 1;
     }

@@ -10,7 +10,7 @@ import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
-import eu.pb4.polymer.core.impl.other.PolymerTooltipContext;
+import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
@@ -18,17 +18,11 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.PlayerHeadItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.registry.Registries;
@@ -264,8 +258,8 @@ public class PolymerImplUtils {
         return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null || PolymerUtils.isServerOnly(stack);
     }
 
-    public static PolymerTooltipContext getTooltipContext(ServerPlayerEntity player) {
-        return player != null && player.networkHandler instanceof PolymerPlayNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipContext.ADVANCED : PolymerTooltipContext.BASIC;
+    public static PolymerTooltipType getTooltipContext(ServerPlayerEntity player) {
+        return player != null && player.networkHandler instanceof PolymerPlayNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipType.ADVANCED : PolymerTooltipType.BASIC;
     }
 
     public static boolean isServerSideSyncableEntry(Registry reg, Object obj) {
@@ -273,10 +267,10 @@ public class PolymerImplUtils {
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player) {
-        return convertStack(representation, player, PolymerUtils.getTooltipContext(player));
+        return convertStack(representation, player, PolymerUtils.getTooltipType(player));
     }
 
-    public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipContext context) {
+    public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipType context) {
         return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, player), player));
     }
 

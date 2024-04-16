@@ -6,30 +6,22 @@ import eu.pb4.polymer.common.api.events.FunctionEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.utils.PolymerObject;
-import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.TransformingDataComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.ComponentMap;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.DataComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.*;
+import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -81,6 +73,15 @@ public final class PolymerItemUtils {
             DataComponentTypes.CUSTOM_NAME,
     };
 
+    @SuppressWarnings("rawtypes")
+    private static final List<HideableTooltip> HIDEABLE_TOOLTIPS = List.of(
+            HideableTooltip.of(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent::withShowInTooltip),
+            HideableTooltip.of(DataComponentTypes.TRIM, ArmorTrim::withShowInTooltip),
+            HideableTooltip.ofNeg(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent::isEmpty, ItemEnchantmentsComponent::withShowInTooltip),
+            HideableTooltip.ofNeg(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent::isEmpty, ItemEnchantmentsComponent::withShowInTooltip),
+            HideableTooltip.of(DataComponentTypes.UNBREAKABLE, UnbreakableComponent::withShowInTooltip)
+    );
+
     private static final Set<DataComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
     private PolymerItemUtils() {
@@ -94,7 +95,7 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipContext(player), player);
+        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
     }
 
     /**
@@ -105,7 +106,7 @@ public final class PolymerItemUtils {
      * @param player         Player being send to
      * @return Client side ItemStack
      */
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext tooltipContext, @Nullable ServerPlayerEntity player) {
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {
@@ -195,8 +196,7 @@ public final class PolymerItemUtils {
         {
             var comp = itemStack.get(DataComponentTypes.CONTAINER);
             if (comp != null) {
-                for (var it = comp.iterator(); it.hasNext(); ) {
-                    var nStack = it.next();
+                for (var nStack : comp.iterateNonEmpty()) {
                     if (isPolymerServerItem(nStack, player)) {
                         return true;
                     }
@@ -268,7 +268,7 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemStack createItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return createItemStack(itemStack, PolymerUtils.getTooltipContext(player), player);
+        return createItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
     }
 
     /**
@@ -279,7 +279,7 @@ public final class PolymerItemUtils {
      * @param player         Player seeing it
      * @return Client side ItemStack
      */
-    public static ItemStack createItemStack(ItemStack itemStack, TooltipContext tooltipContext, @Nullable ServerPlayerEntity player) {
+    public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
         int cmd = -1;
         int color = -1;
@@ -305,8 +305,10 @@ public final class PolymerItemUtils {
             var x = itemStack.get(key);
 
             if (x instanceof TransformingDataComponent t) {
+                //noinspection unchecked,rawtypes
                 out.set((DataComponentType) key, t.polymer$getTransformed(player));
             } else {
+                //noinspection unchecked,rawtypes
                 out.set((DataComponentType) key, (Object) itemStack.get(key));
             }
         }
@@ -320,16 +322,26 @@ public final class PolymerItemUtils {
         }
 
         if (color == -1 && itemStack.contains(DataComponentTypes.DYED_COLOR)) {
-            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(getSafeColor(itemStack.get(DataComponentTypes.DYED_COLOR).rgb()), true));
+            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(getSafeColor(itemStack.get(DataComponentTypes.DYED_COLOR).rgb()), false));
         } else if (color != -1) {
-            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color, true));
+            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color, false));
         }
 
         out.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+
+        for (var x : HIDEABLE_TOOLTIPS) {
+            var a = out.get(x.type);
+            //noinspection unchecked
+            if (a != null && x.shouldSet.test(a)) {
+                //noinspection unchecked
+                out.set(x.type, x.setter.setTooltip(a, false));
+            }
+        }
+
         out.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, itemStack.hasGlint());
 
         try {
-            var tooltip = itemStack.getTooltip(player, tooltipContext);
+            var tooltip = itemStack.getTooltip(player != null ? Item.TooltipContext.create(player.getWorld()) : Item.TooltipContext.DEFAULT, player, tooltipContext);
             if (!tooltip.isEmpty()) {
                 tooltip.remove(0);
 
@@ -348,8 +360,6 @@ public final class PolymerItemUtils {
                 PolymerImpl.LOGGER.error("Failed to get tooltip of " + itemStack, e);
             }
         }
-        out.apply(DataComponentTypes.ENCHANTMENTS, null, (x) -> x != null ? x.withShowInTooltip(false) : null);
-
         return ITEM_MODIFICATION_EVENT.invoke((col) -> {
             var custom = out;
 
@@ -438,5 +448,23 @@ public final class PolymerItemUtils {
     }
 
     public record ItemWithMetadata(Item item, int customModelData, int color) {
+    }
+
+    private record HideableTooltip<T>(DataComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
+
+        public static <T> HideableTooltip<T> of(DataComponentType<T> type, TooltipSetter<T> setter) {
+            return new HideableTooltip<>(type, x -> true, setter);
+        }
+        public static <T> HideableTooltip<T> of(DataComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
+            return new HideableTooltip<>(type, shouldSet, setter);
+        }
+
+        public static <T> HideableTooltip<T> ofNeg(DataComponentType<T> type, Predicate<T> shouldntSet, TooltipSetter<T> setter) {
+            return new HideableTooltip<>(type, shouldntSet.negate(), setter);
+        }
+
+        interface TooltipSetter<T> {
+            T setTooltip(T val, boolean value);
+        }
     }
 }

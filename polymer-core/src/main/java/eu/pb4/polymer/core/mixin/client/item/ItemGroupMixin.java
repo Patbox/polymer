@@ -6,7 +6,7 @@ import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
-import eu.pb4.polymer.core.impl.other.PolymerTooltipContext;
+import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
@@ -75,7 +75,7 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @Inject(method = "getIcon", at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/function/Supplier;get()Ljava/lang/Object;", shift = At.Shift.AFTER))
     private void polymer$wrapIcon(CallbackInfoReturnable<ItemStack> cir) {
         if (this.icon != null && this.icon.getItem() instanceof PolymerItem virtualItem && !PolymerClientDecoded.checkDecode(this.icon.getItem())) {
-            this.icon = virtualItem.getPolymerItemStack(this.icon, PolymerTooltipContext.BASIC, ClientUtils.getPlayer());
+            this.icon = virtualItem.getPolymerItemStack(this.icon, PolymerTooltipType.BASIC, ClientUtils.getPlayer());
         }
     }
 

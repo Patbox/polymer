@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$15", priority = 500)
+@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$16", priority = 500)
 public abstract class PacketCodecsRegistryMixin {
 
     @Shadow @Final private RegistryKey field_48575;

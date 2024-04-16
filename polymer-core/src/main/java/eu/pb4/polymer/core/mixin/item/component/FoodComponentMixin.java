@@ -19,13 +19,13 @@ import java.util.Optional;
 public abstract class FoodComponentMixin implements TransformingDataComponent {
     @Shadow @Final private int nutrition;
 
-    @Shadow @Final private float saturationModifier;
-
     @Shadow @Final private boolean canAlwaysEat;
 
     @Shadow @Final private float eatSeconds;
 
     @Shadow @Final private List<FoodComponent.StatusEffectEntry> effects;
+
+    @Shadow @Final private float saturation;
 
     @Override
     public Object polymer$getTransformed(ServerPlayerEntity player) {
@@ -33,7 +33,7 @@ public abstract class FoodComponentMixin implements TransformingDataComponent {
             return this;
         }
 
-        return new FoodComponent(this.nutrition, this.saturationModifier, this.canAlwaysEat, this.eatSeconds, List.of());
+        return new FoodComponent(this.nutrition, this.saturation, this.canAlwaysEat, this.eatSeconds, List.of());
     }
 
     @Override

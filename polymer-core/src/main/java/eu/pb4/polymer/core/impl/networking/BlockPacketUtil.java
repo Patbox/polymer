@@ -43,7 +43,7 @@ public class BlockPacketUtil {
             var chunk = (ChunkDeltaUpdateS2CPacketAccessor) packet;
 
             PolymerPlayNetworkHandlerExtension.of(handler).polymer$delayAfterSequence(new SendSequanceBlockInfo(handler,
-                    chunk.polymer_getSectionPos(), chunk.polymer_getBlockStates(),  chunk.polymer_getPositions()));
+                    chunk.polymer_getSectionPos(), chunk.polymer_getBlockStates(), chunk.polymer_getPositions()));
         }
     }
 
