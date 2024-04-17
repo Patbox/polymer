@@ -19,8 +19,8 @@ import java.util.*;
 
 
 /**
- * An server side item group that can be synchronized with polymer clients
- * It also has it's own server side functionality
+ * A server side item group that can be synchronized with polymer clients
+ * It also has its own server side functionality
  */
 public final class PolymerItemGroupUtils {
     public static final PolymerRegistry<ItemGroup> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
@@ -44,7 +44,7 @@ public final class PolymerItemGroupUtils {
             try {
                  value = ((ItemGroupExtra) group).polymer$getContentsWith(featureSet, operator, lookup);
             } catch (Throwable t) {
-                // Some 1.20 mods use client classes in their item groups because vanilla doesn't call them on the server anymore
+                // Some mods use client classes in their item groups because vanilla doesn't call them on the server anymore
                 // Catch instead of letting the game crash, even though it's their fault...
                 PolymerImpl.LOGGER.warn("Failed to load contents for an ItemGroup", t);
                 value = new Contents(List.of(), List.of());
@@ -66,7 +66,7 @@ public final class PolymerItemGroupUtils {
                     list.add(g);
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                PolymerImpl.LOGGER.warn("Something broke!", e);
             }
         }
 
@@ -76,7 +76,7 @@ public final class PolymerItemGroupUtils {
                     list.add(g);
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                PolymerImpl.LOGGER.warn("Something broke!", e);
             }
         }
 

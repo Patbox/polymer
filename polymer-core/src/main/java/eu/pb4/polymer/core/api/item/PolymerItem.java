@@ -65,7 +65,7 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
 
     /**
      * This method allows to modify tooltip text
-     * If you just want to add your own one, use {@link Item#appendTooltip(ItemStack, Item.TooltipContext, List, TooltipType)}
+     * If you just want to add your own one, use {@link Item#appendTooltip(ItemStack, World, List, TooltipContext)}
      *
      * @param tooltip Current tooltip text
      * @param stack   Server-side ItemStack
@@ -73,14 +73,6 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
      */
     default void modifyClientTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {
     }
-
-    /**
-     * Allows to disable showing of name in item frames
-     */
-    default boolean showDefaultNameInItemFrames() {
-        return false;
-    }
-
     @Override
     default Item getPolymerReplacement(ServerPlayerEntity player) {
         return this.getPolymerItem(((Item) this).getDefaultStack(), player);

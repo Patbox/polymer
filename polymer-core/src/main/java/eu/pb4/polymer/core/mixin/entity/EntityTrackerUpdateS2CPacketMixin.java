@@ -49,23 +49,24 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
     @Unique
     private boolean polymer$isInitial = false;
 
+    @Unique
     @Nullable
-    private List<DataTracker.SerializedEntry<?>> polymer$createEntries() {
+    private List<DataTracker.SerializedEntry<?>> polymer$createEntries(List<DataTracker.SerializedEntry<?>> trackedValues) {
         var entity = EntityAttachedPacket.get(this, this.id);
         if (entity == null) {
-            return this.trackedValues != null ? new ArrayList<>(this.trackedValues) : null;
+            return trackedValues != null ? new ArrayList<>(trackedValues) : null;
         }
 
         var entries = new ArrayList<DataTracker.SerializedEntry<?>>();
         var player = PolymerUtils.getPlayerContext();
 
         if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player, entity)) {
-            var mod = this.trackedValues != null ? new ArrayList<>(this.trackedValues) : new ArrayList<DataTracker.SerializedEntry<?>>();
+            var mod = trackedValues != null ? new ArrayList<>(trackedValues) : new ArrayList<DataTracker.SerializedEntry<?>>();
             polymerEntity.modifyRawTrackedData(mod, player, this.polymer$isInitial);
 
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
-            if (mod.size() > 0 && legalTrackedData != null && legalTrackedData.length > 0) {
+            if (!mod.isEmpty() && legalTrackedData != null && legalTrackedData.length > 0) {
                 for (var entry : mod) {
                     var x = legalTrackedData[entry.id()];
                     if (x != null && x.getData().dataType() == entry.handler()) {
@@ -75,27 +76,18 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
             } else {
                 entries.addAll(mod);
             }
-        } else if (this.trackedValues == null) {
+        } else if (trackedValues == null) {
             return null;
         } else {
-            entries.addAll(this.trackedValues);
+            entries.addAll(trackedValues);
         }
 
-        final var isItemFrame = entity instanceof ItemFrameEntity;
         final var isMinecart = entity instanceof AbstractMinecartEntity;
         final var size = entries.size();
         for (int i = 0; i < size; i++) {
             var entry = entries.get(i);
 
-            if (isItemFrame && entry.id() == ItemFrameEntityAccessor.getITEM_STACK().id() && entry.value() instanceof ItemStack stack) {
-                var polymerStack = PolymerItemUtils.getPolymerItemStack(stack, player);
-
-                if (!stack.contains(DataComponentTypes.CUSTOM_NAME) && !(stack.getItem() instanceof PolymerItem polymerItem && polymerItem.showDefaultNameInItemFrames())) {
-                    stack.remove(DataComponentTypes.CUSTOM_NAME);
-                }
-
-                entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), polymerStack));
-            } else if (isMinecart && entry.id() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID().id()) {
+            if (isMinecart && entry.id() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID().id()) {
                 entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.value()), player))));
             } else if (entry.value() instanceof VillagerData data) {
                 var x = PolymerEntityUtils.getPolymerProfession(data.getProfession());
@@ -109,8 +101,8 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
     }
 
     @ModifyArg(method = "write(Lnet/minecraft/network/RegistryByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/EntityTrackerUpdateS2CPacket;write(Ljava/util/List;Lnet/minecraft/network/RegistryByteBuf;)V"))
-    private List<DataTracker.SerializedEntry<?>> polymer$changeForPacket(List<DataTracker.Entry<?>> value) {
-        return this.polymer$createEntries();
+    private List<DataTracker.SerializedEntry<?>> polymer$changeForPacket(List<DataTracker.SerializedEntry<?>> value) {
+        return this.polymer$createEntries(value);
     }
 
     @Override

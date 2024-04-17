@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.item;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
@@ -37,8 +38,6 @@ public final class PolymerItemUtils {
     public static final MapCodec<ItemStack> POLYMER_STACK_CODEC = ItemStack.CODEC.fieldOf(POLYMER_STACK);
     public static final MapCodec<Identifier> POLYMER_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMER_STACK);
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
-    public static final Style NON_ITALIC_STYLE = Style.EMPTY.withItalic(false);
-
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
@@ -88,10 +87,10 @@ public final class PolymerItemUtils {
     }
 
     /**
-     * This methods creates a client side ItemStack representation
+     * This method creates a client side ItemStack representation
      *
      * @param itemStack Server side ItemStack
-     * @param player    Player being send to
+     * @param player    Player being sent to
      * @return Client side ItemStack
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
@@ -99,11 +98,11 @@ public final class PolymerItemUtils {
     }
 
     /**
-     * This methods creates a client side ItemStack representation
+     * This method creates a client side ItemStack representation
      *
      * @param itemStack      Server side ItemStack
      * @param tooltipContext Tooltip Context
-     * @param player         Player being send to
+     * @param player         Player being sent to
      * @return Client side ItemStack
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
@@ -222,7 +221,7 @@ public final class PolymerItemUtils {
         }
 
 
-        return false;
+        return ITEM_CHECK.invoke((x) -> x.test(itemStack));
     }
 
     /**
@@ -369,24 +368,6 @@ public final class PolymerItemUtils {
 
             return custom;
         });
-    }
-
-    private static NbtElement removeStackMarker(NbtElement nbt) {
-        if (nbt instanceof NbtCompound compound) {
-            var out = new NbtCompound();
-            for (var entry : compound.getKeys()) {
-                out.put(entry, removeStackMarker(compound.get(entry)));
-            }
-            return out;
-        } else if (nbt instanceof NbtList list) {
-            var out = new NbtList();
-            for (var entry : list) {
-                out.add(removeStackMarker(entry));
-            }
-            return out;
-        }
-
-        return nbt;
     }
 
     /**

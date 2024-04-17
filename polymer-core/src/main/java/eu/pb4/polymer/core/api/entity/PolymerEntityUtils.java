@@ -81,7 +81,7 @@ public final class PolymerEntityUtils {
 
     /**
      * @param type EntityType
-     * @return List of default DataTracker entries for entity type
+     * @return Array of default DataTracker entries for entity type
      */
     public static DataTracker.Entry<?>[] getDefaultTrackedData(EntityType<?> type) {
         return InternalEntityHelpers.getExampleTrackedDataOfEntityType(type);

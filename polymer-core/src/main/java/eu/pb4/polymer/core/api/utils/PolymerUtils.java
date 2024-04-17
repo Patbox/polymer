@@ -211,4 +211,8 @@ public final class PolymerUtils {
     public static boolean shouldPreventPacket(ServerCommonNetworkHandler handler, Packet<?> packet) {
         return PacketPatcher.prevent(handler, packet);
     }
+
+    public static ProfileComponent createProfileComponent(String value, @Nullable String signature) {
+        return new ProfileComponent(createSkinGameProfile(value, signature));
+    }
 }

@@ -33,10 +33,10 @@ public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
     public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, ServerPlayerEntity player) {
         ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, player);
 
-        out.set(DataComponentTypes.PROFILE, new ProfileComponent(PolymerUtils.createSkinGameProfile(
+        out.set(DataComponentTypes.PROFILE, PolymerUtils.createProfileComponent(
                 this.polymerBlock.getPolymerSkinValue(this.getBlock().getDefaultState(), BlockPos.ORIGIN, player),
                 this.polymerBlock.getPolymerSkinSignature(this.getBlock().getDefaultState(), BlockPos.ORIGIN, player)
-        )));
+        ));
         return out;
     }
 }
