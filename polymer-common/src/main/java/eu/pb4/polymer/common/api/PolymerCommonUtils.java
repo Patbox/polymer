@@ -175,6 +175,10 @@ public final class PolymerCommonUtils {
         return FORCE_NETWORKING.get() == Unit.INSTANCE || (isNetworkingThread() && Thread.currentThread().getName().contains("Server"));
     }
 
+    public static boolean isClientNetworkingThread() {
+        return CommonImpl.IS_CLIENT &&  (FORCE_NETWORKING.get() == Unit.INSTANCE || isNetworkingThread()) && Thread.currentThread().getName().contains("Client");
+    }
+
     public static boolean isBedrockPlayer(ServerPlayerEntity player) {
         if (CompatStatus.FLOODGATE) {
             return FloodGateUtils.isPlayerBroken(player);

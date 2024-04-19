@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Pseudo
 @Environment(EnvType.CLIENT)
 @Mixin(StackHelper.class)
-public class jei_StackHelperMixin {
+public class jei_StackHelperMixin {/*
     @Inject(method = "getRegistryNameForStack", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void polymer$changeId(ItemStack stack, CallbackInfoReturnable<String> cir) {
         var id = PolymerItemUtils.getServerIdentifier(stack);
         if (id != null) {
             cir.setReturnValue(id.toString());
         }
-    }
+    }*/
 }

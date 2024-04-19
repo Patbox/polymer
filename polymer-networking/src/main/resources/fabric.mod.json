@@ -29,7 +29,7 @@
   "custom": {
     "modmenu": {
       "badges": [ "library" ],
-      "discord": "https://pb4.eu/discord",
+      "links": { "modmenu.discord": "https://pb4.eu/discord" },
       "parent": "polymer-bundled",
       "update_checker": false
     }

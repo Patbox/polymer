@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl.client;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
@@ -52,6 +53,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.chunk.ChunkStatus;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -171,7 +173,7 @@ public class InternalClientRegistry {
     }
 
     private static void setDecoders() {
-        IndexedNetwork.set(Block.STATE_IDS, InternalClientRegistry::decodeState);
+        IndexedNetwork.set(Block.STATE_IDS, InternalClientRegistry::getRealBlockState);
         IndexedNetwork.set(Registries.ITEM, InternalClientRegistry::decodeItem);
 
         setSimpleDecoder((Registry<EntityType>) (Object) Registries.ENTITY_TYPE, (PolymerRegistry<ClientPolymerEntry<EntityType>>) (Object) ENTITY_TYPES);
@@ -187,11 +189,15 @@ public class InternalClientRegistry {
 
 
     public static Object decodeRegistry(IndexedIterable<?> instance, int i) {
-        if (instance instanceof IndexedNetwork<?> indexedNetwork) {
-            return indexedNetwork.polymer$getDecoder().apply(i);
+        if (serverHasPolymer) {
+            var mut = new MutableObject<>();
+            PolymerCommonUtils.executeWithNetworkingLogic(() -> {
+                mut.setValue(instance.getOrThrow(i));
+            });
+            return mut.getValue();
         }
 
-        return instance.get(i);
+        return instance.getOrThrow(i);
     }
 
     public static BlockState decodeState(int rawId) {
@@ -212,7 +218,7 @@ public class InternalClientRegistry {
         return state;
     }
 
-    public static Item decodeItem(int id) {
+    private static Item decodeItem(int id) {
         if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.ITEMS.get(id);
             if (item != null) {
@@ -224,11 +230,11 @@ public class InternalClientRegistry {
             }
         }
 
-        return Registries.ITEM.get(id);
+        return null;
     }
 
 
-    public static Enchantment decodeEnchantment(int id) {
+    private static Enchantment decodeEnchantment(int id) {
         if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.ENCHANTMENT.get(id);
 
@@ -237,7 +243,7 @@ public class InternalClientRegistry {
             }
         }
 
-        return Enchantment.byRawId(id);
+        return null;
     }
 
     private static <T> void setSimpleDecoder(final IndexedIterable<T> registry, final PolymerRegistry<ClientPolymerEntry<T>> polymerRegistry) {
@@ -250,7 +256,7 @@ public class InternalClientRegistry {
                 }
             }
 
-            return registry.get(id);
+            return null;
         });
     }
 

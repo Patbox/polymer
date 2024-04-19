@@ -19,7 +19,7 @@ public class JeiCompatibility implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         if (PolymerImpl.IS_CLIENT) {
-            update(registration.getIngredientManager());
+            //update(registration.getIngredientManager());
         }
     }
 

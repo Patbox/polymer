@@ -6,7 +6,6 @@ import java.util.function.IntFunction;
 
 public interface IndexedNetwork<T> extends IndexedIterable<T> {
 
-    IntFunction<T> polymer$getDecoder();
     void polymer$setDecoder(IntFunction<T> decoder);
 
     static <T> void set(IndexedIterable<T> i, IntFunction<T> decoder) {

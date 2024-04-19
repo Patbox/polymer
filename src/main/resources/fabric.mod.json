@@ -21,7 +21,7 @@
   "environment": "*",
   "custom": {
     "modmenu": {
-      "discord": "https://pb4.eu/discord"
+      "links": { "modmenu.discord": "https://pb4.eu/discord" }
     }
   }
 }

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EmiScreenManager.class)
 public class emi_EmiScreenManager {
-    @Shadow private static MinecraftClient client;
+    /*@Shadow private static MinecraftClient client;
 
     @Inject(method = "give", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), require = 0, cancellable = true)
     private static void polymerCore$replaceWithServerItem(EmiStack eStack, int amount, int mode, CallbackInfoReturnable<Boolean> cir, @Local(ordinal = 0) ItemStack stack) {
@@ -37,5 +37,5 @@ public class emi_EmiScreenManager {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

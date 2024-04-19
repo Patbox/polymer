@@ -24,13 +24,7 @@ public class PolyMcUtils {
 
     public static ItemStack toVanilla(ItemStack stack, ServerPlayerEntity player) {
         if (CompatStatus.POLYMC && !stack.isEmpty()) {
-            var out = PolyMapProvider.getPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
-            if (!ItemStack.areItemsAndComponentsEqual(stack, out)) {
-                out = out.copy();
-                // todo
-                //out.set(DataComponentTypes.CUSTOM_DATA, "PolyMcOriginal", stack.writeNbt(new NbtCompound()));
-                return out;
-            }
+            return PolyMapProvider.getPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
         }
 
         return stack;

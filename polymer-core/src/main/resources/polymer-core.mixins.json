@@ -53,6 +53,7 @@
     "item.ItemGroupMixin",
     "item.ItemGroupsMixin",
     "item.ItemStackContentMixin",
+    "item.ItemStackMixin",
     "item.MinecraftServerMixin",
     "item.NbtCompoundFallbackMixin",
     "item.NbtCompoundMixin",
@@ -70,7 +71,6 @@
     "other.EnchantmentScreenHandlerMixin",
     "other.IdListAccessor",
     "other.IdListMixin",
-    "other.IndexedNetworkMixin",
     "other.ItemGroupsAccessor",
     "other.PacketCodecsEntriesMixin",
     "other.PacketCodecsRegistryEntryListMixin",
@@ -105,7 +105,6 @@
     "client.entity.EntityMixin",
     "client.item.ItemGroupMixin",
     "client.item.ItemGroupsMixin",
-    "client.item.ItemMixin",
     "client.item.ItemStackMixin",
     "client.rendering.AbstractInventoryScreenMixin",
     "client.rendering.BlockModelsMixin",
@@ -114,7 +113,9 @@
     "client.rendering.ItemModelsMixin",
     "client.rendering.ItemRendererMixin",
     "client.rendering.ModelLoaderMixin",
-    "client.rendering.ModelOverrideListMixin"
+    "client.rendering.ModelOverrideListMixin",
+    "client.syncreg.IdListMixin",
+    "client.syncreg.SimpleRegistryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

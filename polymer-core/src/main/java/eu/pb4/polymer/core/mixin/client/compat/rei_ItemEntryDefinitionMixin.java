@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Pseudo
 @Environment(EnvType.CLIENT)
 @Mixin(ItemEntryDefinition.class)
-public abstract class rei_ItemEntryDefinitionMixin {
+public abstract class rei_ItemEntryDefinitionMixin {/*
 
     @Inject(method = "equals(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Lme/shedaniel/rei/api/common/entry/comparison/ComparisonContext;)Z", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer$areEqual(ItemStack o1, ItemStack o2, ComparisonContext context, CallbackInfoReturnable<Boolean> cir) {
@@ -50,5 +50,5 @@ public abstract class rei_ItemEntryDefinitionMixin {
         if (id1 != null) {
             cir.setReturnValue(id1);
         }
-    }
+    }*/
 }

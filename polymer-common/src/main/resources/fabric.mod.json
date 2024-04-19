@@ -19,17 +19,18 @@
   "icon": "assets/iconm.png",
   "environment": "*",
   "depends": {
-    "minecraft": ">=1.20.3-",
+    "minecraft": ">=1.20.5-",
     "fabricloader": ">=0.15.0"
   },
   "conflicts": {
     "banner": "*",
+    "arclight": "*",
     "cardboard": "*"
   },
   "custom": {
     "modmenu": {
       "badges": [ "library" ],
-      "discord": "https://pb4.eu/discord",
+      "links": { "modmenu.discord": "https://pb4.eu/discord" },
       "parent": {
         "id": "polymer-bundled",
         "name": "Polymer",

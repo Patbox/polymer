@@ -12,20 +12,12 @@ import java.util.function.Predicate;
 
 @ApiStatus.Internal
 public class EmiCompatibility implements EmiPlugin {
-    /*public static final boolean IS_1_0_0 = FabricLoader.getInstance().getModContainer("emi").map(x -> {
-        try {
-            return x.getMetadata().getVersion().compareTo(Version.parse("1.0.0-")) >= 0;
-        } catch (Throwable e) {
-            return false;
-        }
-    }).orElse(false);
-*/
     private static final Predicate<EmiStack> SHOULD_REMOVE = (stack) -> PolymerImplUtils.isPolymerControlled(stack.getItemStack());
 
     @Override
     public void register(EmiRegistry registry) {
         if (PolymerImpl.IS_CLIENT) {
-            update(registry);
+            //update(registry);
         }
     }
 

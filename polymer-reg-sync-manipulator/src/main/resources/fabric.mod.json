@@ -25,7 +25,7 @@
   "custom": {
     "modmenu": {
       "badges": [ "library" ],
-      "discord": "https://pb4.eu/discord",
+      "links": { "modmenu.discord": "https://pb4.eu/discord" },
       "parent": {
         "id": "polymer-bundled",
         "name": "Polymer",

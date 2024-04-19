@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Pseudo
 @Mixin(ItemEmiStack.class)
 public abstract class emi_ItemEmiStackMixin {
+    /*
     @Shadow public abstract ItemStack getItemStack();
 
     @Shadow @Final private ItemStack stack;
@@ -27,12 +28,12 @@ public abstract class emi_ItemEmiStackMixin {
         if (CompatUtils.isServerSide(this.stack)) {
             cir.setReturnValue(CompatUtils.getKey(this.stack));
         }
-    }*/
+    }
 
     @Inject(method = "getNbt", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer$getNbt(CallbackInfoReturnable<NbtCompound> cir) {
         if (CompatUtils.isServerSide(this.stack)) {
             cir.setReturnValue(CompatUtils.getBackingNbt(this.stack));
         }
-    }
+    }*/
 }
