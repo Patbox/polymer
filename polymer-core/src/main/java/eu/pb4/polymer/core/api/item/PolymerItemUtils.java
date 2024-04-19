@@ -62,6 +62,8 @@ public final class PolymerItemUtils {
             DataComponentTypes.BANNER_PATTERNS,
             DataComponentTypes.BASE_COLOR,
             DataComponentTypes.HIDE_TOOLTIP,
+            DataComponentTypes.CAN_BREAK,
+            DataComponentTypes.CAN_PLACE_ON,
             DataComponentTypes.REPAIR_COST,
             DataComponentTypes.BUNDLE_CONTENTS,
             DataComponentTypes.RARITY,
@@ -78,7 +80,9 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.TRIM, ArmorTrim::withShowInTooltip),
             HideableTooltip.ofNeg(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent::isEmpty, ItemEnchantmentsComponent::withShowInTooltip),
             HideableTooltip.ofNeg(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent::isEmpty, ItemEnchantmentsComponent::withShowInTooltip),
-            HideableTooltip.of(DataComponentTypes.UNBREAKABLE, UnbreakableComponent::withShowInTooltip)
+            HideableTooltip.of(DataComponentTypes.UNBREAKABLE, UnbreakableComponent::withShowInTooltip),
+            HideableTooltip.of(DataComponentTypes.CAN_BREAK, BlockPredicatesChecker::withShowInTooltip),
+            HideableTooltip.of(DataComponentTypes.CAN_PLACE_ON, BlockPredicatesChecker::withShowInTooltip)
     );
 
     private static final Set<DataComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
