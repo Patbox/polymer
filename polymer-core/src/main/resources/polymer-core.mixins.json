@@ -52,7 +52,7 @@
     "entity.ServerWorldAccessor",
     "item.ItemGroupMixin",
     "item.ItemGroupsMixin",
-    "item.ItemStackContentMixin",
+    "other.HoverEventMixin",
     "item.ItemStackMixin",
     "item.MinecraftServerMixin",
     "item.NbtCompoundFallbackMixin",

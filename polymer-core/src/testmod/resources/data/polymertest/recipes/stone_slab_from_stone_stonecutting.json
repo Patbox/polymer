@@ -4,5 +4,7 @@
   "ingredient": {
     "item": "minecraft:stone"
   },
-  "result": "test:potato_block"
+  "result": {
+    "id": "test:potato_block"
+  }
 }

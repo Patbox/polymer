@@ -300,9 +300,6 @@ public final class PolymerItemUtils {
             }
         }
 
-        out.set(DataComponentTypes.ITEM_NAME, itemStack.getOrDefault(DataComponentTypes.ITEM_NAME,
-                itemStack.getItem().getName(itemStack)));
-
         for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {
             var key = COMPONENTS_TO_COPY[i];
             var x = itemStack.get(key);
@@ -346,7 +343,7 @@ public final class PolymerItemUtils {
         try {
             var tooltip = itemStack.getTooltip(player != null ? Item.TooltipContext.create(player.getWorld()) : Item.TooltipContext.DEFAULT, player, tooltipContext);
             if (!tooltip.isEmpty()) {
-                tooltip.remove(0);
+                out.set(DataComponentTypes.ITEM_NAME, tooltip.remove(0));
 
                 if (itemStack.getItem() instanceof PolymerItem) {
                     ((PolymerItem) itemStack.getItem()).modifyClientTooltip(tooltip, itemStack, player);
@@ -362,6 +359,8 @@ public final class PolymerItemUtils {
             if (PolymerImpl.LOG_MORE_ERRORS) {
                 PolymerImpl.LOGGER.error("Failed to get tooltip of " + itemStack, e);
             }
+            out.set(DataComponentTypes.ITEM_NAME, itemStack.getOrDefault(DataComponentTypes.ITEM_NAME,
+                    itemStack.getItem().getName(itemStack)));
         }
         return ITEM_MODIFICATION_EVENT.invoke((col) -> {
             var custom = out;
