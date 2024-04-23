@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.item;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import net.minecraft.client.item.TooltipType;
@@ -17,10 +18,8 @@ import java.util.List;
 
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
-    @Inject(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isDamaged()Z"), cancellable = true)
-    private void stopEarly(Item.TooltipContext context, @Nullable PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir, @Local(ordinal = 0) List<Text> tooltip) {
-        if (type instanceof PolymerTooltipType) {
-            cir.setReturnValue(tooltip);
-        }
+    @ModifyExpressionValue(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/item/TooltipType;isAdvanced()Z"))
+    private boolean removeAdvanced(boolean original, @Local(ordinal = 0) TooltipType type) {
+        return original && !(type instanceof PolymerTooltipType);
     }
 }
