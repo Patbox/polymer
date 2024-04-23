@@ -92,7 +92,6 @@
     "client.EnchantmentScreenMixin",
     "client.KeyboardMixin",
     "client.MinecraftClientMixin",
-    "client.PacketByteBufMixin",
     "client.ReloadableResourceManagerImplMixin",
     "client.block.ChunkSectionMixin",
     "client.block.EmptyChunkMixin",

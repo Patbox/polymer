@@ -33,10 +33,6 @@ import java.util.List;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public abstract class SynchronizeRecipesS2CPacketMixin implements Packet {
-    @Unique List<RecipeEntry<?>> polymer$clientRewrittenRecipes = null;
-
-    @Shadow @Final private List<RecipeEntry<?>> recipes;
-
     @ModifyReturnValue(method = "method_55955", at = @At("TAIL"))
     private static List<RecipeEntry<?>> polymer$remapRecipes(List<RecipeEntry<?>> recipes) {
         List<RecipeEntry<?>> list = new ArrayList<>();

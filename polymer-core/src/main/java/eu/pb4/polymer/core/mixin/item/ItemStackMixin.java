@@ -17,7 +17,7 @@ import java.util.List;
 
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
-    @Inject(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/DefaultedRegistry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), cancellable = true)
+    @Inject(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isDamaged()Z"), cancellable = true)
     private void stopEarly(Item.TooltipContext context, @Nullable PlayerEntity player, TooltipType type, CallbackInfoReturnable<List<Text>> cir, @Local(ordinal = 0) List<Text> tooltip) {
         if (type instanceof PolymerTooltipType) {
             cir.setReturnValue(tooltip);

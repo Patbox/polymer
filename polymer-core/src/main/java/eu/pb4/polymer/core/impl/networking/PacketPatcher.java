@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
-import eu.pb4.polymer.core.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.compat.ImmersivePortalsUtils;
@@ -91,9 +91,9 @@ public class PacketPatcher {
             ) || !EntityAttachedPacket.shouldSend(packet, player)
             ) {
                 return true;
-            }
-
-            if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player)) {
+            } else if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player)) {
+                return true;
+            } else if (packet instanceof BlockEntityUpdateS2CPacket be && PolymerBlockUtils.isPolymerBlockEntityType(be.getBlockEntityType())) {
                 return true;
             }
         }
