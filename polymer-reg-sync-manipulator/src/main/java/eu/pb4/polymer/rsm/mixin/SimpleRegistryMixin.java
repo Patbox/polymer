@@ -9,6 +9,7 @@ import net.minecraft.registry.MutableRegistry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryInfo;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,8 +30,8 @@ public abstract class SimpleRegistryMixin<T> implements RegistrySyncExtension<T>
     @Unique
     private Status polymer_registry_sync$status = null;
 
-    @Inject(method = "set", at = @At("TAIL"))
-    private <V extends T> void polymer_registry_sync$resetStatus(int rawId, RegistryKey<T> key, T value, Lifecycle lifecycle, CallbackInfoReturnable<RegistryEntry<T>> cir) {
+    @Inject(method = "add", at = @At("TAIL"))
+    private <V extends T> void polymer_registry_sync$resetStatus(RegistryKey<T> key, T value, RegistryEntryInfo info, CallbackInfoReturnable<RegistryEntry.Reference<T>> cir) {
         this.polymer_registry_sync$status = null;
     }
 
