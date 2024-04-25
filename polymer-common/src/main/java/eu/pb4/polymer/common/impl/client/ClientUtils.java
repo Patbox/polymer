@@ -3,6 +3,9 @@ package eu.pb4.polymer.common.impl.client;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -35,5 +38,12 @@ public class ClientUtils {
 
     public static boolean isClientThread() {
         return MinecraftClient.getInstance().isOnThread();
+    }
+
+    public static RegistryWrapper.WrapperLookup getLookup() {
+        if (MinecraftClient.getInstance().world != null) {
+            return MinecraftClient.getInstance().world.getRegistryManager();
+        }
+        return DynamicRegistryManager.of(Registries.REGISTRIES);
     }
 }

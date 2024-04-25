@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.api.item;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
@@ -9,6 +8,7 @@ import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingDataComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
@@ -18,10 +18,16 @@ import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.DataComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
-import net.minecraft.item.*;
+import net.minecraft.item.BlockPredicatesChecker;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.trim.ArmorTrim;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -29,8 +35,11 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public final class PolymerItemUtils {
@@ -48,7 +57,7 @@ public final class PolymerItemUtils {
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
-    private static final DataComponentType<?>[] COMPONENTS_TO_COPY = { DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_PLACE_ON,
+    private static final DataComponentType<?>[] COMPONENTS_TO_COPY = {DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_PLACE_ON,
             DataComponentTypes.BLOCK_ENTITY_DATA, DataComponentTypes.TRIM,
             DataComponentTypes.TOOL,
             DataComponentTypes.MAX_STACK_SIZE,
@@ -73,7 +82,6 @@ public final class PolymerItemUtils {
             DataComponentTypes.POTION_CONTENTS,
             DataComponentTypes.CUSTOM_NAME,
     };
-
     @SuppressWarnings("rawtypes")
     private static final List<HideableTooltip> HIDEABLE_TOOLTIPS = List.of(
             HideableTooltip.of(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent::withShowInTooltip),
@@ -84,8 +92,8 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.CAN_BREAK, BlockPredicatesChecker::withShowInTooltip),
             HideableTooltip.of(DataComponentTypes.CAN_PLACE_ON, BlockPredicatesChecker::withShowInTooltip)
     );
-
     private static final Set<DataComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
+    private static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
 
     private PolymerItemUtils() {
     }
@@ -97,8 +105,8 @@ public final class PolymerItemUtils {
      * @param player    Player being sent to
      * @return Client side ItemStack
      */
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipType(player), lookup, player);
     }
 
     /**
@@ -108,18 +116,19 @@ public final class PolymerItemUtils {
      * @param tooltipContext Tooltip Context
      * @param player         Player being sent to
      * @return Client side ItemStack
+     *
      */
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {
-            return item.getPolymerItemStack(itemStack, tooltipContext, player);
+            return item.getPolymerItemStack(itemStack, tooltipContext, lookup, player);
         } else if (isPolymerServerItem(itemStack, player)) {
-            return createItemStack(itemStack, tooltipContext, player);
+            return createItemStack(itemStack, tooltipContext, lookup, player);
         }
 
         if (ITEM_CHECK.invoke((x) -> x.test(itemStack))) {
-            return createItemStack(itemStack, player);
+            return createItemStack(itemStack, tooltipContext, lookup, player);
         }
 
         return itemStack;
@@ -131,12 +140,13 @@ public final class PolymerItemUtils {
      * @param itemStack Client side ItemStack
      * @return Server side ItemStack
      */
-    public static ItemStack getRealItemStack(ItemStack itemStack) {
+    public static ItemStack getRealItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup) {
         var custom = itemStack.get(DataComponentTypes.CUSTOM_DATA);
 
         if (custom != null && custom.contains(POLYMER_STACK)) {
             try {
-                return custom.get(POLYMER_STACK_CODEC).result().orElse(itemStack);
+                //noinspection deprecation
+                return POLYMER_STACK_CODEC.decode(RegistryOps.of(NbtOps.INSTANCE, lookup), NbtOps.INSTANCE.getMap(custom.getNbt()).getOrThrow()).getOrThrow();
             } catch (Throwable ignored) {
 
             }
@@ -228,6 +238,28 @@ public final class PolymerItemUtils {
         return ITEM_CHECK.invoke((x) -> x.test(itemStack));
     }
 
+    public static ItemStack createMinimalItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return createMinimalItemStack(itemStack, findLookupWrapper(player), player);
+    }
+
+    private static RegistryWrapper.WrapperLookup findLookupWrapper(ServerPlayerEntity player) {
+        RegistryWrapper.WrapperLookup lookup;
+        if (player != null) {
+            lookup = player.getRegistryManager();
+        } else {
+            lookup = PacketContext.get().getRegistryWrapperLookup();
+
+            if (lookup == null) {
+                lookup = PolymerImplUtils.WRAPPER_LOOKUP_PASSER.get();
+
+                if (lookup == null) {
+                    lookup = FALLBACK_LOOKUP;
+                }
+            }
+        }
+        return lookup;
+    }
+
     /**
      * This method creates minimal representation of ItemStack
      *
@@ -235,7 +267,7 @@ public final class PolymerItemUtils {
      * @param player    Player seeing it
      * @return Client side ItemStack
      */
-    public static ItemStack createMinimalItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public static ItemStack createMinimalItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
         var x = itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA);
         int cmd = x != null ? x.value() : -1;
@@ -247,7 +279,13 @@ public final class PolymerItemUtils {
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
-        out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_CODEC, itemStack).result().get());
+        try {
+            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
+                    (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
+            ));
+        } catch (Throwable e) {
+            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
+        }
 
         if (cmd != -1) {
             out.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(cmd));
@@ -274,6 +312,11 @@ public final class PolymerItemUtils {
         return createItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
     }
 
+
+    public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
+        return createItemStack(itemStack, tooltipContext, findLookupWrapper(player), player);
+    }
+
     /**
      * This method creates full (vanilla like) representation of ItemStack
      *
@@ -282,7 +325,7 @@ public final class PolymerItemUtils {
      * @param player         Player seeing it
      * @return Client side ItemStack
      */
-    public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
+    public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
         Item item = itemStack.getItem();
         int cmd = -1;
         int color = -1;
@@ -312,8 +355,14 @@ public final class PolymerItemUtils {
                 out.set((DataComponentType) key, (Object) itemStack.get(key));
             }
         }
+        try {
+            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
+                    (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
+            ));
+        } catch (Throwable e) {
+            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
+        }
 
-        out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_CODEC, itemStack).result().get());
 
         if (cmd == -1 && itemStack.contains(DataComponentTypes.CUSTOM_MODEL_DATA)) {
             out.set(DataComponentTypes.CUSTOM_MODEL_DATA, itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA));
@@ -419,7 +468,7 @@ public final class PolymerItemUtils {
     }
 
     public static ItemStack getClientItemStack(ItemStack stack, ServerPlayerEntity player) {
-        var out = getPolymerItemStack(stack, player);
+        var out = getPolymerItemStack(stack, player.getRegistryManager(), player);
         if (CompatStatus.POLYMC) {
             out = PolyMcUtils.toVanilla(out, player);
         }
@@ -439,6 +488,7 @@ public final class PolymerItemUtils {
         public static <T> HideableTooltip<T> of(DataComponentType<T> type, TooltipSetter<T> setter) {
             return new HideableTooltip<>(type, x -> true, setter);
         }
+
         public static <T> HideableTooltip<T> of(DataComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
             return new HideableTooltip<>(type, shouldSet, setter);
         }
@@ -450,5 +500,20 @@ public final class PolymerItemUtils {
         interface TooltipSetter<T> {
             T setTooltip(T val, boolean value);
         }
+    }
+
+    @Deprecated(forRemoval = true)
+    public static ItemStack getRealItemStack(ItemStack itemStack) {
+        return getRealItemStack(itemStack, findLookupWrapper(null));
+    }
+
+    @Deprecated(forRemoval = true)
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
+    }
+
+    @Deprecated(forRemoval = true)
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
+        return getPolymerItemStack(itemStack, tooltipContext, findLookupWrapper(player), player);
     }
 }

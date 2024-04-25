@@ -5,10 +5,13 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.particle.VibrationParticleEffect;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.event.BlockPositionSource;
 
 public class Test2StatusEffect extends StatusEffect implements PolymerStatusEffect {
     protected Test2StatusEffect() {
-        super(StatusEffectCategory.BENEFICIAL, 0x000000);
+        super(StatusEffectCategory.BENEFICIAL, 0x000000, new VibrationParticleEffect(new BlockPositionSource(BlockPos.ORIGIN), 1000));
     }
 
     @Override

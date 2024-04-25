@@ -12,8 +12,6 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.NonExtendable
 public interface PolymerModelData {
     Item item();
-
     int value();
-
     Identifier modelPath();
 }

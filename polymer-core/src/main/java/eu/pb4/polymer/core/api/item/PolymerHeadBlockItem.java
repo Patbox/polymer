@@ -10,6 +10,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -30,8 +31,8 @@ public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
         return Items.PLAYER_HEAD;
     }
 
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, ServerPlayerEntity player) {
-        ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, RegistryWrapper.WrapperLookup lookup, ServerPlayerEntity player) {
+        ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, lookup, player);
 
         out.set(DataComponentTypes.PROFILE, PolymerUtils.createProfileComponent(
                 this.polymerBlock.getPolymerSkinValue(this.getBlock().getDefaultState(), BlockPos.ORIGIN, player),

@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.mixin.client.item;
 
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientItemGroup;
@@ -74,8 +75,8 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Inject(method = "getIcon", at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/function/Supplier;get()Ljava/lang/Object;", shift = At.Shift.AFTER))
     private void polymer$wrapIcon(CallbackInfoReturnable<ItemStack> cir) {
-        if (this.icon != null && this.icon.getItem() instanceof PolymerItem virtualItem && !PolymerClientDecoded.checkDecode(this.icon.getItem())) {
-            this.icon = virtualItem.getPolymerItemStack(this.icon, PolymerTooltipType.BASIC, ClientUtils.getPlayer());
+        if (this.icon != null && this.icon.getItem() instanceof PolymerItem && !PolymerClientDecoded.checkDecode(this.icon.getItem())) {
+            this.icon = PolymerItemUtils.getPolymerItemStack(this.icon, PolymerTooltipType.BASIC, ClientUtils.getPlayer());
         }
     }
 

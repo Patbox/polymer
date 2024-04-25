@@ -17,6 +17,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class BuiltinModelItemRendererMixin {
     @ModifyVariable(method = "render", at = @At("HEAD"), require = 0)
     private ItemStack polymer$replaceItem(ItemStack stack) {
-        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipType(ClientUtils.getPlayer()), ClientUtils.getPlayer()) : stack;
+        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipType(ClientUtils.getPlayer()), ClientUtils.getLookup(), ClientUtils.getPlayer()) : stack;
     }
 }

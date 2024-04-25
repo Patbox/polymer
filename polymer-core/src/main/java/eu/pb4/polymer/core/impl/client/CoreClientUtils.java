@@ -7,12 +7,13 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class CoreClientUtils {
-    public static ItemStack getRenderingStack(ItemStack stack) {
+    public static ItemStack getRenderingStack(ItemStack stack, RegistryWrapper.WrapperLookup lookup) {
         if (stack.getItem() instanceof VirtualClientItem virtualItem) {
             var og = stack;
 
@@ -20,6 +21,6 @@ public class CoreClientUtils {
             stack.setCount(og.getCount());
         }
 
-        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipType(ClientUtils.getPlayer()), ClientUtils.getPlayer()) : stack;
+        return stack.getItem() instanceof PolymerItem item && !PolymerKeepModel.is(item) ? item.getPolymerItemStack(stack, PolymerUtils.getTooltipType(ClientUtils.getPlayer()), lookup, ClientUtils.getPlayer()) : stack;
     }
 }
