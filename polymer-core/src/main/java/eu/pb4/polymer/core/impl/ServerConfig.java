@@ -24,4 +24,7 @@ public class ServerConfig {
 
     @SerializedName("override_polymc_mining_check")
     public boolean overridePolyMcMining = false;
+
+    @SerializedName("always_remove_polymer_block_entities")
+    public boolean alwaysRemovePolymerBlockEntities = false;
 }

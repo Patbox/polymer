@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 
 public final class PolymerImpl {
     public static final Logger LOGGER = CommonImpl.LOGGER;
+    public static final boolean ALWAYS_REMOVE_BE;
     private static final FabricLoader LOADER = CommonImpl.LOADER;
     public static final boolean DEV_ENV = CommonImpl.DEV_ENV;
 
@@ -42,6 +43,7 @@ public final class PolymerImpl {
         SYNC_MODDED_ENTRIES_POLYMC = serverConfig.polyMcSyncModdedEntries && CompatStatus.POLYMC;
         LIGHT_UPDATE_TICK_DELAY = serverConfig.lightUpdateTickDelay;
         FORCE_STRICT_UPDATES = serverConfig.forceStrictUpdates;
+        ALWAYS_REMOVE_BE = serverConfig.alwaysRemovePolymerBlockEntities;
         ITEMSTACK_NBT_HACK = serverConfig.itemStackNbtHack;
         OVERRIDE_POLYMC_MINING = serverConfig.overridePolyMcMining;
 

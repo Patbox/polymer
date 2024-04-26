@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.impl.PolymerImpl;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.packet.s2c.play.ChunkData;
 import net.minecraft.util.math.BlockPos;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class ChunkDataMixin {
     @WrapWithCondition(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;)V", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"))
     private boolean skipPolymerEntriesForBedrock(List<?> instance, Object e, @Local Map.Entry<BlockPos, BlockEntity> entry) {
-        return !PolymerCommonUtils.isBedrockPlayer(PolymerCommonUtils.getPlayerContext()) || !PolymerBlockUtils.isPolymerBlockEntityType(entry.getValue().getType());
+        return !(PolymerCommonUtils.isBedrockPlayer(PolymerCommonUtils.getPlayerContext()) || PolymerImpl.ALWAYS_REMOVE_BE)
+                || !PolymerBlockUtils.isPolymerBlockEntityType(entry.getValue().getType());
     }
 }

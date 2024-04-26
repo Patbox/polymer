@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.item;
 
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
@@ -111,7 +112,10 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
                 if (state.hasBlockEntity()) {
                     var be = player.getWorld().getBlockEntity(pos);
                     if (be != null) {
-                        player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
+                        var x = be.toUpdatePacket();
+                        if (x != null && !(PolymerBlockUtils.isPolymerBlockEntityType(be.getType()) && PolymerImpl.ALWAYS_REMOVE_BE)) {
+                            player.networkHandler.sendPacket(x);
+                        }
                     }
                 }
             }
