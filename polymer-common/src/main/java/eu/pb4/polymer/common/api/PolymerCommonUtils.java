@@ -30,7 +30,7 @@ public final class PolymerCommonUtils {
 
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
     private static Path cachedClientPath;
-    private final static String SAFE_CLIENT_SHA1 = "c6b92b2374a629f20802bb284f98a4ee790e950a";
+    private final static String SAFE_CLIENT_SHA1 = "05b6f1c6b46a29d6ea82b4e0d42190e42402030f";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientJarRoot;
 
@@ -126,16 +126,16 @@ public final class PolymerCommonUtils {
      */
     public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
         var oldPlayer = CommonImplUtils.getPlayer();
-        var oldTarget = PacketContext.get().getPlayer();
+        var oldTarget = PacketContext.get().getClientConnection();
         var oldPacket = PacketContext.get().getEncodedPacket();
 
         CommonImplUtils.setPlayer(player);
-        PacketContext.setContext(((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection(), null);
+        PacketContext.setContext(player != null ? ((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection() : null, null);
 
         runnable.run();
 
         CommonImplUtils.setPlayer(oldPlayer);
-        PacketContext.setContext(oldTarget != null ? ((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection() : null, oldPacket);
+        PacketContext.setContext(oldTarget, oldPacket);
     }
 
 

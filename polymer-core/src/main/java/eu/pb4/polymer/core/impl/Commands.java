@@ -44,6 +44,7 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.nbt.visitor.NbtTextFormatter;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.screen.LecternScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
@@ -466,10 +467,10 @@ public class Commands {
 
     private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player).copy();
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), context.getSource().getRegistryManager(), player).copy();
         stack.remove(DataComponentTypes.CUSTOM_DATA);
 
-        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, ServerTranslationUtils.parseFor(player.networkHandler, stack)).result().get()), false);
+        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(ItemStack.CODEC.encodeStart(RegistryOps.of(NbtOps.INSTANCE, context.getSource().getRegistryManager()), stack).result().get()), false);
 
         return 1;
     }
@@ -477,9 +478,9 @@ public class Commands {
     private static int getClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
 
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), player);
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), context.getSource().getRegistryManager(), player);
         stack.remove(DataComponentTypes.CUSTOM_DATA);
-        player.giveItemStack(ServerTranslationUtils.parseFor(player.networkHandler, stack));
+        player.giveItemStack(stack);
         context.getSource().sendFeedback(() -> Text.literal("Given client representation to player"), true);
 
         return 1;

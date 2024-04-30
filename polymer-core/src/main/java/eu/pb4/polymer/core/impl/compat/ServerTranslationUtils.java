@@ -4,6 +4,8 @@ package eu.pb4.polymer.core.impl.compat;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
@@ -22,10 +24,15 @@ public class ServerTranslationUtils {
     }
 
     public static ItemStack parseFor(ServerPlayNetworkHandler handler, ItemStack stack) {
+        stack = stack.copy();
+
         if (IS_PRESENT && !CommonImplUtils.isMainPlayer(handler.player)) {
-            return Localization.itemStack(stack, handler.player);
+            stack.apply(DataComponentTypes.ITEM_NAME, null, x -> x != null ? parseFor(handler, x) : null);
+            stack.apply(DataComponentTypes.CUSTOM_NAME, null, x -> x != null ? parseFor(handler, x) : null);
+            stack.apply(DataComponentTypes.LORE, null, x -> x != null ? new LoreComponent(x.lines()
+                    .stream().map(y -> parseFor(handler, y)).toList()) : null);
         }
-        return stack.copy();
+        return stack;
     }
 
     static {

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.api.item;
 
 import com.mojang.serialization.MapCodec;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
@@ -280,9 +281,11 @@ public final class PolymerItemUtils {
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
         try {
-            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
-                    (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
-            ));
+            PolymerCommonUtils.executeWithPlayerContext(null, () -> {
+                out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
+                        (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
+                ));
+            });
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
@@ -356,9 +359,11 @@ public final class PolymerItemUtils {
             }
         }
         try {
-            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
-                    (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
-            ));
+            PolymerCommonUtils.executeWithPlayerContext(null, () -> {
+                out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
+                        (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
+                ));
+            });
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }

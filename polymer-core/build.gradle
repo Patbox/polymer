@@ -80,7 +80,7 @@ dependencies {
         exclude(group: "net.fabricmc")
     }
 
-    modCompileOnly("xyz.nucleoid:server-translations-api:2.0.0-beta.2+1.19.4-pre2")
+    modCompileOnly("xyz.nucleoid:server-translations-api:2.3.0+1.20.5-rc2")
     //modLocalRuntime("xyz.nucleoid:server-translations-api:2.0.0-beta.2+1.19.4-pre2")
 
     modCompileOnly 'com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4'
