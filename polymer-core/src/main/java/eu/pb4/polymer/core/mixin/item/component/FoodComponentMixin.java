@@ -39,7 +39,7 @@ public abstract class FoodComponentMixin implements TransformingDataComponent {
     @Override
     public boolean polymer$requireModification(ServerPlayerEntity player) {
         for (var effect : this.effects) {
-            if (effect.effect().getEffectType() instanceof PolymerObject) {
+            if (effect.effect().getEffectType().value() instanceof PolymerObject) {
                 return true;
             }
         }

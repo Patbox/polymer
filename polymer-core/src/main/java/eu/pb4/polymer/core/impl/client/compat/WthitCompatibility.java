@@ -25,11 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 public class WthitCompatibility implements IWailaPlugin {
-    @Override
-    public void register(IRegistrar registrar) {
-
-    }
-    /*private static final Identifier BLOCK_STATES = Identifier.tryParse("waila:show_states");
+    private static final Identifier BLOCK_STATES = Identifier.tryParse("waila:show_states");
 
     @Override
     public void register(IRegistrar registrar) {
@@ -67,14 +63,11 @@ public class WthitCompatibility implements IWailaPlugin {
 
                 var itemStack = state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
 
-                if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof PlayerHeadItem) {
+                if (!itemStack.isEmpty() && state.hasBlockEntity()) {
                     var blockEntity = accessor.getWorld().getBlockEntity(accessor.getPosition());
 
                     if (blockEntity != null) {
-                        var nbtCompound = blockEntity.createNbt();
-                        if (nbtCompound.contains("SkullOwner")) {
-                            itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
-                        }
+                        itemStack.applyComponentsFrom(blockEntity.getComponents());
                     }
                 }
 
@@ -134,13 +127,11 @@ public class WthitCompatibility implements IWailaPlugin {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_REGISTRY)) {
 
                 var stack = accessor.<ItemEntity>getEntity().getStack();
-                if (stack.hasNbt()) {
-                    var id = PolymerItemUtils.getServerIdentifier(stack);
+                var id = PolymerItemUtils.getServerIdentifier(stack);
 
-                    if (id != null) {
-                        var formatting = IWailaConfig.get().getFormatter();
-                        tooltip.setLine(WailaConstants.REGISTRY_NAME_TAG, formatting.registryName(id));
-                    }
+                if (id != null) {
+                    var formatting = IWailaConfig.get().getFormatter();
+                    tooltip.setLine(WailaConstants.REGISTRY_NAME_TAG, formatting.registryName(id));
                 }
             }
         }
@@ -150,21 +141,19 @@ public class WthitCompatibility implements IWailaPlugin {
         public void appendTail(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
                 var stack = accessor.<ItemEntity>getEntity().getStack();
-                if (stack.hasNbt()) {
-                    var id = PolymerItemUtils.getServerIdentifier(stack);
-                    if (id != null) {
-                        String modName = null;
-                        var regBlock = Registries.ITEM.get(id);
-                        if (regBlock != null) {
-                            modName = IModInfo.get(regBlock).getName();
-                        }
-
-                        if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
-                            modName = InternalClientRegistry.getModName(id);
-                        }
-
-                        tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
+                var id = PolymerItemUtils.getServerIdentifier(stack);
+                if (id != null) {
+                    String modName = null;
+                    var regBlock = Registries.ITEM.get(id);
+                    if (regBlock != null) {
+                        modName = IModInfo.get(regBlock).getName();
                     }
+
+                    if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
+                        modName = InternalClientRegistry.getModName(id);
+                    }
+
+                    tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
                 }
             }
         }
@@ -206,5 +195,5 @@ public class WthitCompatibility implements IWailaPlugin {
                 }
             }
         }
-    }*/
+    }
 }

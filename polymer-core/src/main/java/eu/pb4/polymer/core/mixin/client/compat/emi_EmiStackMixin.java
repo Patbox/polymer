@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Environment(EnvType.CLIENT)
 @Mixin(EmiStack.class)
 public abstract class emi_EmiStackMixin {
-    /*
+
     @Shadow public abstract ItemStack getItemStack();
 
     @Inject(method = "isEqual(Ldev/emi/emi/api/stack/EmiStack;)Z", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
@@ -33,5 +33,5 @@ public abstract class emi_EmiStackMixin {
         if (!CompatUtils.areSamePolymerType(stack.getItemStack(), this.getItemStack())) {
             cir.setReturnValue(false);
         }
-    }*/
+    }
 }

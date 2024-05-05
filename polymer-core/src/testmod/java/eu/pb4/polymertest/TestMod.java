@@ -6,6 +6,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.*;
 import eu.pb4.polymer.core.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.core.api.other.PolymerStat;
+import eu.pb4.polymer.core.api.other.SimplePolymerPotion;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
@@ -20,6 +21,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -59,6 +61,10 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.*;
 import net.minecraft.util.math.ColorHelper;
+import net.minecraft.village.TradeOffer;
+import net.minecraft.village.TradeOffers;
+import net.minecraft.village.TradedItem;
+import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeAccess;
@@ -166,10 +172,10 @@ public class TestMod implements ModInitializer {
 
     public static final StatusEffect STATUS_EFFECT = new TestStatusEffect();
     public static final StatusEffect STATUS_EFFECT_2 = new Test2StatusEffect();
-    public static final Potion POTION = new Potion(new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT), 300));
-    public static final Potion POTION_2 = new Potion(new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT_2), 300));
-    public static final Potion LONG_POTION = new Potion("potion", new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT), 600));
-    public static final Potion LONG_POTION_2 = new Potion("potion", new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT_2), 600));
+    public static final Potion POTION = new SimplePolymerPotion(new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT), 300));
+    public static final Potion POTION_2 = new SimplePolymerPotion(new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT_2), 300));
+    public static final Potion LONG_POTION = new SimplePolymerPotion("potion", new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT), 600));
+    public static final Potion LONG_POTION_2 = new SimplePolymerPotion("potion", new StatusEffectInstance(RegistryEntry.of(STATUS_EFFECT_2), 600));
 
     public static final EntityType<TestEntity> ENTITY = EntityType.Builder.create(TestEntity::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f).build("ig");
     public static final EntityType<TestEntity2> ENTITY_2 = EntityType.Builder.create(TestEntity2::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f).build("no");
@@ -179,7 +185,7 @@ public class TestMod implements ModInitializer {
             .trackingTickInterval(1).build("re");
 
     public static final Item TEST_ENTITY_EGG = new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, new Item.Settings());
-    public static final Item TEST_FOOD = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().nutrition(10).saturationModifier(20).build()), Items.POISONOUS_POTATO);
+    public static Item TEST_FOOD;
     public static final Item TEST_FOOD_2 = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().nutrition(1).saturationModifier(2).build()), Items.CAKE);
 
     public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(PolymerResourcePackUtils.getMainUuid(), new Identifier("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
@@ -256,6 +262,13 @@ public class TestMod implements ModInitializer {
         PolymerItemGroupUtils.registerPolymerItemGroup(new Identifier("test:group"), ITEM_GROUP);
         register(Registries.ITEM, new Identifier("bugged", "wooden_sword"), new BuggedItem(new Item.Settings()));
 
+
+
+        Registry.register(Registries.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
+        register(Registries.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
+
+        TEST_FOOD = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().nutrition(10).saturationModifier(20)
+                .alwaysEdible().statusEffect(new StatusEffectInstance(Registries.STATUS_EFFECT.getEntry(new Identifier("test", "effect")).get(), 20), 1).build()), Items.POISONOUS_POTATO);
         register(Registries.ITEM, new Identifier("test", "emerald"), new SimplePolymerItem(new Item.Settings(), Items.EMERALD));
         register(Registries.ITEM, new Identifier("test", "item"), ITEM);
         register(Registries.ITEM, new Identifier("test", "item2"), ITEM_2);
@@ -333,8 +346,6 @@ public class TestMod implements ModInitializer {
 
         register(Registries.RECIPE_SERIALIZER, new Identifier("test", "test"), TEST_RECIPE_SERIALIZER);
 
-        register(Registries.STATUS_EFFECT, new Identifier("test", "effect"), STATUS_EFFECT);
-        register(Registries.STATUS_EFFECT, new Identifier("test", "effect2"), STATUS_EFFECT_2);
         register(Registries.POTION, new Identifier("test", "potion"), POTION);
         register(Registries.POTION, new Identifier("test", "potion2"), POTION_2);
         register(Registries.POTION, new Identifier("test", "long_potion"), LONG_POTION);
@@ -449,6 +460,11 @@ public class TestMod implements ModInitializer {
             if (atomicBoolean.get()) {
                 //s.add(ITEM_GROUP_2);
             }
+        });
+
+        TradeOfferHelper.registerVillagerOffers(VillagerProfession.FARMER, 1, (factories, rebalanced) -> {
+            factories.add((e, r) -> (new TradeOffer(new TradedItem(TEST_FOOD, 2), Optional.of(new TradedItem(TEST_FOOD, 1)),
+                    TEST_FOOD.getDefaultStack(), 67, 0, 1)));
         });
 
         //var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());

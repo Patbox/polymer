@@ -14,9 +14,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
-import snownee.jade.addon.core.RegistryNameProvider;
+import snownee.jade.addon.debug.RegistryNameProvider;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.config.IWailaConfig;
+import snownee.jade.api.theme.IThemeHelper;
+import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.IElement;
 import snownee.jade.api.ui.IElementHelper;
 import snownee.jade.impl.ui.ItemStackElement;
@@ -25,7 +28,7 @@ import snownee.jade.util.ModIdentification;
 @ApiStatus.Internal
 @SuppressWarnings("UnstableApiUsage")
 public class JadeCompatibility implements IWailaPlugin {
-    /*
+
     @Override
     public void registerClient(IWailaClientRegistration registrar) {
         if (PolymerImpl.IS_CLIENT) {
@@ -50,14 +53,11 @@ public class JadeCompatibility implements IWailaPlugin {
 
                     var itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
 
-                    if (!itemStack.isEmpty() && state.hasBlockEntity() && itemStack.getItem() instanceof PlayerHeadItem) {
+                    if (!itemStack.isEmpty() && state.hasBlockEntity()) {
                         var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
 
                         if (blockEntity != null) {
-                            var nbtCompound = blockEntity.createNbt();
-                            if (nbtCompound.contains("SkullOwner")) {
-                                itemStack.getOrCreateNbt().put("SkullOwner", nbtCompound.getCompound("SkullOwner"));
-                            }
+                            itemStack.applyComponentsFrom(blockEntity.createComponentMap());
                         }
                     }
 
@@ -75,19 +75,19 @@ public class JadeCompatibility implements IWailaPlugin {
 
                 var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != ClientPolymerBlock.NONE_STATE) {
-                var formatting = config.getWailaConfig().getFormatting();
+                var formatting = IWailaConfig.get().getFormatting();
                 tooltip.clear();
                 try {
-                    tooltip.add(formatting.title(block.block().name().getString()), Identifiers.CORE_OBJECT_NAME);
+                    tooltip.add(IThemeHelper.get().title(block.block().name().getString()), Identifiers.CORE_OBJECT_NAME);
                 } catch (Throwable e) {
                 }
                 try {
 
-                    RegistryNameProvider.Mode mode = config.getEnum(Identifiers.CORE_REGISTRY_NAME);
+                    RegistryNameProvider.Mode mode = config.getEnum(Identifiers.DEBUG_REGISTRY_NAME);
 
                     if (mode != RegistryNameProvider.Mode.OFF) {
                         if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
-                            tooltip.add(config.getWailaConfig().getFormatting().registryName(block.block().identifier().toString()));
+                            tooltip.add(formatting.registryName(block.block().identifier().toString()));
                         }
                     }
                 } catch (Throwable e) {
@@ -95,8 +95,8 @@ public class JadeCompatibility implements IWailaPlugin {
 
                 try {
 
-                    if (config.get(Identifiers.MC_BLOCK_STATES)) {
-                        IElementHelper helper = tooltip.getElementHelper();
+                    if (config.get(Identifiers.DEBUG_BLOCK_STATES)) {
+                        IElementHelper helper = IElementHelper.get();
                         ITooltip box = helper.tooltip();
                         block.states().entrySet().forEach((p) -> {
                             MutableText valueText = Text.literal(" " + p.getValue()).formatted();
@@ -106,7 +106,7 @@ public class JadeCompatibility implements IWailaPlugin {
 
                             box.add(Text.literal(p.getKey() + ":").append(valueText));
                         });
-                        tooltip.add(helper.box(box));
+                        tooltip.add(helper.box(box, BoxStyle.getNestedBox()));
                     }
                 } catch (Throwable e) {
                 }
@@ -118,7 +118,7 @@ public class JadeCompatibility implements IWailaPlugin {
                         if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
                             modName = "Server";
                         }
-                        tooltip.add(Text.literal(String.format(formatting.getModName(), modName)), Identifiers.CORE_MOD_NAME);
+                        tooltip.add(IThemeHelper.get().modName(modName), Identifiers.CORE_MOD_NAME);
                     }
                 } catch (Throwable e) {
                 }
@@ -161,20 +161,20 @@ public class JadeCompatibility implements IWailaPlugin {
             if (type != null) {
                 tooltip.clear();
                 if (type != null) {
-                    var formatting = config.getWailaConfig().getFormatting();
                     try {
 
-                        tooltip.add(formatting.title(entity.getDisplayName().getString()), Identifiers.CORE_OBJECT_NAME);
+                        tooltip.add(IThemeHelper.get().title(entity.getDisplayName().getString()), Identifiers.CORE_OBJECT_NAME);
                     } catch (Throwable e) {
                     }
 
+                    var formatting = IWailaConfig.get().getFormatting();
 
-                    RegistryNameProvider.Mode mode = config.getEnum(Identifiers.CORE_REGISTRY_NAME);
+                    RegistryNameProvider.Mode mode = config.getEnum(Identifiers.DEBUG_REGISTRY_NAME);
                     try {
 
                         if (mode != RegistryNameProvider.Mode.OFF) {
                             if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
-                                tooltip.add(config.getWailaConfig().getFormatting().registryName(type.identifier().toString()));
+                                tooltip.add(formatting.registryName(type.identifier().toString()));
                             }
                         }
                     } catch (Throwable e) {
@@ -186,7 +186,7 @@ public class JadeCompatibility implements IWailaPlugin {
                             if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
                                 modName = "Server";
                             }
-                            tooltip.add(Text.literal(String.format(formatting.getModName(), modName)), Identifiers.CORE_MOD_NAME);
+                            tooltip.add(IThemeHelper.get().modName(modName), Identifiers.CORE_MOD_NAME);
                         }
                     } catch (Throwable e) {
                     }
@@ -212,5 +212,5 @@ public class JadeCompatibility implements IWailaPlugin {
         public boolean isRequired() {
             return true;
         }
-    }*/
+    }
 }

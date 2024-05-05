@@ -161,7 +161,9 @@ public final class PolymerItemUtils {
      */
     @Nullable
     public static Identifier getPolymerIdentifier(ItemStack itemStack) {
-        var custom = itemStack.get(DataComponentTypes.CUSTOM_DATA);
+        return getPolymerIdentifier(itemStack.get(DataComponentTypes.CUSTOM_DATA));
+    }
+    public static Identifier getPolymerIdentifier(@Nullable NbtComponent custom) {
 
         if (custom != null && custom.contains(POLYMER_STACK)) {
             try {
@@ -180,6 +182,11 @@ public final class PolymerItemUtils {
     @Nullable
     public static Identifier getServerIdentifier(ItemStack itemStack) {
         return getPolymerIdentifier(itemStack);
+    }
+
+    @Nullable
+    public static Identifier getServerIdentifier(@Nullable NbtComponent nbtData) {
+        return getPolymerIdentifier(nbtData);
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack) {

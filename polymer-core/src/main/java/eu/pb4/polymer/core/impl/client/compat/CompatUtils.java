@@ -7,10 +7,9 @@ import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemStackSet;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registries;
@@ -24,7 +23,11 @@ import java.util.function.Consumer;
 @ApiStatus.Internal
 public class CompatUtils {
     public static boolean areSamePolymerType(ItemStack a, ItemStack b) {
-        return Objects.equals(getItemId(a), getItemId(b));
+        return Objects.equals(getItemId(a.getItem(), a.get(DataComponentTypes.CUSTOM_DATA)), getItemId(b.getItem(), b.get(DataComponentTypes.CUSTOM_DATA)));
+    }
+
+    public static boolean areSamePolymerType(Item ai, NbtComponent a, Item bi, NbtComponent b) {
+        return Objects.equals(getItemId(ai, a), getItemId(bi, b));
     }
 
     public static boolean areEqualItems(ItemStack a, ItemStack b) {
@@ -38,33 +41,40 @@ public class CompatUtils {
 
     @Nullable
     public static NbtCompound getBackingNbt(ItemStack stack) {
-        /*if (!stack.hasNbt()) {
+        if (!stack.contains(DataComponentTypes.CUSTOM_DATA)) {
             return null;
         }
-        var nbt = stack.getNbt();
+        var nbt = stack.get(DataComponentTypes.CUSTOM_DATA).getNbt();
         if (PolymerItemUtils.getServerIdentifier(stack) == null) {
             return nbt;
         }
 
-        var maybeNbt = PolymerItemUtils.getPolymerNbt(stack);
+        var maybeNbt = nbt.getCompound(PolymerItemUtils.POLYMER_STACK).getCompound("components");
 
         if (maybeNbt != null) {
             return maybeNbt;
         }
         maybeNbt = nbt.getCompound("PolyMcOriginal");
 
-        return maybeNbt != null && maybeNbt.contains("tag", NbtElement.COMPOUND_TYPE) ? maybeNbt.getCompound("tag") : null;*/
-        return null;
+        return maybeNbt != null && maybeNbt.contains("tag", NbtElement.COMPOUND_TYPE) ? maybeNbt.getCompound("tag") : null;
     }
 
     public static boolean isServerSide(ItemStack stack) {
         return PolymerItemUtils.getServerIdentifier(stack) != null;
     }
 
+    public static boolean isServerSide(@Nullable NbtComponent component) {
+        return PolymerItemUtils.getServerIdentifier(component) != null;
+    }
+
+    @Nullable
     public static Object getKey(ItemStack stack) {
-        var id = PolymerItemUtils.getServerIdentifier(stack);
+        return getKey(stack.get(DataComponentTypes.CUSTOM_DATA));
+    }
+    public static Object getKey(@Nullable NbtComponent component) {
+        var id = PolymerItemUtils.getServerIdentifier(component);
         if (id == null) {
-            return stack.getItem();
+            return null;
         }
 
         if (InternalClientRegistry.ITEMS.contains(id)) {
@@ -74,11 +84,11 @@ public class CompatUtils {
         return Registries.ITEM.get(id);
     }
 
-    private static Identifier getItemId(ItemStack stack) {
-        var id = PolymerItemUtils.getServerIdentifier(stack);
+    private static Identifier getItemId(Item item, @Nullable NbtComponent nbtComponent) {
+        var id = PolymerItemUtils.getServerIdentifier(nbtComponent);
 
         if (id == null) {
-            return stack.getItem().getRegistryEntry().registryKey().getValue();
+            return item.getRegistryEntry().registryKey().getValue();
         }
 
         return id;
@@ -107,6 +117,10 @@ public class CompatUtils {
             return InternalClientRegistry.getModName(id);
         }
         return null;
+    }
+
+    public static Identifier getId(@Nullable NbtComponent nbt) {
+        return PolymerItemUtils.getServerIdentifier(nbt);
     }
 
     public record Key(Identifier identifier) {}

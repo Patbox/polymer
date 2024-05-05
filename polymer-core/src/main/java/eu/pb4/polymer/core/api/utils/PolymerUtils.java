@@ -14,8 +14,10 @@ import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.DataComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
@@ -23,6 +25,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
+import net.minecraft.potion.Potion;
+import net.minecraft.registry.Registries;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -135,6 +139,10 @@ public final class PolymerUtils {
 
 
         });
+    }
+
+    public static void markAsPolymer(DataComponentType<?>... types) {
+        PolymerItemUtils.markAsPolymer(types);
     }
 
     /**

@@ -3,7 +3,6 @@ package eu.pb4.polymer.core.impl.client.compat;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import me.shedaniel.rei.RoughlyEnoughItemsCoreClient;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.common.entry.EntryStack;
@@ -39,7 +38,7 @@ public class ReiCompatibility implements REIClientPlugin {
     @Override
     public void registerItemComparators(ItemComparatorRegistry registry) {
         try {
-            //registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
+            registry.registerGlobal(ITEM_STACK_ENTRY_COMPARATOR);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -48,10 +47,10 @@ public class ReiCompatibility implements REIClientPlugin {
     @Override
     public void registerEntries(EntryRegistry registry) {
         if (PolymerImpl.USE_FULL_REI_COMPAT_CLIENT) {
-            //update(registry);
+            update(registry);
         } else {
             try {
-                //registry.removeEntryIf(SHOULD_REMOVE);
+                registry.removeEntryIf(SHOULD_REMOVE);
             } catch (Throwable e) {
                 e.printStackTrace();
             }

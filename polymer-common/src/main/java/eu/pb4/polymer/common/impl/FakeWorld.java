@@ -7,6 +7,7 @@ import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageScaling;
@@ -54,7 +55,6 @@ import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.QueryableTickScheduler;
-import net.minecraft.world.tick.Tick;
 import net.minecraft.world.tick.TickManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -74,10 +74,13 @@ public final class FakeWorld extends World implements LightSourceView {
     public static final World INSTANCE_UNSAFE;
     public static final World INSTANCE_REGULAR;
     static final Scoreboard SCOREBOARD = new Scoreboard();
-    static final DynamicRegistryManager REGISTRY_MANAGER = new DynamicRegistryManager.Immutable() {
-        private FakeRegistry<DamageType> damageTypes = new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, new Identifier("polymer","fake_damage"),
-                new DamageType("", DamageScaling.NEVER, 0));
 
+    static final DynamicRegistryManager FALLBACK_REGISTRY_MANAGER = new DynamicRegistryManager.Immutable() {
+        private final FakeRegistry<DamageType> damageTypes = new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, new Identifier("polymer","fake_damage"),
+                new DamageType("", DamageScaling.NEVER, 0));
+        private final FakeRegistry<BannerPattern> bannerPatterns = new FakeRegistry<>(RegistryKeys.BANNER_PATTERN,
+                new Identifier("polymer","fake_pattern"),
+                new BannerPattern(new Identifier("polymer","fake_pattern"), ""));
         @Override
         public Optional<Registry> getOptional(RegistryKey key) {
             var x = Registries.REGISTRIES.get(key);
@@ -87,6 +90,8 @@ public final class FakeWorld extends World implements LightSourceView {
 
             if (RegistryKeys.DAMAGE_TYPE.equals(key)) {
                 return Optional.of(damageTypes);
+            } else if (RegistryKeys.BANNER_PATTERN.equals(key)) {
+                return Optional.of(bannerPatterns);
             }
 
             return Optional.empty();
@@ -97,7 +102,7 @@ public final class FakeWorld extends World implements LightSourceView {
             return Stream.empty();
         }
     };
-    static final RecipeManager RECIPE_MANAGER = new RecipeManager(REGISTRY_MANAGER);
+    static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
     private static final FeatureSet FEATURES = FeatureFlags.FEATURE_MANAGER.getFeatureSet();
     final ChunkManager chunkManager = new ChunkManager() {
         private LightingProvider lightingProvider = null;
@@ -226,7 +231,7 @@ public final class FakeWorld extends World implements LightSourceView {
             accessor.polymer$setBlockEntityTickers(new ArrayList<>());
             accessor.polymer$setPendingBlockEntityTickers(new ArrayList<>());
             try {
-                accessor.polymer$setDamageSources(new DamageSources(REGISTRY_MANAGER));
+                accessor.polymer$setDamageSources(new DamageSources(FALLBACK_REGISTRY_MANAGER));
             } catch (Throwable e) {
 
             }
@@ -261,7 +266,7 @@ public final class FakeWorld extends World implements LightSourceView {
     private TickManager tickManager = new TickManager();
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
-        super(properties, registryRef, REGISTRY_MANAGER, dimensionType, profiler, isClient, debugWorld, seed, 0);
+        super(properties, registryRef, FALLBACK_REGISTRY_MANAGER, dimensionType, profiler, isClient, debugWorld, seed, 0);
     }
 
     @Override
@@ -367,7 +372,7 @@ public final class FakeWorld extends World implements LightSourceView {
     }
     @Override
     public DynamicRegistryManager getRegistryManager() {
-        return REGISTRY_MANAGER;
+        return FALLBACK_REGISTRY_MANAGER;
     }
 
     @Override

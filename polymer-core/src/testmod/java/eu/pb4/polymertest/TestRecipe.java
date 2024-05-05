@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.item.PolymerRecipe;
+import eu.pb4.polymer.core.api.utils.PolymerObject;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -62,7 +63,7 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
         return TestMod.TEST_RECIPE_TYPE;
     }
 
-    public static class Serializer implements RecipeSerializer<TestRecipe> {
+    public static class Serializer implements RecipeSerializer<TestRecipe>, PolymerObject {
         @Override
         public MapCodec<TestRecipe> codec() {
             return ItemStack.CODEC.xmap(TestRecipe::new, TestRecipe::stack).fieldOf("item");

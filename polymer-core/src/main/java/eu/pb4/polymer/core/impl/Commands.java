@@ -470,7 +470,7 @@ public class Commands {
         var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), context.getSource().getRegistryManager(), player).copy();
         stack.remove(DataComponentTypes.CUSTOM_DATA);
 
-        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(ItemStack.CODEC.encodeStart(RegistryOps.of(NbtOps.INSTANCE, context.getSource().getRegistryManager()), stack).result().get()), false);
+        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(stack.encode(context.getSource().getRegistryManager())), false);
 
         return 1;
     }
