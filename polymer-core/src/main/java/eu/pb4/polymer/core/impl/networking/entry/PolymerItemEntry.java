@@ -9,7 +9,6 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
-// todo
 @ApiStatus.Internal
 public record PolymerItemEntry(int numId, Identifier identifier, ItemStack representation) {
     public static final PacketCodec<ContextByteBuf, PolymerItemEntry> CODEC = PacketCodec.of(PolymerItemEntry::write, PolymerItemEntry::read);

@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "eu.pb4.polymer.common.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "ClientConnectionMixin",
     "CommandManagerMixin",

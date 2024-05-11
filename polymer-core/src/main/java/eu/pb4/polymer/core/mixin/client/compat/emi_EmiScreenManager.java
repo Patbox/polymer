@@ -7,12 +7,16 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.visitor.NbtOrderedStringFormatter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.ArrayList;
 
 @Pseudo
 @Mixin(EmiScreenManager.class)
@@ -24,16 +28,25 @@ public class emi_EmiScreenManager {
         try {
             if (CompatUtils.isServerSide(stack)) {
                 var id = PolymerItemUtils.getServerIdentifier(stack);
-                var nbt = CompatUtils.getBackingNbt(stack);
-                String command = "give @s " + id;
-                if (nbt != null) {
-                    //var nbtString = nbt.toString();
-                    //if (nbtString.length() + command.length() + 3 < 256) {
-                    //    command += nbtString;
-                    //}
+                var comp = CompatUtils.getBackingComponents(stack);
+                var command = new StringBuilder("give @s " + id);
+                if (comp != null && !comp.isEmpty()) {
+                    command.append('[');
+                    for (var e : comp.entrySet()) {
+                        command.append(e.getKey().toString());
+                        command.append('=');
+                        command.append(new NbtOrderedStringFormatter("", 0, new ArrayList<>()).apply(e.getValue()));
+                    }
+                    command.append(']');
                 }
-                command += " " + amount;
-                client.player.networkHandler.sendChatCommand(command);
+
+                if (command.length() > 256) {
+                    command = new StringBuilder("give @s " + id);
+                }
+                if (amount != 1) {
+                command.append(" ").append(amount);
+                }
+                client.player.networkHandler.sendChatCommand(command.toString());
                 cir.setReturnValue(true);
             }
         } catch (Throwable e) {

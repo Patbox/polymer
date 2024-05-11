@@ -1,5 +1,8 @@
 package eu.pb4.polymer.core.api.item;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
@@ -24,6 +27,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
@@ -40,20 +44,29 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
 public final class PolymerItemUtils {
     public static final String POLYMER_STACK = "$polymer:stack";
     public static final MapCodec<ItemStack> POLYMER_STACK_CODEC = ItemStack.CODEC.fieldOf(POLYMER_STACK);
+    public static final MapCodec<ItemStack> POLYMER_STACK_UNCOUNTED_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMER_STACK);
+    public static final MapCodec<Boolean> POLYMER_STACK_HAS_COUNT_CODEC = Codec.BOOL.optionalFieldOf("$polymer:counted", false);
     public static final MapCodec<Identifier> POLYMER_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMER_STACK);
+    public static final MapCodec<Map<Identifier, NbtElement>> POLYMER_STACK_COMPONENTS_CODEC = Codec.unboundedMap(Identifier.CODEC,
+            Codec.PASSTHROUGH.comapFlatMap((dynamic) -> {
+                var nbt = dynamic.convert(NbtOps.INSTANCE).getValue();
+                return DataResult.success(nbt == dynamic.getValue() ? nbt.copy() : nbt);
+            }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy())))
+            .optionalFieldOf("components", Map.of()).fieldOf(POLYMER_STACK);
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
     public static final BooleanEvent<Predicate<ItemStack>> ITEM_CHECK = new BooleanEvent<>();
     /**
-     * Allows to modify how virtual items looks before being send to client (only if using build in methods!)
+     * Allows to modify how virtual items looks before being sent to client (only if using build in methods!)
      * It can modify virtual version directly, as long as it's returned at the end.
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
@@ -117,7 +130,6 @@ public final class PolymerItemUtils {
      * @param tooltipContext Tooltip Context
      * @param player         Player being sent to
      * @return Client side ItemStack
-     *
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
@@ -146,8 +158,16 @@ public final class PolymerItemUtils {
 
         if (custom != null && custom.contains(POLYMER_STACK)) {
             try {
+                var counted = custom.get(POLYMER_STACK_HAS_COUNT_CODEC).result().orElse(Boolean.FALSE);
+
                 //noinspection deprecation
-                return POLYMER_STACK_CODEC.decode(RegistryOps.of(NbtOps.INSTANCE, lookup), NbtOps.INSTANCE.getMap(custom.getNbt()).getOrThrow()).getOrThrow();
+                var x = (counted ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).decode(RegistryOps.of(NbtOps.INSTANCE, lookup), NbtOps.INSTANCE.getMap(custom.getNbt()).getOrThrow()).getOrThrow();
+
+                if (!counted) {
+                    x.setCount(itemStack.getCount());
+                }
+
+                return x;
             } catch (Throwable ignored) {
 
             }
@@ -163,6 +183,7 @@ public final class PolymerItemUtils {
     public static Identifier getPolymerIdentifier(ItemStack itemStack) {
         return getPolymerIdentifier(itemStack.get(DataComponentTypes.CUSTOM_DATA));
     }
+
     public static Identifier getPolymerIdentifier(@Nullable NbtComponent custom) {
 
         if (custom != null && custom.contains(POLYMER_STACK)) {
@@ -187,6 +208,31 @@ public final class PolymerItemUtils {
     @Nullable
     public static Identifier getServerIdentifier(@Nullable NbtComponent nbtData) {
         return getPolymerIdentifier(nbtData);
+    }
+
+    @Nullable
+    public static Map<Identifier, NbtElement> getServerComponents(ItemStack stack) {
+        return getPolymerComponents(stack.get(DataComponentTypes.CUSTOM_DATA));
+    }
+
+    @Nullable
+    public static Map<Identifier, NbtElement> getPolymerComponents(ItemStack stack) {
+        return getPolymerComponents(stack.get(DataComponentTypes.CUSTOM_DATA));
+
+    }
+
+    @Nullable
+    public static Map<Identifier, NbtElement> getServerComponents(@Nullable NbtComponent nbtData) {
+        return getPolymerComponents(nbtData);
+    }
+
+    @Nullable
+    public static Map<Identifier, NbtElement> getPolymerComponents(@Nullable NbtComponent nbtData) {
+        if (nbtData == null || getPolymerIdentifier(nbtData) == null) {
+            return null;
+        }
+
+        return nbtData.get(POLYMER_STACK_COMPONENTS_CODEC).result().orElse(Map.of());
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack) {
@@ -318,6 +364,7 @@ public final class PolymerItemUtils {
      * @param player    Player seeing it
      * @return Client side ItemStack
      */
+
     public static ItemStack createItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         return createItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
     }
@@ -339,11 +386,15 @@ public final class PolymerItemUtils {
         Item item = itemStack.getItem();
         int cmd = -1;
         int color = -1;
+        boolean storeCount;
         if (itemStack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, player);
             item = data.item();
             cmd = data.customModelData();
             color = data.color();
+            storeCount = virtualItem.shouldStorePolymerItemStackCount();
+        } else {
+            storeCount = false;
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
@@ -367,9 +418,15 @@ public final class PolymerItemUtils {
         }
         try {
             PolymerCommonUtils.executeWithPlayerContext(null, () -> {
-                out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
-                        (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
-                ));
+                var comp = NbtComponent.of(
+                        (NbtCompound) (storeCount ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).encoder()
+                                .encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
+                );
+                if (storeCount) {
+                    out.set(DataComponentTypes.CUSTOM_DATA, comp.with(POLYMER_STACK_HAS_COUNT_CODEC, true).getOrThrow());
+                } else {
+                    out.set(DataComponentTypes.CUSTOM_DATA, comp);
+                }
             });
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());

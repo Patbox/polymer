@@ -31,6 +31,7 @@ public abstract class GenericEntityElement extends AbstractElement {
     private final UUID uuid = UUID.randomUUID();
     private float pitch;
     private float yaw;
+    private Vec3d lastSyncedPos;
     private boolean isRotationDirty;
     private boolean sendPositionUpdates = true;
 
@@ -97,10 +98,7 @@ public abstract class GenericEntityElement extends AbstractElement {
     public void setOffset(Vec3d offset) {
         super.setOffset(offset);
         if (this.sendPositionUpdates && this.getHolder() != null) {
-            var x = VirtualEntityUtils.createMovePacket(this.id, this.getHolder().getPos().add(this.getOffset()), this.getHolder().getPos().add(offset), false, 0f, 0f);
-            if (x != null) {
-                this.getHolder().sendPacket(x);
-            }
+            this.sendPositionUpdates();
         }
     }
 
@@ -114,8 +112,10 @@ public abstract class GenericEntityElement extends AbstractElement {
     }
 
     protected Packet<ClientPlayPacketListener> createSpawnPacket(ServerPlayerEntity player) {
-        var pos = this.getHolder().getPos().add(this.getOffset());
-        return new EntitySpawnS2CPacket(this.id, this.uuid, pos.x, pos.y, pos.z, this.pitch, this.yaw, this.getEntityType(), 0, Vec3d.ZERO, this.yaw);
+        if (this.lastSyncedPos == null) {
+            this.lastSyncedPos = this.getHolder().getPos().add(this.getOffset());
+        }
+        return new EntitySpawnS2CPacket(this.id, this.uuid, this.lastSyncedPos.x, this.lastSyncedPos.y, this.lastSyncedPos.z, this.pitch, this.yaw, this.getEntityType(), 0, Vec3d.ZERO, this.yaw);
     }
 
     protected void sendChangedTrackerEntries(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
@@ -129,11 +129,7 @@ public abstract class GenericEntityElement extends AbstractElement {
     @Override
     public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
         if (this.sendPositionUpdates) {
-            var x = VirtualEntityUtils.createMovePacket(this.id, oldPos.add(this.getOffset()), newPos.add(this.getOffset()), this.isRotationDirty, this.yaw, this.pitch);
-            if (x != null) {
-                this.getHolder().sendPacket(x);
-            }
-            this.isRotationDirty = false;
+            this.sendPositionUpdates();
         }
     }
 
@@ -144,7 +140,38 @@ public abstract class GenericEntityElement extends AbstractElement {
     @Override
     public void tick() {
         this.sendTrackerUpdates();
+        if (this.sendPositionUpdates) {
+            this.sendPositionUpdates();
+        }
         this.sendRotationUpdates();
+    }
+
+    protected void sendPositionUpdates() {
+        if (this.getHolder() == null) {
+            return;
+        }
+        Packet<ClientPlayPacketListener> packet = null;
+        var pos = this.getHolder().getPos().add(this.getOffset());
+
+        if (pos.equals(this.lastSyncedPos)) {
+            return;
+        }
+
+        if (this.lastSyncedPos == null) {
+            var i = MathHelper.floor(yaw * 256.0F / 360.0F);
+            var j = MathHelper.floor(pitch * 256.0F / 360.0F);
+            packet = VirtualEntityUtils.createSimpleMovePacket(this.id, pos, (byte) i, (byte) j);
+        } else {
+            packet = VirtualEntityUtils.createMovePacket(this.id, this.lastSyncedPos, pos, this.isRotationDirty, this.yaw, this.pitch);
+        }
+
+        if (packet != null) {
+            this.getHolder().sendPacket(packet);
+            if (!(packet instanceof EntityS2CPacket.Rotate)) {
+                this.lastSyncedPos = pos;
+            }
+        }
+        this.isRotationDirty = false;
     }
 
     protected void sendTrackerUpdates() {

@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "eu.pb4.polymer.resourcepack.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "plugin": "eu.pb4.polymer.resourcepack.mixin.PolymerResourcePackMixinConfigPlugin",
   "mixins": [
     "compat.polymc.polymc_ArmorColorManagerMixin",

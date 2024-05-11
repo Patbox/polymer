@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
@@ -92,6 +93,10 @@ public class PacketPatcher {
             ) {
                 return true;
             } else if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player)) {
+                return true;
+            } else if ((packet instanceof EntityAttributesS2CPacket original
+                    && EntityAttachedPacket.get(packet, original.getEntityId()) instanceof PolymerEntity entity
+                    && InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
                 return true;
             } else if (packet instanceof BlockEntityUpdateS2CPacket be && PolymerBlockUtils.isPolymerBlockEntityType(be.getBlockEntityType())) {
                 return true;

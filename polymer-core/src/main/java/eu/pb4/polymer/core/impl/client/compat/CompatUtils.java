@@ -1,12 +1,8 @@
 package eu.pb4.polymer.core.impl.client.compat;
 
-import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
-import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.*;
@@ -17,6 +13,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -34,29 +31,14 @@ public class CompatUtils {
         if (!areSamePolymerType(a, b)) {
             return false;
         }
-        var nbtA = getBackingNbt(a);
-        var nbtB = getBackingNbt(b);
+        var nbtA = getBackingComponents(a);
+        var nbtB = getBackingComponents(b);
         return Objects.equals(nbtA, nbtB);
     }
 
     @Nullable
-    public static NbtCompound getBackingNbt(ItemStack stack) {
-        if (!stack.contains(DataComponentTypes.CUSTOM_DATA)) {
-            return null;
-        }
-        var nbt = stack.get(DataComponentTypes.CUSTOM_DATA).getNbt();
-        if (PolymerItemUtils.getServerIdentifier(stack) == null) {
-            return nbt;
-        }
-
-        var maybeNbt = nbt.getCompound(PolymerItemUtils.POLYMER_STACK).getCompound("components");
-
-        if (maybeNbt != null) {
-            return maybeNbt;
-        }
-        maybeNbt = nbt.getCompound("PolyMcOriginal");
-
-        return maybeNbt != null && maybeNbt.contains("tag", NbtElement.COMPOUND_TYPE) ? maybeNbt.getCompound("tag") : null;
+    public static Map<Identifier, NbtElement> getBackingComponents(ItemStack stack) {
+        return PolymerItemUtils.getServerComponents(stack);
     }
 
     public static boolean isServerSide(ItemStack stack) {

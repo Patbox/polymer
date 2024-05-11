@@ -77,27 +77,27 @@ public final class VirtualEntityUtils {
 
     @Nullable
     public static Packet<ClientPlayPacketListener> createMovePacket(int id, Vec3d oldPos, Vec3d newPos, boolean rotate, float yaw, float pitch) {
-        var i = MathHelper.floor(yaw * 256.0F / 360.0F);
-        var j = MathHelper.floor(pitch * 256.0F / 360.0F);
-        boolean bl2 = oldPos.subtract(newPos).lengthSquared() >= 7.62939453125E-6D;
-        long l = Math.round(newPos.x * 4096.0D);
-        long m = Math.round(newPos.y * 4096.0D);
-        long n = Math.round(newPos.z * 4096.0D);
-        boolean bl5 = l < -32768L || l > 32767L || m < -32768L || m > 32767L || n < -32768L || n > 32767L;
+        var byteYaw = MathHelper.floor(yaw * 256.0F / 360.0F);
+        var bytePitch = MathHelper.floor(pitch * 256.0F / 360.0F);
+        boolean areDifferentEnough = oldPos.subtract(newPos).lengthSquared() >= 7.62939453125E-6D;
+        long newX = Math.round((newPos.x - oldPos.x) * 4096.0D);
+        long newY = Math.round((newPos.y - oldPos.y) * 4096.0D);
+        long newZ = Math.round((newPos.z - oldPos.z) * 4096.0D);
+        boolean bl5 = newX < -32768L || newX > 32767L || newY < -32768L || newY > 32767L || newZ < -32768L || newZ > 32767L;
         if (!bl5) {
-            if ((!bl2 || !rotate)) {
-                if (bl2) {
-                    return new EntityS2CPacket.MoveRelative(id, (short) ((int) l), (short) ((int) m), (short) ((int) n), false);
+            if ((!areDifferentEnough || !rotate)) {
+                if (areDifferentEnough) {
+                    return new EntityS2CPacket.MoveRelative(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), false);
                 } else if (rotate) {
-                    return new EntityS2CPacket.Rotate(id, (byte) i, (byte) j, false);
+                    return new EntityS2CPacket.Rotate(id, (byte) byteYaw, (byte) bytePitch, false);
                 }
             } else {
-                return new EntityS2CPacket.RotateAndMoveRelative(id, (short) ((int) l), (short) ((int) m), (short) ((int) n), (byte) i, (byte) j, false);
+                return new EntityS2CPacket.RotateAndMoveRelative(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), (byte) byteYaw, (byte) bytePitch, false);
             }
 
             return null;
         } else {
-            return createSimpleMovePacket(id, newPos, (byte) i, (byte) j);
+            return createSimpleMovePacket(id, newPos, (byte) byteYaw, (byte) bytePitch);
         }
     }
 

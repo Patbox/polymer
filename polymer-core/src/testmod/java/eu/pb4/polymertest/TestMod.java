@@ -13,19 +13,15 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import eu.pb4.polymertest.mixin.EntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
@@ -125,6 +121,10 @@ public class TestMod implements ModInitializer {
 
     public static Block WEAK_GLASS_BLOCK = new WeakGlassBlock(AbstractBlock.Settings.copy(Blocks.GLASS));
     public static Item WEAK_GLASS_BLOCK_ITEM = new PolymerBlockItem(WEAK_GLASS_BLOCK, new Item.Settings(), Items.GLASS);
+
+    public static Block MANA_CAULDRON = new ManaCauldron(AbstractBlock.Settings.copy(Blocks.CAULDRON));
+    public static Item MANA_CAULDRON_ITEM = new PolymerBlockItem(MANA_CAULDRON, new Item.Settings(), Items.CAULDRON);
+
 
     public static TestBowItem BOW_1 = new TestBowItem(new Item.Settings(), "bow");
     public static TestBowItem BOW_2 = new TestBowItem(new Item.Settings(), "bow2");
@@ -310,6 +310,9 @@ public class TestMod implements ModInitializer {
 
         register(Registries.ITEM, new Identifier("test", "animated"), ANIMATED_BLOCK_ITEM);
         register(Registries.BLOCK, new Identifier("test", "animated"), ANIMATED_BLOCK);
+
+        register(Registries.ITEM, new Identifier("test", "mana_cauldron"), MANA_CAULDRON_ITEM);
+        register(Registries.BLOCK, new Identifier("test", "mana_cauldron"), MANA_CAULDRON);
 
         for (var i = 0; i < 16; i++) {
             register(Registries.BLOCK, new Identifier("test", "filler_" + i), new TestBlock(AbstractBlock.Settings.create()));

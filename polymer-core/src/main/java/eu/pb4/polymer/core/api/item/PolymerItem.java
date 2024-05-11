@@ -103,4 +103,8 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
     default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, @Nullable ServerPlayerEntity player) {
         return PolymerItemUtils.createItemStack(itemStack, tooltipType, player);
     }
+
+    default boolean shouldStorePolymerItemStackCount() {
+        return false;
+    }
 }

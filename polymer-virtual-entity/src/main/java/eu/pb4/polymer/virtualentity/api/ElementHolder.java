@@ -197,7 +197,7 @@ public class ElementHolder {
         }
     }
 
-    public void sendPacket(Packet<ClientPlayPacketListener> packet) {
+    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet) {
         for (var player : players) {
             player.sendPacket(packet);
         }

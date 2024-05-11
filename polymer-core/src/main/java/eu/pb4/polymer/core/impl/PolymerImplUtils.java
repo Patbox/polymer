@@ -22,6 +22,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -252,16 +254,17 @@ public class PolymerImplUtils {
             return;
         }
 
-        BlockEntity blockEntity = null;
         if (isCreative && withNbt && blockState.hasBlockEntity()) {
-            blockEntity = player.getWorld().getBlockEntity(pos);
+            var blockEntity = player.getWorld().getBlockEntity(pos);
+            if (blockEntity != null && (!blockEntity.copyItemDataRequiresOperator() || player.isCreativeLevelTwoOp())) {
+                itemStack.applyComponentsFrom(blockEntity.createComponentMap());
+                itemStack.set(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.of(blockEntity.createComponentlessNbt(player.getRegistryManager())));
+            }
         }
 
 
         PlayerInventory playerInventory = player.getInventory();
-        if (blockEntity != null) {
-            addBlockEntityNbt(itemStack, blockEntity);
-        }
+
 
         int i = playerInventory.getSlotWithStack(itemStack);
         if (isCreative) {
@@ -277,25 +280,6 @@ public class PolymerImplUtils {
             }
             player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
         }
-    }
-
-
-    private static void addBlockEntityNbt(ItemStack stack, BlockEntity blockEntity) {
-        // todo
-
-        /*NbtCompound nbtCompound = blockEntity.createNbtWithId(blockEntity.getWorld().getRegistryManager());
-        NbtCompound nbtCompound3;
-        if (stack.getItem() instanceof PlayerHeadItem && nbtCompound.contains("SkullOwner")) {
-            nbtCompound3 = nbtCompound.getCompound("SkullOwner");
-            stack.getOrCreateNbt().put("SkullOwner", nbtCompound3);
-        } else {
-            stack.setSubNbt("BlockEntityTag", nbtCompound);
-            nbtCompound3 = new NbtCompound();
-            NbtList nbtList = new NbtList();
-            nbtList.add(NbtString.of("\"(+NBT)\""));
-            nbtCompound3.put("Lore", nbtList);
-            stack.setSubNbt("display", nbtCompound3);
-        }*/
     }
 
     public static void pickEntity(ServerPlayerEntity player, Entity entity) {

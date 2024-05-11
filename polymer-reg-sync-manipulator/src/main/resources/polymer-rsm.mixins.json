@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "eu.pb4.polymer.rsm.mixin",
   "plugin": "eu.pb4.polymer.rsm.mixin.PolymerMixinConfigPlugin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "SimpleRegistryMixin",
     "fabric.fabricSync_RegistrySyncManagerMixin",
