@@ -97,7 +97,7 @@
     "client.block.WorldChunkMixin",
     "client.compat.emi_EmiScreenManager",
     "client.compat.emi_EmiStackMixin",
-    "client.compat.emi_ItemEmiStackMixin",
+    "client.compat.emi_ItemEmiStack2Mixin",
     "client.compat.jei_StackHelperMixin",
     "client.compat.rei_ItemEntryDefinitionMixin",
     "client.entity.EntityMixin",
