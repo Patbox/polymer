@@ -60,8 +60,8 @@ public final class CommonImpl {
 
         if (CompatStatus.FORGE_CONNECTOR) {
             LOGGER.warn("==================================================================================");
-            LOGGER.warn("Polymer (" + VERSION + ") support for Connector/Forge is highly experimental!");
-            LOGGER.warn("Things might not work correctly if at all, so you are on your own!");
+            LOGGER.warn("Polymer (" + VERSION + ") does not support Connector/Forge!");
+            LOGGER.warn("It will likely not work correctly if at all!");
             LOGGER.warn("=================================================================================");
         }
 

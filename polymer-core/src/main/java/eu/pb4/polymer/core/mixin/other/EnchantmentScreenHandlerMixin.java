@@ -25,8 +25,6 @@ public abstract class EnchantmentScreenHandlerMixin extends ScreenHandler implem
     }
 
     @Shadow public abstract void onContentChanged(Inventory inventory);
-
-    @Shadow @Final private Inventory inventory;
     @Unique
     private ServerPlayerEntity polymer$player;
 

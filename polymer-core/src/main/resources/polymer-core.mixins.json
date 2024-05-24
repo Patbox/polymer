@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "eu.pb4.polymer.core.mixin.PolymerMixinConfigPlugin",
   "mixins": [
+    "SerializedAccessor",
     "block.AbstractBlockMixin",
     "block.BlockEntityUpdateS2CPacketAccessor",
     "block.BlockMixin",
@@ -83,7 +84,7 @@
     "other.ServerPlayNetworkHandlerMixin",
     "other.SimpleRegistryMixin",
     "other.StatisticsS2CPacketMixin",
-    "other.TagPacketSerializerMixin"
+    "other.SynchronizeTagsS2CPacketMixin"
   ],
   "client": [
     "client.ClientPlayNetworkHandlerMixin",

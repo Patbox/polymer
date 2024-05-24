@@ -5,8 +5,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents information about armor texture
- *
- * Values returned by methods might change in future!
  */
 @ApiStatus.NonExtendable
 public interface PolymerArmorModel{

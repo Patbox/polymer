@@ -5,11 +5,14 @@
   "plugin": "eu.pb4.polymer.rsm.mixin.PolymerMixinConfigPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MainMixin",
     "SimpleRegistryMixin",
-    "fabric.fabricSync_RegistrySyncManagerMixin",
-    "forge.forge_RegistryManager"
+    "fabric.fabricSync_RegistrySyncManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 0
-  }
+  },
+  "client": [
+    "client.MinecraftClientMixin"
+  ]
 }

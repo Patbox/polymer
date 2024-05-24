@@ -341,7 +341,7 @@ public class InternalClientRegistry {
             ITEM_GROUPS.removeIf(removePredicate);
             CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.getDefaultTab());
 
-            if (CompatStatus.FABRIC_ITEM_GROUP && !CompatStatus.FORGE_CONNECTOR) {
+            if (CompatStatus.FABRIC_ITEM_GROUP) {
                 try {
                     var f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
                     f1.setAccessible(true);
@@ -369,18 +369,6 @@ public class InternalClientRegistry {
                 }
             }
 
-            if (CompatStatus.FORGE_CONNECTOR) {
-                try {
-                    var f1 = Class.forName("net.minecraftforge.common.CreativeModeTabRegistry").getDeclaredField("SORTED_TABS");
-                    f1.setAccessible(true);
-                    ((List<ItemGroup>) f1.get(null)).removeIf((x) -> x instanceof InternalClientItemGroup ig && removePredicate.test(ig));
-                } catch (Throwable e) {
-                    if (PolymerImpl.LOG_MORE_ERRORS) {
-                        PolymerImpl.LOGGER.error("Failed to change item group page (FORGE)!", e);
-                    }
-                }
-            }
-
             int count = Registries.ITEM_GROUP.size() - 4;
             for (var x : ITEM_GROUPS) {
                 var page = (count / TABS_PER_PAGE);
@@ -398,7 +386,7 @@ public class InternalClientRegistry {
 
     private static void setItemGroupPage(ItemGroup group, int page) {
         ((ClientItemGroupExtension) group).polymerCore$setPage(page);
-        if (CompatStatus.FABRIC_ITEM_GROUP && !CompatStatus.FORGE_CONNECTOR) {
+        if (CompatStatus.FABRIC_ITEM_GROUP) {
             try {
                 ((net.fabricmc.fabric.impl.itemgroup.FabricItemGroup) group).setPage(page);
             } catch (Throwable e) {
@@ -422,18 +410,6 @@ public class InternalClientRegistry {
 
             var group = new InternalClientItemGroup(row, c, id, name, icon);
             ITEM_GROUPS.set(id, group);
-
-            if (CompatStatus.FORGE_CONNECTOR) {
-                try {
-                    var f1 = Class.forName("net.minecraftforge.common.CreativeModeTabRegistry").getDeclaredField("SORTED_TABS");
-                    f1.setAccessible(true);
-                    ((List<ItemGroup>) f1.get(null)).add(group);
-                } catch (Throwable e) {
-                    if (PolymerImpl.LOG_MORE_ERRORS) {
-                        PolymerImpl.LOGGER.error("Failed to change item group page (FORGE)!", e);
-                    }
-                }
-            }
 
             setItemGroupPage(group, page);
         } catch(Throwable e) {

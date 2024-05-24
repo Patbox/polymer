@@ -29,6 +29,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
@@ -50,6 +51,7 @@ public class PolymerImplUtils {
 
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
     public static final Object2BooleanOpenCustomHashMap<Class<? extends PolymerItem>> POLYMER_ITEM_CLASS_CACHE = new Object2BooleanOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    public static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
 
     public static Identifier id(String path) {
         return new Identifier(PolymerUtils.ID, path);

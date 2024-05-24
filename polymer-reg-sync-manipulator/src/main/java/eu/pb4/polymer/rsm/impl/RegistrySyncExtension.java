@@ -12,6 +12,8 @@ public interface RegistrySyncExtension<T> {
     boolean polymer_registry_sync$updateStatus(Status status);
     void polymer_registry_sync$clearStatus();
 
+    void polymer_registry_sync$reorderEntries();
+
     enum Status {
         VANILLA(0),
         WITH_SERVER_ONLY(1),

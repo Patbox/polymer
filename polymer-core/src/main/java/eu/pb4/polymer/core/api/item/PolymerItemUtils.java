@@ -50,16 +50,26 @@ import java.util.function.Predicate;
 
 public final class PolymerItemUtils {
     public static final String POLYMER_STACK = "$polymer:stack";
+    private static final String POLYMC_STACK = "PolyMcOriginal";
     public static final MapCodec<ItemStack> POLYMER_STACK_CODEC = ItemStack.CODEC.fieldOf(POLYMER_STACK);
     public static final MapCodec<ItemStack> POLYMER_STACK_UNCOUNTED_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMER_STACK);
     public static final MapCodec<Boolean> POLYMER_STACK_HAS_COUNT_CODEC = Codec.BOOL.optionalFieldOf("$polymer:counted", false);
     public static final MapCodec<Identifier> POLYMER_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMER_STACK);
-    public static final MapCodec<Map<Identifier, NbtElement>> POLYMER_STACK_COMPONENTS_CODEC = Codec.unboundedMap(Identifier.CODEC,
+
+    private static final Codec<Map<Identifier, NbtElement>> COMPONENTS_CODEC = Codec.unboundedMap(Identifier.CODEC,
             Codec.PASSTHROUGH.comapFlatMap((dynamic) -> {
                 var nbt = dynamic.convert(NbtOps.INSTANCE).getValue();
                 return DataResult.success(nbt == dynamic.getValue() ? nbt.copy() : nbt);
-            }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy())))
+            }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy())));
+
+    public static final MapCodec<Map<Identifier, NbtElement>> POLYMER_STACK_COMPONENTS_CODEC = COMPONENTS_CODEC
             .optionalFieldOf("components", Map.of()).fieldOf(POLYMER_STACK);
+
+
+    private static final MapCodec<ItemStack> POLYMC_STACK_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMC_STACK);
+    private static final MapCodec<Identifier> POLYMC_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMC_STACK);
+    private static final MapCodec<Map<Identifier, NbtElement>> POLYMC_STACK_COMPONENTS_CODEC = COMPONENTS_CODEC.optionalFieldOf("components", Map.of()).fieldOf(POLYMC_STACK);
+
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
@@ -107,7 +117,6 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.CAN_PLACE_ON, BlockPredicatesChecker::withShowInTooltip)
     );
     private static final Set<DataComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
-    private static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
 
     private PolymerItemUtils() {
     }
@@ -185,7 +194,6 @@ public final class PolymerItemUtils {
     }
 
     public static Identifier getPolymerIdentifier(@Nullable NbtComponent custom) {
-
         if (custom != null && custom.contains(POLYMER_STACK)) {
             try {
                 return custom.get(POLYMER_STACK_ID_CODEC).result().orElse(null);
@@ -202,17 +210,33 @@ public final class PolymerItemUtils {
      */
     @Nullable
     public static Identifier getServerIdentifier(ItemStack itemStack) {
-        return getPolymerIdentifier(itemStack);
+        return getServerIdentifier(itemStack.get(DataComponentTypes.CUSTOM_DATA));
     }
 
     @Nullable
     public static Identifier getServerIdentifier(@Nullable NbtComponent nbtData) {
-        return getPolymerIdentifier(nbtData);
+        if (nbtData == null) {
+            return null;
+        }
+        var x = getPolymerIdentifier(nbtData);
+        if (x != null) {
+            return x;
+        }
+
+        if (nbtData.contains(POLYMC_STACK)) {
+            try {
+                return nbtData.get(POLYMC_STACK_ID_CODEC).result().orElse(null);
+            } catch (Throwable ignored) {
+
+            }
+        }
+
+        return null;
     }
 
     @Nullable
     public static Map<Identifier, NbtElement> getServerComponents(ItemStack stack) {
-        return getPolymerComponents(stack.get(DataComponentTypes.CUSTOM_DATA));
+        return getServerComponents(stack.get(DataComponentTypes.CUSTOM_DATA));
     }
 
     @Nullable
@@ -223,7 +247,23 @@ public final class PolymerItemUtils {
 
     @Nullable
     public static Map<Identifier, NbtElement> getServerComponents(@Nullable NbtComponent nbtData) {
-        return getPolymerComponents(nbtData);
+        if (nbtData == null) {
+            return null;
+        }
+        var x = getPolymerComponents(nbtData);
+        if (x != null) {
+            return x;
+        }
+
+        if (nbtData.contains(POLYMC_STACK)) {
+            try {
+                return nbtData.get(POLYMC_STACK_COMPONENTS_CODEC).result().orElse(Map.of());
+            } catch (Throwable ignored) {
+
+            }
+        }
+
+        return null;
     }
 
     @Nullable
@@ -250,7 +290,7 @@ public final class PolymerItemUtils {
         for (var x : itemStack.getComponentChanges().entrySet()) {
             if (x.getValue() != null && x.getValue().isPresent()
                     && x.getValue().get() instanceof PolymerItemComponent c && c.canSyncRawToClient(player)) {
-                return true;
+                return false;
             } else if (isPolymerComponent(x.getKey())) {
                 return true;
             } else if (x.getValue() != null && x.getValue().isPresent()
@@ -260,27 +300,6 @@ public final class PolymerItemUtils {
             }
         }
 
-        {
-            var comp = itemStack.get(DataComponentTypes.CONTAINER);
-            if (comp != null) {
-                for (var nStack : comp.iterateNonEmpty()) {
-                    if (isPolymerServerItem(nStack, player)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        {
-            var comp = itemStack.get(DataComponentTypes.BUNDLE_CONTENTS);
-            if (comp != null) {
-                for (var i = 0; i < comp.size(); i++) {
-                    var nStack = comp.get(i);
-                    if (isPolymerServerItem(nStack, player)) {
-                        return true;
-                    }
-                }
-            }
-        }
         if (CompatStatus.POLYMER_RESOURCE_PACK) {
             var display = itemStack.get(DataComponentTypes.DYED_COLOR);
             if (display != null) {
@@ -307,7 +326,7 @@ public final class PolymerItemUtils {
                 lookup = PolymerImplUtils.WRAPPER_LOOKUP_PASSER.get();
 
                 if (lookup == null) {
-                    lookup = FALLBACK_LOOKUP;
+                    lookup = PolymerImplUtils.FALLBACK_LOOKUP;
                 }
             }
         }

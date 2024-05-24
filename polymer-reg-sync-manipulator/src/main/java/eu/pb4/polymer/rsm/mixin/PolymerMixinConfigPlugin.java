@@ -26,8 +26,6 @@ public class PolymerMixinConfigPlugin implements IMixinConfigPlugin {
 
         if (name.startsWith("fabric")) {
             return CompatStatus.FABRIC_SYNC;
-        } else if (name.startsWith("forge")) {
-            return CompatStatus.FORGE_CONNECTOR;
         }
         return true;
     }

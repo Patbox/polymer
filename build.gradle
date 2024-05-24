@@ -6,8 +6,8 @@ plugins {
 
 apply plugin: 'fabric-loom'
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 var isStable = project.is_stable == "true"
 
@@ -36,7 +36,7 @@ allprojects {
     apply plugin: 'fabric-loom'
 
     tasks.withType(JavaCompile).configureEach {
-        it.options.release = 17
+        it.options.release = 21
     }
 
 

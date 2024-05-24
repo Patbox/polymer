@@ -20,7 +20,7 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject,
     private final Identifier identifier;
 
     public InternalClientItemGroup(Row row, int column, Identifier identifier, Text name, ItemStack stack) {
-        super(row, column, Type.CATEGORY, name, () -> stack.copy(), (a, c) -> {});
+        super(row, column, Type.CATEGORY, name, stack::copy, (a, c) -> {});
         this.identifier = identifier;
     }
 
