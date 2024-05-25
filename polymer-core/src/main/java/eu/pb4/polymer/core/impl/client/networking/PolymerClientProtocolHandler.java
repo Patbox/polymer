@@ -103,7 +103,6 @@ public class PolymerClientProtocolHandler {
         registerGenericListHandler(S2CPackets.SYNC_VILLAGER_PROFESSION, InternalClientRegistry.VILLAGER_PROFESSIONS, Registries.VILLAGER_PROFESSION);
         registerGenericListHandler(S2CPackets.SYNC_BLOCK_ENTITY, InternalClientRegistry.BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
         registerGenericListHandler(S2CPackets.SYNC_STATUS_EFFECT, InternalClientRegistry.STATUS_EFFECT, Registries.STATUS_EFFECT);
-        registerGenericListHandler(S2CPackets.SYNC_ENCHANTMENT, InternalClientRegistry.ENCHANTMENT, Registries.ENCHANTMENT);
         registerGenericListHandler(S2CPackets.SYNC_FLUID, InternalClientRegistry.FLUID, Registries.FLUID);
 
 

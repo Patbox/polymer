@@ -29,7 +29,7 @@ resource pack is build.
 Example use:
 
 ```
-PolymerModelData modelData = PolymerResourcePackUtils.requestModel(Items.IRON_SWORD, new Identifier("mymod", "item/silver_sword"));
+PolymerModelData modelData = PolymerResourcePackUtils.requestModel(Items.IRON_SWORD, Identifier.of("mymod", "item/silver_sword"));
 ```
 
 ### Requesting armor textures
@@ -43,7 +43,7 @@ To apply it to your armor, you need to set your client side item to leather armo
 Then you need to override `PolymerItem.getPolymerArmorColor()` method and return used color.
 
 ```
-PolymerArmorModel armorModel = PolymerResourcePackUtils.requestArmor(new Identifier("mymod", "silver"));
+PolymerArmorModel armorModel = PolymerResourcePackUtils.requestArmor(Identifier.of("mymod", "silver"));
 ```
 
 ## Checking players
@@ -56,9 +56,9 @@ Example use:
 Identifier font;
 
 if (PolymerResourcePackUtils.hasPack(player)) {
-    font = new Identifier("mymod", "myfont");
+    font = Identifier.of("mymod", "myfont");
 } else {
-    font = new Identifier("minecraft", "default");
+    font = Identifier.of("minecraft", "default");
 }
 ```
 

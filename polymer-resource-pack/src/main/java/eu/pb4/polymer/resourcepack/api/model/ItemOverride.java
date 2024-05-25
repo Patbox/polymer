@@ -13,58 +13,58 @@ public record ItemOverride(Object2FloatMap<Identifier> predicate, Identifier mod
     /**
      * All Items
      */
-    public static Identifier CUSTOM_MODEL_DATA = new Identifier("custom_model_data");
-    public static Identifier LEFT_HANDED = new Identifier("lefthanded");
-    public static Identifier COOLDOWN = new Identifier("cooldown");
-    public static Identifier DAMAGED = new Identifier("damaged");
-    public static Identifier DAMAGE = new Identifier("damage");
+    public static Identifier CUSTOM_MODEL_DATA = Identifier.of("custom_model_data");
+    public static Identifier LEFT_HANDED = Identifier.of("lefthanded");
+    public static Identifier COOLDOWN = Identifier.of("cooldown");
+    public static Identifier DAMAGED = Identifier.of("damaged");
+    public static Identifier DAMAGE = Identifier.of("damage");
 
     /**
      * Bows and crossbows
      */
-    public static Identifier PULL = new Identifier("pull");
-    public static Identifier PULLING = new Identifier("pulling");
+    public static Identifier PULL = Identifier.of("pull");
+    public static Identifier PULLING = Identifier.of("pulling");
     /**
      * Crossbows
      */
-    public static Identifier CHARGED = new Identifier("charged");
-    public static Identifier FIREWORK = new Identifier("firework");
+    public static Identifier CHARGED = Identifier.of("charged");
+    public static Identifier FIREWORK = Identifier.of("firework");
     /**
      * Bundle
      */
-    public static Identifier FILLED = new Identifier("filled");
+    public static Identifier FILLED = Identifier.of("filled");
     /**
      * Clock
      */
-    public static Identifier TIME = new Identifier("time");
+    public static Identifier TIME = Identifier.of("time");
     /**
      * Compass
      */
-    public static Identifier ANGLE = new Identifier("angle");
+    public static Identifier ANGLE = Identifier.of("angle");
     /**
      * Elytra
      */
-    public static Identifier BROKEN = new Identifier("broken");
+    public static Identifier BROKEN = Identifier.of("broken");
     /**
      * Fishing rod
      */
-    public static Identifier CAST = new Identifier("cast");
+    public static Identifier CAST = Identifier.of("cast");
     /**
      * Shield
      */
-    public static Identifier BLOCKING = new Identifier("blocking");
+    public static Identifier BLOCKING = Identifier.of("blocking");
     /**
      * Trident
      */
-    public static Identifier THROWING = new Identifier("throwing");
+    public static Identifier THROWING = Identifier.of("throwing");
     /**
      * Light
      */
-    public static Identifier LEVEL = new Identifier("level");
+    public static Identifier LEVEL = Identifier.of("level");
     /**
      * Goat Horn
      */
-    public static Identifier TOOTING = new Identifier("tooting");
+    public static Identifier TOOTING = Identifier.of("tooting");
 
     public static ItemOverride of(Identifier model) {
         return new ItemOverride(new Object2FloatOpenHashMap<>(), model);

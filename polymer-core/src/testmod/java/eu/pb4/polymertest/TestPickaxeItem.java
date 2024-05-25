@@ -19,7 +19,7 @@ public class TestPickaxeItem extends PickaxeItem implements PolymerItem {
 
     public TestPickaxeItem(Item polymerItem, ToolMaterial material, int attackDamage, float attackSpeed, Settings settings) {
         super(material, settings);
-        this.model = PolymerResourcePackUtils.requestModel(polymerItem, new Identifier("polymertest", "item/pickaxe"));
+        this.model = PolymerResourcePackUtils.requestModel(polymerItem, Identifier.of("polymertest", "item/pickaxe"));
     }
 
     @Override

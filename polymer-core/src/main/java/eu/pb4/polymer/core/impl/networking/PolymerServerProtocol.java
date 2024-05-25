@@ -116,9 +116,6 @@ public class PolymerServerProtocol {
             handler.sendPacket(new CustomPayloadS2CPacket(new PolymerSyncClearS2CPayload()));
         }
 
-        sendSync(handler, S2CPackets.SYNC_ENCHANTMENT_ID, getServerSideEntries(Registries.ENCHANTMENT), false,
-                type -> new IdValueEntry(Registries.ENCHANTMENT.getRawId(type), Registries.ENCHANTMENT.getId(type)));
-
         PolymerSyncUtils.BEFORE_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
         sendSync(handler, S2CPackets.SYNC_ITEM_ID, getServerSideEntries(Registries.ITEM), false, PolymerItemEntry::of);
         PolymerSyncUtils.AFTER_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));

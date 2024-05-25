@@ -28,7 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Environment(EnvType.CLIENT)
 @Mixin(ArmorFeatureRenderer.class)
 public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> {
-    @WrapOperation(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/feature/ArmorFeatureRenderer;renderArmorParts(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/model/BipedEntityModel;FFFLnet/minecraft/util/Identifier;)V"), require = 0)
+    // Todo
+    /*@WrapOperation(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/feature/ArmorFeatureRenderer;renderArmorParts(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/model/BipedEntityModel;FFFLnet/minecraft/util/Identifier;)V"), require = 0)
     private void polymer$changeArmorTexture(ArmorFeatureRenderer instance, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, A model, float red, float green, float blue, Identifier texture, Operation<Void> original, @Local ItemStack stack) {
         if (PolymerResourcePackMod.hasArmorTextures) {
             var color = stack.get(DataComponentTypes.DYED_COLOR);
@@ -42,5 +43,5 @@ public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M extends B
         }
 
         original.call(instance, matrices, vertexConsumers, light, model, red, green, blue, texture);
-    }
+    }*/
 }

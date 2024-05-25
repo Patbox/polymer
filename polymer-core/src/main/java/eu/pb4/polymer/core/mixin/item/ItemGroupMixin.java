@@ -23,30 +23,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-
+// todo
 @Mixin(value = ItemGroup.class, priority = 3000)
 public abstract class ItemGroupMixin implements ItemGroupExtra {
     @Shadow private Collection<ItemStack> displayStacks;
     @Shadow private Set<ItemStack> searchTabStacks;
 
-    @Shadow @Nullable private Consumer<List<ItemStack>> searchProviderReloader;
     @Shadow public abstract void updateEntries(ItemGroup.DisplayContext arg);
-    @Shadow public abstract void reloadSearchProvider();
 
     @Override
     public PolymerItemGroupUtils.Contents polymer$getContentsWith(FeatureSet enabledFeatures, boolean operatorEnabled, RegistryWrapper.WrapperLookup lookup) {
         var oldDisplayStack = this.displayStacks;
         var oldSearchStack = this.searchTabStacks;
-        var oldSearchProvider = this.searchProviderReloader;
-
-        this.searchProviderReloader = null;
 
         this.updateEntries(new ItemGroup.DisplayContext(enabledFeatures, operatorEnabled, lookup));
         var contents = new PolymerItemGroupUtils.Contents(this.displayStacks, this.searchTabStacks);
 
         this.displayStacks = oldDisplayStack;
         this.searchTabStacks = oldSearchStack;
-        this.searchProviderReloader = oldSearchProvider;
 
         return contents;
     }
@@ -56,10 +50,9 @@ public abstract class ItemGroupMixin implements ItemGroupExtra {
         return PolymerItemGroupUtils.isPolymerItemGroup((ItemGroup) entry) ? ItemGroups.getDefaultTab() : entry;
     }
 
-    @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE), cancellable = true)
+    @Inject(method = "updateEntries", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemGroup$EntriesImpl;searchTabStacks:Ljava/util/Set;"), cancellable = true)
     private void polymerCore$bypassFabricApiBS(ItemGroup.DisplayContext displayContext, CallbackInfo ci) {
         if (PolymerItemGroupUtils.isPolymerItemGroup((ItemGroup) (Object) this) || this instanceof PolymerObject) {
-            this.reloadSearchProvider();
             ci.cancel();
         }
     }

@@ -501,9 +501,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     list.sort(Comparator.comparing(e -> -e.color()));
 
                     this.fileMap.put("assets/polymer/armors.json", GSON.toJson(armorDataMap).getBytes(StandardCharsets.UTF_8));
-                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 1), this.getSourceData(armorTexture(new Identifier("leather"), 1)));
+                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 1), this.getSourceData(armorTexture(Identifier.of("leather"), 1)));
                     this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 1), this.getSourceData(armorOverlayTexture(vId("leather"), 1)));
-                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 2), this.getSourceData(armorTexture(new Identifier("leather"), 2)));
+                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 2), this.getSourceData(armorTexture(Identifier.of("leather"), 2)));
                     this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 2), this.getSourceData(armorOverlayTexture(vId("leather"), 2)));
                     int[] width = new int[]{64 * globalScale, 64 * globalScale};
                     int[] height = new int[]{32 * globalScale, 32 * globalScale};
@@ -683,7 +683,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     private Identifier vId(String path) {
-        return new Identifier(path);
+        return Identifier.of(path);
     }
 
     public enum OverridePlace {

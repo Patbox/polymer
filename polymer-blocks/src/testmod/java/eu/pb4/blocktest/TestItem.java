@@ -18,7 +18,7 @@ public class TestItem extends BlockItem implements PolymerItem {
 
     public TestItem(Settings settings, Block block, String modelId) {
         super(block, settings);
-        this.polymerModel = PolymerResourcePackUtils.requestModel(Items.BARRIER, new Identifier("blocktest", modelId));
+        this.polymerModel = PolymerResourcePackUtils.requestModel(Items.BARRIER, Identifier.of("blocktest", modelId));
 
     }
 

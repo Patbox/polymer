@@ -4,7 +4,7 @@ import dev.emi.emi.api.stack.ItemEmiStack;
 import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.component.DataComponentType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -26,7 +26,7 @@ public abstract class emi_ItemEmiStack2Mixin {
     @Shadow
     public abstract ItemStack getItemStack();
 
-    @Shadow public abstract <T> @Nullable T get(DataComponentType<? extends T> type);
+    @Shadow public abstract <T> @Nullable T get(ComponentType<? extends T> type);
 
     @Inject(method = "getKey", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer$getKey(CallbackInfoReturnable<Object> cir) {

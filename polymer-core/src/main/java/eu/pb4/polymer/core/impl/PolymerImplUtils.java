@@ -54,7 +54,7 @@ public class PolymerImplUtils {
     public static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
 
     public static Identifier id(String path) {
-        return new Identifier(PolymerUtils.ID, path);
+        return Identifier.of(PolymerUtils.ID, path);
     }
 
     public static String getAsString(BlockState state) {

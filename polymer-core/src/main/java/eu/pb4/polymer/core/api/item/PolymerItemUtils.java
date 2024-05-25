@@ -19,7 +19,7 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.client.item.TooltipType;
-import net.minecraft.component.DataComponentType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.item.BlockPredicatesChecker;
@@ -81,7 +81,7 @@ public final class PolymerItemUtils {
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
-    private static final DataComponentType<?>[] COMPONENTS_TO_COPY = {DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_PLACE_ON,
+    private static final ComponentType<?>[] COMPONENTS_TO_COPY = {DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_PLACE_ON,
             DataComponentTypes.BLOCK_ENTITY_DATA, DataComponentTypes.TRIM,
             DataComponentTypes.TOOL,
             DataComponentTypes.MAX_STACK_SIZE,
@@ -116,7 +116,7 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.CAN_BREAK, BlockPredicatesChecker::withShowInTooltip),
             HideableTooltip.of(DataComponentTypes.CAN_PLACE_ON, BlockPredicatesChecker::withShowInTooltip)
     );
-    private static final Set<DataComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
+    private static final Set<ComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
     private PolymerItemUtils() {
     }
@@ -359,7 +359,7 @@ public final class PolymerItemUtils {
                 ));
             });
         } catch (Throwable e) {
-            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
+            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
 
         if (cmd != -1) {
@@ -429,10 +429,10 @@ public final class PolymerItemUtils {
 
             if (x instanceof TransformingDataComponent t) {
                 //noinspection unchecked,rawtypes
-                out.set((DataComponentType) key, t.polymer$getTransformed(player));
+                out.set((ComponentType) key, t.polymer$getTransformed(player));
             } else {
                 //noinspection unchecked,rawtypes
-                out.set((DataComponentType) key, (Object) itemStack.get(key));
+                out.set((ComponentType) key, (Object) itemStack.get(key));
             }
         }
         try {
@@ -442,13 +442,13 @@ public final class PolymerItemUtils {
                                 .encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
                 );
                 if (storeCount) {
-                    out.set(DataComponentTypes.CUSTOM_DATA, comp.with(POLYMER_STACK_HAS_COUNT_CODEC, true).getOrThrow());
+                    out.set(DataComponentTypes.CUSTOM_DATA, comp.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_HAS_COUNT_CODEC, true).getOrThrow());
                 } else {
                     out.set(DataComponentTypes.CUSTOM_DATA, comp);
                 }
             });
         } catch (Throwable e) {
-            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
+            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
 
 
@@ -544,14 +544,14 @@ public final class PolymerItemUtils {
         return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
     }
 
-    public static void markAsPolymer(DataComponentType<?>... types) {
+    public static void markAsPolymer(ComponentType<?>... types) {
         for (var x : types) {
             UNSYNCED_COMPONENTS.add(x);
             RegistrySyncUtils.setServerEntry(Registries.DATA_COMPONENT_TYPE, x);
         }
     }
 
-    public static boolean isPolymerComponent(DataComponentType<?> type) {
+    public static boolean isPolymerComponent(ComponentType<?> type) {
         return UNSYNCED_COMPONENTS.add(type);
     }
 
@@ -571,17 +571,17 @@ public final class PolymerItemUtils {
     public record ItemWithMetadata(Item item, int customModelData, int color) {
     }
 
-    private record HideableTooltip<T>(DataComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
+    private record HideableTooltip<T>(ComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
 
-        public static <T> HideableTooltip<T> of(DataComponentType<T> type, TooltipSetter<T> setter) {
+        public static <T> HideableTooltip<T> of(ComponentType<T> type, TooltipSetter<T> setter) {
             return new HideableTooltip<>(type, x -> true, setter);
         }
 
-        public static <T> HideableTooltip<T> of(DataComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
+        public static <T> HideableTooltip<T> of(ComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
             return new HideableTooltip<>(type, shouldSet, setter);
         }
 
-        public static <T> HideableTooltip<T> ofNeg(DataComponentType<T> type, Predicate<T> shouldntSet, TooltipSetter<T> setter) {
+        public static <T> HideableTooltip<T> ofNeg(ComponentType<T> type, Predicate<T> shouldntSet, TooltipSetter<T> setter) {
             return new HideableTooltip<>(type, shouldntSet.negate(), setter);
         }
 

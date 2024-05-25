@@ -1,5 +1,6 @@
 package eu.pb4.polymer.networking.impl;
 
+import net.minecraft.network.DisconnectionInfo;
 import net.minecraft.network.NetworkPhase;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.listener.ServerPlayPacketListener;
@@ -60,7 +61,7 @@ public record EmptyServerPacketHandler(NetworkPhase phase) implements ServerConf
     }
 
     @Override
-    public void onDisconnected(Text reason) {
+    public void onDisconnected(DisconnectionInfo info) {
 
     }
 

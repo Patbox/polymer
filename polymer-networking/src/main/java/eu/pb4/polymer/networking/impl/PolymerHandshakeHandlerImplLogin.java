@@ -31,7 +31,7 @@ public final class PolymerHandshakeHandlerImplLogin extends EarlyConfigurationNe
     private final ExtClientConnection extClientConnection;
 
     private PolymerHandshakeHandlerImplLogin(Context context) {
-        super(new Identifier("polymer", "early_handshake"), context);
+        super(Identifier.of("polymer", "early_handshake"), context);
         this.sendPacket(new HelloS2CPayload());
         this.sendPing(PING_ID);
         this.extClientConnection = ExtClientConnection.of(this.getConnection());

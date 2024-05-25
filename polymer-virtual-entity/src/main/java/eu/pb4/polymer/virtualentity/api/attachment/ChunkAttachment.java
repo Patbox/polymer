@@ -94,7 +94,7 @@ public class ChunkAttachment implements HolderAttachment {
     @Override
     public void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking) {
         List<ServerPlayNetworkHandler> watching = new ArrayList<>();
-        for (ServerPlayerEntity x : ((ServerChunkManager) this.chunk.getWorld().getChunkManager()).threadedAnvilChunkStorage.getPlayersWatchingChunk(this.chunk.getPos(), false)) {
+        for (ServerPlayerEntity x : ((ServerChunkManager) this.chunk.getWorld().getChunkManager()).chunkLoadingManager.getPlayersWatchingChunk(this.chunk.getPos(), false)) {
             ServerPlayNetworkHandler networkHandler = x.networkHandler;
             watching.add(networkHandler);
         }

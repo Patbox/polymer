@@ -209,6 +209,6 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     }
 
     public record Key(Identifier identifier) {
-        public static final Key EMPTY = new Key(new Identifier("polymer:empty"));
+        public static final Key EMPTY = new Key(Identifier.of("polymer:empty"));
     }
 }

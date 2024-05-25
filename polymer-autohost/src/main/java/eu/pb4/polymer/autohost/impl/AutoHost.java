@@ -126,13 +126,13 @@ public class AutoHost implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ResourcePackDataProvider.register(new Identifier("polymer", "automatic"), NettyProvider::new);
-        ResourcePackDataProvider.register(new Identifier("polymer", "auto"), NettyProvider::new);
-        ResourcePackDataProvider.register(new Identifier("polymer", "netty"), NettyProvider::new);
-        ResourcePackDataProvider.register(new Identifier("polymer", "same_port"), NettyProvider::new);
-        ResourcePackDataProvider.register(new Identifier("polymer", "http_server"), StandaloneWebServerProvider::new);
-        ResourcePackDataProvider.register(new Identifier("polymer", "standalone"), StandaloneWebServerProvider::new);
-        ResourcePackDataProvider.register(new Identifier("polymer", "empty"), EmptyProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "automatic"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "auto"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "netty"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "same_port"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "http_server"), StandaloneWebServerProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "standalone"), StandaloneWebServerProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "empty"), EmptyProvider::new);
 
         CommonImplUtils.registerDevCommands((c) -> {
             c.then(literal("reload_resourcepack").executes(context -> {

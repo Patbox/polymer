@@ -12,12 +12,12 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
-import eu.pb4.polymer.core.mixin.block.packet.ThreadedAnvilChunkStorageAccessor;
+import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipType;
-import net.minecraft.component.DataComponentType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
@@ -121,7 +121,7 @@ public final class PolymerUtils {
             player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
 
             var world = player.getWorld();
-            var tacsAccess = ((ThreadedAnvilChunkStorageAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).threadedAnvilChunkStorage);
+            var tacsAccess = ((ServerChunkLoadingManagerAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).chunkLoadingManager);
 
             for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
                 var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
@@ -141,7 +141,7 @@ public final class PolymerUtils {
         });
     }
 
-    public static void markAsPolymer(DataComponentType<?>... types) {
+    public static void markAsPolymer(ComponentType<?>... types) {
         PolymerItemUtils.markAsPolymer(types);
     }
 

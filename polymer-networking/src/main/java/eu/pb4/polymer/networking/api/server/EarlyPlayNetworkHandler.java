@@ -4,8 +4,8 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.impl.EarlyPlayConnectionMagic;
 import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
-import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.DisconnectionInfo;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
@@ -19,7 +19,6 @@ import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.network.packet.s2c.common.KeepAliveS2CPacket;
 import net.minecraft.network.packet.s2c.play.*;
-import net.minecraft.network.state.ConfigurationStates;
 import net.minecraft.network.state.PlayStateFactories;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerConfigurationNetworkHandler;
@@ -72,7 +71,7 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
         return this.identifier;
     }
 
-    public void handleDisconnect(Text reason) {
+    public void handleDisconnect(DisconnectionInfo reason) {
 
     }
 
@@ -197,12 +196,6 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
                     0
             ), this.getServer().shouldEnforceSecureProfile()));
         }
-    }
-
-    @Override
-    public final void onDisconnected(Text reason) {
-        this.context.storedPackets().clear();
-        this.handleDisconnect(reason);
     }
 
     public final ClientConnection getConnection() {
@@ -484,6 +477,12 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     @Override
     public void onDebugSampleSubscription(DebugSampleSubscriptionC2SPacket packet) {
 
+    }
+
+    @Override
+    public void onDisconnected(DisconnectionInfo info) {
+        this.context.storedPackets().clear();
+        this.handleDisconnect(info);
     }
 
     @Override

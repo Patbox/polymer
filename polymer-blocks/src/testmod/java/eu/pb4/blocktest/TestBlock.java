@@ -16,7 +16,7 @@ public class TestBlock extends Block implements PolymerTexturedBlock {
 
         this.polymerBlockState = PolymerBlockResourceUtils.requestBlock(
                 type,
-                PolymerBlockModel.of(new Identifier("blocktest", modelId)));
+                PolymerBlockModel.of(Identifier.of("blocktest", modelId)));
 
     }
 

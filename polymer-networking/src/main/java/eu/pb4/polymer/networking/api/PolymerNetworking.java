@@ -189,10 +189,10 @@ public final class PolymerNetworking {
         ClientPackets.register(identifier, codec, versions.toIntArray());
     }
     public static <T extends CustomPayload> CustomPayload.Id<T> id(String id) {
-        return new CustomPayload.Id<>(new Identifier(id));
+        return new CustomPayload.Id<>(Identifier.of(id));
     }
 
     public static <T extends CustomPayload> CustomPayload.Id<T> id(String namespace, String path) {
-        return new CustomPayload.Id<>(new Identifier(namespace, path));
+        return new CustomPayload.Id<>(Identifier.of(namespace, path));
     }
 }

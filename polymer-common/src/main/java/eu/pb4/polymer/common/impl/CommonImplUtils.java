@@ -129,7 +129,7 @@ public class CommonImplUtils {
     }
 
     public static Identifier id(String s) {
-        return new Identifier("polymer", s);
+        return Identifier.of("polymer", s);
     }
 
     public static boolean isMainPlayer(ServerPlayerEntity player) {

@@ -14,13 +14,14 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
+import net.minecraft.recipe.input.RecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
+public class TestRecipe implements Recipe<RecipeInput>, PolymerRecipe {
 
     private final ItemStack output;
 
@@ -34,12 +35,12 @@ public class TestRecipe implements Recipe<Inventory>, PolymerRecipe {
     }
 
     @Override
-    public boolean matches(Inventory inventory, World world) {
+    public boolean matches(RecipeInput inventory, World world) {
         return false;
     }
 
     @Override
-    public ItemStack craft(Inventory inventory, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack craft(RecipeInput inventory, RegistryWrapper.WrapperLookup lookup) {
         return this.output.copy();
     }
 

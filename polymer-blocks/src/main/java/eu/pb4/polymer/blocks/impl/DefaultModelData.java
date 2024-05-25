@@ -31,9 +31,9 @@ public class DefaultModelData {
         generateDefault(BlockModelType.CACTUS_BLOCK, Blocks.CACTUS);
 
         {
-            var farmland = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier("minecraft:block/farmland"))};
+            var farmland = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/farmland"))};
             MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 1), farmland);
-            MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 7), new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier("minecraft:block/farmland_moist"))});
+            MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 7), new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/farmland_moist"))});
 
 
             var list = new ArrayList<BlockState>();
@@ -51,7 +51,7 @@ public class DefaultModelData {
 
             for (var block : new Block[]{Blocks.TWISTING_VINES, Blocks.WEEPING_VINES}) {
                 var id = Registries.BLOCK.getId(block);
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
+                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
                     MODELS.put(state, model);
                 }
@@ -62,8 +62,8 @@ public class DefaultModelData {
 
             {
                 var id = Registries.BLOCK.getId(Blocks.CAVE_VINES);
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
-                var model2 = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath() + "_lit"))};
+                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
+                var model2 = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath() + "_lit"))};
                 for (var state : Blocks.CAVE_VINES.getStateManager().getStates()) {
                     var berries = state.get(CaveVines.BERRIES);
                     MODELS.put(state, berries ? model2 : model);
@@ -84,7 +84,7 @@ public class DefaultModelData {
 
             {
                 var id = Registries.BLOCK.getId(Blocks.SUGAR_CANE);
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
+                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : Blocks.SUGAR_CANE.getStateManager().getStates()) {
                     MODELS.put(state, model);
                 }
@@ -102,7 +102,7 @@ public class DefaultModelData {
             for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING}) {
                 var id = Registries.BLOCK.getId(block);
 
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
+                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
                     MODELS.put(state, model);
                 }
@@ -124,7 +124,7 @@ public class DefaultModelData {
 
         for (var block : blocks) {
             var id = Registries.BLOCK.getId(block);
-            var model = new PolymerBlockModel[]{PolymerBlockModel.of(new Identifier(id.getNamespace() + ":block/" + id.getPath()))};
+            var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
             for (var state : block.getStateManager().getStates()) {
                 MODELS.put(state, model);
                 if (shouldInclude.test(state)) {

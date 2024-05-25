@@ -3,41 +3,29 @@ package eu.pb4.polymer.networking.api.server;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.impl.EarlyConfigurationConnectionMagic;
-import eu.pb4.polymer.networking.impl.EarlyPlayConnectionMagic;
-import eu.pb4.polymer.networking.impl.TempPlayerLoginAttachments;
 import eu.pb4.polymer.networking.mixin.ClientConnectionAccessor;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkState;
+import net.minecraft.network.DisconnectionInfo;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
-import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.listener.TickablePacketListener;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.*;
 import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
 import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
-import net.minecraft.network.packet.c2s.play.*;
-import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
 import net.minecraft.network.packet.s2c.common.CommonPingS2CPacket;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.network.packet.s2c.common.KeepAliveS2CPacket;
-import net.minecraft.network.packet.s2c.play.CommonPlayerSpawnInfo;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
-import net.minecraft.network.state.ConfigurationStates;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.ContextProvidingPacketListener;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -76,7 +64,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
         return this.identifier;
     }
 
-    public void handleDisconnect(Text reason) {
+    public void handleDisconnect(DisconnectionInfo reason) {
 
     }
 
@@ -164,9 +152,9 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
     }
 
     @Override
-    public final void onDisconnected(Text reason) {
+    public void onDisconnected(DisconnectionInfo info) {
         this.context.storedPackets().clear();
-        this.handleDisconnect(reason);
+        this.handleDisconnect(info);
     }
 
     public final ClientConnection getConnection() {

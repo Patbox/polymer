@@ -7,5 +7,5 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 public record PolymerArmorModelImpl(int color, Identifier modelId, List<ArmorMaterial.Layer> layers) implements PolymerArmorModel {
-    public static final PolymerArmorModel EMPTY = new PolymerArmorModelImpl(-1, new Identifier("empty"), List.of());
+    public static final PolymerArmorModel EMPTY = new PolymerArmorModelImpl(-1, Identifier.of("empty"), List.of());
 }

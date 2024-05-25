@@ -122,13 +122,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
             equipmentChanges.forEach((slot, stack) -> {
                 ItemStack itemStack = stack.copy();
                 list.add(Pair.of(slot, itemStack));
-                switch (slot.getType()) {
-                    case HAND:
-                        ac.callSetSyncedHandStack(slot, itemStack);
-                        break;
-                    case ARMOR:
-                       ac.callSetSyncedArmorStack(slot, itemStack);
-                }
+                ac.callSetSyncedArmorStack(slot, itemStack);
             });
 
             this.sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));

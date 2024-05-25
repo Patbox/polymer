@@ -11,7 +11,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class TestInitializer implements ModInitializer {
-    //public static final PolymerItemGroupUtils ITEM_GROUP = PolymerItemGroupUtils.create(new Identifier("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
+    //public static final PolymerItemGroupUtils ITEM_GROUP = PolymerItemGroupUtils.create(Identifier.of("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
 
     @Override
     public void onInitialize() {
@@ -27,7 +27,7 @@ public class TestInitializer implements ModInitializer {
     }
 
     public static void register(BlockModelType type, String modelId) {
-        var id = new Identifier("blocktest", modelId);
+        var id = Identifier.of("blocktest", modelId);
         var block = Registry.register(Registries.BLOCK, id,
                 new TestBlock(FabricBlockSettings.copy(Blocks.DIAMOND_BLOCK), type, modelId));
 

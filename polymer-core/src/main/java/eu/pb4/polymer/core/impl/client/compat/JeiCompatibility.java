@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 
 public class JeiCompatibility implements IModPlugin {
-    private static final Identifier ID = new Identifier("polymer", "jei_plugin");
+    private static final Identifier ID = Identifier.of("polymer", "jei_plugin");
 
 
     @Override

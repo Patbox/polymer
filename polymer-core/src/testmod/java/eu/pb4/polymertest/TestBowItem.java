@@ -18,7 +18,7 @@ public class TestBowItem extends BowItem implements PolymerItem {
     public TestBowItem(Settings settings, String model) {
         super(settings);
 
-        this.model = PolymerResourcePackUtils.requestModel(Items.BOW, new Identifier("polymertest", "item/" + model));
+        this.model = PolymerResourcePackUtils.requestModel(Items.BOW, Identifier.of("polymertest", "item/" + model));
     }
 
     @Override

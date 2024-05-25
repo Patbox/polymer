@@ -32,20 +32,20 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                 var polymerArmor = manager.getResource(POLYMER_ARMOR_ID);
                 if (polymerArmor.isPresent()) {
                     PolymerResourcePackMod.hasArmorTextures = true;
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", new Identifier("textures/models/armor/vanilla_leather_layer_1.png"));
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", new Identifier("textures/models/armor/vanilla_leather_layer_1_overlay.png"));
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2.png", new Identifier("textures/models/armor/vanilla_leather_layer_2.png"));
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2_overlay.png", new Identifier("textures/models/armor/vanilla_leather_layer_2_overlay.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", Identifier.of("textures/models/armor/vanilla_leather_layer_1.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", Identifier.of("textures/models/armor/vanilla_leather_layer_1_overlay.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2.png", Identifier.of("textures/models/armor/vanilla_leather_layer_2.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2_overlay.png", Identifier.of("textures/models/armor/vanilla_leather_layer_2_overlay.png"));
 
 
                     try {
                         HashMap<String, String> data =  GSON.fromJson(new String(polymerArmor.get().getInputStream().readAllBytes()), HashMap.class);
 
                         for (var entry : data.entrySet()) {
-                            var id = new Identifier(entry.getValue());
+                            var id = Identifier.of(entry.getValue());
                             var key = Integer.parseInt(entry.getKey());
-                            var tex1 = new Identifier(id.getNamespace(), "textures/models/armor/" + id.getPath() + "_layer_1.png");
-                            var tex2 = new Identifier(id.getNamespace(), "textures/models/armor/" + id.getPath() + "_layer_2.png");
+                            var tex1 = Identifier.of(id.getNamespace(), "textures/models/armor/" + id.getPath() + "_layer_1.png");
+                            var tex2 = Identifier.of(id.getNamespace(), "textures/models/armor/" + id.getPath() + "_layer_2.png");
                             PolymerResourcePackMod.ARMOR_TEXTURES_1.put(key, tex1);
                             PolymerResourcePackMod.ARMOR_TEXTURES_2.put(key, tex2);
                         }
@@ -54,10 +54,10 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                     }
                 } else {
                     PolymerResourcePackMod.hasArmorTextures = false;
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", new Identifier("textures/models/armor/leather_layer_1.png"));
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", new Identifier("textures/models/armor/leather_layer_1_overlay.png"));
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2.png", new Identifier("textures/models/armor/leather_layer_2.png"));
-                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2_overlay.png", new Identifier("textures/models/armor/leather_layer_2_overlay.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1.png", Identifier.of("textures/models/armor/leather_layer_1.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_1_overlay.png", Identifier.of("textures/models/armor/leather_layer_1_overlay.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2.png", Identifier.of("textures/models/armor/leather_layer_2.png"));
+                    ArmorFeatureRendererAccessor.getARMOR_TEXTURE_CACHE().put("textures/models/armor/leather_layer_2_overlay.png", Identifier.of("textures/models/armor/leather_layer_2_overlay.png"));
 
                 }
             }

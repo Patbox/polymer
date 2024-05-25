@@ -5,7 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.server.world.ServerChunkLoadingManager;
 
 import java.util.Collection;
 import java.util.Set;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public interface MetaConsumer<T, E> extends Consumer<T> {
     E getAttached();
 
-    static MetaConsumer<Packet<?>, Collection<PlayerAssociatedNetworkHandler>> sendToOtherPlayers(ThreadedAnvilChunkStorage.EntityTracker entityTracker, Set<PlayerAssociatedNetworkHandler> listeners, Entity entity) {
+    static MetaConsumer<Packet<?>, Collection<PlayerAssociatedNetworkHandler>> sendToOtherPlayers(ServerChunkLoadingManager.EntityTracker entityTracker, Set<PlayerAssociatedNetworkHandler> listeners, Entity entity) {
         if (entity instanceof PolymerEntity polymerEntity) {
             return new MetaConsumer<>() {
                 private final Consumer<Packet<?>> consumer = entityTracker::sendToOtherNearbyPlayers;

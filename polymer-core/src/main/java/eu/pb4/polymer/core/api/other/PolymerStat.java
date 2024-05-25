@@ -14,8 +14,8 @@ import java.util.Map;
 public final class PolymerStat extends Identifier implements PolymerObject {
     private static final Map<Identifier, Text> NAMES = new HashMap<>();
 
-    private PolymerStat(String id) {
-        super(id);
+    private PolymerStat(String namespace, String path) {
+        super(namespace, path);
     }
 
     /**
@@ -40,7 +40,8 @@ public final class PolymerStat extends Identifier implements PolymerObject {
      * @return the PolymerStat ({@link Identifier}) for the custom stat
      */
     public static Identifier registerStat(String id, Text name, StatFormatter formatter) {
-        PolymerStat identifier = new PolymerStat(id);
+        var idx = Identifier.of(id);
+        PolymerStat identifier = new PolymerStat(idx.getNamespace(), idx.getPath());
         Registry.register(Registries.CUSTOM_STAT, id, identifier);
         Stats.CUSTOM.getOrCreateStat(identifier, formatter);
         NAMES.put(identifier, name);

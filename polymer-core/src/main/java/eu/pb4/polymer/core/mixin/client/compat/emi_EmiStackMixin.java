@@ -7,7 +7,7 @@ import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.DataComponentType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public abstract class emi_EmiStackMixin {
 
     @Shadow public abstract Object getKey();
 
-    @Shadow public abstract <T> @Nullable T get(DataComponentType<? extends T> type);
+    @Shadow public abstract <T> @Nullable T get(ComponentType<? extends T> type);
 
     @Inject(method = "isEqual(Ldev/emi/emi/api/stack/EmiStack;)Z", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer$areEqual(EmiStack stack, CallbackInfoReturnable<Boolean> cir) {

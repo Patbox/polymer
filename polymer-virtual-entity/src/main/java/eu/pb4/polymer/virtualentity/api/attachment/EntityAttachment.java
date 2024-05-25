@@ -3,11 +3,11 @@ package eu.pb4.polymer.virtualentity.api.attachment;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityTrackerAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.ServerChunkLoadingManagerAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.server.world.ServerChunkLoadingManager;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
@@ -92,8 +92,8 @@ public class EntityAttachment implements HolderAttachment {
         // left that to impl logic
     }
 
-    private ThreadedAnvilChunkStorage.EntityTracker getTrackerEntry() {
-        return ((ThreadedAnvilChunkStorageAccessor) ((ServerWorld) this.entity.getWorld()).getChunkManager().threadedAnvilChunkStorage).getEntityTrackers().get(this.entity.getId());
+    private ServerChunkLoadingManager.EntityTracker getTrackerEntry() {
+        return ((ServerChunkLoadingManagerAccessor) ((ServerWorld) this.entity.getWorld()).getChunkManager().chunkLoadingManager).getEntityTrackers().get(this.entity.getId());
     }
 
     @Override

@@ -76,11 +76,11 @@ public final class FakeWorld extends World implements LightSourceView {
     static final Scoreboard SCOREBOARD = new Scoreboard();
 
     static final DynamicRegistryManager FALLBACK_REGISTRY_MANAGER = new DynamicRegistryManager.Immutable() {
-        private final FakeRegistry<DamageType> damageTypes = new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, new Identifier("polymer","fake_damage"),
+        private final FakeRegistry<DamageType> damageTypes = new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, Identifier.of("polymer","fake_damage"),
                 new DamageType("", DamageScaling.NEVER, 0));
         private final FakeRegistry<BannerPattern> bannerPatterns = new FakeRegistry<>(RegistryKeys.BANNER_PATTERN,
-                new Identifier("polymer","fake_pattern"),
-                new BannerPattern(new Identifier("polymer","fake_pattern"), ""));
+                Identifier.of("polymer","fake_pattern"),
+                new BannerPattern(Identifier.of("polymer","fake_pattern"), ""));
         @Override
         public Optional<Registry> getOptional(RegistryKey key) {
             var x = Registries.REGISTRIES.get(key);
@@ -213,7 +213,7 @@ public final class FakeWorld extends World implements LightSourceView {
         World worldUnsafe, worldDefault;
 
         var dimType = RegistryEntry.Reference.intrusive(new RegistryEntryOwner<>() {}, new DimensionType(OptionalLong.empty(), true, false, false, true, 1.0D, true, false, -64, 384, 384, BlockTags.INFINIBURN_OVERWORLD, DimensionTypes.OVERWORLD_ID, 0.0F, new DimensionType.MonsterSettings(false, true, UniformIntProvider.create(0, 7), 0)));
-        ((ReferenceAccessor) dimType).callSetRegistryKey(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, new Identifier("overworld")));
+        ((ReferenceAccessor) dimType).callSetRegistryKey(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, Identifier.of("overworld")));
         try {
             worldUnsafe = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
             var accessor = (WorldAccessor) worldUnsafe;
@@ -222,7 +222,7 @@ public final class FakeWorld extends World implements LightSourceView {
             accessor.polymer$setDebugWorld(true);
             accessor.polymer$setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
             accessor.polymer$setProperties(new FakeWorldProperties());
-            accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, new Identifier("polymer","fake_world")));
+            accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, Identifier.of("polymer","fake_world")));
             //accessor.polymer$setDimensionKey(DimensionTypes.OVERWORLD);
             accessor.polymer$setDimensionEntry(dimType);
             accessor.polymer$setThread(Thread.currentThread());
@@ -244,7 +244,7 @@ public final class FakeWorld extends World implements LightSourceView {
         try {
             worldDefault = new FakeWorld(
                     new FakeWorldProperties(),
-                    RegistryKey.of(RegistryKeys.WORLD, new Identifier("polymer", "fake_world")),
+                    RegistryKey.of(RegistryKeys.WORLD, Identifier.of("polymer", "fake_world")),
                     dimType,
                     () -> new ProfilerSystem(() -> 0l, () -> 0, false),
                     false,
@@ -322,7 +322,7 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
     @Override
-    public MapIdComponent getNextMapId() {
+    public MapIdComponent increaseAndGetMapId() {
         return null;
     }
 

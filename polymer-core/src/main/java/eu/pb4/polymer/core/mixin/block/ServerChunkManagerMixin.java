@@ -11,7 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.server.world.ServerChunkLoadingManager;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.chunk.WorldChunk;
@@ -35,7 +35,7 @@ public abstract class ServerChunkManagerMixin {
     private final Object2LongMap<ChunkSectionPos> polymer$lastUpdates = new Object2LongArrayMap<>();
     @Shadow
     @Final
-    public ThreadedAnvilChunkStorage threadedAnvilChunkStorage;
+    public ServerChunkLoadingManager chunkLoadingManager;
     @Shadow
     @Final
     private ServerWorld world;
@@ -78,7 +78,7 @@ public abstract class ServerChunkManagerMixin {
                         ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
                     }
 
-                    List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false);
+                    List<ServerPlayerEntity> players = this.chunkLoadingManager.getPlayersWatchingChunk(pos.toChunkPos(), false);
                     if (!players.isEmpty()) {
                         Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet);
                         for (ServerPlayerEntity player : players) {

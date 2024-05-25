@@ -33,7 +33,7 @@ public class PolymerArmorResourceTexture extends ResourceTexture implements Text
         ResourceTexture.TextureData textureData = this.loadTextureData(manager);
         textureData.checkException();
 
-        var id = new Identifier(this.location.getNamespace(), this.location.getPath().substring(0, (this.location.getPath().length() - 3)) + "polymer.json");
+        var id = Identifier.of(this.location.getNamespace(), this.location.getPath().substring(0, (this.location.getPath().length() - 3)) + "polymer.json");
 
         var res = manager.getResource(id);
         if (res.isPresent()) {

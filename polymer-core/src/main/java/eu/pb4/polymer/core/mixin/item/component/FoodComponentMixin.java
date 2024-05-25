@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.impl.TransformingDataComponent;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,13 +28,15 @@ public abstract class FoodComponentMixin implements TransformingDataComponent {
 
     @Shadow @Final private float saturation;
 
+    @Shadow public abstract Optional<ItemStack> usingConvertsTo();
+
     @Override
     public Object polymer$getTransformed(ServerPlayerEntity player) {
         if (!polymer$requireModification(player)) {
             return this;
         }
 
-        return new FoodComponent(this.nutrition, this.saturation, this.canAlwaysEat, this.eatSeconds, List.of());
+        return new FoodComponent(this.nutrition, this.saturation, this.canAlwaysEat, this.eatSeconds, this.usingConvertsTo(), List.of());
     }
 
     @Override
