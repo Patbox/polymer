@@ -9,6 +9,7 @@ import eu.pb4.polymer.resourcepack.api.model.ItemOverride;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.impl.generation.PolymerArmorModelImpl;
 import eu.pb4.polymer.resourcepack.impl.generation.PolymerModelDataImpl;
+import eu.pb4.polymer.resourcepack.mixin.LayerAccessor;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -16,7 +17,9 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
@@ -49,7 +52,7 @@ public final class ResourcePackCreator {
     private int armorColor = 0;
     private Text packDescription = null;
     private byte[] packIcon = null;
-    private Set<Path> sourcePaths = new HashSet<>();
+    private final Set<Path> sourcePaths = new HashSet<>();
 
     public static ResourcePackCreator create() {
         return new ResourcePackCreator(0);
@@ -122,12 +125,27 @@ public final class ResourcePackCreator {
         } else {
             this.armorColor++;
             int color = 0xFFFFFF - armorColor * 2 + 1;
-            var model = new PolymerArmorModelImpl(color, modelPath);
+            var model = new PolymerArmorModelImpl(color, modelPath, List.of(new ArmorMaterial.Layer(modelPath)));
 
             this.armorModelMap.put(modelPath, model);
             this.takenArmorColors.add(color);
             return model;
         }
+    }
+    /**
+     * This method can be used to register custom model data for items
+     *
+     * @param material ArmorMaterial
+     * @return PolymerArmorModel with data about this model
+     */
+    public PolymerArmorModel requestArmor(RegistryEntry<ArmorMaterial> material) {
+        if (material.value().layers().isEmpty()) {
+            CommonImpl.LOGGER.warn("Armor Material '{}' has no layers!", material.getIdAsString());
+            return PolymerArmorModelImpl.EMPTY;
+        } else if (material.value().layers().size() > 1) {
+            CommonImpl.LOGGER.warn("Multi-layer Armor Materials aren't supported yet! Provided material: '{}'", material.getIdAsString());
+        }
+        return requestArmor(((LayerAccessor) (Object) material.value().layers().get(0)).getId());
     }
 
     /**
@@ -179,6 +197,26 @@ public final class ResourcePackCreator {
      */
     public List<PolymerModelData> getModelsFor(Item item) {
         return Collections.unmodifiableList(items.getOrDefault(item, Collections.emptyList()));
+    }
+
+    /**
+     * Gets an unmodifiable list of models for all items
+     * This can be useful if you need to extract this list and parse it yourself.
+     *
+     * @return An unmodifiable list of models
+     */
+    public Map<Item, List<PolymerModelData>> getAllItemModels() {
+        return Collections.unmodifiableMap(items);
+    }
+
+    /**
+     * Gets an unmodifiable list of models for all items
+     * This can be useful if you need to extract this list and parse it yourself.
+     *
+     * @return An unmodifiable list of models
+     */
+    public Map<Identifier, PolymerArmorModel> getAllArmorModels() {
+        return Collections.unmodifiableMap(this.armorModelMap);
     }
 
     /**

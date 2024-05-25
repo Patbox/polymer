@@ -2,6 +2,7 @@ package eu.pb4.polymertest.mixin;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -43,5 +44,10 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             this.sendPacket(new EntityPassengersSetS2CPacket(this.player));
             this.lastPassengers = list;
         }
+    }
+
+    @Inject(method = "onHandSwing", at = @At("TAIL"))
+    private void onSwing(HandSwingC2SPacket packet, CallbackInfo ci) {
+        //this.player.sendMessage(Text.literal("Swing!"));
     }
 }

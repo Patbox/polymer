@@ -5,12 +5,13 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "eu.pb4.polymer.resourcepack.mixin.PolymerResourcePackMixinConfigPlugin",
   "mixins": [
+    "LayerAccessor",
     "compat.polymc.polymc_ArmorColorManagerMixin",
     "compat.polymc.polymc_FancyPantsItemPolyMixin"
   ],
   "client": [
-    "client.MinecraftClientMixin",
     "client.ArmorFeatureRendererAccessor",
+    "client.MinecraftClientMixin",
     "client.ResourcePackManagerMixin",
     "client.compat.armor_ArmorFeatureRendererMixin"
   ],

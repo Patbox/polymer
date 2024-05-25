@@ -23,7 +23,7 @@ public class CompatUtils {
         return Objects.equals(getItemId(a.getItem(), a.get(DataComponentTypes.CUSTOM_DATA)), getItemId(b.getItem(), b.get(DataComponentTypes.CUSTOM_DATA)));
     }
 
-    public static boolean areSamePolymerType(Item ai, NbtComponent a, Item bi, NbtComponent b) {
+    public static boolean areSamePolymerType(Object ai, NbtComponent a, Object bi, NbtComponent b) {
         return Objects.equals(getItemId(ai, a), getItemId(bi, b));
     }
 
@@ -66,11 +66,11 @@ public class CompatUtils {
         return Registries.ITEM.get(id);
     }
 
-    private static Identifier getItemId(Item item, @Nullable NbtComponent nbtComponent) {
+    private static Identifier getItemId(Object item, @Nullable NbtComponent nbtComponent) {
         var id = PolymerItemUtils.getServerIdentifier(nbtComponent);
 
-        if (id == null) {
-            return item.getRegistryEntry().registryKey().getValue();
+        if (id == null && item instanceof Item item1) {
+            return item1.getRegistryEntry().registryKey().getValue();
         }
 
         return id;
