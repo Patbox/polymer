@@ -25,14 +25,15 @@ import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 public class WthitCompatibility implements IWailaPlugin {
-    private static final Identifier BLOCK_STATES = Identifier.tryParse("waila:show_states");
+    private static final Identifier BLOCK_STATES = Identifier.tryParse("attribute.block_state");
 
     @Override
     public void register(IRegistrar registrar) {
+        registrar.addRedirect(BlockOverride.INSTANCE, Block.class, 400);
         registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.HEAD, Block.class, 100000);
         registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.BODY, Block.class, 100000);
         registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.TAIL, Block.class, 100000);
-        registrar.addOverride(BlockOverride.INSTANCE, Block.class, 1000);
+        registrar.addIcon(BlockOverride.INSTANCE, Block.class, 500);
 
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.HEAD, ItemEntity.class, 100000);
         registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.TAIL, ItemEntity.class, 100000);
@@ -56,7 +57,13 @@ public class WthitCompatibility implements IWailaPlugin {
         public static final BlockOverride INSTANCE = new BlockOverride();
 
         @Override
-        public ITooltipComponent getIcon(IBlockAccessor accessor, IPluginConfig config) {
+        public @Nullable ITargetRedirector.Result redirect(ITargetRedirector redirect, IBlockAccessor accessor, IPluginConfig config) {
+            if (InternalClientRegistry.getBlockAt(accessor.getPosition()) != ClientPolymerBlock.NONE_STATE) return redirect.toSelf();
+            return null;
+        }
+
+        @Override
+        public @Nullable ITooltipComponent getIcon(IBlockAccessor accessor, IPluginConfig config) {
             var block = InternalClientRegistry.getBlockAt(accessor.getPosition());
             if (block != ClientPolymerBlock.NONE_STATE) {
                 BlockState state = accessor.getWorld().getBlockState(accessor.getPosition());
@@ -73,7 +80,7 @@ public class WthitCompatibility implements IWailaPlugin {
 
                 return new ItemComponent(itemStack);
             }
-            return EmptyComponent.INSTANCE;
+            return null;
         }
 
         @Override
@@ -162,6 +169,12 @@ public class WthitCompatibility implements IWailaPlugin {
 
     private static final class EntityOverride implements IEntityComponentProvider {
         public static final EntityOverride INSTANCE = new EntityOverride();
+
+        @Override
+        public @Nullable ITargetRedirector.Result redirect(ITargetRedirector redirect, IEntityAccessor accessor, IPluginConfig config) {
+            if (PolymerClientUtils.getEntityType(accessor.getEntity()) != null) return redirect.toSelf();
+            return null;
+        }
 
         @Override
         public void appendHead(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
