@@ -68,13 +68,15 @@ public class WthitCompatibility implements IWailaPlugin {
             if (block != ClientPolymerBlock.NONE_STATE) {
                 BlockState state = accessor.getWorld().getBlockState(accessor.getPosition());
 
-                var itemStack = state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
+                var itemStack = block.block().displayStack();
+                if (itemStack.isEmpty()) {
+                    itemStack = state.getBlock().getPickStack(accessor.getWorld(), accessor.getPosition(), state);
+                    if (!itemStack.isEmpty() && state.hasBlockEntity()) {
+                        var blockEntity = accessor.getWorld().getBlockEntity(accessor.getPosition());
 
-                if (!itemStack.isEmpty() && state.hasBlockEntity()) {
-                    var blockEntity = accessor.getWorld().getBlockEntity(accessor.getPosition());
-
-                    if (blockEntity != null) {
-                        itemStack.applyComponentsFrom(blockEntity.getComponents());
+                        if (blockEntity != null) {
+                            itemStack.applyComponentsFrom(blockEntity.getComponents());
+                        }
                     }
                 }
 

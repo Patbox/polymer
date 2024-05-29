@@ -51,13 +51,15 @@ public class JadeCompatibility implements IWailaPlugin {
                 if (block != ClientPolymerBlock.NONE_STATE) {
                     BlockState state = accessor.getLevel().getBlockState(accessor.getPosition());
 
-                    var itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
+                    var itemStack = block.block().displayStack();
+                    if (itemStack.isEmpty()) {
+                        itemStack = state.getBlock().getPickStack(accessor.getLevel(), accessor.getPosition(), state);
+                        if (!itemStack.isEmpty() && state.hasBlockEntity()) {
+                            var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
 
-                    if (!itemStack.isEmpty() && state.hasBlockEntity()) {
-                        var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
-
-                        if (blockEntity != null) {
-                            itemStack.applyComponentsFrom(blockEntity.createComponentMap());
+                            if (blockEntity != null) {
+                                itemStack.applyComponentsFrom(blockEntity.getComponents());
+                            }
                         }
                     }
 
