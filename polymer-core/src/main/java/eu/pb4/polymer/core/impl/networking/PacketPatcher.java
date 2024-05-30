@@ -96,7 +96,7 @@ public class PacketPatcher {
                 return true;
             } else if ((packet instanceof EntityAttributesS2CPacket original
                     && EntityAttachedPacket.get(packet, original.getEntityId()) instanceof PolymerEntity entity
-                    && InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
+                    && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
                 return true;
             } else if (packet instanceof BlockEntityUpdateS2CPacket be && PolymerBlockUtils.isPolymerBlockEntityType(be.getBlockEntityType())) {
                 return true;
