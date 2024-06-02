@@ -147,11 +147,6 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public Packet<ClientPlayPacketListener> createSpawnPacket() {
-        return new EntitySpawnS2CPacket(this);
-    }
-
-    @Override
     public void onEntityPacketSent(Consumer<Packet<?>> consumer, Packet<?> packet) {
         if (packet instanceof EntityPassengersSetS2CPacket passengersSetS2CPacket) {
             consumer.accept(VirtualEntityUtils.createRidePacket(this.rideAnchor.getEntityId(), IntList.of(passengersSetS2CPacket.getPassengerIds())));

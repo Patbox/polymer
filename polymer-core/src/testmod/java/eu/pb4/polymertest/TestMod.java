@@ -509,14 +509,14 @@ public class TestMod implements ModInitializer {
                                 x.setPose(EntityPose.SLEEPING);
                                 x.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(x.getId(), List.of(DataTracker.SerializedEntry.of(EntityTrackedData.POSE, EntityPose.SLEEPING))));
                             } else if (i.isOf(Items.CREEPER_HEAD)) {
-                                var l = new ArrayList<Packet<? super ClientPlayPacketListener>>();
+                                /*var l = new ArrayList<Packet<? super ClientPlayPacketListener>>();
                                 creep.setPos(x.getX(), x.getY() - 255, x.getZ());
-                                l.add(new EntitySpawnS2CPacket(creep));
+                                //l.add(new EntitySpawnS2CPacket(creep));
                                 l.add(new SetCameraEntityS2CPacket(creep));
                                 l.add(new EntitiesDestroyS2CPacket(creep.getId()));
                                 l.add(new PlayerRespawnS2CPacket(x.createCommonPlayerSpawnInfo(x.getServerWorld()), PlayerRespawnS2CPacket.KEEP_ALL));
 
-                                x.networkHandler.sendPacket(new BundleS2CPacket(l));
+                                x.networkHandler.sendPacket(new BundleS2CPacket(l));*/
                             }
                         });
                         Thread.sleep(5);

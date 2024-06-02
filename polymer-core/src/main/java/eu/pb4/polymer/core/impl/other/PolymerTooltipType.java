@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.impl.other;
 
 
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.map.MapState;

@@ -38,11 +38,11 @@ public class StonecutterScreenHandlerMixin {
 
     @Inject(method = "updateInput", at = @At("TAIL"))
     private void polymerCore$fixOrdering(Inventory input, ItemStack stack, CallbackInfo ci) {
-        if (!stack.isEmpty()) {
+        if (!stack.isEmpty() && this.polymerCore$player != null) {
             var list = new ArrayList<>(this.availableRecipes);
 
             list.sort(Comparator.comparing(
-                    (recipe) -> PolymerItemUtils.getPolymerItemStack(recipe.value().getResult(this.world.getRegistryManager()), this.polymerCore$player).getTranslationKey()
+                    (recipe) -> PolymerItemUtils.getPolymerItemStack(recipe.value().getResult(this.world.getRegistryManager()), this.world.getRegistryManager(), this.polymerCore$player).getTranslationKey()
             ));
             this.availableRecipes = list;
         }

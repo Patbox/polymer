@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.api.item;
 import eu.pb4.polymer.core.api.block.PolymerHeadBlock;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import net.minecraft.block.Block;
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.BlockItem;

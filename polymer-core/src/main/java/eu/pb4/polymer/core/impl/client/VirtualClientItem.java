@@ -4,7 +4,7 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.client.ClientPolymerItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

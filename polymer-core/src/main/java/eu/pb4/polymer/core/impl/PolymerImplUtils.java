@@ -21,7 +21,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
@@ -50,7 +50,6 @@ public class PolymerImplUtils {
     public static final ThreadLocal<RegistryWrapper.WrapperLookup> WRAPPER_LOOKUP_PASSER = new ThreadLocal<>();
 
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
-    public static final Object2BooleanOpenCustomHashMap<Class<? extends PolymerItem>> POLYMER_ITEM_CLASS_CACHE = new Object2BooleanOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
     public static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
 
     public static Identifier id(String path) {
@@ -306,9 +305,5 @@ public class PolymerImplUtils {
                 player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
             }
         }
-    }
-
-    static {
-        POLYMER_ITEM_CLASS_CACHE.defaultReturnValue(true);
     }
 }

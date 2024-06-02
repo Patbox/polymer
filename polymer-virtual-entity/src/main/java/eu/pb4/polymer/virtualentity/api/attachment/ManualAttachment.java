@@ -9,6 +9,11 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 public record ManualAttachment(ElementHolder holder, ServerWorld world, Supplier<Vec3d> posSupplier) implements HolderAttachment  {
+
+    public ManualAttachment {
+        holder.setAttachment(this);
+    }
+
     @Override
     public void destroy() {
         if (this.holder.getAttachment() == this) {
@@ -23,7 +28,7 @@ public record ManualAttachment(ElementHolder holder, ServerWorld world, Supplier
 
     @Override
     public ServerWorld getWorld() {
-        return null;
+        return this.world;
     }
 
     @Override

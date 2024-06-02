@@ -7,9 +7,9 @@ import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
-import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
@@ -17,19 +17,17 @@ import eu.pb4.polymer.core.impl.TransformingDataComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.item.BlockPredicatesChecker;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.RegistryWrapper;
@@ -45,7 +43,6 @@ import xyz.nucleoid.packettweaker.PacketContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 public final class PolymerItemUtils {
@@ -117,7 +114,6 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.CAN_BREAK, BlockPredicatesChecker::withShowInTooltip),
             HideableTooltip.of(DataComponentTypes.CAN_PLACE_ON, BlockPredicatesChecker::withShowInTooltip)
     );
-    private static final Set<ComponentType<?>> UNSYNCED_COMPONENTS = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
     private PolymerItemUtils() {
     }
@@ -287,12 +283,13 @@ public final class PolymerItemUtils {
         if (itemStack.getItem() instanceof PolymerItem) {
             return true;
         }
+        var ctx = PacketContext.get();
+        if (player != null && ctx.getPlayer() != player) {
+            ctx = PacketContext.of(player);
+        }
 
         for (var x : itemStack.getComponentChanges().entrySet()) {
-            if (x.getValue() != null && x.getValue().isPresent()
-                    && x.getValue().get() instanceof PolymerItemComponent c && c.canSyncRawToClient(player)) {
-                return false;
-            } else if (isPolymerComponent(x.getKey())) {
+            if (!PolymerComponent.canSync(x.getKey(), x.getValue().orElse(null), ctx)) {
                 return true;
             } else if (x.getValue() != null && x.getValue().isPresent()
                     && x.getValue().get() instanceof TransformingDataComponent t
@@ -310,28 +307,6 @@ public final class PolymerItemUtils {
 
 
         return ITEM_CHECK.invoke((x) -> x.test(itemStack));
-    }
-
-    public static ItemStack createMinimalItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return createMinimalItemStack(itemStack, findLookupWrapper(player), player);
-    }
-
-    private static RegistryWrapper.WrapperLookup findLookupWrapper(ServerPlayerEntity player) {
-        RegistryWrapper.WrapperLookup lookup;
-        if (player != null) {
-            lookup = player.getRegistryManager();
-        } else {
-            lookup = PacketContext.get().getRegistryWrapperLookup();
-
-            if (lookup == null) {
-                lookup = PolymerImplUtils.WRAPPER_LOOKUP_PASSER.get();
-
-                if (lookup == null) {
-                    lookup = PolymerImplUtils.FALLBACK_LOOKUP;
-                }
-            }
-        }
-        return lookup;
     }
 
     /**
@@ -385,13 +360,8 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
 
-    public static ItemStack createItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return createItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
-    }
-
-
-    public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
-        return createItemStack(itemStack, tooltipContext, findLookupWrapper(player), player);
+    public static ItemStack createItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+        return createItemStack(itemStack, PolymerUtils.getTooltipType(player), lookup, player);
     }
 
     /**
@@ -545,15 +515,20 @@ public final class PolymerItemUtils {
         return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
     }
 
+    /**
+     * @deprecated Use {@link PolymerComponent#registerDataComponent(ComponentType[])} instead
+     */
+    @Deprecated
     public static void markAsPolymer(ComponentType<?>... types) {
-        for (var x : types) {
-            UNSYNCED_COMPONENTS.add(x);
-            RegistrySyncUtils.setServerEntry(Registries.DATA_COMPONENT_TYPE, x);
-        }
+        PolymerComponent.registerDataComponent(types);
     }
-
+    
+    /**
+     * @deprecated Use {@link PolymerComponent#isPolymerComponent(ComponentType)} instead
+     */
+    @Deprecated
     public static boolean isPolymerComponent(ComponentType<?> type) {
-        return UNSYNCED_COMPONENTS.add(type);
+        return PolymerComponent.isPolymerComponent(type);
     }
 
     public static ItemStack getClientItemStack(ItemStack stack, ServerPlayerEntity player) {
@@ -589,20 +564,5 @@ public final class PolymerItemUtils {
         interface TooltipSetter<T> {
             T setTooltip(T val, boolean value);
         }
-    }
-
-    @Deprecated(forRemoval = true)
-    public static ItemStack getRealItemStack(ItemStack itemStack) {
-        return getRealItemStack(itemStack, findLookupWrapper(null));
-    }
-
-    @Deprecated(forRemoval = true)
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipType(player), player);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, @Nullable ServerPlayerEntity player) {
-        return getPolymerItemStack(itemStack, tooltipContext, findLookupWrapper(player), player);
     }
 }

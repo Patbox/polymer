@@ -1,11 +1,12 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
@@ -25,8 +26,8 @@ public class TestHelmetItem extends ArmorItem implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, @Nullable ServerPlayerEntity player) {
-        var x = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+        var x = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, lookup, player);
         x.set(DataComponentTypes.RARITY, Rarity.EPIC);
         return x;
     }

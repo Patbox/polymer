@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.api.item;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryWrapper;
@@ -37,18 +37,6 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
      * @return Client-side ItemStack
      */
     default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        if (PolymerImplUtils.POLYMER_ITEM_CLASS_CACHE.getBoolean(this.getClass())) {
-            RegistryWrapper.WrapperLookup old = null;
-            if (player == null) {
-                old = PolymerImplUtils.WRAPPER_LOOKUP_PASSER.get();
-                PolymerImplUtils.WRAPPER_LOOKUP_PASSER.set(lookup);
-            }
-            var x = this.getPolymerItemStack(itemStack, tooltipType, player);
-            if (player == null) {
-                PolymerImplUtils.WRAPPER_LOOKUP_PASSER.set(old);
-            }
-            return x;
-        }
         return PolymerItemUtils.createItemStack(itemStack, tooltipType, lookup, player);
     }
 
@@ -94,14 +82,6 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
 
     default boolean handleMiningOnServer(ItemStack tool, BlockState targetBlock, BlockPos pos, ServerPlayerEntity player) {
         return false;
-    }
-
-    /**
-     * @deprecated Replaced with PolymerItem#getPolymerItemStack(ItemStack, TooltipType, ServerPlayerEntity)
-     */
-    @Deprecated(forRemoval = true)
-    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, @Nullable ServerPlayerEntity player) {
-        return PolymerItemUtils.createItemStack(itemStack, tooltipType, player);
     }
 
     default boolean shouldStorePolymerItemStackCount() {

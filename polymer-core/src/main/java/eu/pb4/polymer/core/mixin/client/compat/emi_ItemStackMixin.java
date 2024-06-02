@@ -8,7 +8,7 @@ import dev.emi.emi.search.EmiSearch;
 import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;

@@ -40,7 +40,6 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @Mutable
     @Shadow @Final private int column;
 
-    @Shadow public abstract void reloadSearchProvider();
 
     @Unique private final List<ItemStack> polymer$itemsGroup = new ArrayList<>();
     @Unique private final List<ItemStack> polymer$itemsSearch = new ArrayList<>();
@@ -51,8 +50,8 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     private Object polymerCore$bypassServerSide(Object entry) {
         return entry instanceof InternalClientItemGroup ? ItemGroups.getDefaultTab() : entry;
     }
-
-    @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE), cancellable = true)
+    // todo fix
+    /*@Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE), cancellable = true)
     private void polymer$injectEntriesDynamic(ItemGroup.DisplayContext displayContext, CallbackInfo ci) {
         if (((Object) this) instanceof InternalClientItemGroup) {
             this.displayStacks.addAll(this.polymer$itemsGroup);
@@ -60,9 +59,9 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
             this.reloadSearchProvider();
             ci.cancel();
         }
-    }
+    }*/
 
-    @Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V"))
+    @Inject(method = "updateEntries", at = @At("TAIL"))
     private void polymer$injectEntriesVanilla(ItemGroup.DisplayContext arg, CallbackInfo ci) {
         if (this.type == ItemGroup.Type.CATEGORY && ClientUtils.isClientThread()) {
             this.displayStacks.removeIf(PolymerImplUtils::removeFromItemGroup);
@@ -70,13 +69,6 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
             this.displayStacks.addAll(this.polymer$itemsGroup);
             this.searchTabStacks.addAll(this.polymer$itemsSearch);
-        }
-    }
-
-    @Inject(method = "getIcon", at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/function/Supplier;get()Ljava/lang/Object;", shift = At.Shift.AFTER))
-    private void polymer$wrapIcon(CallbackInfoReturnable<ItemStack> cir) {
-        if (this.icon != null && this.icon.getItem() instanceof PolymerItem && !PolymerClientDecoded.checkDecode(this.icon.getItem())) {
-            this.icon = PolymerItemUtils.getPolymerItemStack(this.icon, PolymerTooltipType.BASIC, ClientUtils.getPlayer());
         }
     }
 

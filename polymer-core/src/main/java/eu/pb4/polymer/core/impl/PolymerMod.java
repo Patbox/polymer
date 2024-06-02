@@ -12,7 +12,7 @@ import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocolHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.item.TooltipType;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -39,17 +39,6 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 		if (PolymerImpl.FORCE_STRICT_UPDATES) {
 			PolymerBlockUtils.requireStrictBlockUpdates();
 		}
-
-		ImplPolymerRegistryEvent.iterateAndRegister(Registries.ITEM, item -> {
-			if (item instanceof PolymerItem x && !PolymerImplUtils.POLYMER_ITEM_CLASS_CACHE.containsKey(item.getClass())) {
-                try {
-                    var method = item.getClass().getMethod("getPolymerItemStack", ItemStack.class, TooltipType.class, ServerPlayerEntity.class);
-					PolymerImplUtils.POLYMER_ITEM_CLASS_CACHE.put(x.getClass(), method.getDeclaringClass() != PolymerItem.class);
-                } catch (NoSuchMethodException e) {
-					PolymerImplUtils.POLYMER_ITEM_CLASS_CACHE.put(x.getClass(), false);
-                }
-            }
-		});
 	}
 	@Override
 	public void onInitializeClient() {

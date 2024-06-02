@@ -8,6 +8,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -32,8 +33,8 @@ class FakeEntity extends Entity {
     }
 
     @Override
-    public Packet<ClientPlayPacketListener> createSpawnPacket() {
-        return null;
+    public Packet<ClientPlayPacketListener> createSpawnPacket(EntityTrackerEntry entityTrackerEntry) {
+        return super.createSpawnPacket(entityTrackerEntry);
     }
 
     static {

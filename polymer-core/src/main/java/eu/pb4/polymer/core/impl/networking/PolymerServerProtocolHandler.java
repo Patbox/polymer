@@ -37,7 +37,7 @@ public class PolymerServerProtocolHandler {
         });
 
         ServerMetadataKeys.setup();
-        S2CPackets.SYNC_ENCHANTMENT.getNamespace();
+        S2CPackets.SYNC_BLOCK.getNamespace();
         C2SPackets.WORLD_PICK_BLOCK.getNamespace();
     }
 

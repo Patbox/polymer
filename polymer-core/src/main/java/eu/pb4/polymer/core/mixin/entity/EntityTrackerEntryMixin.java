@@ -56,7 +56,7 @@ public abstract class EntityTrackerEntryMixin {
         return obj;
     }
 
-    @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket()Lnet/minecraft/network/packet/Packet;"))
+    @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket(Lnet/minecraft/server/network/EntityTrackerEntry;)Lnet/minecraft/network/packet/Packet;"))
     private void polymer$sendPacketsBeforeSpawning(ServerPlayerEntity player, Consumer<Packet<?>> sender, CallbackInfo ci) {
         if (this.entity instanceof PolymerEntity virtualEntity) {
             try {

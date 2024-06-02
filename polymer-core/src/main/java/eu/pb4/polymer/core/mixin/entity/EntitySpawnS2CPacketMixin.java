@@ -14,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.util.collection.IndexedIterable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -71,15 +72,15 @@ public class EntitySpawnS2CPacketMixin {
         return data;
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;I)V", at = @At("TAIL"))
-    private void polymer$changePosition(Entity entity, int entityData, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;Lnet/minecraft/server/network/EntityTrackerEntry;I)V", at = @At("TAIL"))
+    private void polymer$changePosition(Entity entity, EntityTrackerEntry entityTrackerEntry, int entityData, CallbackInfo ci) {
         if (entity instanceof PolymerEntity virtualEntity) {
-            Vec3d vec3d = virtualEntity.getClientSidePosition(entity.getPos());
+            Vec3d vec3d = virtualEntity.getClientSidePosition(entityTrackerEntry.getPos());
             this.x = vec3d.x;
             this.y = vec3d.y;
             this.z = vec3d.z;
-            this.yaw = (byte)((int)(virtualEntity.getClientSideYaw(entity.getYaw()) * 256.0F / 360.0F));
-            this.pitch = (byte)((int)(virtualEntity.getClientSidePitch(entity.getPitch()) * 256.0F / 360.0F));
+            this.yaw = (byte)((int)(virtualEntity.getClientSideYaw(entityTrackerEntry.getYaw()) * 256.0F / 360.0F));
+            this.pitch = (byte)((int)(virtualEntity.getClientSidePitch(entityTrackerEntry.getPitch()) * 256.0F / 360.0F));
         }
     }
 

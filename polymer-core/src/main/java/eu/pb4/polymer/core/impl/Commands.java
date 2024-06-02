@@ -365,7 +365,7 @@ public class Commands {
 
                 Text title;
 
-                if (statObj instanceof PolymerStat stat1) {
+                if (statObj instanceof Identifier stat1) {
                     title = PolymerStat.getName(stat1);
                 } else if (statObj instanceof Item item) {
                     title = item.getName();

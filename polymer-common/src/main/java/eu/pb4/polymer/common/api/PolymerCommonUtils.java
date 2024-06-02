@@ -7,6 +7,7 @@ import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.listener.PacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -114,6 +115,13 @@ public final class PolymerCommonUtils {
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(Unit.INSTANCE);
         runnable.run();
+        FORCE_NETWORKING.set(val);
+    }
+
+    public static void executeWithNetworkingLogic(PacketListener listener, Runnable runnable) {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(Unit.INSTANCE);
+        PacketContext.runWithContext(listener, runnable);
         FORCE_NETWORKING.set(val);
     }
 

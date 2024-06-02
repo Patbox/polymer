@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.api.other;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.stat.StatFormatter;
@@ -11,12 +12,8 @@ import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class PolymerStat extends Identifier implements PolymerObject {
+public final class PolymerStat {
     private static final Map<Identifier, Text> NAMES = new HashMap<>();
-
-    private PolymerStat(String namespace, String path) {
-        super(namespace, path);
-    }
 
     /**
      * Register a custom server-compatible statistic.
@@ -41,11 +38,12 @@ public final class PolymerStat extends Identifier implements PolymerObject {
      */
     public static Identifier registerStat(String id, Text name, StatFormatter formatter) {
         var idx = Identifier.of(id);
-        PolymerStat identifier = new PolymerStat(idx.getNamespace(), idx.getPath());
-        Registry.register(Registries.CUSTOM_STAT, id, identifier);
-        Stats.CUSTOM.getOrCreateStat(identifier, formatter);
-        NAMES.put(identifier, name);
-        return identifier;
+        Registry.register(Registries.CUSTOM_STAT, idx, idx);
+        Stats.CUSTOM.getOrCreateStat(idx, formatter);
+        //noinspection unchecked
+        RegistrySyncUtils.setServerEntry((Registry<Object>) (Object) Registries.CUSTOM_STAT, (Object) idx);
+        NAMES.put(idx, name);
+        return idx;
     }
 
     /**
