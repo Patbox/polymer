@@ -50,16 +50,6 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     private Object polymerCore$bypassServerSide(Object entry) {
         return entry instanceof InternalClientItemGroup ? ItemGroups.getDefaultTab() : entry;
     }
-    // todo fix
-    /*@Inject(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;reloadSearchProvider()V", shift = At.Shift.BEFORE), cancellable = true)
-    private void polymer$injectEntriesDynamic(ItemGroup.DisplayContext displayContext, CallbackInfo ci) {
-        if (((Object) this) instanceof InternalClientItemGroup) {
-            this.displayStacks.addAll(this.polymer$itemsGroup);
-            this.searchTabStacks.addAll(this.polymer$itemsSearch);
-            this.reloadSearchProvider();
-            ci.cancel();
-        }
-    }*/
 
     @Inject(method = "updateEntries", at = @At("TAIL"))
     private void polymer$injectEntriesVanilla(ItemGroup.DisplayContext arg, CallbackInfo ci) {

@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@Mixin(ItemGroups.class)
+@Mixin(value = ItemGroups.class, priority = 1500)
 public abstract class ItemGroupsMixin {
     @Environment(EnvType.CLIENT)
     @ModifyReturnValue(method = "stream", at = @At("RETURN"),require = 0)

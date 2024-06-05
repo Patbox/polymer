@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.item;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,20 +12,20 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
-@Mixin(ItemGroups.class)
+@Mixin(value = ItemGroups.class, priority = 1500)
 public class ItemGroupsMixin {
     @Environment(EnvType.SERVER)
-    @Inject(method = "stream", at = @At("RETURN"), cancellable = true, require = 0)
-    private static void polymerCore$injectServerItemGroups(CallbackInfoReturnable<Stream<ItemGroup>> cir) {
+    @ModifyReturnValue(method = "stream", at = @At("RETURN"))
+    private static Stream<ItemGroup> polymerCore$injectServerItemGroups(Stream<ItemGroup> original) {
         if (PolymerItemGroupUtils.REGISTRY.size() > 0) {
-            cir.setReturnValue(Stream.concat(cir.getReturnValue(), PolymerItemGroupUtils.REGISTRY.stream()));
+            return Stream.concat(original, PolymerItemGroupUtils.REGISTRY.stream());
         }
+        return original;
     }
 
     @Environment(EnvType.SERVER)

@@ -23,8 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-// todo
-@Mixin(value = ItemGroup.class, priority = 3000)
+@Mixin(value = ItemGroup.class, priority = 800)
 public abstract class ItemGroupMixin implements ItemGroupExtra {
     @Shadow private Collection<ItemStack> displayStacks;
     @Shadow private Set<ItemStack> searchTabStacks;
@@ -50,7 +49,7 @@ public abstract class ItemGroupMixin implements ItemGroupExtra {
         return PolymerItemGroupUtils.isPolymerItemGroup((ItemGroup) entry) ? ItemGroups.getDefaultTab() : entry;
     }
 
-    @Inject(method = "updateEntries", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/item/ItemGroup$EntriesImpl;searchTabStacks:Ljava/util/Set;"), cancellable = true)
+    @Inject(method = "updateEntries", at = @At(value = "TAIL"), cancellable = true)
     private void polymerCore$bypassFabricApiBS(ItemGroup.DisplayContext displayContext, CallbackInfo ci) {
         if (PolymerItemGroupUtils.isPolymerItemGroup((ItemGroup) (Object) this) || this instanceof PolymerObject) {
             ci.cancel();
