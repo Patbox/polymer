@@ -29,8 +29,6 @@ import java.util.Set;
 @Environment(EnvType.CLIENT)
 @Mixin(value = ItemGroup.class, priority = 1200)
 public abstract class ItemGroupMixin implements ClientItemGroupExtension {
-    @Shadow private ItemStack icon;
-
     @Shadow private Collection<ItemStack> displayStacks;
     @Shadow private Set<ItemStack> searchTabStacks;
 
@@ -49,6 +47,17 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
     @ModifyArg(method = "updateEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getKey(Ljava/lang/Object;)Ljava/util/Optional;"))
     private Object polymerCore$bypassServerSide(Object entry) {
         return entry instanceof InternalClientItemGroup ? ItemGroups.getDefaultTab() : entry;
+    }
+
+    @Inject(method = "updateEntries", at = @At("HEAD"), cancellable = true)
+    private void polymer$injectEntriesCustom(ItemGroup.DisplayContext arg, CallbackInfo ci) {
+        if (((Object) this) instanceof InternalClientItemGroup) {
+            this.displayStacks.clear();
+            this.searchTabStacks.clear();
+            this.displayStacks.addAll(this.polymer$itemsGroup);
+            this.searchTabStacks.addAll(this.polymer$itemsSearch);
+            ci.cancel();
+        }
     }
 
     @Inject(method = "updateEntries", at = @At("TAIL"))

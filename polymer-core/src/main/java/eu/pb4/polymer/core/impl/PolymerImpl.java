@@ -13,7 +13,6 @@ public final class PolymerImpl {
 
     public static final boolean IS_CLIENT = CommonImpl.IS_CLIENT;
 
-    public static final boolean USE_ALT_ARMOR_HANDLER;
     public static final boolean DISPLAY_DEBUG_INFO_CLIENT;
     public static final boolean ADD_NON_POLYMER_CREATIVE_TABS;
     public static final boolean RESEND_BLOCKS_AROUND_CLICK;
@@ -47,13 +46,11 @@ public final class PolymerImpl {
 
         if (PolymerImpl.IS_CLIENT) {
             var clientConfig =  CommonImpl.loadConfig("client", ClientConfig.class);
-            USE_ALT_ARMOR_HANDLER = CompatStatus.REQUIRE_ALT_ARMOR_HANDLER || clientConfig.useAlternativeArmorRenderer;
             DISPLAY_DEBUG_INFO_CLIENT = clientConfig.displayF3Info;
             LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
             CHANGING_QOL_CLIENT = !clientConfig.disableNonVisualQualityOfLifeChanges;
             USE_UNSAFE_ITEMS_CLIENT = clientConfig.experimentalModdedContainerSupport;
         } else {
-            USE_ALT_ARMOR_HANDLER = false;
             DISPLAY_DEBUG_INFO_CLIENT = false;
             LOG_INVALID_SERVER_IDS_CLIENT = false;
             CHANGING_QOL_CLIENT = false;

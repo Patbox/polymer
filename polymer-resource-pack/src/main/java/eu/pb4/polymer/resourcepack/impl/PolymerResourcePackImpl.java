@@ -55,7 +55,7 @@ public class PolymerResourcePackImpl {
 
         public String _c3 = "Value of CustomModelData offset when enabled";
         public int offsetValue = 100000;
-        public String _c4 = "Enables usage of alternative armor rendering for increased mod compatibility";
+        public String _c4 = "Enables usage of alternative armor rendering for increased mod compatibility. (Always on with Iris or Canvas present)";
         @SerializedName("use_alternative_armor_rendering")
         public boolean useAlternativeArmorHandler;
 

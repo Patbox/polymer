@@ -3,8 +3,6 @@ package eu.pb4.polymer.core.impl.client;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 
 public class ClientConfig {
-    public String _c3 = "Enables alternative armor (texture) renderer. Always enabled with Iris/Canvas installed";
-    public boolean useAlternativeArmorRenderer = false;
     public String _c4 = "Toggles visibility of F3 debug info";
     public boolean displayF3Info = true;
     public String _c5 = "Enables logging of invalid registry ids (BlockStates, Blocks, Items, etc) sent by server";

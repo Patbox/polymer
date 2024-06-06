@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
@@ -19,14 +20,19 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.List;
+
 import static net.minecraft.server.command.CommandManager.literal;
 
 
 @ApiStatus.Internal
 public class PolymerResourcePackMod implements ModInitializer, ClientModInitializer {
 	public static boolean alreadyGeneration = false;
-    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_1 = new Int2ObjectOpenHashMap<>();
-    public static final Int2ObjectMap<Identifier> ARMOR_TEXTURES_2 = new Int2ObjectOpenHashMap<>();
+    public static final Int2ObjectMap<List<ArmorMaterial.Layer>> ARMOR_TEXTURES = new Int2ObjectOpenHashMap<>();
+    public static final List<ArmorMaterial.Layer> LEATHER_OVERRIDE = List.of(
+            new ArmorMaterial.Layer(Identifier.ofVanilla("vanilla_leather"), "", true),
+            new ArmorMaterial.Layer(Identifier.ofVanilla("vanilla_leather"), "_overlay", false)
+    );
     public static boolean hasArmorTextures = false;
 
 	@Override
