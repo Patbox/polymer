@@ -10,7 +10,13 @@ import java.util.Objects;
 public abstract class AbstractElement implements VirtualElement {
     private ElementHolder holder;
     private Vec3d offset = Vec3d.ZERO;
+    @Nullable
+    private Vec3d overridePos;
+    @Nullable
+    protected Vec3d lastSyncedPos;
     private InteractionHandler handler = InteractionHandler.EMPTY;
+
+
 
     @Override
     public Vec3d getOffset() {
@@ -20,6 +26,21 @@ public abstract class AbstractElement implements VirtualElement {
     @Override
     public void setOffset(Vec3d offset) {
         this.offset = offset;
+    }
+
+    @Nullable
+    public Vec3d getOverridePos() {
+        return this.overridePos;
+    }
+
+    @Nullable
+    public void setOverridePos(Vec3d vec3d) {
+        this.overridePos = vec3d;
+    }
+
+    @Override
+    public Vec3d getLastSyncedPos() {
+        return this.lastSyncedPos;
     }
 
     @Override

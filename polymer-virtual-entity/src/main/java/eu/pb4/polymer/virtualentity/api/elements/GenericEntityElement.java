@@ -31,7 +31,6 @@ public abstract class GenericEntityElement extends AbstractElement {
     private final UUID uuid = UUID.randomUUID();
     private float pitch;
     private float yaw;
-    private Vec3d lastSyncedPos;
     private boolean isRotationDirty;
     private boolean sendPositionUpdates = true;
 
@@ -94,14 +93,6 @@ public abstract class GenericEntityElement extends AbstractElement {
         return this.id;
     }
 
-
-    public void setOffset(Vec3d offset) {
-        super.setOffset(offset);
-        if (this.sendPositionUpdates && this.getHolder() != null) {
-            this.sendPositionUpdates();
-        }
-    }
-
     protected abstract EntityType<? extends Entity> getEntityType();
 
     @Override
@@ -113,7 +104,7 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     protected Packet<ClientPlayPacketListener> createSpawnPacket(ServerPlayerEntity player) {
         if (this.lastSyncedPos == null) {
-            this.lastSyncedPos = this.getHolder().getPos().add(this.getOffset());
+            this.lastSyncedPos = this.getCurrentPos();
         }
         return new EntitySpawnS2CPacket(this.id, this.uuid, this.lastSyncedPos.x, this.lastSyncedPos.y, this.lastSyncedPos.z, this.pitch, this.yaw, this.getEntityType(), 0, Vec3d.ZERO, this.yaw);
     }
@@ -151,7 +142,7 @@ public abstract class GenericEntityElement extends AbstractElement {
             return;
         }
         Packet<ClientPlayPacketListener> packet = null;
-        var pos = this.getHolder().getPos().add(this.getOffset());
+        var pos = this.getCurrentPos();
 
         if (pos.equals(this.lastSyncedPos)) {
             return;

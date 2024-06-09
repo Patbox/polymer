@@ -67,7 +67,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
     public void setHolder(@Nullable ElementHolder holder) {
         super.setHolder(holder);
         if (holder != null) {
-            var pos = holder.getPos().add(this.getOffset());
+            var pos = this.getCurrentPos();
             this.entity.setPos(pos.x, pos.y, pos.z);
         }
     }
@@ -75,9 +75,17 @@ public class EntityElement<T extends Entity> extends AbstractElement {
     @Override
     public void setOffset(Vec3d vec3d) {
         super.setOffset(vec3d);
-        if (this.getHolder() != null) {
+        if (this.getOverridePos() == null && this.getHolder() != null) {
             var pos = this.getHolder().getPos().add(vec3d);
             this.entity.setPos(pos.x, pos.y, pos.z);
+        }
+    }
+
+    @Override
+    public void setOverridePos(Vec3d vec3d) {
+        super.setOverridePos(vec3d);
+        if (this.getHolder() != null) {
+            this.entity.setPos(vec3d.x, vec3d.y, vec3d.z);
         }
     }
 
@@ -93,7 +101,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     @Override
     public void notifyMove(Vec3d oldPos, Vec3d currentPos, Vec3d delta) {
-        if (this.getHolder() != null) {
+        if (this.getOverridePos() == null && this.getHolder() != null) {
             var pos = currentPos.add(this.getOffset());
             this.entity.setPos(pos.x, pos.y, pos.z);
         }
@@ -101,9 +109,18 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     @Override
     public void setInitialPosition(Vec3d pos) {
-        pos = pos.add(this.getOffset());
-        this.entity.setPosition(pos);
-        ((EntityTrackerEntryAccessor) this.entry).getTrackedPos().setPos(pos);
+        if (this.getOverridePos() == null) {
+            pos = pos.add(this.getOffset());
+            this.entity.setPosition(pos);
+            ((EntityTrackerEntryAccessor) this.entry).getTrackedPos().setPos(pos);
+        } else {
+            ((EntityTrackerEntryAccessor) this.entry).getTrackedPos().setPos(this.getOverridePos());
+        }
+    }
+
+    @Override
+    public Vec3d getLastSyncedPos() {
+        return this.entry.getPos();
     }
 
     @Override

@@ -25,6 +25,24 @@ public interface VirtualElement {
 
     Vec3d getOffset();
     void setOffset(Vec3d vec3d);
+    @Nullable
+    default Vec3d getOverridePos() {
+        return null;
+    }
+
+    @Nullable
+    default void setOverridePos(Vec3d vec3d) {};
+
+    default Vec3d getCurrentPos() {
+        var pos = this.getOverridePos();
+        return pos != null ? pos : (this.getHolder() != null ? this.getHolder().getPos().add(this.getOffset()) : Vec3d.ZERO);
+    }
+
+
+    @Nullable
+    default Vec3d getLastSyncedPos() {
+        return this.getCurrentPos();
+    }
 
     void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer);
     void stopWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer);
