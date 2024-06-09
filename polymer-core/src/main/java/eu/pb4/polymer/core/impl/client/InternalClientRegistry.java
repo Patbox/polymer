@@ -388,7 +388,13 @@ public class InternalClientRegistry {
         ((ClientItemGroupExtension) group).polymerCore$setPage(page);
         if (CompatStatus.FABRIC_ITEM_GROUP) {
             try {
-                ((net.fabricmc.fabric.impl.itemgroup.FabricItemGroup) group).setPage(page);
+                try {
+                    ((net.fabricmc.fabric.impl.itemgroup.FabricItemGroupImpl) group).fabric_setPage(page);
+                } catch (Throwable e) {
+                    var method = group.getClass().getMethod("setPage", int.class);
+                    method.invoke(group, page);
+                }
+
             } catch (Throwable e) {
                 PolymerImpl.LOGGER.warn("Couldn't set page of ItemGroup (FABRIC)", e);
             }

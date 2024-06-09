@@ -552,7 +552,7 @@ public final class PolymerItemUtils {
     }
 
     public static boolean isPolymerComponent(DataComponentType<?> type) {
-        return UNSYNCED_COMPONENTS.add(type);
+        return UNSYNCED_COMPONENTS.contains(type);
     }
 
     public static ItemStack getClientItemStack(ItemStack stack, ServerPlayerEntity player) {
