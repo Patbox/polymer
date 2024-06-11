@@ -105,6 +105,7 @@ public final class PolymerItemUtils {
             DataComponentTypes.STORED_ENCHANTMENTS,
             DataComponentTypes.POTION_CONTENTS,
             DataComponentTypes.CUSTOM_NAME,
+            DataComponentTypes.CONTAINER,
     };
     @SuppressWarnings("rawtypes")
     private static final List<HideableTooltip> HIDEABLE_TOOLTIPS = List.of(

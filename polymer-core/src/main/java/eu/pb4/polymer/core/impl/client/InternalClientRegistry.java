@@ -341,22 +341,10 @@ public class InternalClientRegistry {
             ITEM_GROUPS.removeIf(removePredicate);
             CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.getDefaultTab());
 
-            if (CompatStatus.FABRIC_ITEM_GROUP) {
-                try {
-                    var f1 = CreativeInventoryScreen.class.getDeclaredField("fabric_currentPage");
-                    f1.setAccessible(true);
-                    f1.setInt(null, 0);
-                } catch (Throwable e) {
-                    if (PolymerImpl.LOG_MORE_ERRORS) {
-                        PolymerImpl.LOGGER.error("Failed to change item group page (FABRIC)!", e);
-                    }
-                }
-            }
-
-            if (CompatStatus.QUILT_ITEM_GROUP) {
+            if (CompatStatus.FABRIC_ITEM_GROUP || CompatStatus.QUILT_ITEM_GROUP) {
                 try {
                     for (var f1 : CreativeInventoryScreen.class.getDeclaredFields()) {
-                        if (f1.getName().contains("quilt$currentPage")) {
+                        if (f1.getName().contains("currentPage")) {
                             f1.setAccessible(true);
                             f1.setInt(null, 0);
                             break;
@@ -364,7 +352,7 @@ public class InternalClientRegistry {
                     }
                 } catch (Throwable e) {
                     if (PolymerImpl.LOG_MORE_ERRORS) {
-                        PolymerImpl.LOGGER.error("Failed to change item group page (QUILT)!", e);
+                        PolymerImpl.LOGGER.error("Failed to change item group page (FABRIC / QUILT)!", e);
                     }
                 }
             }
