@@ -60,7 +60,6 @@
     "item.PlayerManagerMixin",
     "item.ServerPlayNetworkHandlerMixin",
     "item.StonecutterScreenHandlerMixin",
-    "item.component.ContainerComponentMixin",
     "item.component.FoodComponentMixin",
     "item.component.PotionContentsComponentMixin",
     "item.component.SuspiciousStewComponentMixin",
