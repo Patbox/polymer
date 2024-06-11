@@ -103,6 +103,7 @@ public final class PolymerItemUtils {
             DataComponentTypes.POTION_CONTENTS,
             DataComponentTypes.CUSTOM_NAME,
             DataComponentTypes.JUKEBOX_PLAYABLE,
+            DataComponentTypes.CONTAINER,
     };
     @SuppressWarnings("rawtypes")
     private static final List<HideableTooltip> HIDEABLE_TOOLTIPS = List.of(
@@ -522,7 +523,7 @@ public final class PolymerItemUtils {
     public static void markAsPolymer(ComponentType<?>... types) {
         PolymerComponent.registerDataComponent(types);
     }
-    
+
     /**
      * @deprecated Use {@link PolymerComponent#isPolymerComponent(ComponentType)} instead
      */

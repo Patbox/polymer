@@ -66,11 +66,13 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
 
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
-            if (!mod.isEmpty() && legalTrackedData != null && legalTrackedData.length > 0) {
+            if (!mod.isEmpty() && legalTrackedData != null && legalTrackedData.length != 0) {
                 for (var entry : mod) {
-                    var x = legalTrackedData[entry.id()];
-                    if (x != null && x.getData().dataType() == entry.handler()) {
-                        entries.add(entry);
+                    if (entry.id() < legalTrackedData.length) {
+                        var x = legalTrackedData[entry.id()];
+                        if (x != null && x.getData().dataType() == entry.handler()) {
+                            entries.add(entry);
+                        }
                     }
                 }
             } else {
