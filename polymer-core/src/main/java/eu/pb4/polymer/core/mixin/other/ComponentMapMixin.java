@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 @Mixin(ComponentMap.class)
-public abstract class ComponentMapMixin {
+public interface ComponentMapMixin {
     @ModifyVariable(method = "createCodecFromValueMap", at = @At("HEAD"), argsOnly = true)
     private static Codec<Map<ComponentType<?>, Object>> patchCodec(Codec<Map<ComponentType<?>, Object>> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode

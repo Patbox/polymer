@@ -33,7 +33,6 @@ public abstract class GenericEntityElement extends AbstractElement {
     private float yaw;
     private boolean isRotationDirty;
     private boolean sendPositionUpdates = true;
-
     protected DataTrackerLike createDataTracker() {
         return new SimpleDataTracker(this.getEntityType());
     }

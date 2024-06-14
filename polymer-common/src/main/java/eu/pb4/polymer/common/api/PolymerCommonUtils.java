@@ -23,15 +23,16 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public final class PolymerCommonUtils {
-    private static final ThreadLocal<Unit> FORCE_NETWORKING = new ThreadLocal<>();
+    private static final ThreadLocal<LogicOverride> FORCE_NETWORKING = ThreadLocal.withInitial(() -> LogicOverride.DEFAULT);
 
-    private PolymerCommonUtils(){}
+    private PolymerCommonUtils() {}
 
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
     private static Path cachedClientPath;
-    private final static String SAFE_CLIENT_SHA1 = "05b6f1c6b46a29d6ea82b4e0d42190e42402030f";
+    private final static String SAFE_CLIENT_SHA1 = "0e9a07b9bb3390602f977073aa12884a4ce12431";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientJarRoot;
 
@@ -113,15 +114,22 @@ public final class PolymerCommonUtils {
 
     public static void executeWithNetworkingLogic(Runnable runnable) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(Unit.INSTANCE);
+        FORCE_NETWORKING.set(LogicOverride.TRUE);
         runnable.run();
         FORCE_NETWORKING.set(val);
     }
 
     public static void executeWithNetworkingLogic(PacketListener listener, Runnable runnable) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(Unit.INSTANCE);
+        FORCE_NETWORKING.set(LogicOverride.TRUE);
         PacketContext.runWithContext(listener, runnable);
+        FORCE_NETWORKING.set(val);
+    }
+
+    public static void executeWithoutNetworkingLogic(Runnable runnable) {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(LogicOverride.FALSE);
+        runnable.run();
         FORCE_NETWORKING.set(val);
     }
 
@@ -141,6 +149,20 @@ public final class PolymerCommonUtils {
         PacketContext.setContext(player != null ? ((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection() : null, null);
 
         runnable.run();
+
+        CommonImplUtils.setPlayer(oldPlayer);
+        PacketContext.setContext(oldTarget, oldPacket);
+    }
+
+    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable, Consumer<Runnable> runnableConsumer) {
+        var oldPlayer = CommonImplUtils.getPlayer();
+        var oldTarget = PacketContext.get().getClientConnection();
+        var oldPacket = PacketContext.get().getEncodedPacket();
+
+        CommonImplUtils.setPlayer(player);
+        PacketContext.setContext(player != null ? ((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection() : null, null);
+
+        runnableConsumer.accept(runnable);
 
         CommonImplUtils.setPlayer(oldPlayer);
         PacketContext.setContext(oldTarget, oldPacket);
@@ -176,15 +198,19 @@ public final class PolymerCommonUtils {
     }
 
     public static boolean isNetworkingThread() {
-       return FORCE_NETWORKING.get() == Unit.INSTANCE || Thread.currentThread().getName().startsWith("Netty");
+       return FORCE_NETWORKING.get().value(Thread.currentThread().getName().startsWith("Netty"));
     }
 
     public static boolean isServerNetworkingThread() {
-        return FORCE_NETWORKING.get() == Unit.INSTANCE || (isNetworkingThread() && Thread.currentThread().getName().contains("Server"));
+        return FORCE_NETWORKING.get().value(
+                Thread.currentThread().getName().startsWith("Netty") && Thread.currentThread().getName().contains("Server")
+        );
     }
 
     public static boolean isClientNetworkingThread() {
-        return CommonImpl.IS_CLIENT &&  (FORCE_NETWORKING.get() == Unit.INSTANCE || isNetworkingThread()) && Thread.currentThread().getName().contains("Client");
+        return CommonImpl.IS_CLIENT && FORCE_NETWORKING.get().value(
+                Thread.currentThread().getName().startsWith("Netty") && Thread.currentThread().getName().contains("Client")
+        );
     }
 
     public static boolean isBedrockPlayer(ServerPlayerEntity player) {

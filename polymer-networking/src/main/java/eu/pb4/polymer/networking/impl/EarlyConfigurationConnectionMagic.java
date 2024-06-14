@@ -1,22 +1,20 @@
 package eu.pb4.polymer.networking.impl;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.polymer.common.impl.FakeRegistry;
 import eu.pb4.polymer.networking.api.server.EarlyConfigurationNetworkHandler;
-import eu.pb4.polymer.networking.api.server.EarlyPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import net.minecraft.network.NetworkPhase;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
+import net.minecraft.network.state.ConfigurationStates;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -27,7 +25,7 @@ public class EarlyConfigurationConnectionMagic {
     public static void handle(GameProfile profile, SyncedClientOptions options, ServerLoginNetworkHandler loginHandler, MinecraftServer server, ClientConnection connection, Consumer<ContextImpl> finish) {
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
-        var context = new ContextImpl(server, profile, connection, loginHandler, new ArrayList<>(), (c) -> {
+        var ctx = new ContextImpl(server, profile, connection, loginHandler, new ArrayList<>(), (c) -> {
             while (iterator.hasNext()) {
                 var handler = iterator.next().apply(c);
                 if (handler != null) {
@@ -35,9 +33,13 @@ public class EarlyConfigurationConnectionMagic {
                 }
             }
             finish.accept(c);
-        }, new MutableObject<>(options));
+        }, new AtomicReference<>(options));
 
-        context.continueRunning.accept(context);
+
+        connection.transitionInbound(ConfigurationStates.C2S,
+                new FallbackServerPacketHandler(NetworkPhase.CONFIGURATION, ctx.options()::set, ctx.storedPackets()::add, loginHandler::onDisconnected));
+
+        ctx.continueRunning().accept(ctx);
     }
 
     public static void register(Function<EarlyConfigurationNetworkHandler.Context, @Nullable EarlyConfigurationNetworkHandler> constructor) {
@@ -53,9 +55,9 @@ public class EarlyConfigurationConnectionMagic {
             GameProfile profile,
             ClientConnection connection,
             ServerLoginNetworkHandler loginHandler,
-            List<CustomPayloadC2SPacket> storedPackets,
+            List<Packet<?>> storedPackets,
             Consumer<ContextImpl> continueRunning,
-            MutableObject<SyncedClientOptions> options
+            AtomicReference<SyncedClientOptions> options
     ) implements EarlyConfigurationNetworkHandler.Context {
     }
 }

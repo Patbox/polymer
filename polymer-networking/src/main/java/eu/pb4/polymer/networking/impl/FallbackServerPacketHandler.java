@@ -9,12 +9,14 @@ import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
 import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
-import net.minecraft.text.Text;
 
-public record EmptyServerPacketHandler(NetworkPhase phase) implements ServerConfigurationPacketListener, ServerPlayPacketListener {
-    public static EmptyServerPacketHandler CONFIGURATION = new EmptyServerPacketHandler(NetworkPhase.CONFIGURATION);
-    public static EmptyServerPacketHandler PLAY = new EmptyServerPacketHandler(NetworkPhase.PLAY);
+import java.util.function.Consumer;
 
+public record FallbackServerPacketHandler(NetworkPhase phase,
+                                          Consumer<SyncedClientOptions> optionsConsumer,
+                                          Consumer<CustomPayloadC2SPacket> payloadConsumer,
+                                          Consumer<DisconnectionInfo> disconnectionInfoConsumer
+) implements ServerConfigurationPacketListener, ServerPlayPacketListener {
     @Override
     public NetworkPhase getPhase() {
         return phase;
@@ -42,7 +44,7 @@ public record EmptyServerPacketHandler(NetworkPhase phase) implements ServerConf
 
     @Override
     public void onCustomPayload(CustomPayloadC2SPacket packet) {
-
+        this.payloadConsumer.accept(packet);
     }
 
     @Override
@@ -52,7 +54,7 @@ public record EmptyServerPacketHandler(NetworkPhase phase) implements ServerConf
 
     @Override
     public void onClientOptions(ClientOptionsC2SPacket packet) {
-
+        optionsConsumer.accept(packet.options());
     }
 
     @Override
@@ -62,7 +64,7 @@ public record EmptyServerPacketHandler(NetworkPhase phase) implements ServerConf
 
     @Override
     public void onDisconnected(DisconnectionInfo info) {
-
+        this.disconnectionInfoConsumer.accept(info);
     }
 
     @Override

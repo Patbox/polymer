@@ -34,7 +34,7 @@ public abstract class PotionContentsComponentMixin implements TransformingDataCo
 
     @Override
     public boolean polymer$requireModification(ServerPlayerEntity player) {
-        if (this.potion.isPresent() && this.potion.get() instanceof PolymerObject) {
+        if (this.potion.isPresent() && this.potion.get().value() instanceof PolymerObject) {
             return true;
         }
 

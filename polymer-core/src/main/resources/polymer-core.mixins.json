@@ -67,6 +67,7 @@
     "item.packet.SynchronizeRecipesS2CPacketMixin",
     "item.packet.TradedItemMixin",
     "other.BootstrapMixin",
+    "other.ComponentMapMixin",
     "other.HoverEventMixin",
     "other.IdListAccessor",
     "other.IdListMixin",

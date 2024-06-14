@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.util.Identifier;
@@ -28,7 +29,7 @@ public interface ExtClientConnection {
     Object2IntMap<Identifier> polymerNet$getSupportMap();
     Object2ObjectMap<Identifier, NbtElement> polymerNet$getMetadataMap();
 
-    void polymerNet$wrongPacketConsumer(Consumer<CustomPayloadC2SPacket> consumer);
+    void polymerNet$wrongPacketConsumer(Consumer<Packet<?>> consumer);
     Channel polymerNet$getChannel();
 
     static ExtClientConnection of(ClientConnection connection) {

@@ -10,10 +10,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.listener.PacketListener;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
-import net.minecraft.server.network.ServerLoginNetworkHandler;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,7 +33,7 @@ public class ClientConnectionMixin implements ExtClientConnection {
     @Unique
     private final Object2ObjectMap<Identifier, NbtElement> polymerNet$metadata = new Object2ObjectOpenHashMap<>();
     @Unique
-    private Consumer<CustomPayloadC2SPacket> polymerNet$packetConsumer;
+    private Consumer<Packet<?>> polymerNet$packetConsumer;
     @Override
     public boolean polymerNet$hasPolymer() {
         return !this.polymerNet$version.isEmpty();
@@ -76,16 +72,14 @@ public class ClientConnectionMixin implements ExtClientConnection {
     @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void polymerNet$handlePacket(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci) {
         if (this.polymerNet$packetConsumer != null) {
-            if (packet instanceof CustomPayloadC2SPacket c) {
-                this.polymerNet$packetConsumer.accept(c);
-            }
+            this.polymerNet$packetConsumer.accept(packet);
             ci.cancel();
             this.packetsReceivedCounter++;
         }
     }
 
     @Override
-    public void polymerNet$wrongPacketConsumer(Consumer<CustomPayloadC2SPacket> consumer) {
+    public void polymerNet$wrongPacketConsumer(Consumer<Packet<?>> consumer) {
         this.polymerNet$packetConsumer = consumer;
     }
 

@@ -2,6 +2,8 @@ package eu.pb4.polymer.networking.impl;
 
 import eu.pb4.polymer.networking.api.server.EarlyPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.common.ClientOptionsC2SPacket;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.server.MinecraftServer;
@@ -48,9 +50,14 @@ public class EarlyPlayConnectionMagic {
             ServerPlayerEntity player,
             ClientConnection connection,
             ServerConfigurationNetworkHandler loginHandler,
-            List<CustomPayloadC2SPacket> storedPackets,
+            List<Packet<?>> storedPackets,
             Consumer<ContextImpl> continueRunning,
             MutableObject<SyncedClientOptions> options
     ) implements EarlyPlayNetworkHandler.Context {
+        public void addStoredPacket(Packet<?> packet) {
+            if (packet instanceof CustomPayloadC2SPacket || packet instanceof ClientOptionsC2SPacket) {
+                this.storedPackets.add(packet);
+            }
+        }
     }
 }

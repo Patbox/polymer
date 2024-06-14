@@ -11,6 +11,8 @@ import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.listener.ServerPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.common.ClientOptionsC2SPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.*;
@@ -18,6 +20,8 @@ import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = ServerConfigurationNetworkHandler.class, priority = 900)
 public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommonNetworkHandler {
@@ -36,7 +40,7 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
         }
 
         EarlyPlayConnectionMagic.handle(player, clientData.syncedOptions(), (ServerConfigurationNetworkHandler) (Object) this, player.server, connection, (context) -> {
-            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
+            ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context::addStoredPacket);
 
             if (connection.isOpen()) {
                 var oldPlayer = player.server.getPlayerManager().getPlayer(this.getProfile().getId());
@@ -48,7 +52,8 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
                     if (this.connection.getPacketListener() instanceof ServerPlayPacketListener listener) {
                         for (var packetx : context.storedPackets()) {
                             try {
-                                packetx.apply(listener);
+                                //noinspection unchecked
+                                ((Packet<ServerPlayPacketListener>) packetx).apply(listener);
                             } catch (Throwable e) {
                                 e.printStackTrace();
                             }

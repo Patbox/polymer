@@ -42,6 +42,9 @@ public abstract class AbstractElement implements VirtualElement {
     public Vec3d getLastSyncedPos() {
         return this.lastSyncedPos;
     }
+    public void updateLastSyncedPos() {
+        this.lastSyncedPos = getCurrentPos();
+    }
 
     @Override
     public @Nullable ElementHolder getHolder() {

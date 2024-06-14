@@ -335,7 +335,7 @@ public final class PolymerItemUtils {
                 out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
                         (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
                 ));
-            });
+            }, PolymerCommonUtils::executeWithoutNetworkingLogic);
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }

@@ -148,7 +148,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
 
     @Override
     public void onClientOptions(ClientOptionsC2SPacket packet) {
-        this.context.options().setValue(packet.options());
+        this.context.options().set(packet.options());
     }
 
     @Override
@@ -235,7 +235,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
 
     @Override
     public SyncedClientOptions getClientOptionsForPacketTweaker() {
-        return this.context.options().getValue();
+        return this.context.options().get();
     }
 
     protected final ServerLoginNetworkHandler getLoginNetworkHandler() {

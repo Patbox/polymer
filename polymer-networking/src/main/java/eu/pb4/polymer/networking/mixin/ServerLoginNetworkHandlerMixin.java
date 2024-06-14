@@ -6,9 +6,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.networking.impl.*;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.DisconnectionInfo;
+import net.minecraft.network.NetworkPhase;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.network.packet.c2s.login.EnterConfigurationC2SPacket;
 import net.minecraft.network.state.ConfigurationStates;
@@ -25,6 +28,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 @Mixin(ServerLoginNetworkHandler.class)
 public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerExtension {
     @Shadow @Final
@@ -36,12 +41,15 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
 
     @Shadow @Final
     MinecraftServer server;
+
+    @Shadow public abstract void onDisconnected(DisconnectionInfo info);
+
     @Unique
     private boolean polymerNet$ignoreCall = false;
 
     @Nullable
     @Unique
-    private SyncedClientOptions polymerNet$overrideOptions;
+    private AtomicReference<SyncedClientOptions> polymerNet$overrideOptions;
 
     @Override
     public long polymerNet$lastPacketUpdate(Identifier packet) {
@@ -77,17 +85,15 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
             return;
         }
         ci.cancel();
-        var defaultOptions = SyncedClientOptions.createDefault();
         this.connection.transitionOutbound(ConfigurationStates.S2C);
-        this.connection.transitionInbound(ConfigurationStates.C2S, EmptyServerPacketHandler.CONFIGURATION);
-
+        var defaultOptions = SyncedClientOptions.createDefault();
         EarlyConfigurationConnectionMagic.handle(this.profile, defaultOptions, (ServerLoginNetworkHandler) (Object) this, this.server, connection, (context) -> {
             ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context.storedPackets()::add);
 
             if (connection.isOpen()) {
                 this.polymerNet$ignoreCall = true;
-                if (context.options().getValue() != defaultOptions) {
-                    this.polymerNet$overrideOptions = context.options().getValue();
+                if (context.options().get() != defaultOptions) {
+                    this.polymerNet$overrideOptions = context.options();
                 }
                 this.onEnterConfiguration(packet);
                 ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(null);
@@ -95,7 +101,8 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
                 if (this.connection.getPacketListener() instanceof ServerConfigurationPacketListener listener) {
                     for (var packetx : context.storedPackets()) {
                         try {
-                            packetx.apply(listener);
+                            //noinspection unchecked
+                            ((Packet<ServerConfigurationPacketListener>) packetx).apply(listener);
                         } catch (Throwable e) {
                             e.printStackTrace();
                         }
@@ -108,7 +115,7 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
     @ModifyArg(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerConfigurationNetworkHandler;<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ConnectedClientData;)V"))
     private ConnectedClientData polymerNet$swapClientData(ConnectedClientData clientData) {
         if (this.polymerNet$overrideOptions != null) {
-            return new ConnectedClientData(clientData.gameProfile(), clientData.latency(), this.polymerNet$overrideOptions, clientData.transferred());
+            return new ConnectedClientData(clientData.gameProfile(), clientData.latency(), this.polymerNet$overrideOptions.get(), clientData.transferred());
         }
         return clientData;
     }
