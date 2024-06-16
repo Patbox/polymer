@@ -35,7 +35,7 @@ public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M extends B
 
             if (color != null && PolymerResourcePackMod.ARMOR_TEXTURES_1.containsKey(color.rgb())) {
                 boolean usesSecondLayer = texture.getPath().endsWith("_2");
-                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull((usesSecondLayer ? PolymerResourcePackMod.ARMOR_TEXTURES_2 : PolymerResourcePackMod.ARMOR_TEXTURES_1).get(color)), false, stack.hasGlint());
+                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull((usesSecondLayer ? PolymerResourcePackMod.ARMOR_TEXTURES_2 : PolymerResourcePackMod.ARMOR_TEXTURES_1).get(color.rgb())), false, stack.hasGlint());
                 model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1.0F);
                 return;
             }
