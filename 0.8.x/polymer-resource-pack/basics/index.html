@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -172,7 +172,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -1194,7 +1194,7 @@ request them manually (useful for bows).</p>
 <p>You can execute this function before making your mod an asset source, but it should be run before
 resource pack is build.</p>
 <p>Example use:</p>
-<pre><code>PolymerModelData modelData = PolymerResourcePackUtils.requestModel(Items.IRON_SWORD, Identifier.of(&quot;mymod&quot;, &quot;item/silver_sword&quot;));
+<pre><code>PolymerModelData modelData = PolymerResourcePackUtils.requestModel(Items.IRON_SWORD, new Identifier(&quot;mymod&quot;, &quot;item/silver_sword&quot;));
 </code></pre>
 <h3 id="requesting-armor-textures">Requesting armor textures</h3>
 <p>Polymer supports custom armor textures thanks to usage of <a href="https://github.com/Ancientkingg/fancyPants">Ancientkingg's fancyPants resource pack</a>.</p>
@@ -1203,7 +1203,7 @@ It will automatically create variant of every armor peace, however you aren't
 required to use/define them all.</p>
 <p>To apply it to your armor, you need to set your client side item to leather armor peace.
 Then you need to override <code>PolymerItem.getPolymerArmorColor()</code> method and return used color.</p>
-<pre><code>PolymerArmorModel armorModel = PolymerResourcePackUtils.requestArmor(Identifier.of(&quot;mymod&quot;, &quot;silver&quot;));
+<pre><code>PolymerArmorModel armorModel = PolymerResourcePackUtils.requestArmor(new Identifier(&quot;mymod&quot;, &quot;silver&quot;));
 </code></pre>
 <h2 id="checking-players">Checking players</h2>
 <p>Checking if player has resource pack is quite simple. 
@@ -1212,9 +1212,9 @@ You just need to call <code>boolean PolymerResourcePackUtils.hasPack(ServerPlaye
 <pre><code>Identifier font;
 
 if (PolymerResourcePackUtils.hasPack(player)) {
-    font = Identifier.of(&quot;mymod&quot;, &quot;myfont&quot;);
+    font = new Identifier(&quot;mymod&quot;, &quot;myfont&quot;);
 } else {
-    font = Identifier.of(&quot;minecraft&quot;, &quot;default&quot;);
+    font = new Identifier(&quot;minecraft&quot;, &quot;default&quot;);
 }
 </code></pre>
 <h3 id="making-pack-required">Making pack required</h3>
@@ -1273,7 +1273,7 @@ One exception is resource pack on client, which will get effected by that.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>
