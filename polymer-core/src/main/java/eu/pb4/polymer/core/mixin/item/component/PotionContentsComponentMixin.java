@@ -1,8 +1,7 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import eu.pb4.polymer.core.impl.TransformingDataComponent;
-import net.minecraft.component.DataComponentTypes;
+import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.potion.Potion;
@@ -16,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Mixin(PotionContentsComponent.class)
-public abstract class PotionContentsComponentMixin implements TransformingDataComponent {
+public abstract class PotionContentsComponentMixin implements TransformingComponent {
     @Shadow @Final private Optional<RegistryEntry<Potion>> potion;
 
     @Shadow @Final private List<StatusEffectInstance> customEffects;

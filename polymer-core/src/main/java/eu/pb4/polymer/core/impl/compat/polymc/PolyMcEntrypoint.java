@@ -11,7 +11,7 @@ public class PolyMcEntrypoint implements io.github.theepicblock.polymc.api.PolyM
     @Override
     public void registerPolys(PolyRegistry registry) {
         for (var entityType : Registries.ENTITY_TYPE) {
-            if (PolymerEntityUtils.isRegisteredEntityType(entityType)) {
+            if (PolymerEntityUtils.isPolymerEntityType(entityType)) {
                 registry.registerEntityPoly(entityType, (info, entity) -> null);
             }
         }

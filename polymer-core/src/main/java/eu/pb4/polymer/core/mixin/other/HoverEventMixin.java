@@ -44,7 +44,7 @@ public abstract class HoverEventMixin {
                             new HoverEvent.ItemStackContent(PolymerItemUtils.getPolymerItemStack(stack, lookup, player)));
                 } else if (content.getAction() == HoverEvent.Action.SHOW_ENTITY) {
                     var val = Objects.requireNonNull(content.getValue(HoverEvent.Action.SHOW_ENTITY));
-                    if (PolymerEntityUtils.isRegisteredEntityType(val.entityType)) {
+                    if (PolymerEntityUtils.isPolymerEntityType(val.entityType)) {
                         return new HoverEvent(HoverEvent.Action.SHOW_TEXT, Texts.join(val.asTooltip(), Text.literal("\n")));
                     }
                 }

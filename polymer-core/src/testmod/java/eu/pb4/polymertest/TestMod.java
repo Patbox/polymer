@@ -22,12 +22,12 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.component.type.AttributeModifierSlot;
+import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.attribute.*;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -94,8 +94,13 @@ public class TestMod implements ModInitializer {
     public static TestFluid.Still STILL_FLUID;
     public static BucketItem FLUID_BUCKET;
 
+    public static RegistryEntry<EntityAttribute> ATTRIBUTE = Registry.registerReference(Registries.ATTRIBUTE, Identifier.of("test:attribute"),
+            new ClampedEntityAttribute("test.attribute", 0, -5, 5)
+                    .setCategory(EntityAttribute.Category.POSITIVE).setTracked(true));
     public static SimplePolymerItem ITEM = new TestItem(new Item.Settings().fireproof().maxCount(5), Items.IRON_HOE);
-    public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99), Items.DIAMOND_BLOCK);
+    public static SimplePolymerItem ITEM_2 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99)
+            .attributeModifiers(AttributeModifiersComponent.builder().add(ATTRIBUTE,
+                    new EntityAttributeModifier(Identifier.of("test:aaa"), 5, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND).build()), Items.DIAMOND_BLOCK);
     public static SimplePolymerItem ITEM_3 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99), Items.CHAINMAIL_CHESTPLATE);
     public static Block BLOCK = new TestBlock(AbstractBlock.Settings.create().luminance((state) -> 15).strength(2f));
     public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new Item.Settings(), Items.STONE);
@@ -162,8 +167,6 @@ public class TestMod implements ModInitializer {
             return super.useOnEntity(stack, user, entity, hand);
         }
     };
-
-    public static Enchantment ENCHANTMENT;
 
     public static Identifier CUSTOM_STAT;
 
@@ -401,6 +404,7 @@ public class TestMod implements ModInitializer {
             );
         });
 
+        PolymerEntityUtils.registerAttribute(ATTRIBUTE);
 
         AtomicBoolean atomicBoolean = new AtomicBoolean(true);
 

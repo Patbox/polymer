@@ -1,0 +1,61 @@
+{
+  "description": "PolymerTest",
+  "supported_items": [
+    "test:pickaxe",
+    "minecraft:diamond_sword"
+  ],
+  "weight": 10,
+  "max_level": 10,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 2
+  },
+  "max_cost": {
+    "base": 100,
+    "per_level_above_first": 0
+  },
+  "anvil_cost": 1,
+  "slots": ["any"],
+  "effects": {
+    "minecraft:attributes": [
+      {
+        "id": "testificate",
+        "attribute": "test:attribute",
+        "amount": 2,
+        "operation": "add_value"
+      }
+    ],
+    "minecraft:post_attack": [
+      {
+        "enchanted": "attacker",
+        "affected": "victim",
+        "effect": {
+          "type": "minecraft:all_of",
+          "effects": [
+            {
+              "type": "minecraft:apply_mob_effect",
+              "to_apply": "test:effect",
+              "min_duration": 10,
+              "max_duration": 10,
+              "min_amplifier": 0,
+              "max_amplifier": 0
+            },
+            {
+              "type": "minecraft:replace_block",
+              "block_state": {
+                "type": "minecraft:simple_state_provider",
+                "state": {
+                  "Name": "test:block"
+                }
+              }
+            },
+            {
+              "type": "minecraft:summon_entity",
+              "entity": "test:entity"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

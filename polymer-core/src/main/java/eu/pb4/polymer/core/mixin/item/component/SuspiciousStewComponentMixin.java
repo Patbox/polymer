@@ -1,8 +1,7 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import eu.pb4.polymer.core.impl.TransformingDataComponent;
-import net.minecraft.component.type.FoodComponent;
+import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -12,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 @Mixin(SuspiciousStewEffectsComponent.class)
-public abstract class SuspiciousStewComponentMixin implements TransformingDataComponent {
+public abstract class SuspiciousStewComponentMixin implements TransformingComponent {
 
     @Shadow @Final private List<SuspiciousStewEffectsComponent.StewEffect> effects;
 

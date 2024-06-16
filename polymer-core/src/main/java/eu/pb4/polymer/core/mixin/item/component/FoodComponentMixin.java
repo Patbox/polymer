@@ -1,13 +1,9 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import eu.pb4.polymer.core.impl.TransformingDataComponent;
+import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.component.type.FoodComponent;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Mixin(FoodComponent.class)
-public abstract class FoodComponentMixin implements TransformingDataComponent {
+public abstract class FoodComponentMixin implements TransformingComponent {
     @Shadow @Final private int nutrition;
 
     @Shadow @Final private boolean canAlwaysEat;

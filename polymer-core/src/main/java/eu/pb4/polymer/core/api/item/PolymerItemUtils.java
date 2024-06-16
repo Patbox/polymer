@@ -9,17 +9,20 @@ import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.TransformingDataComponent;
+import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.*;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.DefaultAttributeRegistry;
 import net.minecraft.item.BlockPredicatesChecker;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -294,9 +297,23 @@ public final class PolymerItemUtils {
             if (!PolymerComponent.canSync(x.getKey(), x.getValue().orElse(null), ctx)) {
                 return true;
             } else if (x.getValue() != null && x.getValue().isPresent()
-                    && x.getValue().get() instanceof TransformingDataComponent t
+                    && x.getValue().get() instanceof TransformingComponent t
                     && t.polymer$requireModification(player)) {
                 return true;
+            }
+        }
+
+        if (itemStack.contains(DataComponentTypes.ENCHANTMENTS) && itemStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT).showInTooltip()) {
+            for (var ench : itemStack.get(DataComponentTypes.ENCHANTMENTS).getEnchantments()) {
+                var attributes = ench.value().getEffect(EnchantmentEffectComponentTypes.ATTRIBUTES);
+                if (attributes != null) {
+                    for (var attr : attributes) {
+                        if (PolymerEntityUtils.isPolymerEntityAttribute(attr.attribute())
+                                && DefaultAttributeRegistry.get(EntityType.PLAYER).has(attr.attribute())) {
+                            return true;
+                        }
+                    }
+                }
             }
         }
 
@@ -400,7 +417,7 @@ public final class PolymerItemUtils {
             var key = COMPONENTS_TO_COPY[i];
             var x = itemStack.get(key);
 
-            if (x instanceof TransformingDataComponent t) {
+            if (x instanceof TransformingComponent t) {
                 //noinspection unchecked,rawtypes
                 out.set((ComponentType) key, t.polymer$getTransformed(player));
             } else {

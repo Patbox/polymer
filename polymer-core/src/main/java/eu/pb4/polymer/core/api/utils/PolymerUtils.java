@@ -203,8 +203,7 @@ public final class PolymerUtils {
     }
 
     public static boolean isServerOnly(Object obj) {
-        return obj instanceof PolymerObject || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack)) || (obj instanceof EntityType<?> type && PolymerEntityUtils.isRegisteredEntityType(type)) || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE)) || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
-
+        return obj instanceof PolymerObject || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack)) || (obj instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type)) || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE)) || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {

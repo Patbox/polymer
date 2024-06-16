@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.mixin.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
@@ -41,13 +42,21 @@ public abstract class EntityAttributesS2CPacketMixin {
                 var list = ((EntityAttributesS2CPacketAccessor) p).getEntries();
                 var vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) type);
                 for (var entry : packet.getEntries()) {
-                    if (vanillaContainer.has(entry.attribute())) {
+                    if (vanillaContainer.has(entry.attribute()) && !PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
+                        list.add(entry);
+                    }
+                }
+                return p;
+            } else {
+                var p = new EntityAttributesS2CPacket(packet.getEntityId(), List.of());
+                var list = ((EntityAttributesS2CPacketAccessor) p).getEntries();
+                for (var entry : packet.getEntries()) {
+                    if (!PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
                         list.add(entry);
                     }
                 }
                 return p;
             }
-            return packet;
         });
     }
 }
