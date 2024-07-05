@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.item;
 
+import com.google.common.collect.ImmutableRangeSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
@@ -16,6 +17,9 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
@@ -23,6 +27,7 @@ import net.minecraft.component.type.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.DefaultAttributeRegistry;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.BlockPredicatesChecker;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -34,6 +39,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -43,9 +49,7 @@ import net.minecraft.util.Unit;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 public final class PolymerItemUtils {
@@ -119,6 +123,7 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.CAN_PLACE_ON, BlockPredicatesChecker::withShowInTooltip),
             HideableTooltip.of(DataComponentTypes.JUKEBOX_PLAYABLE, JukeboxPlayableComponent::withShowInTooltip)
     );
+    private static final Set<ArmorMaterial> ARMOR_MATERIALS = new ReferenceOpenHashSet<>();
 
     private PolymerItemUtils() {
     }
@@ -244,7 +249,6 @@ public final class PolymerItemUtils {
     @Nullable
     public static Map<Identifier, NbtElement> getPolymerComponents(ItemStack stack) {
         return getPolymerComponents(stack.get(DataComponentTypes.CUSTOM_DATA));
-
     }
 
     @Nullable
@@ -436,7 +440,7 @@ public final class PolymerItemUtils {
                 } else {
                     out.set(DataComponentTypes.CUSTOM_DATA, comp);
                 }
-            });
+            }, PolymerCommonUtils::executeWithoutNetworkingLogic);
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
@@ -532,6 +536,29 @@ public final class PolymerItemUtils {
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
         return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
+    }
+
+    /**
+     * Marks BlockEntity type as server-side only
+     *
+     * @param types BlockEntityTypes
+     */
+    @SafeVarargs
+    public static void registerArmorMaterial(RegistryEntry<ArmorMaterial>... types) {
+        for (var type : types) {
+            RegistrySyncUtils.setServerEntry(Registries.ARMOR_MATERIAL, type.value());
+            ARMOR_MATERIALS.add(type.value());
+
+        }
+    }
+
+    /**
+     * Checks if BlockEntity is server-side only
+     *
+     * @param type BlockEntities type
+     */
+    public static boolean isPolymerArmorMaterial(RegistryEntry<ArmorMaterial> type) {
+        return ARMOR_MATERIALS.contains(type.value());
     }
 
     /**

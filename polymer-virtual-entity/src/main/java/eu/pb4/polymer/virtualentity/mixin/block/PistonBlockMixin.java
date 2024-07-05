@@ -27,7 +27,7 @@ public class PistonBlockMixin {
             target = "Lnet/minecraft/util/math/BlockPos;offset(Lnet/minecraft/util/math/Direction;)Lnet/minecraft/util/math/BlockPos;", ordinal = 1, shift = At.Shift.BEFORE))
     private void collectAttachmentHolder(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir,
                                          @Local(ordinal = 2) BlockPos blockPos, @Share("attachment") LocalRef<PistonAttachment> attachment) {
-        if (world instanceof ServerWorld serverWorld ) {
+        if (world instanceof ServerWorld serverWorld) {
             var x = BlockBoundAttachment.get(world, blockPos);
             if (x != null && x.getBlockState().getBlock() instanceof BlockWithElementHolder holder) {
                 var transformed = holder.createMovingElementHolder(serverWorld, blockPos, x.getBlockState(), x.holder());
@@ -46,7 +46,7 @@ public class PistonBlockMixin {
             target = "Lnet/minecraft/world/World;addBlockEntity(Lnet/minecraft/block/entity/BlockEntity;)V", ordinal = 0))
     private BlockEntity collectAttachmentHolder(BlockEntity blockEntity, @Share("attachment") LocalRef<PistonAttachment> attachment) {
         var val = attachment.get();
-        if (val != null) {
+        if (val != null && blockEntity != null) {
             ((PistonExt) blockEntity).polymer$setAttachement(val);
         }
         return blockEntity;

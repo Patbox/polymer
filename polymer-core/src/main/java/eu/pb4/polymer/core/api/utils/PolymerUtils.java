@@ -8,17 +8,21 @@ import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
@@ -26,6 +30,8 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -202,8 +208,20 @@ public final class PolymerUtils {
         return PolymerCommonUtils.getClientJar();
     }
 
+    @SuppressWarnings("unchecked")
     public static boolean isServerOnly(Object obj) {
-        return obj instanceof PolymerObject || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack)) || (obj instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type)) || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE)) || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
+        return obj instanceof PolymerObject
+                || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack))
+                || (obj instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type))
+                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE))
+                || (obj instanceof RegistryEntry<?> entry && (
+                        (entry.value() instanceof ArmorMaterial && PolymerItemUtils.isPolymerArmorMaterial((RegistryEntry<ArmorMaterial>) entry))
+                        || (entry.value() instanceof EntityAttribute && PolymerEntityUtils.isPolymerEntityAttribute((RegistryEntry<EntityAttribute>) entry))))
+                || (obj instanceof ComponentType<?> componentType && PolymerComponent.isPolymerComponent(componentType))
+                || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
+    }
+    public static <T> boolean isServerOnly(Registry<T> registry, T obj) {
+        return RegistrySyncUtils.isServerEntry(registry, obj) || isServerOnly(obj);
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {

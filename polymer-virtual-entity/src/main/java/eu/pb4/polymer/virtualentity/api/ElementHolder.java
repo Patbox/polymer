@@ -30,6 +30,7 @@ public class ElementHolder {
     private ChunkPos currentChunkPos = null;
 
     private final IntList entityIds = new IntArrayList();
+    private final IntList attachedPassengerEntityIds = new IntArrayList();
 
     public boolean isPartOf(int entityId) {
         return this.entityIds.contains(entityId);
@@ -260,5 +261,23 @@ public class ElementHolder {
     }
 
     public void notifyUpdate(HolderAttachment.UpdateType updateType) {
+    }
+
+    public IntList getAttachedPassengerEntityIds() {
+        return this.attachedPassengerEntityIds;
+    }
+
+    public <T extends VirtualElement> T addPassengerElement(T element) {
+        this.addElement(element);
+        attachedPassengerEntityIds.addAll(element.getEntityIds());
+        return element;
+    }
+
+    public void addPassengerId(int i) {
+        this.attachedPassengerEntityIds.add(i);
+    }
+
+    public void removePassengerId(int i) {
+        this.attachedPassengerEntityIds.add(i);
     }
 }

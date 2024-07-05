@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.utils;
 
+import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 /**
@@ -31,7 +32,12 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
         return false;
     }
 
+    @Deprecated
     static boolean canSyncRawToClient(Object obj, ServerPlayerEntity player) {
-        return obj instanceof PolymerSyncedObject pol ? pol.canSyncRawToClient(player) : !(obj instanceof PolymerObject);
+        return obj instanceof PolymerSyncedObject<?> pol ? pol.canSyncRawToClient(player) : !PolymerUtils.isServerOnly(obj);
+    }
+
+    static <T> boolean canSyncRawToClient(Registry<T> registry, T obj, ServerPlayerEntity player) {
+        return obj instanceof PolymerSyncedObject<?> pol ? pol.canSyncRawToClient(player) : !PolymerUtils.isServerOnly(registry, obj);
     }
 }

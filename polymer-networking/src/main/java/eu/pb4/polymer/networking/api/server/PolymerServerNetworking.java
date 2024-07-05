@@ -21,7 +21,6 @@ public final class PolymerServerNetworking {
     }
 
     public static final SimpleEvent<BiConsumer<ServerPlayNetworkHandler, PolymerHandshakeHandler>> ON_PLAY_SYNC = new SimpleEvent<>();
-
     public static boolean send(ServerPlayNetworkHandler handler, CustomPayload payload) {
         handler.sendPacket(new CustomPayloadS2CPacket(payload));
         return true;

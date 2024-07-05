@@ -37,7 +37,8 @@ public class SynchronizeTagsS2CPacketMixin {
                     var list = new IntArrayList(entry.getValue().size());
 
                     for (int i : entry.getValue()) {
-                        if (PolymerSyncedObject.canSyncRawToClient(reg.get(i), player)) {
+                        //noinspection unchecked
+                        if (PolymerSyncedObject.canSyncRawToClient(reg, reg.get(i), player)) {
                             list.add(i);
                         }
                     }
