@@ -44,7 +44,6 @@ public class AutoHost implements ModInitializer {
     public static void init(MinecraftServer server) {
         var config = CommonImpl.loadConfig("auto-host", AutoHostConfig.class);
         AutoHost.config = config;
-        AutoHost.config.enabled |= Files.exists(FabricLoader.getInstance().getGameDir().resolve("polymer/.force_autohost"));
 
         if (!config.enabled) {
             return;

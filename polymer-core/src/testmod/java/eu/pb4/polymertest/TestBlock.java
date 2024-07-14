@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -26,7 +27,7 @@ public class TestBlock extends Block implements PolymerBlock {
         super(settings);
     }
 
-    private static final IntProperty TEST = IntProperty.of("test", 0, 10);
+    private static final IntProperty TEST = IntProperty.of("test", 0, 100);
 
     @Nullable
     @Override
@@ -39,7 +40,7 @@ public class TestBlock extends Block implements PolymerBlock {
         EnchantmentHelper.getEffect(itemStack, EnchantmentEffectComponentTypes.REPAIR_WITH_XP).isPresent();
         EnchantmentHelper.getLevel(world.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(Enchantments.MENDING), itemStack);
         super.onPlaced(world, pos, state, placer, itemStack);
-        //itemStack.getOrCreateNbt().putInt("y", itemStack.getOrCreateNbt().getInt("y") + 1);
+        itemStack.set(DataComponentTypes.REPAIR_COST, (itemStack.getOrDefault(DataComponentTypes.REPAIR_COST, 0) + 1) % 100);
     }
 
     @Override

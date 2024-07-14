@@ -8,6 +8,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentType;
 import net.minecraft.text.HoverEvent;
@@ -34,7 +35,9 @@ public interface ComponentMapMixin {
                 var map = new IdentityHashMap<ComponentType<?>, Object>();
                 for (var key : content.keySet()) {
                     var entry = content.get(key);
-                    if (PolymerComponent.canSync(key, entry, player)) {
+                    if (entry instanceof TransformingComponent t) {
+                        map.put(key, t.polymer$getTransformed(player));
+                    } else if (PolymerComponent.canSync(key, entry, player)) {
                         map.put(key, entry);
                     }
                 }

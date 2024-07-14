@@ -10,6 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +24,8 @@ public abstract class PotionContentsComponentMixin implements TransformingCompon
     @Shadow public abstract int getColor();
 
     @Override
-    public Object polymer$getTransformed(ServerPlayerEntity player) {
-        if (!polymer$requireModification(player)) {
+    public Object polymer$getTransformed(PacketContext context) {
+        if (!polymer$requireModification(context)) {
             return this;
         }
 
@@ -32,7 +33,7 @@ public abstract class PotionContentsComponentMixin implements TransformingCompon
     }
 
     @Override
-    public boolean polymer$requireModification(ServerPlayerEntity player) {
+    public boolean polymer$requireModification(PacketContext context) {
         if (this.potion.isPresent() && this.potion.get().value() instanceof PolymerObject) {
             return true;
         }

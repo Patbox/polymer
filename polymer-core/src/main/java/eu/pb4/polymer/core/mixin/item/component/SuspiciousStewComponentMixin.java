@@ -7,6 +7,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
@@ -16,8 +17,8 @@ public abstract class SuspiciousStewComponentMixin implements TransformingCompon
     @Shadow @Final private List<SuspiciousStewEffectsComponent.StewEffect> effects;
 
     @Override
-    public Object polymer$getTransformed(ServerPlayerEntity player) {
-        if (!polymer$requireModification(player)) {
+    public Object polymer$getTransformed(PacketContext context) {
+        if (!polymer$requireModification(context)) {
             return this;
         }
 
@@ -25,7 +26,7 @@ public abstract class SuspiciousStewComponentMixin implements TransformingCompon
     }
 
     @Override
-    public boolean polymer$requireModification(ServerPlayerEntity player) {
+    public boolean polymer$requireModification(PacketContext context) {
         for (var effect : this.effects) {
             if (effect.effect().value() instanceof PolymerObject) {
                 return true;

@@ -7,6 +7,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,8 @@ public class AttributeModifiersComponentMixin implements TransformingComponent {
     @Shadow @Final private boolean showInTooltip;
 
     @Override
-    public Object polymer$getTransformed(ServerPlayerEntity player) {
-        if (!polymer$requireModification(player)) {
+    public Object polymer$getTransformed(PacketContext context) {
+        if (!polymer$requireModification(context)) {
             return this;
         }
         var list = new ArrayList<AttributeModifiersComponent.Entry>();
@@ -33,7 +34,7 @@ public class AttributeModifiersComponentMixin implements TransformingComponent {
     }
 
     @Override
-    public boolean polymer$requireModification(ServerPlayerEntity player) {
+    public boolean polymer$requireModification(PacketContext context) {
         for (var x : this.modifiers) {
             if (PolymerEntityUtils.isPolymerEntityAttribute(x.attribute())) {
                 return true;

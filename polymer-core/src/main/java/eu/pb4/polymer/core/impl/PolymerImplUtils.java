@@ -37,6 +37,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
@@ -123,7 +124,14 @@ public class PolymerImplUtils {
                 msg.accept("");
                 msg.accept("= Polymer Starts: " + PolymerImplUtils.getBlockStateOffset());
                 msg.accept("");
-                msg.accept("= Vanilla ChunkDeltaUpdateS2CPacket broken: " + (PolymerImplUtils.getBlockStateOffset() >= 524288));
+                msg.accept("= All States: " + Block.STATE_IDS.size());
+
+                //noinspection unchecked
+                var pl = (PolymerIdList<BlockState>) Block.STATE_IDS;
+                msg.accept("= Polymer States: " + pl.polymer$getPolymerEntries().size());
+                msg.accept("= Server Bits: " + MathHelper.ceilLog2(Block.STATE_IDS.size()));
+                msg.accept("= Vanilla Bits: " + pl.polymer$getVanillaBitCount());
+                msg.accept("= NonPolymer Bits: " + pl.polymer$getNonPolymerBitCount());
                 msg.accept("");
 
                 for (var state : Block.STATE_IDS) {

@@ -47,7 +47,9 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
 
     @Nullable
     public void serverStopped(MinecraftServer minecraftServer) {
-        server.stop(0);
+        if (server != null) {
+            server.stop(0);
+        }
     }
 
     protected boolean updateHash() {

@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.impl.other.PolymerComponentImpl;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.component.ComponentType;
 import net.minecraft.registry.Registries;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public interface PolymerComponent extends PolymerObject {
@@ -26,7 +27,7 @@ public interface PolymerComponent extends PolymerObject {
         return PolymerComponentImpl.UNSYNCED_COMPONENTS.contains(type);
     }
 
-    static boolean canSync(ComponentType<?> key, Object entry, PacketContext context) {
+    static boolean canSync(ComponentType<?> key, @Nullable Object entry, PacketContext context) {
         if (entry instanceof PolymerComponent component && component.canSyncRawToClient(context)) {
             return true;
         }

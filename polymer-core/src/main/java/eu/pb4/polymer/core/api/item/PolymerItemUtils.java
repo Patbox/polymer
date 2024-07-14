@@ -302,7 +302,7 @@ public final class PolymerItemUtils {
                 return true;
             } else if (x.getValue() != null && x.getValue().isPresent()
                     && x.getValue().get() instanceof TransformingComponent t
-                    && t.polymer$requireModification(player)) {
+                    && t.polymer$requireModification(ctx)) {
                 return true;
             }
         }
@@ -417,13 +417,18 @@ public final class PolymerItemUtils {
             }
         }
 
+        var ctx = PacketContext.get();
+        if (player != null && ctx.getPlayer() != player) {
+            ctx = PacketContext.of(player);
+        }
+
         for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {
             var key = COMPONENTS_TO_COPY[i];
             var x = itemStack.get(key);
 
             if (x instanceof TransformingComponent t) {
                 //noinspection unchecked,rawtypes
-                out.set((ComponentType) key, t.polymer$getTransformed(player));
+                out.set((ComponentType) key, t.polymer$getTransformed(ctx));
             } else {
                 //noinspection unchecked,rawtypes
                 out.set((ComponentType) key, (Object) itemStack.get(key));

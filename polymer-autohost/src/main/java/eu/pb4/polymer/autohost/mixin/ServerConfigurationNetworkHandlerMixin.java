@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.autohost.impl.AutoHostTask;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
@@ -34,9 +35,11 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
 
     @Shadow protected abstract void onTaskFinished(ServerPlayerConfigurationTask.Key key);
 
+    @Shadow protected abstract GameProfile getProfile();
+
     @Inject(method = "queueSendResourcePackTask", at = @At("TAIL"))
     private void polymerAutoHost$addTask(CallbackInfo ci) {
-        if (AutoHost.config.enabled) {
+        if (AutoHost.config.enabled && !this.server.isHost(this.getProfile())) {
             var x = new ArrayList<MinecraftServer.ServerResourcePackProperties>();
             var ready = AutoHost.provider.isReady();
             if (ready) {

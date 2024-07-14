@@ -45,6 +45,7 @@ public abstract class HoverEventMixin {
                 } else if (content.getAction() == HoverEvent.Action.SHOW_ENTITY) {
                     var val = Objects.requireNonNull(content.getValue(HoverEvent.Action.SHOW_ENTITY));
                     if (PolymerEntityUtils.isPolymerEntityType(val.entityType)) {
+                        val = new HoverEvent.EntityContent(val.entityType, val.uuid, val.name);
                         return new HoverEvent(HoverEvent.Action.SHOW_TEXT, Texts.join(val.asTooltip(), Text.literal("\n")));
                     }
                 }

@@ -115,7 +115,7 @@ public class TestMod implements ModInitializer {
     public static BlockItem BLOCK_ITEM_2 = new PolymerBlockItem(BLOCK_2, new Item.Settings(), Items.TNT);
     public static BlockItem BLOCK_ITEM_3 = new PolymerBlockItem(BLOCK_3, new Item.Settings(), Items.COBWEB);
     public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.create().strength(10f));
-    public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new Item.Settings().maxCount(9999));
+    public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new Item.Settings().maxCount(99));
     public static BlockItem TATER_BLOCK_ITEM2 = new PolymerBlockItem(TATER_BLOCK, new Item.Settings(), Items.RAW_IRON_BLOCK);
     public static TestPickaxeItem PICKAXE = new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterials.NETHERITE, 10, -3.9f, new Item.Settings());
     public static TestPickaxeItem PICKAXE2 = new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterials.WOOD, 10, -5f, new Item.Settings());
@@ -317,7 +317,7 @@ public class TestMod implements ModInitializer {
         register(Registries.ITEM, Identifier.of("test", "mana_cauldron"), MANA_CAULDRON_ITEM);
         register(Registries.BLOCK, Identifier.of("test", "mana_cauldron"), MANA_CAULDRON);
 
-        for (var i = 0; i < 16; i++) {
+        for (var i = 0; i < 1600; i++) {
             register(Registries.BLOCK, Identifier.of("test", "filler_" + i), new TestBlock(AbstractBlock.Settings.create()));
         }
 

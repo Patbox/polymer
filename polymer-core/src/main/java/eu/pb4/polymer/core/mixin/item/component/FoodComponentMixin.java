@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +28,8 @@ public abstract class FoodComponentMixin implements TransformingComponent {
     @Shadow public abstract Optional<ItemStack> usingConvertsTo();
 
     @Override
-    public Object polymer$getTransformed(ServerPlayerEntity player) {
-        if (!polymer$requireModification(player)) {
+    public Object polymer$getTransformed(PacketContext context) {
+        if (!polymer$requireModification(context)) {
             return this;
         }
 
@@ -36,7 +37,7 @@ public abstract class FoodComponentMixin implements TransformingComponent {
     }
 
     @Override
-    public boolean polymer$requireModification(ServerPlayerEntity player) {
+    public boolean polymer$requireModification(PacketContext context) {
         for (var effect : this.effects) {
             if (effect.effect().getEffectType().value() instanceof PolymerObject) {
                 return true;
