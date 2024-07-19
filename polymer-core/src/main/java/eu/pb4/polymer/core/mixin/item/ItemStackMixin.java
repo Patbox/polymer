@@ -35,8 +35,12 @@ public class ItemStackMixin {
             }
             return content;
         }, content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThread()) {
-                var context = PacketContext.get().getRegistryWrapperLookup();
+            if (PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
+                var ctx = PacketContext.get();
+                if (ctx.getPacketListener() == null) {
+                    return content;
+                }
+                var context = ctx.getRegistryWrapperLookup();
                 var player = PolymerCommonUtils.getPlayerContext();
                 var lookup = context != null ? context : (player != null ? player.getRegistryManager() : PolymerImplUtils.FALLBACK_LOOKUP);
                 return PolymerItemUtils.getPolymerItemStack(content, lookup, player);

@@ -20,29 +20,9 @@ import java.util.function.Function;
 public abstract class HoverEventMixin {
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;xmap(Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
     private static Codec<HoverEvent> patchCodec(Codec<HoverEvent> codec) {
-        return codec.xmap(content -> { // Decode
+        return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
-                if (content.getAction() == HoverEvent.Action.SHOW_ITEM) {
-                    var context = PacketContext.get().getRegistryWrapperLookup();
-                    var player = PolymerCommonUtils.getPlayerContext();
-                    var lookup = context != null ? context : (player != null ? player.getRegistryManager() : PolymerImplUtils.FALLBACK_LOOKUP);
-
-                    return new HoverEvent(HoverEvent.Action.SHOW_ITEM,
-                            new HoverEvent.ItemStackContent(PolymerItemUtils.getRealItemStack(Objects.requireNonNull(content.getValue(HoverEvent.Action.SHOW_ITEM)).asStack(),
-                                    lookup)));
-                }
-            }
-            return content;
-        }, content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThread()) {
-                if (content.getAction() == HoverEvent.Action.SHOW_ITEM) {
-                    var context = PacketContext.get().getRegistryWrapperLookup();
-                    var player = PolymerCommonUtils.getPlayerContext();
-                    var stack = Objects.requireNonNull(content.getValue(HoverEvent.Action.SHOW_ITEM)).asStack();
-                    var lookup = context != null ? context : (player != null ? player.getRegistryManager() : PolymerImplUtils.FALLBACK_LOOKUP);
-                    return new HoverEvent(HoverEvent.Action.SHOW_ITEM,
-                            new HoverEvent.ItemStackContent(PolymerItemUtils.getPolymerItemStack(stack, lookup, player)));
-                } else if (content.getAction() == HoverEvent.Action.SHOW_ENTITY) {
+                if (content.getAction() == HoverEvent.Action.SHOW_ENTITY) {
                     var val = Objects.requireNonNull(content.getValue(HoverEvent.Action.SHOW_ENTITY));
                     if (PolymerEntityUtils.isPolymerEntityType(val.entityType)) {
                         val = new HoverEvent.EntityContent(val.entityType, val.uuid, val.name);

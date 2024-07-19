@@ -28,6 +28,14 @@
     "minecraft:post_attack": [
       {
         "enchanted": "attacker",
+        "affected": "attacker",
+        "effect": {
+          "type": "test:test",
+          "text": "Hello World!"
+        }
+      },
+      {
+        "enchanted": "attacker",
         "affected": "victim",
         "effect": {
           "type": "minecraft:all_of",

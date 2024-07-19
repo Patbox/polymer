@@ -544,9 +544,9 @@ public final class PolymerItemUtils {
     }
 
     /**
-     * Marks BlockEntity type as server-side only
+     * Marks ArmorMaterial as server-side only
      *
-     * @param types BlockEntityTypes
+     * @param types ArmorMaterials
      */
     @SafeVarargs
     public static void registerArmorMaterial(RegistryEntry<ArmorMaterial>... types) {
@@ -558,9 +558,9 @@ public final class PolymerItemUtils {
     }
 
     /**
-     * Checks if BlockEntity is server-side only
+     * Checks if ArmorMaterial is server-side only
      *
-     * @param type BlockEntities type
+     * @param type ArmorMaterials
      */
     public static boolean isPolymerArmorMaterial(RegistryEntry<ArmorMaterial> type) {
         return ARMOR_MATERIALS.contains(type.value());

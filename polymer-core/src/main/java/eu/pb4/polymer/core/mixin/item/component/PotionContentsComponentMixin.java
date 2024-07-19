@@ -17,11 +17,13 @@ import java.util.Optional;
 
 @Mixin(PotionContentsComponent.class)
 public abstract class PotionContentsComponentMixin implements TransformingComponent {
-    @Shadow @Final private Optional<RegistryEntry<Potion>> potion;
 
     @Shadow @Final private List<StatusEffectInstance> customEffects;
 
     @Shadow public abstract int getColor();
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @Shadow @Final private Optional<RegistryEntry<Potion>> potion;
 
     @Override
     public Object polymer$getTransformed(PacketContext context) {
@@ -39,7 +41,7 @@ public abstract class PotionContentsComponentMixin implements TransformingCompon
         }
 
         for (StatusEffectInstance statusEffectInstance : this.customEffects) {
-            if (statusEffectInstance.getEffectType() instanceof PolymerObject) {
+            if (statusEffectInstance.getEffectType().value() instanceof PolymerObject) {
                 return true;
             }
         }

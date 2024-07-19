@@ -41,6 +41,14 @@ public class PolymerMapCodec<T> extends MapCodec<T> implements PolymerObject {
         return new PolymerMapCodec<T>(codec, EnchantmentLevelBasedValue.Constant.TYPE_CODEC, new EnchantmentLevelBasedValue.Constant(0));
     }
 
+    public Object fallbackValue() {
+        return fallbackValue;
+    }
+
+    public MapCodec<Object> fallbackCodec() {
+        return fallbackCodec;
+    }
+
     @Override
     public <T1> Stream<T1> keys(DynamicOps<T1> ops) {
         return this.selfCodec.keys(ops);
@@ -53,7 +61,7 @@ public class PolymerMapCodec<T> extends MapCodec<T> implements PolymerObject {
 
     @Override
     public <T1> RecordBuilder<T1> encode(T input, DynamicOps<T1> ops, RecordBuilder<T1> prefix) {
-        if (PolymerCommonUtils.isServerNetworkingThread()) {
+        if (PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
             return this.fallbackCodec.encode(this.fallbackValue, ops, prefix);
         }
 

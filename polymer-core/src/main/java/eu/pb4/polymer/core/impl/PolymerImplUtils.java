@@ -1,9 +1,7 @@
 package eu.pb4.polymer.core.impl;
 
-import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
@@ -14,19 +12,17 @@ import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenCustomHashMap;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -266,8 +262,11 @@ public class PolymerImplUtils {
         if (isCreative && withNbt && blockState.hasBlockEntity()) {
             var blockEntity = player.getWorld().getBlockEntity(pos);
             if (blockEntity != null && (!blockEntity.copyItemDataRequiresOperator() || player.isCreativeLevelTwoOp())) {
+                NbtCompound nbtCompound = blockEntity.createComponentlessNbtWithIdentifyingData(player.getRegistryManager());
+                //noinspection deprecation
+                blockEntity.removeFromCopiedStackNbt(nbtCompound);
+                BlockItem.setBlockEntityData(itemStack, blockEntity.getType(), nbtCompound);
                 itemStack.applyComponentsFrom(blockEntity.createComponentMap());
-                itemStack.set(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.of(blockEntity.createComponentlessNbt(player.getRegistryManager())));
             }
         }
 

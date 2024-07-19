@@ -24,7 +24,7 @@ public abstract class EntityAttributeMixin {
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getEntryCodec()Lcom/mojang/serialization/Codec;"))
     private static Codec<RegistryEntry<EntityAttribute>> patchCodec(Codec<RegistryEntry<EntityAttribute>> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThread() && PolymerEntityUtils.isPolymerEntityAttribute(content)) {
+            if (PolymerCommonUtils.isServerNetworkingThreadWithContext() && PolymerEntityUtils.isPolymerEntityAttribute(content)) {
                 return EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS;
             }
             return content;

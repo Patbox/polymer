@@ -270,6 +270,10 @@ public final class PolymerCommonUtils {
         return CommonImplUtils.createUnsafe(clazz);
     }
 
+    public static boolean isServerNetworkingThreadWithContext() {
+        return isServerNetworkingThread() && PacketContext.get().getPacketListener() != null;
+    }
+
     public interface ResourcePackChangeCallback {
         void onResourcePackChange(ServerCommonNetworkHandler handler, UUID uuid, boolean oldStatus, boolean newStatus);
     }

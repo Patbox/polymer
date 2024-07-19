@@ -365,6 +365,7 @@ public class TestMod implements ModInitializer {
         FabricDefaultAttributeRegistry.register(ENTITY_3, TestEntity3.createCreeperAttributes());
 
         register(Registries.ENTITY_TYPE, Identifier.of("test", "physics"), PHYSIC_ENTITY_3);
+        register(Registries.ENCHANTMENT_ENTITY_EFFECT_TYPE, Identifier.of("test", "test"), TestEnchantmentEntityEffect.CODEC);
 
         PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3, PHYSIC_ENTITY_3);
 
