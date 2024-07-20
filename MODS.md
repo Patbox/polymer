@@ -27,6 +27,12 @@ into itself from any connected hopper chain.
 ### Links:
 - GitHub: https://github.com/borisshoes/ArcanaNovum
 
+## Bakers Tools (1.21)
+*Bakers Tools* adds a handful of new tools to the game, with custom textures and features, while still remaining 100% serverside!
+
+### Links:
+- GitHub: https://github.com/Polymerized-Bakery/BakersTools
+- Modrinth: https://modrinth.com/mod/bakers-tools
 
 ## Biome Compass (1.20.2)
 *Biome Compass* adds a compass that works like [Nature's Compass](https://www.curseforge.com/minecraft/mc-mods/natures-compass), but is completely server-side!
