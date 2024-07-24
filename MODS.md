@@ -379,20 +379,20 @@ processing and storage (or in simpler terms, it's a tech mod)!
 - GitHub: https://github.com/CamperSamu/PolyForgery
 
 
-## Polymer Patch for CC: Tweaked (1.21 / latest)
-*Polymer Patch for CC: Tweaked* allows [CC: Tweaked](https://modrinth.com/mod/cc-tweaked) to work fully server side!
-
-### Links:
-- GitHub: https://github.com/PolymerPorts/cc-tweaked-patch
-- Modrinth: https://modrinth.com/mod/cc-polymer
-
-
 ## Polymer Patch for Anshar (1.20.4)
 *Polymer Patch for Anshar* allows [Anshar](https://modrinth.com/mod/anshar) to work fully server-side!
 
 ### Links:
 - GitHub: https://github.com/PolymerPorts/anshar-patch
 - Modrinth: https://modrinth.com/mod/anshar-polymer
+
+
+## Polymer Patch for CC: Tweaked (1.21 / latest)
+*Polymer Patch for CC: Tweaked* allows [CC: Tweaked](https://modrinth.com/mod/cc-tweaked) to work fully server side!
+
+### Links:
+- GitHub: https://github.com/PolymerPorts/cc-tweaked-patch
+- Modrinth: https://modrinth.com/mod/cc-polymer
 
 
 ## Polysit (1.21 / latest)
