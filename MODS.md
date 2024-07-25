@@ -83,7 +83,7 @@ to deliver accurate maps even on slopes and complicated cave systems.
 
 ## ComputerCraft: Restitched with Polymer (1.19.4)
 This is a port of [CC: Restitched](https://modrinth.com/mod/cc-restitched) (which by itself is port of [CC: Tweaked](https://modrinth.com/mod/cc-tweaked), continuation of the original [ComputerCraft](https://modrinth.com/mod/computercraft)),
-modified in a way to allow nearly all functionality of the regular version to work purely server-side.
+modified in a way to allow nearly all functionality of the regular version to work purely server-side.  
 Note: this mod has been superceded by [Polymer Patch for CC: Tweaked](#polymer-patch-for-cc-tweaked-121--latest).
 
 ### Links:
@@ -208,8 +208,8 @@ featuring custom enchantments, items, and recipes.
 - Modrinth: https://modrinth.com/mod/grimoire
 
 
-## Illager Expansion (Polymer Port) (1.21 / latest)
-*Illager Expansion* is mod focused around bringing more content to the mysterious Illagers.
+## Illager Expansion Recrafted (1.21 / latest)
+*Illager Expansion Recrafted* is a mod focused around bringing more content to the mysterious Illagers.
 Featuring new structures, mobs, and items, we have you covered. Will you be able to find all secrets
 of the Illagers before it's too late?
 
@@ -273,6 +273,15 @@ Keep the `doFireTick` gamerule enabled without worrying about random fire destro
 ### Links:
 - GitHub: https://github.com/Oliver-makes-code/MapRender
 - Modrinth: https://modrinth.com/mod/maprender
+
+
+## Mini Tardis (1.20.4)
+*Mini Tardis* is a new take on the often-made Minecraft TARDIS mod, aiming to redesign everyone's favorite Doctor Who inspired space-time transport method and mobile base from the ground up, taking things in a different direction compared to other mods of its kind to hopefully provide more immersive and enjoyable gameplay.
+
+### Links:
+- GitHub: https://github.com/enjarai/mini-tardis
+- Modrinth: https://modrinth.com/mod/mini-tardis
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/mini-tardis
 
 
 ## Moire (1.21 / latest)
