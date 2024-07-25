@@ -106,11 +106,17 @@ public final class PolymerItemGroupUtils {
     }
 
     public static void registerPolymerItemGroup(Identifier identifier, ItemGroup group) {
-        InternalServerRegistry.ITEM_GROUPS.set(identifier, group);
+        if (contains(identifier)) {
+            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered!", identifier);
+        } else {
+            InternalServerRegistry.ITEM_GROUPS.set(identifier, group);
+        }
         if (Registries.ITEM_GROUP.containsId(identifier)) {
             PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered as vanilla!", identifier);
         }
     }
+
+    public static Boolean contains(Identifier identifier) { return InternalServerRegistry.ITEM_GROUPS.contains(identifier); }
 
     public static Identifier getId(ItemGroup group) {
         var x = REGISTRY.getId(group);
