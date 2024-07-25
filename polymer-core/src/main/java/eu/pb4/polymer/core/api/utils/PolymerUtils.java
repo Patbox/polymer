@@ -28,8 +28,6 @@ import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
-import net.minecraft.potion.Potion;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
@@ -37,6 +35,7 @@ import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.World;
@@ -122,7 +121,7 @@ public final class PolymerUtils {
      */
     public static void reloadWorld(ServerPlayerEntity player) {
         player.server.execute(() -> {
-            PolymerSyncUtils.synchronizePolymerRegistries(player.networkHandler);
+            PolymerImplUtils.IS_RELOADING_WORLD.set(Unit.INSTANCE);
             player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
 
             var world = player.getWorld();
@@ -142,7 +141,7 @@ public final class PolymerUtils {
                 player.networkHandler.chunkDataSender.add(chunk);
             });
 
-
+            PolymerImplUtils.IS_RELOADING_WORLD.remove();
         });
     }
 
@@ -188,17 +187,6 @@ public final class PolymerUtils {
         return stack;
     }
 
-    /**
-     * Allows to execute code with selected player being returned for {@link PolymerUtils#getPlayerContext()}
-     * calls. Useful for custom packets using writeItemStack and similar methods.
-     *
-     * @param player
-     * @param runnable
-     */
-    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
-        PolymerCommonUtils.executeWithPlayerContext(player, runnable);
-    }
-
     public static World getFakeWorld() {
         return PolymerCommonUtils.getFakeWorld();
     }
@@ -238,5 +226,13 @@ public final class PolymerUtils {
 
     public static ProfileComponent createProfileComponent(String value, @Nullable String signature) {
         return new ProfileComponent(createSkinGameProfile(value, signature));
+    }
+
+    /**
+     * Use PolymerCommonUtils.executeWithNetworkingLogic
+     */
+    @Deprecated
+    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
+        PolymerCommonUtils.executeWithPlayerContext(player, runnable);
     }
 }

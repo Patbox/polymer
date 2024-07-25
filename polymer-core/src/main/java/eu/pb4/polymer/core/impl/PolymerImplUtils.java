@@ -14,10 +14,13 @@ import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -25,13 +28,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -39,13 +40,13 @@ import org.jetbrains.annotations.Nullable;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class PolymerImplUtils {
-    public static final ThreadLocal<RegistryWrapper.WrapperLookup> WRAPPER_LOOKUP_PASSER = new ThreadLocal<>();
-
+    public static final ThreadLocal<Unit> IS_RELOADING_WORLD = new ThreadLocal<>();
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
     public static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
 
@@ -310,6 +311,18 @@ public class PolymerImplUtils {
                     player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, i, playerInventory.getStack(i)));
                 }
                 player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(playerInventory.selectedSlot));
+            }
+        }
+    }
+
+    public static void callItemGroupEvents(Identifier id, ItemGroup itemGroup, List<ItemStack> parentTabStacks, List<ItemStack> searchTabStacks, ItemGroup.DisplayContext context) {
+        if (CompatStatus.FABRIC_ITEM_GROUP) {
+            try {
+                var fabricCollector = new FabricItemGroupEntries(context, parentTabStacks, searchTabStacks);
+                ItemGroupEvents.modifyEntriesEvent(RegistryKey.of(RegistryKeys.ITEM_GROUP, id)).invoker().modifyEntries(fabricCollector);
+                ItemGroupEvents.MODIFY_ENTRIES_ALL.invoker().modifyEntries(itemGroup, fabricCollector);
+            } catch (Throwable e) {
+                PolymerImpl.LOGGER.warn("Failed to execute Fabric Item Group event!", e);
             }
         }
     }

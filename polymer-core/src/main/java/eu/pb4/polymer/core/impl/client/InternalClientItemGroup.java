@@ -34,7 +34,7 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject,
 
 
     @Override
-    public PolymerItemGroupUtils.Contents polymer$getContentsWith(FeatureSet enabledFeatures, boolean operatorEnabled, RegistryWrapper.WrapperLookup lookup) {
+    public PolymerItemGroupUtils.Contents polymer$getContentsWith(Identifier id, FeatureSet enabledFeatures, boolean operatorEnabled, RegistryWrapper.WrapperLookup lookup) {
         return null;
     }
 

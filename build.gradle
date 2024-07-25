@@ -63,7 +63,6 @@ allprojects {
         //maven { url "https://dvs1.progwml6.com/files/maven/" }
         maven { url "https://maven.terraformersmc.com/releases" }
         maven { url "https://maven.theepicblock.nl" }
-        maven { url "https://lazurite.dev/maven/releases" }
         maven { url "https://repo.opencollab.dev/maven-snapshots/" }
         maven { url 'https://maven.ladysnake.org/releases' }
         mavenLocal()

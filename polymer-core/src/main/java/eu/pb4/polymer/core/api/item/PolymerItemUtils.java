@@ -352,11 +352,11 @@ public final class PolymerItemUtils {
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
         try {
-            PolymerCommonUtils.executeWithPlayerContext(null, () -> {
+            PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
                 out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
                         (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
                 ));
-            }, PolymerCommonUtils::executeWithoutNetworkingLogic);
+            });
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
@@ -435,7 +435,7 @@ public final class PolymerItemUtils {
             }
         }
         try {
-            PolymerCommonUtils.executeWithPlayerContext(null, () -> {
+            PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
                 var comp = NbtComponent.of(
                         (NbtCompound) (storeCount ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).encoder()
                                 .encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
@@ -445,7 +445,7 @@ public final class PolymerItemUtils {
                 } else {
                     out.set(DataComponentTypes.CUSTOM_DATA, comp);
                 }
-            }, PolymerCommonUtils::executeWithoutNetworkingLogic);
+            });
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }

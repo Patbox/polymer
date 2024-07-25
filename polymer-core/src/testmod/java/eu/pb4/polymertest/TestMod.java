@@ -503,6 +503,11 @@ public class TestMod implements ModInitializer {
             entries.addAfter(Items.DEBUG_STICK, TEST_ENTITY_EGG);
         });
 
+
+        ItemGroupEvents.modifyEntriesEvent(PolymerItemGroupUtils.getKey(ITEM_GROUP)).register(entries -> {
+            entries.addAfter(TEST_FOOD, Items.LAVA_BUCKET);
+        });
+
         ServerLifecycleEvents.SERVER_STARTED.register((s) -> {
             var creep = new CreeperEntity(EntityType.CREEPER, s.getOverworld());
             new Thread(() -> {

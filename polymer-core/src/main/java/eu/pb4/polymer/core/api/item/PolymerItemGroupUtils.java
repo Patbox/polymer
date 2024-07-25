@@ -10,6 +10,8 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -42,7 +44,7 @@ public final class PolymerItemGroupUtils {
         var value = CONTENT_CACHE.get(key);
         if (value == null) {
             try {
-                 value = ((ItemGroupExtra) group).polymer$getContentsWith(featureSet, operator, lookup);
+                 value = ((ItemGroupExtra) group).polymer$getContentsWith(getId(group), featureSet, operator, lookup);
             } catch (Throwable t) {
                 // Some mods use client classes in their item groups because vanilla doesn't call them on the server anymore
                 // Catch instead of letting the game crash, even though it's their fault...
@@ -118,6 +120,10 @@ public final class PolymerItemGroupUtils {
 
     public static Boolean contains(Identifier identifier) { return InternalServerRegistry.ITEM_GROUPS.contains(identifier); }
 
+    public static void registerPolymerItemGroup(RegistryKey<ItemGroup> identifier, ItemGroup group) {
+        registerPolymerItemGroup(identifier.getValue(), group);
+    }
+
     public static Identifier getId(ItemGroup group) {
         var x = REGISTRY.getId(group);
 
@@ -125,6 +131,15 @@ public final class PolymerItemGroupUtils {
             return Registries.ITEM_GROUP.getId(group);
         }
         return x;
+    }
+
+    public static RegistryKey<ItemGroup> getKey(ItemGroup group) {
+        var x = REGISTRY.getId(group);
+
+        if (x == null) {
+            return Registries.ITEM_GROUP.getKey(group).orElseThrow();
+        }
+        return RegistryKey.of(RegistryKeys.ITEM_GROUP, x);
     }
 
     public static void invalidateItemGroupCache() {

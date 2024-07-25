@@ -120,54 +120,21 @@ public final class PolymerCommonUtils {
     }
 
     public static void executeWithNetworkingLogic(PacketListener listener, Runnable runnable) {
+        var oldPlayer = CommonImplUtils.getPlayer();
+        CommonImplUtils.setPlayer(null);
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(LogicOverride.TRUE);
         PacketContext.runWithContext(listener, runnable);
         FORCE_NETWORKING.set(val);
+        CommonImplUtils.setPlayer(oldPlayer);
     }
 
     public static void executeWithoutNetworkingLogic(Runnable runnable) {
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(LogicOverride.FALSE);
-        runnable.run();
+        PacketContext.runWithContext(null, runnable);
         FORCE_NETWORKING.set(val);
     }
-
-    /**
-     * Allows to execute code with selected player being returned for {@link PolymerCommonUtils#getPlayerContext()}
-     * calls. Useful for custom packets using writeItemStack and similar methods.
-     *
-     * @param player
-     * @param runnable
-     */
-    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
-        var oldPlayer = CommonImplUtils.getPlayer();
-        var oldTarget = PacketContext.get().getClientConnection();
-        var oldPacket = PacketContext.get().getEncodedPacket();
-
-        CommonImplUtils.setPlayer(player);
-        PacketContext.setContext(player != null ? ((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection() : null, null);
-
-        runnable.run();
-
-        CommonImplUtils.setPlayer(oldPlayer);
-        PacketContext.setContext(oldTarget, oldPacket);
-    }
-
-    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable, Consumer<Runnable> runnableConsumer) {
-        var oldPlayer = CommonImplUtils.getPlayer();
-        var oldTarget = PacketContext.get().getClientConnection();
-        var oldPacket = PacketContext.get().getEncodedPacket();
-
-        CommonImplUtils.setPlayer(player);
-        PacketContext.setContext(player != null ? ((CommonNetworkHandlerExt)player.networkHandler).polymerCommon$getConnection() : null, null);
-
-        runnableConsumer.accept(runnable);
-
-        CommonImplUtils.setPlayer(oldPlayer);
-        PacketContext.setContext(oldTarget, oldPacket);
-    }
-
 
     public static World getFakeWorld() {
         return FakeWorld.INSTANCE;
@@ -271,10 +238,25 @@ public final class PolymerCommonUtils {
     }
 
     public static boolean isServerNetworkingThreadWithContext() {
-        return isServerNetworkingThread() && PacketContext.get().getPacketListener() != null;
+        return isServerNetworkingThread() && PacketContext.get().getClientConnection() != null;
     }
 
     public interface ResourcePackChangeCallback {
         void onResourcePackChange(ServerCommonNetworkHandler handler, UUID uuid, boolean oldStatus, boolean newStatus);
+    }
+
+    /**
+     * Use PolymerCommonUtils#executeWithNetworkingLogic
+     */
+    @Deprecated
+    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
+        executeWithNetworkingLogic(player.networkHandler, runnable);
+    }
+    /**
+     * Use PolymerCommonUtils#executeWithNetworkingLogic
+     */
+    @Deprecated
+    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable, Consumer<Runnable> runnableConsumer) {
+        executeWithNetworkingLogic(player.networkHandler, () -> runnableConsumer.accept(runnable));
     }
 }
