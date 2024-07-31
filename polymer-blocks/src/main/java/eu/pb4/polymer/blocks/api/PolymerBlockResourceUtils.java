@@ -21,6 +21,11 @@ public final class PolymerBlockResourceUtils {
     }
 
     @Nullable
+    public static BlockState requestEmpty(BlockModelType type) {
+        return CREATOR.requestEmpty(type);
+    }
+
+    @Nullable
     public static BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
         return CREATOR.requestBlock(type, model);
     }

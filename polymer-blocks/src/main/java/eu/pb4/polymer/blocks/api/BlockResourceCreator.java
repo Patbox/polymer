@@ -16,19 +16,24 @@ import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.Waterloggable;
 import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public final class BlockResourceCreator {
+    private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.of("polymer", "block/empty"));
     private final Map<BlockModelType, List<BlockState>> states;
     final Map<BlockState, PolymerBlockModel[]> models;
     private final ResourcePackCreator creator;
     private final Runnable onRegister;
     private final BlockExtBlockMapper blockMapper;
 
+    private final EnumMap<BlockModelType, BlockState> emptyBlocks = new EnumMap<>(BlockModelType.class);
+
     private boolean registered = false;
+    private boolean registeredEmpty = false;
 
     public static BlockResourceCreator of(ResourcePackCreator creator) {
         if (CompatStatus.POLYMC) {
@@ -38,7 +43,7 @@ public final class BlockResourceCreator {
         return new BlockResourceCreator(creator, new BlockExtBlockMapper(BlockMapper.createDefault()), () -> {});
     }
 
-    protected BlockResourceCreator(ResourcePackCreator creator, BlockExtBlockMapper blockMapper, Runnable onRegister) {
+    BlockResourceCreator(ResourcePackCreator creator, BlockExtBlockMapper blockMapper, Runnable onRegister) {
         this.states = new HashMap<>(DefaultModelData.USABLE_STATES);
         this.models = new HashMap<>(DefaultModelData.MODELS);
         this.creator = creator;
@@ -50,7 +55,7 @@ public final class BlockResourceCreator {
         return this.blockMapper;
     }
 
-    protected void registerEvent() {
+    private void registerEvent() {
         if (!this.registered) {
             PolymerBlockUtils.requireStrictBlockUpdates();
             creator.creationEvent.register((b) -> {
@@ -64,13 +69,27 @@ public final class BlockResourceCreator {
     }
 
     @Nullable
+    public BlockState requestEmpty(BlockModelType type) {
+        var x = this.emptyBlocks.get(type);
+        if (x != null) {
+            return x;
+        }
+        x = requestBlock(type, EMPTY);
+        this.emptyBlocks.put(type, x);
+        if (!this.registeredEmpty) {
+            this.registeredEmpty = true;
+            this.creator.addAssetSource("polymer-blocks");
+        }
+        return x;
+    }
+
+    @Nullable
     public BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
         var states = this.states.get(type);
-        if (states.size() != 0) {
+        if (!states.isEmpty()) {
             this.registerEvent();
-            var state = states.remove(0);
+            var state = states.removeFirst();
             models.put(state, model);
-
 
             if (state.getBlock() instanceof Waterloggable) {
                 this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS

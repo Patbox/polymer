@@ -126,4 +126,8 @@ public class ChunkAttachment implements HolderAttachment {
     public ServerWorld getWorld() {
         return (ServerWorld) this.chunk.getWorld();
     }
+
+    public WorldChunk getChunk() {
+        return this.chunk;
+    }
 }

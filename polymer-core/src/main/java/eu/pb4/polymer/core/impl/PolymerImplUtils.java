@@ -322,7 +322,9 @@ public class PolymerImplUtils {
                 ItemGroupEvents.modifyEntriesEvent(RegistryKey.of(RegistryKeys.ITEM_GROUP, id)).invoker().modifyEntries(fabricCollector);
                 ItemGroupEvents.MODIFY_ENTRIES_ALL.invoker().modifyEntries(itemGroup, fabricCollector);
             } catch (Throwable e) {
-                PolymerImpl.LOGGER.warn("Failed to execute Fabric Item Group event!", e);
+                if (PolymerImpl.LOG_MORE_ERRORS) {
+                    PolymerImpl.LOGGER.warn("Failed to execute Fabric Item Group event!", e);
+                }
             }
         }
     }

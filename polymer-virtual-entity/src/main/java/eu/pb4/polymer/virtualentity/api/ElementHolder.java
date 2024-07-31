@@ -210,13 +210,23 @@ public class ElementHolder {
     }
 
     public void setAttachment(@Nullable HolderAttachment attachment) {
+        var oldAttachment = this.attachment;
         this.attachment = attachment;
         if (attachment != null) {
             if (this.currentPos == Vec3d.ZERO && attachment.canUpdatePosition()) {
                 this.updateInitialPosition();
             }
             attachment.updateCurrentlyTracking(new ArrayList<>(this.players));
+            this.onAttachmentSet(attachment, oldAttachment);
+        } else if (oldAttachment != null) {
+            this.onAttachmentRemoved(oldAttachment);
         }
+    }
+
+    protected void onAttachmentSet(HolderAttachment attachment, @Nullable HolderAttachment oldAttachment) {
+    }
+
+    protected void onAttachmentRemoved(HolderAttachment oldAttachment) {
     }
 
     public Vec3d getPos() {

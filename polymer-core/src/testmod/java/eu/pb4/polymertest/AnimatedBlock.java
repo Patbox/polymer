@@ -22,10 +22,12 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4x3f;
@@ -92,16 +94,27 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
             this.planetElement.setTeleportDuration(1);
             this.entity = this.addElement(new EntityElement<>(EntityType.SHEEP, world));
             entity.entity().setColor(DyeColor.PINK);
-            entity.setOffset(new Vec3d(0, 0.5, 0));
-
+            entity.setOffset(new Vec3d(0, 1, 0));
             this.centralElement.setGlowing(true);
-            this.centralElement.setGlowColorOverride(0xfdffba);
+            this.centralElement.setGlowColorOverride(0x000000);
             this.animate();
         }
 
         @Override
         protected void onTick() {
             this.animate();
+        }
+
+        @Override
+        protected void onAttachmentSet(HolderAttachment attachment, @Nullable HolderAttachment oldAttachment) {
+            if (attachment instanceof ChunkAttachment chunkAttachment) {
+                var pos = BlockPos.ofFloored(attachment.getPos());
+                this.centralElement.setGlowColorOverride(ColorHelper.Abgr.toAbgr(chunkAttachment.getChunk().getBiomeForNoiseGen(
+                        BiomeCoords.fromBlock(pos.getX()),
+                        BiomeCoords.fromBlock(pos.getY()),
+                        BiomeCoords.fromBlock(pos.getZ())
+                ).value().getWaterColor()));
+            }
         }
 
         public void animate() {
