@@ -73,9 +73,13 @@ public abstract class ServerChunkManagerMixin {
                         bitSet.set(y - i);
                     }
 
-                    var section = chunk.getSection(chunk.sectionCoordToIndex(pos.getSectionY()));
-                    if (section != null) {
-                        ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
+                    var sectionId = chunk.sectionCoordToIndex(pos.getSectionY());
+
+                    if (sectionId >= 0 && sectionId < chunk.getSectionArray().length) {
+                        var section = chunk.getSection(sectionId);
+                        if (section != null) {
+                            ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
+                        }
                     }
 
                     List<ServerPlayerEntity> players = this.threadedAnvilChunkStorage.getPlayersWatchingChunk(pos.toChunkPos(), false);
