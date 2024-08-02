@@ -65,22 +65,28 @@ public abstract class ServerChunkManagerMixin {
                     if (chunk == null) {
                         continue;
                     }
-                    BitSet bitSet = new BitSet();
-                    bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
 
                     var section = chunk.getSection(chunk.sectionCoordToIndex(pos.getSectionY()));
                     if (section != null) {
                         ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
                     }
 
-                    List<ServerPlayerEntity> players = this.chunkLoadingManager.getPlayersWatchingChunk(pos.toChunkPos(), false);
-                    if (!players.isEmpty()) {
-                        Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet);
-                        for (ServerPlayerEntity player : players) {
-                            player.networkHandler.sendPacket(packet);
-                        }
-                    }
+                    polymer$broadcastBlockLightForSection(pos);
                 }
+            }
+        }
+    }
+
+    @Unique
+    private void polymer$broadcastBlockLightForSection(ChunkSectionPos pos) {
+        BitSet bitSet = new BitSet();
+        bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
+
+        List<ServerPlayerEntity> players = this.chunkLoadingManager.getPlayersWatchingChunk(pos.toChunkPos(), false);
+        if (!players.isEmpty()) {
+            Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet);
+            for (ServerPlayerEntity player : players) {
+                player.networkHandler.sendPacket(packet);
             }
         }
     }
