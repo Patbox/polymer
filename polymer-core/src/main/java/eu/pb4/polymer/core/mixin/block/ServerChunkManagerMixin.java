@@ -66,12 +66,7 @@ public abstract class ServerChunkManagerMixin {
                         continue;
                     }
                     BitSet bitSet = new BitSet();
-                    int i = this.lightingProvider.getBottomY();
-                    int j = this.lightingProvider.getTopY();
-                    int y = pos.getSectionY();
-                    if (y >= i && y <= j) {
-                        bitSet.set(y - i);
-                    }
+                    bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
 
                     var section = chunk.getSection(chunk.sectionCoordToIndex(pos.getSectionY()));
                     if (section != null) {
