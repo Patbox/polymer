@@ -24,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import java.util.List;
 public abstract class ServerChunkManagerMixin {
 
     @Unique
-    private final Object2LongMap<ChunkSectionPos> polymer$lastUpdates = new Object2LongArrayMap<>();
+    private final Object2LongMap<ChunkSectionPos> polymer$scheduledLightUpdates = new Object2LongArrayMap<>();
     @Shadow
     @Final
     public ServerChunkLoadingManager chunkLoadingManager;
@@ -47,47 +46,48 @@ public abstract class ServerChunkManagerMixin {
     @Nullable
     public abstract WorldChunk getWorldChunk(int chunkX, int chunkZ);
 
-    @Shadow
-    public abstract ServerLightingProvider getLightingProvider();
-
     @Inject(method = "tickChunks", at = @At("TAIL"))
     private void polymer$sendChunkUpdates(CallbackInfo ci) {
-        if (!this.polymer$lastUpdates.isEmpty()) {
-            var t = this.world.getServer().getTicks();
-            for (var entry : new ArrayList<>(this.polymer$lastUpdates.object2LongEntrySet())) {
-                var pos = entry.getKey();
-                var time = entry.getLongValue();
-
-                if (t - time > PolymerImpl.LIGHT_UPDATE_TICK_DELAY) {
-                    this.polymer$lastUpdates.removeLong(pos);
-
-                    var chunk = this.getWorldChunk(pos.getX(), pos.getZ());
-                    if (chunk == null) {
-                        continue;
-                    }
-
-                    var section = chunk.getSection(chunk.sectionCoordToIndex(pos.getSectionY()));
-                    if (section != null) {
-                        ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
-                    }
-
-                    polymer$broadcastBlockLightForSection(pos);
-                }
-            }
+        if (this.polymer$scheduledLightUpdates.isEmpty()) {
+            return;
         }
+
+        var currentTime = this.world.getServer().getTicks();
+
+        this.polymer$scheduledLightUpdates.object2LongEntrySet().removeIf(entry -> {
+            var sectionPos = entry.getKey();
+            var sendAfterTime = entry.getLongValue();
+            if (currentTime <= sendAfterTime) {
+                return false;
+            }
+
+            var chunk = this.getWorldChunk(sectionPos.getX(), sectionPos.getZ());
+            if (chunk == null) {
+                return true;
+            }
+
+            var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getSectionY()));
+            if (section != null) {
+                ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
+            }
+
+            polymer$broadcastBlockLightForSection(sectionPos);
+
+            return true;
+        });
     }
 
     @Unique
     private void polymer$broadcastBlockLightForSection(ChunkSectionPos pos) {
-        BitSet bitSet = new BitSet();
-        bitSet.set(pos.getSectionY() - this.lightingProvider.getBottomY());
-
         List<ServerPlayerEntity> players = this.chunkLoadingManager.getPlayersWatchingChunk(pos.toChunkPos(), false);
-        if (!players.isEmpty()) {
-            Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.getLightingProvider(), new BitSet(this.world.getTopSectionCoord() + 2), bitSet);
-            for (ServerPlayerEntity player : players) {
-                player.networkHandler.sendPacket(packet);
-            }
+        if (players.isEmpty()) {
+            return;
+        }
+        BitSet dirtyBlockLightSections = new BitSet();
+        dirtyBlockLightSections.set(pos.getSectionY() - this.lightingProvider.getBottomY());
+        Packet<?> packet = new LightUpdateS2CPacket(pos.toChunkPos(), this.lightingProvider, new BitSet(), dirtyBlockLightSections);
+        for (ServerPlayerEntity player : players) {
+            player.networkHandler.sendPacket(packet);
         }
     }
 
@@ -96,7 +96,8 @@ public abstract class ServerChunkManagerMixin {
         if (type == LightType.BLOCK) {
             this.world.getServer().execute(() -> {
                 if (polymer$hasPendingLightUpdateAround(pos) || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke((c) -> c.test(this.world, pos))) {
-                    this.polymer$lastUpdates.put(pos, this.world.getServer().getTicks());
+                    var sendAfterTime = this.world.getServer().getTicks() + PolymerImpl.LIGHT_UPDATE_TICK_DELAY;
+                    this.polymer$scheduledLightUpdates.put(pos, sendAfterTime);
                 }
             });
         }
