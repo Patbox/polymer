@@ -214,16 +214,19 @@ public final class PolymerBlockUtils {
      * @return Client side BlockState
      */
     public static Block getBlockSafely(PolymerBlock block, BlockState state, int maxDistance, @Nullable ServerPlayerEntity player) {
-        int req = 0;
-        Block out = player != null
-                ? block.getPolymerBlock(state, player)
-                : block.getPolymerBlock(state);
-
-        while (out instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
+        Block out = (Block) block;
+        if(player == null || !block.canSyncRawToClient(player)) {
+            int req = 0;
             out = player != null
-                    ? newBlock.getPolymerBlock(out.getDefaultState(), player)
-                    : newBlock.getPolymerBlock(state);
-            req++;
+                    ? block.getPolymerBlock(state, player)
+                    : block.getPolymerBlock(state);
+
+            while (out instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
+                out = player != null
+                        ? newBlock.getPolymerBlock(out.getDefaultState(), player)
+                        : newBlock.getPolymerBlock(state);
+                req++;
+            }
         }
         return out;
     }

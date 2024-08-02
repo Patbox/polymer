@@ -22,7 +22,7 @@ public abstract class PacketByteBufMixin {
         var player = PolymerUtils.getPlayerContext();
         
         if (player != null) {
-            if (val instanceof PolymerSyncedObject<?> polymerSyncedObject) {
+            if (val instanceof PolymerSyncedObject<?> polymerSyncedObject && !polymerSyncedObject.canSyncRawToClient(player)) {
                 var obj = polymerSyncedObject.getPolymerReplacement(player);
 
                 if (obj != null) {
@@ -40,7 +40,7 @@ public abstract class PacketByteBufMixin {
 
     @ModifyVariable(method = "writeRegistryEntry", at = @At("HEAD"))
     private RegistryEntry polymer$writeOptional(RegistryEntry registryEntry, IndexedIterable<RegistryEntry> indexedIterable) {
-        if (registryEntry.value() instanceof PolymerSoundEvent syncedObject) {
+        if (registryEntry.value() instanceof PolymerSoundEvent syncedObject && !syncedObject.canSyncRawToClient(PolymerUtils.getPlayerContext())) {
             var replacement = syncedObject.getPolymerReplacement(PolymerUtils.getPlayerContext());
 
             if (replacement instanceof PolymerSoundEvent) {

@@ -26,7 +26,7 @@ public class RegistryFixedCodecMixin {
         if (PolymerCommonUtils.isServerNetworkingThread()) {
             var player = PolymerUtils.getPlayerContext();
             try {
-                if (entry.value() instanceof PolymerSyncedObject polymerSyncedObject) {
+                if (entry.value() instanceof PolymerSyncedObject polymerSyncedObject && !polymerSyncedObject.canSyncRawToClient(player)) {
                     return ((Registry<Registry>) (Object) Registries.REGISTRIES).get(this.registry).getEntry(polymerSyncedObject.getPolymerReplacement(player));
                 }
             } catch (Throwable e) {
