@@ -66,9 +66,15 @@ public abstract class ServerChunkManagerMixin {
                 return true;
             }
 
-            var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getSectionY()));
-            if (section != null) {
-                ((PolymerBlockPosStorage) section).polymer$setRequireLights(false);
+            // This might not be the section that had a changing light source, but by now all sections that are affected
+            // should have been scheduled to send to clients - so if marked, it's safe to clear
+            var sections = chunk.getSectionArray();
+            int sectionIndex = chunk.sectionCoordToIndex(sectionPos.getSectionY());
+            // As there is an additional light section above and below the world, there might not even be a block section here
+            if (sectionIndex >= 0 && sectionIndex < sections.length) {
+                if (sections[sectionIndex] instanceof PolymerBlockPosStorage section) {
+                    section.polymer$setRequireLights(false);
+                }
             }
 
             polymer$broadcastBlockLightForSection(sectionPos);
