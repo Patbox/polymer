@@ -94,28 +94,32 @@ public abstract class ServerChunkManagerMixin {
     private void polymer$scheduleChunkUpdates(LightType type, ChunkSectionPos pos, CallbackInfo ci) {
         if (type == LightType.BLOCK) {
             this.world.getServer().execute(() -> {
-                for (int x = -1; x <= 1; x++) {
-                    for (int z = -1; z <= 1; z++) {
-                        var chunk = this.getWorldChunk(pos.getX() + x, pos.getZ() + z);
-                        if (chunk != null) {
-                            var sections = chunk.getSectionArray();
-                            var max = Math.min(chunk.sectionCoordToIndex(pos.getSectionY() + 1), sections.length - 1);
-
-                            for (var i = Math.max(0, chunk.sectionCoordToIndex(pos.getSectionY() - 1)); i <= max; i++) {
-                                var section = sections[i];
-                                if (section != null && !section.isEmpty() && ((PolymerBlockPosStorage) section).polymer$requireLights()) {
-                                    this.polymer$lastUpdates.put(pos, this.world.getServer().getTicks());
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke((c) -> c.test(this.world, pos))) {
+                if (polymer$hasPendingLightUpdateAround(pos) || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke((c) -> c.test(this.world, pos))) {
                     this.polymer$lastUpdates.put(pos, this.world.getServer().getTicks());
                 }
             });
         }
+    }
+
+    @Unique
+    private boolean polymer$hasPendingLightUpdateAround(ChunkSectionPos pos) {
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                var chunk = this.getWorldChunk(pos.getX() + x, pos.getZ() + z);
+                if (chunk != null) {
+                    var sections = chunk.getSectionArray();
+                    var max = Math.min(chunk.sectionCoordToIndex(pos.getSectionY() + 1), sections.length - 1);
+
+                    for (var i = Math.max(0, chunk.sectionCoordToIndex(pos.getSectionY() - 1)); i <= max; i++) {
+                        var section = sections[i];
+                        if (section != null && !section.isEmpty() && ((PolymerBlockPosStorage) section).polymer$requireLights()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
