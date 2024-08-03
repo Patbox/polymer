@@ -114,6 +114,7 @@
     "client.item.ItemGroupsMixin",
     "client.item.ItemStackMixin",
     "client.rendering.BlockModelsMixin",
+    "client.rendering.BlockStatesLoaderMixin",
     "client.rendering.BuiltinModelItemRendererMixin",
     "client.rendering.EntityRenderDispatcherMixin",
     "client.rendering.ItemModelsMixin",

@@ -103,7 +103,10 @@ public class TestMod implements ModInitializer {
                     new EntityAttributeModifier(Identifier.of("test:aaa"), 5, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND).build()), Items.DIAMOND_BLOCK);
     public static SimplePolymerItem ITEM_3 = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(99), Items.CHAINMAIL_CHESTPLATE);
     public static Block BLOCK = new TestBlock(AbstractBlock.Settings.create().luminance((state) -> 15).strength(2f));
+    public static Block BLOCK_USE = new TestUseBlock(AbstractBlock.Settings.create()
+            .luminance((state) -> state.get(TestUseBlock.LIT) ? 15 : 0).strength(2f));
     public static BlockItem BLOCK_ITEM = new PolymerBlockItem(BLOCK, new Item.Settings(), Items.STONE);
+    public static BlockItem BLOCK_USE_ITEM = new PolymerBlockItem(BLOCK_USE, new Item.Settings(), Items.REDSTONE_LAMP);
     public static Block BLOCK_PLAYER = new TestPerPlayerBlock(AbstractBlock.Settings.create().strength(2f));
     public static BlockItem BLOCK_PLAYER_ITEM = new PolymerBlockItem(BLOCK_PLAYER, new Item.Settings(), Items.WHITE_CARPET);
     public static Block BLOCK_CLIENT = new TestClientBlock(AbstractBlock.Settings.create().luminance((state) -> 3).strength(2f));
@@ -277,7 +280,9 @@ public class TestMod implements ModInitializer {
         register(Registries.ITEM, Identifier.of("test", "item2"), ITEM_2);
         register(Registries.ITEM, Identifier.of("test", "item3"), ITEM_3);
         register(Registries.BLOCK, Identifier.of("test", "block"), BLOCK);
+        register(Registries.BLOCK, Identifier.of("test", "block_use"), BLOCK_USE);
         register(Registries.ITEM, Identifier.of("test", "block"), BLOCK_ITEM);
+        register(Registries.ITEM, Identifier.of("test", "block_use"), BLOCK_USE_ITEM);
         register(Registries.BLOCK, Identifier.of("test", "block_client"), BLOCK_CLIENT);
         register(Registries.ITEM, Identifier.of("test", "block_client"), BLOCK_CLIENT_ITEM);
         register(Registries.BLOCK, Identifier.of("test", "block_player"), BLOCK_PLAYER);

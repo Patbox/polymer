@@ -2,8 +2,7 @@ package eu.pb4.polymertest.mixin;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
+import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ConnectedClientData;
@@ -30,6 +29,17 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
 
     public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData clientData) {
         super(server, connection, clientData);
+    }
+
+
+    @Inject(method = "onPlayerInteractItem", at = @At("TAIL"))
+    private void polymtest_itemUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
+        this.player.sendMessage(Text.of("ItemUse: " + " Hand|" + packet.getHand() + " Pitch|" + + packet.getPitch() + " Yaw|" + packet.getYaw() + " Seq|" + packet.getSequence()), false);
+    }
+
+    @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
+    private void polymtest_blockUse(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
+        this.player.sendMessage(Text.of("BlockUse: " + " Hand|" + packet.getHand() + " Pos|" + packet.getBlockHitResult().getBlockPos() + " Seq|" + packet.getSequence()), false);
     }
 
     @Inject(method = "onPlayerInput", at = @At("TAIL"))

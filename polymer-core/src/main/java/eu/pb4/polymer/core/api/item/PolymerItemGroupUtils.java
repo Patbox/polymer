@@ -108,13 +108,14 @@ public final class PolymerItemGroupUtils {
     }
 
     public static void registerPolymerItemGroup(Identifier identifier, ItemGroup group) {
-        if (contains(identifier)) {
-            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered!", identifier);
+        if (Registries.ITEM_GROUP.containsId(identifier)) {
+            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered in vanilla registry!", identifier);
+        } else if (contains(identifier)) {
+            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered under the same id!", identifier);
+        } else if (isPolymerItemGroup(group)) {
+            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered as '{}'! ", identifier, REGISTRY.getId(group));
         } else {
             InternalServerRegistry.ITEM_GROUPS.set(identifier, group);
-        }
-        if (Registries.ITEM_GROUP.containsId(identifier)) {
-            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered as vanilla!", identifier);
         }
     }
 
