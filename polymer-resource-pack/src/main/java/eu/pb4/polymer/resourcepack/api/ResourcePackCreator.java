@@ -20,6 +20,8 @@ import net.minecraft.SharedConstants;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.resource.metadata.PackResourceMetadata;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
@@ -271,14 +273,9 @@ public final class ResourcePackCreator {
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {
-            var obj = new JsonObject();
-
-            var pack = new JsonObject();
-            pack.addProperty("pack_format", SharedConstants.RESOURCE_PACK_VERSION);
-            pack.add("description", TextCodecs.CODEC.encodeStart(JsonOps.INSTANCE, this.packDescription).result().get());
-
-            obj.add("pack", pack);
-            builder.addData("pack.mcmeta", obj.toString().getBytes(StandardCharsets.UTF_8));
+            builder.getPackMcMetaBuilder().metadata(new PackResourceMetadata(this.packDescription, SharedConstants.getGameVersion()
+                    .getResourceVersion(ResourceType.CLIENT_RESOURCES),
+                    Optional.empty()));
         }
 
 

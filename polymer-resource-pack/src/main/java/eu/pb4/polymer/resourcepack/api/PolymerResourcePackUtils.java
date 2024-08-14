@@ -220,21 +220,8 @@ public final class PolymerResourcePackUtils {
 
                     if (Files.exists(zipPath)) {
                         try (var fs = FileSystems.newFileSystem(zipPath)) {
-                            builder.copyFromPath(fs.getPath("assets"), "assets/");
-
                             for (var root : fs.getRootDirectories()) {
-                                try (var str = Files.list(root)) {
-                                    str.forEach(file -> {
-                                        try {
-                                            var name = file.getFileName().toString();
-                                            if (name.toLowerCase(Locale.ROOT).contains("license")
-                                                    || name.toLowerCase(Locale.ROOT).contains("licence")) {
-                                                builder.addData("licenses/"
-                                                        + field.replace("/", "_").replace("\\", "_") + "/" + name, Files.readAllBytes(file));
-                                            }
-                                        } catch (Throwable ignored) {}
-                                    });
-                                }
+                                builder.copyResourcePackFromPath(root, field);
                             }
                         } catch (Throwable e) {
                             e.printStackTrace();

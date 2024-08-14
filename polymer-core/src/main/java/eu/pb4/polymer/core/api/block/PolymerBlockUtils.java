@@ -4,6 +4,10 @@ import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.api.other.PolymerComponent;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
 import eu.pb4.polymer.core.mixin.block.BlockEntityUpdateS2CPacketAccessor;
@@ -12,7 +16,12 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -28,29 +38,23 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public final class PolymerBlockUtils {
-    private static final NbtCompound STATIC_COMPOUND = new NbtCompound();
-
-    private PolymerBlockUtils() {
-    }
-
     public static final int NESTED_DEFAULT_DISTANCE = 32;
-
     public static final Predicate<BlockState> IS_POLYMER_BLOCK_STATE_PREDICATE = state -> state.getBlock() instanceof PolymerBlock;
-
     /**
      * This event allows you to force server side mining for any block/item
      */
     public static final BooleanEvent<MineEventListener> SERVER_SIDE_MINING_CHECK = new BooleanEvent<>();
-
     public static final SimpleEvent<BreakingProgressListener> BREAKING_PROGRESS_UPDATE = new SimpleEvent<>();
-
     /**
      * This event allows you to force syncing of light updates between server and clinet
      */
     public static final BooleanEvent<BiPredicate<ServerWorld, ChunkSectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
+    private static final NbtCompound STATIC_COMPOUND = new NbtCompound();
     private static final Set<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
-
     private static boolean requireStrictBlockUpdates = false;
+
+    private PolymerBlockUtils() {
+    }
 
     /**
      * Marks BlockEntity type as server-side only
@@ -222,6 +226,70 @@ public final class PolymerBlockUtils {
 
     public static BlockState getServerSideBlockState(BlockState state, ServerPlayerEntity player) {
         return PolyMcUtils.toVanilla(getPolymerBlockState(state, player), player);
+    }
+
+    public static NbtCompound transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, NbtCompound original) {
+        if (original.isEmpty()) {
+            return original;
+        }
+        NbtCompound override = null;
+
+        var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
+
+        if (original.contains("Items", NbtElement.LIST_TYPE)) {
+            var list = original.getList("Items", NbtElement.COMPOUND_TYPE);
+            for (int i = 0; i < list.size(); i++) {
+                var nbt = list.getCompound(i);
+                var stack = ItemStack.fromNbtOrEmpty(lookup, nbt);
+                if (PolymerItemUtils.isPolymerServerItem(stack, context)) {
+                    if (override == null) {
+                        override = original.copy();
+                    }
+                    nbt = nbt.copy();
+                    nbt.remove("id");
+                    nbt.remove("components");
+                    nbt.remove("count");
+                    stack = PolymerItemUtils.getPolymerItemStack(stack, context);
+                    override.getList("Items", NbtElement.COMPOUND_TYPE).set(i, stack.isEmpty() ? new NbtCompound() : stack.encode(lookup, nbt));
+                }
+            }
+        }
+
+        if (original.contains("components", NbtElement.COMPOUND_TYPE)) {
+            var ops = lookup.getOps(NbtOps.INSTANCE);
+
+            var comp = ComponentMap.CODEC.decode(ops, original.getCompound("components"));
+            if (comp.isSuccess()) {
+                var map = comp.getOrThrow().getFirst();
+                ComponentMap.Builder builder = null;
+
+                for (var component : map) {
+                    if (component.value() instanceof TransformingComponent transformingComponent && transformingComponent.polymer$requireModification(context)) {
+                        if (builder == null) {
+                            builder = ComponentMap.builder();
+                            builder.addAll(map);
+                        }
+                        //noinspection unchecked
+                        builder.add((ComponentType<? super Object>) component.type(), transformingComponent.polymer$getTransformed(context));
+                    } else if (!PolymerComponent.canSync(component.type(), component.value(), context)) {
+                        if (builder == null) {
+                            builder = ComponentMap.builder();
+                            builder.addAll(map);
+                        }
+                        builder.add(component.type(), null);
+                    }
+                }
+
+                if (builder != null) {
+                    if (override == null) {
+                        override = original.copy();
+                    }
+                    override.put("components", ComponentMap.CODEC.encodeStart(ops, builder.build()).result().orElse(new NbtCompound()));
+                }
+            }
+        }
+
+        return override != null ? override : original;
     }
 
     @FunctionalInterface

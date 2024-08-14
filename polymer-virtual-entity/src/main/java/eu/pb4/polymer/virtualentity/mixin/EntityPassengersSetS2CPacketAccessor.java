@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface EntityPassengersSetS2CPacketAccessor {
     @Mutable
     @Accessor
-    void setId(int id);
+    void setEntityId(int id);
 
     @Mutable
     @Accessor

@@ -47,10 +47,6 @@ public abstract class BaseTestFluid extends FlowableFluid implements PolymerObje
      * Possibly related to the distance checks for flowing into nearby holes?
      * Water returns 4. Lava returns 2 in the Overworld and 4 in the Nether.
      */
-    @Override
-    protected int getFlowSpeed(WorldView worldView) {
-        return 1;
-    }
 
     /**
      * Water returns 1. Lava returns 2 in the Overworld and 1 in the Nether.

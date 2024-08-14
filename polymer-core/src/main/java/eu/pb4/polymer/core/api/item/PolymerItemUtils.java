@@ -13,6 +13,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
@@ -123,6 +124,18 @@ public final class PolymerItemUtils {
     private static final Set<ArmorMaterial> ARMOR_MATERIALS = new ReferenceOpenHashSet<>();
 
     private PolymerItemUtils() {
+    }
+
+    /**
+     * This method creates a client side ItemStack representation
+     *
+     * @param itemStack Server side ItemStack
+     * @param context   Networking context
+     * @return Client side ItemStack
+     */
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, PacketContext context) {
+        return getPolymerItemStack(itemStack, context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP,
+                context.getPlayer());
     }
 
     /**
@@ -282,6 +295,10 @@ public final class PolymerItemUtils {
         return isPolymerServerItem(itemStack, PolymerUtils.getPlayerContext());
     }
 
+    public static boolean isPolymerServerItem(ItemStack itemStack, PacketContext context) {
+        return isPolymerServerItem(itemStack, context.getPlayer());
+    }
+
     public static boolean isPolymerServerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;
@@ -305,7 +322,7 @@ public final class PolymerItemUtils {
         }
 
         if (itemStack.contains(DataComponentTypes.ENCHANTMENTS) && itemStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT).showInTooltip()) {
-            for (var ench : itemStack.get(DataComponentTypes.ENCHANTMENTS).getEnchantments()) {
+            for (var ench : itemStack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT).getEnchantments()) {
                 var attributes = ench.value().getEffect(EnchantmentEffectComponentTypes.ATTRIBUTES);
                 if (attributes != null) {
                     for (var attr : attributes) {

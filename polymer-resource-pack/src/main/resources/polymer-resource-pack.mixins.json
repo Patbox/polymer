@@ -6,6 +6,8 @@
   "plugin": "eu.pb4.polymer.resourcepack.mixin.PolymerResourcePackMixinConfigPlugin",
   "mixins": [
     "LayerAccessor",
+    "accessors.PackOverlaysMetadataAccessor",
+    "accessors.ResourceFilterAccessor",
     "compat.polymc.polymc_ArmorColorManagerMixin",
     "compat.polymc.polymc_FancyPantsItemPolyMixin"
   ],

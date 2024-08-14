@@ -120,7 +120,7 @@ public final class VirtualEntityUtils {
 
     public static EntityPassengersSetS2CPacket createRidePacket(int id, int[] list) {
         var packet = PolymerCommonUtils.createUnsafe(EntityPassengersSetS2CPacket.class);
-        ((EntityPassengersSetS2CPacketAccessor) packet).setId(id);
+        ((EntityPassengersSetS2CPacketAccessor) packet).setEntityId(id);
         ((EntityPassengersSetS2CPacketAccessor) packet).setPassengerIds(list);
         return packet;
     }

@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 
 public abstract class TestFluid extends BaseTestFluid {
     @Override
@@ -22,6 +23,11 @@ public abstract class TestFluid extends BaseTestFluid {
     @Override
     public Item getBucketItem() {
         return TestMod.FLUID_BUCKET;
+    }
+
+    @Override
+    protected int getMaxFlowDistance(WorldView world) {
+        return 8;
     }
 
     @Override

@@ -6,10 +6,13 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.common.impl.FakeWorld;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.PolymerArmorModel;
 import eu.pb4.polymer.resourcepack.api.PolymerModelData;
 import eu.pb4.polymer.resourcepack.impl.ArmorTextureMetadata;
+import eu.pb4.polymer.resourcepack.impl.metadata.PackMcMeta;
+import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.SharedConstants;
@@ -50,16 +53,17 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
+    private final Map<String, JsonObject> objectMergeDefinitions = new HashMap<>();
     private final List<Path> rootPaths = new ArrayList<>();
     private final List<BiFunction<String, byte[], @Nullable byte[]>> converters = new ArrayList<>();
     private boolean hasVanilla;
+    private final PackMcMeta.Builder packMetadata = new PackMcMeta.Builder();
 
     public DefaultRPBuilder(Path outputPath) {
         try {
             Files.createDirectories(outputPath.getParent());
         } catch (Throwable e) {
-            CommonImpl.LOGGER.warn("Couldn't create " + outputPath.getParent() + " directory!");
-            e.printStackTrace();
+            CommonImpl.LOGGER.warn("Couldn't create " + outputPath.getParent() + " directory!", e);
         }
         this.outputPath = outputPath;
 
@@ -68,8 +72,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 Files.deleteIfExists(outputPath);
             }
         } catch (Exception e) {
-            CommonImpl.LOGGER.warn("Couldn't remove " + outputPath + " file!");
-            e.printStackTrace();
+            CommonImpl.LOGGER.warn("Couldn't remove " + outputPath + " file!", e);
         }
 
     }
@@ -82,20 +85,64 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     public boolean addData(String path, byte[] data) {
         try {
             if (path.endsWith(".json")) {
+                if (path.equals("pack.mcmeta")) {
+                    return this.addPackMcMeta(path, data, (x) -> {});
+                }
+
                 var split = path.split("/");
 
                 if (split.length > 3 && split[0].equals("assets") && split[2].equals("atlases")) {
                     return this.addAtlasFile(path, data);
+                } else if (split.length > 3 && split[0].equals("assets") && split[2].equals("lang")) {
+                    return this.addMergedObjectFile(path, data);
                 }
             }
 
             this.fileMap.put(path, data);
             return true;
         } catch (Exception e) {
-            CommonImpl.LOGGER.error("Something went wrong while adding raw data to path: " + path);
-            e.printStackTrace();
+            CommonImpl.LOGGER.error("Something went wrong while adding raw data to path: " + path, e);
             return false;
         }
+    }
+
+    private boolean addPackMcMeta(String path, byte[] data, Consumer<String> overlayConsumer) {
+        try {
+            var pack = PackMcMeta.fromString(new String(data, StandardCharsets.UTF_8));
+            this.addPackMcMeta(pack, overlayConsumer);
+            return true;
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.warn("Failed to load '{}'", path, e);
+        }
+
+
+        return false;
+    }
+
+    private void addPackMcMeta(PackMcMeta pack, Consumer<String> overlayConsumer) {
+        pack.filter().ifPresent(x -> ((ResourceFilterAccessor) x).getBlocks().forEach(this.packMetadata::addFilter));
+        pack.overlays().ifPresent(x -> x.overlays().forEach((o) -> {
+            overlayConsumer.accept(o.overlay());
+            this.packMetadata.addOverlay(o);
+        }));
+        pack.language().ifPresent(x -> x.definitions().forEach(this.packMetadata::addLanguage));
+    }
+
+    private boolean addMergedObjectFile(String path, byte[] data) {
+        try {
+            var decode = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
+
+            if (decode instanceof JsonObject obj) {
+                var out = this.objectMergeDefinitions.computeIfAbsent(path, (x) -> new JsonObject());
+                for (var key : obj.keySet()) {
+                    out.add(key, obj.get(key));
+                }
+                return true;
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private boolean addAtlasFile(String path, byte[] data) {
@@ -112,7 +159,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         }
         return false;
     }
-
     @Override
     public boolean copyFromPath(Path basePath, String targetPrefix, boolean override) {
         try {
@@ -130,7 +176,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             try {
                                 this.addData(path, Files.readAllBytes(file));
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                CommonImpl.LOGGER.warn("Failed to load '{}'", path, e);
                             }
 
                         }
@@ -172,28 +218,38 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     } catch (Throwable e) {
                         CommonImpl.LOGGER.warn("Failed while copying the license!", e);
                     }
+                    var baseToCopy = new ArrayList<String>();
+                    baseToCopy.add("assets");
+                    try {
+                        var packFile = rootPaths.resolve("pack.mcmeta");
+                        if (Files.exists(packFile)) {
+                            var pack = PackMcMeta.fromString(Files.readString(packFile));
+                            this.addPackMcMeta(pack, baseToCopy::add);
+                        }
+                    } catch (Throwable ignored) {}
 
-                    Path assets = rootPaths.resolve("assets");
-                    if (Files.exists(assets)) {
-                        try (var str = Files.walk(assets)) {
-                            str.forEach((file) -> {
-                                var relative = assets.relativize(file);
-                                var path = relative.toString().replace("\\", "/");
-                                if (Files.isRegularFile(file)) {
-                                    try {
-                                        this.addData("assets/" + path, Files.readAllBytes(file));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                    for (var x : baseToCopy) {
+                        Path assets = rootPaths.resolve(x);
+                        if (Files.exists(assets)) {
+                            try (var str = Files.walk(assets)) {
+                                str.forEach((file) -> {
+                                    var relative = assets.relativize(file);
+                                    var path = relative.toString().replace("\\", "/");
+                                    if (Files.isRegularFile(file)) {
+                                        try {
+                                            this.addData(x + "/" + path, Files.readAllBytes(file));
+                                        } catch (IOException e) {
+                                            CommonImpl.LOGGER.warn("Failed to load '{}'", assets + "/" + path, e);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                     }
                 }
                 return true;
             } catch (Exception e) {
-                CommonImpl.LOGGER.error("Something went wrong while copying assets of mod: " + modId);
-                e.printStackTrace();
+                CommonImpl.LOGGER.error("Something went wrong while copying assets of mod: " + modId, e);
                 return false;
             }
         }
@@ -236,8 +292,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
             return true;
         } catch (Exception e) {
-            CommonImpl.LOGGER.error(String.format("Something went wrong while adding custom model data (%s) of %s for model %s", cmdInfo.value(), Registries.ITEM.getId(cmdInfo.item()), cmdInfo.modelPath().toString()));
-            e.printStackTrace();
+            CommonImpl.LOGGER.error(String.format("Something went wrong while adding custom model data (%s) of %s for model %s", cmdInfo.value(),
+                    Registries.ITEM.getId(cmdInfo.item()), cmdInfo.modelPath().toString()), e);
             return false;
         }
     }
@@ -421,8 +477,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                         this.fileMap.put(baseModelPath, modelObject.toString().getBytes(StandardCharsets.UTF_8));
                     } catch (Exception e) {
-                        CommonImpl.LOGGER.error("Something went wrong while saving model of " + id);
-                        e.printStackTrace();
+                        CommonImpl.LOGGER.error("Something went wrong while saving model of " + id, e);
                         bool = false;
                     }
                 }
@@ -431,6 +486,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var obj = new JsonObject();
                     obj.add("sources", entry.getValue());
                     this.fileMap.put(entry.getKey(), obj.toString().getBytes(StandardCharsets.UTF_8));
+                }
+
+                for (var entry : this.objectMergeDefinitions.entrySet()) {
+                    this.fileMap.put(entry.getKey(), entry.getValue().toString().getBytes(StandardCharsets.UTF_8));
                 }
 
                 if (!this.armors.isEmpty()) {
@@ -494,8 +553,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             }
                             list.add(new ArmorData(entry.modelPath(), entry.color(), images, metadata));
                         } catch (Throwable e) {
-                            CommonImpl.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!");
-                            e.printStackTrace();
+                            CommonImpl.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!", e);
                         }
                     }
                     list.sort(Comparator.comparing(e -> -e.color()));
@@ -598,8 +656,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             }
                         }
                     } catch (Throwable e) {
-                        CommonImpl.LOGGER.error("Error occurred when creating armor texture!");
-                        e.printStackTrace();
+                        CommonImpl.LOGGER.error("Error occurred when creating armor texture!", e);
                     }
 
                     for (String string : new String[]{"fsh", "json", "vsh"}) {
@@ -608,9 +665,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 }
 
-                if (!this.fileMap.containsKey(AssetPaths.PACK_METADATA)) {
-                    this.fileMap.put(AssetPaths.PACK_METADATA, ("{\n" + "   \"pack\":{\n" + "      \"pack_format\":" + SharedConstants.RESOURCE_PACK_VERSION + ",\n" + "      \"description\":\"Server resource pack\"\n" + "   }\n" + "}\n").getBytes(StandardCharsets.UTF_8));
-                }
+                this.fileMap.put(AssetPaths.PACK_METADATA, this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8));
 
 
                 if (!this.fileMap.containsKey(AssetPaths.PACK_ICON)) {
@@ -633,6 +688,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 return false;
             }
         });
+    }
+
+    @Override
+    public PackMcMeta.Builder getPackMcMetaBuilder() {
+        return this.packMetadata;
     }
 
     private boolean writeSingleZip() {
@@ -676,7 +736,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 outputStream.closeEntry();
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            CommonImpl.LOGGER.warn("Failed to write the zip file!", e);
             return false;
         }
         return true;

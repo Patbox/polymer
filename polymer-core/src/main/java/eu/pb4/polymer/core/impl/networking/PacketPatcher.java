@@ -29,7 +29,7 @@ public class PacketPatcher {
 
     public static Packet<?> replace(ServerCommonNetworkHandler handler, Packet<?> packet) {
         if (handler.getClass() == ServerPlayNetworkHandler.class) {
-            if (packet instanceof EntityEquipmentUpdateS2CPacket original && EntityAttachedPacket.get(original, original.getId()) instanceof PolymerEntity polymerEntity) {
+            if (packet instanceof EntityEquipmentUpdateS2CPacket original && EntityAttachedPacket.get(original, original.getEntityId()) instanceof PolymerEntity polymerEntity) {
                 return EntityAttachedPacket.setIfEmpty(
                         new EntityEquipmentUpdateS2CPacket(((Entity) polymerEntity).getId(), polymerEntity.getPolymerVisibleEquipment(original.getEquipmentList(), ((ServerPlayNetworkHandler) handler).getPlayer())),
                         (Entity) polymerEntity
