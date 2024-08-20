@@ -1,12 +1,8 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "#": {
-      "item": "minecraft:stick"
-    },
-    "X": {
-      "item": "test:pickaxe"
-    }
+    "#": "minecraft:stick",
+    "X": "test:pickaxe"
   },
   "pattern": [
     "XXX",

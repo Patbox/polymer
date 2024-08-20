@@ -9,6 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryInfo;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.entry.RegistryEntryOwner;
+import net.minecraft.registry.tag.TagGroupLoader;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
@@ -150,28 +151,8 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
     }
 
     @Override
-    public RegistryEntryList.Named<T> getOrCreateEntryList(TagKey<T> tag) {
-        return RegistryEntryList.of(this, tag);
-    }
-
-    @Override
-    public Stream<Pair<TagKey<T>, RegistryEntryList.Named<T>>> streamTagsAndEntries() {
-        return Stream.empty();
-    }
-
-    @Override
-    public Stream<TagKey<T>> streamTags() {
-        return Stream.empty();
-    }
-
-    @Override
-    public void clearTags() {
-
-    }
-
-    @Override
-    public void populateTags(Map<TagKey<T>, List<RegistryEntry<T>>> tagEntries) {
-
+    public Stream<RegistryEntryList.Named<T>> streamTags() {
+        return null;
     }
 
     @Override
@@ -212,6 +193,11 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
                 return Optional.empty();
             }
         };
+    }
+
+    @Override
+    public PendingTagLoad<T> startTagReload(TagGroupLoader.RegistryTags<T> tags) {
+        return null;
     }
 
     @NotNull

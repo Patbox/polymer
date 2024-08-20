@@ -15,6 +15,7 @@ import net.minecraft.registry.entry.RegistryEntryInfo;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,8 +30,7 @@ import java.util.Map;
 
 @Mixin(SimpleRegistry.class)
 public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Registry<T> {
-    @Shadow private volatile Map<TagKey<T>, RegistryEntryList.Named<T>> tagToEntryList;
-
+    @Shadow @Final private Map<TagKey<T>, RegistryEntryList.Named<T>> tags;
     @Nullable
     @Unique
     private List<T> polymer$objects = null;
@@ -61,6 +61,6 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
 
     @Override
     public Map<TagKey<T>, RegistryEntryList.Named<T>> polymer$getTagsInternal() {
-        return this.tagToEntryList;
+        return this.tags;
     }
 }

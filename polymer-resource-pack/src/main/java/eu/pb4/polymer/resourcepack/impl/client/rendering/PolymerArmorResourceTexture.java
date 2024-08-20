@@ -110,13 +110,13 @@ public class PolymerArmorResourceTexture extends ResourceTexture implements Text
 
             for (int x = 0; x < this.width; x++) {
                 for (int y = 0; y < this.height; y++) {
-                    int base = this.baseTexture.getColor(x, y + this.index * this.height);
-                    int next = this.baseTexture.getColor(x, y + this.nextIndex * this.height);
+                    int base = this.baseTexture.getColorArgb(x, y + this.index * this.height);
+                    int next = this.baseTexture.getColorArgb(x, y + this.nextIndex * this.height);
 
                     int r = this.lerp(delta, next >> 16 & 0xFF, base >> 16 & 0xFF);
                     int g = this.lerp(delta, next >> 8 & 0xFF, base >> 8 & 0xFF);
                     int b = this.lerp(delta, next & 0xFF, base & 0xFF);
-                    this.altTexture.setColor(x, y, base & 0xFF000000 | r << 16 | g << 8 | b);
+                    this.altTexture.setColorArgb(x, y, base & 0xFF000000 | r << 16 | g << 8 | b);
                 }
             }
 

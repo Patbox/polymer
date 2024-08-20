@@ -25,7 +25,7 @@ public abstract class EntityAttributeMixin {
     private static Codec<RegistryEntry<EntityAttribute>> patchCodec(Codec<RegistryEntry<EntityAttribute>> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThreadWithContext() && PolymerEntityUtils.isPolymerEntityAttribute(content)) {
-                return EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS;
+                return EntityAttributes.SPAWN_REINFORCEMENTS;
             }
             return content;
         });

@@ -9,6 +9,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Interface used for creation of server-side recipes
  */
@@ -43,7 +45,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createBlastingRecipe(Recipe<?> input) {
-        return new BlastingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getResult(null), 0, 0);
+        return new BlastingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.ofItems(), input.getResult(null), 0, 0);
     }
 
     /**
@@ -63,7 +65,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createCampfireCookingRecipe(Recipe<?> input) {
-        return new CampfireCookingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getResult(null), 0, 0);
+        return new CampfireCookingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.ofItems(), input.getResult(null), 0, 0);
     }
 
     /**
@@ -73,7 +75,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmeltingRecipe(Recipe<?> input) {
-        return new SmeltingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getResult(null), 0, 0);
+        return new SmeltingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.ofItems(), input.getResult(null), 0, 0);
     }
 
     /**
@@ -83,7 +85,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmithingRecipe(Recipe<?> input) {
-        return new SmithingTransformRecipe(Ingredient.EMPTY, Ingredient.EMPTY, Ingredient.EMPTY, input.getResult(null));
+        return new SmithingTransformRecipe(Optional.empty(), Optional.empty(), Optional.empty(), input.getResult(null));
     }
 
     /**
@@ -93,7 +95,7 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createSmokingRecipe(Recipe<?> input) {
-        return new SmokingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.EMPTY, input.getResult(null), 0, 0);
+        return new SmokingRecipe("impossible", CookingRecipeCategory.MISC, Ingredient.ofItems(), input.getResult(null), 0, 0);
     }
 
     /**
@@ -103,6 +105,6 @@ public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
      * @return the Vanilla recipe
      */
     static Recipe<?> createStonecuttingRecipe(Recipe<?> input) {
-        return new StonecuttingRecipe("impossible", Ingredient.EMPTY, input.getResult(null));
+        return new StonecuttingRecipe("impossible", Ingredient.ofItems(), input.getResult(null));
     }
 }

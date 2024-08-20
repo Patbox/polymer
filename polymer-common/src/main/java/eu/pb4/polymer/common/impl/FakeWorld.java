@@ -11,11 +11,14 @@ import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageScaling;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.item.FuelRegistry;
 import net.minecraft.item.map.MapState;
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.registry.*;
@@ -53,6 +56,7 @@ import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.QueryableTickScheduler;
 import net.minecraft.world.tick.TickManager;
@@ -104,6 +108,7 @@ public final class FakeWorld extends World implements LightSourceView {
     };
     static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
     private static final FeatureSet FEATURES = FeatureFlags.FEATURE_MANAGER.getFeatureSet();
+    private static final FuelRegistry FUEL_REGISTRY = new FuelRegistry.Builder(FALLBACK_REGISTRY_MANAGER, FeatureSet.empty()).build();
     final ChunkManager chunkManager = new ChunkManager() {
         private LightingProvider lightingProvider = null;
 
@@ -295,6 +300,11 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
     @Override
+    public void createExplosion(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, ExplosionSourceType explosionSourceType, ParticleEffect particle, ParticleEffect emitterParticle, RegistryEntry<SoundEvent> soundEvent) {
+
+    }
+
+    @Override
     public String asString() {
         return "FakeWorld!";
     }
@@ -380,6 +390,12 @@ public final class FakeWorld extends World implements LightSourceView {
         return null;
     }
 
+
+    @Override
+    public FuelRegistry getFuelRegistry() {
+        return FUEL_REGISTRY;
+    }
+
     @Override
     public FeatureSet getEnabledFeatures() {
         return FEATURES;
@@ -398,6 +414,11 @@ public final class FakeWorld extends World implements LightSourceView {
     @Override
     public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
         return null;//BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
+    }
+
+    @Override
+    public int getSeaLevel() {
+        return 0;
     }
 
     @Override
@@ -454,7 +475,7 @@ public final class FakeWorld extends World implements LightSourceView {
 
         @Override
         public GameRules getGameRules() {
-            return new GameRules();
+            return new GameRules(FeatureSet.empty());
         }
 
         @Override

@@ -203,6 +203,11 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
     }
 
     @Override
+    public void onBundleItemSelected(BundleItemSelectedC2SPacket packet) {
+
+    }
+
+    @Override
     public void onRecipeCategoryOptions(RecipeCategoryOptionsC2SPacket packet) {
 
     }
@@ -309,6 +314,11 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
 
     @Override
     public void onDebugSampleSubscription(DebugSampleSubscriptionC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onClientTickEnd(ClientTickEndC2SPacket packet) {
 
     }
 

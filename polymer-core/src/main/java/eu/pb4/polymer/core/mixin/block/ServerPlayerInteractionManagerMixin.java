@@ -138,7 +138,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Unique
     private void polymer$sendMiningFatigue() {
         this.polymer$hasMiningFatigue = true;
-        var x = new EntityAttributeInstance(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED, (a) -> {});
+        var x = new EntityAttributeInstance(EntityAttributes.BLOCK_BREAK_SPEED, (a) -> {});
         x.setBaseValue(-9999);
         this.player.networkHandler.sendPacket(new EntityAttributesS2CPacket(this.player.getId(), List.of(x)));
     }
@@ -146,10 +146,10 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Unique
     private void polymer$clearMiningEffect() {
         this.polymer$hasMiningFatigue = false;
-        var x = new EntityAttributeInstance(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED, (a) -> {});
+        var x = new EntityAttributeInstance(EntityAttributes.BLOCK_BREAK_SPEED, (a) -> {});
         x.setBaseValue(-9999);
         this.player.networkHandler.sendPacket(new EntityAttributesS2CPacket(this.player.getId(),
-                List.of(Objects.requireNonNull(this.player.getAttributeInstance(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED)))));
+                List.of(Objects.requireNonNull(this.player.getAttributeInstance(EntityAttributes.BLOCK_BREAK_SPEED)))));
 
     }
 

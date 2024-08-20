@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -115,10 +116,10 @@ public class InternalEntityHelpers {
             }
 
             try {
-                entity = type.create(FakeWorld.INSTANCE_UNSAFE);
+                entity = type.create(FakeWorld.INSTANCE_UNSAFE, SpawnReason.LOAD);
             } catch (Throwable e) {
                 try {
-                    entity = type.create(FakeWorld.INSTANCE_REGULAR);
+                    entity = type.create(FakeWorld.INSTANCE_REGULAR, SpawnReason.LOAD);
                 } catch (Throwable e2) {
                     var id = Registries.ENTITY_TYPE.getId(type);
                     if (CommonImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {

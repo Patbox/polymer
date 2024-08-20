@@ -7,10 +7,7 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.mixin.LivingEntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityTrackerEntryAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -47,11 +44,11 @@ public class EntityElement<T extends Entity> extends AbstractElement {
     }
 
     public EntityElement(EntityType<T> entityType, ServerWorld world) {
-        this(entityType.create(world), world);
+        this(entityType.create(world, SpawnReason.LOAD), world);
     }
 
     public EntityElement(EntityType<T> entityType, ServerWorld world, InteractionHandler handler) {
-        this(entityType.create(world), world);
+        this(entityType.create(world, SpawnReason.LOAD), world);
     }
 
     public T entity() {

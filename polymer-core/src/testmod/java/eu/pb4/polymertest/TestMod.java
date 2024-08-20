@@ -120,8 +120,8 @@ public class TestMod implements ModInitializer {
     public static TinyPotatoBlock TATER_BLOCK = new TinyPotatoBlock(AbstractBlock.Settings.create().strength(10f));
     public static BlockItem TATER_BLOCK_ITEM = new PolymerHeadBlockItem(TATER_BLOCK, new Item.Settings().maxCount(99));
     public static BlockItem TATER_BLOCK_ITEM2 = new PolymerBlockItem(TATER_BLOCK, new Item.Settings(), Items.RAW_IRON_BLOCK);
-    public static TestPickaxeItem PICKAXE = new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterials.NETHERITE, 10, -3.9f, new Item.Settings());
-    public static TestPickaxeItem PICKAXE2 = new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterials.WOOD, 10, -5f, new Item.Settings());
+    public static TestPickaxeItem PICKAXE = new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterial.NETHERITE, 10, -3.9f, new Item.Settings());
+    public static TestPickaxeItem PICKAXE2 = new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterial.WOOD, 10, -5f, new Item.Settings());
     public static TestHelmetItem HELMET = new TestHelmetItem(new Item.Settings());
     public static Block WRAPPED_BLOCK = new SimplePolymerBlock(AbstractBlock.Settings.copy(BLOCK), BLOCK);
     public static Block SELF_REFERENCE_BLOCK = new SelfReferenceBlock(AbstractBlock.Settings.copy(Blocks.STONE));
@@ -151,7 +151,7 @@ public class TestMod implements ModInitializer {
     public static Item FACE_PUNCHER = new SimplePolymerItem(new Item.Settings().fireproof().maxCount(1), Items.STONE_SWORD) {
 
         @Override
-        public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        public ActionResult use(World world, PlayerEntity user, Hand hand) {
             if (user instanceof ServerPlayerEntity serverPlayer) {
                 var stack = user.getStackInHand(hand);
                 var x = /*stack.hasNbt() && stack.getNbt().contains("value", NbtElement.NUMBER_TYPE) ? stack.getNbt().getFloat("value") :*/ Math.random() * 360;
@@ -204,8 +204,8 @@ public class TestMod implements ModInitializer {
         //player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(player.getId(), tracker.getChangedEntries()));
 
         var attributes = player.getAttributes().getAttributesToSend();
-        var tmp = new EntityAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED, (x) -> {});
-        tmp.setBaseValue(player.getAttributeBaseValue(EntityAttributes.GENERIC_MOVEMENT_SPEED));
+        var tmp = new EntityAttributeInstance(EntityAttributes.MOVEMENT_SPEED, (x) -> {});
+        tmp.setBaseValue(player.getAttributeBaseValue(EntityAttributes.MOVEMENT_SPEED));
         tmp.addPersistentModifier(new EntityAttributeModifier(Identifier.of("test", "test"), 0.05d, EntityAttributeModifier.Operation.ADD_VALUE));
         attributes.add(tmp);
 
@@ -237,7 +237,7 @@ public class TestMod implements ModInitializer {
             // Red Blue Green Alpha
             // Blue Alpha Green Red
 
-            DebugInfoSender.addGameTestMarker((ServerWorld) player.getWorld(), player.getBlockPos(), player.getStackInHand(hand).getCount() > 1 ? "Test: " + Math.random() : "",
+            /*DebugInfoSender.addGameTestMarker((ServerWorld) player.getWorld(), player.getBlockPos(), player.getStackInHand(hand).getCount() > 1 ? "Test: " + Math.random() : "",
                     ColorHelper.Argb.getArgb(0xFF, 0, 0, 0),
                     Integer.MAX_VALUE);
 
@@ -247,7 +247,7 @@ public class TestMod implements ModInitializer {
 
             DebugInfoSender.addGameTestMarker((ServerWorld) player.getWorld(), player.getBlockPos().up(2), player.getStackInHand(hand).getCount() > 1 ? "Test: " + Math.random() : "",
                     ColorHelper.Argb.getArgb( 0xFF, 0xFF, 0xFF, 0x22),
-                    Integer.MAX_VALUE);
+                    Integer.MAX_VALUE);*/
         }
     });
     public static Block ANIMATED_BLOCK = new AnimatedBlock(AbstractBlock.Settings.create().luminance((state) -> 15).strength(2f));
@@ -361,7 +361,7 @@ public class TestMod implements ModInitializer {
         register(Registries.POTION, Identifier.of("test", "long_potion_2"), LONG_POTION_2);
 
         register(Registries.ENTITY_TYPE, Identifier.of("test", "entity"), ENTITY);
-        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes().add(EntityAttributes.GENERIC_LUCK));
+        FabricDefaultAttributeRegistry.register(ENTITY, TestEntity.createCreeperAttributes().add(EntityAttributes.LUCK));
 
         register(Registries.ENTITY_TYPE, Identifier.of("test", "entity2"), ENTITY_2);
         FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());

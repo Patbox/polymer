@@ -30,7 +30,7 @@ public class TestArmor extends ArmorItem implements PolymerItem {
         this.itemDefault = getItemFor(slot, false);
         this.itemModel = PolymerResourcePackUtils.requestModel(getItemFor(slot, true), model);
         this.armorModel = PolymerResourcePackUtils.requestArmor(armor);
-        this.modifiers = super.getAttributeModifiers().with(EntityAttributes.GENERIC_GRAVITY, new EntityAttributeModifier(Identifier.of("aaaaaa"), 0.8, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), AttributeModifierSlot.forEquipmentSlot(slot));
+        this.modifiers = super.getAttributeModifiers().with(EntityAttributes.GRAVITY, new EntityAttributeModifier(Identifier.of("aaaaaa"), 0.8, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), AttributeModifierSlot.forEquipmentSlot(slot));
     }
 
     @Override

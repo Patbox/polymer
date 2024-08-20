@@ -193,7 +193,8 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
                     false,
                     true,
                     Optional.empty(),
-                    0
+                    0,
+                    63
             ), this.getServer().shouldEnforceSecureProfile()));
         }
     }
@@ -370,6 +371,11 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     }
 
     @Override
+    public void onBundleItemSelected(BundleItemSelectedC2SPacket packet) {
+
+    }
+
+    @Override
     public void onRecipeCategoryOptions(RecipeCategoryOptionsC2SPacket packet) {
 
     }
@@ -479,6 +485,10 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
 
     }
 
+    @Override
+    public void onClientTickEnd(ClientTickEndC2SPacket packet) {
+
+    }
     @Override
     public void onDisconnected(DisconnectionInfo info) {
         this.context.storedPackets().clear();

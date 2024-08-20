@@ -109,11 +109,11 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
         protected void onAttachmentSet(HolderAttachment attachment, @Nullable HolderAttachment oldAttachment) {
             if (attachment instanceof ChunkAttachment chunkAttachment) {
                 var pos = BlockPos.ofFloored(attachment.getPos());
-                this.centralElement.setGlowColorOverride(ColorHelper.Abgr.toAbgr(chunkAttachment.getChunk().getBiomeForNoiseGen(
+                this.centralElement.setGlowColorOverride(chunkAttachment.getChunk().getBiomeForNoiseGen(
                         BiomeCoords.fromBlock(pos.getX()),
                         BiomeCoords.fromBlock(pos.getY()),
                         BiomeCoords.fromBlock(pos.getZ())
-                ).value().getWaterColor()));
+                ).value().getWaterColor());
             }
         }
 

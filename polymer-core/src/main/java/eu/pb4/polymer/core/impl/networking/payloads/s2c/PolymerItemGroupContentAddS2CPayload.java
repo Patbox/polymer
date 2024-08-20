@@ -54,8 +54,8 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Item
     public void write(ContextByteBuf buf) {
         buf.writeIdentifier(this.groupId);
 
-        ItemStack.LIST_PACKET_CODEC.encode(buf, this.stacksMain);
-        ItemStack.LIST_PACKET_CODEC.encode(buf, this.stacksSearch);
+        ItemStack.OPTIONAL_LIST_PACKET_CODEC.encode(buf, this.stacksMain);
+        ItemStack.OPTIONAL_LIST_PACKET_CODEC.encode(buf, this.stacksSearch);
     }
 
     public boolean isNonEmpty() {
@@ -64,8 +64,8 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Item
 
     public static PolymerItemGroupContentAddS2CPayload read(ContextByteBuf buf) {
         return new PolymerItemGroupContentAddS2CPayload(buf.readIdentifier(),
-                ItemStack.LIST_PACKET_CODEC.decode(buf),
-                ItemStack.LIST_PACKET_CODEC.decode(buf)
+                ItemStack.OPTIONAL_LIST_PACKET_CODEC.decode(buf),
+                ItemStack.OPTIONAL_LIST_PACKET_CODEC.decode(buf)
         );
     }
 

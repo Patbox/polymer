@@ -12,8 +12,5 @@ import java.util.Map;
 @Environment(EnvType.CLIENT)
 @Mixin(ArmorFeatureRenderer.class)
 public interface ArmorFeatureRendererAccessor{
-    @Accessor
-    static Map<String, Identifier> getARMOR_TEXTURE_CACHE() {
-        throw new UnsupportedOperationException();
-    }
+
 }

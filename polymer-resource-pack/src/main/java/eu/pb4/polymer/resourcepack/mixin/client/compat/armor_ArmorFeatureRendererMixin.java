@@ -24,7 +24,7 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ArmorFeatureRenderer.class)
-public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> {
+public class armor_ArmorFeatureRendererMixin<T extends LivingEntity, M, A> {
     @WrapOperation(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ArmorMaterial;layers()Ljava/util/List;"))
     private List<ArmorMaterial.Layer> polymer$changeArmorTexture(ArmorMaterial instance, Operation<List<ArmorMaterial.Layer>> original, @Local ItemStack stack) {
         if (PolymerResourcePackMod.hasArmorTextures && instance == ArmorMaterials.LEATHER.value()) {

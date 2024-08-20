@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$16", priority = 500)
+@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$17", priority = 500)
 public abstract class PacketCodecsRegistryMixin {
-
-    @Shadow @Final private RegistryKey field_48575;
+    @SuppressWarnings({"rawtypes", "ShadowModifiers"})
+    @Shadow @Final private RegistryKey field_53746;
 
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Ljava/lang/Object;)V", at = @At("HEAD"), argsOnly = true)
     private Object polymer$changeData(Object val, RegistryByteBuf buf) {
@@ -35,7 +35,7 @@ public abstract class PacketCodecsRegistryMixin {
 
                     if (obj != null) {
                         //noinspection unchecked
-                        return buf.getRegistryManager().get(this.field_48575).getEntry(obj);
+                        return buf.getRegistryManager().get(this.field_53746).getEntry(obj);
                     }
                 }
             }

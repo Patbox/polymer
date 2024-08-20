@@ -214,6 +214,7 @@ public final class PolymerBlockUtils {
         requireStrictBlockUpdates = true;
     }
 
+    @Deprecated
     public static boolean isStrictBlockUpdateRequired() {
         return requireStrictBlockUpdates;
     }
