@@ -18,11 +18,9 @@ import qouteall.imm_ptl.core.chunk_loading.PlayerChunkLoading;
 public class ip_PlayerChunkLoadingMixin {
     @Inject(method = "sendChunkPacket", at = @At("HEAD"), require = 0)
     private static void polymer_setPlayerNow(ServerPlayNetworkHandler serverGamePacketListenerImpl, ServerWorld serverLevel, WorldChunk levelChunk, CallbackInfo ci) {
-        CommonImplUtils.setPlayer(serverGamePacketListenerImpl.getPlayer());
     }
 
     @Inject(method = "sendChunkPacket", at = @At("TAIL"), require = 0)
     private static void polymer_resetPlayer(ServerPlayNetworkHandler serverGamePacketListenerImpl, ServerWorld serverLevel, WorldChunk levelChunk, CallbackInfo ci) {
-        CommonImplUtils.setPlayer(null);
     }
 }

@@ -51,8 +51,6 @@ public final class PolymerBlockUtils {
     public static final BooleanEvent<BiPredicate<ServerWorld, ChunkSectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
     private static final NbtCompound STATIC_COMPOUND = new NbtCompound();
     private static final Set<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
-    private static boolean requireStrictBlockUpdates = false;
-
     private PolymerBlockUtils() {
     }
 
@@ -207,16 +205,6 @@ public final class PolymerBlockUtils {
 
     public static BlockEntityUpdateS2CPacket createBlockEntityPacket(BlockPos pos, BlockEntityType<?> type, @Nullable NbtCompound nbtCompound) {
         return BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos.toImmutable(), type, nbtCompound != null ? nbtCompound : STATIC_COMPOUND);
-    }
-
-    @ApiStatus.Experimental
-    public static void requireStrictBlockUpdates() {
-        requireStrictBlockUpdates = true;
-    }
-
-    @Deprecated
-    public static boolean isStrictBlockUpdateRequired() {
-        return requireStrictBlockUpdates;
     }
 
     public static boolean shouldMineServerSide(ServerPlayerEntity player, BlockPos pos, BlockState state) {

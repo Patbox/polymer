@@ -120,13 +120,10 @@ public final class PolymerCommonUtils {
     }
 
     public static void executeWithNetworkingLogic(PacketListener listener, Runnable runnable) {
-        var oldPlayer = CommonImplUtils.getPlayer();
-        CommonImplUtils.setPlayer(null);
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(LogicOverride.TRUE);
         PacketContext.runWithContext(listener, runnable);
         FORCE_NETWORKING.set(val);
-        CommonImplUtils.setPlayer(oldPlayer);
     }
 
     public static void executeWithoutNetworkingLogic(Runnable runnable) {
@@ -155,13 +152,7 @@ public final class PolymerCommonUtils {
 
     @Nullable
     public static ServerPlayerEntity getPlayerContextNoClient() {
-        ServerPlayerEntity player = PacketContext.get().getPlayer();
-
-        if (player == null) {
-            player = CommonImplUtils.getPlayer();
-        }
-
-        return player;
+        return PacketContext.get().getPlayer();
     }
 
     public static boolean isNetworkingThread() {

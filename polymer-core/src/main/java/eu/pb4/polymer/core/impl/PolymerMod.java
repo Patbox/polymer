@@ -35,10 +35,6 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 		}));
 
 		PolyMcUtils.register();
-
-		if (PolymerImpl.FORCE_STRICT_UPDATES) {
-			PolymerBlockUtils.requireStrictBlockUpdates();
-		}
 	}
 	@Override
 	public void onInitializeClient() {

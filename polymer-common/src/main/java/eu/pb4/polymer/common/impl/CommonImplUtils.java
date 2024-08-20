@@ -22,8 +22,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class CommonImplUtils {
-    private static final ThreadLocal<ServerPlayerEntity> playerTargetHack = new ThreadLocal<>();
-
     public static final Hash.Strategy<Object> IDENTITY_HASH = new Hash.Strategy<Object>() {
         @Override
         public int hashCode(Object o) {
@@ -35,16 +33,6 @@ public class CommonImplUtils {
             return a == b;
         }
     };
-
-    @Nullable
-    public static ServerPlayerEntity getPlayer() {
-        return playerTargetHack.get();
-    }
-
-    public static void setPlayer(ServerPlayerEntity player) {
-        playerTargetHack.set(player);
-    }
-
     public static final Text[] ICON;
     public static boolean disableResourcePackCheck;
 

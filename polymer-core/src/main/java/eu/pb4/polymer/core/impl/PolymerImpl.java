@@ -25,7 +25,6 @@ public final class PolymerImpl {
     public static final boolean USE_FULL_REI_COMPAT_CLIENT = true;
     public static final boolean LOG_MORE_ERRORS;
     public static final int LIGHT_UPDATE_TICK_DELAY;
-    public static final boolean FORCE_STRICT_UPDATES;
     public static final boolean ITEMSTACK_NBT_HACK;
 
     public static final boolean OVERRIDE_POLYMC_MINING;
@@ -40,7 +39,6 @@ public final class PolymerImpl {
         LOG_MORE_ERRORS = CommonImpl.LOG_MORE_ERRORS;
         SYNC_MODDED_ENTRIES_POLYMC = serverConfig.polyMcSyncModdedEntries && CompatStatus.POLYMC;
         LIGHT_UPDATE_TICK_DELAY = serverConfig.lightUpdateTickDelay;
-        FORCE_STRICT_UPDATES = serverConfig.forceStrictUpdates;
         ITEMSTACK_NBT_HACK = serverConfig.itemStackNbtHack;
         OVERRIDE_POLYMC_MINING = serverConfig.overridePolyMcMining;
 
