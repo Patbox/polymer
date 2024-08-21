@@ -44,6 +44,7 @@ import static eu.pb4.polymer.resourcepack.api.AssetPaths.armorTexture;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
+    public static final boolean ENABLE_FANCY_PANTS = false;
     public static final Gson GSON = CommonImpl.GSON;
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
     private final Map<Item, JsonArray[]> customModels = new HashMap<>();
@@ -492,7 +493,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     this.fileMap.put(entry.getKey(), entry.getValue().toString().getBytes(StandardCharsets.UTF_8));
                 }
 
-                if (!this.armors.isEmpty()) {
+                if (!this.armors.isEmpty() && ENABLE_FANCY_PANTS) {
                     credits.add("Armor texture support is based on https://github.com/Ancientkingg/fancyPants");
                     credits.add("");
 
@@ -662,7 +663,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     for (String string : new String[]{"fsh", "json", "vsh"}) {
                         this.fileMap.put("assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string, Files.readString(getSelfPath("base-armor/rendertype_armor_cutout_no_cull." + string)).replace("${polymer_texture_resolution}", "" + (16 * globalScale)).getBytes(StandardCharsets.UTF_8));
                     }
-
                 }
 
                 this.fileMap.put(AssetPaths.PACK_METADATA, this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8));

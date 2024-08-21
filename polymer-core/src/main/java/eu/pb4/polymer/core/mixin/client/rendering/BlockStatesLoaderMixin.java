@@ -21,7 +21,9 @@ import java.util.Map;
 public class BlockStatesLoaderMixin {
     @Shadow @Final private BlockStatesLoader.BlockModel missingModel;
 
-    @Inject(method = "loadBlockStates", at = @At(value = "INVOKE",
+
+    // Todo fix this, needs relocation
+    /*@Inject(method = "loadBlockStates", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/resource/ResourceFinder;toResourcePath(Lnet/minecraft/util/Identifier;)Lnet/minecraft/util/Identifier;", ordinal = 0))
     private void setDefaultModelsForPolymer(Identifier id, StateManager<Block, BlockState> stateManager, CallbackInfo ci,
                                             @Local(ordinal = 1) Map<BlockState, BlockStatesLoader.BlockModel> modelMap) {
@@ -31,4 +33,5 @@ public class BlockStatesLoaderMixin {
             }
         }
     }
+     */
 }

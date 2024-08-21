@@ -19,6 +19,7 @@ import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import net.minecraft.class_10130;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
@@ -34,6 +35,7 @@ import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.packet.s2c.play.CooldownUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.RegistryWrapper;
@@ -109,6 +111,10 @@ public final class PolymerItemUtils {
             DataComponentTypes.CUSTOM_NAME,
             DataComponentTypes.JUKEBOX_PLAYABLE,
             DataComponentTypes.CONTAINER,
+            DataComponentTypes.ENCHANTABLE,
+            DataComponentTypes.USE_COOLDOWN,
+            DataComponentTypes.CONSUMABLE,
+            DataComponentTypes.REPAIRABLE
     };
     @SuppressWarnings("rawtypes")
     private static final List<HideableTooltip> HIDEABLE_TOOLTIPS = List.of(
@@ -464,6 +470,10 @@ public final class PolymerItemUtils {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
 
+        if (!itemStack.contains(DataComponentTypes.USE_COOLDOWN)) {
+            out.set(DataComponentTypes.USE_COOLDOWN, new class_10130(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
+        }
+
 
         if (cmd == -1 && itemStack.contains(DataComponentTypes.CUSTOM_MODEL_DATA)) {
             out.set(DataComponentTypes.CUSTOM_MODEL_DATA, itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA));
@@ -489,6 +499,7 @@ public final class PolymerItemUtils {
         }
 
         out.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, itemStack.hasGlint());
+
 
         try {
             var tooltip = itemStack.getTooltip(player != null ? Item.TooltipContext.create(player.getWorld()) : Item.TooltipContext.DEFAULT, player, tooltipContext);

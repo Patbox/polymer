@@ -57,7 +57,6 @@ public final class BlockResourceCreator {
 
     private void registerEvent() {
         if (!this.registered) {
-            PolymerBlockUtils.requireStrictBlockUpdates();
             creator.creationEvent.register((b) -> {
                 if (b instanceof DefaultRPBuilder defaultRPBuilder) {
                     defaultRPBuilder.buildEvent.register((c) -> this.generateResources(defaultRPBuilder, c));

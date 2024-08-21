@@ -22,6 +22,8 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.class_10124;
+import net.minecraft.class_10132;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.FoodComponent;
@@ -273,8 +275,9 @@ public class TestMod implements ModInitializer {
         Registry.register(Registries.STATUS_EFFECT, Identifier.of("test", "effect"), STATUS_EFFECT);
         register(Registries.STATUS_EFFECT, Identifier.of("test", "effect2"), STATUS_EFFECT_2);
 
-        TEST_FOOD = new SimplePolymerItem(new Item.Settings().food(new FoodComponent.Builder().nutrition(10).saturationModifier(20)
-                .alwaysEdible().statusEffect(new StatusEffectInstance(Registries.STATUS_EFFECT.getEntry(Identifier.of("test", "effect")).get(), 20), 1).build()), Items.POISONOUS_POTATO);
+        TEST_FOOD = new SimplePolymerItem(new Item.Settings().method_62833(new FoodComponent.Builder().nutrition(10).saturationModifier(20)
+                .alwaysEdible().build(),  class_10124.method_62850().method_62854(new class_10132(
+                new StatusEffectInstance(Registries.STATUS_EFFECT.getEntry(Identifier.of("test", "effect")).get(), 20), 1)).method_62851()), Items.POISONOUS_POTATO);
         register(Registries.ITEM, Identifier.of("test", "emerald"), new SimplePolymerItem(new Item.Settings(), Items.EMERALD));
         register(Registries.ITEM, Identifier.of("test", "item"), ITEM);
         register(Registries.ITEM, Identifier.of("test", "item2"), ITEM_2);
