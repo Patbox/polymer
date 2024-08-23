@@ -204,6 +204,17 @@ public final class PolymerResourcePackUtils {
 
     static {
         INSTANCE.creationEvent.register((builder) -> {
+            if (!PolymerResourcePackImpl.PREVENTED_PATHS.isEmpty()) {
+                builder.addWriteConverter((path, data) -> {
+                    for (var test : PolymerResourcePackImpl.PREVENTED_PATHS) {
+                        if (path.startsWith(test)) {
+                            return null;
+                        }
+                    }
+                    return data;
+                });
+            }
+
             Path path = CommonImpl.getGameDir().resolve("polymer/source_assets");
             if (Files.isDirectory(path)) {
                 builder.copyFromPath(path);

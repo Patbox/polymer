@@ -1,10 +1,10 @@
 package eu.pb4.polymer.core.mixin.entity;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
-import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
+import eu.pb4.polymer.core.api.other.PlayerBoundConsumer;
 import eu.pb4.polymer.core.impl.interfaces.EntityTrackerUpdateS2CPacketExt;
-import eu.pb4.polymer.core.impl.interfaces.MetaConsumer;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
@@ -41,13 +41,9 @@ public abstract class EntityTrackerEntryMixin {
 
     @Shadow @Nullable private List<DataTracker.SerializedEntry<?>> changedEntries;
 
-    @ModifyVariable(method = "sendPackets", at = @At("HEAD"))
-    private Consumer<Packet<?>> polymer$packetWrap(Consumer<Packet<?>> packetConsumer) {
-        if (this.entity instanceof PolymerEntity polymerEntity) {
-            return (packet) -> polymerEntity.onEntityPacketSent(packetConsumer, EntityAttachedPacket.setIfEmpty(packet, this.entity));
-        } else {
-            return (packet) -> packetConsumer.accept(EntityAttachedPacket.setIfEmpty(packet, this.entity));
-        }
+    @ModifyVariable(method = "sendPackets", at = @At("HEAD"), argsOnly = true)
+    private Consumer<Packet<?>> polymer$packetWrap(Consumer<Packet<?>> packetConsumer, @Local(argsOnly = true) ServerPlayerEntity player) {
+        return PlayerBoundConsumer.createPacketFor(Set.of(player.networkHandler), this.entity, packetConsumer);
     }
 
     @ModifyArg(method = "sendPackets", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V", ordinal = 1))
@@ -76,15 +72,15 @@ public abstract class EntityTrackerEntryMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void polymer$tickHead(CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {
-            polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet((Set<PlayerAssociatedNetworkHandler>) receiver.getAttached()));
+        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
+            polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
         }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof MetaConsumer receiver) {
-            polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet((Set<PlayerAssociatedNetworkHandler>) receiver.getAttached()));
+        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
+            polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
         }
     }
 

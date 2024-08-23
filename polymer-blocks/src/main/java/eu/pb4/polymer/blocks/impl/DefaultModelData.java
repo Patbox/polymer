@@ -2,6 +2,7 @@ package eu.pb4.polymer.blocks.impl;
 
 import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
+import eu.pb4.polymer.core.impl.PolymerImpl;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.SlabType;
@@ -125,6 +126,15 @@ public class DefaultModelData {
             addSlabs(SlabType.BOTTOM, false, BlockModelType.BOTTOM_SLAB);
             addSlabs(SlabType.BOTTOM, true, BlockModelType.BOTTOM_SLAB_WATERLOGGED);
         }
+
+
+        if (true) {
+            PolymerImpl.LOGGER.info("===== Available States =====");
+            for (var model : BlockModelType.values()) {
+                PolymerImpl.LOGGER.info("{}: {}", model.name(), USABLE_STATES.get(model).size());
+
+            }
+        }
     }
 
     private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
@@ -146,59 +156,68 @@ public class DefaultModelData {
     }
 
     private static void addDisarmedTripwire(boolean attached, BlockModelType modelType) {
-        var tripwire_normal = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ns"), 0, 0)};
+        var tripwire_normal = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ns"), 0, 0)};
 
-        var tripwire_west = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 270)};
-        var tripwire_south = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 180)};
-        var tripwire_east = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 90)};
-        var tripwire_north = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 0)};
+        var tripwire_west = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 270)};
+        var tripwire_south = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 180)};
+        var tripwire_east = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 90)};
+        var tripwire_north = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 0)};
 
-        var tripwire_sw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 180)};
-        var tripwire_nw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 270)};
-        var tripwire_ew = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ns"), 0, 90)};
-        var tripwire_es = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 90)};
-        var tripwire_en = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 0)};
-        var tripwire_nsw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 180)};
-        var tripwire_esw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 90)};
-        var tripwire_enw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 270)};
-        var tripwire_ens = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 0)};
-
-        var tripwire_all = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nsew"), 0, 0)};
-
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.WEST, true), tripwire_west);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.SOUTH, true), tripwire_south);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true), tripwire_east);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true), tripwire_north);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_sw);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_nw);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_ew);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true), tripwire_es);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_nsw);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_esw);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_normal);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_all);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_enw);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_ens);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.EAST, true), tripwire_en);
-        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true), tripwire_normal);
+        var tripwire_sw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 180)};
+        var tripwire_nw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 270)};
+        var tripwire_ew = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ns"), 0, 90)};
+        var tripwire_es = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 90)};
+        var tripwire_en = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 0)};
+        var tripwire_nsw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 180)};
+        var tripwire_esw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 90)};
+        var tripwire_enw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 270)};
+        var tripwire_ens = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 0)};
+        var tripwire_all = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nsew"), 0, 0)};
 
         ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+        {
+            var base = Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.POWERED, false).with(TripwireBlock.DISARMED, true);
 
-        // generate all permutations of north, south, east, west
-        var booleans = new boolean[]{true, false};
-        for (boolean north : booleans) {
-            for (boolean south : booleans) {
-                for (boolean east : booleans) {
-                    for (boolean west : booleans) {
-                        BlockState state = Blocks.TRIPWIRE.getDefaultState()
-                                .with(TripwireBlock.ATTACHED, attached)
-                                .with(TripwireBlock.DISARMED, true)
-                                .with(TripwireBlock.NORTH, north)
-                                .with(TripwireBlock.SOUTH, south)
-                                .with(TripwireBlock.EAST, east)
-                                .with(TripwireBlock.WEST, west);
-                        list.add(state);
-                        DefaultModelData.SPECIAL_REMAPS.put(state, state.with(TripwireBlock.DISARMED, false));
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.WEST, true), tripwire_west);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.SOUTH, true), tripwire_south);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true), tripwire_east);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true), tripwire_north);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_sw);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_nw);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_ew);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true), tripwire_es);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_nsw);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_esw);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_normal);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_all);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_enw);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_ens);
+            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.EAST, true), tripwire_en);
+            DefaultModelData.MODELS.put(base, tripwire_normal);
+        }
+
+
+        // generate all permutations of north, south, east, west, powered
+
+        {
+            var base = Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.DISARMED, true);
+            var booleans = new boolean[]{true, false};
+            for (boolean north : booleans) {
+                for (boolean south : booleans) {
+                    for (boolean east : booleans) {
+                        for (boolean west : booleans) {
+                            for (boolean powered : booleans) {
+                                BlockState state = base
+                                        .with(TripwireBlock.ATTACHED, attached)
+                                        .with(TripwireBlock.NORTH, north)
+                                        .with(TripwireBlock.SOUTH, south)
+                                        .with(TripwireBlock.EAST, east)
+                                        .with(TripwireBlock.WEST, west)
+                                        .with(TripwireBlock.POWERED, powered);
+                                list.add(state);
+                                DefaultModelData.SPECIAL_REMAPS.put(state, state.with(TripwireBlock.DISARMED, false).with(TripwireBlock.POWERED, false));
+                            }
+                        }
                     }
                 }
             }
