@@ -2,7 +2,9 @@ package eu.pb4.polymer.blocks.impl;
 
 import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.*;
+import net.minecraft.block.enums.SlabType;
 import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
@@ -113,6 +115,96 @@ public class DefaultModelData {
 
             USABLE_STATES.put(BlockModelType.PLANT_BLOCK, plant);
         }
+
+        {
+            addDisarmedTripwire(false, BlockModelType.TRIPWIRE_BLOCK);
+            addDisarmedTripwire(true, BlockModelType.TRIPWIRE_BLOCK_FLAT);
+
+            addSlabs(SlabType.TOP, false, BlockModelType.TOP_SLAB);
+            addSlabs(SlabType.TOP, true, BlockModelType.TOP_SLAB_WATERLOGGED);
+            addSlabs(SlabType.BOTTOM, false, BlockModelType.BOTTOM_SLAB);
+            addSlabs(SlabType.BOTTOM, true, BlockModelType.BOTTOM_SLAB_WATERLOGGED);
+        }
+    }
+
+    private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
+        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+
+        addSlab(slabType, waterlogged, Blocks.OAK_SLAB, Blocks.PETRIFIED_OAK_SLAB, list);
+        addSlab(slabType, waterlogged, Blocks.CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER_SLAB, list);
+        addSlab(slabType, waterlogged, Blocks.EXPOSED_CUT_COPPER_SLAB, Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, list);
+        addSlab(slabType, waterlogged, Blocks.WEATHERED_CUT_COPPER_SLAB, Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, list);
+        addSlab(slabType, waterlogged, Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, list);
+
+        DefaultModelData.USABLE_STATES.put(modelType, list);
+    }
+
+    private static void addSlab(SlabType slabType, boolean waterlogged, Block to, Block from, ObjectArrayList<BlockState> list) {
+        BlockState state = from.getDefaultState().with(SlabBlock.WATERLOGGED, waterlogged).with(SlabBlock.TYPE, slabType);
+        list.add(state);
+        DefaultModelData.SPECIAL_REMAPS.put(state, to.getDefaultState().with(SlabBlock.WATERLOGGED, waterlogged).with(SlabBlock.TYPE, slabType));
+    }
+
+    private static void addDisarmedTripwire(boolean attached, BlockModelType modelType) {
+        var tripwire_normal = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ns"), 0, 0)};
+
+        var tripwire_west = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 270)};
+        var tripwire_south = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 180)};
+        var tripwire_east = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 90)};
+        var tripwire_north = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_n"), 0, 0)};
+
+        var tripwire_sw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 180)};
+        var tripwire_nw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 270)};
+        var tripwire_ew = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ns"), 0, 90)};
+        var tripwire_es = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 90)};
+        var tripwire_en = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_ne"), 0, 0)};
+        var tripwire_nsw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 180)};
+        var tripwire_esw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 90)};
+        var tripwire_enw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 270)};
+        var tripwire_ens = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nse"), 0, 0)};
+
+        var tripwire_all = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire"+(attached?"_attached":"")+"_nsew"), 0, 0)};
+
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.WEST, true), tripwire_west);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.SOUTH, true), tripwire_south);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true), tripwire_east);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true), tripwire_north);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_sw);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_nw);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_ew);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true), tripwire_es);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_nsw);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_esw);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_normal);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_all);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_enw);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_ens);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.EAST, true), tripwire_en);
+        DefaultModelData.MODELS.put(Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.DISARMED, true), tripwire_normal);
+
+        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+
+        // generate all permutations of north, south, east, west
+        var booleans = new boolean[]{true, false};
+        for (boolean north : booleans) {
+            for (boolean south : booleans) {
+                for (boolean east : booleans) {
+                    for (boolean west : booleans) {
+                        BlockState state = Blocks.TRIPWIRE.getDefaultState()
+                                .with(TripwireBlock.ATTACHED, attached)
+                                .with(TripwireBlock.DISARMED, true)
+                                .with(TripwireBlock.NORTH, north)
+                                .with(TripwireBlock.SOUTH, south)
+                                .with(TripwireBlock.EAST, east)
+                                .with(TripwireBlock.WEST, west);
+                        list.add(state);
+                        DefaultModelData.SPECIAL_REMAPS.put(state, state.with(TripwireBlock.DISARMED, false));
+                    }
+                }
+            }
+        }
+
+        DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
     private static void generateDefault(BlockModelType type, Block... blocks) {
