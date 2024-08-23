@@ -128,7 +128,7 @@ public class DefaultModelData {
         }
 
 
-        if (true) {
+        if (false && PolymerImpl.DEV_ENV) {
             PolymerImpl.LOGGER.info("===== Available States =====");
             for (var model : BlockModelType.values()) {
                 PolymerImpl.LOGGER.info("{}: {}", model.name(), USABLE_STATES.get(model).size());
