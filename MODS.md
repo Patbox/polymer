@@ -8,6 +8,7 @@ A list of server-side Fabric or Quilt mods using Polymer, ordered alphabetically
 
 ### Links:
 - GitHub: https://github.com/Flemmli97/AdvancedGolems
+- Modrinth: https://modrinth.com/mod/advanced-golems
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/advanced-golems-fabric
 
 
@@ -208,6 +209,7 @@ Get your Hang Glider and glide away from the dangers! *Glide Away* adds hanglide
 ### Links:
 - GitHub: https://github.com/Patbox/GlideAway
 - Modrinth: https://modrinth.com/mod/glide-away
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/glide-away
 
 
 ## Grappling Hook (1.18.1)
@@ -308,6 +310,7 @@ Keep the `doFireTick` gamerule enabled without worrying about random fire destro
 ### Links:
 - GitHub: https://github.com/JongWasTaken/moretools/
 - Modrinth: https://modrinth.com/mod/more-tools
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/more-tools-polymer
 
 
 ## Nox (1.19.2)
@@ -325,6 +328,7 @@ and a present threat.
 ### Links:
 - GitHub: https://github.com/qxeii/nox-renoxed
 - Modrinth: https://modrinth.com/mod/nox-renoxed
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/nox-renoxed
 
 
 ## Nylon (1.21.1 / latest)
@@ -625,6 +629,7 @@ It also checks against Common Protection API to make sure players have access to
 ### Links:
 - GitHub: https://github.com/Zekiu/WlodzimiersBlocks
 - Modrinth: https://modrinth.com/mod/wlodzimiers-blocks
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/wlodzimiers-blocks
 
 
 #### Is your mod missing? Feel free to create an issue or pull request!
