@@ -132,7 +132,7 @@ introducing support for some new features while adding new content.
 - Modrinth: https://modrinth.com/mod/dusty
 
 
-  ## Eldritch Mobs (1.21.1 / latest)
+## Eldritch Mobs (1.21.1 / latest)
 *Eldritch Mobs* is a port of [AtomicStryker's Infernal Mobs](https://www.curseforge.com/minecraft/mc-mods/atomicstrykers-infernal-mobs).
 This mod randomly imbues mobs in your world with powerful abilities that make them more challenging to fight.
 
