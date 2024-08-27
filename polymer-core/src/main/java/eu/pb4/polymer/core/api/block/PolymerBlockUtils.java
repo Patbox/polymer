@@ -255,6 +255,17 @@ public final class PolymerBlockUtils {
             }
         }
 
+        if (original.contains("item", NbtElement.COMPOUND_TYPE)) {
+            var stack = ItemStack.fromNbtOrEmpty(lookup, original.getCompound("item"));
+            if (PolymerItemUtils.isPolymerServerItem(stack, context)) {
+                if (override == null) {
+                    override = original.copy();
+                }
+                stack = PolymerItemUtils.getPolymerItemStack(stack, context);
+                override.put("item", stack.encodeAllowEmpty(lookup));
+            }
+        }
+
         if (original.contains("components", NbtElement.COMPOUND_TYPE)) {
             var ops = lookup.getOps(NbtOps.INSTANCE);
 

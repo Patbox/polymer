@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.api.utils;
 
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Used to mark client-synchronized polymer objects like BlockEntities, Enchantments, Recipes, etc
@@ -28,7 +29,7 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
      * Allows to mark it to still send it to supported clients (for client optional setups)
      * Currently used for tags
      */
-    default boolean canSyncRawToClient(ServerPlayerEntity player) {
+    default boolean canSyncRawToClient(@Nullable ServerPlayerEntity player) {
         return false;
     }
 

@@ -11,6 +11,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.metadata.CustomValue;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.HoverEvent;
@@ -45,6 +47,19 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
 		CommonImplUtils.registerCommands((x) -> x.then(literal("generate-pack")
 				.requires(CommonImplUtils.permission("command.generate", 3))
 				.executes(PolymerResourcePackMod::generateResources)));
+
+        for (var mod : FabricLoader.getInstance().getAllMods()) {
+            var include = mod.getMetadata().getCustomValue("polymer:resource_pack_include");
+            var require = mod.getMetadata().getCustomValue("polymer:resource_pack_require");
+
+            if (include != null && include.getType() == CustomValue.CvType.BOOLEAN && include.getAsBoolean()) {
+                PolymerResourcePackUtils.addModAssets(mod.getMetadata().getId());
+            }
+
+            if (require != null && require.getType() == CustomValue.CvType.BOOLEAN && require.getAsBoolean()) {
+                PolymerResourcePackUtils.markAsRequired();
+            }
+        }
 	}
 
 	@Override
