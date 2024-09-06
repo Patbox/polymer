@@ -148,7 +148,10 @@ public final class PolymerUtils {
             PolymerImplUtils.IS_RELOADING_WORLD.remove();
         });
     }
-
+    /**
+     * @deprecated Use {@link PolymerComponent#registerDataComponent(ComponentType[])} instead
+     */
+    @Deprecated
     public static void markAsPolymer(ComponentType<?>... types) {
         PolymerItemUtils.markAsPolymer(types);
     }
@@ -157,7 +160,7 @@ public final class PolymerUtils {
      * Resends inventory to player
      */
     public static void reloadInventory(ServerPlayerEntity player) {
-        player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
+        player.currentScreenHandler.syncState();
     }
 
     /**

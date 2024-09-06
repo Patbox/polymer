@@ -46,23 +46,25 @@ public abstract class PistonBlockEntityMixin extends BlockEntity implements Pist
         }
     }
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;removeBlockEntity(Lnet/minecraft/util/math/BlockPos;)V"))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;postProcessState(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
     private static void updatePos(World world, BlockPos pos, BlockState state, PistonBlockEntity blockEntity, CallbackInfo ci) {
         var att = ((PistonBlockEntityMixin) (Object) blockEntity).attachment;
 
         if (att != null) {
             att.update(1);
             BlockBoundAttachment.fromMoving(att.holder(), (ServerWorld) world, pos, blockEntity.getPushedBlock());
+            ((PistonBlockEntityMixin) (Object) blockEntity).attachment = null;
         }
     }
 
-    @Inject(method = "finish", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;removeBlockEntity(Lnet/minecraft/util/math/BlockPos;)V"))
+    @Inject(method = "finish", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;postProcessState(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
     private void updatePos(CallbackInfo ci) {
         var att = this.attachment;
 
         if (att != null) {
             att.update(1);
             BlockBoundAttachment.fromMoving(att.holder(), (ServerWorld) this.world, pos, this.getPushedBlock());
+            this.attachment = null;
         }
     }
 }

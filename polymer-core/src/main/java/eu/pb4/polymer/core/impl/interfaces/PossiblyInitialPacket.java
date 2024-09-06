@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.interfaces;
 
-public interface EntityTrackerUpdateS2CPacketExt {
+public interface PossiblyInitialPacket {
     boolean polymer$getInitial();
     void polymer$setInitial();
 }

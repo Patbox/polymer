@@ -6,6 +6,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
+import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket;
 import eu.pb4.polymer.core.impl.networking.TransformingPacketCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,27 +22,45 @@ import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Mixin(EntityAttributesS2CPacket.class)
-public abstract class EntityAttributesS2CPacketMixin {
+public abstract class EntityAttributesS2CPacketMixin implements PossiblyInitialPacket {
+    @Unique
+    private boolean isInitial = false;
+
+    @Override
+    public boolean polymer$getInitial() {
+        return this.isInitial;
+    }
+
+    @Override
+    public void polymer$setInitial() {
+        this.isInitial = true;
+    }
+
     @SuppressWarnings("UnreachableCode")
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;tuple(Lnet/minecraft/network/codec/PacketCodec;Ljava/util/function/Function;Lnet/minecraft/network/codec/PacketCodec;Ljava/util/function/Function;Ljava/util/function/BiFunction;)Lnet/minecraft/network/codec/PacketCodec;"))
     private static PacketCodec<RegistryByteBuf, EntityAttributesS2CPacket> patchCodec(PacketCodec<RegistryByteBuf, EntityAttributesS2CPacket> original) {
         return TransformingPacketCodec.encodeOnly(original, (buf, packet) -> {
             if (EntityAttachedPacket.get(packet, packet.getEntityId()) instanceof PolymerEntity entity) {
-                var type = entity.getPolymerEntityType(PolymerUtils.getPlayerContext());
+                var context = PacketContext.get();
+                var type = entity.getPolymerEntityType(context.getPlayer());
                 var p = new EntityAttributesS2CPacket(packet.getEntityId(), List.of());
                 var list = ((EntityAttributesS2CPacketAccessor) p).getEntries();
                 var vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) type);
-                for (var entry : packet.getEntries()) {
+                var data = new ArrayList<>(packet.getEntries());
+                entity.modifyRawEntityAttributeData(data, context, ((PossiblyInitialPacket) packet).polymer$getInitial());
+                for (var entry : data) {
                     if (vanillaContainer.has(entry.attribute()) && !PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
                         list.add(entry);
                     }

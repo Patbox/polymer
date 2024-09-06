@@ -7,10 +7,13 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
 import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
+import xyz.nucleoid.packettweaker.PacketContext;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -49,6 +52,11 @@ public interface PolymerEntity extends PolymerObject {
     default void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
 
     }
+
+    default void modifyRawEntityAttributeData(List<EntityAttributesS2CPacket.Entry> data, PacketContext context, boolean initial) {
+
+    }
+
 
     default void onEntityPacketSent(Consumer<Packet<?>> consumer, Packet<?> packet) {
         consumer.accept(packet);

@@ -48,6 +48,7 @@ public class PistonBlockMixin {
         var val = attachment.get();
         if (val != null && blockEntity != null) {
             ((PistonExt) blockEntity).polymer$setAttachement(val);
+            attachment.set(null);
         }
         return blockEntity;
     }

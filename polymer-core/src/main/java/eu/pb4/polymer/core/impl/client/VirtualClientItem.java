@@ -4,6 +4,7 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.client.ClientPolymerItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
@@ -35,6 +36,11 @@ public class VirtualClientItem extends Item {
     }
 
     @Override
+    public ItemStack getDefaultStack() {
+        return this.polymerItem.visualStack().copy();
+    }
+
+    @Override
     public Text getName() {
         return this.polymerItem.visualStack().getName();
     }
@@ -46,6 +52,21 @@ public class VirtualClientItem extends Item {
 
     public ClientPolymerItem getPolymerEntry() {
         return this.polymerItem;
+    }
+
+    @Override
+    public ComponentMap getComponents() {
+        return this.polymerItem.visualStack().getComponents();
+    }
+
+    @Override
+    protected String getOrCreateTranslationKey() {
+        return "";
+    }
+
+    @Override
+    public int getMaxCount() {
+        return this.polymerItem.visualStack().getMaxCount();
     }
 
     @Override

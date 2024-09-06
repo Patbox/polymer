@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.other.PlayerBoundConsumer;
-import eu.pb4.polymer.core.impl.interfaces.EntityTrackerUpdateS2CPacketExt;
+import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
@@ -16,7 +16,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
-import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -48,7 +47,13 @@ public abstract class EntityTrackerEntryMixin {
 
     @ModifyArg(method = "sendPackets", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V", ordinal = 1))
     private Object polymer$markAsInitial(Object obj) {
-        ((EntityTrackerUpdateS2CPacketExt) obj).polymer$setInitial();
+        ((PossiblyInitialPacket) obj).polymer$setInitial();
+        return obj;
+    }
+
+    @ModifyArg(method = "sendPackets", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V", ordinal = 2))
+    private Object polymer$markAsInitial2(Object obj) {
+        ((PossiblyInitialPacket) obj).polymer$setInitial();
         return obj;
     }
 
@@ -89,7 +94,7 @@ public abstract class EntityTrackerEntryMixin {
         if (this.entity instanceof PolymerEntity polymerEntity) {
             if (polymerEntity.sendEmptyTrackerUpdates(player) && this.changedEntries == null) {
                 var x = new EntityTrackerUpdateS2CPacket(this.entity.getId(), List.of());
-                ((EntityTrackerUpdateS2CPacketExt) (Object) x).polymer$setInitial();
+                ((PossiblyInitialPacket) (Object) x).polymer$setInitial();
                 sender.accept(x);
             }
 
