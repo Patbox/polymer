@@ -6,16 +6,13 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.FakeWorld;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
-import eu.pb4.polymer.resourcepack.api.PolymerArmorModel;
 import eu.pb4.polymer.resourcepack.api.PolymerModelData;
 import eu.pb4.polymer.resourcepack.impl.ArmorTextureMetadata;
 import eu.pb4.polymer.resourcepack.impl.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -44,12 +41,10 @@ import static eu.pb4.polymer.resourcepack.api.AssetPaths.armorTexture;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
-    public static final boolean ENABLE_FANCY_PANTS = false;
     public static final Gson GSON = CommonImpl.GSON;
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
     private final Map<Item, JsonArray[]> customModels = new HashMap<>();
     private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
-    private final List<PolymerArmorModel> armors = new ArrayList<>();
     private final Path outputPath;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<Identifier, List<PolymerModelData>> customModelData = new HashMap<>();
@@ -315,11 +310,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
-    public boolean addArmorModel(PolymerArmorModel armorModel) {
-        return this.armors.add(armorModel);
-    }
-
-    @Override
     public byte[] getData(String path) {
         return this.fileMap.get(path);
     }
@@ -491,178 +481,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 for (var entry : this.objectMergeDefinitions.entrySet()) {
                     this.fileMap.put(entry.getKey(), entry.getValue().toString().getBytes(StandardCharsets.UTF_8));
-                }
-
-                if (!this.armors.isEmpty() && ENABLE_FANCY_PANTS) {
-                    credits.add("Armor texture support is based on https://github.com/Ancientkingg/fancyPants");
-                    credits.add("");
-
-                    var list = new ArrayList<ArmorData>();
-
-                    int globalScale = 1;
-
-                    var armorDataMap = new HashMap<Integer, String>();
-
-                    for (var entry : this.armors) {
-                        armorDataMap.put(entry.color(), CommonImplUtils.shortId(entry.modelPath()));
-                        try {
-                            var images = new BufferedImage[2];
-                            var metadata = new ArmorTextureMetadata[2];
-
-                            for (int i = 0; i <= 1; i++) {
-                                BufferedImage bi = null;
-
-                                {
-                                    var path = "assets/" + entry.modelPath().getNamespace() + "/textures/models/armor/" + entry.modelPath().getPath() + "_layer_" + (i + 1) + ".png";
-                                    var data = this.fileMap.get(path);
-
-                                    if (data == null) {
-                                        try {
-                                            InputStream stream = this.getSourceStream(path);
-                                            if (stream != null) {
-                                                bi = ImageIO.read(stream);
-                                            }
-                                        } catch (Exception e) {
-                                            // silence!
-                                        }
-                                    } else {
-                                        bi = ImageIO.read(new ByteArrayInputStream(data));
-                                    }
-
-                                    images[i] = bi;
-                                }
-                                {
-                                    var path = AssetPaths.armorTexturePolymerMetadata(entry.modelPath(), i + 1);
-                                    var data = this.fileMap.get(path);
-
-                                    if (data != null) {
-                                        int finalI = i;
-                                        ArmorTextureMetadata.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(new String(data))).result().ifPresentOrElse((r) -> metadata[finalI] = r.getFirst(), () -> metadata[finalI] = ArmorTextureMetadata.DEFAULT);
-                                    } else {
-                                        metadata[i] = ArmorTextureMetadata.DEFAULT;
-                                    }
-                                    var scaleTest1 = (double) globalScale / metadata[i].scale();
-                                    if (scaleTest1 != Math.floor(scaleTest1)) {
-                                        var scaleTest2 = (double) metadata[i].scale() / globalScale;
-                                        if (scaleTest2 != Math.floor(scaleTest2)) {
-                                            globalScale *= metadata[i].scale();
-                                        } else {
-                                            globalScale = metadata[i].scale();
-                                        }
-                                    }
-                                }
-                            }
-                            list.add(new ArmorData(entry.modelPath(), entry.color(), images, metadata));
-                        } catch (Throwable e) {
-                            CommonImpl.LOGGER.error("Error occurred when creating " + entry.modelPath() + " armor texture!", e);
-                        }
-                    }
-                    list.sort(Comparator.comparing(e -> -e.color()));
-
-                    this.fileMap.put("assets/polymer/armors.json", GSON.toJson(armorDataMap).getBytes(StandardCharsets.UTF_8));
-                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 1), this.getSourceData(armorTexture(Identifier.of("leather"), 1)));
-                    this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 1), this.getSourceData(armorOverlayTexture(vId("leather"), 1)));
-                    this.fileMap.put(armorTexture(vId("vanilla_leather"), 2), this.getSourceData(armorTexture(Identifier.of("leather"), 2)));
-                    this.fileMap.put(armorOverlayTexture(vId("vanilla_leather"), 2), this.getSourceData(armorOverlayTexture(vId("leather"), 2)));
-                    int[] width = new int[]{64 * globalScale, 64 * globalScale};
-                    int[] height = new int[]{32 * globalScale, 32 * globalScale};
-
-                    for (var entry : new ArrayList<>(list)) {
-                        for (int i = 0; i <= 1; i++) {
-                            var image = entry.images()[i];
-                            var metadata = entry.metadata()[i];
-
-                            if (image != null) {
-                                var scale = globalScale / metadata.scale();
-                                var newHeight = image.getHeight() * scale;
-                                var newWidth = image.getWidth() * scale;
-
-                                var check = (double) newWidth / (64 * globalScale);
-                                if (check != Math.floor(check)) {
-                                    CommonImpl.LOGGER.warn("Invalid texture size for armor " + entry.identifier() + " (" + i + ")! Skipping...");
-                                    list.remove(entry);
-                                    continue;
-                                }
-
-                                height[i] = Math.max(height[i], newHeight);
-                                width[i] += newWidth;
-                            }
-
-                        }
-                    }
-
-                    var image = new BufferedImage[]{new BufferedImage(width[0], height[0], BufferedImage.TYPE_INT_ARGB), new BufferedImage(width[1], height[1], BufferedImage.TYPE_INT_ARGB)};
-
-                    int[] cWidth = new int[]{64 * globalScale, 64 * globalScale};
-
-                    var graphics = new Graphics[]{image[0].getGraphics(), image[1].getGraphics()};
-
-                    try {
-                        for (int i = 0; i <= 1; i++) {
-                            {
-                                //noinspection ConstantConditions
-                                var tex = ImageIO.read(this.getSourceStream(armorTexture(vId("leather"), i + 1)));
-                                graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
-                            }
-                            {
-                                //noinspection ConstantConditions
-                                var tex = ImageIO.read(this.getSourceStream(armorOverlayTexture(vId("leather"), i + 1)));
-                                graphics[i].drawImage(tex, 0, 0, tex.getWidth() * globalScale, tex.getHeight() * globalScale, null);
-                            }
-                            graphics[i].setColor(Color.WHITE);
-                            graphics[i].drawRect(0, 1, 0, 0);
-                        }
-
-
-                        for (var entry : list) {
-                            for (int i = 0; i <= 1; i++) {
-                                var metadata = entry.metadata()[i];
-                                var scale = globalScale / metadata.scale();
-                                var tmpImage = entry.images()[i];
-
-                                if (tmpImage == null) {
-                                    continue;
-                                }
-                                graphics[i].drawImage(tmpImage, cWidth[i], 0, tmpImage.getWidth() * scale, tmpImage.getHeight() * scale, null);
-
-                                graphics[i].setColor(new Color(entry.color() | 0xFF000000));
-                                graphics[i].drawRect(cWidth[i], 0, 0, 0);
-
-                                if ((metadata.frames() != 0 && metadata.animationSpeed() != 0) || metadata.interpolate()) {
-                                    graphics[i].setColor(new Color(metadata.frames(), metadata.animationSpeed(), metadata.interpolate() ? 1 : 0));
-                                    graphics[i].drawRect(cWidth[i] + 1, 0, 0, 0);
-                                }
-
-                                if (metadata.emissivity() != 0) {
-                                    graphics[i].setColor(new Color(metadata.emissivity(), 0, 0));
-                                    graphics[i].drawRect(cWidth[i] + 2, 0, 0, 0);
-                                }
-
-                                cWidth[i] += tmpImage.getWidth() * scale;
-                            }
-                        }
-
-                        for (int i = 0; i <= 1; i++) {
-                            graphics[i].dispose();
-
-                            {
-                                var out = new ByteArrayOutputStream();
-                                ImageIO.write(image[i], "png", out);
-                                this.fileMap.put(armorTexture(vId("leather"), i + 1), out.toByteArray());
-                            }
-                            {
-                                var out = new ByteArrayOutputStream();
-                                ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "png", out);
-                                this.fileMap.put(armorOverlayTexture(vId("leather"), i + 1), out.toByteArray());
-                            }
-                        }
-                    } catch (Throwable e) {
-                        CommonImpl.LOGGER.error("Error occurred when creating armor texture!", e);
-                    }
-
-                    for (String string : new String[]{"fsh", "json", "vsh"}) {
-                        this.fileMap.put("assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string, Files.readString(getSelfPath("base-armor/rendertype_armor_cutout_no_cull." + string)).replace("${polymer_texture_resolution}", "" + (16 * globalScale)).getBytes(StandardCharsets.UTF_8));
-                    }
                 }
 
                 this.fileMap.put(AssetPaths.PACK_METADATA, this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8));

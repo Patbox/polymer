@@ -63,7 +63,7 @@ public interface EntityAccessor {
     }
 
     @Accessor
-    static int getFALL_FLYING_FLAG_INDEX() {
+    static int getGLIDING_FLAG_INDEX() {
         throw new UnsupportedOperationException();
     }
 

@@ -70,7 +70,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
 
     public UnrealBlockEntity(EntityType<?> type, World world) {
         super(type, world);
-        this.blockState = Registries.BLOCK.getEntryList(BlockTags.WOOL).get().getRandom(this.random).get().value().getDefaultState();
+        this.blockState = Registries.BLOCK.getRandomEntry(BlockTags.WOOL, this.random).get().value().getDefaultState();
 
         if (this.random.nextFloat() > 0.85) {
             this.tater = true;

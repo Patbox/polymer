@@ -35,7 +35,7 @@ public abstract class PacketCodecsRegistryMixin {
 
                     if (obj != null) {
                         //noinspection unchecked
-                        return buf.getRegistryManager().get(this.field_53746).getEntry(obj);
+                        return buf.getRegistryManager().getOrThrow(this.field_53746).getEntry(obj);
                     }
                 }
             }

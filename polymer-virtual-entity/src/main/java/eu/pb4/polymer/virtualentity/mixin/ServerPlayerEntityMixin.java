@@ -54,7 +54,7 @@ public class ServerPlayerEntityMixin {
         }
     }
 
-    @Inject(method = "teleportTo", at = @At(value = "RETURN"))
+    @Inject(method = "teleportTo(Lnet/minecraft/world/TeleportTarget;)Lnet/minecraft/entity/player/PlayerEntity;", at = @At(value = "RETURN"))
     private void polymerVE$removeOnWorldChange3(TeleportTarget teleportTarget, CallbackInfoReturnable<Entity> cir) {
         for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
             if (holder.getAttachment() != null) {
@@ -63,8 +63,8 @@ public class ServerPlayerEntityMixin {
         }
     }
 
-    @Inject(method = "teleport(Lnet/minecraft/server/world/ServerWorld;DDDFFZ)V", at = @At(value = "RETURN", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getWorld()Lnet/minecraft/server/world/ServerWorld;"))
-    private void polymerVE$removeOnWorldChange2(ServerWorld serverWorld, double x, double y, double z, float yaw, float pitch, boolean bl, CallbackInfo ci) {
+    @Inject(method = "refreshPositionAfterTeleport", at = @At(value = "RETURN"))
+    private void polymerVE$removeOnWorldChange2(double x, double y, double z, CallbackInfo ci) {
         for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
             if (holder.getAttachment() != null) {
                 holder.getAttachment().updateTracking(this.networkHandler);

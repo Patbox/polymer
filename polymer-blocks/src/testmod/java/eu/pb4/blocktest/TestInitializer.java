@@ -4,12 +4,14 @@ import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
 import java.util.Locale;
@@ -39,18 +41,22 @@ public class TestInitializer implements ModInitializer {
     public static void register(BlockModelType type, String modelId) {
         var id = Identifier.of("blocktest", modelId);
         var block = Registry.register(Registries.BLOCK, id,
-                new TestBlock(FabricBlockSettings.copy(Blocks.DIAMOND_BLOCK), type, modelId));
+                new TestBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, modelId));
 
-        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings(), block, modelId));
+        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
+                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),
+                block, modelId));
     }
 
     public static void registerEmpty(BlockModelType type) {
         var id = Identifier.of("blocktest", "empty/" + type.name().toLowerCase(Locale.ROOT));
         var block = Registry.register(Registries.BLOCK, id,
-                new EmptyBlock(FabricBlockSettings.copy(Blocks.DIAMOND_BLOCK), type));
+                new EmptyBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type));
 
         Registry.register(Registries.ITEM, id, new PolymerBlockItem(block, new Item.Settings()
-                .component(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true),
+                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
+                        .modelId(block.getPolymerBlockState(block.getDefaultState()).getBlock().getRegistryEntry().registryKey().getValue())
+                        .component(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true),
                 block.getPolymerBlockState(block.getDefaultState()).getBlock().asItem()));
     }
 }

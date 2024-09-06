@@ -1,15 +1,12 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
-import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.impl.TransformingComponent;
-import net.minecraft.class_10124;
-import net.minecraft.class_10131;
-import net.minecraft.class_10132;
-import net.minecraft.class_10134;
-import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.component.type.Consumable;
+import net.minecraft.component.type.ConsumableComponent;
+import net.minecraft.item.consume.ConsumeEffect;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.UseAction;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,9 +14,18 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
-@Mixin(class_10132.class)
+@Mixin(ConsumableComponent.class)
 public abstract class ConsumableComponentMixin implements TransformingComponent {
-    @Shadow @Final private List<StatusEffectInstance> effects;
+
+    @Shadow @Final private float consumeSeconds;
+
+    @Shadow @Final private RegistryEntry<SoundEvent> sound;
+
+    @Shadow @Final private boolean hasConsumeParticles;
+
+    @Shadow @Final private List<ConsumeEffect> onConsumeEffects;
+
+    @Shadow @Final private UseAction useAction;
 
     @Override
     public Object polymer$getTransformed(PacketContext context) {
@@ -27,13 +33,13 @@ public abstract class ConsumableComponentMixin implements TransformingComponent 
             return this;
         }
 
-        return new class_10132(List.of());
+        return new ConsumableComponent(this.consumeSeconds, this.useAction, this.sound, this.hasConsumeParticles, List.of());
     }
 
     @Override
     public boolean polymer$requireModification(PacketContext context) {
-        for (var effect : this.effects) {
-            if (effect.getEffectType().value() instanceof PolymerObject) {
+        for (var effect : this.onConsumeEffects) {
+            if (effect instanceof TransformingComponent t && t.polymer$requireModification(context)) {
                 return true;
             }
         }

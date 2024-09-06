@@ -40,7 +40,7 @@ public abstract class ServerChunkLoadingManagerMixin {
     }
 
     @Inject(method = "method_60440", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;setLoadedToWorld(Z)V", shift = At.Shift.AFTER))
-    private void onChunkUnload(ChunkHolder chunkHolder, long l, CallbackInfo ci, @Local WorldChunk chunk) {
+    private void onChunkUnload(ChunkHolder chunkHolder, CompletableFuture completableFuture, long l, CallbackInfo ci, @Local WorldChunk chunk) {
         if (chunk instanceof HolderAttachmentHolder x) {
             var holders = x.polymerVE$getHolders();
             if (!holders.isEmpty()) {

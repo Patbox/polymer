@@ -39,12 +39,6 @@ public class VirtualClientItem extends Item {
     public ItemStack getDefaultStack() {
         return this.polymerItem.visualStack().copy();
     }
-
-    @Override
-    public Text getName() {
-        return this.polymerItem.visualStack().getName();
-    }
-
     @Override
     public Text getName(ItemStack stack) {
         return this.polymerItem.visualStack().getName();
@@ -57,11 +51,6 @@ public class VirtualClientItem extends Item {
     @Override
     public ComponentMap getComponents() {
         return this.polymerItem.visualStack().getComponents();
-    }
-
-    @Override
-    protected String getOrCreateTranslationKey() {
-        return "";
     }
 
     @Override

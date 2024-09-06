@@ -5,9 +5,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.model.ItemOverride;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
-import eu.pb4.polymer.resourcepack.impl.generation.PolymerArmorModelImpl;
 import eu.pb4.polymer.resourcepack.impl.generation.PolymerModelDataImpl;
-import eu.pb4.polymer.resourcepack.mixin.LayerAccessor;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -15,18 +13,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.PackResourceMetadata;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -46,10 +40,7 @@ public final class ResourcePackCreator {
 
     private final Set<String> modIds = new HashSet<>();
     private final Set<String> modIdsNoCopy = new HashSet<>();
-    private final IntSet takenArmorColors = new IntOpenHashSet();
-    private final Map<Identifier, PolymerArmorModel> armorModelMap = new HashMap<>();
     private final int cmdOffset;
-    private int armorColor = 0;
     private Text packDescription = null;
     private byte[] packIcon = null;
     private final Set<Path> sourcePaths = new HashSet<>();
@@ -71,9 +62,6 @@ public final class ResourcePackCreator {
         source.itemOverrides.forEach((a, b) -> creator.itemOverrides.put(a, new ArrayList<>(b)));
         creator.modIds.addAll(source.modIds);
         creator.modIdsNoCopy.addAll(source.modIdsNoCopy);
-        creator.takenArmorColors.addAll(source.takenArmorColors);
-        creator.armorModelMap.putAll(source.armorModelMap);
-        creator.armorColor = source.armorColor;
         creator.packDescription = source.packDescription;
         creator.packIcon = source.packIcon;
         creator.sourcePaths.addAll(source.sourcePaths);
@@ -137,41 +125,6 @@ public final class ResourcePackCreator {
     }
 
     /**
-     * This method can be used to register custom model data for items
-     *
-     * @param modelPath Path to model in resource pack
-     * @return PolymerArmorModel with data about this model
-     */
-    public PolymerArmorModel requestArmor(Identifier modelPath) {
-        if (this.armorModelMap.containsKey(modelPath)) {
-            return this.armorModelMap.get(modelPath);
-        } else {
-            this.armorColor++;
-            int color = 0xFFFFFF - armorColor * 2 + 1;
-            var model = new PolymerArmorModelImpl(color, modelPath, List.of(new ArmorMaterial.Layer(modelPath)));
-
-            this.armorModelMap.put(modelPath, model);
-            this.takenArmorColors.add(color);
-            return model;
-        }
-    }
-    /**
-     * This method can be used to register custom model data for items
-     *
-     * @param material ArmorMaterial
-     * @return PolymerArmorModel with data about this model
-     */
-    public PolymerArmorModel requestArmor(RegistryEntry<ArmorMaterial> material) {
-        if (material.value().layers().isEmpty()) {
-            CommonImpl.LOGGER.warn("Armor Material '{}' has no layers!", material.getIdAsString());
-            return PolymerArmorModelImpl.EMPTY;
-        } else if (material.value().layers().size() > 1) {
-            CommonImpl.LOGGER.warn("Multi-layer Armor Materials aren't supported yet! Provided material: '{}'", material.getIdAsString());
-        }
-        return requestArmor(((LayerAccessor) (Object) material.value().layers().get(0)).getId());
-    }
-
-    /**
      * Adds mod with provided mod id as a source of assets
      *
      * @param modId Id of mods used as a source
@@ -203,14 +156,6 @@ public final class ResourcePackCreator {
         return this.sourcePaths.add(sourcePath);
     }
 
-
-    /**
-     * Returns true if color is taken
-     */
-    public boolean isColorTaken(int color) {
-        return takenArmorColors.contains(color & 0xFFFFFF);
-    }
-
     /**
      * Gets an unmodifiable list of models for an item.
      * This can be useful if you need to extract this list and parse it yourself.
@@ -230,16 +175,6 @@ public final class ResourcePackCreator {
      */
     public Map<Item, List<PolymerModelData>> getAllItemModels() {
         return Collections.unmodifiableMap(items);
-    }
-
-    /**
-     * Gets an unmodifiable list of models for all items
-     * This can be useful if you need to extract this list and parse it yourself.
-     *
-     * @return An unmodifiable list of models
-     */
-    public Map<Identifier, PolymerArmorModel> getAllArmorModels() {
-        return Collections.unmodifiableMap(this.armorModelMap);
     }
 
     /**
@@ -280,7 +215,7 @@ public final class ResourcePackCreator {
     }
 
     public boolean isEmpty() {
-        return this.items.isEmpty() && this.modIds.isEmpty() && this.armorModelMap.isEmpty() && this.creationEvent.isEmpty();
+        return this.items.isEmpty() && this.modIds.isEmpty() && this.creationEvent.isEmpty();
     }
 
     public boolean build(Path output) throws ExecutionException, InterruptedException {
@@ -332,7 +267,7 @@ public final class ResourcePackCreator {
             entry.getValue().forEach(a -> x.add(a.toJson()));
         }
         status.accept("action:copy_overrides_finish");
-        
+
         for (var cmdInfoList : this.items.values()) {
             status.accept("action:custom_model_data_start");
             for (PolymerModelData cmdInfo : cmdInfoList) {
@@ -340,12 +275,6 @@ public final class ResourcePackCreator {
             }
             status.accept("action:add_custom_model_data_finish");
         }
-
-        status.accept("action:custom_armors_start");
-        for (var armor : this.armorModelMap.values()) {
-            builder.addArmorModel(armor);
-        }
-        status.accept("action:custom_armors_finish");
 
         status.accept("action:late_creation_event_start");
         this.afterInitialCreationEvent.invoke((x) -> x.accept(builder));

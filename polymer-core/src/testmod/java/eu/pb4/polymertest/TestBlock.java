@@ -38,7 +38,7 @@ public class TestBlock extends Block implements PolymerBlock {
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         EnchantmentHelper.getEffect(itemStack, EnchantmentEffectComponentTypes.REPAIR_WITH_XP).isPresent();
-        EnchantmentHelper.getLevel(world.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(Enchantments.MENDING), itemStack);
+        EnchantmentHelper.getLevel(world.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(Enchantments.MENDING), itemStack);
         super.onPlaced(world, pos, state, placer, itemStack);
         itemStack.set(DataComponentTypes.REPAIR_COST, (itemStack.getOrDefault(DataComponentTypes.REPAIR_COST, 0) + 1) % 100);
     }

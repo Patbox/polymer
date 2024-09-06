@@ -239,7 +239,7 @@ public final class PolymerBlockUtils {
                     nbt.remove("components");
                     nbt.remove("count");
                     stack = PolymerItemUtils.getPolymerItemStack(stack, context);
-                    override.getList("Items", NbtElement.COMPOUND_TYPE).set(i, stack.isEmpty() ? new NbtCompound() : stack.encode(lookup, nbt));
+                    override.getList("Items", NbtElement.COMPOUND_TYPE).set(i, stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup, nbt));
                 }
             }
         }
@@ -251,7 +251,7 @@ public final class PolymerBlockUtils {
                     override = original.copy();
                 }
                 stack = PolymerItemUtils.getPolymerItemStack(stack, context);
-                override.put("item", stack.encodeAllowEmpty(lookup));
+                override.put("item", stack.toNbtAllowEmpty(lookup));
             }
         }
 

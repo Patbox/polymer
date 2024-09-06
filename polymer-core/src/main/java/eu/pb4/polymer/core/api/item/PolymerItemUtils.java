@@ -19,19 +19,17 @@ import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.class_10130;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeRegistry;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.BlockPredicatesChecker;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.equipment.trim.ArmorTrim;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
@@ -127,7 +125,6 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.CAN_PLACE_ON, BlockPredicatesChecker::withShowInTooltip),
             HideableTooltip.of(DataComponentTypes.JUKEBOX_PLAYABLE, JukeboxPlayableComponent::withShowInTooltip)
     );
-    private static final Set<ArmorMaterial> ARMOR_MATERIALS = new ReferenceOpenHashSet<>();
 
     private PolymerItemUtils() {
     }
@@ -341,14 +338,6 @@ public final class PolymerItemUtils {
             }
         }
 
-        if (CompatStatus.POLYMER_RESOURCE_PACK) {
-            var display = itemStack.get(DataComponentTypes.DYED_COLOR);
-            if (display != null) {
-                return PolymerResourcePackUtils.isColorTaken(display.rgb());
-            }
-        }
-
-
         return ITEM_CHECK.invoke((x) -> x.test(itemStack));
     }
 
@@ -471,7 +460,7 @@ public final class PolymerItemUtils {
         }
 
         if (!itemStack.contains(DataComponentTypes.USE_COOLDOWN)) {
-            out.set(DataComponentTypes.USE_COOLDOWN, new class_10130(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
+            out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
         }
 
 
@@ -566,29 +555,6 @@ public final class PolymerItemUtils {
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
         return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
-    }
-
-    /**
-     * Marks ArmorMaterial as server-side only
-     *
-     * @param types ArmorMaterials
-     */
-    @SafeVarargs
-    public static void registerArmorMaterial(RegistryEntry<ArmorMaterial>... types) {
-        for (var type : types) {
-            RegistrySyncUtils.setServerEntry(Registries.ARMOR_MATERIAL, type.value());
-            ARMOR_MATERIALS.add(type.value());
-
-        }
-    }
-
-    /**
-     * Checks if ArmorMaterial is server-side only
-     *
-     * @param type ArmorMaterials
-     */
-    public static boolean isPolymerArmorMaterial(RegistryEntry<ArmorMaterial> type) {
-        return ARMOR_MATERIALS.contains(type.value());
     }
 
     /**

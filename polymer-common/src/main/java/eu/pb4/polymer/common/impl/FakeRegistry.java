@@ -127,12 +127,7 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Optional<RegistryEntry.Reference<T>> getEntry(Identifier id) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<RegistryEntry.Reference<T>> getEntry(RegistryKey<T> key) {
-        return Optional.of(RegistryEntry.Reference.standAlone(this, key));
+        return Optional.of(RegistryEntry.Reference.intrusive(this, this.defaultValue));
     }
 
     @Override
@@ -146,53 +141,13 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
     }
 
     @Override
-    public Optional<RegistryEntryList.Named<T>> getEntryList(TagKey<T> tag) {
-        return Optional.empty();
+    public Stream<RegistryEntryList.Named<T>> getTags() {
+        return Stream.empty();
     }
 
     @Override
     public Stream<RegistryEntryList.Named<T>> streamTags() {
         return null;
-    }
-
-    @Override
-    public RegistryEntryOwner<T> getEntryOwner() {
-        return this;
-    }
-
-    @Override
-    public RegistryWrapper.Impl<T> getReadOnlyWrapper() {
-        return new RegistryWrapper.Impl<T>() {
-            @Override
-            public RegistryKey<? extends Registry<? extends T>> getRegistryKey() {
-                return FakeRegistry.this.registryKey;
-            }
-
-            @Override
-            public Lifecycle getLifecycle() {
-                return Lifecycle.experimental();
-            }
-
-            @Override
-            public Stream<RegistryEntry.Reference<T>> streamEntries() {
-                return Stream.empty();
-            }
-
-            @Override
-            public Stream<RegistryEntryList.Named<T>> streamTags() {
-                return Stream.empty();
-            }
-
-            @Override
-            public Optional<RegistryEntry.Reference<T>> getOptional(RegistryKey<T> key) {
-                return Optional.empty();
-            }
-
-            @Override
-            public Optional<RegistryEntryList.Named<T>> getOptional(TagKey<T> tag) {
-                return Optional.empty();
-            }
-        };
     }
 
     @Override
@@ -214,5 +169,15 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
                 return null;
             }
         };
+    }
+
+    @Override
+    public Optional<RegistryEntry.Reference<T>> getOptional(RegistryKey<T> key) {
+        return getEntry(key.getValue());
+    }
+
+    @Override
+    public Optional<RegistryEntryList.Named<T>> getOptional(TagKey<T> tag) {
+        return Optional.empty();
     }
 }

@@ -85,7 +85,7 @@ public class PolymerClientProtocolHandler {
 
         registerGenericListHandler(S2CPackets.SYNC_BLOCK, PolymerBlockEntry.class, (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registries.BLOCK.get(entry.identifier()))));
         registerGenericListHandler(S2CPackets.SYNC_ITEM, PolymerItemEntry.class, (entry) -> {
-                    var regEntry = Registries.ITEM.getEntry(RegistryKey.of(RegistryKeys.ITEM, entry.identifier()));
+                    var regEntry = Registries.ITEM.getEntry(entry.identifier());
 
                     InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
                             new ClientPolymerItem(
@@ -183,7 +183,7 @@ public class PolymerClientProtocolHandler {
             }
 
             try {
-                var parsed = BlockArgumentParser.block(Registries.BLOCK.getReadOnlyWrapper(), new StringReader(path.toString()), false);
+                var parsed = BlockArgumentParser.block(Registries.BLOCK, new StringReader(path.toString()), false);
 
                 return parsed.blockState();
             } catch (Exception e) {

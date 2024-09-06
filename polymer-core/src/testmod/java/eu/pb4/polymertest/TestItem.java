@@ -1,8 +1,8 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
-import net.minecraft.class_10124;
+import net.minecraft.component.type.ConsumableComponent;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,7 +17,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +55,7 @@ public class TestItem extends SimplePolymerItem {
     public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
         var x = super.getPolymerItemStack(itemStack, tooltipType, lookup, player);
         x.set(DataComponentTypes.RARITY, Rarity.EPIC);
-        x.set(DataComponentTypes.CONSUMABLE, new class_10124(player != null && player.isCreative() ? Float.POSITIVE_INFINITY : 3, UseAction.BOW,
+        x.set(DataComponentTypes.CONSUMABLE, new ConsumableComponent(player != null && player.isCreative() ? Float.POSITIVE_INFINITY : 3, UseAction.BOW,
                 Registries.SOUND_EVENT.getEntry(SoundEvents.INTENTIONALLY_EMPTY), false, List.of()));
         return x;
     }

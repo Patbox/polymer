@@ -22,12 +22,10 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
@@ -210,8 +208,7 @@ public final class PolymerUtils {
                 || (obj instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type))
                 || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE))
                 || (obj instanceof RegistryEntry<?> entry && (
-                        (entry.value() instanceof ArmorMaterial && PolymerItemUtils.isPolymerArmorMaterial((RegistryEntry<ArmorMaterial>) entry))
-                        || (entry.value() instanceof EntityAttribute && PolymerEntityUtils.isPolymerEntityAttribute((RegistryEntry<EntityAttribute>) entry))))
+                        (entry.value() instanceof EntityAttribute && PolymerEntityUtils.isPolymerEntityAttribute((RegistryEntry<EntityAttribute>) entry))))
                 || (obj instanceof ComponentType<?> componentType && PolymerComponent.isPolymerComponent(componentType))
                 || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
     }

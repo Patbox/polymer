@@ -42,7 +42,7 @@ public class StonecutterScreenHandlerMixin {
             var list = new ArrayList<>(this.availableRecipes);
 
             list.sort(Comparator.comparing(
-                    (recipe) -> PolymerItemUtils.getPolymerItemStack(recipe.value().getResult(this.world.getRegistryManager()), this.world.getRegistryManager(), this.polymerCore$player).getTranslationKey()
+                    (recipe) -> PolymerItemUtils.getPolymerItemStack(recipe.value().getResult(this.world.getRegistryManager()), this.world.getRegistryManager(), this.polymerCore$player).getItem().getTranslationKey()
             ));
             this.availableRecipes = list;
         }

@@ -7,25 +7,20 @@ import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
 import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.CustomValue;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 import static net.minecraft.server.command.CommandManager.literal;
@@ -34,13 +29,6 @@ import static net.minecraft.server.command.CommandManager.literal;
 @ApiStatus.Internal
 public class PolymerResourcePackMod implements ModInitializer, ClientModInitializer {
 	public static boolean alreadyGeneration = false;
-    public static final Int2ObjectMap<List<ArmorMaterial.Layer>> ARMOR_TEXTURES = new Int2ObjectOpenHashMap<>();
-    public static final List<ArmorMaterial.Layer> LEATHER_OVERRIDE = List.of(
-            new ArmorMaterial.Layer(Identifier.ofVanilla("vanilla_leather"), "", true),
-            new ArmorMaterial.Layer(Identifier.ofVanilla("vanilla_leather"), "_overlay", false)
-    );
-    public static boolean hasArmorTextures = false;
-
 	@Override
 	public void onInitialize() {
 		if (CompatStatus.POLYMC) {

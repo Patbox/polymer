@@ -1,6 +1,8 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import net.minecraft.item.equipment.ArmorMaterials;
+import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EquipmentSlot;
@@ -17,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class TestHelmetItem extends ArmorItem implements PolymerItem {
     public TestHelmetItem(Settings settings) {
-        super(ArmorMaterials.IRON, Type.HELMET, settings);
+        super(ArmorMaterials.IRON, EquipmentType.HELMET, settings);
     }
 
     @Override

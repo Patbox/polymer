@@ -23,5 +23,5 @@ public class EntityTrackedData {
     public static final int SWIMMING_FLAG_INDEX = EntityAccessor.getSWIMMING_FLAG_INDEX();
     public static final int INVISIBLE_FLAG_INDEX = EntityAccessor.getINVISIBLE_FLAG_INDEX();
     public static final int GLOWING_FLAG_INDEX = EntityAccessor.getGLOWING_FLAG_INDEX();
-    public static final int FALL_FLYING_FLAG_INDEX = EntityAccessor.getFALL_FLYING_FLAG_INDEX();
+    public static final int GLIDING_FLAG_INDEX = EntityAccessor.getGLIDING_FLAG_INDEX();
 }

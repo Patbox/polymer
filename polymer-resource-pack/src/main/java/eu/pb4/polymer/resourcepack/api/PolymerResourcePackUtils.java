@@ -7,9 +7,7 @@ import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -46,25 +44,6 @@ public final class PolymerResourcePackUtils {
      */
     public static PolymerModelData requestModel(Item vanillaItem, Identifier modelPath) {
         return INSTANCE.requestModel(vanillaItem, modelPath);
-    }
-
-    /**
-     * This method can be used to register custom model data for items
-     *
-     * @param modelPath Path to model in resource pack
-     * @return PolymerArmorModel with data about this model
-     */
-    public static PolymerArmorModel requestArmor(Identifier modelPath) {
-        return INSTANCE.requestArmor(modelPath);
-    }
-    /**
-     * This method can be used to register custom model data for items
-     *
-     * @param material ArmorMaterial to generate
-     * @return PolymerArmorModel with data about this model
-     */
-    public static PolymerArmorModel requestArmor(RegistryEntry<ArmorMaterial> material) {
-        return INSTANCE.requestArmor(material);
     }
 
     /**
@@ -147,13 +126,6 @@ public final class PolymerResourcePackUtils {
         if (player.networkHandler != null) {
             ((CommonClientConnectionExt) player.networkHandler).polymerCommon$setResourcePack(uuid, status);
         }
-    }
-
-    /**
-     * Returns true if color is taken
-     */
-    public static boolean isColorTaken(int color) {
-        return INSTANCE.isColorTaken(color);
     }
 
     /**

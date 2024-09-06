@@ -3,16 +3,11 @@ package eu.pb4.polymer.core.mixin.item;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
-import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
-import net.minecraft.item.Equipment;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.common.ClientOptionsC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
@@ -83,21 +78,6 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             }
         }
     }
-
-    @Inject(method = "onPlayerInteractItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER))
-    private void polymer$resendHandOnUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
-        ItemStack itemStack = this.player.getStackInHand(packet.getHand());
-
-        if (itemStack.getItem() instanceof PolymerItem polymerItem) {
-            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player);
-            if (data.item() instanceof Equipment equipment && equipment.getSlotType().isArmorSlot()) {
-                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
-
-                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), 8 - equipment.getSlotType().getEntitySlotId(), this.player.getEquippedStack(equipment.getSlotType())));
-            }
-        }
-    }
-
 
     @Inject(method = "onPlayerInteractBlock", at = @At("TAIL"))
     private void polymer$updateMoreBlocks(PlayerInteractBlockC2SPacket packet, CallbackInfo ci) {
