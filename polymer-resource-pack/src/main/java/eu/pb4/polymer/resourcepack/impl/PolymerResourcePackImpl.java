@@ -19,6 +19,7 @@ public class PolymerResourcePackImpl {
     public static final List<String> INCLUDE_ZIPS;
     public static final UUID MAIN_UUID;
     public static final Path DEFAULT_PATH;
+    public static final List<String> PREVENTED_PATHS;
 
 
     static {
@@ -39,6 +40,7 @@ public class PolymerResourcePackImpl {
         INCLUDE_MOD_IDS = config.includeModAssets;
 
         INCLUDE_ZIPS = config.includeZips;
+        PREVENTED_PATHS = config.preventedPaths;
     }
 
 
@@ -68,5 +70,8 @@ public class PolymerResourcePackImpl {
         public String _c7 = "Path used for creation of default resourcepack!";
         @SerializedName("resource_pack_location")
         public String resourcePackPath = "polymer/resource_pack.zip";
+        public String _c8 = "Prevents selected paths from being added to resource pack, if they start with provided text.";
+        @SerializedName("prevent_path_with")
+        public List<String> preventedPaths = List.of();
     }
 }

@@ -1,7 +1,5 @@
 package eu.pb4.polymer.resourcepack.api;
 
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
@@ -41,7 +39,7 @@ public final class ResourcePackCreator {
     public final SimpleEvent<Consumer<ResourcePackBuilder>> creationEvent = new SimpleEvent<>();
     public final SimpleEvent<Runnable> finishedEvent = new SimpleEvent<>();
     public final SimpleEvent<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
-    private final Map<Item, List<PolymerModelData>> items = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    private final Map<Item, List<PolymerModelData>> items = new IdentityHashMap<>();
     private final Object2IntMap<Item> itemIds = new Object2IntOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
     private final Map<Item, Map<Identifier, PolymerModelData>> itemModels = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
     private final Map<Item, List<ItemOverride>> itemOverrides = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
@@ -59,8 +57,31 @@ public final class ResourcePackCreator {
     public static ResourcePackCreator create() {
         return new ResourcePackCreator(0);
     }
+    public static ResourcePackCreator createCopy(ResourcePackCreator source, boolean copyEvents) {
+        var creator = new ResourcePackCreator(source.cmdOffset);
+        if (copyEvents) {
+            source.creationEvent.invokers().forEach(creator.creationEvent::register);
+            source.afterInitialCreationEvent.invokers().forEach(creator.afterInitialCreationEvent::register);
+            source.finishedEvent.invokers().forEach(creator.finishedEvent::register);
+        }
 
-    protected ResourcePackCreator(int cmdOffset) {
+        source.items.forEach((a, b) -> creator.items.put(a, new ArrayList<>(b)));
+        creator.itemIds.putAll(source.itemIds);
+        source.itemModels.forEach((a, b) -> creator.itemModels.put(a, new HashMap<>(b)));
+        source.itemOverrides.forEach((a, b) -> creator.itemOverrides.put(a, new ArrayList<>(b)));
+        creator.modIds.addAll(source.modIds);
+        creator.modIdsNoCopy.addAll(source.modIdsNoCopy);
+        creator.takenArmorColors.addAll(source.takenArmorColors);
+        creator.armorModelMap.putAll(source.armorModelMap);
+        creator.armorColor = source.armorColor;
+        creator.packDescription = source.packDescription;
+        creator.packIcon = source.packIcon;
+        creator.sourcePaths.addAll(source.sourcePaths);
+
+        return creator;
+    }
+
+    ResourcePackCreator(int cmdOffset) {
         this.cmdOffset = cmdOffset;
         this.itemIds.defaultReturnValue(1);
     }

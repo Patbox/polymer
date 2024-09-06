@@ -28,11 +28,11 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
     @Override
     public CompletableFuture<Void> reload(Synchronizer synchronizer, ResourceManager manager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
         return CompletableFuture.supplyAsync(() -> {
+            PolymerResourcePackMod.ARMOR_TEXTURES.clear();
+            PolymerResourcePackMod.hasArmorTextures = false;
             if (PolymerResourcePackImpl.USE_ALT_ARMOR_HANDLER) {
-                PolymerResourcePackMod.ARMOR_TEXTURES.clear();
                 var polymerArmor = manager.getResource(POLYMER_ARMOR_ID);
                 if (polymerArmor.isPresent()) {
-                    PolymerResourcePackMod.hasArmorTextures = true;
                     try {
                         HashMap<String, String> data =  GSON.fromJson(new String(polymerArmor.get().getInputStream().readAllBytes()), HashMap.class);
 
@@ -43,16 +43,15 @@ public record PolymerResourceReloader(TextureManager manager) implements Resourc
                                     new ArmorMaterial.Layer(id, "", false)
                             ));
                         }
+                        PolymerResourcePackMod.hasArmorTextures = true;
                     } catch (Exception e) {
                         CommonImpl.LOGGER.warn("Invalid armors.json file!", e);
                     }
-                } else {
-                    PolymerResourcePackMod.hasArmorTextures = false;
                 }
             }
             return null;
         }, prepareExecutor).thenCompose(synchronizer::whenPrepared).thenAcceptAsync(v -> {
-            if (PolymerResourcePackImpl.USE_ALT_ARMOR_HANDLER) {
+            if (PolymerResourcePackMod.hasArmorTextures) {
                 for (var id : PolymerResourcePackMod.ARMOR_TEXTURES.values()) {
                     var first = id.getFirst().getTexture(false);
                     var second = id.getFirst().getTexture(true);

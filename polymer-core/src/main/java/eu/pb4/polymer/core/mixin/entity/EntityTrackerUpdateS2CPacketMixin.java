@@ -1,26 +1,16 @@
 package eu.pb4.polymer.core.mixin.entity;
 
-import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.core.api.item.PolymerItem;
-import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
-import eu.pb4.polymer.core.impl.interfaces.EntityTrackerUpdateS2CPacketExt;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.VillagerData;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -28,26 +18,19 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @SuppressWarnings({"rawtypes", "unchecked", "ConstantConditions"})
 @Mixin(EntityTrackerUpdateS2CPacket.class)
-public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2CPacketExt {
+public class EntityTrackerUpdateS2CPacketMixin implements PossiblyInitialPacket {
     @Shadow
     @Final
     private int id;
-
-    @Shadow
-    @Final
-    private List<DataTracker.SerializedEntry<?>> trackedValues;
     @Unique
-    private boolean polymer$isInitial = false;
+    private boolean isInitial = false;
 
     @Unique
     @Nullable
@@ -62,7 +45,7 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
 
         if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player, entity)) {
             var mod = trackedValues != null ? new ArrayList<>(trackedValues) : new ArrayList<DataTracker.SerializedEntry<?>>();
-            polymerEntity.modifyRawTrackedData(mod, player, this.polymer$isInitial);
+            polymerEntity.modifyRawTrackedData(mod, player, this.isInitial);
 
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 
@@ -109,11 +92,11 @@ public class EntityTrackerUpdateS2CPacketMixin implements EntityTrackerUpdateS2C
 
     @Override
     public boolean polymer$getInitial() {
-        return this.polymer$isInitial;
+        return this.isInitial;
     }
 
     @Override
     public void polymer$setInitial() {
-        this.polymer$isInitial = true;
+        this.isInitial = true;
     }
 }

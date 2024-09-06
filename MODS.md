@@ -8,6 +8,7 @@ A list of server-side Fabric or Quilt mods using Polymer, ordered alphabetically
 
 ### Links:
 - GitHub: https://github.com/Flemmli97/AdvancedGolems
+- Modrinth: https://modrinth.com/mod/advanced-golems
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/advanced-golems-fabric
 
 
@@ -51,7 +52,15 @@ It supports animations, Molang expressions, and various Blockbench features.
 - Modrinth: https://modrinth.com/mod/blockbench-import-library
 
 
-## Brewery (1.21 / latest)
+## Borukva Food (1.21.1 / latest)
+*Borukva Food* expands the culinary experience by introducing a variety of new crops, foods, cooking tools, and more.
+
+### Links:
+- GitHub: https://github.com/MykhailoOpryshok/Borukva-Food
+- Modrinth: https://modrinth.com/mod/borukva-food
+
+
+## Brewery (1.21.1 / latest)
 *Brewery* allows you to create alcoholic and non-alcoholic drinks with cauldrons and barrels.
 Aside from a few that are built-in, you can add any number of custom drinks with their own recipes and functionality
 using datapacks. Additionally, this mod can work purely server side, allowing vanilla clients to join and use
@@ -63,7 +72,7 @@ its capabilities.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/patboxs-brewery
 
 
-## Camera Obscura (1.21 / latest)
+## Camera Obscura (1.21.1 / latest)
 *Camera Obscura* allows you to take photos of your world or server as Map Items, no client-side mods required!
 
 ### Links:
@@ -84,10 +93,19 @@ to deliver accurate maps even on slopes and complicated cave systems.
 ## ComputerCraft: Restitched with Polymer (1.19.4)
 This is a port of [CC: Restitched](https://modrinth.com/mod/cc-restitched) (which by itself is port of [CC: Tweaked](https://modrinth.com/mod/cc-tweaked), continuation of the original [ComputerCraft](https://modrinth.com/mod/computercraft)),
 modified in a way to allow nearly all functionality of the regular version to work purely server-side.  
-Note: this mod has been superceded by [Polymer Patch for CC: Tweaked](#polymer-patch-for-cc-tweaked-121--latest).
+Note: this mod has been superceded by [Polymer Patch for CC: Tweaked](#polymer-patch-for-cc-tweaked-1211--latest).
 
 ### Links:
 - GitHub: https://github.com/PolymerPorts/cc-restitched
+
+
+## Construction Wand (Polymer Port) (1.21.1 / latest)
+*Construction Wand* adds Construction Wands that allow you to place multiple blocks (up to 1024) at once, extending your build on the side you're facing. These Wands can also be upgraded to add various bells and whistles.
+
+### Links:
+- GitHub: https://github.com/JongWasTaken/ConstructionWand-Fabric/tree/polyport-1.21
+- Modrinth: https://modrinth.com/mod/construction-wand-polymer
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/construction-wand-polymer-port
 
 
 ## danse (1.21 / latest)
@@ -115,7 +133,7 @@ introducing support for some new features while adding new content.
 - Modrinth: https://modrinth.com/mod/dusty
 
 
-## Eldritch Mobs (1.20.1)
+## Eldritch Mobs (1.21.1 / latest)
 *Eldritch Mobs* is a port of [AtomicStryker's Infernal Mobs](https://www.curseforge.com/minecraft/mc-mods/atomicstrykers-infernal-mobs).
 This mod randomly imbues mobs in your world with powerful abilities that make them more challenging to fight.
 
@@ -125,7 +143,7 @@ This mod randomly imbues mobs in your world with powerful abilities that make th
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/eldritch-mobs
 
 
-## FabricAutoCrafter (1.21 / latest)
+## FabricAutoCrafter (1.21.1 / latest)
 *FabricAutoCrafter* adds a new block, the AutoCrafter.
 It allows you to put items in the crafting table and get an output.
 Hoppers and droppers do interact with the table.
@@ -138,6 +156,7 @@ Hoppers and droppers do interact with the table.
 
 ## Fabric Waystones (Polymer Ports) (1.19)
 *Fabric Waystones* adds waystones - a new way of transportation that lets players teleport from one discovered waystone to another.
+Note: this mod has effectively been superceded by [Server-Side Waystones](#server-side-waystones-1211--latest).
 
 ### Links:
 - GitHub: https://github.com/PolymerPorts/FabricWaystones
@@ -171,7 +190,7 @@ or turn content mods on and off one by one to nail down that pesky bug.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/flashfreeze
 
 
-## Get Off My Lawn ReServed (1.21 / latest)
+## Get Off My Lawn ReServed (1.21.1 / latest)
 *Get Off My Lawn ReServed* is a take on the popular concept of player claims for Survival/Freebuild servers.
 This mod works fully server-side (no client mod required!) while being compatible with major Fabric modpacks.
 
@@ -184,12 +203,13 @@ on improving and building on top of the original.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/get-off-my-lawn-reserved
 
 
-## Glide Away (1.21 / latest)
+## Glide Away (1.21.1 / latest)
 Get your Hang Glider and glide away from the dangers! *Glide Away* adds hangliders!
 
 ### Links:
 - GitHub: https://github.com/Patbox/GlideAway
 - Modrinth: https://modrinth.com/mod/glide-away
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/glide-away
 
 
 ## Grappling Hook (1.18.1)
@@ -208,7 +228,7 @@ featuring custom enchantments, items, and recipes.
 - Modrinth: https://modrinth.com/mod/grimoire
 
 
-## Illager Expansion Recrafted (1.21 / latest)
+## Illager Expansion Recrafted (1.21.1 / latest)
 *Illager Expansion Recrafted* is a mod focused around bringing more content to the mysterious Illagers.
 Featuring new structures, mobs, and items, we have you covered. Will you be able to find all secrets
 of the Illagers before it's too late?
@@ -246,7 +266,7 @@ to go between the different heights.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/labyrinth
 
 
-## LifeSteal (1.20.6 / latest)
+## LifeSteal (1.21 / latest)
 *LifeSteal* is an implementation of [LifeSteal SMP](https://store.lifestealsmp.com).
 > We are a semi-vanilla Minecraft server with an additional feature where you can steal hearts from other players.
 > When you kill another player, you receive their heart while they lose a heart.
@@ -284,21 +304,13 @@ Keep the `doFireTick` gamerule enabled without worrying about random fire destro
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/mini-tardis
 
 
-## Moire (1.21 / latest)
-*Moire* provides a Kotlin DSL for `polymer-virtual-entity`, allowing developers to create and manage `ElementHolder` instances in a DSL style.
-It offers useful extension functions and plans to include features like server-side rendering.
-
-### Links:
-- GitHub: https://github.com/Zuttomae/moire
-- Modrinth: https://modrinth.com/mod/moire
-
-
-## More Tools (1.21 / latest)
+## More Tools (1.21.1 / latest)
 *More Tools* adds excavators, hammers, and saws!
 
 ### Links:
 - GitHub: https://github.com/JongWasTaken/moretools/
 - Modrinth: https://modrinth.com/mod/more-tools
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/more-tools-polymer
 
 
 ## Nox (1.19.2)
@@ -316,9 +328,10 @@ and a present threat.
 ### Links:
 - GitHub: https://github.com/qxeii/nox-renoxed
 - Modrinth: https://modrinth.com/mod/nox-renoxed
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/nox-renoxed
 
 
-## Nylon (1.21 / latest)
+## Nylon (1.21.1 / latest)
 *Nylon* is a library for creating server-side content using Animated-Java for custom models and animations.
 
 ### Links:
@@ -326,7 +339,7 @@ and a present threat.
 - Modrinth: https://modrinth.com/mod/nylon
 
 
-## Ouch! (1.21 / latest)
+## Ouch! (1.21.1 / latest)
 *Ouch!* is a customizable server-side damage indicator!
 
 ### Links:
@@ -351,7 +364,7 @@ that lets players access their ender chest from anywhere.
 - Modrinth: https://modrinth.com/mod/packy
 
 
-## Physics Toys (1.19.4)
+## Physics Toys (1.21.1 / latest)
 *Physics Toys* adds a few items that allow you to move and destroy things with the power of "realistic" physics!
 You can also kill things with it!
 
@@ -360,7 +373,7 @@ You can also kill things with it!
 - Modrinth: https://modrinth.com/mod/physics-toys
 
 
-## PolyDecorations (1.21 / latest)
+## PolyDecorations (1.21.1 / latest)
 Decorate your world! *PolyDecorations* is a server-side furniture/decorations mod!
 
 ### Links:
@@ -368,7 +381,7 @@ Decorate your world! *PolyDecorations* is a server-side furniture/decorations mo
 - Modrinth: https://modrinth.com/mod/polydecorations
 
 
-## PolyFactory (1.21 / latest)
+## PolyFactory (1.21.1 / latest)
 Ever wanted to play with tech mods, but people you play with don't want to install them?
 Or maybe you are making a server, but vanilla gameplay isn't enough? If so, this project will be ideal for you!
 
@@ -396,7 +409,7 @@ processing and storage (or in simpler terms, it's a tech mod)!
 - Modrinth: https://modrinth.com/mod/anshar-polymer
 
 
-## Polymer Patch for CC: Tweaked (1.21 / latest)
+## Polymer Patch for CC: Tweaked (1.21.1 / latest)
 *Polymer Patch for CC: Tweaked* allows [CC: Tweaked](https://modrinth.com/mod/cc-tweaked) to work fully server side!
 
 ### Links:
@@ -446,6 +459,14 @@ processing and storage (or in simpler terms, it's a tech mod)!
 - Modrinth: https://modrinth.com/mod/servback
 
 
+## Server-Side Waystones (1.21.1 / latest)
+*Server-Side Waystones* adds Waystone blocks that allow you to teleport long distances and across dimensions.
+
+### Links:
+- GitHub: https://github.com/sylvxa/sswaystones
+- Modrinth: https://modrinth.com/mod/sswaystones
+
+
 ## Server Side Tetris (1.17.1)
 *Server Side Tetris* adds *Tetris* to the game, fully rendered using particles.
 Just craft some old console, and you'll be on your way!
@@ -455,7 +476,7 @@ Just craft some old console, and you'll be on your way!
 - Modrinth: https://modrinth.com/mod/serversidetetris
 
 
-## Server UI Fix (1.21 / latest)
+## Server UI Fix (1.21.1 / latest)
 *Server UI Fix* replaces the Enchanting Table and Stonecutter GUIs to make them work better on heavily modded servers targeting vanilla clients!
 
 ### Links:
@@ -473,7 +494,7 @@ Oh, and there's missiles. For added fun!
 - Modrinth: https://modrinth.com/mod/server_mobs
 
 
-## Set Bonuses (1.17.1)
+## Set Bonuses (1.18)
 *Set Bonuses* adds fully configurable enchantments and set bonuses.
 
 ### Links:
@@ -517,7 +538,7 @@ for people who need vanilla physics) and adds multiple new minecarts with their 
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/tatercart
 
 
-## Televator (1.21 / latest)
+## Televator (1.21.1 / latest)
 *Televator* adds a block you can place one above or below another at a vertical distance,
 and allows jumping/crouching on top of the block to teleport between the different heights.
 
@@ -558,7 +579,7 @@ and allows jumping/crouching on top of the block to teleport between the differe
 - Modrinth: https://modrinth.com/mod/tsa-stone
 
 
-## Trinkets (Polymer Port) (1.21 / latest)
+## Trinkets (Polymer Port) (1.21.1 / latest)
 *Trinkets* is a data-driven accessory mod for Minecraft using Fabric.
 
 ### Links:
@@ -580,7 +601,7 @@ Chests, Lecterns, and Signs into HTTP-reporting blocks!
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/urlium
 
 
-## Universal Graves (1.21 / latest)
+## Universal Graves (1.21.1 / latest)
 *Universal Graves* is a simple, but really customizable grave/death chest mod!
 You can customize as you like, by modifying messages, blocks, and hologram texts,
 how long graves will be protected, whether items should be dropped after expiring, etc.
@@ -591,7 +612,7 @@ how long graves will be protected, whether items should be dropped after expirin
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/universal-graves
 
 
-## Universal Shops (1.21 / latest)
+## Universal Shops (1.21.1 / latest)
 *Universal Shops* is a trade shop mod designed to be flexible and usable in many types of servers.
 It includes craftable Trade Shop blocks for players and Admin Trade Shop blocks for admins/map makers. Setup of both is the same.
 It also checks against Common Protection API to make sure players have access to source chests/containers.
@@ -602,12 +623,13 @@ It also checks against Common Protection API to make sure players have access to
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/universal-shops
 
 
-## Wlodzimiers Blocks (1.20.4)
+## Wlodzimiers Blocks (1.21.1 / latest)
 *Wlodzimiers Blocks* is a server-side mod that adds some custom blocks using Polymer!
 
 ### Links:
 - GitHub: https://github.com/Zekiu/WlodzimiersBlocks
 - Modrinth: https://modrinth.com/mod/wlodzimiers-blocks
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/wlodzimiers-blocks
 
 
 #### Is your mod missing? Feel free to create an issue or pull request!

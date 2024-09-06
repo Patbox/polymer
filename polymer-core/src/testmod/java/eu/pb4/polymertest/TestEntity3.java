@@ -63,12 +63,17 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         this.rideAnchor.setOffset(new Vec3d(0, 1.3f, 0));
 
         leftLeg.setInterpolationDuration(2);
+        leftLeg.ignorePositionUpdates();
         rightLeg.setInterpolationDuration(2);
+        rightLeg.ignorePositionUpdates();
         torso.setInterpolationDuration(2);
+        torso.ignorePositionUpdates();
         leftLeg.setModelTransformation(ModelTransformationMode.FIXED);
         rightLeg.setModelTransformation(ModelTransformationMode.FIXED);
         torso.setModelTransformation(ModelTransformationMode.FIXED);
         this.interaction.setSize(1.1f, 1.5f);
+        this.interaction.ignorePositionUpdates();
+        this.rideAnchor.ignorePositionUpdates();
         this.updateAnimation();
 
         VirtualEntityUtils.addVirtualPassenger(this, this.leftLeg.getEntityId(), this.rightLeg.getEntityId(), this.torso.getEntityId(), this.interaction.getEntityId());

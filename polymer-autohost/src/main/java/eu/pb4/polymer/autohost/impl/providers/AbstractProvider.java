@@ -10,6 +10,7 @@ import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
@@ -45,7 +46,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
             isPackReady = true;
         });
 
-        AutoHost.generateAndCall(minecraftServer, minecraftServer::sendMessage, () -> {});
+        PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendMessage, () -> {});
     }
 
     @Override

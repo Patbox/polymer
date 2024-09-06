@@ -122,29 +122,36 @@ public final class PolymerUtils {
     public static void reloadWorld(ServerPlayerEntity player) {
         player.server.execute(() -> {
             PolymerImplUtils.IS_RELOADING_WORLD.set(Unit.INSTANCE);
-            player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
+            try {
+                player.currentScreenHandler.syncState();
 
-            var world = player.getWorld();
-            var tacsAccess = ((ServerChunkLoadingManagerAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).chunkLoadingManager);
+                var world = player.getWorld();
+                var tacsAccess = ((ServerChunkLoadingManagerAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).chunkLoadingManager);
 
-            for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
-                var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
-                if (tracker != null) {
-                    tracker.stopTracking(player);
+                for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
+                    var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
+                    if (tracker != null) {
+                        tracker.stopTracking(player);
+                    }
                 }
+
+
+                player.getChunkFilter().forEach((chunkPos) -> {
+                    var chunk = world.getChunk(chunkPos.x, chunkPos.z);
+                    player.networkHandler.chunkDataSender.unload(player, chunk.getPos());
+                    player.networkHandler.chunkDataSender.add(chunk);
+                });
+            } catch (Throwable e) {
+                PolymerImpl.LOGGER.warn("Failed to reload player's world view!", e);
             }
-
-
-            player.getChunkFilter().forEach((chunkPos) -> {
-                var chunk = world.getChunk(chunkPos.x, chunkPos.z);
-                player.networkHandler.chunkDataSender.unload(player, chunk.getPos());
-                player.networkHandler.chunkDataSender.add(chunk);
-            });
 
             PolymerImplUtils.IS_RELOADING_WORLD.remove();
         });
     }
-
+    /**
+     * @deprecated Use {@link PolymerComponent#registerDataComponent(ComponentType[])} instead
+     */
+    @Deprecated
     public static void markAsPolymer(ComponentType<?>... types) {
         PolymerItemUtils.markAsPolymer(types);
     }
@@ -153,7 +160,7 @@ public final class PolymerUtils {
      * Resends inventory to player
      */
     public static void reloadInventory(ServerPlayerEntity player) {
-        player.networkHandler.sendPacket(new InventoryS2CPacket(0, 0, player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
+        player.currentScreenHandler.syncState();
     }
 
     /**

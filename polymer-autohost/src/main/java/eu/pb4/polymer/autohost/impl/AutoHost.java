@@ -3,25 +3,21 @@ package eu.pb4.polymer.autohost.impl;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.providers.AbstractProvider;
-import eu.pb4.polymer.autohost.impl.providers.NettyProvider;
 import eu.pb4.polymer.autohost.impl.providers.EmptyProvider;
+import eu.pb4.polymer.autohost.impl.providers.NettyProvider;
 import eu.pb4.polymer.autohost.impl.providers.StandaloneWebServerProvider;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
@@ -32,14 +28,11 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class AutoHost implements ModInitializer {
     public static final Map<Identifier, Supplier<ResourcePackDataProvider>> TYPES = new HashMap<>();
+    public static final List<MinecraftServer.ServerResourcePackProperties> GLOBAL_RESOURCE_PACKS = new ArrayList<>();
     public static AutoHostConfig config = new AutoHostConfig();
     public static Text message = Text.empty();
     public static Text disconnectMessage = Text.empty();
-
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
-
-    public static final List<MinecraftServer.ServerResourcePackProperties> GLOBAL_RESOURCE_PACKS = new ArrayList<>();
-
 
     public static void init(MinecraftServer server) {
         var config = CommonImpl.loadConfig("auto-host", AutoHostConfig.class);
@@ -94,20 +87,9 @@ public class AutoHost implements ModInitializer {
         provider.serverStopped(server);
     }
 
+    @Deprecated(forRemoval = true)
     public static void generateAndCall(MinecraftServer server, Consumer<Text> messageConsumer, Runnable runnable) {
-        Util.getIoWorkerExecutor().execute(() -> {
-            messageConsumer.accept(Text.literal("[Polymer] Starting resource pack generation..."));
-            boolean success = PolymerResourcePackUtils.buildMain();
-
-            server.execute(() -> {
-                if (success) {
-                    messageConsumer.accept(Text.literal("[Polymer] Resource pack created successfully!"));
-                    runnable.run();
-                } else {
-                    messageConsumer.accept(Text.literal("[Polymer] Found issues while creating resource pack! See logs above for more detail!"));
-                }
-            });
-        });
+        PolymerResourcePackMod.generateAndCall(server, true, messageConsumer, runnable);
     }
 
     public static File getFile(String path) {
@@ -133,23 +115,31 @@ public class AutoHost implements ModInitializer {
         ResourcePackDataProvider.register(Identifier.of("polymer", "standalone"), StandaloneWebServerProvider::new);
         ResourcePackDataProvider.register(Identifier.of("polymer", "empty"), EmptyProvider::new);
 
+        CommonImplUtils.registerCommands((c) -> c.then(literal("generate-pack")
+                        .requires(CommonImplUtils.permission("command.generate", 3))
+                        .then(literal("reload").executes((ctx -> {
+                            return PolymerResourcePackMod.generateResources(ctx, () -> {
+                                if (!provider.isReady()) {
+                                    ctx.getSource().sendMessage(Text.literal("[Polymer] AutoHost module isn't configured/loaded correctly so resource pack won't be synced!"));
+                                    return;
+                                }
+                                for (var player : ctx.getSource().getServer().getPlayerManager().getPlayerList()) {
+                                    for (var x : provider.getProperties(((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$getConnection())) {
+                                        player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
+                                    }
+                                }
+                            });
+                        })))
+                )
+        );
+
         CommonImplUtils.registerDevCommands((c) -> {
             c.then(literal("reload_resourcepack").executes(context -> {
                 if (provider.isReady()) {
-                    for (var x : provider.getProperties(((CommonNetworkHandlerExt) context.getSource().getPlayerOrThrow().networkHandler).polymerCommon$getConnection()
-                    )) {
+                    for (var x : provider.getProperties(((CommonNetworkHandlerExt) context.getSource().getPlayerOrThrow().networkHandler).polymerCommon$getConnection())) {
                         context.getSource().getPlayerOrThrow().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
                     }
                 }
-                return 0;
-            }));
-            c.then(literal("rebuild_reload_rp").executes(context -> {
-                generateAndCall(context.getSource().getServer(), context.getSource()::sendMessage, () -> {
-                    for (var x : provider.getProperties(((CommonNetworkHandlerExt) context.getSource().getPlayer().networkHandler).polymerCommon$getConnection()
-                    )) {
-                        context.getSource().getPlayer().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
-                    }
-                });
                 return 0;
             }));
 

@@ -25,12 +25,15 @@ public class TestInitializer implements ModInitializer {
         register(BlockModelType.FULL_BLOCK, "block/chlorophyte_block");
         register(BlockModelType.TRANSPARENT_BLOCK, "block/chair");
         register(BlockModelType.FARMLAND_BLOCK, "block/copper_block");
+        register(BlockModelType.TOP_SLAB, "block/chlorophyte_ore");
+        register(BlockModelType.TRIPWIRE_BLOCK, "block/titan_block");
         register(BlockModelType.VINES_BLOCK, "block/table");
         register(BlockModelType.BIOME_PLANT_BLOCK, "block/steel_block");
         register(BlockModelType.KELP_BLOCK, "block/titan_ore_nether");
-        registerEmpty(BlockModelType.KELP_BLOCK);
-        registerEmpty(BlockModelType.VINES_BLOCK);
-        registerEmpty(BlockModelType.PLANT_BLOCK);
+
+        for (var model : BlockModelType.values()) {
+            registerEmpty(model);
+        }
     }
 
     public static void register(BlockModelType type, String modelId) {

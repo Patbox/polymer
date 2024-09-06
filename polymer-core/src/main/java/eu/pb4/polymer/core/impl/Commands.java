@@ -98,6 +98,10 @@ public class Commands {
                         .requires(CommonImplUtils.permission("command.target-block", 3))
                         .executes(Commands::targetBlock)
                 )
+                .then(literal("target-item")
+                        .requires(CommonImplUtils.permission("command.target-item", 3))
+                        .executes(Commands::targetItem)
+                )
                 .then(literal("pick")
                         .requires(CommonImplUtils.permission("command.pick", 0))
                         .executes((ctx) -> Commands.pickTarget(ctx, false))
@@ -245,6 +249,12 @@ public class Commands {
 
         context.getSource().sendFeedback(() -> Text.literal(builder.toString()), false);
 
+        return 0;
+    }
+
+    private static int targetItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var itemStack = context.getSource().getPlayerOrThrow().getMainHandStack();
+        context.getSource().sendFeedback(() -> Text.of(Registries.ITEM.getId(itemStack.getItem())), false);
         return 0;
     }
 
