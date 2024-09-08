@@ -112,6 +112,11 @@ public final class PolymerItemUtils {
             DataComponentTypes.ENCHANTABLE,
             DataComponentTypes.USE_COOLDOWN,
             DataComponentTypes.CONSUMABLE,
+            DataComponentTypes.EQUIPPABLE,
+            DataComponentTypes.GLIDER,
+            DataComponentTypes.ITEM_MODEL,
+            DataComponentTypes.CUSTOM_MODEL_DATA,
+            DataComponentTypes.DYED_COLOR,
             DataComponentTypes.REPAIRABLE
     };
     @SuppressWarnings("rawtypes")
@@ -377,13 +382,6 @@ public final class PolymerItemUtils {
         return out;
     }
 
-    public static int getSafeColor(int inputColor) {
-        if (inputColor % 2 == 1) {
-            return Math.max(0, inputColor - 1);
-        }
-        return inputColor;
-    }
-
     /**
      * This method creates full (vanilla like) representation of ItemStack
      *
@@ -463,18 +461,6 @@ public final class PolymerItemUtils {
             out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
         }
 
-
-        if (cmd == -1 && itemStack.contains(DataComponentTypes.CUSTOM_MODEL_DATA)) {
-            out.set(DataComponentTypes.CUSTOM_MODEL_DATA, itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA));
-        } else if (cmd != -1) {
-            out.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(cmd));
-        }
-
-        if (color == -1 && itemStack.contains(DataComponentTypes.DYED_COLOR)) {
-            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(getSafeColor(itemStack.get(DataComponentTypes.DYED_COLOR).rgb()), false));
-        } else if (color != -1) {
-            out.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color, false));
-        }
 
         out.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
 

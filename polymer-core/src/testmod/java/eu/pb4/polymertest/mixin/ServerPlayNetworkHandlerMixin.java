@@ -54,6 +54,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             text.append(Text.literal(">").formatted(packet.input().right() ? Formatting.GREEN : Formatting.DARK_GRAY));
             text.append(Text.literal("-").formatted(packet.input().jump() ? Formatting.GREEN : Formatting.DARK_GRAY));
             text.append(Text.literal("_").formatted(packet.input().sneak() ? Formatting.GREEN : Formatting.DARK_GRAY));
+            text.append(Text.literal("$").formatted(packet.input().sprint() ? Formatting.GREEN : Formatting.DARK_GRAY));
             this.player.sendMessage(text, true);
         }
     }
