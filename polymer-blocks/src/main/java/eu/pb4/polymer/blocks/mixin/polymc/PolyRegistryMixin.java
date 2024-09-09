@@ -24,7 +24,9 @@ public abstract class PolyRegistryMixin {
             try {
                 // Request this specific state from PolyMc
                 // This will cause PolyMc to mark it as used
-                blockStateManager.requestBlockState(state -> state == takenState, new Block[]{takenState.getBlock()}, (block, registry) -> { });
+                blockStateManager.requestBlockState(state -> state == takenState, new Block[]{takenState.getBlock()}, (block, registry) -> {
+
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -44,8 +44,8 @@ public final class BlockResourceCreator {
     }
 
     BlockResourceCreator(ResourcePackCreator creator, BlockExtBlockMapper blockMapper, Runnable onRegister) {
-        this.states = new HashMap<>(DefaultModelData.USABLE_STATES);
-        this.models = new HashMap<>(DefaultModelData.MODELS);
+        this.states = new EnumMap<>(DefaultModelData.USABLE_STATES);
+        this.models = new IdentityHashMap<>(DefaultModelData.MODELS);
         this.creator = creator;
         this.blockMapper = blockMapper;
         this.onRegister = onRegister;

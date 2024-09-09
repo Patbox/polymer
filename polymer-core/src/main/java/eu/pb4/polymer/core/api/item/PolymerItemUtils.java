@@ -108,6 +108,8 @@ public final class PolymerItemUtils {
             DataComponentTypes.POTION_CONTENTS,
             DataComponentTypes.CUSTOM_NAME,
             DataComponentTypes.JUKEBOX_PLAYABLE,
+            DataComponentTypes.WRITABLE_BOOK_CONTENT,
+            DataComponentTypes.WRITTEN_BOOK_CONTENT,
             DataComponentTypes.CONTAINER,
     };
     @SuppressWarnings("rawtypes")
