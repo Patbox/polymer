@@ -34,30 +34,32 @@ public class polymc_ArmorColorManagerMixin {
         }
 
         // Do this entire thing twice for both armor layers
-        for (int layer = 1; layer <= 2; layer++) {
+        for (var bool : new boolean[] { false, true }) {
             // Collect all modded textures and calculate the size of the output
             for (var material : material2Color.keySet()) {
-                var id = Registries.ARMOR_MATERIAL.getId(material);
-                try {
-                    assert id != null;
-                    var texturePath = "models/armor/" + id.getPath() + "_layer_" + layer;
-                    var texture = moddedResources.getTexture(id.getNamespace(), texturePath);
-                    if (texture == null) {
-                        logger.warn("Couldn't find armor texture for " + id + ", it won't display correctly when worn");
-                        continue;
-                    }
+                for (var layer : material.layers()) {
+                    var id = layer.getTexture(bool);
+                    try {
+                        assert id != null;
+                        var texturePath = id.getPath().substring("textures/".length(), id.getPath().length() - ".png".length());
+                        var texture = moddedResources.getTexture(id.getNamespace(), texturePath);
+                        if (texture == null) {
+                            logger.warn("Couldn't find armor texture for " + id + ", it won't display correctly when worn");
+                            continue;
+                        }
 
-                    var moddedImage = ImageIO.read(texture.getTexture());
-                    if (moddedImage == null) {
-                        logger.warn("Couldn't read layer " + layer + " armor texture for " + id);
-                        continue;
-                    }
+                        var moddedImage = ImageIO.read(texture.getTexture());
+                        if (moddedImage == null) {
+                            logger.warn("Couldn't read layer " + layer + " armor texture for " + id);
+                            continue;
+                        }
 
-                    // Write the modded armor textures standalone
-                    pack.setTexture("minecraft", texturePath, moddedResources.getTexture("minecraft", texturePath));
-                } catch (Throwable e) {
-                    logger.error("Couldn't read armor texture " + id + " (layer #" + layer + ")");
-                    e.printStackTrace();
+                        // Write the modded armor textures standalone
+                        pack.setTexture(id.getNamespace(), texturePath, moddedResources.getTexture(id.getNamespace(), texturePath));
+                    } catch (Throwable e) {
+                        logger.error("Couldn't read armor texture " + id + " (layer #" + layer + ")");
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -79,7 +81,7 @@ public class polymc_ArmorColorManagerMixin {
     @Overwrite
     public int getColorForMaterial(ArmorMaterial material) {
         if (!material2Color.containsKey(material)) {
-            var color = PolymerResourcePackUtils.requestArmor(Registries.ARMOR_MATERIAL.getId(material));
+            var color = PolymerResourcePackUtils.requestArmor(Registries.ARMOR_MATERIAL.getEntry(material));
             material2Color.put(material, color.color());
         }
         return material2Color.getInt(material);

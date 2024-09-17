@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
+import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.ServerMetadataKeys;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
@@ -59,14 +60,24 @@ import static eu.pb4.polymer.networking.api.client.PolymerClientNetworking.regis
 @Environment(EnvType.CLIENT)
 public class PolymerClientProtocolHandler {
     public static final Map<Identifier, Consumer<?>> GENERIC_LIST_HANDLERS = new HashMap<>();
+    private static long syncStarted = -1;
 
     public static void register() {
         registerPlayHandler(PolymerBlockUpdateS2CPayload.class, PolymerClientProtocolHandler::handleSetBlock);
         registerPlayHandler(PolymerSectionUpdateS2CPayload.class, PolymerClientProtocolHandler::handleWorldSectionUpdate);
         registerPlayHandler(PolymerEntityS2CPayload.class, PolymerClientProtocolHandler::handleEntity);
 
-        registerCommonHandler(PolymerSyncStartedS2CPayload.class, (handler, version, buf) -> PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN));
-        registerCommonHandler(PolymerSyncFinishedS2CPayload.class, (handler, version, buf) -> PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN));
+        registerCommonHandler(PolymerSyncStartedS2CPayload.class, (handler, version, buf) -> {
+            syncStarted = System.currentTimeMillis();
+            PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
+        });
+        registerCommonHandler(PolymerSyncFinishedS2CPayload.class, (handler, version, buf) -> {
+            if (PolymerImpl.LOG_SYNC_TIME_CLIENT) {
+                PolymerImpl.LOGGER.info("Polymer Sync took {} ms", System.currentTimeMillis() - syncStarted);
+            }
+
+            PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
+        });
 
         registerCommonHandler(PolymerItemGroupDefineS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupDefine);
         registerCommonHandler(PolymerItemGroupContentAddS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupContentsAdd);

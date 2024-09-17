@@ -204,9 +204,10 @@ public class PolymerServerProtocol {
 
         if (version != -1) {
             var id = PolymerItemGroupUtils.getId(group);
+            if (id == null) {
+                return;
+            }
             handler.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupContentClearS2CPayload(id)));
-
-
 
             try {
                 var entry = PolymerItemGroupContentAddS2CPayload.of(group, handler);
@@ -224,7 +225,10 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_DEFINE);
 
         if (version > -1 && (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerItemGroupUtils.isPolymerItemGroup(group))) {
-            handler.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupDefineS2CPayload(PolymerItemGroupUtils.getId(group), group.getDisplayName(), group.getIcon())));
+            var id = PolymerItemGroupUtils.getId(group);
+            if (id != null) {
+                handler.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupDefineS2CPayload(id, group.getDisplayName(), group.getIcon())));
+            }
         }
     }
 
@@ -232,7 +236,10 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.SYNC_ITEM_GROUP_REMOVE);
 
         if (version > -1 && PolymerItemGroupUtils.isPolymerItemGroup(group)) {
-            player.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupRemoveS2CPayload(PolymerItemGroupUtils.REGISTRY.getId(group))));
+            var x = PolymerItemGroupUtils.REGISTRY.getId(group);
+            if (x != null) {
+                player.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupRemoveS2CPayload(x)));
+            }
         }
     }
 

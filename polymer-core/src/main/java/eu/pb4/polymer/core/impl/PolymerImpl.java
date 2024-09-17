@@ -17,6 +17,7 @@ public final class PolymerImpl {
     public static final boolean ADD_NON_POLYMER_CREATIVE_TABS;
     public static final boolean RESEND_BLOCKS_AROUND_CLICK;
     public static final boolean LOG_SYNC_TIME;
+    public static final boolean LOG_SYNC_TIME_CLIENT;
     public static final boolean LOG_BLOCKSTATE_REBUILDS;
     public static final boolean LOG_INVALID_SERVER_IDS_CLIENT;
     public static final boolean CHANGING_QOL_CLIENT;
@@ -50,11 +51,13 @@ public final class PolymerImpl {
             LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
             CHANGING_QOL_CLIENT = !clientConfig.disableNonVisualQualityOfLifeChanges;
             USE_UNSAFE_ITEMS_CLIENT = clientConfig.experimentalModdedContainerSupport;
+            LOG_SYNC_TIME_CLIENT = clientConfig.logHandshakeTime;
         } else {
             DISPLAY_DEBUG_INFO_CLIENT = false;
             LOG_INVALID_SERVER_IDS_CLIENT = false;
             CHANGING_QOL_CLIENT = false;
             USE_UNSAFE_ITEMS_CLIENT = false;
+            LOG_SYNC_TIME_CLIENT = false;
         }
     }
 }
