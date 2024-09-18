@@ -8,6 +8,7 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Equipment;
@@ -90,10 +91,19 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
 
         if (itemStack.getItem() instanceof PolymerItem polymerItem) {
             var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player);
-            if (data.item() instanceof Equipment equipment && equipment.getSlotType().isArmorSlot()) {
-                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
+            if (data.item() instanceof Equipment equipment) {
+                if (equipment.getSlotType().getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(),
+                            packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
 
-                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), 8 - equipment.getSlotType().getEntitySlotId(), this.player.getEquippedStack(equipment.getSlotType())));
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(),
+                            8 - equipment.getSlotType().getEntitySlotId(), this.player.getEquippedStack(equipment.getSlotType())));
+                } else if (equipment.getSlotType().getType() == EquipmentSlot.Type.ANIMAL_ARMOR && packet.getHand() == Hand.OFF_HAND) {
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(),
+                            45, itemStack));
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(),
+                            36 + this.player.getInventory().selectedSlot, this.player.getMainHandStack()));
+                }
             }
         }
     }
