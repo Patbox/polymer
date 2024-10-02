@@ -88,7 +88,7 @@ public final class PolymerItemUtils {
             DataComponentTypes.TOOL,
             DataComponentTypes.MAX_STACK_SIZE,
             DataComponentTypes.FOOD,
-            DataComponentTypes.FIRE_RESISTANT,
+            DataComponentTypes.DAMAGE_RESISTANT,
             DataComponentTypes.FIREWORKS,
             DataComponentTypes.FIREWORK_EXPLOSION,
             DataComponentTypes.DAMAGE,

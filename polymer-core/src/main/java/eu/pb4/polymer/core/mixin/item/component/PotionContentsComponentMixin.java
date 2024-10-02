@@ -31,7 +31,7 @@ public abstract class PotionContentsComponentMixin implements TransformingCompon
             return this;
         }
 
-        return new PotionContentsComponent(Optional.empty(), Optional.of(this.getColor()), List.of());
+        return new PotionContentsComponent(Optional.empty(), Optional.of(this.getColor()), List.of(), Optional.empty());
     }
 
     @Override

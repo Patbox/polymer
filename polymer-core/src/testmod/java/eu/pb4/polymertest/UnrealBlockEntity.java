@@ -9,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -24,6 +25,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -124,6 +126,11 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     @Override
     public void onPlayerCollision(PlayerEntity player) {
         super.onPlayerCollision(player);
+    }
+
+    @Override
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        return false;
     }
 
     @Override

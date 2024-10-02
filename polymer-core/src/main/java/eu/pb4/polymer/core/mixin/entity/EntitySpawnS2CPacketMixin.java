@@ -33,23 +33,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntitySpawnS2CPacket.class)
 public class EntitySpawnS2CPacketMixin {
-    @Shadow @Final private int entityData;
-
-    @Shadow @Mutable
-    private double x;
-
-    @Shadow @Mutable
-    private double y;
-
-    @Shadow @Mutable
-    private double z;
-
-    @Shadow @Mutable
-    private byte yaw;
-
-    @Shadow @Mutable
-    private byte pitch;
-
     @Shadow @Final private EntityType<?> entityType;
 
     @Shadow @Final private int entityId;
@@ -70,29 +53,5 @@ public class EntitySpawnS2CPacketMixin {
         }
 
         return data;
-    }
-
-    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;Lnet/minecraft/server/network/EntityTrackerEntry;I)V", at = @At("TAIL"))
-    private void polymer$changePosition(Entity entity, EntityTrackerEntry entityTrackerEntry, int entityData, CallbackInfo ci) {
-        if (entity instanceof PolymerEntity virtualEntity) {
-            Vec3d vec3d = virtualEntity.getClientSidePosition(entityTrackerEntry.getPos());
-            this.x = vec3d.x;
-            this.y = vec3d.y;
-            this.z = vec3d.z;
-            this.yaw = (byte)((int)(virtualEntity.getClientSideYaw(entityTrackerEntry.getYaw()) * 256.0F / 360.0F));
-            this.pitch = (byte)((int)(virtualEntity.getClientSidePitch(entityTrackerEntry.getPitch()) * 256.0F / 360.0F));
-        }
-    }
-
-    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;ILnet/minecraft/util/math/BlockPos;)V", at = @At("TAIL"))
-    private void polymer$changePosition2(Entity entity, int entityTypeId, BlockPos pos, CallbackInfo ci) {
-        if (entity instanceof PolymerEntity virtualEntity) {
-            Vec3d vec3d = virtualEntity.getClientSidePosition(entity.getPos());
-            this.x = vec3d.x;
-            this.y = vec3d.y;
-            this.z = vec3d.z;
-            this.yaw = (byte)((int)(virtualEntity.getClientSideYaw(entity.getYaw()) * 256.0F / 360.0F));
-            this.pitch = (byte)((int)(virtualEntity.getClientSidePitch(entity.getPitch()) * 256.0F / 360.0F));
-        }
     }
 }

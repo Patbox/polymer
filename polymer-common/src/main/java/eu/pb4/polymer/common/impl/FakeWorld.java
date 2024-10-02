@@ -118,7 +118,7 @@ public final class FakeWorld extends World implements LightSourceView {
                     new BannerPattern(Identifier.of("polymer","fake_pattern"), "")));
             addRegistry(new FakeRegistry<>(RegistryKeys.PAINTING_VARIANT,
                     Identifier.of("polymer","painting"),
-                    new PaintingVariant(1, 1, Identifier.of("polymer","painting"))));
+                    new PaintingVariant(1, 1, Identifier.of("polymer","painting"), Optional.empty(), Optional.empty())));
             addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_VARIANT,
                     Identifier.of("polymer","wolf"),
                     new WolfVariant(Identifier.of("polymer","wolf"), Identifier.of("polymer","wolf"),Identifier.of("polymer","wolf"), RegistryEntryList.empty())));
@@ -243,7 +243,6 @@ public final class FakeWorld extends World implements LightSourceView {
             accessor.polymer$setBiomeAccess(new BiomeAccess(worldUnsafe, 1l));
             accessor.polymer$setBorder(new WorldBorder());
             accessor.polymer$setDebugWorld(true);
-            accessor.polymer$setProfiler(() -> new ProfilerSystem(() -> 0l, () -> 0, false));
             accessor.polymer$setProperties(new FakeWorldProperties());
             accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, Identifier.of("polymer","fake_world")));
             //accessor.polymer$setDimensionKey(DimensionTypes.OVERWORLD);
@@ -269,7 +268,6 @@ public final class FakeWorld extends World implements LightSourceView {
                     new FakeWorldProperties(),
                     RegistryKey.of(RegistryKeys.WORLD, Identifier.of("polymer", "fake_world")),
                     dimType,
-                    () -> new ProfilerSystem(() -> 0l, () -> 0, false),
                     false,
                     true,
                     1
@@ -288,8 +286,8 @@ public final class FakeWorld extends World implements LightSourceView {
 
     private TickManager tickManager = new TickManager();
 
-    protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
-        super(properties, registryRef, FALLBACK_REGISTRY_MANAGER, dimensionType, profiler, isClient, debugWorld, seed, 0);
+    protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, boolean isClient, boolean debugWorld, long seed) {
+        super(properties, registryRef, FALLBACK_REGISTRY_MANAGER, dimensionType, isClient, debugWorld, seed, 0);
     }
 
     @Override
@@ -491,10 +489,6 @@ public final class FakeWorld extends World implements LightSourceView {
             return false;
         }
 
-        @Override
-        public GameRules getGameRules() {
-            return new GameRules(FeatureSet.empty());
-        }
 
         @Override
         public Difficulty getDifficulty() {

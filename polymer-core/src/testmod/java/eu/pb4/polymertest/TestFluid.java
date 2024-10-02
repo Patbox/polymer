@@ -4,6 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.world.World;
@@ -43,7 +44,7 @@ public abstract class TestFluid extends BaseTestFluid {
         }
 
         @Override
-        protected boolean isInfinite(World world) {
+        protected boolean isInfinite(ServerWorld world) {
             return false;
         }
 
@@ -59,8 +60,9 @@ public abstract class TestFluid extends BaseTestFluid {
     }
 
     public static class Still extends TestFluid {
+
         @Override
-        protected boolean isInfinite(World world) {
+        protected boolean isInfinite(ServerWorld world) {
             return false;
         }
 

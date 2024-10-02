@@ -7,10 +7,11 @@ import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.SetCameraEntityS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.EntityPositionS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.PlaySoundFromEntityS2CPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.class_10264;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerPosition;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
@@ -97,21 +98,8 @@ public final class VirtualEntityUtils {
 
             return null;
         } else {
-            return createSimpleMovePacket(id, newPos, (byte) byteYaw, (byte) bytePitch);
+            return new class_10264(id, new PlayerPosition(newPos, Vec3d.ZERO, yaw, pitch), false);
         }
-    }
-
-    public static Packet<ClientPlayPacketListener> createSimpleMovePacket(int id, Vec3d newPos, byte yaw, byte pitch) {
-        var packet = PolymerCommonUtils.createUnsafe(EntityPositionS2CPacket.class);
-        var accessor = (EntityPositionS2CPacketAccessor) packet;
-        accessor.setId(id);
-        accessor.setX(newPos.x);
-        accessor.setY(newPos.y);
-        accessor.setZ(newPos.z);
-        accessor.setOnGround(false);
-        accessor.setPitch(pitch);
-        accessor.setYaw(yaw);
-        return packet;
     }
 
     public static EntityPassengersSetS2CPacket createRidePacket(int id, IntList list) {

@@ -33,10 +33,6 @@ public interface WorldAccessor {
     void polymer$setProperties(MutableWorldProperties properties);
 
     @Mutable
-    @Accessor("profiler")
-    void polymer$setProfiler(Supplier<Profiler> profiler);
-
-    @Mutable
     @Accessor("border")
     void polymer$setBorder(WorldBorder border);
 

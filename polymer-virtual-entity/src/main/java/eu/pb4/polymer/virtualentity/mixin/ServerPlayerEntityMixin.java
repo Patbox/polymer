@@ -54,7 +54,7 @@ public class ServerPlayerEntityMixin {
         }
     }
 
-    @Inject(method = "teleportTo(Lnet/minecraft/world/TeleportTarget;)Lnet/minecraft/entity/player/PlayerEntity;", at = @At(value = "RETURN"))
+    @Inject(method = "teleportTo(Lnet/minecraft/world/TeleportTarget;)Lnet/minecraft/server/network/ServerPlayerEntity;", at = @At(value = "RETURN"))
     private void polymerVE$removeOnWorldChange3(TeleportTarget teleportTarget, CallbackInfoReturnable<Entity> cir) {
         for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
             if (holder.getAttachment() != null) {

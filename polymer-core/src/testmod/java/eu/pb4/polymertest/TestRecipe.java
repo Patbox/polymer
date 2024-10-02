@@ -1,22 +1,22 @@
 package eu.pb4.polymertest;
 
-import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.item.PolymerRecipe;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import net.minecraft.inventory.Inventory;
+import net.minecraft.client.recipebook.RecipeBookGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.item.Items;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.*;
+import net.minecraft.recipe.display.RecipeDisplay;
+import net.minecraft.recipe.display.SlotDisplay;
+import net.minecraft.recipe.display.SmithingRecipeDisplay;
 import net.minecraft.recipe.input.RecipeInput;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public class TestRecipe implements Recipe<RecipeInput>, PolymerRecipe {
 
@@ -26,10 +26,6 @@ public class TestRecipe implements Recipe<RecipeInput>, PolymerRecipe {
         this.output = output;
     }
 
-    @Override
-    public Recipe<?> getPolymerReplacement(ServerPlayerEntity player) {
-        return PolymerRecipe.createStonecuttingRecipe(this);
-    }
 
     @Override
     public boolean matches(RecipeInput inventory, World world) {
@@ -42,28 +38,36 @@ public class TestRecipe implements Recipe<RecipeInput>, PolymerRecipe {
     }
 
     @Override
-    public boolean fits(int width, int height) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getResult(RegistryWrapper.WrapperLookup lookup) {
-        return this.output;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends Recipe<RecipeInput>> getSerializer() {
         return TestMod.TEST_RECIPE_SERIALIZER;
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<? extends Recipe<RecipeInput>> getType() {
         return TestMod.TEST_RECIPE_TYPE;
     }
 
     @Override
     public IngredientPlacement getIngredientPlacement() {
         return IngredientPlacement.NONE;
+    }
+
+    @Override
+    public List<RecipeDisplay> getDisplays() {
+        return List.of(new SmithingRecipeDisplay(
+                new SlotDisplay.StackSlotDisplay(Items.TNT.getDefaultStack()),
+                new SlotDisplay.StackSlotDisplay(Items.TNT.getDefaultStack())
+        ));
+    }
+
+    @Override
+    public boolean isIgnoredInRecipeBook() {
+        return true;
+    }
+
+    @Override
+    public RecipeBookGroup getRecipeBookTab() {
+        return RecipeBookGroup.CAMPFIRE;
     }
 
     public static class Serializer implements RecipeSerializer<TestRecipe>, PolymerObject {

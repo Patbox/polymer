@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$16", priority = 500)
+@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$17", priority = 500)
 public abstract class PacketCodecsEntriesMixin {
 
     @ModifyVariable(method = "encode(Lio/netty/buffer/ByteBuf;Ljava/lang/Object;)V", at = @At("HEAD"), argsOnly = true)

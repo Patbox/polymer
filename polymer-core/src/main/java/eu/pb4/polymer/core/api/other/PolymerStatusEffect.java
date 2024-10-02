@@ -17,7 +17,7 @@ public interface PolymerStatusEffect extends PolymerSyncedObject<StatusEffect> {
     default ItemStack getPolymerIcon(ServerPlayerEntity player) {
         var icon = Items.POTION.getDefaultStack();
         icon.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Optional.empty(),
-                Optional.of(((StatusEffect) this).getColor()), List.of() ));
+                Optional.of(((StatusEffect) this).getColor()), List.of(), Optional.empty()));
         return icon;
     }
 

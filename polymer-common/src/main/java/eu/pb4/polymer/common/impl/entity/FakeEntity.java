@@ -4,11 +4,13 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.FakeWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.server.network.EntityTrackerEntry;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -21,6 +23,11 @@ class FakeEntity extends Entity {
 
     @Override
     protected void initDataTracker(DataTracker.Builder builder) {}
+
+    @Override
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        return false;
+    }
 
     @Override
     protected void readCustomDataFromNbt(NbtCompound nbt) {

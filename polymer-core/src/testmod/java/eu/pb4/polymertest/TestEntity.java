@@ -35,16 +35,6 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public float getClientSidePitch(float pitch) {
-        return 180;
-    }
-
-    @Override
-    public Vec3d getClientSidePosition(Vec3d vec3d) {
-        return vec3d.add(1, 1, 1);
-    }
-
-    @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         return TestMod.GHOST_HURT;
     }

@@ -63,42 +63,6 @@ public interface PolymerEntity extends PolymerObject {
     }
 
     /**
-     * This method allows to modify position of entity on client
-     * @param vec3d Real position
-     * @return Client-side position
-     */
-    default Vec3d getClientSidePosition(Vec3d vec3d) {
-        return vec3d;
-    }
-
-    /**
-     * This method allows to modify yaw of entity on client
-     * @param yaw Real yaw stateValue
-     * @return Client-side yaw stateValue
-     */
-    default float getClientSideYaw(float yaw) {
-        return yaw;
-    }
-
-    /**
-     * This method allows to modify head yaw of entity on client
-     * @param yaw Real yaw stateValue
-     * @return Client-side yaw stateValue
-     */
-    default float getClientSideHeadYaw(float yaw) {
-        return yaw;
-    }
-
-    /**
-     * This method allows to modify pitch of entity on client
-     * @param pitch Real pitch stateValue
-     * @return Client-side pitch stateValue
-     */
-    default float getClientSidePitch(float pitch) {
-        return pitch;
-    }
-
-    /**
      * Allows disabling sending packets to player
      * @param player
      * @return true to allow, false to disable

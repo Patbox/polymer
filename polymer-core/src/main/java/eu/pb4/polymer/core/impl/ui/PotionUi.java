@@ -45,7 +45,7 @@ public class PotionUi extends MicroUi {
                 }
             } else {
                 icon = Items.POTION.getDefaultStack();
-                icon.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Optional.empty(), Optional.of(effectInstance.getEffectType().value().getColor()), List.of()));
+                icon.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Optional.empty(), Optional.of(effectInstance.getEffectType().value().getColor()), List.of(), Optional.empty()));
             }
             icon.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
             icon.set(DataComponentTypes.RARITY, Rarity.COMMON);

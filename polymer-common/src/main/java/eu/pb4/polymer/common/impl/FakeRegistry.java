@@ -131,11 +131,6 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
     }
 
     @Override
-    public Optional<RegistryEntry.Reference<T>> getEntry(RegistryKey<T> key) {
-        return Optional.of(RegistryEntry.Reference.standAlone(this, key));
-    }
-
-    @Override
     public RegistryEntry<T> getEntry(T value) {
         return RegistryEntry.of(value);
     }

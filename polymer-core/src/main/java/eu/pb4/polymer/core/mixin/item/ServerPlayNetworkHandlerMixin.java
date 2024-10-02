@@ -62,7 +62,6 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             this.polymerCore$language = packet.options().language();
             PolymerServerProtocol.sendSyncPackets(player.networkHandler, true);
             this.sendPacket(new SynchronizeTagsS2CPacket(TagPacketSerializer.serializeTags(this.player.getServerWorld().getServer().getCombinedDynamicRegistries())));
-            this.sendPacket(new SynchronizeRecipesS2CPacket(this.player.getServerWorld().getRecipeManager().values()));
             this.player.getRecipeBook().sendInitRecipesPacket(this.player);
         }
     }
