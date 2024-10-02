@@ -7,12 +7,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 public class BlockExtBlockMapper implements BlockMapper {
     public static final BlockExtBlockMapper INSTANCE = new BlockExtBlockMapper(BlockMapper.createDefault());
 
-    public final Map<BlockState, BlockState> stateMap = new HashMap<>();
+    public final Map<BlockState, BlockState> stateMap = new IdentityHashMap<>();
     private final BlockMapper baseMapper;
 
     public BlockExtBlockMapper(BlockMapper baseMapper) {

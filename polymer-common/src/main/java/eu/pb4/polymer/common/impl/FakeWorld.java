@@ -14,6 +14,8 @@ import net.minecraft.entity.damage.DamageScaling;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.damage.DamageType;
+import net.minecraft.entity.decoration.painting.PaintingVariant;
+import net.minecraft.entity.passive.WolfVariant;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.FuelRegistry;
@@ -23,6 +25,7 @@ import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.entry.RegistryEntryOwner;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
@@ -32,6 +35,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.Util;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -80,11 +84,7 @@ public final class FakeWorld extends World implements LightSourceView {
     static final Scoreboard SCOREBOARD = new Scoreboard();
 
     static final DynamicRegistryManager FALLBACK_REGISTRY_MANAGER = new DynamicRegistryManager.Immutable() {
-        private final FakeRegistry<DamageType> damageTypes = new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, Identifier.of("polymer","fake_damage"),
-                new DamageType("", DamageScaling.NEVER, 0));
-        private final FakeRegistry<BannerPattern> bannerPatterns = new FakeRegistry<>(RegistryKeys.BANNER_PATTERN,
-                Identifier.of("polymer","fake_pattern"),
-                new BannerPattern(Identifier.of("polymer","fake_pattern"), ""));
+        private static final Map<RegistryKey<?>, Registry<?>> REGISTRIES = new HashMap<>();
         @Override
         public Optional<Registry> getOptional(RegistryKey key) {
             var x = Registries.REGISTRIES.get(key);
@@ -92,10 +92,10 @@ public final class FakeWorld extends World implements LightSourceView {
                 return Optional.of(x);
             }
 
-            if (RegistryKeys.DAMAGE_TYPE.equals(key)) {
-                return Optional.of(damageTypes);
-            } else if (RegistryKeys.BANNER_PATTERN.equals(key)) {
-                return Optional.of(bannerPatterns);
+            var reg = REGISTRIES.get(key);
+
+            if (reg != null) {
+                return Optional.of(reg);
             }
 
             return Optional.empty();
@@ -104,6 +104,24 @@ public final class FakeWorld extends World implements LightSourceView {
         @Override
         public Stream<Entry<?>> streamAllRegistries() {
             return Stream.empty();
+        }
+
+        public static void addRegistry(FakeRegistry<?> registry) {
+            REGISTRIES.put(registry.getKey(), registry);
+        }
+
+        static {
+            addRegistry(new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, Identifier.of("polymer","fake_damage"),
+                    new DamageType("", DamageScaling.NEVER, 0)));
+            addRegistry(new FakeRegistry<>(RegistryKeys.BANNER_PATTERN,
+                    Identifier.of("polymer","fake_pattern"),
+                    new BannerPattern(Identifier.of("polymer","fake_pattern"), "")));
+            addRegistry(new FakeRegistry<>(RegistryKeys.PAINTING_VARIANT,
+                    Identifier.of("polymer","painting"),
+                    new PaintingVariant(1, 1, Identifier.of("polymer","painting"))));
+            addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_VARIANT,
+                    Identifier.of("polymer","wolf"),
+                    new WolfVariant(Identifier.of("polymer","wolf"), Identifier.of("polymer","wolf"),Identifier.of("polymer","wolf"), RegistryEntryList.empty())));
         }
     };
     static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);

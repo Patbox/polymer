@@ -42,6 +42,14 @@ import static eu.pb4.polymer.resourcepack.api.AssetPaths.armorTexture;
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Gson GSON = CommonImpl.GSON;
+    private static final Comparator<JsonElement> CMD_COMPARATOR = Comparator.comparingInt(x -> {
+        try {
+            return x.getAsJsonObject().getAsJsonObject("predicate").get("custom_model_data").getAsInt();
+        } catch(Throwable ignored) {
+            return Integer.MAX_VALUE;
+        }
+    });
+
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
     private final Map<Item, JsonArray[]> customModels = new HashMap<>();
     private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
@@ -453,8 +461,20 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
 
                         if (modelObject.has("overrides")) {
-                            this.getCustomModels(key, OverridePlace.EXISTING).addAll(modelObject.getAsJsonArray("overrides"));
+                            var x = modelObject.getAsJsonArray("overrides");
+                            var cmd = this.getCustomModels(key, OverridePlace.CUSTOM_MODEL_DATA);
+                            var existing = this.getCustomModels(key, OverridePlace.EXISTING);
+                            for (var element : x) {
+                                var obj = element.getAsJsonObject();
+                                if (obj.has("predicate") && obj.getAsJsonObject("predicate").has("custom_model_data")) {
+                                    cmd.add(obj);
+                                } else {
+                                    existing.add(obj);
+                                }
+                            }
                         }
+
+                        this.getCustomModels(key, OverridePlace.CUSTOM_MODEL_DATA).asList().sort(CMD_COMPARATOR);
 
                         var jsonArray = new JsonArray();
 

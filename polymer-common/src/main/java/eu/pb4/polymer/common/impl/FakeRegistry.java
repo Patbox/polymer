@@ -34,7 +34,7 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Optional<RegistryKey<T>> getKey(T entry) {
-        return Optional.empty();
+        return Optional.of(RegistryKey.of(registryKey, defaultId));
     }
 
     @Override
@@ -67,7 +67,7 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Optional<RegistryEntryInfo> getEntryInfo(RegistryKey<T> key) {
-        return Optional.empty();
+        return Optional.of(RegistryEntryInfo.DEFAULT);
     }
 
     @Override
@@ -77,7 +77,7 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Optional<RegistryEntry.Reference<T>> getDefaultEntry() {
-        return Optional.empty();
+        return Optional.of(createEntry(defaultValue));
     }
 
     @Override
@@ -122,12 +122,17 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Optional<RegistryEntry.Reference<T>> getEntry(int rawId) {
-        return Optional.empty();
+        return getDefaultEntry();
     }
 
     @Override
     public Optional<RegistryEntry.Reference<T>> getEntry(Identifier id) {
-        return Optional.of(RegistryEntry.Reference.intrusive(this, this.defaultValue));
+        return getDefaultEntry();
+    }
+
+    @Override
+    public Optional<RegistryEntry.Reference<T>> getEntry(RegistryKey<T> key) {
+        return Optional.of(RegistryEntry.Reference.standAlone(this, key));
     }
 
     @Override
@@ -137,7 +142,7 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Stream<RegistryEntry.Reference<T>> streamEntries() {
-        return null;
+        return Stream.empty();
     }
 
     @Override
@@ -147,7 +152,7 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Stream<RegistryEntryList.Named<T>> streamTags() {
-        return null;
+        return Stream.empty();
     }
 
     @Override

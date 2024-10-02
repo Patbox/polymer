@@ -19,6 +19,7 @@ public class PolymerResourcePackImpl {
     public static final List<String> INCLUDE_ZIPS;
     public static final UUID MAIN_UUID;
     public static final Path DEFAULT_PATH;
+    public static final String FILE_NAME;
     public static final List<String> PREVENTED_PATHS;
 
 
@@ -26,6 +27,7 @@ public class PolymerResourcePackImpl {
         var config = CommonImpl.loadConfig("resource-pack", Config.class);
 
         DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve(config.resourcePackPath);
+        FILE_NAME = config.resourcePackPath;
 
         MAIN_UUID = config.mainUuid;
 

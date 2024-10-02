@@ -85,7 +85,7 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                     alreadyGeneration = false;
                     if (success) {
                         messageConsumer.accept(Text.literal("[Polymer] Resource pack created successfully! You can find it in game folder as ")
-                                .append(Text.literal("polymer-resourcepack.zip")
+                                .append(Text.literal(PolymerResourcePackImpl.FILE_NAME)
                                         .setStyle(Style.EMPTY.withUnderline(true)
                                                 .withHoverEvent(new HoverEvent(
                                                         HoverEvent.Action.SHOW_TEXT,

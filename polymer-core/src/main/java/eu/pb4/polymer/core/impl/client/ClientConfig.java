@@ -11,4 +11,6 @@ public class ClientConfig {
     public boolean disableNonVisualQualityOfLifeChanges = PolymerImpl.DEV_ENV;
     public String _c7 = "Enables experimental support for less standard modded containers, allowing them to display polymer items";
     public boolean experimentalModdedContainerSupport = true;
+    public String _c11 = "Makes polymer report time it's handshake took";
+    public boolean logHandshakeTime = false;
 }

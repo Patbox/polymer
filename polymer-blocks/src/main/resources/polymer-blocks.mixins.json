@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "eu.pb4.polymer.blocks.mixin.PolymerBlocksMixinConfigPlugin",
   "mixins": [
+    "polymc.PolyMapImplMixin",
     "polymc.PolyRegistryMixin"
   ],
   "client": [

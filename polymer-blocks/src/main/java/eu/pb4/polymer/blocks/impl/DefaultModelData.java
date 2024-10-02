@@ -10,16 +10,13 @@ import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class DefaultModelData {
-    public static final Map<BlockModelType, List<BlockState>> USABLE_STATES = new HashMap<>();
-    public static final Map<BlockState, BlockState> SPECIAL_REMAPS = new HashMap<>();
-    public static final Map<BlockState, PolymerBlockModel[]> MODELS = new HashMap<>();
+    public static final Map<BlockModelType, List<BlockState>> USABLE_STATES = new EnumMap<>(BlockModelType.class);
+    public static final Map<BlockState, BlockState> SPECIAL_REMAPS = new IdentityHashMap<>();
+    public static final Map<BlockState, PolymerBlockModel[]> MODELS = new IdentityHashMap<>();
 
     private static final Predicate<BlockState> WATERLOGGED_PREDICATE = (state -> state.getBlock() instanceof Waterloggable && state.get(Properties.WATERLOGGED));
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof Waterloggable && state.get(Properties.WATERLOGGED)));
