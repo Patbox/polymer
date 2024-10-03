@@ -85,6 +85,15 @@ public final class PolymerResourcePackUtils {
         return REQUIRED;
     }
 
+
+    public static boolean addBridgedModelsFolder(Identifier modelFolderId) {
+        return INSTANCE.addBridgedModelsFolder(modelFolderId);
+    }
+
+    public static Identifier getBridgedModelId(Identifier model) {
+        return model.withPrefixedPath("-/");
+    }
+
     /**
      * Allows to check if player has selected server side resoucepack installed
      * However it's impossible to check if it's polymer one or not

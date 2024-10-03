@@ -7,7 +7,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.function.BiConsumer;
 
@@ -20,7 +22,10 @@ public class ClickItem extends SimplePolymerItem {
         this.executor = executor;
     }
 
-
+    @Override
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return null;
+    }
 
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {

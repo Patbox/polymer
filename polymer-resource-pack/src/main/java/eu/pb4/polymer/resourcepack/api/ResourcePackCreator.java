@@ -21,6 +21,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -40,6 +41,7 @@ public final class ResourcePackCreator {
 
     private final Set<String> modIds = new HashSet<>();
     private final Set<String> modIdsNoCopy = new HashSet<>();
+    private final Set<Identifier> bridgedModels = new HashSet<>();
     private final int cmdOffset;
     private Text packDescription = null;
     private byte[] packIcon = null;
@@ -122,6 +124,10 @@ public final class ResourcePackCreator {
         this.itemIds.put(vanillaItem, Math.max(this.itemIds.getInt(vanillaItem), customModelData + 1));
         map.put(modelPath, cmdInfo);
         return cmdInfo;
+    }
+
+    public boolean addBridgedModelsFolder(Identifier modelFolderId) {
+        return this.bridgedModels.add(modelFolderId);
     }
 
     /**
@@ -279,6 +285,30 @@ public final class ResourcePackCreator {
         status.accept("action:late_creation_event_start");
         this.afterInitialCreationEvent.invoke((x) -> x.accept(builder));
         status.accept("action:late_creation_event_finish");
+
+        if (!this.bridgedModels.isEmpty()) {
+            builder.addPreFinishTask((b) -> {
+                b.forEachFile((path, out) -> {
+                    if (!path.startsWith("assets/")) {
+                        return;
+                    }
+                    path = path.substring("assets/".length());
+
+                    for (var x : this.bridgedModels) {
+                        var y = x.getNamespace() + "/models/" + x.getPath() + "/";
+                        if (path.startsWith(y)) {
+                            if (!path.endsWith(".json")) {
+                                return;
+                            }
+                            path = path.substring(x.getNamespace().length() + "/models/".length(), path.length() - ".json".length());
+                            b.addData("assets/" + x.getNamespace() + "/models/item/-/" + path + ".json",
+                                    ("{\"parent\":\"" + x.getNamespace() + ":" + path + "\"}").getBytes(StandardCharsets.UTF_8));
+                            return;
+                        }
+                    }
+                });
+            });
+        }
 
         status.accept("action:build");
         successful = builder.buildResourcePack().get() && successful;

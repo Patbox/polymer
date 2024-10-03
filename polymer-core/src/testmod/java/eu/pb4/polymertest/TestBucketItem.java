@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
@@ -9,7 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public class TestBucketItem extends BucketItem implements PolymerItem {
+public class TestBucketItem extends BucketItem implements VanillaModeledPolymerItem {
     private final Item polymerItem;
 
     public TestBucketItem(Fluid fluid, Settings settings, Item polymerItem) {

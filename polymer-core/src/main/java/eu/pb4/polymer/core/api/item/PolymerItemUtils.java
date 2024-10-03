@@ -117,7 +117,6 @@ public final class PolymerItemUtils {
             DataComponentTypes.CONSUMABLE,
             DataComponentTypes.EQUIPPABLE,
             DataComponentTypes.GLIDER,
-            DataComponentTypes.ITEM_MODEL,
             DataComponentTypes.CUSTOM_MODEL_DATA,
             DataComponentTypes.DYED_COLOR,
             DataComponentTypes.REPAIRABLE
@@ -351,13 +350,16 @@ public final class PolymerItemUtils {
      */
     public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, PacketContext context) {
         Item item = itemStack.getItem();
+        Identifier model = null;
         boolean storeCount;
         if (itemStack.getItem() instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, context);
             item = data.item();
             storeCount = virtualItem.shouldStorePolymerItemStackCount();
+            model = data.itemModel != null ? data.itemModel : item.getComponents().get(DataComponentTypes.ITEM_MODEL);
         } else {
             storeCount = false;
+            model = itemStack.get(DataComponentTypes.ITEM_MODEL);
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
@@ -365,6 +367,10 @@ public final class PolymerItemUtils {
             if (itemStack.getComponents().get(x) == null) {
                 out.set(x, null);
             }
+        }
+
+        if (model != null) {
+            out.set(DataComponentTypes.ITEM_MODEL, model);
         }
 
         for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {

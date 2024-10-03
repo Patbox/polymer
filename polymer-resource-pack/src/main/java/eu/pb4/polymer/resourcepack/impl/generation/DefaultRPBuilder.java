@@ -8,6 +8,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.PolymerModelData;
+import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.impl.ArmorTextureMetadata;
 import eu.pb4.polymer.resourcepack.impl.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
@@ -62,6 +64,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private final List<BiFunction<String, byte[], @Nullable byte[]>> converters = new ArrayList<>();
     private boolean hasVanilla;
     private final PackMcMeta.Builder packMetadata = new PackMcMeta.Builder();
+    private final List<Consumer<ResourcePackBuilder>> preFinishTask = new ArrayList<>();
 
     public DefaultRPBuilder(Path outputPath) {
         try {
@@ -333,6 +336,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
+    public void forEachFile(BiConsumer<String, byte[]> consumer) {
+        Map.copyOf(this.fileMap).forEach(consumer);
+    }
+
+    @Override
     public boolean addAssetsSource(String modId) {
         if (FabricLoader.getInstance().isModLoaded(modId)) {
             this.rootPaths.addAll(FabricLoader.getInstance().getModContainer(modId).get().getRootPaths());
@@ -345,6 +353,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     @Override
     public void addWriteConverter(BiFunction<String, byte[], @Nullable byte[]> converter) {
         this.converters.add(converter);
+    }
+
+    @Override
+    public void addPreFinishTask(Consumer<ResourcePackBuilder> consumer) {
+        this.preFinishTask.add(consumer);
     }
 
     @Nullable
@@ -518,6 +531,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 this.fileMap.put("polymer-credits.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
 
+
+                for (var task : this.preFinishTask) {
+                    task.accept(this);
+                }
+
                 bool &= this.writeSingleZip();
 
                 return bool;
@@ -539,7 +557,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 var split = new ArrayList<>(List.of(path.split("/")));
                 while (split.size() > 1) {
                     split.remove(split.size() - 1);
-
                     this.fileMap.put(String.join("/", split) + "/", null);
                 }
 

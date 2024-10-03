@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
 import net.minecraft.item.equipment.ArmorMaterials;
 import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.item.tooltip.TooltipType;
@@ -18,7 +19,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public class TestHelmetItem extends ArmorItem implements PolymerItem {
+public class TestHelmetItem extends ArmorItem implements VanillaModeledPolymerItem {
     public TestHelmetItem(Settings settings) {
         super(ArmorMaterials.IRON, EquipmentType.HELMET, settings);
     }
@@ -30,7 +31,7 @@ public class TestHelmetItem extends ArmorItem implements PolymerItem {
 
     @Override
     public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
-        var x = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
+        var x = VanillaModeledPolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
         x.set(DataComponentTypes.RARITY, Rarity.EPIC);
         return x;
     }

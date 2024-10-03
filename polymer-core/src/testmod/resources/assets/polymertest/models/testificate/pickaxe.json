@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "polymertest:item/pickaxe",
+    "layer1": "minecraft:item/diamond_sword"
+  }
+}

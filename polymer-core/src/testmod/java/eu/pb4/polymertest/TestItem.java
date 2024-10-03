@@ -16,6 +16,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
@@ -34,6 +35,11 @@ public class TestItem extends SimplePolymerItem {
     public ActionResult useOnBlock(ItemUsageContext context) {
         context.getWorld().setBlockState(context.getBlockPos(), Registries.BLOCK.getRandom(this.random).get().value().getDefaultState());
         return super.useOnBlock(context);
+    }
+
+    @Override
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return null;
     }
 
     @Override

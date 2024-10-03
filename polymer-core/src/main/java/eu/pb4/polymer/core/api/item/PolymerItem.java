@@ -31,7 +31,7 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
      */
     Item getPolymerItem(ItemStack itemStack, PacketContext context);
 
-
+    @Nullable
     default Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
         return stack.get(DataComponentTypes.ITEM_MODEL);
     }

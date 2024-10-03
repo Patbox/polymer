@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
 import eu.pb4.polymer.resourcepack.api.PolymerModelData;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -16,7 +17,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public class TestArmor extends ArmorItem implements PolymerItem {
+public class TestArmor extends ArmorItem implements VanillaModeledPolymerItem {
     private final PolymerModelData itemModel;
     private final Item itemDefault;
 

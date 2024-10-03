@@ -8,7 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 @ApiStatus.NonExtendable
 public interface ResourcePackBuilder {
@@ -83,13 +85,15 @@ public interface ResourcePackBuilder {
 
     boolean addCustomModelData(PolymerModelData itemModel);
 
-    @Nullable
-    byte[] getData(String path);
+    byte @Nullable [] getData(String path);
 
-    @Nullable
-    byte[] getDataOrSource(String path);
+    byte @Nullable [] getDataOrSource(String path);
+
+    void forEachFile(BiConsumer<String, byte[]> consumer);
 
     boolean addAssetsSource(String modId);
 
-    void addWriteConverter(BiFunction<String, byte[], @Nullable byte[]> converter);
+    void addWriteConverter(BiFunction<String, byte[], byte  @Nullable []> converter);
+
+    void addPreFinishTask(Consumer<ResourcePackBuilder> consumer);
 }
