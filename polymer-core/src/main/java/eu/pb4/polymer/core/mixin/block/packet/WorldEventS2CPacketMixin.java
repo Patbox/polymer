@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(WorldEventS2CPacket.class)
 public class WorldEventS2CPacketMixin {
@@ -26,7 +27,7 @@ public class WorldEventS2CPacketMixin {
     private int polymer$replaceValue(int data) {
         if (this.eventId == WorldEvents.BLOCK_BROKEN) {
             var state = Block.getStateFromRawId(data);
-            var player = PolymerUtils.getPlayerContext();
+            var player = PacketContext.get();
 
             if (state.getBlock() instanceof PolymerBlock polymerBlock) {
                 state =  PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,

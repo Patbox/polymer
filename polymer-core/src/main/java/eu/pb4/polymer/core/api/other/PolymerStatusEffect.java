@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public interface PolymerStatusEffect extends PolymerSyncedObject<StatusEffect> {
 
     @Override
     @Nullable
-    default StatusEffect getPolymerReplacement(ServerPlayerEntity player) {
+    default StatusEffect getPolymerReplacement(PacketContext context) {
         return null;
     }
 }

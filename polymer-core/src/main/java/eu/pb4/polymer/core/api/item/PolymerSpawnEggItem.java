@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class PolymerSpawnEggItem extends SpawnEggItem implements PolymerItem {
 
@@ -19,7 +20,7 @@ public class PolymerSpawnEggItem extends SpawnEggItem implements PolymerItem {
 
 
     @Override
-    public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return this.visualItem;
     }
 }

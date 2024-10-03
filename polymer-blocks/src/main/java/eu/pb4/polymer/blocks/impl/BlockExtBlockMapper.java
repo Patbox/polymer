@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.block.BlockMapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -21,7 +22,7 @@ public class BlockExtBlockMapper implements BlockMapper {
     }
 
     @Override
-    public BlockState toClientSideState(BlockState state, ServerPlayerEntity player) {
+    public BlockState toClientSideState(BlockState state, PacketContext player) {
         if (state.getBlock() instanceof PolymerTexturedBlock) {
             return this.baseMapper.toClientSideState(state, player);
         }

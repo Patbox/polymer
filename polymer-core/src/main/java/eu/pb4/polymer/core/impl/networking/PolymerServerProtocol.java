@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.ApiStatus;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -274,8 +275,9 @@ public class PolymerServerProtocol {
 
         if (version != -1) {
             var entries = new ArrayList<A>();
+            var ctx = PacketContext.of(handler);
             for (var entry : iterable) {
-                if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(handler.player))) {
+                if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(ctx))) {
                     var val = writableFunction.serialize(entry, handler, version);
                     if (val != null) {
                         entries.add(val);

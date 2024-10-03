@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class SynchronizeTagsS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeMap(Ljava/util/Map;Lnet/minecraft/network/codec/PacketEncoder;Lnet/minecraft/network/codec/PacketEncoder;)V"))
     private Map<RegistryKey<? extends Registry<?>>, TagPacketSerializer.Serialized> polymer$skipEntries(Map<RegistryKey<? extends Registry<?>>, TagPacketSerializer.Serialized> groups) {
         var regMap = new HashMap<RegistryKey<? extends Registry<?>>, TagPacketSerializer.Serialized>();
-        var player = PolymerUtils.getPlayerContext();
+        var player = PacketContext.get();
         for (var regEntry : groups.entrySet()) {
             //noinspection rawtypes,unchecked
             var reg = Registries.REGISTRIES.get((RegistryKey) regEntry.getKey());

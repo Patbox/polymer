@@ -14,6 +14,7 @@ import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestArmor extends ArmorItem implements PolymerItem {
     private final PolymerModelData itemModel;
@@ -31,14 +32,10 @@ public class TestArmor extends ArmorItem implements PolymerItem {
     }
 
     @Override
-    public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerResourcePackUtils.hasMainPack(player) ? this.itemModel.item() : this.itemDefault;
+    public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
+        return PolymerResourcePackUtils.hasMainPack(context.getPlayer()) ? this.itemModel.item() : this.itemDefault;
     }
 
-    @Override
-    public int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return PolymerResourcePackUtils.hasMainPack(player) ? this.itemModel.value() : -1;
-    }
 
     private static Item getItemFor(EquipmentSlot slot, boolean bool) {
         if (bool) {

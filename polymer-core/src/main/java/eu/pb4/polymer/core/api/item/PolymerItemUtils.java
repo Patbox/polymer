@@ -16,6 +16,7 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
+import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -144,19 +145,7 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, PacketContext context) {
-        return getPolymerItemStack(itemStack, context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP,
-                context.getPlayer());
-    }
-
-    /**
-     * This method creates a client side ItemStack representation
-     *
-     * @param itemStack Server side ItemStack
-     * @param player    Player being sent to
-     * @return Client side ItemStack
-     */
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipType(player), lookup, player);
+        return getPolymerItemStack(itemStack, PolymerUtils.getTooltipType(context.getPlayer()), context);
     }
 
     /**
@@ -164,20 +153,20 @@ public final class PolymerItemUtils {
      *
      * @param itemStack      Server side ItemStack
      * @param tooltipContext Tooltip Context
-     * @param player         Player being sent to
+     * @param context         Player being sent to
      * @return Client side ItemStack
      */
-    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+    public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, PacketContext context) {
         if (getPolymerIdentifier(itemStack) != null) {
             return itemStack;
         } else if (itemStack.getItem() instanceof PolymerItem item) {
-            return item.getPolymerItemStack(itemStack, tooltipContext, lookup, player);
-        } else if (isPolymerServerItem(itemStack, player)) {
-            return createItemStack(itemStack, tooltipContext, lookup, player);
+            return item.getPolymerItemStack(itemStack, tooltipContext, context);
+        } else if (isPolymerServerItem(itemStack, context)) {
+            return createItemStack(itemStack, tooltipContext, context);
         }
 
         if (ITEM_CHECK.invoke((x) -> x.test(itemStack))) {
-            return createItemStack(itemStack, tooltipContext, lookup, player);
+            return createItemStack(itemStack, tooltipContext, context);
         }
 
         return itemStack;
@@ -302,31 +291,23 @@ public final class PolymerItemUtils {
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack) {
-        return isPolymerServerItem(itemStack, PolymerUtils.getPlayerContext());
+        return isPolymerServerItem(itemStack, PacketContext.get());
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack, PacketContext context) {
-        return isPolymerServerItem(itemStack, context.getPlayer());
-    }
-
-    public static boolean isPolymerServerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;
         }
         if (itemStack.getItem() instanceof PolymerItem) {
             return true;
         }
-        var ctx = PacketContext.get();
-        if (player != null && ctx.getPlayer() != player) {
-            ctx = PacketContext.of(player);
-        }
 
         for (var x : itemStack.getComponentChanges().entrySet()) {
-            if (!PolymerComponent.canSync(x.getKey(), x.getValue().orElse(null), ctx)) {
+            if (!PolymerComponent.canSync(x.getKey(), x.getValue().orElse(null), context)) {
                 return true;
             } else if (x.getValue() != null && x.getValue().isPresent()
                     && x.getValue().get() instanceof TransformingComponent t
-                    && t.polymer$requireModification(ctx)) {
+                    && t.polymer$requireModification(context)) {
                 return true;
             }
         }
@@ -349,51 +330,15 @@ public final class PolymerItemUtils {
     }
 
     /**
-     * This method creates minimal representation of ItemStack
-     *
-     * @param itemStack Server side ItemStack
-     * @param player    Player seeing it
-     * @return Client side ItemStack
-     */
-    public static ItemStack createMinimalItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        Item item = itemStack.getItem();
-        var x = itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA);
-        int cmd = x != null ? x.value() : -1;
-        if (itemStack.getItem() instanceof PolymerItem virtualItem) {
-            var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, player);
-            item = data.item();
-            cmd = data.customModelData();
-        }
-
-        ItemStack out = new ItemStack(item, itemStack.getCount());
-
-        try {
-            PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
-                out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(
-                        (NbtCompound) POLYMER_STACK_CODEC.encoder().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
-                ));
-            });
-        } catch (Throwable e) {
-            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
-        }
-
-        if (cmd != -1) {
-            out.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(cmd));
-        }
-
-        return out;
-    }
-
-    /**
      * This method creates full (vanilla like) representation of ItemStack
      *
      * @param itemStack Server side ItemStack
-     * @param player    Player seeing it
+     * @param context    Player seeing it
      * @return Client side ItemStack
      */
 
-    public static ItemStack createItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        return createItemStack(itemStack, PolymerUtils.getTooltipType(player), lookup, player);
+    public static ItemStack createItemStack(ItemStack itemStack, PacketContext context) {
+        return createItemStack(itemStack, PolymerUtils.getTooltipType(context.getPlayer()), context);
     }
 
     /**
@@ -401,19 +346,15 @@ public final class PolymerItemUtils {
      *
      * @param itemStack      Server side ItemStack
      * @param tooltipContext TooltipContext
-     * @param player         Player seeing it
+     * @param context        Player seeing it
      * @return Client side ItemStack
      */
-    public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+    public static ItemStack createItemStack(ItemStack itemStack, TooltipType tooltipContext, PacketContext context) {
         Item item = itemStack.getItem();
-        int cmd = -1;
-        int color = -1;
         boolean storeCount;
         if (itemStack.getItem() instanceof PolymerItem virtualItem) {
-            var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, player);
+            var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, context);
             item = data.item();
-            cmd = data.customModelData();
-            color = data.color();
             storeCount = virtualItem.shouldStorePolymerItemStackCount();
         } else {
             storeCount = false;
@@ -426,23 +367,20 @@ public final class PolymerItemUtils {
             }
         }
 
-        var ctx = PacketContext.get();
-        if (player != null && ctx.getPlayer() != player) {
-            ctx = PacketContext.of(player);
-        }
-
         for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {
             var key = COMPONENTS_TO_COPY[i];
             var x = itemStack.get(key);
 
             if (x instanceof TransformingComponent t) {
                 //noinspection unchecked,rawtypes
-                out.set((ComponentType) key, t.polymer$getTransformed(ctx));
+                out.set((ComponentType) key, t.polymer$getTransformed(context));
             } else {
                 //noinspection unchecked,rawtypes
                 out.set((ComponentType) key, (Object) itemStack.get(key));
             }
         }
+        var lookup = context.getRegistryWrapperLookup();
+
         try {
             PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
                 var comp = NbtComponent.of(
@@ -479,12 +417,12 @@ public final class PolymerItemUtils {
 
 
         try {
-            var tooltip = itemStack.getTooltip(player != null ? Item.TooltipContext.create(player.getWorld()) : Item.TooltipContext.DEFAULT, player, tooltipContext);
+            var tooltip = itemStack.getTooltip(context.getPlayer() != null ? Item.TooltipContext.create(context.getPlayer().getWorld()) : Item.TooltipContext.DEFAULT, context.getPlayer(), tooltipContext);
             if (!tooltip.isEmpty()) {
                 out.set(DataComponentTypes.ITEM_NAME, tooltip.remove(0));
 
                 if (itemStack.getItem() instanceof PolymerItem) {
-                    ((PolymerItem) itemStack.getItem()).modifyClientTooltip(tooltip, itemStack, player);
+                    ((PolymerItem) itemStack.getItem()).modifyClientTooltip(tooltip, itemStack, context);
                 }
 
                 var lore = new ArrayList<Text>();
@@ -504,7 +442,7 @@ public final class PolymerItemUtils {
             var custom = out;
 
             for (var in : col) {
-                custom = in.modifyItem(itemStack, custom, player);
+                custom = in.modifyItem(itemStack, custom, context);
             }
 
             return custom;
@@ -512,7 +450,7 @@ public final class PolymerItemUtils {
     }
 
     /**
-     * This method is minimal wrapper around {@link PolymerItem#getPolymerItem(ItemStack, ServerPlayerEntity)} to make sure
+     * This method is minimal wrapper around {@link PolymerItem#getPolymerItem(ItemStack, PacketContext)} to make sure
      * It gets replaced if it represents other PolymerItem
      *
      * @param item        PolymerItem
@@ -520,29 +458,29 @@ public final class PolymerItemUtils {
      * @param maxDistance Maximum number of checks for nested virtual blocks
      * @return Client side ItemStack
      */
-    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player, int maxDistance) {
-        Item out = item.getPolymerItem(stack, player);
+    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, PacketContext context, int maxDistance) {
+        Item out = item.getPolymerItem(stack, context);
         PolymerItem lastVirtual = item;
 
         int req = 0;
         while (out instanceof PolymerItem newItem && newItem != item && req < maxDistance) {
-            out = newItem.getPolymerItem(stack, player);
+            out = newItem.getPolymerItem(stack, context);
             lastVirtual = newItem;
             req++;
         }
-        return new ItemWithMetadata(out, lastVirtual.getPolymerCustomModelData(stack, player), lastVirtual.getPolymerArmorColor(stack, player));
+        return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context));
     }
 
     /**
-     * This method is minimal wrapper around {@link PolymerItem#getPolymerItem(ItemStack, ServerPlayerEntity)} to make sure
+     * This method is minimal wrapper around {@link PolymerItem#getPolymerItem(ItemStack, PacketContext)} to make sure
      * It gets replaced if it represents other PolymerItem
      *
      * @param item  PolymerItem
      * @param stack Server side ItemStack
      * @return Client side ItemStack
      */
-    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, @Nullable ServerPlayerEntity player) {
-        return getItemSafely(item, stack, player, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
+    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, PacketContext context) {
+        return getItemSafely(item, stack, context, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
     }
 
     /**
@@ -561,20 +499,20 @@ public final class PolymerItemUtils {
         return PolymerComponent.isPolymerComponent(type);
     }
 
-    public static ItemStack getClientItemStack(ItemStack stack, ServerPlayerEntity player) {
-        var out = getPolymerItemStack(stack, player.getRegistryManager(), player);
+    public static ItemStack getClientItemStack(ItemStack stack, PacketContext context) {
+        var out = getPolymerItemStack(stack, context);
         if (CompatStatus.POLYMC) {
-            out = PolyMcUtils.toVanilla(out, player);
+            out = PolyMcUtils.toVanilla(out, context.getPlayer());
         }
         return out;
     }
 
     @FunctionalInterface
     public interface ItemModificationEventHandler {
-        ItemStack modifyItem(ItemStack original, ItemStack client, ServerPlayerEntity player);
+        ItemStack modifyItem(ItemStack original, ItemStack client, PacketContext context);
     }
 
-    public record ItemWithMetadata(Item item, int customModelData, int color) {
+    public record ItemWithMetadata(Item item, Identifier itemModel) {
     }
 
     private record HideableTooltip<T>(ComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {

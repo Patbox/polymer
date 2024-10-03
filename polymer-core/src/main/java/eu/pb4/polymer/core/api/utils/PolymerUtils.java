@@ -57,44 +57,6 @@ public final class PolymerUtils {
         return CommonImpl.VERSION;
     }
 
-    /**
-     * Returns player if it's known to polymer (otherwise null!)
-     */
-    @Nullable
-    public static ServerPlayerEntity getPlayerContext() {
-        return PolymerCommonUtils.getPlayerContext();
-    }
-
-    /**
-     * Returns true, if server is running in singleplayer
-     */
-    public static boolean isSingleplayer() {
-        if (!PolymerImpl.IS_CLIENT) {
-            return false;
-        } else {
-            return ClientUtils.isSingleplayer();
-        }
-    }
-
-    /**
-     * Returns true, if code is running on logical client side (not server/singleplayer server)
-     */
-    public static boolean isOnClientThread() {
-        if (!PolymerImpl.IS_CLIENT) {
-            return false;
-        } else {
-            return ClientUtils.isClientThread();
-        }
-    }
-
-    public static boolean isOnPlayerNetworking() {
-        if (!PolymerImpl.IS_CLIENT) {
-            return getPlayerContext() != null;
-        } else {
-            return getPlayerContext() != null || ClientUtils.isSingleplayer();
-        }
-    }
-
     public static void addClientEnabledFeatureFlags(FeatureFlag... flags) {
         ENABLED_FEATURE_FLAGS.addAll(List.of(flags));
     }

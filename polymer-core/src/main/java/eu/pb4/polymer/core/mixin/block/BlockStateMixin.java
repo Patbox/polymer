@@ -35,7 +35,7 @@ public abstract class BlockStateMixin implements BlockStateExtra {
         }
 
         if (this.asBlockState().getBlock() instanceof PolymerBlock polymerBlock) {
-            this.polymer$isLight = this.asBlockState().getLuminance() != polymerBlock.getPolymerBlockState(this.asBlockState()).getLuminance();
+            this.polymer$isLight = this.asBlockState().getLuminance() != polymerBlock.getPolymerBlockState(this.asBlockState(), PacketContext.of()).getLuminance();
         }
 
 
@@ -48,7 +48,7 @@ public abstract class BlockStateMixin implements BlockStateExtra {
     private static Codec<BlockState> patchCodec(Codec<BlockState> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThreadWithContext()  && content.getBlock() instanceof PolymerBlock) {
-                return PolymerBlockUtils.getPolymerBlockState(content);
+                return PolymerBlockUtils.getPolymerBlockState(content, PacketContext.get());
             }
             return content;
         });

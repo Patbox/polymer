@@ -36,6 +36,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -243,7 +244,7 @@ public class PolymerImplUtils {
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipType context) {
-        return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, player.getRegistryManager(), player), player));
+        return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, PacketContext.of(player)), player));
     }
 
     public static void pickBlock(ServerPlayerEntity player, BlockPos pos, boolean withNbt) {

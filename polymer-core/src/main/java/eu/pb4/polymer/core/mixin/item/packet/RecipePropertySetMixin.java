@@ -18,7 +18,7 @@ public class RecipePropertySetMixin {
     @ModifyReturnValue(method = "method_64703", at = @At("TAIL"))
     private static List<RegistryEntry<Item>> removePolymerEntries(List<RegistryEntry<Item>> original) {
         var x = new ArrayList<>(original);
-        x.removeIf(a -> !PolymerSyncedObject.canSyncRawToClient(Registries.ITEM, a.value(), PacketContext.get().getPlayer()));
+        x.removeIf(a -> !PolymerSyncedObject.canSyncRawToClient(Registries.ITEM, a.value(), PacketContext.get()));
         return original;
     }
 }

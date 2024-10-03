@@ -7,6 +7,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.state.property.Properties;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestFluidBlock extends FluidBlock implements PolymerBlock {
 
@@ -14,7 +15,7 @@ public class TestFluidBlock extends FluidBlock implements PolymerBlock {
         super(fluid, settings);
     }
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         var id = state.get(Properties.LEVEL_15);
 
 

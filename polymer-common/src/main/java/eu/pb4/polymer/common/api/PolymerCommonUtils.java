@@ -137,24 +137,6 @@ public final class PolymerCommonUtils {
         return FakeWorld.INSTANCE;
     }
 
-    /**
-     * Returns player if it's known to polymer (otherwise null!)
-     */
-    @Nullable
-    public static ServerPlayerEntity getPlayerContext() {
-        ServerPlayerEntity player = getPlayerContextNoClient();
-        if (player == null && CommonImpl.IS_CLIENT) {
-            player = ClientUtils.getPlayer();
-        }
-
-        return player;
-    }
-
-    @Nullable
-    public static ServerPlayerEntity getPlayerContextNoClient() {
-        return PacketContext.get().getPlayer();
-    }
-
     public static boolean isNetworkingThread() {
        return FORCE_NETWORKING.get().value(Thread.currentThread().getName().startsWith("Netty"));
     }

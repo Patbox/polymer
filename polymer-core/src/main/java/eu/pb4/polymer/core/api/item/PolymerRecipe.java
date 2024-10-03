@@ -8,6 +8,7 @@ import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Optional;
 
@@ -17,7 +18,7 @@ import java.util.Optional;
 public interface PolymerRecipe extends PolymerSyncedObject<Recipe<?>> {
     @Nullable
     @Override
-    default Recipe<?> getPolymerReplacement(ServerPlayerEntity player) {
+    default Recipe<?> getPolymerReplacement(PacketContext context) {
         return null;
     }
 }

@@ -13,11 +13,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(value = ChunkDeltaUpdateS2CPacket.class, priority = 500)
 public abstract class ChunkDeltaUpdateS2CPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getRawIdFromState(Lnet/minecraft/block/BlockState;)I"))
     private BlockState polymer$replaceWithPolymerBlockState(BlockState state) {
-        return PolymerBlockUtils.getPolymerBlockState(state, PolymerUtils.getPlayerContext());
+        return PolymerBlockUtils.getPolymerBlockState(state, PacketContext.get());
     }
 }

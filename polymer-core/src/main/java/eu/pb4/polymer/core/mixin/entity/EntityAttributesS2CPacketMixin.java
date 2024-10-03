@@ -54,12 +54,12 @@ public abstract class EntityAttributesS2CPacketMixin implements PossiblyInitialP
         return TransformingPacketCodec.encodeOnly(original, (buf, packet) -> {
             if (EntityAttachedPacket.get(packet, packet.getEntityId()) instanceof PolymerEntity entity) {
                 var context = PacketContext.get();
-                var type = entity.getPolymerEntityType(context.getPlayer());
+                var type = entity.getPolymerEntityType(context);
                 var p = new EntityAttributesS2CPacket(packet.getEntityId(), List.of());
                 var list = ((EntityAttributesS2CPacketAccessor) p).getEntries();
                 var vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) type);
                 var data = new ArrayList<>(packet.getEntries());
-                entity.modifyRawEntityAttributeData(data, context, ((PossiblyInitialPacket) packet).polymer$getInitial());
+                entity.modifyRawEntityAttributeData(data, context.getPlayer(), ((PossiblyInitialPacket) packet).polymer$getInitial());
                 for (var entry : data) {
                     if (vanillaContainer.has(entry.attribute()) && !PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
                         list.add(entry);

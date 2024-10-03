@@ -36,7 +36,7 @@ public interface SlotDisplayMixin {
                 }
                 if (!array.isEmpty()) {
                     var out = new SlotDisplay.TagSlotDisplay(tagSlot.tag());
-                    ((SkipCheck) (Object) out).polymer$skipped();
+                    ((SkipCheck) (Object) out).polymer$setSkipped();
                     array.addFirst(out);
                     yield new SlotDisplay.CompositeSlotDisplay(array);
                 }

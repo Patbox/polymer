@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestPerPlayerBlock extends Block implements PolymerBlock {
     public TestPerPlayerBlock(Settings settings) {
@@ -12,12 +13,7 @@ public class TestPerPlayerBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
-        return Blocks.BARRIER.getDefaultState();
-    }
-
-    @Override
-    public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
-        return player.isCreative() ? Blocks.BEDROCK.getDefaultState() : Blocks.COBBLESTONE.getDefaultState();
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+        return context.getPlayer() != null && context.getPlayer().isCreative() ? Blocks.BEDROCK.getDefaultState() : Blocks.COBBLESTONE.getDefaultState();
     }
 }

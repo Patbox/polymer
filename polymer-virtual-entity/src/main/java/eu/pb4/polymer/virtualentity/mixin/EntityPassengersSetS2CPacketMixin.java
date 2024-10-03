@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,18 +52,18 @@ public class EntityPassengersSetS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeIntArray([I)Lnet/minecraft/network/PacketByteBuf;"))
     private int[] addDynamicPassengers(int[] a) {
-        if (this.virtualPassengers == null || this.virtualPassengers.isEmpty()) {
+        if (this.virtualPassengers.isEmpty()) {
             return a;
         }
-        var player = PolymerCommonUtils.getPlayerContext();
-        if (player == null) {
+        var player = PacketContext.get();
+        if (player.getPlayer() == null) {
             return a;
         }
 
         var arr = new IntArrayList(a);
 
         for (var x : this.virtualPassengers) {
-            if (x.getLeft().contains(player.networkHandler)) {
+            if (x.getLeft().contains(player.getPlayer().networkHandler)) {
                 arr.addAll(x.getRight());
             }
         }

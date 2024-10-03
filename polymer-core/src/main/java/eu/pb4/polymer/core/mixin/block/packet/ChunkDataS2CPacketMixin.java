@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.BitSet;
 
@@ -29,7 +30,7 @@ public class ChunkDataS2CPacketMixin implements ChunkDataS2CPacketInterface {
     @Inject(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/world/chunk/light/LightingProvider;Ljava/util/BitSet;Ljava/util/BitSet;)V", at = @At("TAIL"))
     private void polymer$storeWorldChunk(WorldChunk chunk, LightingProvider lightingProvider, BitSet bitSet, BitSet bitSet2, CallbackInfo ci) {
         this.polymer$worldChunk = chunk;
-        this.polymer$usedMapper = BlockMapper.getFrom(PolymerUtils.getPlayerContext());
+        this.polymer$usedMapper = BlockMapper.getFrom(PacketContext.get());
         for (var section : chunk.getSectionArray()) {
             if (section != null && section.hasAny(PolymerBlockUtils.IS_POLYMER_BLOCK_STATE_PREDICATE)) {
                 this.polymer$hasPlayerDependentBlocks = true;

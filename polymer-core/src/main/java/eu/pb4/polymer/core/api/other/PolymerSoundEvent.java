@@ -7,6 +7,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.UUID;
 
@@ -44,7 +45,7 @@ public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject
     }
 
     @Override
-    public SoundEvent getPolymerReplacement(ServerPlayerEntity player) {
-        return this.source == null || this.polymerSound == null || PolymerUtils.hasResourcePack(player, this.source) ? this : (this.polymerSound instanceof PolymerSoundEvent pe ? pe.getPolymerReplacement(player) : this.polymerSound);
+    public SoundEvent getPolymerReplacement(PacketContext context) {
+        return this.source == null || this.polymerSound == null || PolymerUtils.hasResourcePack(context.getPlayer(), this.source) ? this : (this.polymerSound instanceof PolymerSoundEvent pe ? pe.getPolymerReplacement(context) : this.polymerSound);
     }
 }

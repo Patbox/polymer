@@ -20,6 +20,7 @@ import net.minecraft.util.Rarity;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
@@ -52,10 +53,10 @@ public class TestItem extends SimplePolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        var x = super.getPolymerItemStack(itemStack, tooltipType, lookup, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+        var x = super.getPolymerItemStack(itemStack, tooltipType, context);
         x.set(DataComponentTypes.RARITY, Rarity.EPIC);
-        x.set(DataComponentTypes.CONSUMABLE, new ConsumableComponent(player != null && player.isCreative() ? Float.POSITIVE_INFINITY : 3, UseAction.BOW,
+        x.set(DataComponentTypes.CONSUMABLE, new ConsumableComponent(context.getPlayer() != null && context.getPlayer().isCreative() ? Float.POSITIVE_INFINITY : 3, UseAction.BOW,
                 Registries.SOUND_EVENT.getEntry(SoundEvents.INTENTIONALLY_EMPTY), false, List.of()));
         return x;
     }

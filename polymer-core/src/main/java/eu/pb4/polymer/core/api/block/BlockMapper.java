@@ -9,6 +9,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -22,19 +23,19 @@ import java.util.function.BiFunction;
  * To only change your own blocks see {@link PolymerBlock}
  */
 public interface BlockMapper {
-    SimpleEvent<BiFunction<ServerPlayerEntity, BlockMapper, @Nullable BlockMapper>> DEFAULT_MAPPER_EVENT = new SimpleEvent<>();
+    SimpleEvent<BiFunction<PacketContext, BlockMapper, @Nullable BlockMapper>> DEFAULT_MAPPER_EVENT = new SimpleEvent<>();
 
-    BlockState toClientSideState(BlockState state, ServerPlayerEntity player);
+    BlockState toClientSideState(BlockState state, PacketContext context);
     String getMapperName();
 
     static BlockMapper createDefault() {
         return BlockMapperImpl.DEFAULT;
     }
 
-    static BlockMapper getDefault(ServerPlayerEntity player) {
+    static BlockMapper getDefault(PacketContext context) {
         var obj = new MutableObject<>(BlockMapperImpl.DEFAULT);
         DEFAULT_MAPPER_EVENT.invoke((c) -> {
-             var mapper = c.apply(player, obj.getValue());
+             var mapper = c.apply(context, obj.getValue());
 
              if (mapper != null) {
                  obj.setValue(mapper);
@@ -52,13 +53,16 @@ public interface BlockMapper {
         return BlockMapperImpl.createStack(overlay, base);
     }
 
+    static BlockMapper getFrom(PacketContext context) {
+        return getFrom(context.getPlayer());
+    }
     static BlockMapper getFrom(@Nullable ServerPlayerEntity player) {
         return player != null ? PolymerPlayNetworkHandlerExtension.of(player).polymer$getBlockMapper() : BlockMapper.createDefault();
     }
 
     static void resetMapper(@Nullable ServerPlayerEntity player) {
         if (player != null) {
-            PolymerPlayNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(player));
+            PolymerPlayNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(PacketContext.of(player)));
         }
     }
 

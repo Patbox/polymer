@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.entity;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +43,11 @@ public class EntityTrackerUpdateS2CPacketMixin implements PossiblyInitialPacket 
         }
 
         var entries = new ArrayList<DataTracker.SerializedEntry<?>>();
-        var player = PolymerUtils.getPlayerContext();
+        var player = PacketContext.get();
 
-        if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player, entity)) {
+        if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player.getPlayer(), entity)) {
             var mod = trackedValues != null ? new ArrayList<>(trackedValues) : new ArrayList<DataTracker.SerializedEntry<?>>();
-            polymerEntity.modifyRawTrackedData(mod, player, this.isInitial);
+            polymerEntity.modifyRawTrackedData(mod, player.getPlayer(), this.isInitial);
 
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 

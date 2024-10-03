@@ -11,6 +11,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public interface PolymerHeadBlock extends PolymerBlock {
     /**
@@ -19,16 +20,16 @@ public interface PolymerHeadBlock extends PolymerBlock {
      *
      * @param state Server-side BlockState
      * @param pos
-     * @param player
+     * @param context
      * @return Skin Value
      */
-    String getPolymerSkinValue(BlockState state, BlockPos pos, ServerPlayerEntity player);
-    default String getPolymerSkinSignature(BlockState state, BlockPos pos, ServerPlayerEntity player) {
+    String getPolymerSkinValue(BlockState state, BlockPos pos, PacketContext context);
+    default String getPolymerSkinSignature(BlockState state, BlockPos pos, PacketContext context) {
         return null;
     };
 
     @Override
-    default BlockState getPolymerBlockState(BlockState state) {
+    default BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return Blocks.PLAYER_HEAD.getDefaultState();
     }
 
@@ -39,12 +40,12 @@ public interface PolymerHeadBlock extends PolymerBlock {
      * @param pos Block's position
      * @return A Packet
      */
-    default Packet<?> getPolymerHeadPacket(BlockState state, BlockPos pos, ServerPlayerEntity player) {
+    default Packet<?> getPolymerHeadPacket(BlockState state, BlockPos pos, PacketContext context) {
         NbtCompound main = new NbtCompound();
         main.putString("id", "minecraft:skull");
         main.put("profile", ProfileComponent.CODEC.encodeStart(NbtOps.INSTANCE,
-                new ProfileComponent(PolymerUtils.createSkinGameProfile(getPolymerSkinValue(state, pos, player),
-                        getPolymerSkinSignature(state, pos, player)))).result().get());
+                new ProfileComponent(PolymerUtils.createSkinGameProfile(getPolymerSkinValue(state, pos, context),
+                        getPolymerSkinSignature(state, pos, context)))).result().get());
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
@@ -52,7 +53,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
     }
 
     @Override
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, ServerPlayerEntity player) {
-        player.networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos.toImmutable(), player));
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, PacketContext context) {
+        context.getPlayer().networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos.toImmutable(), context));
     }
 }

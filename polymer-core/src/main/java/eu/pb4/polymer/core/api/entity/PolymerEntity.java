@@ -27,7 +27,7 @@ public interface PolymerEntity extends PolymerObject {
      *
      * @return Vanilla/Modded entity type
      */
-    EntityType<?> getPolymerEntityType(ServerPlayerEntity player);
+    EntityType<?> getPolymerEntityType(PacketContext context);
 
     /**
      * This method is used for replacing entity's equipment on client for a player
@@ -53,7 +53,7 @@ public interface PolymerEntity extends PolymerObject {
 
     }
 
-    default void modifyRawEntityAttributeData(List<EntityAttributesS2CPacket.Entry> data, PacketContext context, boolean initial) {
+    default void modifyRawEntityAttributeData(List<EntityAttributesS2CPacket.Entry> data, ServerPlayerEntity player, boolean initial) {
 
     }
 

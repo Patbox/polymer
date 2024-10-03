@@ -64,6 +64,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import javax.naming.spi.StateFactory;
 import java.util.ArrayList;
@@ -476,8 +477,8 @@ public class Commands {
     }
 
     private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var player = context.getSource().getPlayer();
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), context.getSource().getRegistryManager(), player).copy();
+        var player = context.getSource().getPlayerOrThrow();
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.of(player)).copy();
         stack.remove(DataComponentTypes.CUSTOM_DATA);
 
         context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(stack.toNbtAllowEmpty(context.getSource().getRegistryManager())), false);
@@ -486,9 +487,9 @@ public class Commands {
     }
 
     private static int getClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var player = context.getSource().getPlayer();
+        var player = context.getSource().getPlayerOrThrow();
 
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), context.getSource().getRegistryManager(), player);
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.of(player));
         stack.remove(DataComponentTypes.CUSTOM_DATA);
         player.giveItemStack(stack);
         context.getSource().sendFeedback(() -> Text.literal("Given client representation to player"), true);

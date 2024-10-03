@@ -9,6 +9,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Direction;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestClientBlock extends Block implements PolymerBlock, PolymerKeepModel, PolymerClientDecoded {
     public TestClientBlock(Settings settings) {
@@ -16,12 +17,7 @@ public class TestClientBlock extends Block implements PolymerBlock, PolymerKeepM
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP);
-    }
-
-    @Override
-    public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
-        return getPolymerBlockState(state);
     }
 }

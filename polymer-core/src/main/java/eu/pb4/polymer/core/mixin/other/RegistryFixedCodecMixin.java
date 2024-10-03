@@ -35,7 +35,7 @@ public class RegistryFixedCodecMixin {
             try {
                 if (entry.value() instanceof PolymerSyncedObject<?> polymerSyncedObject) {
                     var registry = ((Registry<Registry>) (Object) Registries.REGISTRIES).get(this.registry);
-                    var x = registry.getEntry(polymerSyncedObject.getPolymerReplacement(player.getPlayer()));
+                    var x = registry.getEntry(polymerSyncedObject.getPolymerReplacement(player));
                     if (x == null) {
                         return (RegistryEntry<?>) registry.getEntry(0).orElse(entry);
                     }

@@ -33,16 +33,17 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Item
             stacksMain = List.copyOf(contents.main());
             stacksSearch = List.copyOf(contents.search());
         } else {
+            var ctx = PacketContext.of(handler);
             stacksMain = new ArrayList<>();
             stacksSearch = new ArrayList<>();
             for (var item : contents.main()) {
-                if (PolymerItemUtils.isPolymerServerItem(item, handler.player) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
                     stacksMain.add(item);
                 }
             }
 
             for (var item : contents.search()) {
-                if (PolymerItemUtils.isPolymerServerItem(item, handler.player) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
                     stacksSearch.add(item);
                 }
             }

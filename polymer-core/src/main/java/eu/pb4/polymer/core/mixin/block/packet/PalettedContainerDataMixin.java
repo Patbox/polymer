@@ -18,6 +18,7 @@ import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(PalettedContainer.Data.class)
 public abstract class PalettedContainerDataMixin<T> {
@@ -27,13 +28,13 @@ public abstract class PalettedContainerDataMixin<T> {
     private PaletteStorage polymer$replaceData(PaletteStorage storage) {
         var palette = this.palette();
         if (palette instanceof IdListPalette<T> && palette.get(0) instanceof BlockState) {
-            var player = PolymerUtils.getPlayerContext();
-            if (player == null) {
+            var player = PacketContext.get();
+            if (player.getPacketListener() == null) {
                 return storage;
             }
             int bits;
 
-            var playerBitCount = PolymerServerNetworking.getMetadata(player.networkHandler, ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.TYPE);
+            var playerBitCount = PolymerServerNetworking.getMetadata(player.getClientConnection(), ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.TYPE);
             if (playerBitCount == null) {
                 bits = PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC
                         ? ((PolymerIdList<?>) Block.STATE_IDS).polymer$getVanillaBitCount()

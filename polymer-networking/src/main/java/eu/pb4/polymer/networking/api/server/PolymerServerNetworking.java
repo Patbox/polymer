@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.networking.impl.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtType;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
@@ -24,6 +25,16 @@ public final class PolymerServerNetworking {
     public static boolean send(ServerPlayNetworkHandler handler, CustomPayload payload) {
         handler.sendPacket(new CustomPayloadS2CPacket(payload));
         return true;
+    }
+
+    @Nullable
+    public static <T extends NbtElement> T getMetadata(ClientConnection handler, Identifier identifier, NbtType<T> type) {
+        var x = ExtClientConnection.of(handler).polymerNet$getMetadataMap().get(identifier);
+        if (x != null && x.getNbtType() == type) {
+            //noinspection unchecked
+            return (T) x;
+        }
+        return null;
     }
 
     @Nullable

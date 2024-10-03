@@ -28,9 +28,8 @@ public class ItemStackMixin {
     private static Supplier<Codec<ItemStack>> patchCodec(Supplier<Codec<ItemStack>> codec) {
         return () -> codec.get().xmap(content -> { // Decode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
-                var context = PacketContext.get().getRegistryWrapperLookup();
-                var player = PolymerCommonUtils.getPlayerContext();
-                var lookup = context != null ? context : (player != null ? player.getRegistryManager() : PolymerImplUtils.FALLBACK_LOOKUP);
+                var context = PacketContext.get();
+                var lookup = context.getRegistryWrapperLookup() != null ? context .getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
                 return PolymerItemUtils.getRealItemStack(content, lookup);
             }
             return content;
@@ -40,10 +39,7 @@ public class ItemStackMixin {
                 if (ctx.getPacketListener() == null) {
                     return content;
                 }
-                var context = ctx.getRegistryWrapperLookup();
-                var player = PolymerCommonUtils.getPlayerContext();
-                var lookup = context != null ? context : (player != null ? player.getRegistryManager() : PolymerImplUtils.FALLBACK_LOOKUP);
-                return PolymerItemUtils.getPolymerItemStack(content, lookup, player);
+                return PolymerItemUtils.getPolymerItemStack(content, ctx);
             }
             return content;
         });

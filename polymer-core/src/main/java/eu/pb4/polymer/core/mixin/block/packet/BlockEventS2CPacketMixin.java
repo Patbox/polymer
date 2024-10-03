@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(BlockEventS2CPacket.class)
 public abstract class BlockEventS2CPacketMixin {
@@ -23,6 +24,6 @@ public abstract class BlockEventS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;encode(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer$replaceBlockLocal(Object block) {
-        return PolymerBlockUtils.getPolymerBlock((Block) block, PolymerUtils.getPlayerContext());
+        return PolymerBlockUtils.getPolymerBlock((Block) block, PacketContext.get());
     }
 }

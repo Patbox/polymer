@@ -31,6 +31,7 @@ import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4x3f;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWithMovingElementHolder {
     public static final BooleanProperty CAN_FALL = BooleanProperty.of("can_fall");
@@ -58,7 +59,7 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return Blocks.BARRIER.getDefaultState();
     }
 

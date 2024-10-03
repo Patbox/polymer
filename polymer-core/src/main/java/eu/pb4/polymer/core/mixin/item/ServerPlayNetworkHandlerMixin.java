@@ -29,6 +29,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
         if (itemStack.getItem() instanceof PolymerItem polymerItem) {
-            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player);
+            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, PacketContext.of(this.player));
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
             }

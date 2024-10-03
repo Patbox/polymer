@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 @Pseudo
 @Mixin(value = LithiumHashPalette.class, priority = 500)
@@ -20,7 +21,7 @@ public class lithium_BlockPaletteMixin {
     @ModifyArg(method = {"writePacket", "getPacketSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer$getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
-            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerUtils.getPlayerContext());
+            return PolymerBlockUtils.getPolymerBlockState(blockState, PacketContext.get());
         }
         return object;
     }

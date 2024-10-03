@@ -21,6 +21,7 @@ import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.Identifier;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -85,14 +86,14 @@ public class PacketPatcher {
 
     public static boolean prevent(ServerCommonNetworkHandler handler, Packet<?> packet) {
         if (handler.getClass() == ServerPlayNetworkHandler.class) {
-            var player = ((ServerPlayNetworkHandler) handler).player;
+            var player = PacketContext.of(handler);
             if ((
                     packet instanceof StatusEffectPacketExtension packet2
                             && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerReplacement(player) == null))
-            ) || !EntityAttachedPacket.shouldSend(packet, player)
+            ) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())
             ) {
                 return true;
-            } else if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player)) {
+            } else if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())) {
                 return true;
             } else if ((packet instanceof EntityAttributesS2CPacket original
                     && EntityAttachedPacket.get(packet, original.getEntityId()) instanceof PolymerEntity entity

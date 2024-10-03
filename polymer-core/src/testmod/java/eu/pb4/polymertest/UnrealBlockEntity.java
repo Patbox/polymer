@@ -33,6 +33,7 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.Set;
@@ -134,7 +135,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
+    public EntityType<?> getPolymerEntityType(PacketContext context) {
         return this.tater ? EntityType.ITEM_DISPLAY : EntityType.BLOCK_DISPLAY;
     }
 

@@ -16,7 +16,7 @@ public class TradedItemMixin {
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;tuple(Lnet/minecraft/network/codec/PacketCodec;Ljava/util/function/Function;Lnet/minecraft/network/codec/PacketCodec;Ljava/util/function/Function;Lnet/minecraft/network/codec/PacketCodec;Ljava/util/function/Function;Lcom/mojang/datafixers/util/Function3;)Lnet/minecraft/network/codec/PacketCodec;"))
     private static PacketCodec<RegistryByteBuf, TradedItem> polymerifyTheStack(PacketCodec<RegistryByteBuf, TradedItem> original) {
         return new TransformingPacketCodec<>(original, (buf, tradedItem) -> {
-            var stack = PolymerItemUtils.getPolymerItemStack(tradedItem.itemStack(), buf.getRegistryManager(), PacketContext.get().getPlayer());
+            var stack = PolymerItemUtils.getPolymerItemStack(tradedItem.itemStack(), PacketContext.get());
             return new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentPredicate.of(stack.getComponents()));
         }, (buf, tradedItem) -> {
             var stack = PolymerItemUtils.getRealItemStack(tradedItem.itemStack(), buf.getRegistryManager());

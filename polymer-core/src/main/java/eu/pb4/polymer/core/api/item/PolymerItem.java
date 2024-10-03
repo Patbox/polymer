@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.api.item;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,6 +14,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
@@ -24,45 +26,25 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
      * Returns main/default item used on client for specific player
      *
      * @param itemStack ItemStack of virtual item
-     * @param player    Player for which it's send
+     * @param context    Context for which it's send
      * @return Vanilla (or other) Item instance
      */
-    Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player);
+    Item getPolymerItem(ItemStack itemStack, PacketContext context);
+
+
+    default Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return stack.get(DataComponentTypes.ITEM_MODEL);
+    }
 
     /**
      * Method used for creation of client-side ItemStack
      *
      * @param itemStack Server-side ItemStack
-     * @param player    Player for which it's send
+     * @param context    Player for which it's send
      * @return Client-side ItemStack
      */
-    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        return PolymerItemUtils.createItemStack(itemStack, tooltipType, lookup, player);
-    }
-
-
-    /**
-     * Method used for getting custom model data of items
-     *
-     * @param itemStack Server-side ItemStack
-     * @param player    Player for which it's send
-     * @return Custom model data or -1 if not present
-     */
-    default int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return -1;
-    }
-
-    /**
-     * Method used for getting custom armor color of items
-     * It's designed to be used alongside {@link eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils#requestArmor(Identifier)}
-     * Make sure colors isn't even so it won't get wrong texture
-     *
-     * @param itemStack Server-side ItemStack
-     * @param player    Player for which it's send
-     * @return Custom color or -1 if not present
-     */
-    default int getPolymerArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return -1;
+    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+        return PolymerItemUtils.createItemStack(itemStack, tooltipType, context);
     }
 
     /**
@@ -71,13 +53,13 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
      *
      * @param tooltip Current tooltip text
      * @param stack   Server-side ItemStack
-     * @param player  Target player
+     * @param context  Target player
      */
-    default void modifyClientTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {
+    default void modifyClientTooltip(List<Text> tooltip, ItemStack stack, PacketContext context) {
     }
     @Override
-    default Item getPolymerReplacement(ServerPlayerEntity player) {
-        return this.getPolymerItem(((Item) this).getDefaultStack(), player);
+    default Item getPolymerReplacement(PacketContext context) {
+        return this.getPolymerItem(((Item) this).getDefaultStack(), context);
     }
 
     default boolean handleMiningOnServer(ItemStack tool, BlockState targetBlock, BlockPos pos, ServerPlayerEntity player) {

@@ -7,13 +7,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 
 public class BlockMapperImpl {
     public static final BlockMapper DEFAULT = new BlockMapper() {
         @Override
-        public BlockState toClientSideState(BlockState state, ServerPlayerEntity player) {
+        public BlockState toClientSideState(BlockState state, PacketContext player) {
             return state.getBlock() instanceof PolymerBlock polymerBlock ? PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player) : state;
         }
 
@@ -26,7 +27,7 @@ public class BlockMapperImpl {
     public static BlockMapper getMap(Map<BlockState, BlockState> blockStateMap) {
         return new BlockMapper() {
             @Override
-            public BlockState toClientSideState(BlockState state, ServerPlayerEntity player) {
+            public BlockState toClientSideState(BlockState state, PacketContext player) {
                 var clientState = blockStateMap.get(state);
                 return clientState != null ? DEFAULT.toClientSideState(clientState, player) : Blocks.AIR.getDefaultState();
             }
@@ -41,7 +42,7 @@ public class BlockMapperImpl {
     public static BlockMapper createStack(BlockMapper overlay, BlockMapper base) {
         return new BlockMapper() {
             @Override
-            public BlockState toClientSideState(BlockState state, ServerPlayerEntity player) {
+            public BlockState toClientSideState(BlockState state, PacketContext player) {
                 return base.toClientSideState(overlay.toClientSideState(state, player), player);
             }
 

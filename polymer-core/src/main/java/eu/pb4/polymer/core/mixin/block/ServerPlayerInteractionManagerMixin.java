@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.Objects;
@@ -85,7 +86,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 this.polymer$currentBreakingProgress = 0;
                 var ogDelta = state.calcBlockBreakingDelta(this.player, this.world, pos);;
                 if (state.getBlock() instanceof PolymerBlock virtualBlock) {
-                    state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, this.player);
+                    state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PacketContext.of(this.player));
                 }
 
                 float delta = state.calcBlockBreakingDelta(this.player, this.world, pos);

@@ -14,13 +14,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(AbstractBlock.class)
 public class AbstractBlockMixin {
     @Inject(method = "getOutlineShape", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (this instanceof PolymerBlock block) {
-            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state);
+            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.of());
             if (!(clientState.getBlock() instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getOutlineShape(world, pos, context));
             }
@@ -31,7 +32,9 @@ public class AbstractBlockMixin {
     private void polymer$replaceCollision(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (this instanceof PolymerBlock block) {
             var clientState = context instanceof EntityShapeContext entityShapeContext
-                    && entityShapeContext.getEntity() instanceof ServerPlayerEntity player ? PolymerBlockUtils.getBlockStateSafely(block, state, player) : PolymerBlockUtils.getBlockStateSafely(block, state);
+                    && entityShapeContext.getEntity() instanceof ServerPlayerEntity player
+                    ? PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.of(player))
+                    : PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.of());
             if (!(clientState.getBlock() instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getCollisionShape(world, pos, context));
             }

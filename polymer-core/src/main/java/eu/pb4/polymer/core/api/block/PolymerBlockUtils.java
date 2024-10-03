@@ -97,89 +97,51 @@ public final class PolymerBlockUtils {
      * Gets BlockState used on client side
      *
      * @param state server side BlockState
+     * @param context context
      * @return Client side BlockState
      */
-    public static BlockState getPolymerBlockState(BlockState state) {
-        return getPolymerBlockState(state, null);
+    public static BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+        return BlockMapper.getFrom(context.getPlayer()).toClientSideState(state, context);
+    }
+
+    public static Block getPolymerBlock(Block block, PacketContext context) {
+        return BlockMapper.getFrom(context.getPlayer()).toClientSideState(block.getDefaultState(), context).getBlock();
     }
 
     /**
-     * Gets BlockState used on client side
-     *
-     * @param state server side BlockState
-     * @param player      Possible target player
-     * @return Client side BlockState
-     */
-    public static BlockState getPolymerBlockState(BlockState state, @Nullable ServerPlayerEntity player) {
-        return BlockMapper.getFrom(player).toClientSideState(state, player);
-    }
-
-    public static Block getPolymerBlock(Block block, @Nullable ServerPlayerEntity player) {
-        return BlockMapper.getFrom(player).toClientSideState(block.getDefaultState(), player).getBlock();
-    }
-
-    /**
-     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
+     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState, PacketContext)} )} to make sure
      * It gets replaced if it represents other PolymerBlock
      *
      * @param block       PolymerBlock
      * @param blockState  Server side BlockState
      * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @param context Packet context
      * @return Client side BlockState
      */
-    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance) {
-        BlockState out = block.getPolymerBlockState(blockState);
+    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, PacketContext context) {
+        BlockState out = block.getPolymerBlockState(blockState, context);
 
         int req = 0;
         while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
-            out = newBlock.getPolymerBlockState(out);
+            out = newBlock.getPolymerBlockState(blockState, context);
+            req++;
+        }
+        return out;
+    }
+
+    public static BlockState getBlockBreakBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, PacketContext context) {
+        BlockState out = block.getPolymerBreakEventBlockState(blockState, context);
+
+        int req = 0;
+        while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
+            out = newBlock.getPolymerBreakEventBlockState(blockState, context);
             req++;
         }
         return out;
     }
 
     /**
-     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
-     * It gets replaced if it represents other PolymerBlock
-     *
-     * @param block       PolymerBlock
-     * @param blockState  Server side BlockState
-     * @param maxDistance Maximum number of checks for nested virtual blocks
-     * @param player      Possible target player
-     * @return Client side BlockState
-     */
-    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, @Nullable ServerPlayerEntity player) {
-        if (player == null) {
-            return getBlockStateSafely(block, blockState, maxDistance);
-        }
-
-        BlockState out = block.getPolymerBlockState(blockState, player);
-
-        int req = 0;
-        while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
-            out = newBlock.getPolymerBlockState(blockState, player);
-            req++;
-        }
-        return out;
-    }
-
-    public static BlockState getBlockBreakBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, @Nullable ServerPlayerEntity player) {
-        if (player == null) {
-            return getBlockStateSafely(block, blockState, maxDistance);
-        }
-
-        BlockState out = block.getPolymerBreakEventBlockState(blockState, player);
-
-        int req = 0;
-        while (out.getBlock() instanceof PolymerBlock newBlock && newBlock != block && req < maxDistance) {
-            out = newBlock.getPolymerBreakEventBlockState(blockState, player);
-            req++;
-        }
-        return out;
-    }
-
-    /**
-     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} )} to make sure
+     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState, PacketContext)} )} to make sure
      * It gets replaced if it represents other PolymerBlock
      *
      * @param block       PolymerBlock
@@ -187,20 +149,8 @@ public final class PolymerBlockUtils {
      * @param player      Possible target player
      * @return Client side BlockState
      */
-    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, @Nullable ServerPlayerEntity player) {
-        return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE, player);
-    }
-
-    /**
-     * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState)} to make sure
-     * It gets replaced if it represents other PolymerBlock
-     *
-     * @param block      PolymerBlock
-     * @param blockState Server side BlockState
-     * @return Client side BlockState
-     */
-    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState) {
-        return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE);
+    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, PacketContext context) {
+        return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE, context);
     }
 
     public static BlockEntityUpdateS2CPacket createBlockEntityPacket(BlockPos pos, BlockEntityType<?> type, @Nullable NbtCompound nbtCompound) {
@@ -213,8 +163,8 @@ public final class PolymerBlockUtils {
                 || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, player));
     }
 
-    public static BlockState getServerSideBlockState(BlockState state, ServerPlayerEntity player) {
-        return PolyMcUtils.toVanilla(getPolymerBlockState(state, player), player);
+    public static BlockState getServerSideBlockState(BlockState state, PacketContext context) {
+        return PolyMcUtils.toVanilla(getPolymerBlockState(state, context), context.getPlayer());
     }
 
     public static NbtCompound transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, NbtCompound original) {

@@ -30,7 +30,7 @@ public class DebugStickStateComponentMixin implements TransformingComponent {
     @Override
     public boolean polymer$requireModification(PacketContext context) {
         for (var key : this.properties.keySet()) {
-            if (!PolymerSyncedObject.canSyncRawToClient(Registries.BLOCK, key.value(), context.getPlayer())) {
+            if (!PolymerSyncedObject.canSyncRawToClient(Registries.BLOCK, key.value(), context)) {
                 return true;
             }
         }

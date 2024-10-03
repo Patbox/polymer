@@ -16,6 +16,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestHelmetItem extends ArmorItem implements PolymerItem {
     public TestHelmetItem(Settings settings) {
@@ -23,13 +24,13 @@ public class TestHelmetItem extends ArmorItem implements PolymerItem {
     }
 
     @Override
-    public Item getPolymerItem(ItemStack stack, ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack stack, PacketContext context) {
         return Items.WHITE_STAINED_GLASS;
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        var x = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, lookup, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+        var x = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
         x.set(DataComponentTypes.RARITY, Rarity.EPIC);
         return x;
     }

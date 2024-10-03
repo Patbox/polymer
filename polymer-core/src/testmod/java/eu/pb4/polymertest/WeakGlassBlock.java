@@ -10,6 +10,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class WeakGlassBlock extends TranslucentBlock implements PolymerBlock {
     public static final int DAMAGE_STATES = 4;
@@ -26,7 +27,7 @@ public class WeakGlassBlock extends TranslucentBlock implements PolymerBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
     return switch (state.get(DAMAGE)) {
             case 0 -> Blocks.GLASS.getDefaultState();
             case 1 -> Blocks.WHITE_STAINED_GLASS.getDefaultState();

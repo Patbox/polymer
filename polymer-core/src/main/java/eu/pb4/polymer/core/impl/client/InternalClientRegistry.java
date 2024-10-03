@@ -56,6 +56,7 @@ import net.minecraft.world.chunk.ChunkStatus;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.HashMap;
 import java.util.List;
@@ -163,7 +164,7 @@ public class InternalClientRegistry {
             if (PolymerClientDecoded.checkDecode(state.blockState().getBlock())) {
                 return state.blockState();
             } else {
-                return PolymerBlockUtils.getPolymerBlockState(state.blockState(), ClientUtils.getPlayer());
+                return PolymerBlockUtils.getPolymerBlockState(state.blockState(), PacketContext.of());
             }
         }
 

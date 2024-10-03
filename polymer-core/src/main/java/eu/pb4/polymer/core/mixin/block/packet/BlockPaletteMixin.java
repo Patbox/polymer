@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(value = {ArrayPalette.class, SingularPalette.class, BiMapPalette.class}, priority = 500)
 public abstract class BlockPaletteMixin {
@@ -22,7 +23,7 @@ public abstract class BlockPaletteMixin {
     @ModifyArg(method = {"writePacket", "getPacketSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getRawId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
-            return PolymerBlockUtils.getPolymerBlockState(blockState, PolymerUtils.getPlayerContext());
+            return PolymerBlockUtils.getPolymerBlockState(blockState, PacketContext.get());
         }
         return object;
     }
