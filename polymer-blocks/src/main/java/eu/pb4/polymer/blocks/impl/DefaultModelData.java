@@ -167,6 +167,57 @@ public class DefaultModelData {
             addTrapdoorHalf(Direction.WEST, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
         }
 
+        {
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.NORTH_DOOR, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.EAST_DOOR, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SOUTH_DOOR, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.WEST_DOOR, list);
+            }
+        }
+
         if (false && PolymerImpl.DEV_ENV) {
             PolymerImpl.LOGGER.info("===== Available States =====");
             for (var model : BlockModelType.values()) {
@@ -174,6 +225,46 @@ public class DefaultModelData {
 
             }
         }
+    }
+
+    private static void addDoor(Direction direction, DoorHinge doorHinge, DoubleBlockHalf doubleBlockHalf, boolean open, List<BlockState> list) {
+        list.add(addSingleDoor(Blocks.COPPER_DOOR, Blocks.WAXED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSingleDoor(Blocks.WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSingleDoor(Blocks.EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSingleDoor(Blocks.OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+
+        list.add(addSinglePoweredDoor(Blocks.ACACIA_DOOR, Blocks.ACACIA_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.BAMBOO_DOOR, Blocks.BAMBOO_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.BIRCH_DOOR, Blocks.BIRCH_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.CHERRY_DOOR, Blocks.CHERRY_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.CRIMSON_DOOR, Blocks.CRIMSON_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.DARK_OAK_DOOR, Blocks.DARK_OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.JUNGLE_DOOR, Blocks.JUNGLE_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.MANGROVE_DOOR, Blocks.MANGROVE_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.OAK_DOOR, Blocks.OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.SPRUCE_DOOR, Blocks.SPRUCE_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WARPED_DOOR, Blocks.WARPED_DOOR, direction, doorHinge, doubleBlockHalf, open));
+
+        list.add(addSinglePoweredDoor(Blocks.IRON_DOOR, Blocks.IRON_DOOR, direction, doorHinge, doubleBlockHalf, open));
+
+        list.add(addSinglePoweredDoor(Blocks.WAXED_COPPER_DOOR, Blocks.WAXED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WAXED_WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WAXED_EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WAXED_OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+    }
+
+    private static BlockState addSinglePoweredDoor(Block block, Block replacement, Direction facing, DoorHinge hinge, DoubleBlockHalf half, boolean open) {
+        BlockState from = block.getDefaultState().with(DoorBlock.POWERED, true).with(DoorBlock.OPEN, open).with(DoorBlock.FACING, facing).with(DoorBlock.HALF, half).with(DoorBlock.HINGE, hinge);
+        BlockState to = replacement.getStateWithProperties(from).with(DoorBlock.POWERED, false);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSingleDoor(Block block, Block replacement, Direction facing, DoorHinge hinge, DoubleBlockHalf half, boolean open) {
+        BlockState from = block.getDefaultState().with(DoorBlock.POWERED, false).with(DoorBlock.OPEN, open).with(DoorBlock.FACING, facing).with(DoorBlock.HALF, half).with(DoorBlock.HINGE, hinge);
+        BlockState to = replacement.getStateWithProperties(from);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
     }
 
     private static void addTrapdoorHalf(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
