@@ -5,10 +5,11 @@ import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.*;
-import net.minecraft.block.enums.SlabType;
+import net.minecraft.block.enums.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -124,6 +125,47 @@ public class DefaultModelData {
             addSlabs(SlabType.BOTTOM, true, BlockModelType.BOTTOM_SLAB_WATERLOGGED);
         }
 
+        {
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.TOP, false, BlockModelType.NORTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.TOP, false, BlockModelType.EAST_TRAPDOOR);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.TOP, false, BlockModelType.SOUTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.TOP, false, BlockModelType.WEST_TRAPDOOR);
+
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.TOP, true, BlockModelType.NORTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.TOP, true, BlockModelType.EAST_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.TOP, true, BlockModelType.SOUTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.TOP, true, BlockModelType.WEST_TRAPDOOR_WATERLOGGED);
+
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.BOTTOM, false, BlockModelType.NORTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.BOTTOM, false, BlockModelType.EAST_TRAPDOOR);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.BOTTOM, false, BlockModelType.SOUTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.BOTTOM, false, BlockModelType.WEST_TRAPDOOR);
+
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.BOTTOM, true, BlockModelType.NORTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.BOTTOM, true, BlockModelType.EAST_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.BOTTOM, true, BlockModelType.SOUTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.BOTTOM, true, BlockModelType.WEST_TRAPDOOR_WATERLOGGED);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+        }
 
         if (false && PolymerImpl.DEV_ENV) {
             PolymerImpl.LOGGER.info("===== Available States =====");
@@ -132,6 +174,93 @@ public class DefaultModelData {
 
             }
         }
+    }
+
+    private static void addTrapdoorHalf(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
+        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+        list.add(addSingleClosedTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleClosedTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleClosedTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleClosedTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BIRCH_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CHERRY_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CRIMSON_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.DARK_OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.JUNGLE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.MANGROVE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        DefaultModelData.USABLE_STATES.put(modelType, list);
+    }
+
+    private static void addTrapdoorDirection(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
+        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+
+        list.add(addSingleOpenTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleOpenTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleOpenTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleOpenTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BIRCH_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CHERRY_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CRIMSON_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.DARK_OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.JUNGLE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.MANGROVE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        DefaultModelData.USABLE_STATES.put(modelType, list);
+    }
+
+    private static BlockState addSingleOpenTrapdoor(Block block, Block replacement, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, true).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = replacement.getStateWithProperties(from);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSingleClosedTrapdoor(Block block, Block replacement, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, false).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = replacement.getStateWithProperties(from);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSinglePoweredOpenTrapdoor(Block block, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, true).with(TrapdoorBlock.POWERED, true).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = from.with(TrapdoorBlock.POWERED, false);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSinglePoweredClosedTrapdoor(Block block, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, false).with(TrapdoorBlock.POWERED, true).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = from.with(TrapdoorBlock.POWERED, false);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
     }
 
     private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
