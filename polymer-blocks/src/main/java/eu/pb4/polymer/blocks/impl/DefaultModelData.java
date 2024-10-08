@@ -218,11 +218,55 @@ public class DefaultModelData {
             }
         }
 
+        {
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addSculkBlocks(false, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addSculkBlocks(true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK_WATERLOGGED, list);
+            }
+        }
+
         if (false && PolymerImpl.DEV_ENV) {
             PolymerImpl.LOGGER.info("===== Available States =====");
             for (var model : BlockModelType.values()) {
                 PolymerImpl.LOGGER.info("{}: {}", model.name(), USABLE_STATES.get(model).size());
 
+            }
+        }
+    }
+
+    private static void addSculkBlocks(boolean waterlogged, List<BlockState> list) {
+        for (SculkSensorPhase phase : SculkSensorPhase.values()) {
+            if (phase == SculkSensorPhase.ACTIVE) continue;
+            for (int i = 1; i <= 15; i++) {
+                BlockState defaultState = Blocks.SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged);
+                BlockState from = defaultState.with(SculkSensorBlock.POWER, i);
+                list.add(from);
+                DefaultModelData.SPECIAL_REMAPS.put(from, defaultState);
+            }
+        }
+
+        Direction[] facingDirs = new Direction[]{
+                Direction.NORTH,
+                Direction.EAST,
+                Direction.SOUTH,
+                Direction.WEST
+        };
+
+        for (Direction direction : facingDirs) {
+            for (SculkSensorPhase phase : SculkSensorPhase.values()) {
+                if (phase == SculkSensorPhase.ACTIVE) continue;
+                for (int i = 1; i <= 15; i++) {
+                    BlockState defaultState = Blocks.CALIBRATED_SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged).with(CalibratedSculkSensorBlock.FACING, direction);
+                    BlockState from = defaultState.with(SculkSensorBlock.POWER, i);
+                    list.add(from);
+                    DefaultModelData.SPECIAL_REMAPS.put(from, defaultState);
+                }
             }
         }
     }
