@@ -39,8 +39,6 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @Shadow
     public ServerPlayerEntity player;
     @Unique
-    private final List<ItemStack> polymerCore$armorItems = new ArrayList<>();
-    @Unique
     private String polymerCore$language;
 
     public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData clientData) {
@@ -105,45 +103,5 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
                 this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(packet.getHand(), 0));
             }
         }*/
-    }
-
-    @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER))
-    private void polymer$storeArmor(ClickSlotC2SPacket packet, CallbackInfo ci) {
-        if (this.player.currentScreenHandler == this.player.playerScreenHandler) {
-            for (ItemStack stack : this.player.getInventory().armor) {
-                polymerCore$armorItems.add(stack.copy());
-            }
-        }
-    }
-
-    @Inject(method = "onClickSlot", at = @At("TAIL"))
-    private void polymer$updateArmor(ClickSlotC2SPacket packet, CallbackInfo ci) {
-        if (this.player.currentScreenHandler == this.player.playerScreenHandler && packet.getSlot() != -999) {
-            int x = 0;
-            for (ItemStack stack : this.player.getInventory().armor) {
-                if (stack.getItem() instanceof PolymerItem && !ItemStack.areEqual(this.polymerCore$armorItems.get(x), stack)) {
-                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId,
-                            this.player.playerScreenHandler.nextRevision(),
-                            8 - x,
-                            stack));
-
-                    if (packet.getSlot() != 8 - x) {
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId,
-                                this.player.playerScreenHandler.nextRevision(),
-                                packet.getSlot(),
-                                this.player.playerScreenHandler.getSlot(packet.getSlot()).getStack()));
-                    }
-
-                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1,
-                            0,
-                            0,
-                            this.player.currentScreenHandler.getCursorStack()));
-                    return;
-                }
-                x++;
-            }
-        }
-
-        this.polymerCore$armorItems.clear();
     }
 }

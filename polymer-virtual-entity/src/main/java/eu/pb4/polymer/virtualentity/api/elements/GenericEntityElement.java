@@ -5,13 +5,13 @@ import eu.pb4.polymer.virtualentity.api.tracker.DataTrackerLike;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.class_10264;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerPosition;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
@@ -150,7 +150,7 @@ public abstract class GenericEntityElement extends AbstractElement {
         }
 
         if (this.lastSyncedPos == null) {
-            packet = new class_10264(this.id, new PlayerPosition(pos, Vec3d.ZERO, this.yaw, this.pitch), false);
+            packet = new EntityPositionSyncS2CPacket(this.id, new PlayerPosition(pos, Vec3d.ZERO, this.yaw, this.pitch), false);
         } else {
             packet = VirtualEntityUtils.createMovePacket(this.id, this.lastSyncedPos, pos, this.isRotationDirty, this.yaw, this.pitch);
         }

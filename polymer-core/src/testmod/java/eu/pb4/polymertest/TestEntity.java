@@ -35,8 +35,8 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
         }
     }
 
-    @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
-        return TestMod.GHOST_HURT;
-    }
+    //@Override
+    //protected SoundEvent getHurtSound(DamageSource source) {
+    //    return TestMod.GHOST_HURT;
+    //}
 }

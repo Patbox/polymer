@@ -26,9 +26,7 @@ import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeRegistry;
-import net.minecraft.item.BlockPredicatesChecker;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.item.equipment.trim.ArmorTrim;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
@@ -387,6 +385,25 @@ public final class PolymerItemUtils {
         }
         var lookup = context.getRegistryWrapperLookup();
 
+
+        // Set item name
+        {
+            var name = itemStack.getItemName();
+            out.set(DataComponentTypes.ITEM_NAME, name);
+
+            // Potion workaround / hack
+            if (item instanceof PotionItem && out.contains(DataComponentTypes.POTION_CONTENTS) && !out.contains(DataComponentTypes.CUSTOM_NAME)) {
+                out.set(DataComponentTypes.CUSTOM_NAME, Text.empty().append(name).setStyle(Style.EMPTY.withItalic(false)));
+            }
+
+            // Player Head workaround / hack
+            if (item instanceof PlayerHeadItem && out.contains(DataComponentTypes.PROFILE)
+                    && Objects.requireNonNull(out.get(DataComponentTypes.PROFILE)).name().isPresent() && !out.contains(DataComponentTypes.CUSTOM_NAME)) {
+                out.set(DataComponentTypes.CUSTOM_NAME, Text.empty().append(name).setStyle(Style.EMPTY.withItalic(false)));
+            }
+        }
+
+
         try {
             PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
                 var comp = NbtComponent.of(
@@ -425,17 +442,20 @@ public final class PolymerItemUtils {
         try {
             var tooltip = itemStack.getTooltip(context.getPlayer() != null ? Item.TooltipContext.create(context.getPlayer().getWorld()) : Item.TooltipContext.DEFAULT, context.getPlayer(), tooltipContext);
             if (!tooltip.isEmpty()) {
-                out.set(DataComponentTypes.ITEM_NAME, tooltip.remove(0));
+                tooltip.removeFirst();
 
                 if (itemStack.getItem() instanceof PolymerItem) {
                     ((PolymerItem) itemStack.getItem()).modifyClientTooltip(tooltip, itemStack, context);
                 }
-
-                var lore = new ArrayList<Text>();
-                for (Text t : tooltip) {
-                    lore.add(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE));
+                if (!tooltip.isEmpty()) {
+                    var lore = new ArrayList<Text>();
+                    for (Text t : tooltip) {
+                        lore.add(Text.empty().append(t).setStyle(PolymerItemUtils.CLEAN_STYLE));
+                    }
+                    out.set(DataComponentTypes.LORE, new LoreComponent(lore));
                 }
-                out.set(DataComponentTypes.LORE, new LoreComponent(lore));
+            } else {
+                out.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
             }
         } catch (Throwable e) {
             if (PolymerImpl.LOG_MORE_ERRORS) {

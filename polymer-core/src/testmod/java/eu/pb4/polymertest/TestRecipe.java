@@ -1,24 +1,22 @@
 package eu.pb4.polymertest;
 
 import com.mojang.serialization.MapCodec;
-import eu.pb4.polymer.core.api.item.PolymerRecipe;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import net.minecraft.client.recipebook.RecipeBookGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.*;
+import net.minecraft.recipe.book.RecipeBookCategories;
+import net.minecraft.recipe.book.RecipeBookCategory;
+import net.minecraft.recipe.book.RecipeBookGroup;
 import net.minecraft.recipe.display.RecipeDisplay;
-import net.minecraft.recipe.display.SlotDisplay;
-import net.minecraft.recipe.display.SmithingRecipeDisplay;
 import net.minecraft.recipe.input.RecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.World;
 
 import java.util.List;
 
-public class TestRecipe implements Recipe<RecipeInput>, PolymerRecipe {
+public class TestRecipe implements Recipe<RecipeInput> {
 
     private final ItemStack output;
 
@@ -54,20 +52,17 @@ public class TestRecipe implements Recipe<RecipeInput>, PolymerRecipe {
 
     @Override
     public List<RecipeDisplay> getDisplays() {
-        return List.of(new SmithingRecipeDisplay(
-                new SlotDisplay.StackSlotDisplay(Items.TNT.getDefaultStack()),
-                new SlotDisplay.StackSlotDisplay(Items.TNT.getDefaultStack())
-        ));
+        return List.of();
+    }
+
+    @Override
+    public RecipeBookCategory getRecipeBookTab() {
+        return RecipeBookCategories.CAMPFIRE;
     }
 
     @Override
     public boolean isIgnoredInRecipeBook() {
         return true;
-    }
-
-    @Override
-    public RecipeBookGroup getRecipeBookTab() {
-        return RecipeBookGroup.CAMPFIRE;
     }
 
     public static class Serializer implements RecipeSerializer<TestRecipe>, PolymerObject {

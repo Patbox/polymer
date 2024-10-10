@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.api.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
@@ -137,10 +138,14 @@ public final class PolymerUtils {
         return PolymerImplUtils.getTooltipContext(player).withCreative();
     }
 
-    public static GameProfile createSkinGameProfile(String value, @Nullable String signature) {
-        var profile = new GameProfile(Util.NIL_UUID, "");
-        profile.getProperties().put("textures", new Property("textures", value, signature));
-        return profile;
+
+    public static ProfileComponent createProfileComponent(String value) {
+        return createProfileComponent(value, null);
+    }
+    public static ProfileComponent createProfileComponent(String value, @Nullable String signature) {
+        var profile = new PropertyMap();
+        profile.put("textures", new Property("textures", value, signature));
+        return new ProfileComponent(Optional.empty(), Optional.empty(), profile);
     }
 
 
@@ -150,7 +155,7 @@ public final class PolymerUtils {
 
     public static ItemStack createPlayerHead(String value, String signature) {
         var stack = new ItemStack(Items.PLAYER_HEAD);
-        stack.set(DataComponentTypes.PROFILE, new ProfileComponent(createSkinGameProfile(value, signature)));
+        stack.set(DataComponentTypes.PROFILE, createProfileComponent(value, signature));
         return stack;
     }
 
@@ -188,10 +193,6 @@ public final class PolymerUtils {
 
     public static boolean shouldPreventPacket(ServerCommonNetworkHandler handler, Packet<?> packet) {
         return PacketPatcher.prevent(handler, packet);
-    }
-
-    public static ProfileComponent createProfileComponent(String value, @Nullable String signature) {
-        return new ProfileComponent(createSkinGameProfile(value, signature));
     }
 
     /**

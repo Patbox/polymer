@@ -66,6 +66,7 @@
     "item.component.PotionContentsComponentMixin",
     "item.component.SuspiciousStewComponentMixin",
     "item.component.ench.AttributeEnchantmentEffectMixin",
+    "other.RegistryMixin",
     "item.packet.ItemStackPacketCodecMixin",
     "item.packet.RecipePropertySetMixin",
     "item.packet.SlotDisplayMixin",
@@ -115,7 +116,6 @@
     "client.item.ItemGroupsMixin",
     "client.item.ItemStackMixin",
     "client.rendering.BlockModelsMixin",
-    "client.rendering.BlockStatesLoaderMixin",
     "client.rendering.EntityRenderDispatcherMixin",
     "client.syncreg.IdListMixin",
     "client.syncreg.SimpleRegistryMixin"

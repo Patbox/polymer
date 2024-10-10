@@ -4,7 +4,6 @@ import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.*;
-import eu.pb4.polymer.core.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.core.api.other.PolymerStat;
 import eu.pb4.polymer.core.api.other.SimplePolymerPotion;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
@@ -193,7 +192,7 @@ public class TestMod implements ModInitializer {
     public static Item TEST_FOOD;
     public static final Item TEST_FOOD_2 = registerItem(Identifier.of("test", "food2"), (s) -> new SimplePolymerItem(s.food(new FoodComponent.Builder().nutrition(1).saturationModifier(2).build()), Items.CAKE));
 
-    public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(PolymerResourcePackUtils.getMainUuid(), Identifier.of("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
+    //public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(PolymerResourcePackUtils.getMainUuid(), Identifier.of("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
     
 
     public static SimplePolymerItem ICE_ITEM = registerItem(Identifier.of("test", "ice"), (s) -> new ClickItem(s, Items.SNOWBALL, (player, hand) -> {

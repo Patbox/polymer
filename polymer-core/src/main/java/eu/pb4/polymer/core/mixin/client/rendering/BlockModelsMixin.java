@@ -25,7 +25,7 @@ public class BlockModelsMixin {
         }
     }
 
-    @ModifyVariable(method = "getModel", at = @At("HEAD"), require = 0)
+    @ModifyVariable(method = "getModel", at = @At("HEAD"), require = 0, argsOnly = true)
     private BlockState polymer$replaceBlockState(BlockState state) {
         return state.getBlock() instanceof PolymerBlock block && !PolymerKeepModel.is(block) ? Blocks.AIR.getDefaultState() : state;
     }

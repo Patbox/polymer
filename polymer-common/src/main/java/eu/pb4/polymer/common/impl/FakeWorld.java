@@ -23,6 +23,7 @@ import net.minecraft.item.map.MapState;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.RecipeManager;
+import net.minecraft.recipe.ServerRecipeManager;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -124,7 +125,7 @@ public final class FakeWorld extends World implements LightSourceView {
                     new WolfVariant(Identifier.of("polymer","wolf"), Identifier.of("polymer","wolf"),Identifier.of("polymer","wolf"), RegistryEntryList.empty())));
         }
     };
-    static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
+    static final ServerRecipeManager RECIPE_MANAGER = new ServerRecipeManager(FALLBACK_REGISTRY_MANAGER);
     private static final FeatureSet FEATURES = FeatureFlags.FEATURE_MANAGER.getFeatureSet();
     private static final FuelRegistry FUEL_REGISTRY = new FuelRegistry.Builder(FALLBACK_REGISTRY_MANAGER, FeatureSet.empty()).build();
     final ChunkManager chunkManager = new ChunkManager() {

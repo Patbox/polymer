@@ -44,8 +44,8 @@ public interface PolymerHeadBlock extends PolymerBlock {
         NbtCompound main = new NbtCompound();
         main.putString("id", "minecraft:skull");
         main.put("profile", ProfileComponent.CODEC.encodeStart(NbtOps.INSTANCE,
-                new ProfileComponent(PolymerUtils.createSkinGameProfile(getPolymerSkinValue(state, pos, context),
-                        getPolymerSkinSignature(state, pos, context)))).result().get());
+                PolymerUtils.createProfileComponent(getPolymerSkinValue(state, pos, context),
+                        getPolymerSkinSignature(state, pos, context))).result().get());
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());

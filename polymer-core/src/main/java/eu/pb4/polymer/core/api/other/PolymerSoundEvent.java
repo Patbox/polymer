@@ -15,7 +15,7 @@ import java.util.UUID;
  * This class allows for creation of custom sound effects
  * It can be used to play custom sounds for players with resourcepack while keeping fallback for vanilla clients
  */
-public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject<SoundEvent> {
+/*public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject<SoundEvent> {
     @Nullable
     protected final SoundEvent polymerSound;
 
@@ -48,4 +48,4 @@ public class PolymerSoundEvent extends SoundEvent implements PolymerSyncedObject
     public SoundEvent getPolymerReplacement(PacketContext context) {
         return this.source == null || this.polymerSound == null || PolymerUtils.hasResourcePack(context.getPlayer(), this.source) ? this : (this.polymerSound instanceof PolymerSoundEvent pe ? pe.getPolymerReplacement(context) : this.polymerSound);
     }
-}
+}*/

@@ -8,4 +8,3 @@ accessible class net/minecraft/item/ItemGroup$Entries
 accessible class net/minecraft/item/ItemGroup$StackVisibility
 accessible class net/minecraft/client/render/model/BlockStatesLoader$BlockModel
 accessible method net/minecraft/item/ItemGroup <init> (Lnet/minecraft/item/ItemGroup$Row;ILnet/minecraft/item/ItemGroup$Type;Lnet/minecraft/text/Text;Ljava/util/function/Supplier;Lnet/minecraft/item/ItemGroup$EntryCollector;)V
-accessible method net/minecraft/sound/SoundEvent <init> (Lnet/minecraft/util/Identifier;FZ)V

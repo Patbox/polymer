@@ -1,11 +1,11 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ModelTransformationMode;
 
 public class ItemDisplayElement extends DisplayElement {
     public ItemDisplayElement(ItemStack stack) {

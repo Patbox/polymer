@@ -9,7 +9,6 @@ import eu.pb4.polymer.virtualentity.mixin.SetCameraEntityS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.PlaySoundFromEntityS2CPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.class_10264;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerPosition;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -98,7 +97,7 @@ public final class VirtualEntityUtils {
 
             return null;
         } else {
-            return new class_10264(id, new PlayerPosition(newPos, Vec3d.ZERO, yaw, pitch), false);
+            return new EntityPositionSyncS2CPacket(id, new PlayerPosition(newPos, Vec3d.ZERO, yaw, pitch), false);
         }
     }
 
