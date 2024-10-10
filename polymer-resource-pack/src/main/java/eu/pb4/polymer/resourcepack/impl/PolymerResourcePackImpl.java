@@ -14,7 +14,6 @@ public class PolymerResourcePackImpl {
     public static final boolean FORCE_REQUIRE;
     public static final boolean USE_OFFSET;
     public static final int OFFSET_VALUES;
-    public static final boolean USE_ALT_ARMOR_HANDLER;
     public static final List<String> INCLUDE_MOD_IDS;
     public static final List<String> INCLUDE_ZIPS;
     public static final UUID MAIN_UUID;
@@ -36,8 +35,6 @@ public class PolymerResourcePackImpl {
         USE_OFFSET = config.forcePackOffset || CompatStatus.POLYMC;
 
         OFFSET_VALUES = config.offsetValue;
-
-        USE_ALT_ARMOR_HANDLER = config.useAlternativeArmorHandler || CompatStatus.REQUIRE_ALT_ARMOR_HANDLER;
 
         INCLUDE_MOD_IDS = config.includeModAssets;
 

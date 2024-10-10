@@ -25,7 +25,7 @@ public class PolymerResourcePackMixinConfigPlugin implements IMixinConfigPlugin 
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         var name = mixinClassName.substring(PACKAGE_ROOT.length());
 
-        return CommonImpl.shouldApplyMixin("polymer-resource-pack", name, PolymerResourcePackImpl.USE_ALT_ARMOR_HANDLER);
+        return CommonImpl.shouldApplyMixin("polymer-resource-pack", name);
     }
 
     @Override

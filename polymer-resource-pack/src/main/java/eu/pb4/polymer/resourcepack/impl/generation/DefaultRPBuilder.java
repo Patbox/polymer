@@ -9,7 +9,6 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.PolymerModelData;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
-import eu.pb4.polymer.resourcepack.impl.ArmorTextureMetadata;
 import eu.pb4.polymer.resourcepack.impl.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
 import net.fabricmc.loader.api.FabricLoader;
@@ -603,9 +602,5 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     public enum OverridePlace {
         BEFORE_EXISTING, EXISTING, BEFORE_CUSTOM_MODEL_DATA, CUSTOM_MODEL_DATA, END
-    }
-
-    private record ArmorData(Identifier identifier, int color, BufferedImage[] images,
-                             ArmorTextureMetadata[] metadata) {
     }
 }

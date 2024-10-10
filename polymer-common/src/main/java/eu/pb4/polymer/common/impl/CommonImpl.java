@@ -184,9 +184,6 @@ public final class CommonImpl {
 
 
     public static boolean shouldApplyMixin(String source, String mixinClassName) {
-        return shouldApplyMixin(source, mixinClassName, false);
-    }
-    public static boolean shouldApplyMixin(String source, String mixinClassName, boolean armor) {
         var disabledReason = getDisabledMixin(source, mixinClassName);
         if (disabledReason != null) {
             CommonImpl.LOGGER.warn("Mixin '" + mixinClassName + "' from '" + source + "' was disabled by "
@@ -224,7 +221,6 @@ public final class CommonImpl {
                 case "emi" -> CompatStatus.EMI;
                 case "lithium" -> CompatStatus.LITHIUM;
                 case "jei" -> CompatStatus.JEI;
-                case "armor" -> CompatStatus.REQUIRE_ALT_ARMOR_HANDLER || armor;
                 case "ip" -> CompatStatus.IMMERSIVE_PORTALS;
                 case "quiltReg" -> CompatStatus.QUILT_REGISTRY;
                 default -> true;

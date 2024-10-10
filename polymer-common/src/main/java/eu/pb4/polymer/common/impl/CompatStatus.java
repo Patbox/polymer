@@ -54,7 +54,6 @@ public final class CompatStatus {
     public static final boolean CANVAS = LOADER.isModLoaded("canvas");
     public static final boolean OPTIBAD = LOADER.isModLoaded("optifabric");
 
-    public static final boolean REQUIRE_ALT_ARMOR_HANDLER = IRIS || CANVAS || OPTIBAD;
 
     public static final boolean IMMERSIVE_PORTALS = LOADER.isModLoaded("imm_ptl_core");
 
