@@ -20,14 +20,4 @@ public interface TempPlayerLoginAttachments {
 
     void polymerNet$setForceRespawnPacket();
     boolean polymerNet$getForceRespawnPacket();
-
-    @Deprecated(forRemoval = true)
-    default boolean polymer$getWorldReload() {
-        return polymerNet$getWorldReload();
-    }
-
-    @Deprecated(forRemoval = true)
-    default void polymer$setWorldReload(boolean b) {
-        polymerNet$setWorldReload(b);
-    }
 }

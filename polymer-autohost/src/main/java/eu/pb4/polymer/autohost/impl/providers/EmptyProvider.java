@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Util;
 
@@ -30,11 +31,6 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     }
 
     @Override
-    public Collection<MinecraftServer.ServerResourcePackProperties> getProperties() {
-        return List.of();
-    }
-
-    @Override
     public void serverStarted(MinecraftServer server) {
 
     }
@@ -42,5 +38,10 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     @Override
     public void serverStopped(MinecraftServer server) {
 
+    }
+
+    @Override
+    public Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection) {
+        return List.of();
     }
 }

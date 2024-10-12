@@ -52,7 +52,9 @@ public class EntityPassengersSetS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeIntArray([I)Lnet/minecraft/network/PacketByteBuf;"))
     private int[] addDynamicPassengers(int[] a) {
-        if (this.virtualPassengers.isEmpty()) {
+        // This can be null due to Unsafe!
+        //noinspection ConstantValue
+        if (this.virtualPassengers == null || this.virtualPassengers.isEmpty()) {
             return a;
         }
         var player = PacketContext.get();

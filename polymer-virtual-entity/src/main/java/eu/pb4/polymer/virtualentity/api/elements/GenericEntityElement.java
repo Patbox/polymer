@@ -21,7 +21,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -35,6 +34,7 @@ public abstract class GenericEntityElement extends AbstractElement {
     private float yaw;
     private boolean isRotationDirty;
     private boolean sendPositionUpdates = true;
+    private boolean instantPositionUpdates = false;
     protected DataTrackerLike createDataTracker() {
         return new SimpleDataTracker(this.getEntityType());
     }
@@ -49,6 +49,13 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     public void ignorePositionUpdates() {
         setSendPositionUpdates(false);
+    }
+    public void instantPositionUpdates() {
+        setInstantPositionUpdates(true);
+    }
+
+    public void setInstantPositionUpdates(boolean value) {
+        this.instantPositionUpdates = value;
     }
 
     public void setSendPositionUpdates(boolean b) {
@@ -120,7 +127,7 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     @Override
     public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
-        if (this.sendPositionUpdates) {
+        if (this.sendPositionUpdates && this.instantPositionUpdates) {
             this.sendPositionUpdates();
         }
     }
@@ -291,5 +298,10 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     public void setNoGravity(boolean noGravity) {
         this.dataTracker.set(EntityTrackedData.NO_GRAVITY, noGravity);
+    }
+
+    public void setRotation(float pitch, float yaw) {
+        this.setPitch(pitch);
+        this.setYaw(yaw);
     }
 }

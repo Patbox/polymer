@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.BlockWithMovingElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.attachment.BlockAwareAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.EntityElement;
@@ -15,16 +16,16 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.SheepEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.Items;
 import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeCoords;
@@ -35,15 +36,23 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWithMovingElementHolder {
     public static final BooleanProperty CAN_FALL = BooleanProperty.of("can_fall");
+    public static final EnumProperty<Direction> FACING = Properties.FACING;
 
     public AnimatedBlock(Settings settings) {
         super(settings);
+        setDefaultState(this.getDefaultState().with(CAN_FALL, false));
     }
 
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(CAN_FALL);
+        builder.add(CAN_FALL, FACING);
+    }
+
+    @Nullable
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return super.getPlacementState(ctx).with(FACING, ctx.getSide());
     }
 
     @Override
@@ -70,7 +79,7 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
 
     @Override
     public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
-        return new CustomHolder(world);
+        return new CustomHolder(world, initialBlockState);
     }
 
     public static class CustomHolder extends ElementHolder {
@@ -80,7 +89,7 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
         private final ItemDisplayElement moonElement;
         private int tick = 0;
 
-        public CustomHolder(ServerWorld world) {
+        public CustomHolder(ServerWorld world, BlockState state) {
             this.planetElement = this.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
             this.moonElement = this.addElement(new ItemDisplayElement(Items.DECORATED_POT));
             this.centralElement = this.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
@@ -94,11 +103,37 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
             this.moonElement.setTeleportDuration(1);
             this.planetElement.setTeleportDuration(1);
             this.entity = this.addElement(new EntityElement<>(EntityType.SHEEP, world));
+            this.updateRotation(state);
             entity.entity().setColor(DyeColor.PINK);
             entity.setOffset(new Vec3d(0, 1, 0));
             this.centralElement.setGlowing(true);
             this.centralElement.setGlowColorOverride(0x000000);
             this.animate();
+        }
+
+        private void updateRotation(BlockState state) {
+            var yaw = 0f;
+            var pitch = 0f;
+            var dir = state.get(FACING);
+
+            if (dir.getAxis() == Direction.Axis.Y) {
+                pitch = dir == Direction.DOWN ? 180 : 0;
+            } else {
+                pitch = 90;
+                yaw = dir.asRotation();
+            }
+
+            this.planetElement.setRotation(pitch, yaw);
+            this.moonElement.setRotation(pitch, yaw);
+            this.centralElement.setRotation(pitch, yaw);
+        }
+
+        @Override
+        public void notifyUpdate(HolderAttachment.UpdateType updateType) {
+            super.notifyUpdate(updateType);
+            if (updateType == BlockAwareAttachment.BLOCK_STATE_UPDATE) {
+                updateRotation(BlockAwareAttachment.get(this).getBlockState());
+            }
         }
 
         @Override

@@ -509,22 +509,6 @@ public final class PolymerItemUtils {
         return getItemSafely(item, stack, context, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
     }
 
-    /**
-     * @deprecated Use {@link PolymerComponent#registerDataComponent(ComponentType[])} instead
-     */
-    @Deprecated
-    public static void markAsPolymer(ComponentType<?>... types) {
-        PolymerComponent.registerDataComponent(types);
-    }
-
-    /**
-     * @deprecated Use {@link PolymerComponent#isPolymerComponent(ComponentType)} instead
-     */
-    @Deprecated
-    public static boolean isPolymerComponent(ComponentType<?> type) {
-        return PolymerComponent.isPolymerComponent(type);
-    }
-
     public static ItemStack getClientItemStack(ItemStack stack, PacketContext context) {
         var out = getPolymerItemStack(stack, context);
         if (CompatStatus.POLYMC) {

@@ -87,11 +87,6 @@ public class AutoHost implements ModInitializer {
         provider.serverStopped(server);
     }
 
-    @Deprecated(forRemoval = true)
-    public static void generateAndCall(MinecraftServer server, Consumer<Text> messageConsumer, Runnable runnable) {
-        PolymerResourcePackMod.generateAndCall(server, true, messageConsumer, runnable);
-    }
-
     public static File getFile(String path) {
         var x = getPath(path);
         return x != null ? x.toFile() : null;

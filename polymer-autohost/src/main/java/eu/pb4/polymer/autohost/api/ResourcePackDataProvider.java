@@ -29,14 +29,7 @@ public interface ResourcePackDataProvider {
     static <T> void register(Identifier identifier, Supplier<ResourcePackDataProvider> providerCreator) {
         AutoHost.TYPES.put(identifier, providerCreator);
     };
-    default Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection) {
-        return getProperties();
-    };
-
-    @Deprecated
-    default Collection<MinecraftServer.ServerResourcePackProperties> getProperties() {
-        return List.of();
-    };
+    Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection);
 
     static MinecraftServer.ServerResourcePackProperties createProperties(@Nullable UUID uuid, String address, @Nullable String hash) {
         return new MinecraftServer.ServerResourcePackProperties(uuid != null

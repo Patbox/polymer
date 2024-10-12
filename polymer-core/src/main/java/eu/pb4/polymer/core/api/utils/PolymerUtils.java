@@ -109,13 +109,6 @@ public final class PolymerUtils {
             PolymerImplUtils.IS_RELOADING_WORLD.remove();
         });
     }
-    /**
-     * @deprecated Use {@link PolymerComponent#registerDataComponent(ComponentType[])} instead
-     */
-    @Deprecated
-    public static void markAsPolymer(ComponentType<?>... types) {
-        PolymerItemUtils.markAsPolymer(types);
-    }
 
     /**
      * Resends inventory to player
@@ -193,13 +186,5 @@ public final class PolymerUtils {
 
     public static boolean shouldPreventPacket(ServerCommonNetworkHandler handler, Packet<?> packet) {
         return PacketPatcher.prevent(handler, packet);
-    }
-
-    /**
-     * Use PolymerCommonUtils.executeWithNetworkingLogic
-     */
-    @Deprecated
-    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
-        PolymerCommonUtils.executeWithPlayerContext(player, runnable);
     }
 }

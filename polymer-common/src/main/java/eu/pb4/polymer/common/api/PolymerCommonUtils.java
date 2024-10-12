@@ -217,19 +217,4 @@ public final class PolymerCommonUtils {
     public interface ResourcePackChangeCallback {
         void onResourcePackChange(ServerCommonNetworkHandler handler, UUID uuid, boolean oldStatus, boolean newStatus);
     }
-
-    /**
-     * Use PolymerCommonUtils#executeWithNetworkingLogic
-     */
-    @Deprecated
-    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable) {
-        executeWithNetworkingLogic(player.networkHandler, runnable);
-    }
-    /**
-     * Use PolymerCommonUtils#executeWithNetworkingLogic
-     */
-    @Deprecated
-    public static void executeWithPlayerContext(ServerPlayerEntity player, Runnable runnable, Consumer<Runnable> runnableConsumer) {
-        executeWithNetworkingLogic(player.networkHandler, () -> runnableConsumer.accept(runnable));
-    }
 }

@@ -159,10 +159,5 @@ public final class PolymerEntityUtils {
     public static void sendEntityType(ServerPlayerEntity player, int entityId, EntityType<?> entityType) {
         PolymerServerProtocol.sendEntityInfo(player.networkHandler, entityId, entityType);
     }
-
-    @Deprecated
-    public static boolean isRegisteredEntityType(EntityType<?> type) {
-        return ENTITY_TYPES.contains(type);
-    }
 }
 
