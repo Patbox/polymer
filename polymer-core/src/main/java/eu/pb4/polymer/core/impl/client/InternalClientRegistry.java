@@ -164,7 +164,7 @@ public class InternalClientRegistry {
             if (PolymerClientDecoded.checkDecode(state.blockState().getBlock())) {
                 return state.blockState();
             } else {
-                return PolymerBlockUtils.getPolymerBlockState(state.blockState(), PacketContext.of());
+                return PolymerBlockUtils.getPolymerBlockState(state.blockState(), PacketContext.create());
             }
         }
 
@@ -188,11 +188,7 @@ public class InternalClientRegistry {
 
     public static Object decodeRegistry(IndexedIterable<?> instance, int i) {
         if (serverHasPolymer) {
-            var mut = new MutableObject<>();
-            PolymerCommonUtils.executeWithNetworkingLogic(() -> {
-                mut.setValue(instance.getOrThrow(i));
-            });
-            return mut.getValue();
+            return PolymerCommonUtils.executeWithNetworkingLogic(() -> instance.getOrThrow(i));
         }
 
         return instance.getOrThrow(i);

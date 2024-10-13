@@ -405,17 +405,17 @@ public final class PolymerItemUtils {
 
 
         try {
-            PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
+            out.set(DataComponentTypes.CUSTOM_DATA, PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
                 var comp = NbtComponent.of(
                         (NbtCompound) (storeCount ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).encoder()
                                 .encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
                 );
                 if (storeCount) {
-                    out.set(DataComponentTypes.CUSTOM_DATA, comp.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_HAS_COUNT_CODEC, true).getOrThrow());
+                    return comp.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_HAS_COUNT_CODEC, true).getOrThrow();
                 } else {
-                    out.set(DataComponentTypes.CUSTOM_DATA, comp);
+                    return comp;
                 }
-            });
+            }));
         } catch (Throwable e) {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }

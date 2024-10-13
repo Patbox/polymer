@@ -258,6 +258,7 @@ public class TestMod implements ModInitializer {
         //ITEM_GROUP.setIcon();
         PolymerResourcePackUtils.addModAssets("apolymertest");
         PolymerResourcePackUtils.addBridgedModelsFolder(Identifier.of("polymertest", "testificate"));
+        PolymerResourcePackUtils.addBridgedModelsFolder(Identifier.of("blocktest", "block"));
         PolymerResourcePackUtils.getInstance().setPackDescription(Text.literal("TEST REPLACED DESCRIPTION").formatted(Formatting.GREEN));
         //PolymerResourcePackUtils.markAsRequired();
         //PolymerResourcePackUtils.addModAsAssetsSource("promenade");

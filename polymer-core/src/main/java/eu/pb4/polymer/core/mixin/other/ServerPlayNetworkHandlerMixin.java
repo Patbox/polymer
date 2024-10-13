@@ -40,7 +40,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements PolymerPlayNetwor
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void polymer$setupInitial(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
-        this.polymer$blockMapper = BlockMapper.getDefault(PacketContext.of(player));
+        this.polymer$blockMapper = BlockMapper.getDefault(PacketContext.create(player));
         var advTool = PolymerNetworking.getMetadata(connection, ClientMetadataKeys.ADVANCED_TOOLTIP, NbtByte.TYPE);
 
         this.polymer$advancedTooltip = advTool != null && advTool.intValue() > 0;

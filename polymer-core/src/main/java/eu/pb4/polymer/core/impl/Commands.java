@@ -478,7 +478,7 @@ public class Commands {
 
     private static int displayClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayerOrThrow();
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.of(player)).copy();
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.create(player)).copy();
         stack.remove(DataComponentTypes.CUSTOM_DATA);
 
         context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(stack.toNbtAllowEmpty(context.getSource().getRegistryManager())), false);
@@ -489,7 +489,7 @@ public class Commands {
     private static int getClientItem(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayerOrThrow();
 
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.of(player));
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.create(player));
         stack.remove(DataComponentTypes.CUSTOM_DATA);
         player.giveItemStack(stack);
         context.getSource().sendFeedback(() -> Text.literal("Given client representation to player"), true);

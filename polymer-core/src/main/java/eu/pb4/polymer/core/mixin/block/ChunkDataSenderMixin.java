@@ -33,9 +33,7 @@ public class ChunkDataSenderMixin {
     @WrapOperation(method = "sendChunkData", at = @At(value = "NEW", target = "(Lnet/minecraft/world/chunk/WorldChunk;Lnet/minecraft/world/chunk/light/LightingProvider;Ljava/util/BitSet;Ljava/util/BitSet;)Lnet/minecraft/network/packet/s2c/play/ChunkDataS2CPacket;"), require = 0)
     private static ChunkDataS2CPacket addContext(WorldChunk chunk, LightingProvider lightProvider, @Nullable BitSet skyBits, @Nullable BitSet blockBits, Operation<ChunkDataS2CPacket> call,
                                                  @Local(argsOnly = true) ServerPlayNetworkHandler handler) {
-        var storage = new ChunkDataS2CPacket[1];
-        PolymerCommonUtils.executeWithNetworkingLogic(handler, () -> storage[0] = call.call(chunk, lightProvider, skyBits, blockBits));
-        return storage[0];
+        return PolymerCommonUtils.executeWithNetworkingLogic(handler, () -> call.call(chunk, lightProvider, skyBits, blockBits));
     }
 
     @WrapWithCondition(method = "unload", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"), require = 0)

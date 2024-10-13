@@ -83,8 +83,6 @@ public interface ResourcePackBuilder {
         }
     }
 
-    boolean addCustomModelData(PolymerModelData itemModel);
-
     byte @Nullable [] getData(String path);
 
     byte @Nullable [] getDataOrSource(String path);

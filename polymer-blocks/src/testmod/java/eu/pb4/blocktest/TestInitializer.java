@@ -56,8 +56,8 @@ public class TestInitializer implements ModInitializer {
 
         Registry.register(Registries.ITEM, id, new PolymerBlockItem(block, new Item.Settings()
                 .registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
-                        .modelId(block.getPolymerBlockState(block.getDefaultState(), PacketContext.of()).getBlock().getRegistryEntry().registryKey().getValue())
+                        .modelId(block.getPolymerBlockState(block.getDefaultState(), PacketContext.create()).getBlock().getRegistryEntry().registryKey().getValue())
                         .component(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true),
-                block.getPolymerBlockState(block.getDefaultState(), PacketContext.of()).getBlock().asItem()));
+                block.getPolymerBlockState(block.getDefaultState(), PacketContext.create()).getBlock().asItem()));
     }
 }

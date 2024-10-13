@@ -16,7 +16,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -34,17 +33,6 @@ public final class PolymerResourcePackUtils {
     public static final SimpleEvent<Runnable> RESOURCE_PACK_FINISHED_EVENT = INSTANCE.finishedEvent;
     private static boolean REQUIRED = PolymerResourcePackImpl.FORCE_REQUIRE;
     private static boolean DEFAULT_CHECK = true;
-
-    /**
-     * This method can be used to register custom model data for items
-     *
-     * @param vanillaItem Vanilla/Client side item
-     * @param modelPath   Path to model in resource pack
-     * @return PolymerModelData with data about this model
-     */
-    public static PolymerModelData requestModel(Item vanillaItem, Identifier modelPath) {
-        return INSTANCE.requestModel(vanillaItem, modelPath);
-    }
 
     /**
      * Adds mod with provided mod id as a source of assets
@@ -91,6 +79,10 @@ public final class PolymerResourcePackUtils {
     }
 
     public static Identifier getBridgedModelId(Identifier model) {
+        if (model.getPath().startsWith("item/")) {
+            return model.withPath(model.getPath().substring("item/".length()));
+        }
+
         return model.withPrefixedPath("-/");
     }
 
@@ -135,17 +127,6 @@ public final class PolymerResourcePackUtils {
         if (player.networkHandler != null) {
             ((CommonClientConnectionExt) player.networkHandler).polymerCommon$setResourcePack(uuid, status);
         }
-    }
-
-    /**
-     * Gets an unmodifiable list of models for an item.
-     * This can be useful if you need to extract this list and parse it yourself.
-     *
-     * @param item Item you want list for
-     * @return An unmodifiable list of models
-     */
-    public static List<PolymerModelData> getModelsFor(Item item) {
-        return INSTANCE.getModelsFor(item);
     }
 
     public static void disableDefaultCheck() {

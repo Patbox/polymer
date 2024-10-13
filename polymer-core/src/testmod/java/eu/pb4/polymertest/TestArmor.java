@@ -1,24 +1,15 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
-import eu.pb4.polymer.resourcepack.api.PolymerModelData;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.*;
 import net.minecraft.item.equipment.ArmorMaterials;
 import net.minecraft.item.equipment.EquipmentType;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestArmor extends ArmorItem implements VanillaModeledPolymerItem {
-    private final PolymerModelData itemModel;
     private final Item itemDefault;
 
     public TestArmor(EquipmentSlot slot, Identifier model, Settings settings) {
@@ -29,12 +20,11 @@ public class TestArmor extends ArmorItem implements VanillaModeledPolymerItem {
             default -> EquipmentType.BOOTS;
         }, settings.maxDamage(10000));
         this.itemDefault = getItemFor(slot, false);
-        this.itemModel = PolymerResourcePackUtils.requestModel(getItemFor(slot, true), model);
     }
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
-        return PolymerResourcePackUtils.hasMainPack(context.getPlayer()) ? this.itemModel.item() : this.itemDefault;
+        return this.itemDefault;
     }
 
 

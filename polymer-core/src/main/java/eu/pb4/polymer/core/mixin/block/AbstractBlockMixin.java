@@ -10,6 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,8 +21,8 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public class AbstractBlockMixin {
     @Inject(method = "getOutlineShape", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
-        if (this instanceof PolymerBlock block) {
-            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.of());
+        if (this instanceof PolymerBlock block && world instanceof World realWorld) {
+            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.create(realWorld.getRegistryManager()));
             if (!(clientState.getBlock() instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getOutlineShape(world, pos, context));
             }
@@ -30,11 +31,11 @@ public class AbstractBlockMixin {
 
     @Inject(method = "getCollisionShape", at = @At("HEAD"), cancellable = true)
     private void polymer$replaceCollision(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
-        if (this instanceof PolymerBlock block) {
+        if (this instanceof PolymerBlock block && world instanceof World realWorld) {
             var clientState = context instanceof EntityShapeContext entityShapeContext
                     && entityShapeContext.getEntity() instanceof ServerPlayerEntity player
-                    ? PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.of(player))
-                    : PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.of());
+                    ? PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.create(player))
+                    : PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.create(realWorld.getRegistryManager()));
             if (!(clientState.getBlock() instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getCollisionShape(world, pos, context));
             }

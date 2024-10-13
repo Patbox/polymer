@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class PolymerCommonUtils {
     private static final ThreadLocal<LogicOverride> FORCE_NETWORKING = ThreadLocal.withInitial(() -> LogicOverride.DEFAULT);
@@ -129,9 +130,43 @@ public final class PolymerCommonUtils {
     public static void executeWithoutNetworkingLogic(Runnable runnable) {
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(LogicOverride.FALSE);
-        PacketContext.runWithContext(null, runnable);
-        FORCE_NETWORKING.set(val);
+        try {
+            PacketContext.runWithContext(null, runnable);
+        } finally {
+            FORCE_NETWORKING.set(val);
+        }
     }
+
+    public static <T> T executeWithNetworkingLogic(Supplier<T> supplier) {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(LogicOverride.TRUE);
+        try {
+            return supplier.get();
+        } finally {
+            FORCE_NETWORKING.set(val);
+        }
+    }
+
+    public static <T> T executeWithNetworkingLogic(PacketListener listener, Supplier<T> supplier) {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(LogicOverride.TRUE);
+        try {
+            return PacketContext.supplyWithContext(listener, supplier);
+        } finally {
+            FORCE_NETWORKING.set(val);
+        }
+    }
+
+    public static <T> T executeWithoutNetworkingLogic(Supplier<T> supplier) {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(LogicOverride.FALSE);
+        try {
+            return PacketContext.supplyWithContext(null, supplier);
+        } finally {
+            FORCE_NETWORKING.set(val);
+        }
+    }
+
 
     public static World getFakeWorld() {
         return FakeWorld.INSTANCE;

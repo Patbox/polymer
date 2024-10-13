@@ -2,7 +2,7 @@ package eu.pb4.polymertest;
 
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
-import eu.pb4.polymer.virtualentity.api.BlockWithMovingElementHolder;
+import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
@@ -13,13 +13,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -31,7 +28,7 @@ import java.util.Collection;
 
 // Bug reported with
 // https://github.com/Dev0Louis/Zauber/blob/54fd6f06a9f1c83fdf37641f587da2b27860b98b/src/main/java/dev/louis/zauber/block/ManaCauldron.java
-public class ManaCauldron extends Block implements PolymerBlock, BlockWithMovingElementHolder {
+public class ManaCauldron extends Block implements PolymerBlock, BlockWithElementHolder {
     public static final MapCodec<ManaCauldron> CODEC = createCodec(ManaCauldron::new);
     public static final IntProperty MANA_LEVEL = IntProperty.of("mana_level", 0, 2);
 

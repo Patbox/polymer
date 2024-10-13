@@ -2,23 +2,14 @@ package eu.pb4.polymer.resourcepack.api;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.model.ItemOverride;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
-import eu.pb4.polymer.resourcepack.impl.generation.PolymerModelDataImpl;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.SharedConstants;
-import net.minecraft.item.Item;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.PackResourceMetadata;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -34,15 +25,12 @@ public final class ResourcePackCreator {
     public final SimpleEvent<Consumer<ResourcePackBuilder>> creationEvent = new SimpleEvent<>();
     public final SimpleEvent<Runnable> finishedEvent = new SimpleEvent<>();
     public final SimpleEvent<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
-    private final Map<Item, List<PolymerModelData>> items = new IdentityHashMap<>();
-    private final Object2IntMap<Item> itemIds = new Object2IntOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
-    private final Map<Item, Map<Identifier, PolymerModelData>> itemModels = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
-    private final Map<Item, List<ItemOverride>> itemOverrides = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    private final Object2IntMap<Identifier> currentCustomModelDataValue = new Object2IntOpenHashMap<>();
+    private final Map<Identifier, List<ItemOverride>> modelOverrides = new HashMap<>();
 
     private final Set<String> modIds = new HashSet<>();
     private final Set<String> modIdsNoCopy = new HashSet<>();
     private final Set<Identifier> bridgedModels = new HashSet<>();
-    private final int cmdOffset;
     private Text packDescription = null;
     private byte[] packIcon = null;
     private final Set<Path> sourcePaths = new HashSet<>();
@@ -51,17 +39,15 @@ public final class ResourcePackCreator {
         return new ResourcePackCreator(0);
     }
     public static ResourcePackCreator createCopy(ResourcePackCreator source, boolean copyEvents) {
-        var creator = new ResourcePackCreator(source.cmdOffset);
+        var creator = new ResourcePackCreator(source.currentCustomModelDataValue.defaultReturnValue());
         if (copyEvents) {
             source.creationEvent.invokers().forEach(creator.creationEvent::register);
             source.afterInitialCreationEvent.invokers().forEach(creator.afterInitialCreationEvent::register);
             source.finishedEvent.invokers().forEach(creator.finishedEvent::register);
         }
 
-        source.items.forEach((a, b) -> creator.items.put(a, new ArrayList<>(b)));
-        creator.itemIds.putAll(source.itemIds);
-        source.itemModels.forEach((a, b) -> creator.itemModels.put(a, new HashMap<>(b)));
-        source.itemOverrides.forEach((a, b) -> creator.itemOverrides.put(a, new ArrayList<>(b)));
+        creator.currentCustomModelDataValue.putAll(source.currentCustomModelDataValue);
+        source.modelOverrides.forEach((a, b) -> creator.modelOverrides.put(a, new ArrayList<>(b)));
         creator.modIds.addAll(source.modIds);
         creator.modIdsNoCopy.addAll(source.modIdsNoCopy);
         creator.packDescription = source.packDescription;
@@ -72,61 +58,48 @@ public final class ResourcePackCreator {
     }
 
     ResourcePackCreator(int cmdOffset) {
-        this.cmdOffset = cmdOffset;
-        this.itemIds.defaultReturnValue(1);
+        this.currentCustomModelDataValue.defaultReturnValue(cmdOffset);
     }
 
     /**
-     * This method can be used to register custom model data for items
+     * This method can be used to register custom model data for models
      *
-     * @param vanillaItem Vanilla/Client side item
-     * @param modelPath   Path to model in resource pack
-     * @return PolymerModelData with data about this model
+     * @param model Target model. Requires full path.
+     * @param override Override that needs to be added
+     * @return Custom model data id.
      */
-    public PolymerModelData requestModel(Item vanillaItem, Identifier modelPath) {
-        var map = this.itemModels.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
-
-        if (map.containsKey(modelPath)) {
-            return map.get(modelPath);
-        } else {
-            return this.forceDefineModel(vanillaItem, this.itemIds.getInt(vanillaItem), modelPath, true);
-        }
+    public int defineCustomModelData(Identifier model, Identifier override) {
+        var id = requestCustomModelDataValue(model);
+        defineOverride(model, ItemOverride.of(override, ItemOverride.CUSTOM_MODEL_DATA, id));
+        return id;
     }
 
     /**
      * This method can be used to define custom overrides items
      *
-     * @param item Vanilla/Client side item
+     * @param model Target model. Requires full path.
      * @param override Override that needs to be added
-     * @return PolymerModelData with data about this model
      */
-    public void defineOverride(Item item, ItemOverride override) {
-        this.itemOverrides.computeIfAbsent(item, (x) -> new ArrayList<>()).add(override);
+    public void defineOverride(Identifier model, ItemOverride override) {
+        this.modelOverrides.computeIfAbsent(model, (x) -> new ArrayList<>()).add(override);
+    }
+
+    public int requestCustomModelDataValue(Identifier model) {
+        var val = this.currentCustomModelDataValue.getInt(model);
+        this.currentCustomModelDataValue.put(model, val + 1);
+        return val;
     }
 
     /**
-     * This method can be used to register custom model data for items.
-     * Use this method only if you really need to preserve ids
+     * Adds a bridge, allowing you to access any model from selected folder as `namespace:-/modelpath`.
      *
-     * @param vanillaItem Vanilla/Client side item
-     * @param customModelData forced CMD
-     * @param modelPath   Path to model in resource pack
-     * @param respectOffset Whatever output CustomModelData should have offset added
-     * @return PolymerModelData with data about this model
+     * @param modelFolderId Model folder to bridge. For example "mod:block" will bridge all models from "assets/mod/models/block"
+     * @return Success of addition.
      */
-    @ApiStatus.Experimental
-    public PolymerModelData forceDefineModel(Item vanillaItem, int customModelData, Identifier modelPath, boolean respectOffset) {
-        var map = this.itemModels.computeIfAbsent(vanillaItem, (x) -> new Object2ObjectOpenHashMap<>());
-
-        var cmdInfoList = this.items.computeIfAbsent(vanillaItem, (x) -> new ArrayList<>());
-        var cmdInfo = new PolymerModelDataImpl(vanillaItem, customModelData + (respectOffset ? this.cmdOffset : 0), modelPath);
-        cmdInfoList.add(cmdInfo);
-        this.itemIds.put(vanillaItem, Math.max(this.itemIds.getInt(vanillaItem), customModelData + 1));
-        map.put(modelPath, cmdInfo);
-        return cmdInfo;
-    }
-
     public boolean addBridgedModelsFolder(Identifier modelFolderId) {
+        if (modelFolderId.getPath().equals("item") || modelFolderId.getPath().startsWith("item/")) {
+            return false;
+        }
         return this.bridgedModels.add(modelFolderId);
     }
 
@@ -160,27 +133,6 @@ public final class ResourcePackCreator {
      */
     public boolean addAssetSource(Path sourcePath) {
         return this.sourcePaths.add(sourcePath);
-    }
-
-    /**
-     * Gets an unmodifiable list of models for an item.
-     * This can be useful if you need to extract this list and parse it yourself.
-     *
-     * @param item Item you want list for
-     * @return An unmodifiable list of models
-     */
-    public List<PolymerModelData> getModelsFor(Item item) {
-        return Collections.unmodifiableList(items.getOrDefault(item, Collections.emptyList()));
-    }
-
-    /**
-     * Gets an unmodifiable list of models for all items
-     * This can be useful if you need to extract this list and parse it yourself.
-     *
-     * @return An unmodifiable list of models
-     */
-    public Map<Item, List<PolymerModelData>> getAllItemModels() {
-        return Collections.unmodifiableMap(items);
     }
 
     /**
@@ -221,7 +173,7 @@ public final class ResourcePackCreator {
     }
 
     public boolean isEmpty() {
-        return this.items.isEmpty() && this.modIds.isEmpty() && this.creationEvent.isEmpty();
+        return this.currentCustomModelDataValue.isEmpty() && this.modIds.isEmpty() && this.creationEvent.isEmpty();
     }
 
     public boolean build(Path output) throws ExecutionException, InterruptedException {
@@ -268,19 +220,12 @@ public final class ResourcePackCreator {
         }
 
         status.accept("action:copy_overrides_start");
-        for (var entry : this.itemOverrides.entrySet()) {
-            var x = builder.getCustomModels(entry.getKey(), DefaultRPBuilder.OverridePlace.BEFORE_CUSTOM_MODEL_DATA);
-            entry.getValue().forEach(a -> x.add(a.toJson()));
+        for (var entry : this.modelOverrides.entrySet()) {
+            var ext = builder.getCustomModels(entry.getKey(), DefaultRPBuilder.OverridePlace.EXISTING);
+            var cmd = builder.getCustomModels(entry.getKey(), DefaultRPBuilder.OverridePlace.WITH_CUSTOM_MODEL_DATA);
+            entry.getValue().forEach(a -> (a.containsPredicate(ItemOverride.CUSTOM_MODEL_DATA) ? cmd : ext).add(a.toJson()));
         }
         status.accept("action:copy_overrides_finish");
-
-        for (var cmdInfoList : this.items.values()) {
-            status.accept("action:custom_model_data_start");
-            for (PolymerModelData cmdInfo : cmdInfoList) {
-                builder.addCustomModelData(cmdInfo);
-            }
-            status.accept("action:add_custom_model_data_finish");
-        }
 
         status.accept("action:late_creation_event_start");
         this.afterInitialCreationEvent.invoke((x) -> x.accept(builder));

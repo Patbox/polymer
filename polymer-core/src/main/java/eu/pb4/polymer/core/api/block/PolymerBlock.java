@@ -32,7 +32,7 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
  *            in case of using in packets, as it's reused for other positions!
      * @param contexts Context packet is sent to. Should always contain a player
      */
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, PacketContext contexts) { }
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, PacketContext.NotNullWithPlayer contexts) { }
 
     /**
      * You can override this method in case of issues with light updates of this block. In most cases it's not needed.

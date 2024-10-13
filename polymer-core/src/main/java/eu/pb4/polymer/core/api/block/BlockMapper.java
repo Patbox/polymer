@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * Do not use, unless you really need it and you are 100% sure about what you need!
+ * Do not use, unless you really need it, and you are 100% sure about what you need!
  *
  * Allows changing how blocks display for certain players.
  * You can replace any block that way, including vanilla ones.
@@ -62,7 +62,7 @@ public interface BlockMapper {
 
     static void resetMapper(@Nullable ServerPlayerEntity player) {
         if (player != null) {
-            PolymerPlayNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(PacketContext.of(player)));
+            PolymerPlayNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(PacketContext.create(player)));
         }
     }
 

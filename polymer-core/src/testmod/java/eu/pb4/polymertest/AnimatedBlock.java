@@ -3,7 +3,6 @@ package eu.pb4.polymertest;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
-import eu.pb4.polymer.virtualentity.api.BlockWithMovingElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockAwareAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
@@ -11,9 +10,6 @@ import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.EntityElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -27,14 +23,12 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeCoords;
-import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4x3f;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWithMovingElementHolder {
+public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWithElementHolder {
     public static final BooleanProperty CAN_FALL = BooleanProperty.of("can_fall");
     public static final EnumProperty<Direction> FACING = Properties.FACING;
 

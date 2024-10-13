@@ -33,7 +33,7 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Item
             stacksMain = List.copyOf(contents.main());
             stacksSearch = List.copyOf(contents.search());
         } else {
-            var ctx = PacketContext.of(handler);
+            var ctx = PacketContext.create(handler);
             stacksMain = new ArrayList<>();
             stacksSearch = new ArrayList<>();
             for (var item : contents.main()) {

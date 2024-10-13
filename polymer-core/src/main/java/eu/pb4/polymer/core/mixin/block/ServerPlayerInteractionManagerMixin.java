@@ -86,7 +86,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 this.polymer$currentBreakingProgress = 0;
                 var ogDelta = state.calcBlockBreakingDelta(this.player, this.world, pos);;
                 if (state.getBlock() instanceof PolymerBlock virtualBlock) {
-                    state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PacketContext.of(this.player));
+                    state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PacketContext.create(this.player));
                 }
 
                 float delta = state.calcBlockBreakingDelta(this.player, this.world, pos);

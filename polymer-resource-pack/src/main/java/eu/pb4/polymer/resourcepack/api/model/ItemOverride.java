@@ -91,4 +91,8 @@ public record ItemOverride(Object2FloatMap<Identifier> predicate, Identifier mod
         object.add("predicate", pred);
         return object;
     }
+
+    public boolean containsPredicate(Identifier key) {
+        return this.predicate.containsKey(key);
+    }
 }

@@ -53,7 +53,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
     }
 
     @Override
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, PacketContext context) {
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, PacketContext.NotNullWithPlayer context) {
         context.getPlayer().networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos.toImmutable(), context));
     }
 }

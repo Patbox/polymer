@@ -35,7 +35,7 @@ public abstract class BlockStateMixin implements BlockStateExtra {
         }
 
         if (this.asBlockState().getBlock() instanceof PolymerBlock polymerBlock) {
-            this.polymer$isLight = this.asBlockState().getLuminance() != polymerBlock.getPolymerBlockState(this.asBlockState(), PacketContext.of()).getLuminance();
+            this.polymer$isLight = this.asBlockState().getLuminance() != polymerBlock.getPolymerBlockState(this.asBlockState(), PacketContext.create()).getLuminance();
         }
 
 

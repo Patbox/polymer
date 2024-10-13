@@ -86,7 +86,7 @@ public class PacketPatcher {
 
     public static boolean prevent(ServerCommonNetworkHandler handler, Packet<?> packet) {
         if (handler.getClass() == ServerPlayNetworkHandler.class) {
-            var player = PacketContext.of(handler);
+            var player = PacketContext.create(handler);
             if ((
                     packet instanceof StatusEffectPacketExtension packet2
                             && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerReplacement(player) == null))

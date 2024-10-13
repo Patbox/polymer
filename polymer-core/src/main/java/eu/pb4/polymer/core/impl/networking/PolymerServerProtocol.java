@@ -275,7 +275,7 @@ public class PolymerServerProtocol {
 
         if (version != -1) {
             var entries = new ArrayList<A>();
-            var ctx = PacketContext.of(handler);
+            var ctx = PacketContext.create(handler);
             for (var entry : iterable) {
                 if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(ctx))) {
                     var val = writableFunction.serialize(entry, handler, version);

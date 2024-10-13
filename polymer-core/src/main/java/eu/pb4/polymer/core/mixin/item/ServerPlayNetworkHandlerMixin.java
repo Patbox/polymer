@@ -70,7 +70,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         ItemStack itemStack = this.player.getStackInHand(packet.getHand());
 
         if (itemStack.getItem() instanceof PolymerItem polymerItem) {
-            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, PacketContext.of(this.player));
+            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, PacketContext.create(this.player));
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
             }

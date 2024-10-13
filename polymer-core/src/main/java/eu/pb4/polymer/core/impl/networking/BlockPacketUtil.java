@@ -30,7 +30,7 @@ public class BlockPacketUtil {
             PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;
             if (wc != null && wci.polymer$hasAny()) {
                 PolymerServerProtocol.sendSectionUpdate(handler, wc);
-                var ctx = PacketContext.of(handler);
+                var ctx = PacketContext.create(handler);
                 var iterator = wci.polymer$iterator();
                 while (iterator.hasNext()) {
                     var pos = iterator.next();
@@ -57,7 +57,7 @@ public class BlockPacketUtil {
         public void run() {
             PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
             if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
-                polymerBlock.onPolymerBlockSend(blockState, pos.mutableCopy(), PacketContext.of(handler));
+                polymerBlock.onPolymerBlockSend(blockState, pos.mutableCopy(), PacketContext.create(handler));
             }
         }
     }
@@ -69,7 +69,7 @@ public class BlockPacketUtil {
             PolymerServerProtocol.sendMultiBlockUpdate(handler, chunkPos, localPos, blockStates);
 
             var blockPos = new BlockPos.Mutable();
-            var ctx = PacketContext.of(handler);
+            var ctx = PacketContext.create(handler);
 
 
             for (int i = 0; i < localPos.length; i++) {

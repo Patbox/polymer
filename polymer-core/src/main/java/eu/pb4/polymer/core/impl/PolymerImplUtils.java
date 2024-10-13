@@ -244,7 +244,7 @@ public class PolymerImplUtils {
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipType context) {
-        return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, PacketContext.of(player)), player));
+        return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, PacketContext.create(player)), player));
     }
 
     public static void pickBlock(ServerPlayerEntity player, BlockPos pos, boolean withNbt) {
