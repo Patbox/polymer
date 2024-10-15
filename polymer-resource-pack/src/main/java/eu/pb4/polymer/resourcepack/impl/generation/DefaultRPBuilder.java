@@ -19,6 +19,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.dynamic.Range;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -680,9 +681,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     }
 
                     for (String string : new String[]{"fsh", "json", "vsh"}) {
-                        this.fileMap.put("assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string, Files.readString(getSelfPath("base-armor/rendertype_armor_cutout_no_cull." + string)).replace("${polymer_texture_resolution}", "" + (16 * globalScale)).getBytes(StandardCharsets.UTF_8));
+                        this.fileMap.put("polymer_armor_shader/assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull." + string, Files.readString(getSelfPath("base-armor/rendertype_armor_cutout_no_cull." + string)).replace("${polymer_texture_resolution}", "" + (16 * globalScale)).getBytes(StandardCharsets.UTF_8));
                     }
 
+                    this.packMetadata.addOverlay(new Range<>(0, 35), "polymer_armor_shader");
                 }
 
                 this.fileMap.put(AssetPaths.PACK_METADATA, this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8));
