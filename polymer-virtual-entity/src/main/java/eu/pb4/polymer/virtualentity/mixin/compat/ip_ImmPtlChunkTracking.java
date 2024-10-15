@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -14,6 +15,7 @@ import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 import java.util.ArrayList;
 import java.util.Map;
 
+@Pseudo
 @Mixin(ImmPtlChunkTracking.class)
 public class ip_ImmPtlChunkTracking {
     @Inject(method = "lambda$purge$5", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"), require = 0)
