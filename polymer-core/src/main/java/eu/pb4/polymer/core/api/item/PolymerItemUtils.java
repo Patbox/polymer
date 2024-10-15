@@ -13,13 +13,8 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
-import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
@@ -32,12 +27,9 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.packet.s2c.play.CooldownUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -420,8 +412,13 @@ public final class PolymerItemUtils {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
 
-        if (!itemStack.contains(DataComponentTypes.USE_COOLDOWN)) {
-            out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
+        {
+            var current = itemStack.get(DataComponentTypes.USE_COOLDOWN);
+            if (current == null) {
+                out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
+            } else if (current.cooldownGroup().isEmpty()) {
+                out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(current.seconds(), Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
+            }
         }
 
 
