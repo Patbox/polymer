@@ -8,6 +8,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
@@ -41,5 +43,9 @@ public class InternalClientItemGroup extends ItemGroup implements PolymerObject,
     @Override
     public boolean polymer$isSyncable() {
         return false;
+    }
+
+    public RegistryKey<ItemGroup> getKey() {
+        return RegistryKey.of(RegistryKeys.ITEM_GROUP, this.identifier);
     }
 }
