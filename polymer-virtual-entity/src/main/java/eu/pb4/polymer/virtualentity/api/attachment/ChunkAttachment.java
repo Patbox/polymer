@@ -1,9 +1,11 @@
 package eu.pb4.polymer.virtualentity.api.attachment;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
+import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
@@ -94,7 +96,8 @@ public class ChunkAttachment implements HolderAttachment {
     @Override
     public void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking) {
         List<ServerPlayNetworkHandler> watching = new ArrayList<>();
-        for (ServerPlayerEntity x : ((ServerChunkManager) this.chunk.getWorld().getChunkManager()).chunkLoadingManager.getPlayersWatchingChunk(this.chunk.getPos(), false)) {
+
+        for (ServerPlayerEntity x : getPlayersWatchingChunk(chunk)) {
             ServerPlayNetworkHandler networkHandler = x.networkHandler;
             watching.add(networkHandler);
         }
@@ -110,10 +113,18 @@ public class ChunkAttachment implements HolderAttachment {
         }
     }
 
+    private static List<ServerPlayerEntity> getPlayersWatchingChunk(WorldChunk chunk) {
+        if (CompatStatus.IMMERSIVE_PORTALS) {
+            return ImmersivePortalsUtils.getPlayerTracking(chunk);
+        } else {
+            return ((ServerChunkManager) chunk.getWorld().getChunkManager()).chunkLoadingManager.getPlayersWatchingChunk(chunk.getPos(), false);
+        }
+    }
+
     @Override
     public void updateTracking(ServerPlayNetworkHandler tracking) {
         if (tracking.player.isDead() || !VirtualEntityUtils.isPlayerTracking(tracking.getPlayer(), this.chunk)) {
-            VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.stopWatching(tracking));
+            this.stopWatching(tracking);
         }
     }
 
