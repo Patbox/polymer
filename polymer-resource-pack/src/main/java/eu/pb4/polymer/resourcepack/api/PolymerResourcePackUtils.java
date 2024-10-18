@@ -6,6 +6,7 @@ import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
+import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
@@ -18,7 +19,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -218,6 +218,13 @@ public final class PolymerResourcePackUtils {
             Path path = CommonImpl.getGameDir().resolve("polymer/source_assets");
             if (Files.isDirectory(path)) {
                 builder.copyFromPath(path);
+                try {
+                    var metafile = path.resolve("pack.mcmeta");
+                    if (Files.exists(metafile)) {
+                        var meta = PackMcMeta.fromString(Files.readString(metafile));
+                        builder.getPackMcMetaBuilder().metadata(meta.pack());
+                    }
+                } catch (Throwable ignored) {}
             }
 
             try {
@@ -258,6 +265,13 @@ public final class PolymerResourcePackUtils {
             Path path = CommonImpl.getGameDir().resolve("polymer/override_assets");
             if (Files.isDirectory(path)) {
                 builder.copyFromPath(path);
+                try {
+                    var metafile = path.resolve("pack.mcmeta");
+                    if (Files.exists(metafile)) {
+                        var meta = PackMcMeta.fromString(Files.readString(metafile));
+                        builder.getPackMcMetaBuilder().metadata(meta.pack());
+                    }
+                } catch (Throwable ignored) {}
             }
         });
     }
