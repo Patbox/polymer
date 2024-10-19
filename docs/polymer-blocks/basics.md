@@ -10,14 +10,6 @@ blocks on client yet.
 
 Every block type has its own functionality and behaviour:
 
-- `FULL_BLOCK` - Noteblocks, have full collision and don't allow transparency, (limit: 799)
-- `TRANSPARENT_BLOCK` - Mostly leaves, allow "cutout" textures, (limit: 104)
-- `FARMLAND_BLOCK` - Farmland blocks, (limit: 5!)
-- `VINES_BLOCK` - All centered vine blocks, Cave Vines, Twisted Vines and Weeping Vines, (limit: 100)
-- `PLANT_BLOCK` - Small plant blocks, sugarcane and saplings, (limit: 21)
-- `KELP_BLOCK` - Just kelp, (limit: 25)
-- `CACTUS_BLOCK` - Just cactus, (limit: 15!)
-
 - `FULL_BLOCK` - Noteblocks, have full collision and don't allow transparency, (limit: 1149)
 - `TRANSPARENT_BLOCK` - Leaf blocks, allow "cutout" textures, (limit: 52)
 - `TRANSPARENT_BLOCK_WATERLOGGED` - Waterlogged leaf blocks, allow "cutout" textures, (limit: 52)
