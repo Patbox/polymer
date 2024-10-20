@@ -31,14 +31,16 @@ public class EntityTrackerEntryMixin {
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymerVE$startTracking(ServerPlayerEntity player, CallbackInfo ci) {
+        boolean hasPassangers = false;
         var a = ((HolderAttachmentHolder) this.entity).polymerVE$getHolders();
         if (!a.isEmpty()) {
             for (var x : a) {
                 x.startWatching(player);
+                hasPassangers |= !x.holder().getAttachedPassengerEntityIds().isEmpty();
             }
         }
 
-        if (!((EntityExt) this.entity).polymerVE$getVirtualRidden().isEmpty()) {
+        if (hasPassangers || !((EntityExt) this.entity).polymerVE$getVirtualRidden().isEmpty()) {
             player.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(this.entity));
         }
     }

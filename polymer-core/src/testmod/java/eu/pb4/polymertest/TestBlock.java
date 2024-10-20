@@ -52,7 +52,7 @@ public class TestBlock extends Block implements PolymerBlock {
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP);
+        return state.get(TEST) % 2 == 0 ? Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP) : Blocks.NOTE_BLOCK.getDefaultState();
     }
 
     @Override

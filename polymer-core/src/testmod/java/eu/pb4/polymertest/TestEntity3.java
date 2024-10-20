@@ -77,12 +77,10 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         this.rideAnchor.ignorePositionUpdates();
         this.updateAnimation();
 
-        VirtualEntityUtils.addVirtualPassenger(this, this.leftLeg.getEntityId(), this.rightLeg.getEntityId(), this.torso.getEntityId(), this.interaction.getEntityId());
-
-        this.holder.addElement(interaction);
-        this.holder.addElement(leftLeg);
-        this.holder.addElement(rightLeg);
-        this.holder.addElement(torso);
+        this.holder.addPassengerElement(interaction);
+        this.holder.addPassengerElement(leftLeg);
+        this.holder.addPassengerElement(rightLeg);
+        this.holder.addPassengerElement(torso);
         this.holder.addElement(rideAnchor);
         this.attachment = new EntityAttachment(this.holder, this, false);
     }
@@ -153,20 +151,9 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public void onEntityPacketSent(Consumer<Packet<?>> consumer, Packet<?> packet) {
-        if (packet instanceof EntityPassengersSetS2CPacket passengersSetS2CPacket) {
-            consumer.accept(VirtualEntityUtils.createRidePacket(this.rideAnchor.getEntityId(), IntList.of(passengersSetS2CPacket.getPassengerIds())));
-            return;
-        }
-
-        consumer.accept(packet);
-    }
-
-    @Override
     public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
         data.add(DataTracker.SerializedEntry.of(EntityTrackedData.FLAGS, (byte) (1 << EntityTrackedData.INVISIBLE_FLAG_INDEX)));
         data.add(new DataTracker.SerializedEntry(EntityAccessor.getNO_GRAVITY().id(), EntityAccessor.getNO_GRAVITY().dataType(), true));
         data.add(DataTracker.SerializedEntry.of(ArmorStandEntity.ARMOR_STAND_FLAGS, (byte) (ArmorStandEntity.SMALL_FLAG | ArmorStandEntity.MARKER_FLAG)));
     }
-
 }

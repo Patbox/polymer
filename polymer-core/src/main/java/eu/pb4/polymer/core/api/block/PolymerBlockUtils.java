@@ -26,6 +26,9 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import org.jetbrains.annotations.ApiStatus;
@@ -45,6 +48,7 @@ public final class PolymerBlockUtils {
      */
     public static final BooleanEvent<MineEventListener> SERVER_SIDE_MINING_CHECK = new BooleanEvent<>();
     public static final SimpleEvent<BreakingProgressListener> BREAKING_PROGRESS_UPDATE = new SimpleEvent<>();
+    public static final BooleanEvent<PolymerBlockInteractionListener> POLYMER_BLOCK_INTERACTION_CHECK = new BooleanEvent<>();
     /**
      * This event allows you to force syncing of light updates between server and clinet
      */
@@ -146,7 +150,7 @@ public final class PolymerBlockUtils {
      *
      * @param block       PolymerBlock
      * @param blockState  Server side BlockState
-     * @param player      Possible target player
+     * @param context      Possible target player
      * @return Client side BlockState
      */
     public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, PacketContext context) {
@@ -242,6 +246,17 @@ public final class PolymerBlockUtils {
         return override != null ? override : original;
     }
 
+    public static boolean isPolymerBlockInteraction(ServerPlayerEntity player, ItemStack stack, Hand hand, BlockHitResult blockHitResult, ServerWorld world, ActionResult actionResult) {
+        var blockState = world.getBlockState(blockHitResult.getBlockPos());
+        if (blockState.getBlock() instanceof PolymerBlock polymerBlock && polymerBlock.isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult)) {
+            return true;
+        } else if (stack.getItem() instanceof PolymerItem polymerItem && polymerItem.isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult)) {
+            return true;
+        }
+
+        return POLYMER_BLOCK_INTERACTION_CHECK.invoke(x -> x.isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult));
+    }
+
     @FunctionalInterface
     public interface MineEventListener {
         boolean onBlockMine(BlockState state, BlockPos pos, ServerPlayerEntity player);
@@ -250,5 +265,10 @@ public final class PolymerBlockUtils {
     @FunctionalInterface
     public interface BreakingProgressListener {
         void onBreakingProgressUpdate(ServerPlayerEntity player, BlockPos pos, BlockState finalState, int i);
+    }
+
+    @FunctionalInterface
+    public interface PolymerBlockInteractionListener {
+        boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult);
     }
 }

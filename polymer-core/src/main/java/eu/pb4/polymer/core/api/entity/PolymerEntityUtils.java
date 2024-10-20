@@ -1,26 +1,30 @@
 package eu.pb4.polymer.core.api.entity;
 
+import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.core.mixin.entity.PlayerListS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Util;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.village.VillagerProfession;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +33,7 @@ import java.util.*;
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
     }
+    public static final BooleanEvent<PolymerEntityInteractionListener> POLYMER_ENTITY_INTERACTION_CHECK = new BooleanEvent<>();
 
     private static final Set<EntityType<?>> ENTITY_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
     private static final Set<EntityAttribute> ENTITY_ATTRIBUTES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
@@ -158,6 +163,21 @@ public final class PolymerEntityUtils {
 
     public static void sendEntityType(ServerPlayerEntity player, int entityId, EntityType<?> entityType) {
         PolymerServerProtocol.sendEntityInfo(player.networkHandler, entityId, entityType);
+    }
+
+    public static boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, Entity entity, ActionResult actionResult) {
+        if (entity instanceof PolymerEntity polymerEntity && polymerEntity.isPolymerEntityInteraction(player, hand, stack, world, actionResult)) {
+            return true;
+        } else if (stack.getItem() instanceof PolymerItem polymerItem && polymerItem.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult)) {
+            return true;
+        }
+
+        return POLYMER_ENTITY_INTERACTION_CHECK.invoke(x -> x.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult));
+    }
+
+    @FunctionalInterface
+    public interface PolymerEntityInteractionListener {
+        boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, Entity entity, ActionResult actionResult);
     }
 }
 
