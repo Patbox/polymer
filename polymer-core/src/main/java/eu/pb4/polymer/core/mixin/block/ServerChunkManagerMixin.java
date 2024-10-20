@@ -1,7 +1,9 @@
 package eu.pb4.polymer.core.mixin.block;
 
+import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -12,6 +14,7 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ServerChunkLoadingManager;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.chunk.WorldChunk;
@@ -83,9 +86,17 @@ public abstract class ServerChunkManagerMixin {
         });
     }
 
+    private List<ServerPlayerEntity> getPlayersWatchingChunk(ChunkPos chunkPos) {
+        if (CompatStatus.IMMERSIVE_PORTALS) {
+            return ImmersivePortalsUtils.getPlayerTracking(this.world.getRegistryKey(), chunkPos);
+        } else {
+            return this.chunkLoadingManager.getPlayersWatchingChunk(chunkPos, false);
+        }
+    }
+
     @Unique
     private void polymer$broadcastBlockLightForSection(ChunkSectionPos pos) {
-        List<ServerPlayerEntity> players = this.chunkLoadingManager.getPlayersWatchingChunk(pos.toChunkPos(), false);
+        List<ServerPlayerEntity> players = getPlayersWatchingChunk(pos.toChunkPos());
         if (players.isEmpty()) {
             return;
         }

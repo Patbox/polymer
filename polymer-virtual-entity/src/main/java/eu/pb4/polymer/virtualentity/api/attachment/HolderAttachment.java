@@ -1,6 +1,8 @@
 package eu.pb4.polymer.virtualentity.api.attachment;
 
+import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.impl.SimpleUpdateType;
 import eu.pb4.polymer.virtualentity.impl.VoidUpdateType;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -23,13 +25,21 @@ public interface HolderAttachment {
 
     default void startWatching(ServerPlayerEntity handler) {
         if (this.holder().getAttachment() == this) {
-            this.holder().startWatching(handler);
+            if (CompatStatus.IMMERSIVE_PORTALS) {
+                VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().startWatching(handler));
+            } else {
+                this.holder().startWatching(handler);
+            }
         }
     }
 
     default void startWatching(ServerPlayNetworkHandler handler) {
         if (this.holder().getAttachment() == this) {
-            this.holder().startWatching(handler);
+            if (CompatStatus.IMMERSIVE_PORTALS) {
+                VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().startWatching(handler));
+            } else {
+                this.holder().startWatching(handler);
+            }
         }
     }
 
@@ -37,19 +47,31 @@ public interface HolderAttachment {
 
     default void stopWatching(ServerPlayerEntity handler) {
         if (this.holder().getAttachment() == this) {
-            this.holder().stopWatching(handler);
+            if (CompatStatus.IMMERSIVE_PORTALS) {
+                VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().stopWatching(handler));
+            } else {
+                this.holder().stopWatching(handler);
+            }
         }
     }
 
     default void stopWatching(ServerPlayNetworkHandler handler) {
         if (this.holder().getAttachment() == this) {
-            this.holder().stopWatching(handler);
+            if (CompatStatus.IMMERSIVE_PORTALS) {
+                VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().stopWatching(handler));
+            } else {
+                this.holder().stopWatching(handler);
+            }
         }
     }
 
     default void tick() {
         if (this.holder().getAttachment() == this) {
-            this.holder().tick();
+            if (CompatStatus.IMMERSIVE_PORTALS) {
+                VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().tick());
+            } else {
+                this.holder().tick();
+            }
         }
     }
 

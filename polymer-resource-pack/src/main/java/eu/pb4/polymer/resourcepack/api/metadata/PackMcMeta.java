@@ -1,13 +1,11 @@
-package eu.pb4.polymer.resourcepack.impl.metadata;
+package eu.pb4.polymer.resourcepack.api.metadata;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.mixin.accessors.PackOverlaysMetadataAccessor;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.SharedConstants;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.BlockEntry;
@@ -27,7 +25,7 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
             LanguageResourceMetadata.CODEC.optionalFieldOf("language").forGetter(PackMcMeta::language)
     ).apply(instaince, PackMcMeta::new));
 
-    public static PackMcMeta fromString(String string) throws Exception {
+    public static PackMcMeta fromString(String string) {
         return CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(string)).getOrThrow().getFirst();
     }
 
@@ -43,10 +41,15 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
         );
         private final List<BlockEntry> filter = new ArrayList<>();
         private final List<PackOverlaysMetadata.Entry> overlay = new ArrayList<>();
-        private Map<String, LanguageDefinition> language = new HashMap<>();
+        private final Map<String, LanguageDefinition> language = new HashMap<>();
 
         public Builder metadata(PackResourceMetadata metadata) {
             this.metadata = metadata;
+            return this;
+        }
+
+        public Builder description(Text description) {
+            this.metadata = new PackResourceMetadata(description, this.metadata.packFormat(), this.metadata.supportedFormats());
             return this;
         }
 

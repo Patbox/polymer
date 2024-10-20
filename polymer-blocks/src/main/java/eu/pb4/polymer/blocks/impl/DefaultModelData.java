@@ -5,10 +5,11 @@ import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.*;
-import net.minecraft.block.enums.SlabType;
+import net.minecraft.block.enums.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -124,6 +125,111 @@ public class DefaultModelData {
             addSlabs(SlabType.BOTTOM, true, BlockModelType.BOTTOM_SLAB_WATERLOGGED);
         }
 
+        {
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.TOP, false, BlockModelType.NORTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.TOP, false, BlockModelType.EAST_TRAPDOOR);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.TOP, false, BlockModelType.SOUTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.TOP, false, BlockModelType.WEST_TRAPDOOR);
+
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.TOP, true, BlockModelType.NORTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.TOP, true, BlockModelType.EAST_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.TOP, true, BlockModelType.SOUTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.TOP, true, BlockModelType.WEST_TRAPDOOR_WATERLOGGED);
+
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.BOTTOM, false, BlockModelType.NORTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.BOTTOM, false, BlockModelType.EAST_TRAPDOOR);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.BOTTOM, false, BlockModelType.SOUTH_TRAPDOOR);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.BOTTOM, false, BlockModelType.WEST_TRAPDOOR);
+
+            addTrapdoorDirection(Direction.NORTH, BlockHalf.BOTTOM, true, BlockModelType.NORTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.EAST, BlockHalf.BOTTOM, true, BlockModelType.EAST_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.SOUTH, BlockHalf.BOTTOM, true, BlockModelType.SOUTH_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.WEST, BlockHalf.BOTTOM, true, BlockModelType.WEST_TRAPDOOR_WATERLOGGED);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.TOP, false, BlockModelType.TOP_TRAPDOOR);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+
+            addTrapdoorHalf(Direction.NORTH, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.EAST, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.SOUTH, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.WEST, BlockHalf.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+        }
+
+        {
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.NORTH_DOOR, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.EAST_DOOR, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SOUTH_DOOR, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
+                addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, false, list);
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, true, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, true, list);
+                addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.LOWER, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.WEST_DOOR, list);
+            }
+        }
+
+        {
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addSculkBlocks(false, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK, list);
+            }
+            {
+                List<BlockState> list = new ObjectArrayList<>();
+                addSculkBlocks(true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK_WATERLOGGED, list);
+            }
+        }
 
         if (false && PolymerImpl.DEV_ENV) {
             PolymerImpl.LOGGER.info("===== Available States =====");
@@ -132,6 +238,164 @@ public class DefaultModelData {
 
             }
         }
+    }
+
+    private static void addSculkBlocks(boolean waterlogged, List<BlockState> list) {
+        for (SculkSensorPhase phase : SculkSensorPhase.values()) {
+            if (phase == SculkSensorPhase.ACTIVE) continue;
+            for (int i = 1; i <= 15; i++) {
+                BlockState defaultState = Blocks.SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged);
+                BlockState from = defaultState.with(SculkSensorBlock.POWER, i);
+                list.add(from);
+                DefaultModelData.SPECIAL_REMAPS.put(from, defaultState);
+            }
+        }
+
+        Direction[] facingDirs = new Direction[]{
+                Direction.NORTH,
+                Direction.EAST,
+                Direction.SOUTH,
+                Direction.WEST
+        };
+
+        for (Direction direction : facingDirs) {
+            for (SculkSensorPhase phase : SculkSensorPhase.values()) {
+                if (phase == SculkSensorPhase.ACTIVE) continue;
+                for (int i = 1; i <= 15; i++) {
+                    BlockState defaultState = Blocks.CALIBRATED_SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged).with(CalibratedSculkSensorBlock.FACING, direction);
+                    BlockState from = defaultState.with(SculkSensorBlock.POWER, i);
+                    list.add(from);
+                    DefaultModelData.SPECIAL_REMAPS.put(from, defaultState);
+                }
+            }
+        }
+    }
+
+    private static void addDoor(Direction direction, DoorHinge doorHinge, DoubleBlockHalf doubleBlockHalf, boolean open, List<BlockState> list) {
+        list.add(addSingleDoor(Blocks.COPPER_DOOR, Blocks.WAXED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSingleDoor(Blocks.WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSingleDoor(Blocks.EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSingleDoor(Blocks.OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+
+        list.add(addSinglePoweredDoor(Blocks.ACACIA_DOOR, Blocks.ACACIA_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.BAMBOO_DOOR, Blocks.BAMBOO_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.BIRCH_DOOR, Blocks.BIRCH_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.CHERRY_DOOR, Blocks.CHERRY_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.CRIMSON_DOOR, Blocks.CRIMSON_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.DARK_OAK_DOOR, Blocks.DARK_OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.JUNGLE_DOOR, Blocks.JUNGLE_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.MANGROVE_DOOR, Blocks.MANGROVE_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.OAK_DOOR, Blocks.OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.SPRUCE_DOOR, Blocks.SPRUCE_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WARPED_DOOR, Blocks.WARPED_DOOR, direction, doorHinge, doubleBlockHalf, open));
+
+        list.add(addSinglePoweredDoor(Blocks.IRON_DOOR, Blocks.IRON_DOOR, direction, doorHinge, doubleBlockHalf, open));
+
+        list.add(addSinglePoweredDoor(Blocks.WAXED_COPPER_DOOR, Blocks.WAXED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WAXED_WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WAXED_EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.WAXED_OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+    }
+
+    private static BlockState addSinglePoweredDoor(Block block, Block replacement, Direction facing, DoorHinge hinge, DoubleBlockHalf half, boolean open) {
+        BlockState from = block.getDefaultState().with(DoorBlock.POWERED, true).with(DoorBlock.OPEN, open).with(DoorBlock.FACING, facing).with(DoorBlock.HALF, half).with(DoorBlock.HINGE, hinge);
+        BlockState to = replacement.getStateWithProperties(from).with(DoorBlock.POWERED, false);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSingleDoor(Block block, Block replacement, Direction facing, DoorHinge hinge, DoubleBlockHalf half, boolean open) {
+        BlockState from = block.getDefaultState().with(DoorBlock.POWERED, false).with(DoorBlock.OPEN, open).with(DoorBlock.FACING, facing).with(DoorBlock.HALF, half).with(DoorBlock.HINGE, hinge);
+        BlockState to = replacement.getStateWithProperties(from);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static void addTrapdoorHalf(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
+        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+        list.add(addSingleClosedTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleClosedTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleClosedTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleClosedTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BIRCH_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CHERRY_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CRIMSON_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.DARK_OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.JUNGLE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.MANGROVE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        DefaultModelData.USABLE_STATES.put(modelType, list);
+    }
+
+    private static void addTrapdoorDirection(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
+        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+
+        list.add(addSingleOpenTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleOpenTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleOpenTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleOpenTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.BIRCH_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CHERRY_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.CRIMSON_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.DARK_OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.JUNGLE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.MANGROVE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        DefaultModelData.USABLE_STATES.put(modelType, list);
+    }
+
+    private static BlockState addSingleOpenTrapdoor(Block block, Block replacement, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, true).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = replacement.getStateWithProperties(from);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSingleClosedTrapdoor(Block block, Block replacement, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, false).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = replacement.getStateWithProperties(from);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSinglePoweredOpenTrapdoor(Block block, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, true).with(TrapdoorBlock.POWERED, true).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = from.with(TrapdoorBlock.POWERED, false);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    private static BlockState addSinglePoweredClosedTrapdoor(Block block, Direction facing, BlockHalf half, boolean waterlogged) {
+        BlockState from = block.getDefaultState().with(TrapdoorBlock.OPEN, false).with(TrapdoorBlock.POWERED, true).with(TrapdoorBlock.WATERLOGGED, waterlogged).with(TrapdoorBlock.FACING, facing).with(TrapdoorBlock.HALF, half);
+        BlockState to = from.with(TrapdoorBlock.POWERED, false);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
     }
 
     private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
@@ -149,53 +413,12 @@ public class DefaultModelData {
     private static void addSlab(SlabType slabType, boolean waterlogged, Block to, Block from, ObjectArrayList<BlockState> list) {
         BlockState state = from.getDefaultState().with(SlabBlock.WATERLOGGED, waterlogged).with(SlabBlock.TYPE, slabType);
         list.add(state);
-        DefaultModelData.SPECIAL_REMAPS.put(state, to.getDefaultState().with(SlabBlock.WATERLOGGED, waterlogged).with(SlabBlock.TYPE, slabType));
+        DefaultModelData.SPECIAL_REMAPS.put(state, to.getStateWithProperties(state));
     }
 
     private static void addDisarmedTripwire(boolean attached, BlockModelType modelType) {
-        var tripwire_normal = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ns"), 0, 0)};
-
-        var tripwire_west = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 270)};
-        var tripwire_south = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 180)};
-        var tripwire_east = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 90)};
-        var tripwire_north = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_n"), 0, 0)};
-
-        var tripwire_sw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 180)};
-        var tripwire_nw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 270)};
-        var tripwire_ew = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ns"), 0, 90)};
-        var tripwire_es = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 90)};
-        var tripwire_en = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_ne"), 0, 0)};
-        var tripwire_nsw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 180)};
-        var tripwire_esw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 90)};
-        var tripwire_enw = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 270)};
-        var tripwire_ens = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nse"), 0, 0)};
-        var tripwire_all = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.ofVanilla("block/tripwire" + (attached ? "_attached" : "") + "_nsew"), 0, 0)};
-
         ObjectArrayList<BlockState> list = new ObjectArrayList<>();
-        {
-            var base = Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.ATTACHED, attached).with(TripwireBlock.POWERED, false).with(TripwireBlock.DISARMED, true);
-
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.WEST, true), tripwire_west);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.SOUTH, true), tripwire_south);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true), tripwire_east);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true), tripwire_north);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_sw);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_nw);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_ew);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true), tripwire_es);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_nsw);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.WEST, true), tripwire_esw);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_normal);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true).with(TripwireBlock.EAST, true).with(TripwireBlock.WEST, true), tripwire_all);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.WEST, true), tripwire_enw);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.EAST, true).with(TripwireBlock.NORTH, true).with(TripwireBlock.SOUTH, true), tripwire_ens);
-            DefaultModelData.MODELS.put(base.with(TripwireBlock.NORTH, true).with(TripwireBlock.EAST, true), tripwire_en);
-            DefaultModelData.MODELS.put(base, tripwire_normal);
-        }
-
-
         // generate all permutations of north, south, east, west, powered
-
         {
             var base = Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.DISARMED, true);
             var booleans = new boolean[]{true, false};

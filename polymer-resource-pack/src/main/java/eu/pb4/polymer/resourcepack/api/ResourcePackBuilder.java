@@ -1,6 +1,6 @@
 package eu.pb4.polymer.resourcepack.api;
 
-import eu.pb4.polymer.resourcepack.impl.metadata.PackMcMeta;
+import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,4 +94,8 @@ public interface ResourcePackBuilder {
     void addWriteConverter(BiFunction<String, byte[], byte  @Nullable []> converter);
 
     void addPreFinishTask(Consumer<ResourcePackBuilder> consumer);
+
+    default PackMcMeta.Builder getPackMcMetaBuilder() {
+        return new PackMcMeta.Builder();
+    }
 }

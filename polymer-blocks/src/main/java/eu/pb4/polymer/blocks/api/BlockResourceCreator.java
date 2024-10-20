@@ -11,6 +11,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.Waterloggable;
@@ -25,6 +26,7 @@ import java.util.*;
 public final class BlockResourceCreator {
     private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.of("polymer", "block/empty"));
     private final Map<BlockModelType, List<BlockState>> states;
+    private final Set<Block> hasRequested = Collections.newSetFromMap(new IdentityHashMap<>());
     final Map<BlockState, PolymerBlockModel[]> models;
     private final ResourcePackCreator creator;
     private final Runnable onRegister;
@@ -89,6 +91,7 @@ public final class BlockResourceCreator {
             this.registerEvent();
             var state = states.removeFirst();
             models.put(state, model);
+            this.hasRequested.add(state.getBlock());
 
             if (state.getBlock() instanceof Waterloggable) {
                 this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS
@@ -120,6 +123,9 @@ public final class BlockResourceCreator {
         var map = new HashMap<String, HashMap<String, JsonArray>>();
 
         for (var blockStateEntry : this.models.entrySet()) {
+            if (!this.hasRequested.contains(blockStateEntry.getKey().getBlock())) {
+                continue;
+            }
             var state = blockStateEntry.getKey();
             var models = blockStateEntry.getValue();
 
@@ -128,7 +134,7 @@ public final class BlockResourceCreator {
             var stateName = PolymerBlocksInternal.generateStateName(state);
             var array = PolymerBlocksInternal.createJsonElement(models);
 
-            map.computeIfAbsent("assets/" + id.getNamespace()  + "/blockstates/" + id.getPath() + ".json", (s) -> new HashMap<>()).put(stateName, array);
+            map.computeIfAbsent("assets/" + id.getNamespace() + "/blockstates/" + id.getPath() + ".json", (s) -> new HashMap<>()).put(stateName, array);
         }
 
         for (var baseEntry : map.entrySet()) {
@@ -138,7 +144,7 @@ public final class BlockResourceCreator {
                 var variants = new JsonObject();
 
                 var values = new ArrayList<>(baseEntry.getValue().entrySet());
-                values.sort(Comparator.comparing(e -> e.getKey()));
+                values.sort(Map.Entry.comparingByKey());
                 for (var entries : values) {
                     variants.add(entries.getKey(), entries.getValue());
                 }

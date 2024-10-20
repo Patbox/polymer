@@ -7,7 +7,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
-import eu.pb4.polymer.resourcepack.impl.metadata.PackMcMeta;
+import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;

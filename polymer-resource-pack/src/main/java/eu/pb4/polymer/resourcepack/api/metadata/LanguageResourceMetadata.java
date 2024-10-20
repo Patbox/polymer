@@ -1,4 +1,4 @@
-package eu.pb4.polymer.resourcepack.impl.metadata;
+package eu.pb4.polymer.resourcepack.api.metadata;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.resource.metadata.ResourceMetadataSerializer;

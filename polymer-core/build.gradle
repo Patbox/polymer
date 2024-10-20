@@ -60,7 +60,7 @@ dependencies {
 
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")
-    modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:lIRFslED")
+    modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:19.0.0.1")
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")

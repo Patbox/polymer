@@ -1,8 +1,7 @@
-package eu.pb4.polymer.resourcepack.impl.metadata;
+package eu.pb4.polymer.resourcepack.api.metadata;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.text.Text;
 import net.minecraft.util.dynamic.Codecs;
 
 public record LanguageDefinition(String region, String name, boolean rightToLeft) {
