@@ -145,7 +145,7 @@ public final class PolymerItemUtils {
      *
      * @param itemStack      Server side ItemStack
      * @param tooltipContext Tooltip Context
-     * @param context         Player being sent to
+     * @param context        Player being sent to
      * @return Client side ItemStack
      */
     public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, PacketContext context) {
@@ -325,7 +325,7 @@ public final class PolymerItemUtils {
      * This method creates full (vanilla like) representation of ItemStack
      *
      * @param itemStack Server side ItemStack
-     * @param context    Player seeing it
+     * @param context   Player seeing it
      * @return Client side ItemStack
      */
 
@@ -386,15 +386,15 @@ public final class PolymerItemUtils {
             var name = itemStack.getItemName();
             out.set(DataComponentTypes.ITEM_NAME, name);
 
-            // Potion workaround / hack
-            if (item instanceof PotionItem && out.contains(DataComponentTypes.POTION_CONTENTS) && !out.contains(DataComponentTypes.CUSTOM_NAME)) {
-                out.set(DataComponentTypes.CUSTOM_NAME, Text.empty().append(name).setStyle(Style.EMPTY.withItalic(false)));
-            }
+            if (!out.contains(DataComponentTypes.CUSTOM_NAME)) {
+                if (
+                        (item instanceof CompassItem && out.contains(DataComponentTypes.LODESTONE_TRACKER))
+                                || (item instanceof PotionItem && out.contains(DataComponentTypes.POTION_CONTENTS))
+                                || (item instanceof PlayerHeadItem && out.contains(DataComponentTypes.PROFILE) && Objects.requireNonNull(out.get(DataComponentTypes.PROFILE)).name().isPresent())
 
-            // Player Head workaround / hack
-            if (item instanceof PlayerHeadItem && out.contains(DataComponentTypes.PROFILE)
-                    && Objects.requireNonNull(out.get(DataComponentTypes.PROFILE)).name().isPresent() && !out.contains(DataComponentTypes.CUSTOM_NAME)) {
-                out.set(DataComponentTypes.CUSTOM_NAME, Text.empty().append(name).setStyle(Style.EMPTY.withItalic(false)));
+                ) {
+                    out.set(DataComponentTypes.CUSTOM_NAME, Text.empty().append(name).setStyle(Style.EMPTY.withItalic(false)));
+                }
             }
         }
 
