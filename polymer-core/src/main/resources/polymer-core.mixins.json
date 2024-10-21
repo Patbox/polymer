@@ -48,6 +48,7 @@
     "entity.EntityTrackerMixin",
     "entity.EntityTrackerUpdateS2CPacketMixin",
     "entity.ItemFrameEntityAccessor",
+    "entity.LivingEntityAccessor",
     "entity.LivingEntityMixin",
     "entity.PlayerListS2CPacketAccessor",
     "entity.RemoveEntityStatusEffectS2CPacketMixin",

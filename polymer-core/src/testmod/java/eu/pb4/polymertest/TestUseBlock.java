@@ -29,6 +29,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestUseBlock extends Block implements PolymerBlock {
     public static final BooleanProperty LIT = Properties.LIT;
+    public static final BooleanProperty HAND = BooleanProperty.of("hand");
 
     public TestUseBlock(Settings settings) {
         super(settings);
@@ -44,13 +45,13 @@ public class TestUseBlock extends Block implements PolymerBlock {
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         world.setBlockState(pos, state.cycle(LIT));
-        return ActionResult.SUCCESS;
+        return state.get(HAND) ? ActionResult.SUCCESS_SERVER : ActionResult.SUCCESS;
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(LIT);
+        builder.add(LIT, HAND);
     }
 
     @Override

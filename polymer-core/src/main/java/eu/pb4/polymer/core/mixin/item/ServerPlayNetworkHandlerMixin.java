@@ -11,7 +11,9 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.LastActionResultStorer;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.other.ActionSource;
+import eu.pb4.polymer.core.mixin.entity.LivingEntityAccessor;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
@@ -43,6 +45,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nucleoid.packettweaker.PacketContext;
+
+import java.util.List;
 
 @Mixin(value = ServerPlayNetworkHandler.class, priority = 1200)
 public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler implements LastActionResultStorer {
@@ -154,8 +158,16 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             }
         }
 
+        if (this.lastActionSource != null) {
+            var f = LivingEntityAccessor.getLIVING_FLAGS();
+            this.sendPacket(new EntityTrackerUpdateS2CPacket(this.player.getId(),
+                    List.of(DataTracker.SerializedEntry.of(f, this.player.getDataTracker().get(f))
+                    )));
+
+            this.lastActionSource = null;
+        }
+
         this.lastActionResult = null;
-        this.lastActionSource = null;
     }
 
 

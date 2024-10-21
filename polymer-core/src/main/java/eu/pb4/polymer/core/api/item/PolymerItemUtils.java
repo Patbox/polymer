@@ -534,7 +534,7 @@ public final class PolymerItemUtils {
         boolean isPolymerItemInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, ActionResult actionResult);
     }
 
-    public record ItemWithMetadata(Item item, Identifier itemModel) {
+    public record ItemWithMetadata(Item item, @Nullable Identifier itemModel) {
     }
 
     private record HideableTooltip<T>(ComponentType<T> type, Predicate<T> shouldSet, TooltipSetter<T> setter) {
