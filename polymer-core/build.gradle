@@ -78,9 +78,11 @@ dependencies {
 
     testmodImplementation sourceSets.main.output
 
-    api include(project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
+    api (project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
+    include(project(path: ':polymer-reg-sync-manipulator'))
     api project(path: ':polymer-common', configuration: 'namedElements')
-    api include(project(path: ':polymer-networking', configuration: 'namedElements'))
+    api (project(path: ':polymer-networking', configuration: 'namedElements'))
+    include(project(path: ':polymer-networking'))
 
     compileOnly (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
     localRuntime (project(path: ':polymer-resource-pack', configuration: 'namedElements'))

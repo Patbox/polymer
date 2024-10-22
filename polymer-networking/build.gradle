@@ -7,7 +7,8 @@ loom {
 }
 
 dependencies {
-    api include(project(path: ':polymer-common', configuration: 'namedElements'))
+    api project(path: ':polymer-common', configuration: 'namedElements')
+    include(project(path: ':polymer-common'))
 }
 
 afterEvaluate {

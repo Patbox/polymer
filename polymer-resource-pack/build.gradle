@@ -20,7 +20,8 @@ dependencies {
     }
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
-    api include(project(path: ':polymer-common', configuration: 'namedElements'))
+    api (project(path: ':polymer-common', configuration: 'namedElements'))
+    include(project(path: ':polymer-common'))
 }
 
 afterEvaluate {

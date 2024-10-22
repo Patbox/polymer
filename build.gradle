@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7.+'
+    id 'fabric-loom' version '1.8.+'
     id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
@@ -114,13 +114,19 @@ subprojects {
 }
 
 dependencies {
-    api include(project(path: ":polymer-autohost", configuration: "namedElements"))
-    api include(project(path: ":polymer-core", configuration: "namedElements"))
-    api include(project(path: ":polymer-common", configuration: "namedElements"))
-    api include(project(path: ":polymer-resource-pack", configuration: "namedElements"))
-    api include(project(path: ":polymer-blocks", configuration: "namedElements"))
-    api include(project(path: ":polymer-virtual-entity", configuration: "namedElements"))
-    //include(project(":polymer-client-extensions"))
+    api project(path: ":polymer-autohost", configuration: "namedElements")
+    api project(path: ":polymer-core", configuration: "namedElements")
+    api project(path: ":polymer-common", configuration: "namedElements")
+    api project(path: ":polymer-resource-pack", configuration: "namedElements")
+    api project(path: ":polymer-blocks", configuration: "namedElements")
+    api project(path: ":polymer-virtual-entity", configuration: "namedElements")
+
+    include(project(path: ":polymer-autohost"))
+    include(project(path: ":polymer-core"))
+    include(project(path: ":polymer-common"))
+    include(project(path: ":polymer-resource-pack"))
+    include(project(path: ":polymer-blocks"))
+    include(project(path: ":polymer-virtual-entity"))
 }
 
 void setupRepositories(RepositoryHandler repositories) {

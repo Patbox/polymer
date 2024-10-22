@@ -15,7 +15,8 @@ loom {
 
 dependencies {
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
-    api include(project(path: ':polymer-common', configuration: 'namedElements'))
+    api project(path: ':polymer-common', configuration: 'namedElements')
+    include(project(path: ':polymer-common'))
 
     modCompileOnly 'com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4'
 
