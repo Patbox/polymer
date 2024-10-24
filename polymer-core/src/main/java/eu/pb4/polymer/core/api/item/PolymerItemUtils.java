@@ -95,6 +95,7 @@ public final class PolymerItemUtils {
             DataComponentTypes.CAN_PLACE_ON,
             DataComponentTypes.REPAIR_COST,
             DataComponentTypes.BUNDLE_CONTENTS,
+            DataComponentTypes.TOOLTIP_STYLE,
             DataComponentTypes.RARITY,
             DataComponentTypes.LODESTONE_TRACKER,
             DataComponentTypes.ENCHANTMENTS,
