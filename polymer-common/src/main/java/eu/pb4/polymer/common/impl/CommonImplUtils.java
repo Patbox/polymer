@@ -97,7 +97,7 @@ public class CommonImplUtils {
 
     public static boolean permissionCheck(ServerPlayerEntity player, String path, int operatorLevel) {
         if (CompatStatus.FABRIC_PERMISSION_API_V0) {
-            return Permissions.check(player, "polymer." + path, operatorLevel);
+            return Permissions.check(player.getCommandSource(), "polymer." + path, operatorLevel);
         } else {
             return player.hasPermissionLevel(operatorLevel);
         }

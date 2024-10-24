@@ -380,6 +380,18 @@ public final class PolymerItemUtils {
         }
         var lookup = context.getRegistryWrapperLookup();
 
+        {
+            var current = itemStack.get(DataComponentTypes.USE_COOLDOWN);
+            if (current == null) {
+                out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
+            } else if (current.cooldownGroup().isEmpty()) {
+                out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(current.seconds(), Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
+            }
+        }
+
+
+        out.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, itemStack.hasGlint());
+
 
         // Set item name
         {
@@ -415,16 +427,6 @@ public final class PolymerItemUtils {
             out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
         }
 
-        {
-            var current = itemStack.get(DataComponentTypes.USE_COOLDOWN);
-            if (current == null) {
-                out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(0.00001f, Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
-            } else if (current.cooldownGroup().isEmpty()) {
-                out.set(DataComponentTypes.USE_COOLDOWN, new UseCooldownComponent(current.seconds(), Optional.of(Registries.ITEM.getId(itemStack.getItem()))));
-            }
-        }
-
-
         out.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
 
         for (var x : HIDEABLE_TOOLTIPS) {
@@ -435,9 +437,6 @@ public final class PolymerItemUtils {
                 out.set(x.type, x.setter.setTooltip(a, false));
             }
         }
-
-        out.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, itemStack.hasGlint());
-
 
         try {
             var tooltip = itemStack.getTooltip(context.getPlayer() != null ? Item.TooltipContext.create(context.getPlayer().getWorld()) : Item.TooltipContext.DEFAULT, context.getPlayer(), tooltipContext);
