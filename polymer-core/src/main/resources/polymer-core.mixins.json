@@ -31,6 +31,7 @@
     "block.storage.WorldChunkMixin",
     "command.ArgumentNodeMixin",
     "command.CommandManagerMixin",
+    "compat.lithium14_BlockPaletteMixin",
     "compat.lithium_BlockPaletteMixin",
     "compat.fabric.fabricSync_StateIdTrackerMixin",
     "compat.immersive_portals.ip_PlayerChunkLoadingMixin",

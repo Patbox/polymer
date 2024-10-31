@@ -223,6 +223,7 @@ public final class CommonImpl {
                 case "rei" -> CompatStatus.REI;
                 case "emi" -> CompatStatus.EMI;
                 case "lithium" -> CompatStatus.LITHIUM;
+                case "lithium14" -> CompatStatus.LITHIUM_14;
                 case "jei" -> CompatStatus.JEI;
                 case "armor" -> CompatStatus.REQUIRE_ALT_ARMOR_HANDLER || armor;
                 case "ip" -> CompatStatus.IMMERSIVE_PORTALS;

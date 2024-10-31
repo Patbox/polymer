@@ -1,6 +1,8 @@
 package eu.pb4.polymer.common.impl;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.VersionParsingException;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
@@ -32,7 +34,10 @@ public final class CompatStatus {
 
     public static final boolean POLYMC = LOADER.isModLoaded("polymc");
     public static final boolean DISGUISELIB = LOADER.isModLoaded("disguiselib");
-    public static final boolean LITHIUM = LOADER.isModLoaded("lithium");
+
+    public static final boolean LITHIUM_14 = isModLoaded("lithium", "0.14.0-", "9.999.0");
+    public static final boolean LITHIUM = isModLoaded("lithium", "0.0.0", "0.14.0-");
+
     public static final boolean WTHIT = LOADER.isModLoaded("wthit");
     public static final boolean JADE = LOADER.isModLoaded("jade");
     public static final boolean REI = LOADER.isModLoaded("roughlyenoughitems");
@@ -57,5 +62,22 @@ public final class CompatStatus {
     public static final boolean REQUIRE_ALT_ARMOR_HANDLER = IRIS || CANVAS || OPTIBAD;
 
     public static final boolean IMMERSIVE_PORTALS = LOADER.isModLoaded("imm_ptl_core");
+
+    private static boolean isModLoaded(String modId, String minVersionInclusive, String maxVersionExclusive) {
+        var mod = LOADER.getModContainer(modId);
+
+        if (mod.isPresent()) {try {
+                return mod.get().getMetadata().getVersion().compareTo(Version.parse(minVersionInclusive)) >= 0
+                        && mod.get().getMetadata().getVersion().compareTo(Version.parse(maxVersionExclusive)) < 0;
+            } catch (VersionParsingException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+        return false;
+
+
+    }
 
 }
