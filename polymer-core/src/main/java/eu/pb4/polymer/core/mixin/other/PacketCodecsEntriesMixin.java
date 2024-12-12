@@ -22,8 +22,10 @@ public abstract class PacketCodecsEntriesMixin {
     @ModifyVariable(method = "encode(Lio/netty/buffer/ByteBuf;Ljava/lang/Object;)V", at = @At("HEAD"), argsOnly = true)
     private Object polymer$changeData(Object val, ByteBuf buf) {
         var player = PacketContext.get();
-        
-        if (val instanceof PolymerSyncedObject<?> polymerSyncedObject) {
+
+
+        var polymerSyncedObject = PolymerSyncedObject.getSyncedObjectDefinition(null, val);
+        if (polymerSyncedObject != null) {
             var obj = polymerSyncedObject.getPolymerReplacement(player);
 
             if (obj != null) {

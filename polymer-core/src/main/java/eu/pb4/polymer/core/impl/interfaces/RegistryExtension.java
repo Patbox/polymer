@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.impl.interfaces;
 
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -12,7 +13,9 @@ public interface RegistryExtension<T> {
         return ((RegistryExtension<T>) registry).polymer$getEntries();
     }
 
-
     Map<TagKey<T>, RegistryEntryList.Named<T>> polymer$getTagsInternal();
     List<T> polymer$getEntries();
+
+    void polymer$setOverlay(T value, PolymerSyncedObject<T> syncedObject);
+    PolymerSyncedObject<T> polymer$getOverlay(T value);
 }

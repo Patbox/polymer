@@ -2,10 +2,12 @@ package eu.pb4.polymer.core.mixin.other;
 
 import com.mojang.serialization.Lifecycle;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.ImplPolymerRegistryEvent;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
+import joptsimple.internal.AbbreviationMap;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -23,8 +25,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +36,8 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
     @Nullable
     @Unique
     private List<T> polymer$objects = null;
+    @Unique
+    private final IdentityHashMap<T, PolymerSyncedObject<T>> overlays = new IdentityHashMap<>();
 
     @Inject(method = "add", at = @At("TAIL"))
     private <V extends T> void polymer$storeStatus(RegistryKey<T> key, T value, RegistryEntryInfo info, CallbackInfoReturnable<RegistryEntry.Reference<T>> cir) {
@@ -62,5 +66,15 @@ public abstract class SimpleRegistryMixin<T> implements RegistryExtension<T>, Re
     @Override
     public Map<TagKey<T>, RegistryEntryList.Named<T>> polymer$getTagsInternal() {
         return this.tags;
+    }
+
+    @Override
+    public void polymer$setOverlay(T value, PolymerSyncedObject<T> syncedObject) {
+        this.overlays.put(value, syncedObject);
+    }
+
+    @Override
+    public PolymerSyncedObject<T> polymer$getOverlay(T value) {
+        return this.overlays.get(value);
     }
 }

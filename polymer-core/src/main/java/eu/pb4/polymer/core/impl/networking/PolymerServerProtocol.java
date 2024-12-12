@@ -269,15 +269,18 @@ public class PolymerServerProtocol {
     private static <T, A> void sendSync(ServerPlayNetworkHandler handler, CustomPayload.Id<PolymerGenericListPayload<A>> packetId, Iterable<T> iterable, boolean bypassPolymerCheck, BufferWritableCreator<T, A> writableFunction) {
         var version = PolymerServerNetworking.getSupportedVersion(handler, packetId.id());
 
+        Registry<T> registry = null;
+
         if (iterable instanceof RegistryExtension && !bypassPolymerCheck) {
             iterable = ((RegistryExtension<T>) iterable).polymer$getEntries();
+            registry = (Registry<T>) iterable;
         }
 
         if (version != -1) {
             var entries = new ArrayList<A>();
             var ctx = PacketContext.create(handler);
             for (var entry : iterable) {
-                if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(ctx))) {
+                if (!bypassPolymerCheck || PolymerSyncedObject.canSynchronizeToPolymerClient(registry, entry, ctx)) {
                     var val = writableFunction.serialize(entry, handler, version);
                     if (val != null) {
                         entries.add(val);

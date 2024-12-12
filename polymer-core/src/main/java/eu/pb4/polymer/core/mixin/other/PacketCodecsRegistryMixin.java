@@ -22,25 +22,32 @@ public abstract class PacketCodecsRegistryMixin {
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Ljava/lang/Object;)V", at = @At("HEAD"), argsOnly = true)
     private Object polymer$changeData(Object val, RegistryByteBuf buf) {
         var player = PacketContext.get();
+        //noinspection unchecked
+        var reg = buf.getRegistryManager().getOrThrow(this.field_53746);
 
-        if (val instanceof PolymerSyncedObject<?> polymerSyncedObject) {
-            var obj = polymerSyncedObject.getPolymerReplacement(player);
+
+        if (val instanceof RegistryEntry<?> registryEntry) {
+            var value = registryEntry.value();
+            var obj = PolymerSyncedObject.getSyncedObjectDefinition(reg, value);
 
             if (obj != null) {
-                return obj;
-            }
-        } else if (val instanceof RegistryEntry<?> registryEntry) {
-            var value = registryEntry.value();
-            if (value instanceof PolymerSyncedObject<?> polymerSyncedObject) {
-                var obj = polymerSyncedObject.getPolymerReplacement(player);
+                var replacement = obj.getPolymerReplacement(player);
 
-                if (obj != null) {
+                if (replacement != null) {
                     //noinspection unchecked
-                    return buf.getRegistryManager().getOrThrow(this.field_53746).getEntry(obj);
+                    return reg.getEntry(replacement);
+                }
+            }
+        } else {
+            var obj = PolymerSyncedObject.getSyncedObjectDefinition(reg, val);
+            if (obj != null) {
+                var replacement = obj.getPolymerReplacement(player);
+
+                if (replacement != null) {
+                    return replacement;
                 }
             }
         }
-
 
         return val;
     }
