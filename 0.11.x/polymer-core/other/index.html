@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.46">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.48">
     
     
       
@@ -1086,7 +1086,7 @@ for players without resource packs and resource pack ones if they are present.</
 Then you can use it just like vanilla ones.</p>
 <h2 id="statuseffects">StatusEffects</h2>
 <p>To create custom, server side status effects, you just need to implement PolymerStatusEffect on your 
-custom StatusEffect class. You can also override <code>StatusEffect getPolymerReplacement(ServerPlayerEntity player)</code> to display it
+custom StatusEffect class. You can also override <code>StatusEffect getPolymerReplacement(PacketContext context)</code> to display it
 as vanilla one or null to make it invisible (default).</p>
 
 

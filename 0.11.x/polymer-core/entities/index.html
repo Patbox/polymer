@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.46">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.48">
     
     
       
@@ -1120,12 +1120,12 @@ on your entity's class. It exposes few defaulted methods for manipulation of cli
 <p>You also need to register your entity type as virtual,
 by using <code>PolymerEntityUtils.registerType(EntityType... types)</code>.</p>
 <h3 id="changing-client-side-entity">Changing client side entity.</h3>
-<p>To select visual entity type, you just need to override <code>EntityType&lt;?&gt; getPolymerEntityType(ServerPlayerEntity player)</code></p>
+<p>To select visual entity type, you just need to override <code>EntityType&lt;?&gt; getPolymerEntityType(PacketContext context)</code></p>
 <p>This method can't return null or another EntityType that points to other virtual entity, as it won't work.</p>
 <p>Example use:</p>
 <p>Displaying entity as zombie</p>
 <pre><code>@Override
-public EntityType&lt;?&gt; getPolymerEntityType(ServerPlayerEntity player) {
+public EntityType&lt;?&gt; getPolymerEntityType(PacketContext context) {
     return EntityType.ZOMBIE;
 }
 </code></pre>

@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.46">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.48">
     
     
       
@@ -478,9 +478,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#selecting-visual-item-type" class="md-nav__link">
+  <a href="#selecting-base-item-type" class="md-nav__link">
     <span class="md-ellipsis">
-      Selecting visual item type.
+      Selecting base item type.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changing-item-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changing item model
     </span>
   </a>
   
@@ -490,15 +499,6 @@
   <a href="#manipulation-of-client-side-itemstack" class="md-nav__link">
     <span class="md-ellipsis">
       Manipulation of client side ItemStack
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#support-of-modelscustommodeldata" class="md-nav__link">
-    <span class="md-ellipsis">
-      Support of models/CustomModelData
     </span>
   </a>
   
@@ -557,15 +557,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#enchantments" class="md-nav__link">
-    <span class="md-ellipsis">
-      Enchantments
-    </span>
-  </a>
   
 </li>
       
@@ -1135,9 +1126,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#selecting-visual-item-type" class="md-nav__link">
+  <a href="#selecting-base-item-type" class="md-nav__link">
     <span class="md-ellipsis">
-      Selecting visual item type.
+      Selecting base item type.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changing-item-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changing item model
     </span>
   </a>
   
@@ -1147,15 +1147,6 @@
   <a href="#manipulation-of-client-side-itemstack" class="md-nav__link">
     <span class="md-ellipsis">
       Manipulation of client side ItemStack
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#support-of-modelscustommodeldata" class="md-nav__link">
-    <span class="md-ellipsis">
-      Support of models/CustomModelData
     </span>
   </a>
   
@@ -1217,15 +1208,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#enchantments" class="md-nav__link">
-    <span class="md-ellipsis">
-      Enchantments
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1265,49 +1247,30 @@ of client side visuals.</p>
 <li><code>PolymerBlockItem</code> - Same as vanilla <code>BlockItem</code>,</li>
 <li><code>PolymerHeadBlockItem</code> - Similar to <code>PolymerBlockItem</code>, but for Blocks implementing <code>PolymerHeadBlock</code> interface.</li>
 </ul>
-<h3 id="selecting-visual-item-type">Selecting visual item type.</h3>
-<p>To select visual item type, you need to implement this method
-* <code>Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player)</code></p>
-<p>They can't return nulls. They can also point to other PolymerItem instance, but keep
+<h3 id="selecting-base-item-type">Selecting base item type.</h3>
+<p>To select base item type, you need to implement this method
+* <code>Item getPolymerItem(ItemStack itemStack, PacketContext context)</code></p>
+<p>It can't return nulls. They can also point to other PolymerItem instance, but keep
 in mind to make validation if it's configurable by user!</p>
 <p>Example use:</p>
 <p>Changing client-side item to diamond</p>
 <pre><code>@Override
-public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
     return itemStack.getCount() &gt; 32 ? Items.DIAMOND_BLOCK : Items.DIAMOND;
 }
 </code></pre>
+<h3 id="changing-item-model">Changing item model</h3>
+<p>By default, Polymer will use whatever the <code>item_model</code> component is set for the item, which is  equal to the value 
+you provided in Item.Settings, as long as ItemStack doesn't override it.</p>
+<p>For better control over it, you can override <code>Identifier getPolymerItemModel(ItemStack itemStack, PacketContext context)</code>
+method.</p>
 <h3 id="manipulation-of-client-side-itemstack">Manipulation of client side ItemStack</h3>
 <p>Sometimes it's useful to manipulate entire ItemStack, as it allows achieving better effects.
-To do so, you need to override the <code>ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player)</code>
-method. However, keep in mind that making nbt incorrect might create some issues (for example 
-breaking items in creative mode)!</p>
-<p>Ideally you should modify output of <code>PolymerItem.super.getPolymerItemStack(itemStack, context, player)</code>,
-<code>PolymerItemUtils.createItemStack(itemStack, player)</code>
-or <code>PolymerItemUtils.createMinimalItemStack(itemStack, player)</code>, as they contain all required NBT.</p>
-<p>Example use:</p>
-<p>Adding enchanting glint to item.</p>
-<pre><code>@Override
-public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, ServerPlayerEntity player) {
-    ItemStack out = PolymerItemUtils.createItemStack(itemStack, context, player);
-    out.addEnchantment(Enchantments.LURE, 0);
-    return out;
-}
-</code></pre>
-<h3 id="support-of-modelscustommodeldata">Support of models/CustomModelData</h3>
-<p>You can change custom model data of virtual model by simple 
-overriding <code>int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player)</code>.
-You can return -1 to disable it, or any number above it to set value of it.</p>
-<p>Ideally you should return value created with <a href="/resource-packs/basics">polymer's resource pack utils</a>, 
-but nothing blocks you from using any other ones.</p>
-<p>Example usage:</p>
-<p>Changing client-side item CustomModelData to previously stored value.</p>
-<pre><code>@Override
-public int getPolymerCustomModelData(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-    // Instance of PolymerModelData, see info above
-    return this.cmd.value();
-}
-</code></pre>
+To do so, you need to override the <code>void modifyBasePolymerItemStack(ItemStack out, ItemStack stack, PacketContext context)</code>
+method. You can only modify the <code>out</code> item stack, as it's item that gets sent to the client.
+The <code>stack</code> item is what server sends by default and should never be modified.</p>
+<p>If you need more control, you can also override <code>ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType type, PacketContext context)</code>,
+however doing it incorrectly will result in items converting to vanilla ones in creative and desyncing in inventory.</p>
 <h2 id="item-groups-support">Item Groups support</h2>
 <p>You can create server side Item Groups, which will be later synced with Polymer-compatible clients.
 They also allow you to create server side Creative categories, that are accessible via <code>/polymer creative</code> command.</p>
@@ -1336,11 +1299,11 @@ can cause issues (mostly around creative mode, but also in case you modify origi
 You change the client side item by either directly modifying client ItemStack 
 or creating new one and returning it. Ideally you should also keep previous nbt, 
 just so it can work nicely, You can register this event by using
-<code>PolymerItemUtils.ITEM_MODIFICATION_EVENT.register(((ItemStack original, ItemStack client, ServerPlayerEntity player) -&gt; ItemStack)</code> lambda.</p>
+<code>PolymerItemUtils.ITEM_MODIFICATION_EVENT.register(((ItemStack original, ItemStack client, PacketContext context) -&gt; ItemStack)</code> lambda.</p>
 <p>Example use:</p>
 <p>Hiding enchantment glint for items with <code>HideEnchantments: 1b</code> nbt tag</p>
 <pre><code>PolymerItemUtils.ITEM_MODIFICATION_EVENT.register(
-    (original, client, player) -&gt; {
+    (original, client, context) -&gt; {
          if (original.hasNbt() &amp;&amp; original.getNbt().getBoolean(&quot;HideEnchantments&quot;)) {
              client.getNbt().remove(&quot;Enchantments&quot;);
 
@@ -1351,7 +1314,7 @@ just so it can work nicely, You can register this event by using
 </code></pre>
 <p>Replacing look/name of ItemStack with "Test" NBT tag</p>
 <pre><code>PolymerItemUtils.ITEM_MODIFICATION_EVENT.register(
-    (original, client, player) -&gt; {
+    (original, client, context) -&gt; {
          if (original.hasNbt() &amp;&amp; original.getNbt().contains(&quot;Test&quot;, NbtElement.STRING_TYPE)) {
              ItemStack out = new ItemStack(Items.DIAMOND_SWORD, client.getCount());
              out.setNbt(client.getNbt());
@@ -1374,9 +1337,6 @@ just so it can work nicely, You can register this event by using
     }
 );
 </code></pre>
-<h2 id="enchantments">Enchantments</h2>
-<p>The only thing to make your enchantment fully server side is implementation of <code>PolymerSyncedObject</code> or <code>PolymerEnchantment</code> interface.
-You also might want to manipulate some things from Polymer Block/Item events.</p>
 
 
 
