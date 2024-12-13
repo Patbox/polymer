@@ -4,6 +4,7 @@ import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.*;
 import net.minecraft.registry.Registries;
@@ -37,7 +38,7 @@ public class DefaultModelData {
             MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 7), new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/farmland_moist"))});
 
 
-            var list = new ArrayList<BlockState>();
+            var list = new ReferenceArrayList<BlockState>();
             for (int i = 2; i < 7; i++) {
                 var state = Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, i);
                 list.add(state);
@@ -48,7 +49,7 @@ public class DefaultModelData {
         }
 
         {
-            var vines = new ArrayList<BlockState>();
+            var vines = new ReferenceArrayList<BlockState>();
 
             for (var block : new Block[]{Blocks.TWISTING_VINES, Blocks.WEEPING_VINES}) {
                 var id = Registries.BLOCK.getId(block);
@@ -81,7 +82,7 @@ public class DefaultModelData {
 
 
         {
-            var plant = new ArrayList<BlockState>();
+            var plant = new ReferenceArrayList<BlockState>();
 
             {
                 var id = Registries.BLOCK.getId(Blocks.SUGAR_CANE);
@@ -98,7 +99,7 @@ public class DefaultModelData {
         }
 
         {
-            var plant = new ArrayList<BlockState>();
+            var plant = new ReferenceArrayList<BlockState>();
 
             for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING, Blocks.CHERRY_SAPLING}) {
                 var id = Registries.BLOCK.getId(block);
@@ -169,7 +170,7 @@ public class DefaultModelData {
 
         {
             {
-                List<BlockState> list = new ObjectArrayList<>();
+                List<BlockState> list = new ReferenceArrayList<>();
                 addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
                 addDoor(Direction.NORTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
                 addDoor(Direction.NORTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
@@ -181,7 +182,7 @@ public class DefaultModelData {
                 DefaultModelData.USABLE_STATES.put(BlockModelType.NORTH_DOOR, list);
             }
             {
-                List<BlockState> list = new ObjectArrayList<>();
+                List<BlockState> list = new ReferenceArrayList<>();
                 addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
                 addDoor(Direction.EAST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
                 addDoor(Direction.EAST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
@@ -193,7 +194,7 @@ public class DefaultModelData {
                 DefaultModelData.USABLE_STATES.put(BlockModelType.EAST_DOOR, list);
             }
             {
-                List<BlockState> list = new ObjectArrayList<>();
+                List<BlockState> list = new ReferenceArrayList<>();
                 addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
                 addDoor(Direction.SOUTH, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
                 addDoor(Direction.SOUTH, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
@@ -205,7 +206,7 @@ public class DefaultModelData {
                 DefaultModelData.USABLE_STATES.put(BlockModelType.SOUTH_DOOR, list);
             }
             {
-                List<BlockState> list = new ObjectArrayList<>();
+                List<BlockState> list = new ReferenceArrayList<>();
                 addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.UPPER, false, list);
                 addDoor(Direction.WEST, DoorHinge.LEFT, DoubleBlockHalf.LOWER, false, list);
                 addDoor(Direction.WEST, DoorHinge.RIGHT, DoubleBlockHalf.UPPER, false, list);
@@ -220,12 +221,12 @@ public class DefaultModelData {
 
         {
             {
-                List<BlockState> list = new ObjectArrayList<>();
+                List<BlockState> list = new ReferenceArrayList<>();
                 addSculkBlocks(false, list);
                 DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK, list);
             }
             {
-                List<BlockState> list = new ObjectArrayList<>();
+                List<BlockState> list = new ReferenceArrayList<>();
                 addSculkBlocks(true, list);
                 DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK_WATERLOGGED, list);
             }
@@ -312,36 +313,36 @@ public class DefaultModelData {
     }
 
     private static void addTrapdoorHalf(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
-        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
         list.add(addSingleClosedTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSingleClosedTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSingleClosedTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSingleClosedTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
 
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.BIRCH_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.CHERRY_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.CRIMSON_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.DARK_OAK_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.JUNGLE_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.MANGROVE_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.BIRCH_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.CHERRY_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.CRIMSON_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.DARK_OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.JUNGLE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.MANGROVE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
 
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
 
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
 
         DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
     private static void addTrapdoorDirection(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
-        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
 
         list.add(addSingleOpenTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSingleOpenTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
@@ -399,7 +400,7 @@ public class DefaultModelData {
     }
 
     private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
-        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
 
         addSlab(slabType, waterlogged, Blocks.OAK_SLAB, Blocks.PETRIFIED_OAK_SLAB, list);
         addSlab(slabType, waterlogged, Blocks.CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER_SLAB, list);
@@ -410,14 +411,14 @@ public class DefaultModelData {
         DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
-    private static void addSlab(SlabType slabType, boolean waterlogged, Block to, Block from, ObjectArrayList<BlockState> list) {
+    private static void addSlab(SlabType slabType, boolean waterlogged, Block to, Block from, ReferenceArrayList<BlockState> list) {
         BlockState state = from.getDefaultState().with(SlabBlock.WATERLOGGED, waterlogged).with(SlabBlock.TYPE, slabType);
         list.add(state);
         DefaultModelData.SPECIAL_REMAPS.put(state, to.getStateWithProperties(state));
     }
 
     private static void addDisarmedTripwire(boolean attached, BlockModelType modelType) {
-        ObjectArrayList<BlockState> list = new ObjectArrayList<>();
+        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
         // generate all permutations of north, south, east, west, powered
         {
             var base = Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.DISARMED, true);
@@ -451,7 +452,7 @@ public class DefaultModelData {
     }
 
     private static void generateDefault(BlockModelType type, Predicate<BlockState> shouldInclude, Block... blocks) {
-        var list = new ArrayList<BlockState>();
+        var list = new ReferenceArrayList<BlockState>();
 
         for (var block : blocks) {
             var id = Registries.BLOCK.getId(block);

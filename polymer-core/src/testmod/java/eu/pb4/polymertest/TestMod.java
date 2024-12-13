@@ -105,6 +105,7 @@ public class TestMod implements ModInitializer {
     public static RegistryEntry<EntityAttribute> ATTRIBUTE = Registry.registerReference(Registries.ATTRIBUTE, Identifier.of("test:attribute"),
             new ClampedEntityAttribute("test.attribute", 0, -5, 5)
                     .setCategory(EntityAttribute.Category.POSITIVE).setTracked(true));
+    public static DynamicItem DYNAMIC_ITEM = registerItem(Identifier.of("test", "dynamic"), DynamicItem::new);
     public static SimplePolymerItem ITEM = registerItem(Identifier.of("test", "item"), (s) -> new TestItem(s.fireproof().maxCount(5), Items.IRON_HOE));
     public static SimplePolymerItem ITEM_2 = registerItem(Identifier.of("test", "item_2"), (s) -> new SimplePolymerItem(s.fireproof().maxCount(99)
             .attributeModifiers(AttributeModifiersComponent.builder().add(ATTRIBUTE,
@@ -199,6 +200,10 @@ public class TestMod implements ModInitializer {
     public static final Item TEST_FOOD_2 = registerItem(Identifier.of("test", "food2"), (s) -> new SimplePolymerItem(s.food(new FoodComponent.Builder().nutrition(1).saturationModifier(2).build()), Items.CAKE));
     public static final ComponentType<String> TEST = register(Registries.DATA_COMPONENT_TYPE, Identifier.of("test", "test"),
             ComponentType.<String>builder().codec(Codec.STRING).build());
+
+    public static final ComponentType<Item> CLIENT_ITEM = register(Registries.DATA_COMPONENT_TYPE, Identifier.of("test", "item"),
+            ComponentType.<Item>builder().codec(Registries.ITEM.getCodec()).build());
+
 
     //public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(PolymerResourcePackUtils.getMainUuid(), Identifier.of("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
     
@@ -511,7 +516,7 @@ public class TestMod implements ModInitializer {
         PolymerItemUtils.syncDefaultComponent(Items.DIAMOND, DataComponentTypes.MAX_STACK_SIZE);
         PolymerItemUtils.syncDefaultComponent(Items.CHAINMAIL_HELMET, DataComponentTypes.EQUIPPABLE);
 
-        PolymerComponent.registerDataComponent(TEST);
+        PolymerComponent.registerDataComponent(TEST, CLIENT_ITEM);
 
         if (PolymerImpl.IS_CLIENT) {
             InternalClientRegistry.decodeState(-1);

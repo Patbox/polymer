@@ -11,10 +11,8 @@ import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.Waterloggable;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.minecraft.block.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
@@ -22,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Predicate;
 
 public final class BlockResourceCreator {
     private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.of("polymer", "block/empty"));
@@ -46,7 +45,8 @@ public final class BlockResourceCreator {
     }
 
     BlockResourceCreator(ResourcePackCreator creator, BlockExtBlockMapper blockMapper, Runnable onRegister) {
-        this.states = new EnumMap<>(DefaultModelData.USABLE_STATES);
+        this.states = new EnumMap<>(BlockModelType.class);
+        DefaultModelData.USABLE_STATES.forEach((key, value) -> this.states.put(key, new ReferenceArrayList<>(value)));
         this.models = new IdentityHashMap<>(DefaultModelData.MODELS);
         this.creator = creator;
         this.blockMapper = blockMapper;
@@ -75,7 +75,24 @@ public final class BlockResourceCreator {
         if (x != null) {
             return x;
         }
-        x = requestBlock(type, EMPTY);
+        Predicate<BlockState> predicate = null;
+        if (type.name().contains("TRAPDOOR")) {
+            predicate = b -> b.isOf(Blocks.IRON_TRAPDOOR);
+        } else if (type.name().contains("DOOR")) {
+            predicate = b -> b.isOf(Blocks.IRON_TRAPDOOR);
+        }  else if (type == BlockModelType.VINES_BLOCK) {
+            predicate = b -> b.isOf(Blocks.TWISTING_VINES);
+        }
+
+        if (predicate != null) {
+            x = requestBlock(type, predicate, EMPTY);
+        }
+        if (x == null) {
+            x = requestBlock(type, EMPTY);
+        }
+        if (x == null) {
+            return null;
+        }
         this.emptyBlocks.put(type, x);
         if (!this.registeredEmpty) {
             this.registeredEmpty = true;
@@ -86,12 +103,25 @@ public final class BlockResourceCreator {
 
     @Nullable
     public BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
+        return requestBlock(type, x -> true, model);
+    }
+    public BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, PolymerBlockModel... model) {
         var states = this.states.get(type);
         if (!states.isEmpty()) {
-            this.registerEvent();
-            var state = states.removeFirst();
+            BlockState state = null;
+            for (var s : states) {
+                if (predicate.test(s)) {
+                    state = s;
+                    break;
+                }
+            }
+            if (state == null) {
+                return null;
+            }
+            states.remove(state);
             models.put(state, model);
             this.hasRequested.add(state.getBlock());
+            this.registerEvent();
 
             if (state.getBlock() instanceof Waterloggable) {
                 this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS
