@@ -6,7 +6,9 @@ import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
+import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
 import eu.pb4.polymer.core.mixin.entity.EntityAccessor;
+import eu.pb4.polymer.core.mixin.entity.EntityTrackerAccessor;
 import eu.pb4.polymer.core.mixin.entity.PlayerListS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
@@ -163,6 +165,28 @@ public final class PolymerEntityUtils {
 
     public static void sendEntityType(ServerPlayerEntity player, int entityId, EntityType<?> entityType) {
         PolymerServerProtocol.sendEntityInfo(player.networkHandler, entityId, entityType);
+    }
+
+    public static void refreshEntity(ServerPlayerEntity player, Entity entity) {
+        if (entity.getWorld() instanceof ServerWorld world) {
+            var tracker = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager).polymer$getEntityTrackers().get(entity.getId());
+            if (tracker != null) {
+                tracker.stopTracking(player);
+                tracker.updateTrackedStatus(player);
+            }
+        }
+    }
+
+    public static void refreshEntity(Entity entity) {
+        if (entity.getWorld() instanceof ServerWorld world) {
+            var tracker = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager).polymer$getEntityTrackers().get(entity.getId());
+            if (tracker != null) {
+                for (var player : ((EntityTrackerAccessor) tracker).getListeners()) {
+                    ((EntityTrackerAccessor) tracker).getEntry().stopTracking(player.getPlayer());
+                    ((EntityTrackerAccessor) tracker).getEntry().startTracking(player.getPlayer());
+                }
+            }
+        }
     }
 
     public static boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, Entity entity, ActionResult actionResult) {

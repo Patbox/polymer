@@ -1,10 +1,12 @@
 package eu.pb4.polymertest;
 
+import com.mojang.serialization.Codec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.SimplePolymerBlock;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.*;
+import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.other.PolymerStat;
 import eu.pb4.polymer.core.api.other.SimplePolymerPotion;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
@@ -22,11 +24,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.ConsumableComponent;
@@ -192,6 +197,8 @@ public class TestMod implements ModInitializer {
     public static final Item TEST_ENTITY_EGG = registerItem(Identifier.of("test", "spawn_egg"), (s) -> new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, s));
     public static Item TEST_FOOD;
     public static final Item TEST_FOOD_2 = registerItem(Identifier.of("test", "food2"), (s) -> new SimplePolymerItem(s.food(new FoodComponent.Builder().nutrition(1).saturationModifier(2).build()), Items.CAKE));
+    public static final ComponentType<String> TEST = register(Registries.DATA_COMPONENT_TYPE, Identifier.of("test", "test"),
+            ComponentType.<String>builder().codec(Codec.STRING).build());
 
     //public static final SoundEvent GHOST_HURT = new PolymerSoundEvent(PolymerResourcePackUtils.getMainUuid(), Identifier.of("polymertest", "ghosthurt"), 16, true, SoundEvents.ENTITY_GHAST_HURT);
     
@@ -497,6 +504,14 @@ public class TestMod implements ModInitializer {
         var local = new ThreadLocal<Boolean>();
         local.set(Boolean.TRUE);
         long localTime = System.currentTimeMillis();
+
+        DefaultItemComponentEvents.MODIFY.register(x -> x.modify(Items.DIAMOND, b -> b.add(DataComponentTypes.MAX_STACK_SIZE, 99)));
+        DefaultItemComponentEvents.MODIFY.register(x -> x.modify(Items.CHAINMAIL_HELMET, b -> b.add(DataComponentTypes.EQUIPPABLE, null)));
+        DefaultItemComponentEvents.MODIFY.register(x -> x.modify(Items.CHAINMAIL_CHESTPLATE, b -> b.add(DataComponentTypes.EQUIPPABLE, null)));
+        PolymerItemUtils.syncDefaultComponent(Items.DIAMOND, DataComponentTypes.MAX_STACK_SIZE);
+        PolymerItemUtils.syncDefaultComponent(Items.CHAINMAIL_HELMET, DataComponentTypes.EQUIPPABLE);
+
+        PolymerComponent.registerDataComponent(TEST);
 
         if (PolymerImpl.IS_CLIENT) {
             InternalClientRegistry.decodeState(-1);

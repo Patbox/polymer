@@ -1,4 +1,4 @@
-package eu.pb4.polymer.virtualentity.mixin.accessors;
+package eu.pb4.polymer.core.mixin.entity;
 
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.PlayerAssociatedNetworkHandler;

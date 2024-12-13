@@ -15,6 +15,7 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
@@ -36,6 +37,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.*;
@@ -76,6 +78,9 @@ public final class PolymerItemUtils {
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
 
     public static final BooleanEvent<PolymerItemInteractionListener> POLYMER_ITEM_INTERACTION_CHECK = new BooleanEvent<>();
+
+    private static final IdentityHashMap<Item, List<ComponentType<?>>> FORCE_SYNCED_COMPONENTS = new IdentityHashMap<>();
+
 
     private static final ComponentType<?>[] COMPONENTS_TO_COPY = {DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_PLACE_ON,
             DataComponentTypes.BLOCK_ENTITY_DATA, DataComponentTypes.TRIM,
@@ -127,6 +132,8 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.JUKEBOX_PLAYABLE, JukeboxPlayableComponent::withShowInTooltip),
             HideableTooltip.of(DataComponentTypes.DYED_COLOR, DyedColorComponent::withShowInTooltip)
     );
+
+
 
     private PolymerItemUtils() {
     }
@@ -528,6 +535,28 @@ public final class PolymerItemUtils {
             return true;
         }
         return POLYMER_ITEM_INTERACTION_CHECK.invoke((x) -> x.isPolymerItemInteraction(player, hand, stack, world, actionResult));
+    }
+
+    /**
+     * This method allows to define Data Component Types, which need to be always synced to clients,
+     * even if they have the default value for sent ItemStack.
+     * This can be used with combination with Fabric's DefaultItemComponentEvents to synchronize modified components values to clients without the mod.
+     *
+     * @param item item this effect should apply to
+     * @param types Component types that need to be always synced to client
+     */
+    public static void syncDefaultComponent(Item item, ComponentType<?>... types) {
+        var list = FORCE_SYNCED_COMPONENTS.computeIfAbsent(item, (i) -> new ReferenceArrayList<>());
+        for (var type : types) {
+            if (!list.contains(type)) {
+                list.add(type);
+            }
+        }
+    }
+
+    @UnmodifiableView
+    public static List<ComponentType<?>> getSyncedDefaultComponents(Item item) {
+        return FORCE_SYNCED_COMPONENTS.getOrDefault(item, List.of());
     }
 
     @FunctionalInterface
