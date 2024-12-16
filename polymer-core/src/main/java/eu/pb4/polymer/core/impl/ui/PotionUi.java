@@ -49,12 +49,13 @@ public class PotionUi extends MicroUi {
             }
             icon.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
             icon.set(DataComponentTypes.RARITY, Rarity.COMMON);
-            icon.set(DataComponentTypes.ITEM_NAME, Text.empty()
+            icon.set(DataComponentTypes.CUSTOM_NAME, Text.empty()
                     .append(effectInstance.getEffectType().value().getName())
                     .append(Text.literal(" (")
                             .append(StatusEffectUtil.getDurationText(effectInstance, 1.0F, this.player.getServer().getTickManager().getTickRate()))
                             .append(")")
                             .formatted(Formatting.GRAY))
+                    .setStyle(Style.EMPTY.withItalic(false))
             );
 
             //icon.getNbt().putInt("HideFlags", 255);

@@ -10,12 +10,14 @@ import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
+import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import eu.pb4.polymer.core.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.VaultBlockEntity;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentType;
 import net.minecraft.item.ItemStack;
@@ -178,6 +180,28 @@ public final class PolymerBlockUtils {
         NbtCompound override = null;
 
         var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
+
+        if (original.contains("shared_data", NbtElement.COMPOUND_TYPE)) {
+            var shared = original.getCompound("shared_data");
+            if (shared.contains("display_item")) {
+                var itemNbt = shared.getCompound("display_item");
+                var stack = ItemStack.fromNbtOrEmpty(lookup, itemNbt);
+                if (PolymerItemUtils.isPolymerServerItem(stack, context)) {
+                    //noinspection ConstantValue
+                    if (override == null) {
+                        override = original.copy();
+                    }
+
+                    try {
+                        override.getCompound("shared_data").put("display_item",
+                                PolymerItemUtils.getPolymerItemStack(stack, context).toNbtAllowEmpty(lookup));
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
 
         if (original.contains("Items", NbtElement.LIST_TYPE)) {
             var list = original.getList("Items", NbtElement.COMPOUND_TYPE);
