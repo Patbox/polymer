@@ -101,7 +101,7 @@ public class DefaultModelData {
         {
             var plant = new ReferenceArrayList<BlockState>();
 
-            for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING, Blocks.CHERRY_SAPLING}) {
+            for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING, Blocks.CHERRY_SAPLING, Blocks.PALE_OAK_SAPLING}) {
                 var id = Registries.BLOCK.getId(block);
 
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
@@ -289,6 +289,7 @@ public class DefaultModelData {
         list.add(addSinglePoweredDoor(Blocks.OAK_DOOR, Blocks.OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.SPRUCE_DOOR, Blocks.SPRUCE_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.WARPED_DOOR, Blocks.WARPED_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.PALE_OAK_DOOR, Blocks.PALE_OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
 
         list.add(addSinglePoweredDoor(Blocks.IRON_DOOR, Blocks.IRON_DOOR, direction, doorHinge, doubleBlockHalf, open));
 
@@ -330,6 +331,7 @@ public class DefaultModelData {
         list.add(addSinglePoweredClosedTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
 
         list.add(addSinglePoweredClosedTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
 
@@ -360,6 +362,7 @@ public class DefaultModelData {
         list.add(addSinglePoweredOpenTrapdoor(Blocks.OAK_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
 
         list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
 

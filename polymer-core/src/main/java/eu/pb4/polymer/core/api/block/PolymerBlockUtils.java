@@ -4,26 +4,17 @@ import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.api.other.PolymerComponent;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
-import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
+import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.VaultBlockEntity;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,7 +24,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -57,6 +47,7 @@ public final class PolymerBlockUtils {
     public static final BooleanEvent<BiPredicate<ServerWorld, ChunkSectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
     private static final NbtCompound STATIC_COMPOUND = new NbtCompound();
     private static final Set<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
+
     private PolymerBlockUtils() {
     }
 
@@ -174,100 +165,7 @@ public final class PolymerBlockUtils {
     }
 
     public static NbtCompound transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, NbtCompound original) {
-        if (original.isEmpty()) {
-            return original;
-        }
-        NbtCompound override = null;
-
-        var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
-
-        if (original.contains("shared_data", NbtElement.COMPOUND_TYPE)) {
-            var shared = original.getCompound("shared_data");
-            if (shared.contains("display_item")) {
-                var itemNbt = shared.getCompound("display_item");
-                var stack = ItemStack.fromNbtOrEmpty(lookup, itemNbt);
-                if (PolymerItemUtils.isPolymerServerItem(stack, context)) {
-                    //noinspection ConstantValue
-                    if (override == null) {
-                        override = original.copy();
-                    }
-
-                    try {
-                        override.getCompound("shared_data").put("display_item",
-                                PolymerItemUtils.getPolymerItemStack(stack, context).toNbtAllowEmpty(lookup));
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-
-        if (original.contains("Items", NbtElement.LIST_TYPE)) {
-            var list = original.getList("Items", NbtElement.COMPOUND_TYPE);
-            for (int i = 0; i < list.size(); i++) {
-                var nbt = list.getCompound(i);
-                var stack = ItemStack.fromNbtOrEmpty(lookup, nbt);
-                if (PolymerItemUtils.isPolymerServerItem(stack, context)) {
-                    if (override == null) {
-                        override = original.copy();
-                    }
-                    nbt = nbt.copy();
-                    nbt.remove("id");
-                    nbt.remove("components");
-                    nbt.remove("count");
-                    stack = PolymerItemUtils.getPolymerItemStack(stack, context);
-                    override.getList("Items", NbtElement.COMPOUND_TYPE).set(i, stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup, nbt));
-                }
-            }
-        }
-
-        if (original.contains("item", NbtElement.COMPOUND_TYPE)) {
-            var stack = ItemStack.fromNbtOrEmpty(lookup, original.getCompound("item"));
-            if (PolymerItemUtils.isPolymerServerItem(stack, context)) {
-                if (override == null) {
-                    override = original.copy();
-                }
-                stack = PolymerItemUtils.getPolymerItemStack(stack, context);
-                override.put("item", stack.toNbtAllowEmpty(lookup));
-            }
-        }
-
-        if (original.contains("components", NbtElement.COMPOUND_TYPE)) {
-            var ops = lookup.getOps(NbtOps.INSTANCE);
-
-            var comp = ComponentMap.CODEC.decode(ops, original.getCompound("components"));
-            if (comp.isSuccess()) {
-                var map = comp.getOrThrow().getFirst();
-                ComponentMap.Builder builder = null;
-
-                for (var component : map) {
-                    if (component.value() instanceof TransformingComponent transformingComponent && transformingComponent.polymer$requireModification(context)) {
-                        if (builder == null) {
-                            builder = ComponentMap.builder();
-                            builder.addAll(map);
-                        }
-                        //noinspection unchecked
-                        builder.add((ComponentType<? super Object>) component.type(), transformingComponent.polymer$getTransformed(context));
-                    } else if (!PolymerComponent.canSync(component.type(), component.value(), context)) {
-                        if (builder == null) {
-                            builder = ComponentMap.builder();
-                            builder.addAll(map);
-                        }
-                        builder.add(component.type(), null);
-                    }
-                }
-
-                if (builder != null) {
-                    if (override == null) {
-                        override = original.copy();
-                    }
-                    override.put("components", ComponentMap.CODEC.encodeStart(ops, builder.build()).result().orElse(new NbtCompound()));
-                }
-            }
-        }
-
-        return override != null ? override : original;
+        return PacketPatcher.transformBlockEntityNbt(context, type, original);
     }
 
     public static boolean isPolymerBlockInteraction(ServerPlayerEntity player, ItemStack stack, Hand hand, BlockHitResult blockHitResult, ServerWorld world, ActionResult actionResult) {
