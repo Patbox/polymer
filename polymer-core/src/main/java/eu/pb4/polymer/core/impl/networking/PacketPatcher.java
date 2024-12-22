@@ -135,13 +135,22 @@ public class PacketPatcher {
         if (nbt.isEmpty()) {
             return null;
         }
-
         var ops = lookup.getOps(NbtOps.INSTANCE);
         var result = ItemStack.CODEC.parse(ops, nbt);
         if (result.isSuccess()) {
             return result.getOrThrow();
         }
-        result = ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.parse(ops, nbt);
+        return null;
+    }
+
+    @Nullable
+    private static ItemStack silentItemVariantFromNbt(RegistryWrapper.WrapperLookup lookup, NbtCompound nbt) {
+        if (nbt.isEmpty()) {
+            return null;
+        }
+
+        var ops = lookup.getOps(NbtOps.INSTANCE);
+        var result = ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.parse(ops, nbt);
         if (result.isSuccess()) {
             return result.getOrThrow();
         }
@@ -198,13 +207,23 @@ public class PacketPatcher {
         }
 
         if (original.contains("item", NbtElement.COMPOUND_TYPE)) {
-            var stack = silentItemStackFromNbt(lookup, original.getCompound("item"));
+            var nbt = original.getCompound("item");
+            var stack = silentItemStackFromNbt(lookup, nbt);
+            boolean variant = false;
+            if (stack == null) {
+                stack = silentItemVariantFromNbt(lookup, nbt);
+                variant = stack != null;
+            }
+
             if (stack != null && PolymerItemUtils.isPolymerServerItem(stack, context)) {
                 if (override == null) {
                     override = original.copy();
                 }
                 stack = PolymerItemUtils.getPolymerItemStack(stack, context);
-                override.put("item", stack.toNbtAllowEmpty(lookup));
+                override.put("item", variant
+                        ? ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.encodeStart(lookup.getOps(NbtOps.INSTANCE), stack).getOrThrow()
+                        : stack.toNbtAllowEmpty(lookup)
+                );
             }
         }
 
