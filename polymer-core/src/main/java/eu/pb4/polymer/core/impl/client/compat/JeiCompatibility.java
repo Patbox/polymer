@@ -19,7 +19,7 @@ public class JeiCompatibility implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         if (PolymerImpl.IS_CLIENT) {
-            //update(registration.getIngredientManager());
+            update(registration.getIngredientManager());
         }
     }
 
@@ -27,7 +27,7 @@ public class JeiCompatibility implements IModPlugin {
         synchronized (manager) {
             try {
                 var list = manager.getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(PolymerImplUtils::isPolymerControlled).toList();
-                if (list.size() > 0) {
+                if (!list.isEmpty()) {
                     manager.removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, list);
                 }
 

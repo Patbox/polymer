@@ -1,12 +1,11 @@
 package eu.pb4.polymer.core.impl.client.compat;
 
+import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import mcp.mobius.waila.api.*;
-import mcp.mobius.waila.api.component.EmptyComponent;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.PairComponent;
 import net.minecraft.block.Block;
@@ -14,7 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.PlayerHeadItem;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -24,24 +23,24 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
-public class WthitCompatibility implements IWailaPlugin {
+public class WthitCompatibility implements IWailaClientPlugin {
     private static final Identifier BLOCK_STATES = Identifier.tryParse("attribute.block_state");
 
     @Override
-    public void register(IRegistrar registrar) {
-        registrar.addRedirect(BlockOverride.INSTANCE, Block.class, 400);
-        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.HEAD, Block.class, 100000);
-        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.BODY, Block.class, 100000);
-        registrar.addComponent(BlockOverride.INSTANCE, TooltipPosition.TAIL, Block.class, 100000);
-        registrar.addIcon(BlockOverride.INSTANCE, Block.class, 500);
+    public void register(IClientRegistrar registrar) {
+        registrar.redirect(BlockOverride.INSTANCE, Block.class, 400);
+        registrar.head(BlockOverride.INSTANCE, Block.class, 100000);
+        registrar.body(BlockOverride.INSTANCE, Block.class, 100000);
+        registrar.tail(BlockOverride.INSTANCE, Block.class, 100000);
+        registrar.icon(BlockOverride.INSTANCE, Block.class, 500);
 
-        registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.HEAD, ItemEntity.class, 100000);
-        registrar.addComponent(ItemEntityOverride.INSTANCE, TooltipPosition.TAIL, ItemEntity.class, 100000);
+        registrar.head(ItemEntityOverride.INSTANCE, ItemEntity.class, 100000);
+        registrar.tail(ItemEntityOverride.INSTANCE, ItemEntity.class, 100000);
 
-        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.HEAD, Entity.class, 100000);
-        registrar.addComponent(EntityOverride.INSTANCE, TooltipPosition.TAIL, Entity.class, 100000);
+        registrar.head(EntityOverride.INSTANCE, Entity.class, 100000);
+        registrar.tail(EntityOverride.INSTANCE, Entity.class, 100000);
 
-        registrar.addEventListener(OtherOverrides.INSTANCE);
+        registrar.eventListener(OtherOverrides.INSTANCE);
     }
 
     private static class OtherOverrides implements IEventListener {
@@ -58,7 +57,8 @@ public class WthitCompatibility implements IWailaPlugin {
 
         @Override
         public @Nullable ITargetRedirector.Result redirect(ITargetRedirector redirect, IBlockAccessor accessor, IPluginConfig config) {
-            if (InternalClientRegistry.getBlockAt(accessor.getPosition()) != ClientPolymerBlock.NONE_STATE) return redirect.toSelf();
+            if (InternalClientRegistry.getBlockAt(accessor.getPosition()) != ClientPolymerBlock.NONE_STATE)
+                return redirect.toSelf();
             return null;
         }
 
@@ -154,7 +154,7 @@ public class WthitCompatibility implements IWailaPlugin {
                 if (id != null) {
                     String modName = null;
                     var regBlock = Registries.ITEM.get(id);
-                    if (regBlock != null) {
+                    if (regBlock != null && regBlock != Items.AIR) {
                         modName = IModInfo.get(regBlock).getName();
                     }
 

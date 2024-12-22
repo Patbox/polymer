@@ -52,10 +52,10 @@ dependencies {
     }
 
 
-    modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:14.1.0+fabric")
-    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-11.2.0")
+    modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:17.1.2+fabric")
+    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-14.0.1")
 
-    modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:17.0.789")
+    modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:18.0.796")
     modCompileOnly /*modLocalRuntime*/("dev.emi:emi-fabric:1.1.6+1.20.6")
 
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
