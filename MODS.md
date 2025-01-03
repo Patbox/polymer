@@ -13,7 +13,7 @@ A list of server-side Fabric or Quilt mods using Polymer, ordered alphabetically
 
 
 ## Amazing Chest (1.19.2)
-*Amazing Chest* adds a new "Sorting Chest" block to your world that will will automatically pull matching items
+*Amazing Chest* adds a new "Sorting Chest" block to your world that will automatically pull matching items
 into itself from any connected hopper chain.
 
 ### Links:
@@ -22,10 +22,13 @@ into itself from any connected hopper chain.
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/amazing-chest
 
 
-## Arcana Novum (1.20.1)
-*Arcana Novum* is a very large magic mod, featuring powerful tools and weapons with multiblock constructs to match.
+## Arcana Novum (1.21.1 / 1.21.4 / latest)
+*Arcana Novum* is a fully-fledged magic mod with a vanilla+ feel. 
+It features researching new magic items, constructing a multiblock forging area, crafting powerful new trinkets and equipment, and an enhanced version of the Ender Dragon and Wither.
+Video spotlights are available [Here](https://www.youtube.com/watch?v=JU-iLKURhzw) and [Here](https://www.youtube.com/watch?v=z-8MGpFFSkQ&t=2707s)!
 
 ### Links:
+- Modrinth: https://modrinth.com/mod/arcana-novum
 - GitHub: https://github.com/borisshoes/ArcanaNovum
 
 ## Baker's Tools (1.21 / latest)
