@@ -82,10 +82,17 @@ public final class PolymerItemUtils {
     private static final IdentityHashMap<Item, List<ComponentType<?>>> FORCE_SYNCED_COMPONENTS = new IdentityHashMap<>();
 
 
-    private static final ComponentType<?>[] COMPONENTS_TO_COPY = {DataComponentTypes.CAN_BREAK, DataComponentTypes.CAN_PLACE_ON,
-            DataComponentTypes.BLOCK_ENTITY_DATA, DataComponentTypes.TRIM,
+    private static final ComponentType<?>[] COMPONENTS_TO_COPY = {
+            DataComponentTypes.CAN_BREAK,
+            DataComponentTypes.CAN_PLACE_ON,
+            DataComponentTypes.BLOCK_ENTITY_DATA,
+            DataComponentTypes.TRIM,
             DataComponentTypes.TOOL,
             DataComponentTypes.MAX_STACK_SIZE,
+            DataComponentTypes.MAP_ID,
+            DataComponentTypes.MAP_COLOR,
+            DataComponentTypes.MAP_DECORATIONS,
+            DataComponentTypes.MAP_POST_PROCESSING,
             DataComponentTypes.FOOD,
             DataComponentTypes.DAMAGE_RESISTANT,
             DataComponentTypes.FIREWORKS,
@@ -132,6 +139,8 @@ public final class PolymerItemUtils {
             HideableTooltip.of(DataComponentTypes.JUKEBOX_PLAYABLE, JukeboxPlayableComponent::withShowInTooltip),
             HideableTooltip.of(DataComponentTypes.DYED_COLOR, DyedColorComponent::withShowInTooltip)
     );
+
+    private static boolean stonecutterFix = PolymerImpl.FIX_STONECUTER;
 
 
 
@@ -552,6 +561,15 @@ public final class PolymerItemUtils {
                 list.add(type);
             }
         }
+    }
+
+
+    public static boolean isStonecutterFixEnabled() {
+        return stonecutterFix;
+    }
+
+    public static void enableStonecutterFix() {
+        stonecutterFix = true;
     }
 
     @UnmodifiableView

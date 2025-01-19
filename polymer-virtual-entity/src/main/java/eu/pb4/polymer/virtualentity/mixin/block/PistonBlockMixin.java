@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
-import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.impl.PistonExt;
@@ -29,14 +28,18 @@ public class PistonBlockMixin {
                                          @Local(ordinal = 2) BlockPos blockPos, @Share("attachment") LocalRef<PistonAttachment> attachment) {
         if (world instanceof ServerWorld serverWorld) {
             var x = BlockBoundAttachment.get(world, blockPos);
-            if (x != null && x.getBlockState().getBlock() instanceof BlockWithElementHolder holder) {
-                var transformed = holder.createMovingElementHolder(serverWorld, blockPos, x.getBlockState(), x.holder());
 
-                if (transformed != null) {
-                    if (transformed == x.holder()) {
-                        x.destroy();
+            if (x != null ) {
+                var holder = BlockWithElementHolder.get(x.getBlockState());
+                if (holder != null) {
+                    var transformed = holder.createMovingElementHolder(serverWorld, blockPos, x.getBlockState(), x.holder());
+
+                    if (transformed != null) {
+                        if (transformed == x.holder()) {
+                            x.destroy();
+                        }
+                        attachment.set(new PistonAttachment(transformed, world.getWorldChunk(blockPos), x.getBlockState(), blockPos, retract ? dir : dir.getOpposite()));
                     }
-                    attachment.set(new PistonAttachment(transformed, world.getWorldChunk(blockPos), x.getBlockState(), blockPos, retract ? dir : dir.getOpposite()));
                 }
             }
         }

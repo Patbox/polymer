@@ -34,7 +34,8 @@ public final class BlockBoundAttachment extends ChunkAttachment implements Block
     @ApiStatus.Experimental
     @Nullable
     public static BlockBoundAttachment of(ElementHolder holder, ServerWorld serverWorld, WorldChunk worldChunk, BlockPos blockPos, BlockState state) {
-        if (state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder) {
+        var blockWithElementHolder = BlockWithElementHolder.get(state);
+        if (blockWithElementHolder != null) {
             return new BlockBoundAttachment(holder, worldChunk, state, blockPos,
                     Vec3d.ofCenter(blockPos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, blockPos, state)),
                     blockWithElementHolder.tickElementHolder(serverWorld, blockPos, state)
@@ -46,7 +47,8 @@ public final class BlockBoundAttachment extends ChunkAttachment implements Block
     @ApiStatus.Experimental
     @Nullable
     public static BlockBoundAttachment fromMoving(ElementHolder movingHolder, ServerWorld world, BlockPos pos, BlockState state) {
-        if (state.getBlock() instanceof BlockWithElementHolder withElementHolder) {
+        var withElementHolder = BlockWithElementHolder.get(state);
+        if (withElementHolder != null) {
             var x = withElementHolder.createStaticElementHolder(world, pos, state, movingHolder);
             if (x != movingHolder) {
                 movingHolder.destroy();

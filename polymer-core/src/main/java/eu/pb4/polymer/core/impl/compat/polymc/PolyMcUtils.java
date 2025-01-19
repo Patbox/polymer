@@ -2,13 +2,12 @@ package eu.pb4.polymer.core.impl.compat.polymc;
 
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import io.github.theepicblock.polymc.api.item.ItemLocation;
 import io.github.theepicblock.polymc.api.misc.PolyMapProvider;
 import net.minecraft.block.BlockState;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -36,7 +35,10 @@ public class PolyMcUtils {
 
     public static void register() {
         if (CompatStatus.POLYMC && PolymerImpl.OVERRIDE_POLYMC_MINING) {
-            PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.register(new MiningCheck());
+            var event = new PolymcInteractionReplacement();
+            PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.register(event);
+            PolymerBlockUtils.POLYMER_BLOCK_INTERACTION_CHECK.register(event);
+            PolymerItemUtils.POLYMER_ITEM_INTERACTION_CHECK.register(event);
         }
     }
 }

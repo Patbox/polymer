@@ -12,13 +12,13 @@ public class PolyMcEntrypoint implements io.github.theepicblock.polymc.api.PolyM
     public void registerPolys(PolyRegistry registry) {
         for (var entityType : Registries.ENTITY_TYPE) {
             if (PolymerEntityUtils.isPolymerEntityType(entityType)) {
-                registry.registerEntityPoly(entityType, (info, entity) -> null);
+                registry.registerEntityPoly(entityType, PassthroughPoly.entity());
             }
         }
 
         for (var item : Registries.ITEM) {
             if (item instanceof PolymerItem) {
-                registry.registerItemPoly(item, (x, y, z) -> x.copy());
+                registry.registerItemPoly(item, PassthroughPoly.ITEM);
             }
         }
     }

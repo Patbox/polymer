@@ -10,6 +10,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.ImmersivePortalsUtils;
@@ -28,10 +29,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.config.FeaturesS2CPacket;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.featuretoggle.FeatureFlag;
@@ -45,6 +43,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class PacketPatcher {
 
@@ -124,7 +123,26 @@ public class PacketPatcher {
                     && EntityAttachedPacket.get(packet, original.getEntityId()) instanceof PolymerEntity entity
                     && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
                 return true;
-            } else return packet instanceof BlockEntityUpdateS2CPacket be && PolymerBlockUtils.isPolymerBlockEntityType(be.getBlockEntityType());
+            } else if (packet instanceof BlockEntityUpdateS2CPacket be) {
+                return PolymerBlockUtils.isPolymerBlockEntityType(be.getBlockEntityType());
+            } else if (packet instanceof RecipeBookAddS2CPacket recipeBook && PolymerImpl.SPLIT_RECIPE_PACKETS > 0 && recipeBook.entries().size() > PolymerImpl.SPLIT_RECIPE_PACKETS) {
+                var list = new ArrayList<RecipeBookAddS2CPacket.Entry>();
+                if (recipeBook.replace()) {
+                    handler.sendPacket(new RecipeBookAddS2CPacket(List.of(), true));
+                }
+                for (var entry : recipeBook.entries()) {
+                    list.add(entry);
+                    if (list.size() >= PolymerImpl.SPLIT_RECIPE_PACKETS) {
+                        handler.sendPacket(new RecipeBookAddS2CPacket(list, false));
+                        list = new ArrayList<>();
+                    }
+                }
+                if (!list.isEmpty()) {
+                    handler.sendPacket(new RecipeBookAddS2CPacket(list, false));
+                }
+
+                return true;
+            }
         }
 
         return false;
