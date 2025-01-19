@@ -58,14 +58,15 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
                 var section = sections[i];
                 if (section != null && !section.isEmpty()) {
                     var container = section.getBlockStateContainer();
-                    if (container.hasAny(x -> x.getBlock() instanceof BlockWithElementHolder)) {
+                    if (container.hasAny(x -> BlockWithElementHolder.get(x) != null)) {
                         BlockState state;
                         for (byte x = 0; x < 16; x++) {
                             for (byte z = 0; z < 16; z++) {
                                 for (byte y = 0; y < 16; y++) {
                                     state = container.get(x, y, z);
 
-                                    if (state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder) {
+                                    var blockWithElementHolder = BlockWithElementHolder.get(state);
+                                    if (blockWithElementHolder != null) {
                                         var blockPos = pos.getBlockPos(x, this.sectionIndexToCoord(i) * 16 + y, z);
 
                                         var holder = blockWithElementHolder.createElementHolder(serverWorld, blockPos, state);
@@ -97,7 +98,8 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
     @Inject(method = "setBlockState", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isClient:Z", ordinal = 1, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void polymerVE$addNew(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
         var x = this.polymerVE$posHolders.get(pos);
-        if (x == null && state.getBlock() instanceof BlockWithElementHolder blockWithElementHolder && this.world instanceof ServerWorld serverWorld) {
+        var blockWithElementHolder = BlockWithElementHolder.get(state);
+        if (x == null && blockWithElementHolder != null && this.world instanceof ServerWorld serverWorld) {
             var holder = blockWithElementHolder.createElementHolder(serverWorld, pos, state);
             if (holder != null) {
                 new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, pos.toImmutable(), Vec3d.ofCenter(pos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, pos, state)), blockWithElementHolder.tickElementHolder(serverWorld, pos, state));

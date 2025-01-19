@@ -1,9 +1,7 @@
 package eu.pb4.polymer.virtualentity.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.command.CommandRegistryAccess;

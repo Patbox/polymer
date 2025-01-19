@@ -51,10 +51,13 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
         }
     }
 
-    @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
+    @Inject(method = "onResourcePackStatus", at = @At("HEAD"), cancellable = true)
     private void onStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
-        if (this.currentTask instanceof AutoHostTask task && task.onStatus((ServerConfigurationNetworkHandler) (Object) this, packet.id(), packet.status())) {
-            this.onTaskFinished(AutoHostTask.KEY);
+        if (this.currentTask instanceof AutoHostTask task) {
+            if (task.onStatus((ServerConfigurationNetworkHandler) (Object) this, packet.id(), packet.status())) {
+                this.onTaskFinished(AutoHostTask.KEY);
+            }
+            ci.cancel();
         }
     }
 

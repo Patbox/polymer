@@ -27,6 +27,8 @@ public final class PolymerImpl {
     public static final boolean LOG_MORE_ERRORS;
     public static final int LIGHT_UPDATE_TICK_DELAY;
     public static final boolean ITEMSTACK_NBT_HACK;
+    public static final boolean FIX_STONECUTER;
+    public static final int SPLIT_RECIPE_PACKETS;
 
     public static final boolean OVERRIDE_POLYMC_MINING;
 
@@ -42,6 +44,8 @@ public final class PolymerImpl {
         LIGHT_UPDATE_TICK_DELAY = serverConfig.lightUpdateTickDelay;
         ITEMSTACK_NBT_HACK = serverConfig.itemStackNbtHack;
         OVERRIDE_POLYMC_MINING = serverConfig.overridePolyMcMining;
+        SPLIT_RECIPE_PACKETS = serverConfig.splitRecipeBookPacket;
+        FIX_STONECUTER = serverConfig.stonecutterFix;
 
         if (PolymerImpl.IS_CLIENT) {
             var clientConfig =  CommonImpl.loadConfig("client", ClientConfig.class);

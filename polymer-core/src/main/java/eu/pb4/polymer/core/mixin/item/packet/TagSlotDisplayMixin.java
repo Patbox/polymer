@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(SlotDisplay.TagSlotDisplay.class)
-public class TagSlotDisplayMixin implements SkipCheck {
+public abstract class TagSlotDisplayMixin implements SkipCheck {
     @Unique
     private boolean skipped = false;
 

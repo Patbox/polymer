@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.item.packet;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.impl.interfaces.SkipCheck;
 import eu.pb4.polymer.core.impl.networking.TransformingPacketCodec;
@@ -37,6 +38,13 @@ public interface SlotDisplayMixin {
                 if (!array.isEmpty()) {
                     var out = new SlotDisplay.TagSlotDisplay(tagSlot.tag());
                     ((SkipCheck) (Object) out).polymer$setSkipped();
+
+                    if (CompatStatus.POLYMC) {
+                        if (((SkipCheck) (Object) tagSlot).polymc$skipped()) {
+                            ((SkipCheck) (Object) out).polymc$setSkipped();
+                        }
+                    }
+
                     array.addFirst(out);
                     yield new SlotDisplay.CompositeSlotDisplay(array);
                 }

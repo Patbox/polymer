@@ -11,7 +11,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 @SuppressWarnings("deprecation")
 @ApiStatus.Internal
-public class PolymerBlockPoly implements BlockPoly {
+public class PolymerBlockPoly implements BlockPoly, PassthroughPoly {
     @Override
     public BlockState getClientBlock(BlockState input) {
         var player = PacketContext.get();

@@ -26,6 +26,7 @@
     "accessors.PlaySoundFromEntityS2CPacketAccessor",
     "accessors.ServerChunkLoadingManagerAccessor",
     "accessors.TextDisplayEntityAccessor",
+    "block.BlockMixin",
     "block.FallingBlockEntityMixin",
     "block.PistonBlockEntityMixin",
     "block.PistonBlockMixin",

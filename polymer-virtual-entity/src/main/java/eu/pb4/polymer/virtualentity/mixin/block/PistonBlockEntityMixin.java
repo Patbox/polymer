@@ -1,7 +1,6 @@
 package eu.pb4.polymer.virtualentity.mixin.block;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.impl.PistonExt;
 import eu.pb4.polymer.virtualentity.impl.attachment.PistonAttachment;

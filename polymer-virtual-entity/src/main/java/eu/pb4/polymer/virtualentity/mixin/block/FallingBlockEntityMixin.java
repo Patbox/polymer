@@ -39,15 +39,18 @@ public abstract class FallingBlockEntityMixin extends Entity {
     private static void getCurrentAttachment(World world, BlockPos pos, BlockState state, CallbackInfoReturnable<FallingBlockEntity> cir, @Local FallingBlockEntity entity,
                                              @Share("holder") LocalRef<ElementHolder> ref) {
         var x = BlockBoundAttachment.get(world, pos);
-        if (x != null && x.getBlockState().getBlock() instanceof BlockWithElementHolder holder) {
-            var transformed = holder.createMovingElementHolder((ServerWorld) world, pos, x.getBlockState(), x.holder());
+        if (x != null) {
+            var holder = BlockWithElementHolder.get(x.getBlockState());
+            if (holder != null) {
+                var transformed = holder.createMovingElementHolder((ServerWorld) world, pos, x.getBlockState(), x.holder());
 
-            if (transformed != null) {
-                if (transformed == x.holder()) {
-                    x.holder().setAttachment(null);
-                    x.destroy();
+                if (transformed != null) {
+                    if (transformed == x.holder()) {
+                        x.holder().setAttachment(null);
+                        x.destroy();
+                    }
+                    ref.set(transformed);
                 }
-                ref.set(transformed);
             }
         }
     }

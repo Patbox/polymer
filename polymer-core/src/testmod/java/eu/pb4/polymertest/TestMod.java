@@ -19,6 +19,7 @@ import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.model.ModelAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
+import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -279,7 +280,7 @@ public class TestMod implements ModInitializer {
         PolymerItemGroupUtils.registerPolymerItemGroup(Identifier.of("test:group"), ITEM_GROUP);
         registerItem(Identifier.of("bugged", "wooden_sword"), (s) -> new BuggedItem(s));
 
-
+        PolymerItemUtils.enableStonecutterFix();
 
 
         Registry.register(Registries.STATUS_EFFECT, Identifier.of("test", "effect"), STATUS_EFFECT);
@@ -521,6 +522,9 @@ public class TestMod implements ModInitializer {
         if (PolymerImpl.IS_CLIENT) {
             InternalClientRegistry.decodeState(-1);
         }
+
+        BlockWithElementHolder.registerOverlay(Blocks.JUKEBOX, new JukeboxHolderCreator());
+        BlockWithElementHolder.registerOverlay(Blocks.NOTE_BLOCK, new NoteblockHolderCreator());
 
         new Thread(() -> {
             var vanillaJar = PolymerCommonUtils.getClientJarRoot();
