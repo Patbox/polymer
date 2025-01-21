@@ -16,13 +16,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerCommonNetworkHandler.class)
+@Mixin(value = ServerCommonNetworkHandler.class, priority = 1100)
 public abstract class ServerCommonNetworkHandlerMixin implements CommonNetworkHandlerExt {
     @Shadow @Final protected ClientConnection connection;
     @Unique
     private boolean polymerCommon$ignoreNextStatus = false;
 
-    @Inject(method = "onResourcePackStatus", at = @At("TAIL"))
+    @Inject(method = "onResourcePackStatus", at = @At("HEAD"))
     private void polymer$changeStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
         if (!CommonImplUtils.disableResourcePackCheck) {
             if (!this.polymerCommon$ignoreNextStatus) {
