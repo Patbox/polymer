@@ -51,7 +51,7 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
         }
     }
 
-    @Inject(method = "onResourcePackStatus", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onResourcePackStatus", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerCommonNetworkHandler;onResourcePackStatus(Lnet/minecraft/network/packet/c2s/common/ResourcePackStatusC2SPacket;)V", shift = At.Shift.AFTER), cancellable = true)
     private void onStatus(ResourcePackStatusC2SPacket packet, CallbackInfo ci) {
         if (this.currentTask instanceof AutoHostTask task) {
             if (task.onStatus((ServerConfigurationNetworkHandler) (Object) this, packet.id(), packet.status())) {
