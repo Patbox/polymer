@@ -41,6 +41,8 @@ public final class PolymerBlockUtils {
     public static final BooleanEvent<MineEventListener> SERVER_SIDE_MINING_CHECK = new BooleanEvent<>();
     public static final SimpleEvent<BreakingProgressListener> BREAKING_PROGRESS_UPDATE = new SimpleEvent<>();
     public static final BooleanEvent<PolymerBlockInteractionListener> POLYMER_BLOCK_INTERACTION_CHECK = new BooleanEvent<>();
+
+    public static final BooleanEvent<BlockEntitySyncListener> BLOCK_ENTITY_SYNC_PREVENT = new BooleanEvent<>();
     /**
      * This event allows you to force syncing of light updates between server and clinet
      */
@@ -192,5 +194,10 @@ public final class PolymerBlockUtils {
     @FunctionalInterface
     public interface PolymerBlockInteractionListener {
         boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult);
+    }
+
+    @FunctionalInterface
+    public interface BlockEntitySyncListener {
+        boolean preventBlockEntitySync(BlockEntityType<?> type, BlockPos pos, NbtCompound nbt, PacketContext context);
     }
 }
