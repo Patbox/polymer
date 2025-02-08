@@ -25,13 +25,18 @@ public abstract class PotionContentsComponentMixin implements TransformingCompon
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Shadow @Final private Optional<RegistryEntry<Potion>> potion;
 
+    @Shadow @Final private Optional<String> customName;
+
+    @Shadow public abstract Optional<RegistryEntry<Potion>> potion();
+
     @Override
     public Object polymer$getTransformed(PacketContext context) {
         if (!polymer$requireModification(context)) {
             return this;
         }
 
-        return new PotionContentsComponent(Optional.empty(), Optional.of(this.getColor()), List.of(), Optional.empty());
+        return new PotionContentsComponent(Optional.empty(), Optional.of(this.getColor()), List.of(),
+                this.customName.or(() -> this.potion().map(RegistryEntry::value).map(Potion::getBaseName)));
     }
 
     @Override
