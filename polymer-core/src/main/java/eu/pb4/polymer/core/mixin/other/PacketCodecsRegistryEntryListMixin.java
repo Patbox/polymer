@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 @Mixin(targets = "net/minecraft/network/codec/PacketCodecs$20", priority = 500)
 public abstract class PacketCodecsRegistryEntryListMixin {
-    @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Lnet/minecraft/registry/entry/RegistryEntryList;)V", at = @At("HEAD"), argsOnly = true)
+    /*@ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Lnet/minecraft/registry/entry/RegistryEntryList;)V", at = @At("HEAD"), argsOnly = true)
     private RegistryEntryList polymer$changeData(RegistryEntryList registryEntryList, RegistryByteBuf registryByteBuf) {
         if (registryEntryList.getTagKey().isEmpty()) {
             var player = PacketContext.get();
@@ -35,7 +35,7 @@ public abstract class PacketCodecsRegistryEntryListMixin {
                     }
 
                     arr.add(Registries.SOUND_EVENT.getEntry(replacement));
-                } */
+                } *//*
 
                 if (val.value() instanceof SoundEvent soundEvent && RegistrySyncUtils.isServerEntry(Registries.SOUND_EVENT, soundEvent)) {
                     arr.add(RegistryEntry.of(val.value()));
@@ -46,6 +46,6 @@ public abstract class PacketCodecsRegistryEntryListMixin {
         }
 
         return registryEntryList;
-    }
+    }*/
 
 }

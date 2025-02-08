@@ -13,7 +13,7 @@
   },
   "license": "LGPLv3",
   "icon": "assets/icon.png",
-  "environment": "server",
+  "environment": "*",
   "depends": {
     "polymer-resource-pack": ">=${version}",
     "polymer-common": ">=${version}",
