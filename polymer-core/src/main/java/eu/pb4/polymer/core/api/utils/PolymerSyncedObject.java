@@ -39,7 +39,7 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
     }
 
 
-    static <T> void getSyncedObject(Registry<T> registry, T obj, PolymerSyncedObject<T> object) {
+    static <T> void setSyncedObject(Registry<T> registry, T obj, PolymerSyncedObject<T> object) {
         //noinspection unchecked
         ((RegistryExtension<T>) registry).polymer$setOverlay(obj, object);
     }

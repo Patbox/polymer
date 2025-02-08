@@ -24,7 +24,7 @@ import java.util.List;
 @SuppressWarnings({"rawtypes", "unchecked"})
 @Mixin(targets = "net/minecraft/network/codec/PacketCodecs$20", priority = 500)
 public abstract class PacketCodecsRegistryEntryListMixin {
-    @Shadow @Final private RegistryKey field_54511;
+    /*@Shadow @Final private RegistryKey field_54511;
 
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Lnet/minecraft/registry/entry/RegistryEntryList;)V", at = @At("HEAD"), argsOnly = true)
     private RegistryEntryList polymer$changeData(RegistryEntryList registryEntryList, RegistryByteBuf registryByteBuf) {
@@ -53,6 +53,6 @@ public abstract class PacketCodecsRegistryEntryListMixin {
         }
 
         return registryEntryList;
-    }
+    }*/
 
 }
