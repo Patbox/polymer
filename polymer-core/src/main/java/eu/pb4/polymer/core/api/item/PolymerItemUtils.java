@@ -11,6 +11,7 @@ import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.TransformingComponent;
@@ -169,7 +170,7 @@ public final class PolymerItemUtils {
     public static ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipContext, PacketContext context) {
         if (getPolymerIdentifier(itemStack) != null) {
             return itemStack;
-        } else if (itemStack.getItem() instanceof PolymerItem item) {
+        } else if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, itemStack.getItem()) instanceof PolymerItem item) {
             return item.getPolymerItemStack(itemStack, tooltipContext, context);
         } else if (isPolymerServerItem(itemStack, context)) {
             return createItemStack(itemStack, tooltipContext, context);
@@ -308,7 +309,7 @@ public final class PolymerItemUtils {
         if (getPolymerIdentifier(itemStack) != null) {
             return false;
         }
-        if (itemStack.getItem() instanceof PolymerItem) {
+        if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, itemStack.getItem()) instanceof PolymerItem) {
             return true;
         }
 
@@ -363,7 +364,7 @@ public final class PolymerItemUtils {
         Item item = itemStack.getItem();
         Identifier model = null;
         boolean storeCount;
-        if (itemStack.getItem() instanceof PolymerItem virtualItem) {
+        if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, itemStack.getItem()) instanceof PolymerItem virtualItem) {
             var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, context);
             item = data.item();
             storeCount = virtualItem.shouldStorePolymerItemStackCount();
@@ -397,7 +398,7 @@ public final class PolymerItemUtils {
             }
         }
 
-        if (itemStack.getItem() instanceof PolymerItem polymerItem) {
+        if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, itemStack.getItem()) instanceof PolymerItem polymerItem) {
             polymerItem.modifyBasePolymerItemStack(out, itemStack, context);
         }
 
@@ -466,8 +467,8 @@ public final class PolymerItemUtils {
             if (!tooltip.isEmpty()) {
                 tooltip.removeFirst();
 
-                if (itemStack.getItem() instanceof PolymerItem) {
-                    ((PolymerItem) itemStack.getItem()).modifyClientTooltip(tooltip, itemStack, context);
+                if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, itemStack.getItem()) instanceof PolymerItem polymerItem) {
+                    polymerItem.modifyClientTooltip(tooltip, itemStack, context);
                 }
                 if (!tooltip.isEmpty()) {
                     var lore = new ArrayList<Text>();
@@ -511,7 +512,7 @@ public final class PolymerItemUtils {
         PolymerItem lastVirtual = item;
 
         int req = 0;
-        while (out instanceof PolymerItem newItem && newItem != item && req < maxDistance) {
+        while (PolymerSyncedObject.getSyncedObject(Registries.ITEM, out) instanceof PolymerItem newItem && newItem != item && req < maxDistance) {
             out = newItem.getPolymerItem(stack, context);
             lastVirtual = newItem;
             req++;
@@ -540,7 +541,7 @@ public final class PolymerItemUtils {
     }
 
     public static boolean isPolymerItemInteraction(ServerPlayerEntity player, ItemStack stack, Hand hand, ServerWorld world, ActionResult actionResult) {
-        if (stack.getItem() instanceof PolymerItem polymerItem && polymerItem.isPolymerItemInteraction(player, hand, stack, world, actionResult)) {
+        if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isPolymerItemInteraction(player, hand, stack, world, actionResult)) {
             return true;
         }
         return POLYMER_ITEM_INTERACTION_CHECK.invoke((x) -> x.isPolymerItemInteraction(player, hand, stack, world, actionResult));

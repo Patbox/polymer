@@ -28,7 +28,7 @@ public abstract class PacketCodecsRegistryMixin {
 
         if (val instanceof RegistryEntry<?> registryEntry) {
             var value = registryEntry.value();
-            var obj = PolymerSyncedObject.getSyncedObjectDefinition(reg, value);
+            var obj = PolymerSyncedObject.getSyncedObject(reg, value);
 
             if (obj != null) {
                 var replacement = obj.getPolymerReplacement(player);
@@ -39,7 +39,7 @@ public abstract class PacketCodecsRegistryMixin {
                 }
             }
         } else {
-            var obj = PolymerSyncedObject.getSyncedObjectDefinition(reg, val);
+            var obj = PolymerSyncedObject.getSyncedObject(reg, val);
             if (obj != null) {
                 var replacement = obj.getPolymerReplacement(player);
 

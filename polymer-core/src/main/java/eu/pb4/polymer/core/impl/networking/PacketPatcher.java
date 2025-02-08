@@ -8,7 +8,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
-import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
@@ -111,9 +111,11 @@ public class PacketPatcher {
     public static boolean prevent(ServerCommonNetworkHandler handler, Packet<?> packet) {
         if (handler.getClass() == ServerPlayNetworkHandler.class) {
             var player = PacketContext.create(handler);
+            //noinspection DataFlowIssue
             if ((
                     packet instanceof StatusEffectPacketExtension packet2
-                            && ((packet2.polymer$getStatusEffect() instanceof PolymerStatusEffect pol && pol.getPolymerReplacement(player) == null))
+                            && ((PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, packet2.polymer$getStatusEffect()) != null
+                            && PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, packet2.polymer$getStatusEffect()).getPolymerReplacement(player) == null))
             ) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())
             ) {
                 return true;

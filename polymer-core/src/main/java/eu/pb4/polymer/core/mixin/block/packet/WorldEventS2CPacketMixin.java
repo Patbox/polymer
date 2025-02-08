@@ -1,22 +1,17 @@
 package eu.pb4.polymer.core.mixin.block.packet;
 
-import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.block.Block;
 import net.minecraft.network.packet.s2c.play.WorldEventS2CPacket;
+import net.minecraft.registry.Registries;
 import net.minecraft.world.WorldEvents;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(WorldEventS2CPacket.class)
@@ -29,7 +24,7 @@ public class WorldEventS2CPacketMixin {
             var state = Block.getStateFromRawId(data);
             var player = PacketContext.get();
 
-            if (state.getBlock() instanceof PolymerBlock polymerBlock) {
+            if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
                 state =  PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,
                         PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, player);
             }

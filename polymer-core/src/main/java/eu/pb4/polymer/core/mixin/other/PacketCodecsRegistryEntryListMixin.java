@@ -4,7 +4,6 @@ package eu.pb4.polymer.core.mixin.other;
 import eu.pb4.polymer.core.api.other.PolymerSoundEvent;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.registry.Registries;
@@ -37,7 +36,7 @@ public abstract class PacketCodecsRegistryEntryListMixin {
             for (var i = 0; i < registryEntryList.size(); i++) {
                 var val = registryEntryList.get(i);
 
-                var obj = PolymerSyncedObject.getSyncedObjectDefinition(reg, val);
+                var obj = PolymerSyncedObject.getSyncedObject(reg, val);
                 if (obj instanceof PolymerSoundEvent syncedObject) {
                     var replacement = syncedObject.getPolymerReplacement(player);
                     if (replacement != null) {

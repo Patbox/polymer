@@ -2,13 +2,13 @@ package eu.pb4.polymer.core.mixin.block;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -85,7 +85,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.polymer$currentBreakingProgress = 0;
                 var ogDelta = state.calcBlockBreakingDelta(this.player, this.world, pos);;
-                if (state.getBlock() instanceof PolymerBlock virtualBlock) {
+                if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock virtualBlock) {
                     state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PacketContext.create(this.player));
                 }
 
