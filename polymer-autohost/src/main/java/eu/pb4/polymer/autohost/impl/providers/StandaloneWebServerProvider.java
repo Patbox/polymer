@@ -117,7 +117,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
         public String _c1 = "Port used internally to run http server";
         public int port = 25567;
         public String _c2 = "Public address used for sending requests";
-        @SerializedName("external_address")
+        @SerializedName(value = "external_address", alternate = {"forced_address", "address"})
         public String externalAddress = "http://localhost:25567/";
 
         public JsonElement toJson() {

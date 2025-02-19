@@ -211,7 +211,7 @@ public class PolymerServerProtocol {
             handler.sendPacket(new CustomPayloadS2CPacket(new PolymerItemGroupContentClearS2CPayload(id)));
 
             try {
-                var entry = PolymerItemGroupContentAddS2CPayload.of(group, handler);
+                var entry = PolymerItemGroupContentAddS2CPayload.of(version, group, handler);
                 if (entry.isNonEmpty()) {
                     handler.sendPacket(new CustomPayloadS2CPacket(entry));
                 }

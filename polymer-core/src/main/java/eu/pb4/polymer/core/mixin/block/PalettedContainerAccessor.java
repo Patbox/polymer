@@ -10,13 +10,4 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface PalettedContainerAccessor<T> {
     @Accessor
     PalettedContainer.Data<T> getData();
-
-    @Accessor
-    PalettedContainer.PaletteProvider getPaletteProvider();
-
-    @Invoker
-    void callSet(int index, T value);
-
-    @Invoker
-    T callGet(int index);
 }

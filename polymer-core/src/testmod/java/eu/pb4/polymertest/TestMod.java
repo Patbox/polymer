@@ -469,6 +469,8 @@ public class TestMod implements ModInitializer {
         }
 
         ItemGroupEvents.modifyEntriesEvent(RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of("op_blocks"))).register(entries -> {
+            entries.add(MARKER_TEST);
+            entries.prepend(CAMERA_ITEM);
             entries.addAfter(Items.DEBUG_STICK, TEST_ENTITY_EGG);
         });
 
@@ -518,10 +520,6 @@ public class TestMod implements ModInitializer {
         PolymerItemUtils.syncDefaultComponent(Items.CHAINMAIL_HELMET, DataComponentTypes.EQUIPPABLE);
 
         PolymerComponent.registerDataComponent(TEST, CLIENT_ITEM);
-
-        if (PolymerImpl.IS_CLIENT) {
-            InternalClientRegistry.decodeState(-1);
-        }
 
         BlockWithElementHolder.registerOverlay(Blocks.JUKEBOX, new JukeboxHolderCreator());
         BlockWithElementHolder.registerOverlay(Blocks.NOTE_BLOCK, new NoteblockHolderCreator());

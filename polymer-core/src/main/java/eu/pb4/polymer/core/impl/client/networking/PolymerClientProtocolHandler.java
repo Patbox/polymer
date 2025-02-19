@@ -35,10 +35,7 @@ import net.minecraft.nbt.NbtByte;
 import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.*;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -94,22 +91,21 @@ public class PolymerClientProtocolHandler {
 
         registerCommonHandler(PolymerGenericListPayload.class, PolymerClientProtocolHandler::handleGenericList);
 
-        registerGenericListHandler(S2CPackets.SYNC_BLOCK, PolymerBlockEntry.class, (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), Registries.BLOCK.get(entry.identifier()))));
+        registerGenericListHandler(S2CPackets.SYNC_BLOCK, PolymerBlockEntry.class, (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), getNonDefault(Registries.BLOCK, entry.identifier()))));
         registerGenericListHandler(S2CPackets.SYNC_ITEM, PolymerItemEntry.class, (entry) -> {
-                    var regEntry = Registries.ITEM.getEntry(entry.identifier());
 
                     InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
                             new ClientPolymerItem(
                                     entry.identifier(),
                                     entry.representation(),
-                                    regEntry.isPresent() ? regEntry.get().value() : null
+                                    getNonDefault(Registries.ITEM, entry.identifier())
                             ));
                 });
         registerGenericListHandler(S2CPackets.SYNC_BLOCKSTATE, PolymerBlockStateEntry.class,
                 (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.properties(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.properties(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
 
         registerGenericListHandler(S2CPackets.SYNC_ENTITY, PolymerEntityEntry.class,
-                (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), Registries.ENTITY_TYPE.get(entry.identifier()))));
+                (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), getNonDefault(Registries.ENTITY_TYPE, entry.identifier()))));
 
         registerGenericListHandler(S2CPackets.SYNC_VILLAGER_PROFESSION, InternalClientRegistry.VILLAGER_PROFESSIONS, Registries.VILLAGER_PROFESSION);
         registerGenericListHandler(S2CPackets.SYNC_BLOCK_ENTITY, InternalClientRegistry.BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
@@ -138,6 +134,10 @@ public class PolymerClientProtocolHandler {
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.of(MathHelper.ceilLog2(Block.STATE_IDS.size())));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.of(SharedConstants.getProtocolVersion()));
         });
+    }
+
+    private static <T> T getNonDefault(DefaultedRegistry<T> registry, Identifier identifier) {
+        return registry.containsId(identifier) ? registry.get(identifier) : null;
     }
 
     private static <T> void registerGenericListHandler(Identifier id, Class<T> targetClass, Consumer<T> consumer) {
@@ -243,13 +243,7 @@ public class PolymerClientProtocolHandler {
                 if (group != null) {
                     var groupAccess = (ClientItemGroupExtension) group;
 
-                    for (var stack : payload.stacksMain()) {
-                        groupAccess.polymer$addStackGroup(stack);
-                    }
-
-                    for (var stack : payload.stacksSearch()) {
-                        groupAccess.polymer$addStackSearch(stack);
-                    }
+                    groupAccess.polymer$handleEntries(payload.stacksMain(), payload.stacksSearch());
                 }
             });
         }

@@ -21,9 +21,6 @@ public class ServerConfig {
     public String _c15 = "Changes stonecutter a bit to fix custom recipes not working with it.";
     @SerializedName("force_enable_stonecutter_fix")
     public boolean stonecutterFix = false;
-    public String _c4 = "Enables experimental passing of ItemStack context through nbt, allowing for better mod compat";
-    @SerializedName("item_stack_nbt_hack")
-    public boolean itemStackNbtHack = true;
     public String _c13 = "Replaces PolyMc's block and item interaction handling with Polymer ones";
     @SerializedName("override_polymc_mining_check")
     public boolean overridePolyMcMining = false;

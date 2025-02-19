@@ -38,7 +38,7 @@ public class NettyProvider extends AbstractProvider {
     }
 
     public static class Config {
-        @SerializedName("forced_address")
+        @SerializedName(value = "forced_address", alternate = {"address", "external_address"})
         public String forcedAddress = "";
     }
 }

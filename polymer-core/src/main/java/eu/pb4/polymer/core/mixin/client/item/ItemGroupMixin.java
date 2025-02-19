@@ -1,29 +1,24 @@
 package eu.pb4.polymer.core.mixin.client.item;
 
 import eu.pb4.polymer.common.impl.client.ClientUtils;
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
-import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
+import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerItemGroupContentAddS2CPayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemStackSet;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("ConstantConditions")
 @Environment(EnvType.CLIENT)
@@ -41,6 +36,9 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
 
     @Unique private final List<ItemStack> polymer$itemsGroup = new ArrayList<>();
     @Unique private final List<ItemStack> polymer$itemsSearch = new ArrayList<>();
+
+    @Unique private final List<PolymerItemGroupContentAddS2CPayload.Entry> polymer$entriesMain = new ArrayList<>();
+    @Unique private final List<PolymerItemGroupContentAddS2CPayload.Entry> polymer$entriesSearch = new ArrayList<>();
     @Unique
     private int polymerCore$page;
 
@@ -66,25 +64,77 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
             this.displayStacks.removeIf(PolymerImplUtils::removeFromItemGroup);
             this.searchTabStacks.removeIf(PolymerImplUtils::removeFromItemGroup);
 
-            this.displayStacks.addAll(this.polymer$itemsGroup);
-            this.searchTabStacks.addAll(this.polymer$itemsSearch);
+            if (!this.polymer$entriesMain.isEmpty()) {
+                applyGroups(this.displayStacks, this.polymer$entriesMain);
+            }
+
+            if (!this.polymer$entriesSearch.isEmpty()) {
+                applyGroups(this.displayStacks, this.polymer$entriesSearch);
+            }
         }
     }
 
-    @Override
-    public void polymer$addStackGroup(ItemStack stack) {
-        this.polymer$itemsGroup.add(stack);
+    @Unique
+    private static void applyGroups(Collection<ItemStack> stacks, List<PolymerItemGroupContentAddS2CPayload.Entry> entries) {
+        var set = new LinkedList<>(stacks);
+        for (var entry : entries) {
+            switch (entry.mode()) {
+                case INSERT_BEGINNING -> set.addAll(0, entry.stacks());
+                case INSERT_END -> set.addAll(entry.stacks());
+                case RELATIVE -> {
+                    boolean found = false;
+                    for (int i = 0; i < set.size() - 1; i++) {
+                        var stack = set.get(i);
+                        if (PolymerItemUtils.getServerIdentifier(stack) == null && ItemStack.areItemsAndComponentsEqual(stack, entry.relative())) {
+                            found = true;
+                            set.addAll(i + 1, entry.stacks());
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        if (PolymerItemUtils.getServerIdentifier(set.getLast()) == null && ItemStack.areItemsAndComponentsEqual(set.getLast(), entry.relative())) {
+                            set.addAll(entry.stacks());
+                        } else {
+                            for (int i = 0; i < set.size() - 1; i++) {
+                                var stack = set.get(i);
+                                if (PolymerItemUtils.getServerIdentifier(stack) == null && ItemStack.areItemsEqual(stack, entry.relative())) {
+                                    found = true;
+                                    set.addAll(i + 1, entry.stacks());
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                set.addAll(entry.stacks());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stacks.clear();
+        stacks.addAll(set);
     }
 
     @Override
-    public void polymer$addStackSearch(ItemStack stack) {
-        this.polymer$itemsSearch.add(stack);
+    public void polymer$handleEntries(List<PolymerItemGroupContentAddS2CPayload.Entry> main, List<PolymerItemGroupContentAddS2CPayload.Entry> search) {
+        this.polymer$entriesMain.addAll(main);
+        this.polymer$entriesSearch.addAll(search);
+        for (var entry : main) {
+            this.polymer$itemsGroup.addAll(entry.stacks());
+        }
+        for (var entry : search) {
+            this.polymer$itemsSearch.addAll(entry.stacks());
+        }
     }
 
     @Override
     public void polymer$clearStacks() {
         this.polymer$itemsGroup.clear();
         this.polymer$itemsSearch.clear();
+        this.polymer$entriesMain.clear();
+        this.polymer$entriesSearch.clear();
     }
 
     @Override

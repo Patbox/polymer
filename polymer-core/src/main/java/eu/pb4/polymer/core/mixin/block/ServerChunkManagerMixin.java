@@ -49,7 +49,7 @@ public abstract class ServerChunkManagerMixin {
     @Nullable
     public abstract WorldChunk getWorldChunk(int chunkX, int chunkZ);
 
-    @Inject(method = "tickChunks", at = @At("TAIL"))
+    @Inject(method = "tickChunks()V", at = @At("TAIL"))
     private void polymer$sendChunkUpdates(CallbackInfo ci) {
         if (this.polymer$scheduledLightUpdates.isEmpty()) {
             return;
@@ -86,6 +86,7 @@ public abstract class ServerChunkManagerMixin {
         });
     }
 
+    @Unique
     private List<ServerPlayerEntity> getPlayersWatchingChunk(ChunkPos chunkPos) {
         if (CompatStatus.IMMERSIVE_PORTALS) {
             return ImmersivePortalsUtils.getPlayerTracking(this.world.getRegistryKey(), chunkPos);

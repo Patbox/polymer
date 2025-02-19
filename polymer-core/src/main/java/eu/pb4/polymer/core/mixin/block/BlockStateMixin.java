@@ -40,7 +40,6 @@ public abstract class BlockStateMixin implements BlockStateExtra {
 
 
         this.polymer$calculatedIsLight = true;
-
         return false;
     }
 

@@ -19,24 +19,24 @@ import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
 @ApiStatus.Internal
 public class S2CPackets {
     public static final Identifier SYNC_STARTED = id("sync/started");
-    public static final Identifier SYNC_FINISHED= id("sync/finished");
-    public static final Identifier SYNC_BLOCK= id("sync/blocks");
+    public static final Identifier SYNC_FINISHED = id("sync/finished");
+    public static final Identifier SYNC_BLOCK = id("sync/blocks");
     public static final Identifier SYNC_BLOCK_ENTITY = id("sync/block_entities");
     public static final Identifier SYNC_ITEM = id("sync/items");
     public static final Identifier SYNC_FLUID = id("sync/fluid");
     public static final Identifier SYNC_ENTITY = id("sync/entities");
     public static final Identifier SYNC_STATUS_EFFECT= id("sync/status_effect");
-    public static final Identifier SYNC_VILLAGER_PROFESSION= id("sync/villager_profession");
-    public static final Identifier SYNC_ITEM_GROUP_DEFINE= id("sync/item_group/define");
-    public static final Identifier SYNC_ITEM_GROUP_REMOVE= id("sync/item_group/remove");
-    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_ADD= id("sync/item_group/contents/add");
-    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_CLEAR= id("sync/item_group/contents/clear");
-    public static final Identifier SYNC_BLOCKSTATE= id("sync/blockstate");
-    public static final Identifier SYNC_TAGS= id("sync/tags");
+    public static final Identifier SYNC_VILLAGER_PROFESSION = id("sync/villager_profession");
+    public static final Identifier SYNC_ITEM_GROUP_DEFINE = id("sync/item_group/define");
+    public static final Identifier SYNC_ITEM_GROUP_REMOVE = id("sync/item_group/remove");
+    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_ADD = id("sync/item_group/contents/add");
+    public static final Identifier SYNC_ITEM_GROUP_CONTENTS_CLEAR = id("sync/item_group/contents/clear");
+    public static final Identifier SYNC_BLOCKSTATE = id("sync/blockstate");
+    public static final Identifier SYNC_TAGS = id("sync/tags");
     public static final Identifier SYNC_ITEM_GROUP_APPLY_UPDATE = id("sync/item_group/apply_update");
-    public static final Identifier SYNC_CLEAR= id("sync/clear_all");
-    public static final Identifier WORLD_SET_BLOCK_UPDATE= id("world/set_block");
-    public static final Identifier WORLD_CHUNK_SECTION_UPDATE= id("world/section");
+    public static final Identifier SYNC_CLEAR = id("sync/clear_all");
+    public static final Identifier WORLD_SET_BLOCK_UPDATE = id("world/set_block");
+    public static final Identifier WORLD_CHUNK_SECTION_UPDATE = id("world/section");
     public static final Identifier WORLD_ENTITY = id("world/entity");
 
     public static final Identifier DEBUG_VALIDATE_STATES = id("debug/validate_states");
@@ -87,7 +87,7 @@ public class S2CPackets {
         register(SYNC_ITEM_GROUP_DEFINE, PolymerItemGroupDefineS2CPayload.CODEC,9);
         register(SYNC_ITEM_GROUP_CONTENTS_CLEAR, PolymerItemGroupContentClearS2CPayload.CODEC, 9);
         register(SYNC_ITEM_GROUP_REMOVE, PolymerItemGroupRemoveS2CPayload.CODEC,9);
-        register(SYNC_ITEM_GROUP_CONTENTS_ADD, PolymerItemGroupContentAddS2CPayload.CODEC,9);
+        register(SYNC_ITEM_GROUP_CONTENTS_ADD, PolymerItemGroupContentAddS2CPayload.CODEC,9, 10);
         register(SYNC_ITEM_GROUP_APPLY_UPDATE, PolymerItemGroupApplyUpdateS2CPayload::new, 9);
 
         register(WORLD_SET_BLOCK_UPDATE, PolymerBlockUpdateS2CPayload.CODEC,9);

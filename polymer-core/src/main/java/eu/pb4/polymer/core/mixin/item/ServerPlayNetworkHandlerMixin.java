@@ -6,6 +6,7 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.LastActionResultStorer;
@@ -46,6 +47,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nucleoid.packettweaker.PacketContext;
 
+import java.util.EnumSet;
 import java.util.List;
 
 @Mixin(value = ServerPlayNetworkHandler.class, priority = 1200)
@@ -66,6 +68,10 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @Unique
     @Nullable
     private ActionSource lastActionSource = null;
+
+    @Unique
+    private final EnumSet<Hand> itemActionUsedHands = EnumSet.noneOf(Hand.class);
+
 
     public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData clientData) {
         super(server, connection, clientData);
@@ -133,6 +139,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             this.lastActionResult = original;
             this.lastActionSource = ActionSource.ITEM;
         }
+        this.itemActionUsedHands.add(hand);
         return original;
     }
 
@@ -150,8 +157,11 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             try {
                 var seq = Math.max(this.sequence, 0);
                 for (var hand : Hand.values()) {
-                    this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(hand, seq, this.player.getYaw(), this.player.getPitch()));
+                    if (!this.itemActionUsedHands.contains(hand)) {
+                        this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(hand, seq, this.player.getYaw(), this.player.getPitch()));
+                    }
                 }
+                this.itemActionUsedHands.clear();
             } catch (Throwable e) {
                 //noinspection CallToPrintStackTrace
                 e.printStackTrace();

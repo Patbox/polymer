@@ -62,7 +62,7 @@ public class TestItem extends SimplePolymerItem {
     public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
         var x = super.getPolymerItemStack(itemStack, tooltipType, context);
         x.set(DataComponentTypes.RARITY, Rarity.EPIC);
-        x.set(DataComponentTypes.CONSUMABLE, new ConsumableComponent(context.getPlayer() != null && context.getPlayer().isCreative() ? Float.POSITIVE_INFINITY : 3, UseAction.BOW,
+        x.set(DataComponentTypes.CONSUMABLE, new ConsumableComponent(context.getPlayer() != null && context.getPlayer().isCreative() ? Float.MAX_VALUE : 3, UseAction.BOW,
                 Registries.SOUND_EVENT.getEntry(SoundEvents.INTENTIONALLY_EMPTY), false, List.of()));
         return x;
     }

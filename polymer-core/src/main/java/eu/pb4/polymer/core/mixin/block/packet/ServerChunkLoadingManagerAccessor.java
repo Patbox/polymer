@@ -13,13 +13,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ServerChunkLoadingManager.class)
 public interface ServerChunkLoadingManagerAccessor {
-
-    @Accessor("world")
-    ServerWorld polymer$getWorld();
-
-    @Accessor("watchDistance")
-    int polymer$getWatchDistance();
-
     @Accessor("entityTrackers")
     Int2ObjectMap<ServerChunkLoadingManager.EntityTracker> polymer$getEntityTrackers();
 }

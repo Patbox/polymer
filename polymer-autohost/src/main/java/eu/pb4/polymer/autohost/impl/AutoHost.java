@@ -2,10 +2,7 @@ package eu.pb4.polymer.autohost.impl;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
-import eu.pb4.polymer.autohost.impl.providers.AbstractProvider;
-import eu.pb4.polymer.autohost.impl.providers.EmptyProvider;
-import eu.pb4.polymer.autohost.impl.providers.NettyProvider;
-import eu.pb4.polymer.autohost.impl.providers.StandaloneWebServerProvider;
+import eu.pb4.polymer.autohost.impl.providers.*;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
@@ -20,7 +17,6 @@ import net.minecraft.util.Identifier;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -104,10 +100,12 @@ public class AutoHost implements ModInitializer {
     public void onInitialize() {
         ResourcePackDataProvider.register(Identifier.of("polymer", "automatic"), NettyProvider::new);
         ResourcePackDataProvider.register(Identifier.of("polymer", "auto"), NettyProvider::new);
+
         ResourcePackDataProvider.register(Identifier.of("polymer", "netty"), NettyProvider::new);
         ResourcePackDataProvider.register(Identifier.of("polymer", "same_port"), NettyProvider::new);
         ResourcePackDataProvider.register(Identifier.of("polymer", "http_server"), StandaloneWebServerProvider::new);
         ResourcePackDataProvider.register(Identifier.of("polymer", "standalone"), StandaloneWebServerProvider::new);
+        ResourcePackDataProvider.register(Identifier.of("polymer", "external"), ExternalProvider::new);
         ResourcePackDataProvider.register(Identifier.of("polymer", "empty"), EmptyProvider::new);
 
         CommonImplUtils.registerCommands((c) -> c.then(literal("generate-pack")

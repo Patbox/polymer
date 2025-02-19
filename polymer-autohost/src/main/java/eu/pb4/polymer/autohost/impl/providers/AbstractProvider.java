@@ -46,7 +46,11 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
             isPackReady = true;
         });
 
-        PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendMessage, () -> {});
+        try {
+            PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendMessage, () -> {});
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
+        }
     }
 
     @Override

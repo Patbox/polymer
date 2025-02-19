@@ -194,24 +194,6 @@ public class InternalClientRegistry {
         return instance.getOrThrow(i);
     }
 
-    public static BlockState decodeState(int rawId) {
-        BlockState state = InternalClientRegistry.getRealBlockState(rawId);
-
-        if (state == null) {
-            state = Block.STATE_IDS.get(rawId);
-        }
-
-        if (state == null) {
-            if (Block.STATE_IDS.size() != 0) {
-                errorDecode(rawId, "BlockState ID");
-            }
-
-            return Blocks.AIR.getDefaultState();
-        }
-
-        return state;
-    }
-
     private static Item decodeItem(int id) {
         if (InternalClientRegistry.enabled) {
             var item = InternalClientRegistry.ITEMS.get(id);
@@ -239,16 +221,6 @@ public class InternalClientRegistry {
 
             return null;
         });
-    }
-
-    private static void errorDecode(int rawId, String type) {
-        if (PolymerImpl.LOG_INVALID_SERVER_IDS_CLIENT) {
-            PolymerImpl.LOGGER.error("Invalid " + type + " (" + rawId + ")! Couldn't match it with any existing value!");
-            var stack = Thread.currentThread().getStackTrace();
-            if (stack.length > 3) {
-                PolymerImpl.LOGGER.error("Caused by: " + stack[3].toString());
-            }
-        }
     }
 
     public static void tick() {
