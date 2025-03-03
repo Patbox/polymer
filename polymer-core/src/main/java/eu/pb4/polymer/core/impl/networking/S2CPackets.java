@@ -25,7 +25,9 @@ public class S2CPackets {
     public static final Identifier SYNC_ITEM = id("sync/items");
     public static final Identifier SYNC_FLUID = id("sync/fluid");
     public static final Identifier SYNC_ENTITY = id("sync/entities");
-    public static final Identifier SYNC_STATUS_EFFECT= id("sync/status_effect");
+    public static final Identifier SYNC_STATUS_EFFECT = id("sync/status_effect");
+    public static final Identifier SYNC_DATA_COMPONENT_TYPE = id("sync/data_component_type");
+    public static final Identifier SYNC_ENCHANTMENT_COMPONENT_TYPE = id("sync/enchantment_component_type");
     public static final Identifier SYNC_VILLAGER_PROFESSION = id("sync/villager_profession");
     public static final Identifier SYNC_ITEM_GROUP_DEFINE = id("sync/item_group/define");
     public static final Identifier SYNC_ITEM_GROUP_REMOVE = id("sync/item_group/remove");
@@ -63,6 +65,8 @@ public class S2CPackets {
     public static final CustomPayload.Id<PolymerGenericListPayload<DebugBlockStateEntry>> DEBUG_VALIDATE_STATES_ID;
     public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_FLUID_ID;
     public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_VILLAGER_PROFESSION_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_DATA_COMPONENT_TYPE_ID;
+    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_ENCHANTMENT_COMPONENT_TYPE_ID;
     public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_BLOCK_ENTITY_ID;
     public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_STATUS_EFFECT_ID;
 
@@ -78,6 +82,9 @@ public class S2CPackets {
         SYNC_TAGS_ID = registerList(SYNC_TAGS, PolymerTagEntry.CODEC, 9);
         DEBUG_VALIDATE_STATES_ID = registerList(DEBUG_VALIDATE_STATES, DebugBlockStateEntry.CODEC, 9);
 
+
+        SYNC_DATA_COMPONENT_TYPE_ID = registerList(SYNC_DATA_COMPONENT_TYPE, IdValueEntry.CODEC, 9);
+        SYNC_ENCHANTMENT_COMPONENT_TYPE_ID = registerList(SYNC_ENCHANTMENT_COMPONENT_TYPE, IdValueEntry.CODEC, 9);
         SYNC_FLUID_ID = registerList(SYNC_FLUID, IdValueEntry.CODEC, 9);
         SYNC_VILLAGER_PROFESSION_ID = registerList(SYNC_VILLAGER_PROFESSION, IdValueEntry.CODEC, 9);
         SYNC_BLOCK_ENTITY_ID = registerList(SYNC_BLOCK_ENTITY, IdValueEntry.CODEC, 9);

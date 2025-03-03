@@ -199,9 +199,11 @@ public final class PolymerResourcePackUtils {
 
     static {
         INSTANCE.creationEvent.register((builder) -> {
-            if (!PolymerResourcePackImpl.PREVENTED_PATHS.isEmpty()) {
+            var config = PolymerResourcePackImpl.loadConfig();
+
+            if (!config.preventedPaths.isEmpty()) {
                 builder.addWriteConverter((path, data) -> {
-                    for (var test : PolymerResourcePackImpl.PREVENTED_PATHS) {
+                    for (var test : config.preventedPaths) {
                         if (path.startsWith(test)) {
                             return null;
                         }
@@ -223,12 +225,12 @@ public final class PolymerResourcePackUtils {
             }
 
             try {
-                for (var field : PolymerResourcePackImpl.INCLUDE_MOD_IDS) {
+                for (var field : config.includeModAssets) {
                     builder.copyAssets(field);
                 }
                 var gamePath = FabricLoader.getInstance().getGameDir();
 
-                for (var field : PolymerResourcePackImpl.INCLUDE_ZIPS) {
+                for (var field : config.includeZips) {
                     var zipPath = gamePath.resolve(field);
 
                     if (Files.exists(zipPath)) {

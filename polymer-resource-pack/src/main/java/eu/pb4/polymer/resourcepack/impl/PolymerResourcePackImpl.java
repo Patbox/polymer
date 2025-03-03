@@ -12,16 +12,13 @@ import java.util.UUID;
 
 public class PolymerResourcePackImpl {
     public static final boolean FORCE_REQUIRE;
-    public static final List<String> INCLUDE_MOD_IDS;
-    public static final List<String> INCLUDE_ZIPS;
     public static final UUID MAIN_UUID;
     public static final Path DEFAULT_PATH;
     public static final String FILE_NAME;
-    public static final List<String> PREVENTED_PATHS;
 
 
     static {
-        var config = CommonImpl.loadConfig("resource-pack", Config.class);
+        var config = loadConfig();
 
         DEFAULT_PATH = FabricLoader.getInstance().getGameDir().resolve(config.resourcePackPath);
         FILE_NAME = config.resourcePackPath;
@@ -29,11 +26,10 @@ public class PolymerResourcePackImpl {
         MAIN_UUID = config.mainUuid;
 
         FORCE_REQUIRE = config.markResourcePackAsRequiredByDefault || CompatStatus.POLYMC;
+    }
 
-        INCLUDE_MOD_IDS = config.includeModAssets;
-
-        INCLUDE_ZIPS = config.includeZips;
-        PREVENTED_PATHS = config.preventedPaths;
+    public static Config loadConfig() {
+        return CommonImpl.loadConfig("resource-pack", Config.class);
     }
 
 

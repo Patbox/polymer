@@ -31,7 +31,7 @@ public class AutoHostConfig {
     public String _c6 = "Disconnect message in case of failure";
     @SerializedName("disconnect_message")
     public JsonElement disconnectMessage = new JsonPrimitive("Couldn't apply server resourcepack!");
-    public String _c8 = "Allows to define more external resource packs. It's an object with \"id\" for uuid, \"url\" for the pack url and \"hash\" for the SHA1 hash.";
+    public String _c8 = "Allows to define more external resource packs. It's an object with 'id' for uuid, 'url' for the pack url and 'hash' for the SHA1 hash.";
     @SerializedName("external_resource_packs")
     public List<ExternalResourcePack> externalResourcePacks = new ArrayList<>();
     public String _c9 = "Moves resource pack generation earlier when running on server. Might break some mods.";

@@ -6,10 +6,10 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.LastActionResultStorer;
+import eu.pb4.polymer.core.impl.networking.BlockPacketUtil;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.other.ActionSource;
 import eu.pb4.polymer.core.mixin.entity.LivingEntityAccessor;
@@ -60,6 +60,9 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
 
     @Shadow
     private int sequence;
+
+    @Shadow public abstract void updateSequence(int sequence);
+
     @Unique
     private String polymerCore$language;
     @Unique
@@ -128,6 +131,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     private void preventItemUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
         if (this.lastActionResult != null && this.lastActionResult != ActionResult.PASS) {
             this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, this.player.getStackInHand(packet.getHand())));
+            this.server.execute(() -> this.updateSequence(packet.getSequence()));
             ci.cancel();
         }
     }
@@ -155,7 +159,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     private void onClientTickEndedPolymer(ClientTickEndC2SPacket packet, CallbackInfo ci) {
         if (this.lastActionSource != ActionSource.ITEM && this.lastActionResult == ActionResult.PASS) {
             try {
-                var seq = Math.max(this.sequence, 0);
+                var seq = this.sequence != -1 ? this.sequence : Integer.MAX_VALUE;
                 for (var hand : Hand.values()) {
                     if (!this.itemActionUsedHands.contains(hand)) {
                         this.onPlayerInteractItem(new PlayerInteractItemC2SPacket(hand, seq, this.player.getYaw(), this.player.getPitch()));
@@ -186,16 +190,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         if (PolymerImpl.RESEND_BLOCKS_AROUND_CLICK) {
             var base = packet.getBlockHitResult().getBlockPos();
             for (Direction direction : Direction.values()) {
-                var pos = base.offset(direction);
-                var state = player.getServerWorld().getBlockState(pos);
-                player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
-
-                if (state.hasBlockEntity()) {
-                    var be = player.getWorld().getBlockEntity(pos);
-                    if (be != null) {
-                        player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
-                    }
-                }
+                BlockPacketUtil.sendUpdate(this.player, base.offset(direction));
             }
         }
     }

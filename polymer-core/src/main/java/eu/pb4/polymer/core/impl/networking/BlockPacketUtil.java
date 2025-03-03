@@ -9,10 +9,12 @@ import eu.pb4.polymer.core.mixin.block.packet.BlockUpdateS2CPacketAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ChunkDeltaUpdateS2CPacketAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.WorldChunk;
@@ -50,6 +52,18 @@ public class BlockPacketUtil {
 
     public static void splitChunkDelta(ServerPlayNetworkHandler handler, ChunkDeltaUpdateS2CPacket cPacket) {
         cPacket.visitUpdates((blockPos, blockState) -> handler.sendPacket(new BlockUpdateS2CPacket(blockPos.toImmutable(), blockState)));
+    }
+
+    public static void sendUpdate(ServerPlayerEntity player, BlockPos pos) {
+        var state = player.getServerWorld().getBlockState(pos);
+        player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
+
+        if (state.hasBlockEntity()) {
+            var be = player.getWorld().getBlockEntity(pos);
+            if (be != null) {
+                player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
+            }
+        }
     }
 
     private record SendSingleBlockInfo(ServerPlayNetworkHandler handler, BlockPos pos, BlockState blockState) implements Runnable {

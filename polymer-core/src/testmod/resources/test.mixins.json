@@ -9,6 +9,7 @@
     "BootstrapMixin",
     "DisplayEntityAccessor",
     "EntityAccessor",
+    "EntityMixin",
     "ItemDisplayEntityAccessor",
     "OctavePerlinNoiseSamplerMixin",
     "PlayerEntityMixin",

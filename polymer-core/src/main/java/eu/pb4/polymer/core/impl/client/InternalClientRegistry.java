@@ -33,6 +33,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.component.ComponentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
@@ -78,8 +79,10 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntry<StatusEffect>> STATUS_EFFECT = new ImplPolymerRegistry<>("status_effect", "SE");
     public static final ImplPolymerRegistry<ClientPolymerEntry<Fluid>> FLUID = new ImplPolymerRegistry<>("fluid", "FL");
     public static final ImplPolymerRegistry<ClientPolymerEntry<ScreenHandlerType<?>>> SCREEN_HANDLER = new ImplPolymerRegistry<>("screen_handler", "SH");
+    public static final ImplPolymerRegistry<ClientPolymerEntry<ComponentType<?>>> DATA_COMPONENT_TYPE = new ImplPolymerRegistry<>("data_component_type", "DC");
+    public static final ImplPolymerRegistry<ClientPolymerEntry<ComponentType<?>>> ENCHANTMENT_COMPONENT_TYPE = new ImplPolymerRegistry<>("enchantment_component_type", "EC");
     public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>("item_groups", "IG");
-    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, FLUID, SCREEN_HANDLER, ITEM_GROUPS);
+    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, FLUID, SCREEN_HANDLER, ITEM_GROUPS, DATA_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
     public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId(BY_VANILLA);
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
@@ -102,7 +105,8 @@ public class InternalClientRegistry {
         map.put(Registries.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
         map.put(Registries.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
         map.put(Registries.FLUID, FLUID);
-        map.put(Registries.SCREEN_HANDLER, SCREEN_HANDLER);
+        map.put(Registries.DATA_COMPONENT_TYPE, DATA_COMPONENT_TYPE);
+        map.put(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
         return (Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
@@ -183,6 +187,8 @@ public class InternalClientRegistry {
         setSimpleDecoder(Registries.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
         setSimpleDecoder(Registries.FLUID, FLUID);
         setSimpleDecoder(Registries.SCREEN_HANDLER, SCREEN_HANDLER);
+        setSimpleDecoder(Registries.DATA_COMPONENT_TYPE, DATA_COMPONENT_TYPE);
+        setSimpleDecoder(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
     }
 
 

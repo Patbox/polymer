@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.api.other;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.other.PolymerComponentImpl;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.component.ComponentType;
@@ -24,11 +25,13 @@ public interface PolymerComponent extends PolymerObject {
     }
 
     static boolean isPolymerComponent(ComponentType<?> type) {
-        return PolymerComponentImpl.UNSYNCED_COMPONENTS.contains(type);
+        return PolymerComponentImpl.UNSYNCED_COMPONENTS.contains(type) || type instanceof PolymerObject;
     }
 
     static boolean canSync(ComponentType<?> key, @Nullable Object entry, PacketContext context) {
         if (entry instanceof PolymerComponent component && component.canSyncRawToClient(context)) {
+            return true;
+        } else if (key instanceof PolymerSyncedObject<?> syncedObject && syncedObject.canSyncRawToClient(context)) {
             return true;
         }
 

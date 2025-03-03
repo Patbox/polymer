@@ -1,8 +1,10 @@
 package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
@@ -147,6 +149,8 @@ public class PolymerServerProtocol {
         sendSync(handler, S2CPackets.SYNC_STATUS_EFFECT_ID, Registries.STATUS_EFFECT);
         sendSync(handler, S2CPackets.SYNC_BLOCK_ENTITY_ID, Registries.BLOCK_ENTITY_TYPE);
         sendSync(handler, S2CPackets.SYNC_FLUID_ID, Registries.FLUID);
+        sendSync(handler, S2CPackets.SYNC_DATA_COMPONENT_TYPE_ID, Registries.DATA_COMPONENT_TYPE);
+        sendSync(handler, S2CPackets.SYNC_ENCHANTMENT_COMPONENT_TYPE_ID, Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE);
 
         if (fullSync) {
             sendSync(handler, S2CPackets.SYNC_TAGS_ID, (Registry<Registry<Object>>) Registries.REGISTRIES, true, PolymerTagEntry::of);
@@ -277,7 +281,8 @@ public class PolymerServerProtocol {
             var entries = new ArrayList<A>();
             var ctx = PacketContext.create(handler);
             for (var entry : iterable) {
-                if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(ctx))) {
+                if (!bypassPolymerCheck || (entry instanceof PolymerSyncedObject<?> obj && obj.canSynchronizeToPolymerClient(ctx))
+                || (!(entry instanceof PolymerSyncedObject<?>) && PolymerUtils.isServerOnly(entry))) {
                     var val = writableFunction.serialize(entry, handler, version);
                     if (val != null) {
                         entries.add(val);

@@ -111,6 +111,8 @@ public class PolymerClientProtocolHandler {
         registerGenericListHandler(S2CPackets.SYNC_BLOCK_ENTITY, InternalClientRegistry.BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
         registerGenericListHandler(S2CPackets.SYNC_STATUS_EFFECT, InternalClientRegistry.STATUS_EFFECT, Registries.STATUS_EFFECT);
         registerGenericListHandler(S2CPackets.SYNC_FLUID, InternalClientRegistry.FLUID, Registries.FLUID);
+        registerGenericListHandler(S2CPackets.SYNC_DATA_COMPONENT_TYPE, InternalClientRegistry.DATA_COMPONENT_TYPE, Registries.DATA_COMPONENT_TYPE);
+        registerGenericListHandler(S2CPackets.SYNC_ENCHANTMENT_COMPONENT_TYPE, InternalClientRegistry.ENCHANTMENT_COMPONENT_TYPE, Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE);
 
 
         registerGenericListHandler(S2CPackets.SYNC_TAGS, PolymerTagEntry.class, PolymerClientProtocolHandler::registerTag);
