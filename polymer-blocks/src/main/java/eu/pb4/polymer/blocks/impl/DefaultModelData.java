@@ -232,6 +232,13 @@ public class DefaultModelData {
             }
         }
 
+        {
+            addScaffolding(false, false, BlockModelType.TOP_SCAFFOLDING);
+            addScaffolding(true, false, BlockModelType.BOTTOM_SCAFFOLDING);
+            addScaffolding(false, true, BlockModelType.TOP_SCAFFOLDING_WATERLOGGED);
+            addScaffolding(true, true, BlockModelType.BOTTOM_SCAFFOLDING_WATERLOGGED);
+        }
+
         if (false && PolymerImpl.DEV_ENV) {
             PolymerImpl.LOGGER.info("===== Available States =====");
             for (var model : BlockModelType.values()) {
@@ -448,6 +455,28 @@ public class DefaultModelData {
         }
 
         DefaultModelData.USABLE_STATES.put(modelType, list);
+    }
+
+    private static void addScaffolding(boolean bottom, boolean waterlogged, BlockModelType modelType) {
+
+        var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/scaffolding_" + (bottom ? "unstable" : "stable")))};
+        var list = new ReferenceArrayList<BlockState>();
+
+        for (int i = 0; i <= 7; i++) {
+            var state = Blocks.SCAFFOLDING.getDefaultState()
+                .with(ScaffoldingBlock.BOTTOM, bottom)
+                .with(ScaffoldingBlock.WATERLOGGED, waterlogged)
+                .with(ScaffoldingBlock.DISTANCE, i);
+
+            MODELS.put(state, model);
+
+            if (i != 7 && !(bottom && i == 0)) {
+                list.add(state);
+                SPECIAL_REMAPS.put(state, state.with(ScaffoldingBlock.DISTANCE, 7));
+            }
+        }
+
+        USABLE_STATES.put(modelType, list);
     }
 
     private static void generateDefault(BlockModelType type, Block... blocks) {
