@@ -1,6 +1,7 @@
 package eu.pb4.polymer.blocks.impl;
 
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import io.github.theepicblock.polymc.api.PolyMcEntrypoint;
 import io.github.theepicblock.polymc.api.PolyRegistry;
 import io.github.theepicblock.polymc.api.resource.ModdedResources;
@@ -14,7 +15,7 @@ public class PolyMcResourceEntrypoint implements PolyMcEntrypoint {
     @Override
     public void registerPolys(PolyRegistry registry) {
         for (var block : Registries.BLOCK) {
-            if (block instanceof PolymerTexturedBlock) {
+            if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, block) instanceof PolymerTexturedBlock) {
                 registry.registerBlockPoly(block, new PolymerTextureBlockPoly());
             }
         }

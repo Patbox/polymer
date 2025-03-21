@@ -4,6 +4,7 @@ import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
@@ -192,7 +193,7 @@ public final class PolymerEntityUtils {
     public static boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, Entity entity, ActionResult actionResult) {
         if (entity instanceof PolymerEntity polymerEntity && polymerEntity.isPolymerEntityInteraction(player, hand, stack, world, actionResult)) {
             return true;
-        } else if (stack.getItem() instanceof PolymerItem polymerItem && polymerItem.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult)) {
+        } else if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult)) {
             return true;
         }
 

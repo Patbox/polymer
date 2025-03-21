@@ -1,11 +1,13 @@
 package eu.pb4.polymer.core.impl.ui;
 
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -38,7 +40,7 @@ public class PotionUi extends MicroUi {
                 return;
             }
             ItemStack icon;
-            if (effectInstance.getEffectType() instanceof PolymerStatusEffect polymerStatusEffect) {
+            if (PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, effectInstance.getEffectType().value()) instanceof PolymerStatusEffect polymerStatusEffect) {
                 icon = polymerStatusEffect.getPolymerIcon(this.player);
                 if (icon == null) {
                     continue;

@@ -524,6 +524,9 @@ public class TestMod implements ModInitializer {
         BlockWithElementHolder.registerOverlay(Blocks.JUKEBOX, new JukeboxHolderCreator());
         BlockWithElementHolder.registerOverlay(Blocks.NOTE_BLOCK, new NoteblockHolderCreator());
 
+        BlockWithElementHolder.registerOverlay(Blocks.JUKEBOX, new JukeboxHolderCreator());
+        BlockWithElementHolder.registerOverlay(Blocks.NOTE_BLOCK, new NoteblockHolderCreator());
+
         new Thread(() -> {
             var vanillaJar = PolymerCommonUtils.getClientJarRoot();
             var itemsBase = vanillaJar.resolve("/assets/minecraft/items/");

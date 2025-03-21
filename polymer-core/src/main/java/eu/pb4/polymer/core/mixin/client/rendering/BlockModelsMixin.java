@@ -2,12 +2,14 @@ package eu.pb4.polymer.core.mixin.client.rendering;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.utils.PolymerKeepModel;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.render.block.BlockModels;
 import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,6 +29,6 @@ public class BlockModelsMixin {
 
     @ModifyVariable(method = "getModel", at = @At("HEAD"), require = 0, argsOnly = true)
     private BlockState polymer$replaceBlockState(BlockState state) {
-        return state.getBlock() instanceof PolymerBlock block && !PolymerKeepModel.is(block) ? Blocks.AIR.getDefaultState() : state;
+        return PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock block && !PolymerKeepModel.is(block) ? Blocks.AIR.getDefaultState() : state;
     }
 }

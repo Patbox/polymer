@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.impl;
 
 import eu.pb4.polymer.common.impl.CompatStatus;
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
@@ -19,21 +19,14 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.registry.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -133,7 +126,7 @@ public class PolymerImplUtils {
                 msg.accept("");
 
                 for (var state : Block.STATE_IDS) {
-                    msg.accept(Block.STATE_IDS.getRawId(state) + " | " + getAsString(state) + " | Polymer? " + (state.getBlock() instanceof PolymerBlock));
+                    msg.accept(Block.STATE_IDS.getRawId(state) + " | " + getAsString(state) + " | Polymer? " + (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock())));
                 }
             }
 

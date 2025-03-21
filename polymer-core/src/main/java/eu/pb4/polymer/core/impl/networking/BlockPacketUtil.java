@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.networking;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.ChunkDataS2CPacketInterface;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
@@ -13,6 +14,7 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -37,7 +39,7 @@ public class BlockPacketUtil {
                 while (iterator.hasNext()) {
                     var pos = iterator.next();
                     var blockState = wc.getBlockState(pos);
-                    if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
+                    if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, blockState.getBlock()) instanceof PolymerBlock polymerBlock) {
                         polymerBlock.onPolymerBlockSend(blockState, pos, ctx);
                     }
                 }
@@ -70,7 +72,7 @@ public class BlockPacketUtil {
         @Override
         public void run() {
             PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
-            if (blockState.getBlock() instanceof PolymerBlock polymerBlock) {
+            if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, blockState.getBlock()) instanceof PolymerBlock polymerBlock) {
                 polymerBlock.onPolymerBlockSend(blockState, pos.mutableCopy(), PacketContext.create(handler));
             }
         }
@@ -90,8 +92,9 @@ public class BlockPacketUtil {
                 BlockState blockState = blockStates[i];
                 blockPos.set(chunkPos.unpackBlockX(localPos[i]), chunkPos.unpackBlockY(localPos[i]), chunkPos.unpackBlockZ(localPos[i]));
 
-                if (blockState.getBlock() instanceof PolymerBlock) {
-                    ((PolymerBlock) blockState.getBlock()).onPolymerBlockSend(blockState, blockPos, ctx);
+
+                if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, blockState.getBlock()) instanceof PolymerBlock polymerBlock) {
+                    polymerBlock.onPolymerBlockSend(blockState, blockPos, ctx);
                 }
             }
         }

@@ -3,10 +3,10 @@ package eu.pb4.polymer.core.impl.other;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import net.minecraft.block.Block;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.registry.Registries;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
@@ -15,7 +15,7 @@ public class BlockMapperImpl {
     public static final BlockMapper DEFAULT = new BlockMapper() {
         @Override
         public BlockState toClientSideState(BlockState state, PacketContext player) {
-            return state.getBlock() instanceof PolymerBlock polymerBlock ? PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player) : state;
+            return PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock ? PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player) : state;
         }
 
         @Override
