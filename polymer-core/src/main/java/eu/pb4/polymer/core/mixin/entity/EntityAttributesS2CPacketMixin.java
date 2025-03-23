@@ -52,11 +52,12 @@ public abstract class EntityAttributesS2CPacketMixin implements PossiblyInitialP
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;tuple(Lnet/minecraft/network/codec/PacketCodec;Ljava/util/function/Function;Lnet/minecraft/network/codec/PacketCodec;Ljava/util/function/Function;Ljava/util/function/BiFunction;)Lnet/minecraft/network/codec/PacketCodec;"))
     private static PacketCodec<RegistryByteBuf, EntityAttributesS2CPacket> patchCodec(PacketCodec<RegistryByteBuf, EntityAttributesS2CPacket> original) {
         return TransformingPacketCodec.encodeOnly(original, (buf, packet) -> {
-            if (EntityAttachedPacket.get(packet, packet.getEntityId()) instanceof PolymerEntity entity) {
+            if (PolymerEntity.get(EntityAttachedPacket.get(packet, packet.getEntityId())) instanceof PolymerEntity entity) {
                 var context = PacketContext.get();
                 var type = entity.getPolymerEntityType(context);
                 var p = new EntityAttributesS2CPacket(packet.getEntityId(), List.of());
                 var list = ((EntityAttributesS2CPacketAccessor) p).getEntries();
+                //noinspection unchecked
                 var vanillaContainer = DefaultAttributeRegistry.get((EntityType<? extends LivingEntity>) type);
                 var data = new ArrayList<>(packet.getEntries());
                 entity.modifyRawEntityAttributeData(data, context.getPlayer(), ((PossiblyInitialPacket) packet).polymer$getInitial());

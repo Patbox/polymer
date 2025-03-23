@@ -18,7 +18,7 @@ public interface AECAccessor {
         throw new AssertionError();
     }
 
-    @Accessor("PARTICLE_ID")
+    @Accessor("PARTICLE")
     static TrackedData<ParticleEffect> getParticle() {
         throw new AssertionError();
     }

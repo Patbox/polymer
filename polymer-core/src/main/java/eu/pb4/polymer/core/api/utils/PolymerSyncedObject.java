@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.utils;
 
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import net.minecraft.registry.Registry;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +17,7 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
      * @param context target context
      * @return a replacement. It shouldn't be a null unless specified otherwise
      */
-    T getPolymerReplacement(PacketContext context);
+    T getPolymerReplacement(T object, PacketContext context);
 
     /**
      * Allows to gate syncing of this object with clients running polymer
@@ -45,11 +46,12 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
     }
 
     @Nullable
-    static <T> PolymerSyncedObject<T> getSyncedObject(@Nullable Registry<T> registry, T obj) {
+    static <T> PolymerSyncedObject<T> getSyncedObject(Registry<T> registry, T obj) {
         if (obj instanceof PolymerSyncedObject<?> instance) {
             //noinspection unchecked
             return (PolymerSyncedObject<T>) instance;
         }
+
         return registry instanceof RegistryExtension<?> extension ? ((RegistryExtension<T>) extension).polymer$getOverlay(obj) : null;
     }
 

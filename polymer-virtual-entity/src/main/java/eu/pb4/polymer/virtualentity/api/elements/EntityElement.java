@@ -33,7 +33,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     public EntityElement(T entity, ServerWorld world, InteractionHandler handler) {
         this.entity = entity;
-        this.entry = new EntityTrackerEntry(world, this.entity, 1, false, this::sendPacket);
+        this.entry = new EntityTrackerEntry(world, this.entity, 1, false, this::sendPacket, (a, b) -> this.sendPacket(a));
         this.setInteractionHandler(handler);
     }
 
@@ -136,7 +136,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
             equipmentChanges.forEach((slot, stack) -> {
                 ItemStack itemStack = stack.copy();
                 list.add(Pair.of(slot, itemStack));
-                ac.callSetSyncedArmorStack(slot, itemStack);
+                //ac.callSetSyncedArmorStack(slot, itemStack);
             });
 
             this.sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));

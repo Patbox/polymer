@@ -40,7 +40,7 @@ import java.util.function.Function;
  * Use this only if you know what you are doing and you need to do sync/packets before player joins a world.
  */
 
-public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener, ContextProvidingPacketListener {
+public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, TickablePacketListener, ContextProvidingPacketListener, PlayStateFactories.PacketCodecModifierContext {
 
     public static void register(Function<Context, EarlyPlayNetworkHandler> constructor) {
         EarlyPlayConnectionMagic.register(constructor);
@@ -61,7 +61,7 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
         this.context = (EarlyPlayConnectionMagic.ContextImpl) context;
         this.identifier = identifier;
 
-        this.context.connection().transitionInbound(PlayStateFactories.C2S.bind(RegistryByteBuf.makeFactory(this.getServer().getRegistryManager())),
+        this.context.connection().transitionInbound(PlayStateFactories.C2S.bind(RegistryByteBuf.makeFactory(this.getServer().getRegistryManager()), this),
                 this);
 
         this.sendKeepAlive();
@@ -431,6 +431,16 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     }
 
     @Override
+    public void onSetTestBlock(SetTestBlockC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onTestInstanceBlockAction(TestInstanceBlockActionC2SPacket packet) {
+
+    }
+
+    @Override
     public void onSelectMerchantTrade(SelectMerchantTradeC2SPacket packet) {
 
     }
@@ -518,6 +528,11 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     @Override
     public void onCookieResponse(CookieResponseC2SPacket packet) {
 
+    }
+
+    @Override
+    public boolean isInCreativeMode() {
+        return false;
     }
 
     @ApiStatus.NonExtendable

@@ -4,10 +4,9 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.networking.TransformingPacketCodec;
 import eu.pb4.polymer.core.impl.other.ComponentChangesMap;
-import net.minecraft.component.ComponentMap;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.predicate.ComponentPredicate;
+import net.minecraft.predicate.component.ComponentMapPredicate;
 import net.minecraft.village.TradedItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,11 +19,11 @@ public class TradedItemMixin {
         return new TransformingPacketCodec<>(original, (buf, tradedItem) -> {
             var input = tradedItem.itemStack();
             var stack = PolymerItemUtils.getPolymerItemStack(input, PacketContext.get());
-            return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
+            return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentMapPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
         }, (buf, tradedItem) -> {
             var input = tradedItem.itemStack();
             var stack = PolymerItemUtils.getRealItemStack(input, buf.getRegistryManager());
-            return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
+            return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentMapPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
         });
     }
 }

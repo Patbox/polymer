@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.api.entity;
 
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.impl.interfaces.PolymerEntityProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -17,6 +18,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
@@ -97,5 +99,9 @@ public interface PolymerEntity extends PolymerObject {
 
     default boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, ActionResult actionResult) {
         return true;
+    }
+    @Nullable
+    static PolymerEntity get(@Nullable Entity entity) {
+        return entity != null ? ((PolymerEntityProvider) entity).polymer$getPolymerEntity() : null;
     }
 }

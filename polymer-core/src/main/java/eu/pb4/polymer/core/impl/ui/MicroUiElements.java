@@ -21,7 +21,6 @@ public class MicroUiElements {
 
     static {
         EMPTY = Items.GRAY_STAINED_GLASS_PANE.getDefaultStack();
-        EMPTY.set(DataComponentTypes.HIDE_TOOLTIP, Unit.INSTANCE);
 
         BUTTON_PREVIOUS = Items.GREEN_STAINED_GLASS_PANE.getDefaultStack();
         BUTTON_PREVIOUS.set(DataComponentTypes.CUSTOM_NAME, Text.translatable("spectatorMenu.previous_page").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GREEN)));

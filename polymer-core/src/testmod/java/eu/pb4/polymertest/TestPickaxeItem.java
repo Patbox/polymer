@@ -1,18 +1,18 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.item.*;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
-public class TestPickaxeItem extends PickaxeItem implements VanillaModeledPolymerItem {
+public class TestPickaxeItem extends Item implements VanillaModeledPolymerItem {
 
     public TestPickaxeItem(Item polymerItem, ToolMaterial material, int attackDamage, float attackSpeed, Settings settings) {
-        super(material, attackDamage, attackSpeed, settings);
+        super(settings.tool(material, BlockTags.PICKAXE_MINEABLE, attackDamage, attackSpeed, 0));
     }
 
     @Override

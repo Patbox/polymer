@@ -67,7 +67,7 @@ dependencies {
 
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
 
-    modCompileOnly("xyz.nucleoid:server-translations-api:2.4.0+1.21.2-rc1")
+    modCompileOnly("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1")
 
     modCompileOnly 'com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4'
 

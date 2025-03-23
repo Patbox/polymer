@@ -23,7 +23,7 @@ public class FabricFluids {
         var renderer = new FluidRenderHandler() {
             @Override
             public Sprite[] getFluidSprites(@Nullable BlockRenderView view, @Nullable BlockPos pos, FluidState state) {
-                return new Sprite[] { MinecraftClient.getInstance().getBakedModelManager().getMissingBlockModel().getParticleSprite() };
+                return new Sprite[] { MinecraftClient.getInstance().getBakedModelManager().getMissingModel().particleSprite() };
             }
         };
 

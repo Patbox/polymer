@@ -14,12 +14,11 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.decoration.Brightness;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
@@ -151,7 +150,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
             data.add(DataTracker.SerializedEntry.of(SCALE, this.scale));
             if (this.tater) {
                 data.add(DataTracker.SerializedEntry.of(ITEM, TestMod.TATER_BLOCK_ITEM.getDefaultStack()));
-                data.add(DataTracker.SerializedEntry.of(ITEM_DISPLAY, ModelTransformationMode.FIXED.getIndex()));
+                data.add(DataTracker.SerializedEntry.of(ITEM_DISPLAY, ItemDisplayContext.FIXED.getIndex()));
             } else {
                 data.add(DataTracker.SerializedEntry.of(BLOCK_STATE, this.blockState));
             }

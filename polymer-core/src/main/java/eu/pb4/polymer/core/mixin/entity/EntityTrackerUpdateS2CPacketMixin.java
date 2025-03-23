@@ -12,6 +12,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.registry.Registries;
 import net.minecraft.village.VillagerData;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -45,7 +46,8 @@ public class EntityTrackerUpdateS2CPacketMixin implements PossiblyInitialPacket 
         var entries = new ArrayList<DataTracker.SerializedEntry<?>>();
         var player = PacketContext.get();
 
-        if (entity instanceof PolymerEntity polymerEntity && InternalEntityHelpers.canPatchTrackedData(player.getPlayer(), entity)) {
+        var polymerEntity = PolymerEntity.get(entity);
+        if (polymerEntity != null && InternalEntityHelpers.canPatchTrackedData(player.getPlayer(), entity)) {
             var mod = trackedValues != null ? new ArrayList<>(trackedValues) : new ArrayList<DataTracker.SerializedEntry<?>>();
             polymerEntity.modifyRawTrackedData(mod, player.getPlayer(), this.isInitial);
 
@@ -69,17 +71,14 @@ public class EntityTrackerUpdateS2CPacketMixin implements PossiblyInitialPacket 
             entries.addAll(trackedValues);
         }
 
-        final var isMinecart = entity instanceof AbstractMinecartEntity;
         final var size = entries.size();
         for (int i = 0; i < size; i++) {
             var entry = entries.get(i);
 
-            if (isMinecart && entry.id() == AbstractMinecartEntityAccessor.getCUSTOM_BLOCK_ID().id()) {
-                entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), Block.getRawIdFromState(PolymerBlockUtils.getPolymerBlockState(Block.getStateFromRawId((int) entry.value()), player))));
-            } else if (entry.value() instanceof VillagerData data) {
-                var x = PolymerEntityUtils.getPolymerProfession(data.getProfession());
+            if (entry.value() instanceof VillagerData data) {
+                var x = PolymerEntityUtils.getPolymerProfession(data.profession().value());
                 if (x != null) {
-                    entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), data.withProfession(x.getPolymerProfession(data.getProfession(), player))));
+                    entries.set(i, new DataTracker.SerializedEntry(entry.id(), entry.handler(), data.withProfession(Registries.VILLAGER_PROFESSION.getEntry(x.getPolymerReplacement(data.profession().value(), player)))));
                 }
             }
         }

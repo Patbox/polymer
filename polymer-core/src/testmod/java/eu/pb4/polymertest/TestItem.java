@@ -2,6 +2,7 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.component.type.ConsumableComponent;
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.item.consume.UseAction;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TestItem extends SimplePolymerItem {
     private Random random = Random.create();
@@ -49,13 +51,13 @@ public class TestItem extends SimplePolymerItem {
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        super.appendTooltip(stack, context, tooltip, type);
+    public void appendTooltip(ItemStack stack, TooltipContext context, TooltipDisplayComponent displayComponent, Consumer<Text> textConsumer, TooltipType type) {
+        super.appendTooltip(stack, context, displayComponent, textConsumer, type);
         var builder = new StringBuilder();
         for (int i = 0; i < 255; i++) {
             builder.append("I");
         }
-        tooltip.add(Text.literal(builder.toString()));
+        textConsumer.accept(Text.literal(builder.toString()));
     }
 
     @Override

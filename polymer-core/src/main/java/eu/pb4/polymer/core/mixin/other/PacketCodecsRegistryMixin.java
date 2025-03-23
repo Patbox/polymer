@@ -12,18 +12,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$18", priority = 500)
+@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$20", priority = 500)
 public abstract class PacketCodecsRegistryMixin {
+    @Shadow @Final private RegistryKey field_57058;
+
     @SuppressWarnings({"rawtypes", "ShadowModifiers"})
-    @Shadow
-    @Final
-    private RegistryKey field_53746;
 
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Ljava/lang/Object;)V", at = @At("HEAD"), argsOnly = true)
     private Object polymer$changeData(Object val, RegistryByteBuf buf) {
         var player = PacketContext.get();
         //noinspection unchecked
-        var reg = buf.getRegistryManager().getOrThrow(this.field_53746);
+        var reg = buf.getRegistryManager().getOrThrow(this.field_57058);
 
 
         if (val instanceof RegistryEntry<?> registryEntry) {
@@ -31,7 +30,7 @@ public abstract class PacketCodecsRegistryMixin {
             var obj = PolymerSyncedObject.getSyncedObject(reg, value);
 
             if (obj != null) {
-                var replacement = obj.getPolymerReplacement(player);
+                var replacement = obj.getPolymerReplacement(value, player);
 
                 if (replacement != null) {
                     //noinspection unchecked
@@ -41,7 +40,7 @@ public abstract class PacketCodecsRegistryMixin {
         } else {
             var obj = PolymerSyncedObject.getSyncedObject(reg, val);
             if (obj != null) {
-                var replacement = obj.getPolymerReplacement(player);
+                var replacement = obj.getPolymerReplacement(val, player);
 
                 if (replacement != null) {
                     return replacement;

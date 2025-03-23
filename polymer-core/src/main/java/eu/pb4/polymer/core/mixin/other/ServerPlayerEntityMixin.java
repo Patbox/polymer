@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.mixin.other;
 
-import eu.pb4.polymer.core.impl.interfaces.ScreenHandlerPlayerContext;
+import eu.pb4.polymer.core.impl.interfaces.GenericPlayerContext;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +13,7 @@ public class ServerPlayerEntityMixin {
 
     @Inject(method = "onScreenHandlerOpened", at = @At("HEAD"))
     private void polymer$setPlayerContext(ScreenHandler screenHandler, CallbackInfo ci) {
-        if (screenHandler instanceof ScreenHandlerPlayerContext context) {
+        if (screenHandler instanceof GenericPlayerContext context) {
             context.polymer$setPlayer((ServerPlayerEntity) (Object) this);
         }
     }

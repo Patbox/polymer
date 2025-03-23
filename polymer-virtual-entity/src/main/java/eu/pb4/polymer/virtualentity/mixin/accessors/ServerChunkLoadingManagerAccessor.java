@@ -1,6 +1,8 @@
 package eu.pb4.polymer.virtualentity.mixin.accessors;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkLoadingManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -12,4 +14,7 @@ public interface ServerChunkLoadingManagerAccessor {
 
     @Accessor("watchDistance")
     int getWatchDistance();
+
+    @Accessor
+    Long2ObjectLinkedOpenHashMap<ChunkHolder> getChunkHolders();
 }

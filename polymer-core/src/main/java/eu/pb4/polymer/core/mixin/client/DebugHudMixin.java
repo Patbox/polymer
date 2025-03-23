@@ -1,5 +1,7 @@
 package eu.pb4.polymer.core.mixin.client;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.systems.GpuDevice;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
@@ -28,8 +30,8 @@ public abstract class DebugHudMixin {
 
     @Shadow @Final private MinecraftClient client;
 
-    @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymer$replaceBlockString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
+    @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 2))
+    private void polymer$replaceBlockString(CallbackInfoReturnable<List<String>> cir, @Local List<String> list) {
         if (this.blockHit.getType() == HitResult.Type.BLOCK && InternalClientRegistry.enabled) {
             var blockPos = ((BlockHitResult)this.blockHit).getBlockPos();
             var block = InternalClientRegistry.getBlockAt(blockPos);
@@ -50,7 +52,7 @@ public abstract class DebugHudMixin {
     }
 
     @Inject(method = "getRightText", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 9), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymer$replaceEntityString(CallbackInfoReturnable<List<String>> cir, long l, long m, long n, long o, List<String> list) {
+    private void polymer$replaceEntityString(CallbackInfoReturnable<List<String>> cir, @Local List<String> list) {
         if (this.client.targetedEntity != null && InternalClientRegistry.enabled) {
             var type = PolymerClientUtils.getEntityType(this.client.targetedEntity);
 

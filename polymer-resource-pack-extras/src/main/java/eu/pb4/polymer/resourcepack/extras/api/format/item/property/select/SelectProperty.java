@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.dynamic.Codecs;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public interface SelectProperty<T> {
@@ -24,15 +25,15 @@ public interface SelectProperty<T> {
         m.put(Identifier.ofVanilla("local_time"), LocalTimeProperty.TYPE);
         m.put(Identifier.ofVanilla("context_entity_type"), ContextEntityTypeProperty.TYPE);
         m.put(Identifier.ofVanilla("context_dimension"), ContextDimensionProperty.TYPE);
+        m.put(Identifier.ofVanilla("component"), ComponentSelectProperty.getTypeInstance());
     });
     Codec<Type<?, ?>> CODEC = TYPES.getCodec(Identifier.CODEC);
 
     Type<? extends SelectProperty<T>, T> type();
 
-    record Type<T extends SelectProperty<Y>, Y>(MapCodec<T> mainCodec, Codec<Y> valueCodec,
-                                                MapCodec<SelectItemModel.Switch<T, Y>> switchCodec) {
+    record Type<T extends SelectProperty<Y>, Y>(MapCodec<SelectItemModel.Switch<T, Y>> switchCodec) {
         public Type(MapCodec<T> mainCodec, Codec<Y> valueCodec) {
-            this(mainCodec, valueCodec, codec(mainCodec, valueCodec));
+            this(codec(mainCodec, valueCodec));
         }
 
         private static <Y, T extends SelectProperty<Y>> MapCodec<SelectItemModel.Switch<T, Y>> codec(MapCodec<T> mainCodec, Codec<Y> valueCodec) {
@@ -64,6 +65,10 @@ public interface SelectProperty<T> {
                             mainCodec.forGetter(SelectItemModel.Switch::property), codec.fieldOf("cases").forGetter(SelectItemModel.Switch::cases)
                     ).apply(instance, SelectItemModel.Switch::new)
             );
+        }
+
+        public static <T> MapCodec<List<SelectItemModel.Case<T>>> createCaseListCodec(Codec<T> conditionCodec) {
+            return SelectItemModel.Case.createCodec(conditionCodec).listOf().fieldOf("cases");
         }
     }
 

@@ -29,7 +29,7 @@ public class TestStatusEffect extends StatusEffect implements PolymerStatusEffec
     }
 
     @Override
-    public StatusEffect getPolymerReplacement(PacketContext context) {
+    public StatusEffect getPolymerReplacement(StatusEffect effect, PacketContext context) {
         return StatusEffects.CONDUIT_POWER.value();
     }
 }

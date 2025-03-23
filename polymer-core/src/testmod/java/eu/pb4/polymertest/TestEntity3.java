@@ -16,8 +16,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.Items;
-import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
@@ -69,9 +69,9 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         rightLeg.ignorePositionUpdates();
         torso.setInterpolationDuration(2);
         torso.ignorePositionUpdates();
-        leftLeg.setModelTransformation(ModelTransformationMode.FIXED);
-        rightLeg.setModelTransformation(ModelTransformationMode.FIXED);
-        torso.setModelTransformation(ModelTransformationMode.FIXED);
+        leftLeg.setItemDisplayContext(ItemDisplayContext.FIXED);
+        rightLeg.setItemDisplayContext(ItemDisplayContext.FIXED);
+        torso.setItemDisplayContext(ItemDisplayContext.FIXED);
         this.interaction.setSize(1.1f, 1.5f);
         this.interaction.ignorePositionUpdates();
         this.rideAnchor.ignorePositionUpdates();
@@ -93,6 +93,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
             return;
         }
 
+        this.updateLimbs(false);
         this.updateAnimation();
 
         this.holder.tick();
@@ -100,7 +101,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
 
     private void updateAnimation() {
         var speed = this.limbAnimator.getSpeed();
-        var limbPos = this.limbAnimator.getPos();
+        var limbPos = this.limbAnimator.getAnimationProgress();
         float f = ((float)this.deathTime) / 20.0F * 1.6F;
         f = MathHelper.sqrt(f);
         if (f > 1.0F) {
@@ -122,7 +123,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
 
         stack.clear();
         stack.translate(0, -0.2f, 0);
-        stack.rotateY((float) Math.toRadians(- MathHelper.lerpAngleDegrees(0.5f, this.prevBodyYaw, this.bodyYaw)) + (float) (0.00001f * Math.random()));
+        stack.rotateY((float) Math.toRadians(- MathHelper.lerpAngleDegrees(0.5f, this.lastYaw, this.getYaw())) + (float) (0.00001f * Math.random()));
         if (this.deathTime > 0) {
             stack.rotate(RotationAxis.POSITIVE_Z.rotation(f * MathHelper.HALF_PI));
         }

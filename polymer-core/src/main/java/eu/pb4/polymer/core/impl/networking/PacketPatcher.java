@@ -25,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
@@ -55,11 +56,15 @@ public class PacketPatcher {
 
     public static Packet<?> replace(ServerCommonNetworkHandler handler, Packet<?> packet) {
         if (handler instanceof ServerPlayNetworkHandler handler1) {
-            if (packet instanceof EntityEquipmentUpdateS2CPacket original && EntityAttachedPacket.get(original, original.getEntityId()) instanceof PolymerEntity polymerEntity) {
-                return EntityAttachedPacket.setIfEmpty(
-                        new EntityEquipmentUpdateS2CPacket(((Entity) polymerEntity).getId(), polymerEntity.getPolymerVisibleEquipment(original.getEquipmentList(), handler1.getPlayer())),
-                        (Entity) polymerEntity
-                );
+            if (packet instanceof EntityEquipmentUpdateS2CPacket original) {
+                var entity = EntityAttachedPacket.get(original, original.getEntityId());
+                var polymerEntity = PolymerEntity.get(entity);
+                if (polymerEntity != null) {
+                    return EntityAttachedPacket.setIfEmpty(
+                            new EntityEquipmentUpdateS2CPacket(entity.getId(), polymerEntity.getPolymerVisibleEquipment(original.getEquipmentList(), handler1.getPlayer())),
+                            entity
+                    );
+                }
             }
 
             if (packet instanceof BundleS2CPacket bundleS2CPacket) {
@@ -116,14 +121,14 @@ public class PacketPatcher {
             if ((
                     packet instanceof StatusEffectPacketExtension packet2
                             && ((PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, packet2.polymer$getStatusEffect()) != null
-                            && PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, packet2.polymer$getStatusEffect()).getPolymerReplacement(player) == null))
+                            && PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, packet2.polymer$getStatusEffect()).getPolymerReplacement(packet2.polymer$getStatusEffect(), player) == null))
             ) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())
             ) {
                 return true;
             } else if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())) {
                 return true;
             } else if ((packet instanceof EntityAttributesS2CPacket original
-                    && EntityAttachedPacket.get(packet, original.getEntityId()) instanceof PolymerEntity entity
+                    && PolymerEntity.get(EntityAttachedPacket.get(packet, original.getEntityId())) instanceof PolymerEntity entity
                     && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
                 return true;
             } else if (packet instanceof BlockEntityUpdateS2CPacket be) {
@@ -186,10 +191,8 @@ public class PacketPatcher {
 
         var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
 
-        if (original.contains("shared_data", NbtElement.COMPOUND_TYPE)) {
-            var shared = original.getCompound("shared_data");
-            if (shared.contains("display_item")) {
-                var itemNbt = shared.getCompound("display_item");
+        if (original.get("shared_data") instanceof NbtCompound shared) {
+            if (shared.get("display_item") instanceof NbtCompound itemNbt) {
                 var stack = silentItemStackFromNbt(lookup, itemNbt);
                 if (stack != null && PolymerItemUtils.isPolymerServerItem(stack, context)) {
                     //noinspection ConstantValue
@@ -198,8 +201,8 @@ public class PacketPatcher {
                     }
 
                     try {
-                        override.getCompound("shared_data").put("display_item",
-                                PolymerItemUtils.getPolymerItemStack(stack, context).toNbtAllowEmpty(lookup));
+                        override.getCompoundOrEmpty("shared_data").put("display_item",
+                                stack.isEmpty() ? new NbtCompound() : PolymerItemUtils.getPolymerItemStack(stack, context).toNbt(lookup));
                     } catch (Throwable e) {
                         e.printStackTrace();
                     }
@@ -208,10 +211,9 @@ public class PacketPatcher {
         }
 
 
-        if (original.contains("Items", NbtElement.LIST_TYPE)) {
-            var list = original.getList("Items", NbtElement.COMPOUND_TYPE);
+        if (original.get("Items") instanceof NbtList list) {
             for (int i = 0; i < list.size(); i++) {
-                var nbt = list.getCompound(i);
+                var nbt = list.getCompoundOrEmpty(i);
                 var stack = silentItemStackFromNbt(lookup, nbt);
                 if (stack != null && PolymerItemUtils.isPolymerServerItem(stack, context)) {
                     if (override == null) {
@@ -222,13 +224,12 @@ public class PacketPatcher {
                     nbt.remove("components");
                     nbt.remove("count");
                     stack = PolymerItemUtils.getPolymerItemStack(stack, context);
-                    override.getList("Items", NbtElement.COMPOUND_TYPE).set(i, stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup, nbt));
+                    override.getListOrEmpty("Items").set(i, stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup, nbt));
                 }
             }
         }
 
-        if (original.contains("item", NbtElement.COMPOUND_TYPE)) {
-            var nbt = original.getCompound("item");
+        if (original.get("item") instanceof NbtCompound nbt) {
             var stack = silentItemStackFromNbt(lookup, nbt);
             boolean variant = false;
             if (stack == null) {
@@ -243,15 +244,15 @@ public class PacketPatcher {
                 stack = PolymerItemUtils.getPolymerItemStack(stack, context);
                 override.put("item", variant
                         ? ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.encodeStart(lookup.getOps(NbtOps.INSTANCE), stack).getOrThrow()
-                        : stack.toNbtAllowEmpty(lookup)
+                        : (stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup))
                 );
             }
         }
 
-        if (original.contains("components", NbtElement.COMPOUND_TYPE)) {
+        if (original.get("components") instanceof NbtCompound compound) {
             var ops = lookup.getOps(NbtOps.INSTANCE);
 
-            var comp = ComponentMap.CODEC.decode(ops, original.getCompound("components"));
+            var comp = ComponentMap.CODEC.decode(ops, compound);
             if (comp.isSuccess()) {
                 var map = comp.getOrThrow().getFirst();
                 ComponentMap.Builder builder = null;

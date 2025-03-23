@@ -21,6 +21,7 @@ public interface BooleanProperty {
 		m.put(Identifier.of("extended_view"), ExtendedViewProperty.CODEC);
 		m.put(Identifier.of("keybind_down"), KeybindDownProperty.CODEC);
 		m.put(Identifier.of("view_entity"), ViewEntityProperty.CODEC);
+		m.put(Identifier.of("component"), ComponentBooleanProperty.CODEC);
 	});
 	MapCodec<BooleanProperty> CODEC = TYPES.getCodec(Identifier.CODEC).dispatchMap("property", BooleanProperty::codec, Function.identity());
 

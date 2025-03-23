@@ -214,8 +214,8 @@ public class Commands {
 
         context.getSource().sendFeedback(() -> Text.literal(builder.toString())
                 .setStyle(Style.EMPTY
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.copy.click")))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, builder.toString()))), false);
+                        .withHoverEvent(new HoverEvent.ShowText(Text.translatable("chat.copy.click")))
+                        .withClickEvent(new ClickEvent.CopyToClipboard(builder.toString()))), false);
 
         return 0;
     }
@@ -225,8 +225,8 @@ public class Commands {
         var id = Registries.ITEM.getId(itemStack.getItem());
         context.getSource().sendFeedback(() -> Text.literal(id.toString())
                 .setStyle(Style.EMPTY
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.copy.click")))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, id.toString()))), false);        return 0;
+                        .withHoverEvent(new HoverEvent.ShowText(Text.translatable("chat.copy.click")))
+                        .withClickEvent(new ClickEvent.CopyToClipboard(id.toString()))), false);        return 0;
     }
 
     private static int dumpRegistries(CommandContext<ServerCommandSource> context) {
@@ -256,7 +256,8 @@ public class Commands {
             if (text == null) {
                 text = Text.literal("");
             }
-            text.append(Text.empty().append(Registries.STAT_TYPE.getId(statType).toString()).append("\n").styled(x -> x.withUnderline(true).withColor(Formatting.BLUE).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/polymer stats " + Registries.STAT_TYPE.getId(statType)))));
+            text.append(Text.empty().append(Registries.STAT_TYPE.getId(statType).toString()).append("\n").styled(x -> x.withUnderline(true).withColor(Formatting.BLUE)
+                    .withClickEvent(new ClickEvent.RunCommand("polymer stats " + Registries.STAT_TYPE.getId(statType)))));
             line++;
 
             if (line == 13) {
@@ -451,7 +452,7 @@ public class Commands {
         var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.create(player)).copy();
         stack.remove(DataComponentTypes.CUSTOM_DATA);
 
-        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(stack.toNbtAllowEmpty(context.getSource().getRegistryManager())), false);
+        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(!stack.isEmpty() ? stack.toNbt(context.getSource().getRegistryManager()) : new NbtCompound()), false);
 
         return 1;
     }

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$19", priority = 500)
+@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$21", priority = 500)
 public abstract class PacketCodecsRegistryEntryMixin {
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Lnet/minecraft/registry/entry/RegistryEntry;)V", at = @At("HEAD"), argsOnly = true)
     private RegistryEntry<?> polymer$changeData(RegistryEntry<?> val, RegistryByteBuf buf) {
@@ -21,7 +21,7 @@ public abstract class PacketCodecsRegistryEntryMixin {
 
         if (val.value() instanceof SoundEvent soundEvent
                 && PolymerSyncedObject.getSyncedObject(Registries.SOUND_EVENT, soundEvent) instanceof PolymerSoundEvent syncedObject) {
-            var replacement = syncedObject.getPolymerReplacement(player);
+            var replacement = syncedObject.getPolymerReplacement(soundEvent, player);
 
             if (PolymerSyncedObject.getSyncedObject(Registries.SOUND_EVENT, replacement) instanceof PolymerSoundEvent) {
                 return RegistryEntry.of(replacement);

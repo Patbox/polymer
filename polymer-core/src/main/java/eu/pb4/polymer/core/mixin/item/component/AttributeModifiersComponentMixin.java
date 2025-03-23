@@ -16,8 +16,6 @@ import java.util.List;
 public class AttributeModifiersComponentMixin implements TransformingComponent {
     @Shadow @Final private List<AttributeModifiersComponent.Entry> modifiers;
 
-    @Shadow @Final private boolean showInTooltip;
-
     @Override
     public Object polymer$getTransformed(PacketContext context) {
         if (!polymer$requireModification(context)) {
@@ -30,7 +28,7 @@ public class AttributeModifiersComponentMixin implements TransformingComponent {
             }
         }
 
-        return new AttributeModifiersComponent(list, this.showInTooltip);
+        return new AttributeModifiersComponent(list);
     }
 
     @Override

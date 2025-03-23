@@ -31,7 +31,8 @@ public interface RegistryMixin {
                 if (obj.canSyncRawToClient(ctx)) {
                     return content;
                 }
-                var val = obj.getPolymerReplacement(ctx);
+                //noinspection unchecked
+                var val = ((PolymerSyncedObject<Object>) obj).getPolymerReplacement(content.value(), ctx);
                 return val != null && this.getEntry(val) instanceof RegistryEntry.Reference<Object> ref ? ref : this.getEntry(0).orElseThrow();
             }
             return content;

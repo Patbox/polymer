@@ -13,8 +13,9 @@ import java.util.function.Consumer;
 
 public interface PlayerBoundConsumer<T> extends Consumer<T> {
     static PlayerBoundConsumer<Packet<?>> createPacketFor(Set<PlayerAssociatedNetworkHandler> listeners, Entity entity, Consumer<Packet<?>> receiver) {
-        return entity instanceof PolymerEntity entity1
-                ? PolymericEntityPlayerBoundConsumer.create(listeners, entity1, entity, receiver)
+        var polymerEntity = PolymerEntity.get(entity);
+        return polymerEntity != null
+                ? PolymericEntityPlayerBoundConsumer.create(listeners, polymerEntity, entity, receiver)
                 : new DirectEntityPlayerBoundConsumer<>(listeners, entity, receiver);
     }
 

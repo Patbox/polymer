@@ -14,6 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,7 @@ public class CommonCommands {
             extraData.append(Text.literal("[")
                     .append(Text.literal("Contributors")
                             .setStyle(Style.EMPTY.withColor(Formatting.AQUA)
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    .withHoverEvent(new HoverEvent.ShowText(
                                             Text.literal(String.join("\n", CommonImpl.CONTRIBUTORS))
                                     ))
                             ))
@@ -45,8 +46,8 @@ public class CommonCommands {
             ).append(Text.literal("[")
                     .append(Text.literal("GitHub")
                             .setStyle(Style.EMPTY.withColor(Formatting.BLUE).withUnderline(true)
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, CommonImpl.GITHUB_URL))
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    .withClickEvent(new ClickEvent.OpenUrl(URI.create(CommonImpl.GITHUB_URL)))
+                                    .withHoverEvent(new HoverEvent.ShowText(
                                             Text.literal(CommonImpl.GITHUB_URL)
                                     ))
                             ))
@@ -71,7 +72,7 @@ public class CommonCommands {
             var output = new ArrayList<Text>();
             about.clear();
             try {
-                about.add(Text.literal("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, CommonImpl.GITHUB_URL))));
+                about.add(Text.literal("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true).withClickEvent(new ClickEvent.OpenUrl(URI.create(CommonImpl.GITHUB_URL)))));
                 about.add(Text.literal("Version: ").setStyle(Style.EMPTY.withColor(0xf7e1a7))
                         .append(Text.literal(CommonImpl.VERSION).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
 

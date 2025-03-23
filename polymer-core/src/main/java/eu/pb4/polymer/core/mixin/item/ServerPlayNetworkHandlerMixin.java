@@ -2,6 +2,8 @@ package eu.pb4.polymer.core.mixin.item;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
@@ -14,6 +16,7 @@ import eu.pb4.polymer.core.impl.networking.BlockPacketUtil;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.other.ActionSource;
 import eu.pb4.polymer.core.mixin.entity.LivingEntityAccessor;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.BlockItem;
@@ -107,22 +110,31 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
 
         if (this.lastActionResult != null && this.lastActionResult != ActionResult.PASS) {
             ci.cancel();
-            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
+            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, itemStack));
             return;
         }
 
         if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, itemStack.getItem()) instanceof PolymerItem polymerItem) {
             var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, PacketContext.create(this.player));
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
-                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, itemStack));
+                this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, itemStack));
             }
         }
     }
 
 
+    @Inject(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerInteractionManager;interactBlock(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;", shift = At.Shift.BEFORE))
+    private void catchBlockStateAt(PlayerInteractBlockC2SPacket packet, CallbackInfo ci, @Share("oldState") LocalRef<BlockState> oldState) {
+        oldState.set(this.player.getWorld().getBlockState(packet.getBlockHitResult().getBlockPos()));
+    }
+
     @ModifyExpressionValue(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerInteractionManager;interactBlock(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
-    private ActionResult captureBlockInteraction(ActionResult original, @Local ItemStack stack, @Local Hand hand, @Local BlockHitResult blockHitResult, @Local ServerWorld world) {
-        if (PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, blockHitResult, world, original)) {
+    private ActionResult captureBlockInteraction(ActionResult original, @Local ItemStack stack, @Local Hand hand, @Local BlockHitResult blockHitResult, @Local ServerWorld world, @Share("oldState") LocalRef<BlockState> oldState) {
+        if (PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState.get(), blockHitResult, world, original)) {
+            if (original instanceof ActionResult.Success success && success.swingSource() == ActionResult.SwingSource.CLIENT) {
+                original = new ActionResult.Success(ActionResult.SwingSource.SERVER, success.itemContext());
+            }
+
             this.lastActionResult = original;
             this.lastActionSource = ActionSource.BLOCK;
         }
@@ -132,7 +144,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @Inject(method = "onPlayerInteractItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER), cancellable = true)
     private void preventItemUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
         if (this.lastActionResult != null && this.lastActionResult != ActionResult.PASS) {
-            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().selectedSlot : 45, this.player.getStackInHand(packet.getHand())));
+            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), packet.getHand() == Hand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, this.player.getStackInHand(packet.getHand())));
             this.server.execute(() -> this.updateSequence(packet.getSequence()));
             ci.cancel();
         }
@@ -142,6 +154,9 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @ModifyExpressionValue(method = "onPlayerInteractItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerInteractionManager;interactItem(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult captureItemInteraction(ActionResult original, @Local ItemStack stack, @Local Hand hand, @Local ServerWorld world) {
         if (PolymerItemUtils.isPolymerItemInteraction(this.player, stack, hand, world, original)) {
+            if (original instanceof ActionResult.Success success && success.swingSource() == ActionResult.SwingSource.CLIENT) {
+                original = new ActionResult.Success(ActionResult.SwingSource.SERVER, success.itemContext());
+            }
             this.lastActionResult = original;
             this.lastActionSource = ActionSource.ITEM;
         }
@@ -152,7 +167,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @Inject(method = "onPlayerInteractEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER), cancellable = true)
     private void preventEntityUse(PlayerInteractEntityC2SPacket packet, CallbackInfo ci) {
         if (this.lastActionResult != null && this.lastActionResult != ActionResult.PASS) {
-            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), this.player.getInventory().selectedSlot, this.player.getStackInHand(Hand.MAIN_HAND)));
+            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), this.player.getInventory().getSelectedSlot(), this.player.getStackInHand(Hand.MAIN_HAND)));
             ci.cancel();
         }
     }

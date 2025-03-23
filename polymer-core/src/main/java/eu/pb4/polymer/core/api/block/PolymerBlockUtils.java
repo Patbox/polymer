@@ -106,6 +106,11 @@ public final class PolymerBlockUtils {
         return BlockMapper.getFrom(context.getPlayer()).toClientSideState(block.getDefaultState(), context).getBlock();
     }
 
+    public static void registerOverlay(Block block, PolymerBlock polymerBlock) {
+        PolymerSyncedObject.setSyncedObject(Registries.BLOCK, block, polymerBlock);
+        RegistrySyncUtils.setServerEntry(Registries.BLOCK, block);
+    }
+
     /**
      * This method is minimal wrapper around {@link PolymerBlock#getPolymerBlockState(BlockState, PacketContext)} )} to make sure
      * It gets replaced if it represents other PolymerBlock
@@ -169,9 +174,11 @@ public final class PolymerBlockUtils {
         return PacketPatcher.transformBlockEntityNbt(context, type, original);
     }
 
-    public static boolean isPolymerBlockInteraction(ServerPlayerEntity player, ItemStack stack, Hand hand, BlockHitResult blockHitResult, ServerWorld world, ActionResult actionResult) {
+    public static boolean isPolymerBlockInteraction(ServerPlayerEntity player, ItemStack stack, Hand hand, BlockState preInteractionState, BlockHitResult blockHitResult, ServerWorld world, ActionResult actionResult) {
         var blockState = world.getBlockState(blockHitResult.getBlockPos());
         if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, blockState.getBlock()) instanceof PolymerBlock polymerBlock && polymerBlock.isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult)) {
+            return true;
+        } else if (!blockState.isOf(preInteractionState.getBlock()) && PolymerSyncedObject.getSyncedObject(Registries.BLOCK, preInteractionState.getBlock()) instanceof PolymerBlock polymerBlock && polymerBlock.isPolymerBlockInteraction(preInteractionState, player, hand, stack, world, blockHitResult, actionResult)) {
             return true;
         } else if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult)) {
             return true;

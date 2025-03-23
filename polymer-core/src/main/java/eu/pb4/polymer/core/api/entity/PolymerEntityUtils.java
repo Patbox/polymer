@@ -12,6 +12,7 @@ import eu.pb4.polymer.core.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.core.mixin.entity.EntityTrackerAccessor;
 import eu.pb4.polymer.core.mixin.entity.PlayerListS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
+import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.entity.Entity;
@@ -38,10 +39,8 @@ public final class PolymerEntityUtils {
     }
     public static final BooleanEvent<PolymerEntityInteractionListener> POLYMER_ENTITY_INTERACTION_CHECK = new BooleanEvent<>();
 
-    private static final Set<EntityType<?>> ENTITY_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
+    private static final Map<EntityType<?>, Function<Entity, PolymerEntity>> ENTITY_TYPES = new IdentityHashMap<>();
     private static final Set<EntityAttribute> ENTITY_ATTRIBUTES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
-
-    private static final Map<VillagerProfession, PolymerVillagerProfession> VILLAGER_PROFESSIONS = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
 
     /**
      * Allows to get next free entity id you can use for networking
@@ -58,13 +57,26 @@ public final class PolymerEntityUtils {
      * @param types Entity Types
      */
     public static void registerType(EntityType<?>... types) {
-        ENTITY_TYPES.addAll(Arrays.asList(types));
+        for (var type : types) {
+            ENTITY_TYPES.put(type, entity -> entity instanceof PolymerEntity polymerEntity ? polymerEntity : null);
+        }
 
         for (var type : types) {
             RegistrySyncUtils.setServerEntry(Registries.ENTITY_TYPE, type);
         }
     }
 
+    public static <T extends Entity> void registerOverlay(EntityType<T> type, Function<T, PolymerEntity> constructor) {
+        //noinspection unchecked
+        ENTITY_TYPES.put(type, (Function<Entity, PolymerEntity>) constructor);
+        RegistrySyncUtils.setServerEntry(Registries.ENTITY_TYPE, type);
+    }
+
+    @Nullable
+    public static <T extends Entity> Function<T, PolymerEntity> getPolymerEntityConstructor(EntityType<T> type) {
+        //noinspection unchecked
+        return (Function<T, PolymerEntity>) ENTITY_TYPES.get(type);
+    }
 
     /**
      * Marks EntityAttribute as server-side only
@@ -83,14 +95,14 @@ public final class PolymerEntityUtils {
      * @param profession VillagerProfession to server side
      * @param mapper object managing mapping to client compatible one
      */
-    public static void registerProfession(VillagerProfession profession, PolymerVillagerProfession mapper) {
-        VILLAGER_PROFESSIONS.put(profession, mapper);
+    public static void registerProfession(VillagerProfession profession, PolymerSyncedObject<VillagerProfession> mapper) {
+        PolymerSyncedObject.setSyncedObject(Registries.VILLAGER_PROFESSION, profession, mapper);
         RegistrySyncUtils.setServerEntry(Registries.VILLAGER_PROFESSION, profession);
     }
 
     @Nullable
-    public static PolymerVillagerProfession getPolymerProfession(VillagerProfession profession) {
-        return VILLAGER_PROFESSIONS.get(profession);
+    public static PolymerSyncedObject<VillagerProfession> getPolymerProfession(VillagerProfession profession) {
+        return PolymerSyncedObject.getSyncedObject(Registries.VILLAGER_PROFESSION, profession);
     }
 
     /**
@@ -99,7 +111,7 @@ public final class PolymerEntityUtils {
      * @param type EntityType
      */
     public static boolean isPolymerEntityType(EntityType<?> type) {
-        return ENTITY_TYPES.contains(type);
+        return ENTITY_TYPES.containsKey(type);
     }
 
     public static boolean isPolymerEntityAttribute(RegistryEntry<EntityAttribute> type) {
@@ -191,7 +203,8 @@ public final class PolymerEntityUtils {
     }
 
     public static boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, Entity entity, ActionResult actionResult) {
-        if (entity instanceof PolymerEntity polymerEntity && polymerEntity.isPolymerEntityInteraction(player, hand, stack, world, actionResult)) {
+        var polymerEntity = PolymerEntity.get(entity);
+        if (polymerEntity != null && polymerEntity.isPolymerEntityInteraction(player, hand, stack, world, actionResult)) {
             return true;
         } else if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult)) {
             return true;

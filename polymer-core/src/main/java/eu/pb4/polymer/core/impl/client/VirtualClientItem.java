@@ -5,6 +5,8 @@ import eu.pb4.polymer.core.api.client.ClientPolymerItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.component.ComponentMap;
+import net.minecraft.component.type.LoreComponent;
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @ApiStatus.Internal
 @ApiStatus.Experimental
@@ -59,9 +62,9 @@ public class VirtualClientItem extends Item {
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+    public void appendTooltip(ItemStack stack, TooltipContext context, TooltipDisplayComponent displayComponent, Consumer<Text> textConsumer, TooltipType type) {
         if (this.polymerItem.visualStack().contains(DataComponentTypes.LORE)) {
-            tooltip.addAll(this.polymerItem.visualStack().get(DataComponentTypes.LORE).lines());
+            this.polymerItem.visualStack().getOrDefault(DataComponentTypes.LORE, LoreComponent.DEFAULT).appendTooltip(context, textConsumer, type, stack.getComponents());
         }
     }
 

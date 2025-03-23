@@ -19,6 +19,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.disguiselib.api.EntityDisguise;
@@ -36,6 +37,12 @@ public class InternalEntityHelpers {
         PlayerEntity player = null;
         try {
             player = new PlayerEntity(FakeWorld.INSTANCE_UNSAFE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
+                @Nullable
+                @Override
+                public GameMode getGameMode() {
+                    return null;
+                }
+
                 @Override
                 public boolean isSpectator() {
                     return false;
@@ -52,6 +59,12 @@ public class InternalEntityHelpers {
             }
             try {
                 player = new PlayerEntity(FakeWorld.INSTANCE_REGULAR, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
+                    @Nullable
+                    @Override
+                    public GameMode getGameMode() {
+                        return null;
+                    }
+
                     @Override
                     public boolean isSpectator() {
                         return false;

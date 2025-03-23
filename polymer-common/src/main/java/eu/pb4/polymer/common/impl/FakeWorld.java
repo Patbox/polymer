@@ -16,8 +16,12 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.decoration.painting.PaintingVariant;
+import net.minecraft.entity.passive.ChickenVariant;
+import net.minecraft.entity.passive.CowVariant;
+import net.minecraft.entity.passive.PigVariant;
 import net.minecraft.entity.passive.WolfVariant;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.spawn.SpawnConditionSelectors;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.FuelRegistry;
 import net.minecraft.item.map.MapState;
@@ -35,9 +39,7 @@ import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -123,7 +125,28 @@ public final class FakeWorld extends World implements LightSourceView {
                     new PaintingVariant(1, 1, Identifier.of("polymer","painting"), Optional.empty(), Optional.empty())));
             addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_VARIANT,
                     Identifier.of("polymer","wolf"),
-                    new WolfVariant(Identifier.of("polymer","wolf"), Identifier.of("polymer","wolf"),Identifier.of("polymer","wolf"), RegistryEntryList.empty())));
+                    new WolfVariant(new WolfVariant.WolfAssetInfo(
+                            new AssetInfo(Identifier.of("polymer","wolf")),
+                            new AssetInfo(Identifier.of("polymer","wolf")),
+                            new AssetInfo(Identifier.of("polymer","wolf"))), SpawnConditionSelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(RegistryKeys.COW_VARIANT,
+                    Identifier.of("polymer","cow"),
+                    new CowVariant(
+                            new ModelAndTexture<>(CowVariant.Model.NORMAL, new AssetInfo(Identifier.of("polymer", "wolf"))
+                            ), SpawnConditionSelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(RegistryKeys.PIG_VARIANT,
+                    Identifier.of("polymer","pig"),
+                    new PigVariant(
+                            new ModelAndTexture<>(PigVariant.Model.NORMAL, new AssetInfo(Identifier.of("polymer", "wolf"))
+                            ), SpawnConditionSelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(RegistryKeys.CHICKEN_VARIANT,
+                    Identifier.of("polymer","chicken"),
+                    new ChickenVariant(
+                            new ModelAndTexture<>(ChickenVariant.Model.NORMAL, new AssetInfo(Identifier.of("polymer", "wolf"))
+                            ), SpawnConditionSelectors.EMPTY)));
         }
     };
     static final ServerRecipeManager RECIPE_MANAGER = new ServerRecipeManager(FALLBACK_REGISTRY_MANAGER);
@@ -298,22 +321,12 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
     @Override
-    public void playSound(@Nullable PlayerEntity except, double x, double y, double z, RegistryEntry<SoundEvent> registryEntry, SoundCategory category, float volume, float pitch, long seed) {
+    public void playSound(@Nullable Entity source, double x, double y, double z, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {
 
     }
 
     @Override
-    public void playSoundFromEntity(@Nullable PlayerEntity except, Entity entity, RegistryEntry<SoundEvent> registryEntry, SoundCategory category, float volume, float pitch, long seed) {
-
-    }
-
-    @Override
-    public void playSound(@Nullable PlayerEntity player, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch) {
-
-    }
-
-    @Override
-    public void playSoundFromEntity(@Nullable PlayerEntity player, Entity entity, SoundEvent sound, SoundCategory category, float volume, float pitch) {
+    public void playSoundFromEntity(@Nullable Entity source, Entity entity, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {
 
     }
 
@@ -347,16 +360,6 @@ public final class FakeWorld extends World implements LightSourceView {
     @Nullable
     @Override
     public MapState getMapState(MapIdComponent id) {
-        return null;
-    }
-
-    @Override
-    public void putMapState(MapIdComponent id, MapState state) {
-
-    }
-
-    @Override
-    public MapIdComponent increaseAndGetMapId() {
         return null;
     }
 
@@ -396,7 +399,7 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
     @Override
-    public void syncWorldEvent(@Nullable PlayerEntity player, int eventId, BlockPos pos, int data) {
+    public void syncWorldEvent(@Nullable Entity source, int eventId, BlockPos pos, int data) {
 
     }
 

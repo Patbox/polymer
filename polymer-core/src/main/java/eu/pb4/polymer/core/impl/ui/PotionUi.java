@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -41,7 +42,7 @@ public class PotionUi extends MicroUi {
             }
             ItemStack icon;
             if (PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, effectInstance.getEffectType().value()) instanceof PolymerStatusEffect polymerStatusEffect) {
-                icon = polymerStatusEffect.getPolymerIcon(this.player);
+                icon = polymerStatusEffect.getPolymerIcon(effectInstance.getEffectType().value(), this.player);
                 if (icon == null) {
                     continue;
                 }
@@ -49,7 +50,7 @@ public class PotionUi extends MicroUi {
                 icon = Items.POTION.getDefaultStack();
                 icon.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Optional.empty(), Optional.of(effectInstance.getEffectType().value().getColor()), List.of(), Optional.empty()));
             }
-            icon.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+            icon.set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT.with(DataComponentTypes.POTION_CONTENTS, true));
             icon.set(DataComponentTypes.RARITY, Rarity.COMMON);
             icon.set(DataComponentTypes.CUSTOM_NAME, Text.empty()
                     .append(effectInstance.getEffectType().value().getName())

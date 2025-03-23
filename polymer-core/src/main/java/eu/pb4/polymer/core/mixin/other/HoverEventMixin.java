@@ -17,16 +17,16 @@ import java.util.Objects;
 import java.util.function.Function;
 
 @Mixin(HoverEvent.class)
-public abstract class HoverEventMixin {
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;xmap(Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
+public interface HoverEventMixin {
+    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;dispatch(Ljava/lang/String;Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
     private static Codec<HoverEvent> patchCodec(Codec<HoverEvent> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 if (content.getAction() == HoverEvent.Action.SHOW_ENTITY) {
-                    var val = Objects.requireNonNull(content.getValue(HoverEvent.Action.SHOW_ENTITY));
+                    var val = Objects.requireNonNull(((HoverEvent.ShowEntity) content).entity());
                     if (PolymerEntityUtils.isPolymerEntityType(val.entityType)) {
                         val = new HoverEvent.EntityContent(val.entityType, val.uuid, val.name);
-                        return new HoverEvent(HoverEvent.Action.SHOW_TEXT, Texts.join(val.asTooltip(), Text.literal("\n")));
+                        return new HoverEvent.ShowText(Texts.join(val.asTooltip(), Text.literal("\n")));
                     }
                 }
             }

@@ -75,7 +75,7 @@ public abstract class WorldChunkMixin extends Chunk implements PolymerBlockPosSt
 
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/ChunkSection;setBlockState(IIILnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER))
-    private void polymer$addToList(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir) {
+    private void polymer$addToList(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         if (PolymerImplUtils.POLYMER_STATES.contains(state)) {
             this.polymer$setSynced(pos.getX(), pos.getY(), pos.getZ(), PolymerBlockUtils.forceLightUpdates(state));
         } else {

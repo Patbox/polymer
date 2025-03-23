@@ -55,8 +55,8 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
     }
 
     @Override
-    default Block getPolymerReplacement(PacketContext context) {
-        return PolymerBlockUtils.getPolymerBlock((Block) this, context);
+    default Block getPolymerReplacement(Block block, PacketContext context) {
+        return PolymerBlockUtils.getPolymerBlock(block, context);
     }
 
     default boolean handleMiningOnServer(ItemStack tool, BlockState state, BlockPos pos, ServerPlayerEntity player) {

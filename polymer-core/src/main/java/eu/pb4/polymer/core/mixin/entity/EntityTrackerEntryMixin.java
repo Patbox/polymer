@@ -59,9 +59,10 @@ public abstract class EntityTrackerEntryMixin {
 
     @Inject(method = "sendPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;createSpawnPacket(Lnet/minecraft/server/network/EntityTrackerEntry;)Lnet/minecraft/network/packet/Packet;"))
     private void polymer$sendPacketsBeforeSpawning(ServerPlayerEntity player, Consumer<Packet<?>> sender, CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity virtualEntity) {
+        var polymerEntity = PolymerEntity.get(this.entity);
+        if (polymerEntity != null) {
             try {
-                virtualEntity.onBeforeSpawnPacket(player, sender);
+                polymerEntity.onBeforeSpawnPacket(player, sender);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -70,28 +71,32 @@ public abstract class EntityTrackerEntryMixin {
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymer$sendEntityInfo(ServerPlayerEntity player, CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity polymerEntity && polymerEntity.canSynchronizeToPolymerClient(player)) {
+        var polymerEntity = PolymerEntity.get(this.entity);
+        if (polymerEntity != null && polymerEntity.canSynchronizeToPolymerClient(player)) {
             PolymerServerProtocol.sendEntityInfo(player.networkHandler, this.entity);
         }
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void polymer$tickHead(CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
+        var polymerEntity = PolymerEntity.get(this.entity);
+        if (polymerEntity != null && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
             polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
         }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity polymerEntity && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
+        var polymerEntity = PolymerEntity.get(this.entity);
+        if (polymerEntity != null && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
             polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
         }
     }
 
     @Inject(method = "sendPackets", at = @At("TAIL"))
     private void polymer$modifyCreationData(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> sender, CallbackInfo ci) {
-        if (this.entity instanceof PolymerEntity polymerEntity) {
+        var polymerEntity = PolymerEntity.get(this.entity);
+        if (polymerEntity != null) {
             if (polymerEntity.sendEmptyTrackerUpdates(player) && this.changedEntries == null) {
                 var x = new EntityTrackerUpdateS2CPacket(this.entity.getId(), List.of());
                 ((PossiblyInitialPacket) (Object) x).polymer$setInitial();

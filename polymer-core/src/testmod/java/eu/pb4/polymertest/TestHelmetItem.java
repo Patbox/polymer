@@ -19,9 +19,9 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public class TestHelmetItem extends ArmorItem implements VanillaModeledPolymerItem {
+public class TestHelmetItem extends Item implements VanillaModeledPolymerItem {
     public TestHelmetItem(Settings settings) {
-        super(ArmorMaterials.IRON, EquipmentType.HELMET, settings);
+        super(settings.armor(ArmorMaterials.IRON, EquipmentType.HELMET));
     }
 
     @Override

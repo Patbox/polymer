@@ -263,6 +263,16 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
     }
 
     @Override
+    public void onSetTestBlock(SetTestBlockC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onTestInstanceBlockAction(TestInstanceBlockActionC2SPacket packet) {
+
+    }
+
+    @Override
     public void onSelectMerchantTrade(SelectMerchantTradeC2SPacket packet) {
 
     }

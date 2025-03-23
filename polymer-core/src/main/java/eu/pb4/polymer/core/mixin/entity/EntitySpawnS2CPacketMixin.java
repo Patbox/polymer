@@ -40,7 +40,9 @@ public class EntitySpawnS2CPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;encode(Ljava/lang/Object;Ljava/lang/Object;)V"), index = 1)
     private Object polymer$replaceWithPolymer(@Nullable Object value) {
-        if (EntityAttachedPacket.get(this, this.entityId) instanceof PolymerEntity polymerEntity && value == ((Entity) polymerEntity).getType()) {
+        var entity = EntityAttachedPacket.get(this, this.entityId);
+        var polymerEntity = PolymerEntity.get(entity);
+        if (polymerEntity != null && value == entity.getType()) {
             return polymerEntity.getPolymerEntityType(PacketContext.get());
         } else {
             return value;

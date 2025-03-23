@@ -5,6 +5,7 @@ import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ServerWorld;
@@ -83,8 +84,8 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
         }
     }
 
-    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onStateReplaced(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)V"), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymerVE$removeOld(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
+    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z", ordinal = 0))
+    private void polymerVE$removeOld(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         var x = this.polymerVE$posHolders.get(pos);
         if (x != null) {
             if (x.getBlockState().getBlock() != state.getBlock()) {
@@ -95,8 +96,8 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
         }
     }
 
-    @Inject(method = "setBlockState", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isClient:Z", ordinal = 1, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void polymerVE$addNew(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, ChunkSection section, boolean bool, int j, int k, int l, BlockState oldBlockState) {
+    @Inject(method = "setBlockState", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isClient:Z", ordinal = 1, shift = At.Shift.BEFORE))
+    private void polymerVE$addNew(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         var x = this.polymerVE$posHolders.get(pos);
         var blockWithElementHolder = BlockWithElementHolder.get(state);
         if (x == null && blockWithElementHolder != null && this.world instanceof ServerWorld serverWorld) {

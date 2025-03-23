@@ -7,14 +7,13 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.networking.impl.*;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.DisconnectionInfo;
-import net.minecraft.network.NetworkPhase;
-import net.minecraft.network.NetworkState;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.network.packet.c2s.login.EnterConfigurationC2SPacket;
 import net.minecraft.network.state.ConfigurationStates;
+import net.minecraft.network.state.NetworkState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.*;
 import net.minecraft.util.Identifier;
@@ -65,12 +64,12 @@ public abstract class ServerLoginNetworkHandlerMixin implements NetworkHandlerEx
         return this.connection;
     }
 
-    @WrapWithCondition(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionOutbound(Lnet/minecraft/network/NetworkState;)V"))
+    @WrapWithCondition(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionOutbound(Lnet/minecraft/network/state/NetworkState;)V"))
     private boolean dontDuplicateCalls(ClientConnection instance, NetworkState<?> newState) {
         return NetImpl.IS_DISABLED;
     }
 
-    @WrapOperation(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionInbound(Lnet/minecraft/network/NetworkState;Lnet/minecraft/network/listener/PacketListener;)V"))
+    @WrapOperation(method = "onEnterConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionInbound(Lnet/minecraft/network/state/NetworkState;Lnet/minecraft/network/listener/PacketListener;)V"))
     private void dontDuplicateCalls2(ClientConnection instance, NetworkState<PacketListener> state, PacketListener packetListener, Operation<Void> original) {
         if (NetImpl.IS_DISABLED) {
             original.call(instance, state, packetListener);

@@ -293,7 +293,7 @@ public class PolymerClientProtocolHandler {
                         PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
 
                         if (block.blockState() != null && PolymerClientDecoded.checkDecode(block.blockState().getBlock())) {
-                            chunk.setBlockState(pos, block.blockState(), false);
+                            chunk.setBlockState(pos, block.blockState());
                         }
                     }
                 }

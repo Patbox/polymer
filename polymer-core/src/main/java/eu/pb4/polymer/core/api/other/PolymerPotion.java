@@ -10,7 +10,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public interface PolymerPotion extends PolymerSyncedObject<Potion> {
     @Override
     @Nullable
-    default Potion getPolymerReplacement(PacketContext context) {
+    default Potion getPolymerReplacement(Potion potion, PacketContext context) {
         return null;
     }
 }

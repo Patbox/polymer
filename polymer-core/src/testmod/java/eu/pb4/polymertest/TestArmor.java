@@ -9,16 +9,16 @@ import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public class TestArmor extends ArmorItem implements VanillaModeledPolymerItem {
+public class TestArmor extends Item implements VanillaModeledPolymerItem {
     private final Item itemDefault;
 
-    public TestArmor(EquipmentSlot slot, Identifier model, Settings settings) {
-        super(ArmorMaterials.DIAMOND, switch (slot) {
+    public TestArmor(EquipmentSlot slot, Identifier model, Item.Settings settings) {
+        super(settings.armor(ArmorMaterials.DIAMOND, switch (slot) {
             case HEAD -> EquipmentType.HELMET;
             case CHEST -> EquipmentType.CHESTPLATE;
             case LEGS -> EquipmentType.LEGGINGS;
             default -> EquipmentType.BOOTS;
-        }, settings.maxDamage(10000));
+        }).maxDamage(10000));
         this.itemDefault = getItemFor(slot, false);
     }
 

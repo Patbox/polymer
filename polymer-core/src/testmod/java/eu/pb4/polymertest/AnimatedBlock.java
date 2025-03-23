@@ -12,9 +12,9 @@ import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.SheepEntity;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.Items;
-import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -23,6 +23,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.biome.source.BiomeCoords;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4x3f;
@@ -57,6 +58,11 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
     }
 
     @Override
+    public int getColor(BlockState state, BlockView world, BlockPos pos) {
+        return 0;
+    }
+
+    @Override
     protected MapCodec<? extends FallingBlock> getCodec() {
         return null;
     }
@@ -87,9 +93,9 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
             this.planetElement = this.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
             this.moonElement = this.addElement(new ItemDisplayElement(Items.DECORATED_POT));
             this.centralElement = this.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
-            this.centralElement.setModelTransformation(ModelTransformationMode.FIXED);
-            this.moonElement.setModelTransformation(ModelTransformationMode.FIXED);
-            this.planetElement.setModelTransformation(ModelTransformationMode.FIXED);
+            this.centralElement.setModelTransformation(ItemDisplayContext.FIXED);
+            this.moonElement.setModelTransformation(ItemDisplayContext.FIXED);
+            this.planetElement.setModelTransformation(ItemDisplayContext.FIXED);
             this.centralElement.setInterpolationDuration(3);
             this.moonElement.setInterpolationDuration(3);
             this.planetElement.setInterpolationDuration(3);

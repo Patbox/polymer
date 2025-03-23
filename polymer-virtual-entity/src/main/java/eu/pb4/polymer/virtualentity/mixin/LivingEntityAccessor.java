@@ -14,10 +14,4 @@ import java.util.Map;
 public interface LivingEntityAccessor {
     @Invoker
     Map<EquipmentSlot, ItemStack> callGetEquipmentChanges();
-
-    @Invoker
-    void callSetSyncedHandStack(EquipmentSlot slot, ItemStack stack);
-
-    @Invoker
-    void callSetSyncedArmorStack(EquipmentSlot slot, ItemStack armor);
 }

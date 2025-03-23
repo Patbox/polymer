@@ -4,8 +4,8 @@ import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ModelTransformationMode;
 
 public class ItemDisplayElement extends DisplayElement {
     public ItemDisplayElement(ItemStack stack) {
@@ -26,14 +26,22 @@ public class ItemDisplayElement extends DisplayElement {
         return this.dataTracker.get(DisplayTrackedData.Item.ITEM);
     }
 
-    public void setModelTransformation(ModelTransformationMode mode) {
+    public void setItemDisplayContext(ItemDisplayContext mode) {
         this.dataTracker.set(DisplayTrackedData.Item.ITEM_DISPLAY, mode.getIndex());
     }
-
-    public ModelTransformationMode getModelTransformation() {
-        return ModelTransformationMode.FROM_INDEX.apply(this.dataTracker.get(DisplayTrackedData.Item.ITEM_DISPLAY));
+    public ItemDisplayContext getItemDisplayContext() {
+        //noinspection DataFlowIssue
+        return ItemDisplayContext.FROM_INDEX.apply(this.dataTracker.get(DisplayTrackedData.Item.ITEM_DISPLAY));
     }
 
+    @Deprecated(forRemoval = true)
+    public void setModelTransformation(ItemDisplayContext mode) {
+        setItemDisplayContext(mode);
+    }
+    @Deprecated(forRemoval = true)
+    public ItemDisplayContext getModelTransformation() {
+        return getItemDisplayContext();
+    }
 
     @Override
     protected final EntityType<? extends DisplayEntity> getEntityType() {

@@ -38,9 +38,12 @@ public class RegistryFixedCodecMixin {
             var player = PacketContext.get();
             try {
                 if (entry.value() instanceof PolymerSyncedObject<?> polymerSyncedObject) {
+                    //noinspection unchecked
                     var registry = ((Registry<Registry>) (Object) Registries.REGISTRIES).get(this.registry);
-                    var x = registry.getEntry(polymerSyncedObject.getPolymerReplacement(player));
+                    //noinspection unchecked,DataFlowIssue
+                    var x = registry.getEntry(((PolymerSyncedObject<Object>) polymerSyncedObject).getPolymerReplacement(entry.value(), player));
                     if (x == null) {
+                        //noinspection unchecked
                         return (RegistryEntry<?>) registry.getEntry(0).orElse(entry);
                     }
                     return x;

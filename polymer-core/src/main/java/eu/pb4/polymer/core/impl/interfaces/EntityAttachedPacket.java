@@ -31,8 +31,7 @@ public interface EntityAttachedPacket {
     }
 
     static boolean shouldSend(Packet<?> packet, ServerPlayerEntity player) {
-        var entity = get(packet);
-        var x = entity instanceof PolymerEntity;
-        return !x || (x && ((PolymerEntity) entity).sendPacketsTo(player));
+        var x = PolymerEntity.get(get(packet));
+        return x == null || x.sendPacketsTo(player);
     }
 }

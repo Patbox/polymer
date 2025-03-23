@@ -3,7 +3,10 @@ package eu.pb4.polymertest;
 import com.mojang.serialization.Codec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.block.BlockMapper;
+import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.block.SimplePolymerBlock;
+import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.*;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
@@ -43,6 +46,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.item.consume.ApplyEffectsConsumeEffect;
@@ -69,6 +73,8 @@ import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 import xyz.nucleoid.server.translations.api.LocalizationTarget;
 
 import java.io.IOException;
@@ -176,6 +182,12 @@ public class TestMod implements ModInitializer {
         }
     });
 
+    public static MaceItem OVERLAY_ITEM = registerItem(Identifier.of("test", "overlay_item"), s -> new MaceItem(s.fireproof()));
+    public static TntBlock OVERLAY_BLOCK = registerBlock(Identifier.of("test", "overlay_block"), TntBlock::new);
+    public static BlockItem OVERLAY_BLOCK_ITEM = registerItem(Identifier.of("test", "overlay_block"), x -> new BlockItem(OVERLAY_BLOCK, x));
+    public static EntityType<IronGolemEntity> OVERLAY_ENTITY = registerEntity("overlay_entity",
+            EntityType.Builder.create(IronGolemEntity::new, SpawnGroup.CREATURE).dimensions(1f, 1.8f));
+
     public static Identifier CUSTOM_STAT;
 
     public static final RecipeType<TestRecipe> TEST_RECIPE_TYPE = RecipeType.register("test");
@@ -235,7 +247,7 @@ public class TestMod implements ModInitializer {
     }));
 
     public static SimplePolymerItem SPEC_ITEM = registerItem(Identifier.of("test", "spec"), (s) -> new ClickItem(s, Items.ENDER_EYE, (player, hand) -> {
-        player.networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.GAME_MODE_CHANGED, GameMode.SPECTATOR.getId()));
+        player.networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.GAME_MODE_CHANGED, GameMode.SPECTATOR.getIndex()));
         player.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
     }));
 
@@ -282,6 +294,46 @@ public class TestMod implements ModInitializer {
 
         PolymerItemUtils.enableStonecutterFix();
 
+
+        PolymerItemUtils.registerOverlay(OVERLAY_ITEM, new PolymerItem() {
+            @Override
+            public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
+                return Items.MACE;
+            }
+
+            @Override
+            public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+                return null;
+            }
+        });
+
+        PolymerItemUtils.registerOverlay(OVERLAY_BLOCK_ITEM, new PolymerItem() {
+            @Override
+            public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
+                return Items.EMERALD_BLOCK;
+            }
+
+            @Override
+            public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+                return null;
+            }
+        });
+        PolymerBlockUtils.registerOverlay(OVERLAY_BLOCK, (state, context) -> Blocks.EMERALD_BLOCK.getDefaultState());
+
+        PolymerEntityUtils.registerOverlay(OVERLAY_ENTITY, (entity) -> new PolymerEntity() {
+            @Override
+            public EntityType<?> getPolymerEntityType(PacketContext context) {
+                return EntityType.IRON_GOLEM;
+            }
+
+            @Override
+            public void modifyRawEntityAttributeData(List<EntityAttributesS2CPacket.Entry> data, ServerPlayerEntity player, boolean initial) {
+                data.add(new EntityAttributesS2CPacket.Entry(EntityAttributes.SCALE, ((IronGolemEntity) entity).getHeight() / EntityType.IRON_GOLEM.getHeight(), List.of()));
+                PolymerEntity.super.modifyRawEntityAttributeData(data, player, initial);
+            }
+        });
+
+        FabricDefaultAttributeRegistry.register(OVERLAY_ENTITY, IronGolemEntity.createIronGolemAttributes());
 
         Registry.register(Registries.STATUS_EFFECT, Identifier.of("test", "effect"), STATUS_EFFECT);
         register(Registries.STATUS_EFFECT, Identifier.of("test", "effect2"), STATUS_EFFECT_2);

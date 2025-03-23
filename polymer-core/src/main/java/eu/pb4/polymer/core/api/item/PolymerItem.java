@@ -85,8 +85,8 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
     default void modifyClientTooltip(List<Text> tooltip, ItemStack stack, PacketContext context) {
     }
     @Override
-    default Item getPolymerReplacement(PacketContext context) {
-        return this.getPolymerItem(((Item) this).getDefaultStack(), context);
+    default Item getPolymerReplacement(Item item, PacketContext context) {
+        return this.getPolymerItem(item.getDefaultStack(), context);
     }
 
     default boolean handleMiningOnServer(ItemStack tool, BlockState targetBlock, BlockPos pos, ServerPlayerEntity player) {
