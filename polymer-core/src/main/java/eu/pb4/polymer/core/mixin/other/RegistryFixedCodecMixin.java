@@ -37,7 +37,7 @@ public class RegistryFixedCodecMixin {
             var player = PacketContext.get();
             try {
                 //noinspection unchecked,rawtypes
-                var registry = ((Registry<Registry>)  Registries.REGISTRIES).get(this.registry);
+                var registry = ((Registry<Registry>) (Object) Registries.REGISTRIES).get(this.registry);
                 //noinspection unchecked
                 if (entry.value() instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type)) {
                     return EntityType.MARKER.getRegistryEntry();
