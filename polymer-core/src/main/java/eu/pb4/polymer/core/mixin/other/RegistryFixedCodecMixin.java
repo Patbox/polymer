@@ -34,12 +34,16 @@ public class RegistryFixedCodecMixin {
     )
     private RegistryEntry<?> polymerCore$swapEntry(RegistryEntry<?> entry, @Local(argsOnly = true) DynamicOps<?> ops) {
         if (PolymerCommonUtils.isServerNetworkingThread()) {
-            // Todo
             var player = PacketContext.get();
             try {
-                if (entry.value() instanceof PolymerSyncedObject<?> polymerSyncedObject) {
-                    //noinspection unchecked
-                    var registry = ((Registry<Registry>) (Object) Registries.REGISTRIES).get(this.registry);
+                //noinspection unchecked,rawtypes
+                var registry = ((Registry<Registry>)  Registries.REGISTRIES).get(this.registry);
+                //noinspection unchecked
+                if (entry.value() instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type)) {
+                    return EntityType.MARKER.getRegistryEntry();
+                } else if (entry.value() instanceof EntityAttribute && PolymerEntityUtils.isPolymerEntityAttribute((RegistryEntry<EntityAttribute>) entry)) {
+                    return EntityAttributes.SPAWN_REINFORCEMENTS;
+                } else if (PolymerSyncedObject.getSyncedObject(registry, entry.value()) instanceof PolymerSyncedObject<?> polymerSyncedObject) {
                     //noinspection unchecked,DataFlowIssue
                     var x = registry.getEntry(((PolymerSyncedObject<Object>) polymerSyncedObject).getPolymerReplacement(entry.value(), player));
                     if (x == null) {
@@ -47,10 +51,6 @@ public class RegistryFixedCodecMixin {
                         return (RegistryEntry<?>) registry.getEntry(0).orElse(entry);
                     }
                     return x;
-                } else if (entry.value() instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type)) {
-                    return EntityType.MARKER.getRegistryEntry();
-                } else if (entry.value() instanceof EntityAttribute && PolymerEntityUtils.isPolymerEntityAttribute((RegistryEntry<EntityAttribute>) entry)) {
-                    return EntityAttributes.SPAWN_REINFORCEMENTS;
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
