@@ -35,7 +35,7 @@ public class AbstractBlockMixin {
         //noinspection ConstantValue
         if (((Object) this) instanceof Block block1 && PolymerSyncedObject.getSyncedObject(Registries.BLOCK, block1) instanceof PolymerBlock block) {
             var clientState = context instanceof EntityShapeContext entityShapeContext
-                    && entityShapeContext.getEntity() instanceof ServerPlayerEntity player
+                    && entityShapeContext.getEntity() instanceof ServerPlayerEntity player && player.networkHandler != null
                     ? PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.create(player))
                     : PolymerBlockUtils.getBlockStateSafely(block, state, world instanceof World realWorld ? PacketContext.create(realWorld.getRegistryManager()) : PacketContext.create());
             if (!(PolymerSyncedObject.getSyncedObject(Registries.BLOCK, clientState.getBlock()) instanceof PolymerBlock)) {

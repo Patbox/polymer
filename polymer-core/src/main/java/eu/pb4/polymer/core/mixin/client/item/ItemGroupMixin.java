@@ -11,7 +11,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemStackSet;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -65,17 +64,24 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
             this.searchTabStacks.removeIf(PolymerImplUtils::removeFromItemGroup);
 
             if (!this.polymer$entriesMain.isEmpty()) {
-                applyGroups(this.displayStacks, this.polymer$entriesMain);
+                applyPolymerGroups(this.displayStacks, this.polymer$entriesMain);
             }
 
             if (!this.polymer$entriesSearch.isEmpty()) {
-                applyGroups(this.displayStacks, this.polymer$entriesSearch);
+                applyPolymerGroups(this.displayStacks, this.polymer$entriesSearch);
             }
         }
     }
 
     @Unique
-    private static void applyGroups(Collection<ItemStack> stacks, List<PolymerItemGroupContentAddS2CPayload.Entry> entries) {
+    private static void applyPolymerGroups(Collection<ItemStack> stacks, List<PolymerItemGroupContentAddS2CPayload.Entry> entries) {
+        if (stacks.isEmpty()) {
+            for (var entry : entries) {
+                stacks.addAll(entry.stacks());
+            }
+            return;
+        }
+
         var set = new LinkedList<>(stacks);
         for (var entry : entries) {
             switch (entry.mode()) {
