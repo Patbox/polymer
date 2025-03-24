@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.common.api.ScopedOverride;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
@@ -64,6 +65,11 @@ public final class PolymerUtils {
 
     public static Collection<FeatureFlag> getClientEnabledFeatureFlags() {
         return ENABLED_FEATURE_FLAGS;
+    }
+
+    public static ScopedOverride ignorePlaySoundExclusion() {
+        PolymerImplUtils.IGNORE_PLAY_SOUND_EXCLUSION.set(Unit.INSTANCE);
+        return PolymerImplUtils.IGNORE_PLAY_SOUND_EXCLUSION::remove;
     }
 
     /**

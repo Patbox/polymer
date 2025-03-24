@@ -67,6 +67,7 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.*;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradedItem;
 import net.minecraft.village.VillagerProfession;
@@ -317,8 +318,23 @@ public class TestMod implements ModInitializer {
             public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
                 return null;
             }
+
+            @Override
+            public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
+                return true;
+            }
         });
-        PolymerBlockUtils.registerOverlay(OVERLAY_BLOCK, (state, context) -> Blocks.EMERALD_BLOCK.getDefaultState());
+        PolymerBlockUtils.registerOverlay(OVERLAY_BLOCK, new PolymerBlock() {
+            @Override
+            public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+                return Blocks.EMERALD_BLOCK.getDefaultState();
+            }
+
+            @Override
+            public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
+                return true;
+            }
+        });
 
         PolymerEntityUtils.registerOverlay(OVERLAY_ENTITY, (entity) -> new PolymerEntity() {
             @Override

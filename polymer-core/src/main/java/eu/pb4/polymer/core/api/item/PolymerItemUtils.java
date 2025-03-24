@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
+import net.minecraft.block.BlockState;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
@@ -44,6 +45,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
+import net.minecraft.util.hit.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -86,6 +88,7 @@ public final class PolymerItemUtils {
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
 
     public static final BooleanEvent<PolymerItemInteractionListener> POLYMER_ITEM_INTERACTION_CHECK = new BooleanEvent<>();
+    public static final BooleanEvent<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = new BooleanEvent<>();
 
     private static final IdentityHashMap<Item, List<ComponentType<?>>> FORCE_SYNCED_COMPONENTS = new IdentityHashMap<>();
 
@@ -560,6 +563,13 @@ public final class PolymerItemUtils {
         return POLYMER_ITEM_INTERACTION_CHECK.invoke((x) -> x.isPolymerItemInteraction(player, hand, stack, world, actionResult));
     }
 
+    public static boolean isIgnoringPlaySoundExceptedEntity(ServerPlayerEntity player, ItemStack stack, Hand hand, ServerWorld world) {
+        if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isIgnoringItemInteractionPlaySoundExceptedEntity(player, hand, stack, world)) {
+            return true;
+        }
+        return POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY.invoke((x) -> x.isIgnoringItemInteractionPlaySoundExceptedEntity(player, hand, stack, world));
+    }
+
     /**
      * This method allows to define Data Component Types, which need to be always synced to clients,
      * even if they have the default value for sent ItemStack.
@@ -645,6 +655,11 @@ public final class PolymerItemUtils {
     @FunctionalInterface
     public interface PolymerItemInteractionListener {
         boolean isPolymerItemInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, ActionResult actionResult);
+    }
+
+    @FunctionalInterface
+    public interface PolymerIgnoreSoundExceptionListener {
+        boolean isIgnoringItemInteractionPlaySoundExceptedEntity(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world);
     }
 
     public record ItemWithMetadata(Item item, @Nullable Identifier itemModel) {

@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 
 public class PolymerImplUtils {
     public static final ThreadLocal<Unit> IS_RELOADING_WORLD = new ThreadLocal<>();
+    public static final ThreadLocal<Unit> IGNORE_PLAY_SOUND_EXCLUSION = new ThreadLocal<>();
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
     public static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
 

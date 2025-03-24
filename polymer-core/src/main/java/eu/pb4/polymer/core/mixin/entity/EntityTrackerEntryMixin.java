@@ -36,9 +36,10 @@ import java.util.function.Consumer;
 @Mixin(EntityTrackerEntry.class)
 public abstract class EntityTrackerEntryMixin {
     @Shadow @Final private Entity entity;
-    @Shadow @Final private Consumer<Packet<?>> receiver;
 
     @Shadow @Nullable private List<DataTracker.SerializedEntry<?>> changedEntries;
+
+    @Shadow @Final private Consumer<Packet<?>> watchingSender;
 
     @ModifyVariable(method = "sendPackets", at = @At("HEAD"), argsOnly = true)
     private Consumer<Packet<?>> polymer$packetWrap(Consumer<Packet<?>> packetConsumer, @Local(argsOnly = true) ServerPlayerEntity player) {
@@ -80,7 +81,7 @@ public abstract class EntityTrackerEntryMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void polymer$tickHead(CallbackInfo ci) {
         var polymerEntity = PolymerEntity.get(this.entity);
-        if (polymerEntity != null && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
+        if (polymerEntity != null && this.watchingSender instanceof PlayerBoundConsumer<Packet<?>> consumer) {
             polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
         }
     }
@@ -88,7 +89,7 @@ public abstract class EntityTrackerEntryMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
         var polymerEntity = PolymerEntity.get(this.entity);
-        if (polymerEntity != null && this.receiver instanceof PlayerBoundConsumer<Packet<?>> consumer) {
+        if (polymerEntity != null && this.watchingSender instanceof PlayerBoundConsumer<Packet<?>> consumer) {
             polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
         }
     }

@@ -14,8 +14,11 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -53,6 +56,11 @@ public class TestBlock extends Block implements PolymerBlock {
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return state.get(TEST) % 2 == 0 ? Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP) : Blocks.NOTE_BLOCK.getDefaultState();
+    }
+
+    @Override
+    public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
+        return true;
     }
 
     @Override

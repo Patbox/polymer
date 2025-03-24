@@ -15,6 +15,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
+import xyz.nucleoid.packettweaker.impl.MutableContext;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -165,6 +166,39 @@ public final class PolymerCommonUtils {
         } finally {
             FORCE_NETWORKING.set(val);
         }
+    }
+
+    public static ScopedOverride executeWithNetworkingLogic() {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(LogicOverride.TRUE);
+
+        return () -> FORCE_NETWORKING.set(val);
+    }
+
+    public static ScopedOverride executeWithNetworkingLogic(PacketListener listener) {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(LogicOverride.TRUE);
+        var connection = MutableContext.get().getClientConnection();
+        var packet = MutableContext.get().getEncodedPacket();
+        MutableContext.get().set(listener, null);
+
+        return () -> {
+            MutableContext.get().set(connection, packet);
+            FORCE_NETWORKING.set(val);
+        };
+    }
+
+    public static ScopedOverride executeWithoutNetworkingLogic() {
+        var val = FORCE_NETWORKING.get();
+        FORCE_NETWORKING.set(LogicOverride.FALSE);
+        var connection = MutableContext.get().getClientConnection();
+        var packet = MutableContext.get().getEncodedPacket();
+        MutableContext.get().clear();
+
+        return () -> {
+            MutableContext.get().set(connection, packet);
+            FORCE_NETWORKING.set(val);
+        };
     }
 
 

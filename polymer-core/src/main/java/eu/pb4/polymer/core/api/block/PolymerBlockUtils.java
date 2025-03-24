@@ -42,6 +42,7 @@ public final class PolymerBlockUtils {
     public static final BooleanEvent<MineEventListener> SERVER_SIDE_MINING_CHECK = new BooleanEvent<>();
     public static final SimpleEvent<BreakingProgressListener> BREAKING_PROGRESS_UPDATE = new SimpleEvent<>();
     public static final BooleanEvent<PolymerBlockInteractionListener> POLYMER_BLOCK_INTERACTION_CHECK = new BooleanEvent<>();
+    public static final BooleanEvent<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = new BooleanEvent<>();
     /**
      * This event allows you to force syncing of light updates between server and clinet
      */
@@ -187,6 +188,16 @@ public final class PolymerBlockUtils {
         return POLYMER_BLOCK_INTERACTION_CHECK.invoke(x -> x.isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult));
     }
 
+    public static boolean isIgnoringPlaySoundExceptedEntity(ServerPlayerEntity player, ItemStack stack, Hand hand, BlockState state, BlockHitResult blockHitResult, ServerWorld world) {
+        if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock && polymerBlock.isIgnoringBlockInteractionPlaySoundExceptedEntity(state, player, hand, stack, world, blockHitResult)) {
+            return true;
+        } else if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isIgnoringBlockInteractionPlaySoundExceptedEntity(state, player, hand, stack, world, blockHitResult)) {
+            return true;
+        }
+
+        return POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY.invoke(x -> x.isIgnoringBlockInteractionPlaySoundExceptedEntity(state, player, hand, stack, world, blockHitResult));
+    }
+
     @FunctionalInterface
     public interface MineEventListener {
         boolean onBlockMine(BlockState state, BlockPos pos, ServerPlayerEntity player);
@@ -200,5 +211,10 @@ public final class PolymerBlockUtils {
     @FunctionalInterface
     public interface PolymerBlockInteractionListener {
         boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult);
+    }
+
+    @FunctionalInterface
+    public interface PolymerIgnoreSoundExceptionListener {
+        boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult);
     }
 }

@@ -66,4 +66,8 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
     default boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult) {
         return true;
     }
+
+    default boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
+        return false;
+    }
 }
