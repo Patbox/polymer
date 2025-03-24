@@ -48,7 +48,7 @@ Video spotlights are available [Here](https://www.youtube.com/watch?v=JU-iLKURhz
 ## Blahaj Port (1.20.4 / Latest)
 Port of the Blahaj mod to Polymer.
 ### Links:
-- GitHub: https://github.com/CCF100/Blahaj
+- GitHub: https://github.com/CCF100/Blahaj-Polymerized
 - Modrinth: https://modrinth.com/mod/blahaj-polymerized
 
 ## blockbench import library (1.21 / latest)
