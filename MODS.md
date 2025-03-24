@@ -45,6 +45,11 @@ Video spotlights are available [Here](https://www.youtube.com/watch?v=JU-iLKURhz
 - GitHub: https://github.com/MayaqqDev/biome-compass
 - Modrinth: https://modrinth.com/mod/biome-compass
 
+## Blahaj Port (1.20.4 / Latest)
+Port of the Blahaj mod to Polymer.
+### Links:
+- GitHub: https://github.com/CCF100/Blahaj-Polymerized
+- Modrinth: https://modrinth.com/mod/blahaj-polymerized
 
 ## blockbench import library (1.21 / latest)
 *blockbench import library* simplifies model import, generates item models & textures, and leverages Polymer for resource pack creation.
