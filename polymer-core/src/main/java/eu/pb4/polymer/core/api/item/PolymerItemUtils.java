@@ -471,11 +471,13 @@ public final class PolymerItemUtils {
 
 
         var display = out.getOrDefault(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT);
+
         for (var x : out.getComponents()) {
             if (!IGNORE_TOOLTIP_HIDING.contains(x.type()) && (x.value() instanceof TooltipAppender || FORCE_HIDE_TOOLTIP.contains(x.type()))) {
                 display = display.with(x.type(), true);
             }
         }
+        display.hiddenComponents().removeIf(PolymerComponent::isPolymerComponent);
         out.set(DataComponentTypes.TOOLTIP_DISPLAY, display);
 
         try {

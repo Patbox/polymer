@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.api.utils;
 
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -43,6 +44,7 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
     static <T> void setSyncedObject(Registry<T> registry, T obj, PolymerSyncedObject<T> object) {
         //noinspection unchecked
         ((RegistryExtension<T>) registry).polymer$setOverlay(obj, object);
+        RegistrySyncUtils.setServerEntry(registry, obj);
     }
 
     @Nullable

@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.api.other;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
