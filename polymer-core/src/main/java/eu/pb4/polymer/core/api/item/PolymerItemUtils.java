@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
@@ -33,6 +34,7 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryOps;
@@ -196,8 +198,21 @@ public final class PolymerItemUtils {
                 }
 
                 return x;
-            } catch (Throwable ignored) {
+            } catch (Throwable exception) {
+                if (CommonImpl.LOG_MORE_ERRORS) {
+                    var context = PacketContext.get();
+                    NbtElement nbt = null;
+                    try {
+                        nbt = itemStack.encodeAllowEmpty(lookup);
+                    } catch (Throwable e) {
+                        CommonImpl.LOGGER.error("Failed to encode ItemStack for debugging! See lower warning for more info!", exception);
+                    }
 
+                    CommonImpl.LOGGER.warn("Failed to decode seemingly polymeric ItemStack for {}!\nClient item data: {}",
+                            context.getGameProfile() != null ? context.getGameProfile().getName() : "<UNKNOWN>",
+                            nbt != null ? NbtHelper.toFormattedString(nbt) : "<ERROR>",
+                            exception);
+                }
             }
         }
 
