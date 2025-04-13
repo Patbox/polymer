@@ -12,8 +12,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import xyz.nucleoid.packettweaker.PacketContext;
 
-public class PolymcInteractionReplacement implements PolymerBlockUtils.MineEventListener, PolymerBlockUtils.PolymerBlockInteractionListener, PolymerItemUtils.PolymerItemInteractionListener {
+public class PolymcInteractionReplacement implements PolymerBlockUtils.MineEventListener, PolymerBlockUtils.PolymerBlockInteractionListener, PolymerItemUtils.PolymerItemInteractionListener, PolymerItemUtils.ServerItemPredicate {
     @Override
     public boolean onBlockMine(BlockState state, BlockPos pos, ServerPlayerEntity player) {
         return !player.isCreative() && (isPolyMcBlock(state, player) || isPolyMcItem(player.getMainHandStack(), player));
@@ -47,5 +48,16 @@ public class PolymcInteractionReplacement implements PolymerBlockUtils.MineEvent
         var polyMap = PolyMapProvider.getPolyMap(player);
         var block = polyMap.getBlockPoly(state.getBlock());
         return (block != null && !(block instanceof PassthroughPoly));
+    }
+
+    @Override
+    public boolean isServerItem(ItemStack itemStack, PacketContext context) {
+        if (!Util.isPolyMapVanillaLike(context.getPlayer() ) ) {
+            return false;
+        }
+
+        var polyMap = Util.tryGetPolyMap(context.getClientConnection());
+        var tool = polyMap.getItemPoly(itemStack.getItem());
+        return (tool != null && !(tool instanceof PassthroughPoly));
     }
 }

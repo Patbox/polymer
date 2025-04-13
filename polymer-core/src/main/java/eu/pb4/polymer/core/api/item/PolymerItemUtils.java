@@ -89,6 +89,7 @@ public final class PolymerItemUtils {
 
     public static final BooleanEvent<PolymerItemInteractionListener> POLYMER_ITEM_INTERACTION_CHECK = new BooleanEvent<>();
     public static final BooleanEvent<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = new BooleanEvent<>();
+    public static final BooleanEvent<ServerItemPredicate> IS_SERVER_ITEM_EVENT = new BooleanEvent<>();
 
     private static final IdentityHashMap<Item, List<ComponentType<?>>> FORCE_SYNCED_COMPONENTS = new IdentityHashMap<>();
 
@@ -646,7 +647,7 @@ public final class PolymerItemUtils {
             }
         }
 
-        return false;
+        return IS_SERVER_ITEM_EVENT.invoke(x -> x.isServerItem(stack, context));
     }
 
     @FunctionalInterface
@@ -662,6 +663,11 @@ public final class PolymerItemUtils {
     @FunctionalInterface
     public interface PolymerIgnoreSoundExceptionListener {
         boolean isIgnoringItemInteractionPlaySoundExceptedEntity(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world);
+    }
+
+    @FunctionalInterface
+    public interface ServerItemPredicate {
+        boolean isServerItem(ItemStack stack, PacketContext context);
     }
 
     public record ItemWithMetadata(Item item, @Nullable Identifier itemModel) {

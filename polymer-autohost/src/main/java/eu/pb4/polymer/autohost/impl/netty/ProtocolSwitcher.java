@@ -13,7 +13,9 @@ public class ProtocolSwitcher extends ChannelInboundHandlerAdapter {
     public static final String ID = "polymer:autohost/protocol_switcher";
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
-        var buf = (ByteBuf) OpaqueByteBufHolder.unpack(msg);
+        if (!(OpaqueByteBufHolder.unpack(msg) instanceof ByteBuf buf)) {
+            return;
+        }
         var i = buf.readerIndex();
 
         if (buf.readableBytes() > 2 && isHttp(buf.getByte(i), buf.getByte(i + 1))) {

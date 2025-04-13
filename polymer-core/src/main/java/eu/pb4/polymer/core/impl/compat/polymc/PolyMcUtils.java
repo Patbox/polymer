@@ -39,6 +39,8 @@ public class PolyMcUtils {
             PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.register(event);
             PolymerBlockUtils.POLYMER_BLOCK_INTERACTION_CHECK.register(event);
             PolymerItemUtils.POLYMER_ITEM_INTERACTION_CHECK.register(event);
+
+            PolymerItemUtils.IS_SERVER_ITEM_EVENT.register(event);
         }
     }
 }

@@ -16,10 +16,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.decoration.painting.PaintingVariant;
-import net.minecraft.entity.passive.ChickenVariant;
-import net.minecraft.entity.passive.CowVariant;
-import net.minecraft.entity.passive.PigVariant;
-import net.minecraft.entity.passive.WolfVariant;
+import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.spawn.SpawnConditionSelectors;
 import net.minecraft.fluid.Fluid;
@@ -39,6 +36,7 @@ import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.*;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
@@ -147,6 +145,20 @@ public final class FakeWorld extends World implements LightSourceView {
                     new ChickenVariant(
                             new ModelAndTexture<>(ChickenVariant.Model.NORMAL, new AssetInfo(Identifier.of("polymer", "wolf"))
                             ), SpawnConditionSelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(RegistryKeys.CAT_VARIANT,
+                    Identifier.of("polymer","cat"),
+                    new CatVariant(
+                            new AssetInfo(Identifier.of("polymer", "cat")
+                            ), SpawnConditionSelectors.EMPTY)));
+            addRegistry(new FakeRegistry<>(RegistryKeys.FROG_VARIANT,
+                    Identifier.of("polymer","frog"),
+                    new FrogVariant(
+                            new AssetInfo(Identifier.of("polymer", "frog")
+                            ), SpawnConditionSelectors.EMPTY)));
+            addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_SOUND_VARIANT,
+                    Identifier.of("polymer","wolf"),
+                    SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.Type.CLASSIC)));
         }
     };
     static final ServerRecipeManager RECIPE_MANAGER = new ServerRecipeManager(FALLBACK_REGISTRY_MANAGER);
