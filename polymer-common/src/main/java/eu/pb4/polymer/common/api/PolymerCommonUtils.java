@@ -34,7 +34,7 @@ public final class PolymerCommonUtils {
 
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
     private static Path cachedClientPath;
-    private final static String SAFE_CLIENT_SHA1 = "a7e5a6024bfd3cd614625aa05629adf760020304";
+    private final static String SAFE_CLIENT_SHA1 = "b88808bbb3da8d9f453694b5d8f74a3396f1a533";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientJarRoot;
 
