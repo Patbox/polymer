@@ -128,7 +128,7 @@
     "client.item.ItemStackMixin",
     "client.rendering.BakedModelManagerMixin",
     "client.rendering.BlockModelsMixin",
-    "client.rendering.EntityRenderDispatcherMixin",
+    "client.rendering.EntityRenderersMixin",
     "client.syncreg.IdListMixin",
     "client.syncreg.SimpleRegistryMixin"
   ],

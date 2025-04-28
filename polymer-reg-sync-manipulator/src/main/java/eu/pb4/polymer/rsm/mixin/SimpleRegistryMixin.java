@@ -1,6 +1,7 @@
 package eu.pb4.polymer.rsm.mixin;
 
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
+import eu.pb4.polymer.rsm.impl.RegSyncImplUtil;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.registry.*;
@@ -76,7 +77,7 @@ public abstract class SimpleRegistryMixin<T> implements RegistrySyncExtension<T>
         if (this.registryStatus == null) {
             var status = Status.VANILLA;
             for (var id : this.getIds()) {
-                if (id.getNamespace().equals("minecraft") || id.getNamespace().equals("brigadier")) {
+                if (RegSyncImplUtil.isVanillaId(id)) {
                     continue;
                 }
 

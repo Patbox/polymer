@@ -205,6 +205,7 @@ public class TestMod implements ModInitializer {
 
     public static final EntityType<TestEntity2> ENTITY_2 = registerEntity("entity2", EntityType.Builder.create(TestEntity2::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f));
     public static final EntityType<TestEntity3> ENTITY_3 = registerEntity("entity3", EntityType.Builder.create(TestEntity3::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f));
+    public static final EntityType<ClientTestEntity3> CLIENT_ENTITY_3 = registerEntity("cliententity3", EntityType.Builder.create(ClientTestEntity3::new, SpawnGroup.CREATURE).dimensions(0.75f, 1.8f));
 
     public static final EntityType<UnrealBlockEntity> PHYSIC_ENTITY_3 = registerEntity("psych", EntityType.Builder.create(UnrealBlockEntity::new, SpawnGroup.CREATURE).dimensions(1, 1)
             .trackingTickInterval(1));
@@ -401,10 +402,11 @@ public class TestMod implements ModInitializer {
         FabricDefaultAttributeRegistry.register(ENTITY_2, TestEntity2.createCreeperAttributes());
 
         FabricDefaultAttributeRegistry.register(ENTITY_3, TestEntity3.createCreeperAttributes());
+        FabricDefaultAttributeRegistry.register(CLIENT_ENTITY_3, TestEntity3.createCreeperAttributes());
 
         register(Registries.ENCHANTMENT_ENTITY_EFFECT_TYPE, Identifier.of("test", "test"), TestEnchantmentEntityEffect.CODEC);
 
-        PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3, PHYSIC_ENTITY_3);
+        PolymerEntityUtils.registerType(ENTITY, ENTITY_2, ENTITY_3, PHYSIC_ENTITY_3, CLIENT_ENTITY_3);
 
         //PolymerItemUtils.ITEM_CHECK.register((itemStack) -> itemStack.hasNbt() && itemStack.getNbt().contains("Test", NbtElement.STRING_TYPE));
 
