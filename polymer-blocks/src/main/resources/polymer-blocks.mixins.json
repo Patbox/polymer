@@ -6,7 +6,14 @@
   "plugin": "eu.pb4.polymer.blocks.mixin.PolymerBlocksMixinConfigPlugin",
   "mixins": [
     "polymc.PolyMapImplMixin",
-    "polymc.PolyRegistryMixin"
+    "polymc.PolyRegistryMixin",
+    "sound.BlockBehaviourMixin",
+    "sound.BlockMixin",
+    "sound.EntityInvoker",
+    "sound.EntityMixin",
+    "sound.LivingEntityMixin",
+    "sound.PlayerMixin",
+    "sound.ServerPlayerGameModeMixin"
   ],
   "client": [
   ],
