@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Block.class)
 public class BlockMixin {
     @Inject(method = "spawnBreakParticles", at = @At("TAIL"))
-    private void filament$spawnDestroyParticles(World world, PlayerEntity player, BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
+    private void polymer$spawnBreakParticles(World world, PlayerEntity player, BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
         BlockSoundGroup soundCategory = null;
         if (blockState.getBlock() instanceof PolymerSoundBlock) {
             soundCategory = blockState.getSoundGroup();

@@ -22,7 +22,7 @@ public class ServerPlayerGameModeMixin {
     @Shadow private int tickCounter;
 
     @Inject(method = "continueMining", at = @At("HEAD"))
-    private void filament$soundMine(BlockState blockState, BlockPos blockPos, int startTime, CallbackInfoReturnable<Float> cir) {
+    private void polymer$soundMine(BlockState blockState, BlockPos blockPos, int startTime, CallbackInfoReturnable<Float> cir) {
         var destroyTicks = (tickCounter - startTime) - 1;
         if ((blockState.getBlock() instanceof PolymerSoundBlock || PolymerBlockSounds.REMIXES.containsValue(blockState.getSoundGroup())) && destroyTicks % 4 == 0) {
             BlockSoundGroup soundType = blockState.getSoundGroup();

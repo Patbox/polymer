@@ -27,7 +27,7 @@ public abstract class EntityMixin {
     @Shadow public abstract SoundCategory getSoundCategory();
 
     @WrapOperation(method = "playCombinationStepSounds", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;playSound(Lnet/minecraft/sound/SoundEvent;FF)V"))
-    private void filament$combinationStepSounds(Entity instance, SoundEvent soundEvent, float f, float g, Operation<Void> original, @Local(ordinal = 0, argsOnly = true) BlockState blockState) {
+    private void polymer$combinationStepSounds(Entity instance, SoundEvent soundEvent, float f, float g, Operation<Void> original, @Local(ordinal = 0, argsOnly = true) BlockState blockState) {
         if ((Object)this instanceof ServerPlayerEntity && blockState.getBlock() instanceof PolymerSoundBlock || PolymerBlockSounds.REMIXES.containsValue(blockState.getSoundGroup()))
             this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), soundEvent, this.getSoundCategory(), f, g);
         else
@@ -35,7 +35,7 @@ public abstract class EntityMixin {
     }
 
     @WrapOperation(method = "playSecondaryStepSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;playSound(Lnet/minecraft/sound/SoundEvent;FF)V"))
-    private void filament$muffledStepSounds(Entity instance, SoundEvent soundEvent, float f, float g, Operation<Void> original, @Local(ordinal = 0, argsOnly = true) BlockState blockState) {
+    private void polymer$secondaryStepSound(Entity instance, SoundEvent soundEvent, float f, float g, Operation<Void> original, @Local(ordinal = 0, argsOnly = true) BlockState blockState) {
         if ((Object)this instanceof ServerPlayerEntity && blockState.getBlock() instanceof PolymerSoundBlock || PolymerBlockSounds.REMIXES.containsValue(blockState.getSoundGroup()))
             this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), soundEvent, this.getSoundCategory(), f, g);
         else
@@ -43,7 +43,7 @@ public abstract class EntityMixin {
     }
 
     @WrapOperation(method = "playStepSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;playSound(Lnet/minecraft/sound/SoundEvent;FF)V"))
-    private void filament$stepSounds(Entity instance, SoundEvent soundEvent, float f, float g, Operation<Void> original, @Local(ordinal = 0, argsOnly = true) BlockState blockState) {
+    private void polymer$stepSounds(Entity instance, SoundEvent soundEvent, float f, float g, Operation<Void> original, @Local(ordinal = 0, argsOnly = true) BlockState blockState) {
         if ((Object)this instanceof ServerPlayerEntity && blockState.getBlock() instanceof PolymerSoundBlock || PolymerBlockSounds.REMIXES.containsValue(blockState.getSoundGroup()))
             this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), soundEvent, this.getSoundCategory(), f, g);
         else

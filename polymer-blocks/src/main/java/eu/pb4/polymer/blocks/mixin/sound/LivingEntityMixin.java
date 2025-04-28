@@ -23,7 +23,7 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     @WrapOperation(method = "playBlockFallSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;playSound(Lnet/minecraft/sound/SoundEvent;FF)V"))
-    private void filament$stepSounds(LivingEntity instance, SoundEvent soundEvent, float vol, float pitch, Operation<Void> original, @Local BlockState blockState) {
+    private void polymer$stepSounds(LivingEntity instance, SoundEvent soundEvent, float vol, float pitch, Operation<Void> original, @Local BlockState blockState) {
         if ((Object)this instanceof ServerPlayerEntity && blockState.getBlock() instanceof PolymerSoundBlock || PolymerBlockSounds.REMIXES.containsValue(blockState.getSoundGroup()))
             this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), soundEvent, this.getSoundCategory(), vol, pitch);
         else

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(AbstractBlock.class)
 public class BlockBehaviourMixin {
     @ModifyReturnValue(method = "getSoundGroup", at = @At("RETURN"))
-    private BlockSoundGroup filament$modifySoundType(BlockSoundGroup original) {
+    private BlockSoundGroup polymer$modifySoundGroup(BlockSoundGroup original) {
         var remix = PolymerBlockSounds.REMIXES.get(original);
         if (remix != null)
             return remix;

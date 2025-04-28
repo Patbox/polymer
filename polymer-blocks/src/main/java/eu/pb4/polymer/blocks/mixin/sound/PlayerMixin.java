@@ -19,7 +19,7 @@ public abstract class PlayerMixin extends PlayerEntity {
     }
 
     @Inject(method = "increaseTravelMotionStats", at = @At("HEAD"))
-    public void filament$checkMovementStatistics(double d, double e, double f, CallbackInfo ci) {
+    public void polymer$checkMovementStatistics(double d, double e, double f, CallbackInfo ci) {
         // run step sound checks etc
         if (!hasVehicle() && d != 0 && e != 0 && f != 0) ((EntityInvoker)this).invokeApplyMovementEmissionAndPlaySound(MoveEffect.SOUNDS, new Vec3d(d,e,f), this.getSteppingPos(), this.getSteppingBlockState());
     }
