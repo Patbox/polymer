@@ -9,6 +9,7 @@
     "polymc.PolyRegistryMixin"
   ],
   "client": [
+    "client.NoteBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 0
