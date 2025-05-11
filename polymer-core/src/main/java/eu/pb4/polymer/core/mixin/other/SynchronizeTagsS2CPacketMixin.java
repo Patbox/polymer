@@ -28,6 +28,9 @@ public class SynchronizeTagsS2CPacketMixin {
         var regMap = new HashMap<RegistryKey<? extends Registry<?>>, TagPacketSerializer.Serialized>();
         var player = PacketContext.get();
         for (var regEntry : groups.entrySet()) {
+            if (PolymerUtils.isServerOnlyRegistry(regEntry.getKey())) {
+                continue;
+            }
             //noinspection rawtypes,unchecked
             var reg = Registries.REGISTRIES.get((RegistryKey) regEntry.getKey());
 
@@ -48,7 +51,7 @@ public class SynchronizeTagsS2CPacketMixin {
 
                 regMap.put(regEntry.getKey(), SerializedAccessor.createSerialized(map));
             } else {
-                // Dynamic registry, client should understand it
+                // Dynamic registry, client *should* understand it
                 regMap.put(regEntry.getKey(), regEntry.getValue());
             }
         }
