@@ -16,6 +16,7 @@ public final class SoundPatcher {
     }
 
     public static void markAsIgnoringSoundExceptions(Identifier id) {
+        SoundRemapperImpl.enable();
         SoundRemapperImpl.SOUND_EXCEPTION_IGNORER.add(id);
     }
 
@@ -40,10 +41,5 @@ public final class SoundPatcher {
         var id = Identifier.of(SoundResourceGenerator.NAMESPACE, soundEvent.getNamespace() + "." + soundEvent.getPath());
         SoundRemapperImpl.register(soundEvent, id);
         SoundResourceGenerator.moveSoundEvent(soundEvent.getPath(), id.getPath());
-    }
-
-    public static ScopedOverride ignorePlaySoundExclusion() {
-        SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION.set(Unit.INSTANCE);
-        return SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION::remove;
     }
 }

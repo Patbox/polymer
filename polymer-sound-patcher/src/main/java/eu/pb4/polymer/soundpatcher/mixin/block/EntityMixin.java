@@ -20,7 +20,7 @@ public class EntityMixin {
     private void playSoundCorrectlyForBlocks(Entity instance, SoundEvent sound, float volume, float pitch, Operation<Void> original, @Local(argsOnly = true) BlockState state) {
         if (instance instanceof ServerPlayerEntity player
                 && SoundRemapperImpl.SOUND_EXCEPTION_IGNORER.contains(CoreBridge.getClientSideSoundGroup(state, PacketContext.create(player)).getStepSound().id())) {
-            try (var t = SoundPatcher.ignorePlaySoundExclusion()) {
+            try (var t = SoundRemapperImpl.ignorePlaySoundExclusion()) {
                 original.call(instance, sound, volume, pitch);
             }
         } else {

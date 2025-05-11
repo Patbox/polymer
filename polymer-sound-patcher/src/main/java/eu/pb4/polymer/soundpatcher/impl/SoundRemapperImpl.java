@@ -1,5 +1,6 @@
 package eu.pb4.polymer.soundpatcher.impl;
 
+import eu.pb4.polymer.common.api.ScopedOverride;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
@@ -43,7 +44,16 @@ public class SoundRemapperImpl {
         ignored = false;
     }
 
+    public static ScopedOverride ignorePlaySoundExclusion() {
+        SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION.set(Unit.INSTANCE);
+        return SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION::remove;
+    }
+
     public static boolean ignoreExceptions(SoundEvent value) {
+        if (ignored) {
+            return false;
+        }
+
         if (IGNORE_PLAY_SOUND_EXCLUSION.get() != null) {
             return true;
         }

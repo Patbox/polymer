@@ -89,8 +89,10 @@ dependencies {
     localRuntime (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
     compileOnly (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
     localRuntime (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
-    compileOnly (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
-    localRuntime (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
+
+    project(":polymer-sound-patcher").afterEvaluate {
+        testmodImplementation project(":polymer-sound-patcher")
+    }
 }
 
 

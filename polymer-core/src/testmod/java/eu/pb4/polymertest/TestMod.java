@@ -119,7 +119,8 @@ public class TestMod implements ModInitializer {
             .attributeModifiers(AttributeModifiersComponent.builder().add(ATTRIBUTE,
                     new EntityAttributeModifier(Identifier.of("test:aaa"), 5, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND).build()), Items.DIAMOND_BLOCK));
     public static SimplePolymerItem ITEM_3 = registerItem(Identifier.of("test", "item_3"), (s) -> new SimplePolymerItem(s.fireproof().maxCount(99), Items.CHAINMAIL_CHESTPLATE));
-    public static Block BLOCK = registerBlock(Identifier.of("test", "block"), (s) -> new TestBlock(s.luminance((state) -> 15).strength(2f)));
+    public static Block BLOCK = registerBlock(Identifier.of("test", "block"), (s) ->
+            new TestBlock(s.luminance((state) -> 15).sounds(BlockSoundGroup.IRON).strength(2f)));
     public static Block BLOCK_USE = registerBlock(Identifier.of("test", "block_use"), (s) -> new TestUseBlock(s
             .luminance((state) -> state.get(TestUseBlock.LIT) ? 15 : 0).strength(2f)));
     public static BlockItem BLOCK_ITEM = registerItem(Identifier.of("test", "block"), (s) -> new PolymerBlockItem(BLOCK, s, Items.STONE));
