@@ -11,6 +11,7 @@
     "block.BlockMixin",
     "block.EntityMixin",
     "block.LivingEntityMixin",
+    "block.RegistriesMixin",
     "block.ServerPlayerInteractionManagerMixin"
   ],
   "client": [

@@ -37,7 +37,7 @@ public class TextDisplayElement extends DisplayElement {
         this.dataTracker.set(DisplayTrackedData.Text.TEXT_OPACITY, textOpacity);
     }
 
-    private int getBackground() {
+    public int getBackground() {
         return this.dataTracker.get(DisplayTrackedData.Text.BACKGROUND);
     }
 

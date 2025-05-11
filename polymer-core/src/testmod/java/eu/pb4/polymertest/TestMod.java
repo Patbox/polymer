@@ -304,7 +304,7 @@ public class TestMod implements ModInitializer {
                 if (sound.id().getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
                     SoundPatcher.convertIntoServerSound(sound);
                 } else {
-                    SoundPatcher.markAsIgnoringSoundExceptions(sound);
+                    SoundPatcher.markAsIgnoringSoundExclusions(sound);
                 }
             }
         }

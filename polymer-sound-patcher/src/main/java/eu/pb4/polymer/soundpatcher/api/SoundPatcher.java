@@ -1,21 +1,27 @@
 package eu.pb4.polymer.soundpatcher.api;
 
-import eu.pb4.polymer.common.api.ScopedOverride;
 import eu.pb4.polymer.soundpatcher.impl.SoundRemapperImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundResourceGenerator;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Unit;
 
 public final class SoundPatcher {
     private SoundPatcher(){}
 
-    public static void markAsIgnoringSoundExceptions(SoundEvent soundEvent) {
-        markAsIgnoringSoundExceptions(soundEvent.id());
+    public static void markAsIgnoringSoundExclusions(BlockSoundGroup soundGroup) {
+        markAsIgnoringSoundExclusions(soundGroup.getStepSound());
+        markAsIgnoringSoundExclusions(soundGroup.getBreakSound());
+        markAsIgnoringSoundExclusions(soundGroup.getFallSound());
+        markAsIgnoringSoundExclusions(soundGroup.getHitSound());
+        markAsIgnoringSoundExclusions(soundGroup.getPlaceSound());
+    }
+    
+    public static void markAsIgnoringSoundExclusions(SoundEvent soundEvent) {
+        markAsIgnoringSoundExclusions(soundEvent.id());
     }
 
-    public static void markAsIgnoringSoundExceptions(Identifier id) {
+    public static void markAsIgnoringSoundExclusions(Identifier id) {
         SoundRemapperImpl.enable();
         SoundRemapperImpl.SOUND_EXCEPTION_IGNORER.add(id);
     }
@@ -36,10 +42,11 @@ public final class SoundPatcher {
         if (!soundEvent.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
             throw new IllegalArgumentException("Only vanilla / minecraft sound events are supported, provided: " + soundEvent);
         }
-        markAsIgnoringSoundExceptions(soundEvent);
+        markAsIgnoringSoundExclusions(soundEvent);
         SoundRemapperImpl.enable();
         var id = Identifier.of(SoundResourceGenerator.NAMESPACE, soundEvent.getNamespace() + "." + soundEvent.getPath());
-        SoundRemapperImpl.register(soundEvent, id);
-        SoundResourceGenerator.moveSoundEvent(soundEvent.getPath(), id.getPath());
+        if (SoundRemapperImpl.register(soundEvent, id)) {
+            SoundResourceGenerator.moveSoundEvent(soundEvent.getPath(), id.getPath());
+        }
     }
 }

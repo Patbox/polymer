@@ -30,21 +30,24 @@ public class SoundRemapperImpl {
         return new SoundEvent(id, event.fixedRange());
     }
 
-    public static void register(SoundEvent from, Identifier to) {
-        register(from.id(), to);
-    }
-
-    public static void register(Identifier from, Identifier to) {
+    public static boolean register(Identifier from, Identifier to) {
         enable();
+        if (REMAPPED_SOUND_IDS.containsKey(from) || ignored) {
+            return false;
+        }
         REMAPPED_SOUND_IDS.put(from, to);
         SOUND_EXCEPTION_IGNORER.add(from);
+        return true;
     }
 
     public static void enable() {
-        ignored = false;
+        ignored = SoundPatchImpl.FORCE_DISABLE;
     }
 
     public static ScopedOverride ignorePlaySoundExclusion() {
+        if (ignored) {
+            return ScopedOverride.NO_OP;
+        }
         SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION.set(Unit.INSTANCE);
         return SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION::remove;
     }

@@ -6,24 +6,26 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import io.github.theepicblock.polymc.api.item.ItemLocation;
 import io.github.theepicblock.polymc.api.misc.PolyMapProvider;
+import io.github.theepicblock.polymc.impl.Util;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.Nullable;
 
 public class PolyMcUtils {
 
-    public static BlockState toVanilla(BlockState state, ServerPlayerEntity player) {
+    public static BlockState toVanilla(BlockState state, @Nullable ServerPlayerEntity player) {
         if (CompatStatus.POLYMC) {
-            return PolyMapProvider.getPolyMap(player).getClientState(state, player);
+            return Util.tryGetPolyMap(player).getClientState(state, player);
         }
 
         return state;
     }
 
-    public static ItemStack toVanilla(ItemStack stack, ServerPlayerEntity player) {
+    public static ItemStack toVanilla(ItemStack stack, @Nullable ServerPlayerEntity player) {
         if (CompatStatus.POLYMC && !stack.isEmpty()) {
-            return PolyMapProvider.getPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
+            return Util.tryGetPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
         }
 
         return stack;
