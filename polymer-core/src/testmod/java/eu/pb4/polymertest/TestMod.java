@@ -14,14 +14,13 @@ import eu.pb4.polymer.core.api.other.PolymerStat;
 import eu.pb4.polymer.core.api.other.SimplePolymerPotion;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.model.ModelAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
+import eu.pb4.polymer.soundpatcher.api.SoundPatcher;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import net.fabricmc.api.EnvType;
@@ -62,6 +61,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -130,7 +130,8 @@ public class TestMod implements ModInitializer {
     public static BlockItem BLOCK_CLIENT_ITEM = registerItem(Identifier.of("test", "block_client"), (s) -> new TestClientBlockItem(BLOCK_CLIENT, s));
     public static Block BLOCK_FENCE = registerBlock(Identifier.of("test", "fence"), (s) -> new SimplePolymerBlock(s.luminance((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE));
     public static BlockItem BLOCK_FENCE_ITEM = registerItem(Identifier.of("test", "fence"), (s) ->  new PolymerBlockItem(BLOCK_FENCE, s, Items.NETHER_BRICK_FENCE));
-    public static Block BLOCK_2 = registerBlock(Identifier.of("test", "block_2"), (s) -> new SimplePolymerBlock(s.strength(2f), Blocks.TNT));
+    public static Block BLOCK_2 = registerBlock(Identifier.of("test", "block_2"), (s) -> new SimplePolymerBlock(
+            s.strength(2f).sounds(BlockSoundGroup.AMETHYST_BLOCK), Blocks.TNT));
     public static Block BLOCK_3 = registerBlock(Identifier.of("test", "block_3"), (s) -> new Test3Block(s.strength(2f)));
     public static BlockItem BLOCK_ITEM_2 = registerItem(Identifier.of("test", "block_2"), (s) -> new PolymerBlockItem(BLOCK_2, s, Items.TNT));
     public static BlockItem BLOCK_ITEM_3 = registerItem(Identifier.of("test", "block_3"), (s) -> new PolymerBlockItem(BLOCK_3, s, Items.COBWEB));
@@ -296,6 +297,16 @@ public class TestMod implements ModInitializer {
 
         PolymerItemUtils.enableStonecutterFix();
 
+
+        for (var sound : Registries.SOUND_EVENT) {
+            if (sound.id().getPath().contains("block.")) {
+                if (sound.id().getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
+                    SoundPatcher.convertIntoServerSound(sound);
+                } else {
+                    SoundPatcher.markAsIgnoringSoundExceptions(sound);
+                }
+            }
+        }
 
         PolymerItemUtils.registerOverlay(OVERLAY_ITEM, new PolymerItem() {
             @Override

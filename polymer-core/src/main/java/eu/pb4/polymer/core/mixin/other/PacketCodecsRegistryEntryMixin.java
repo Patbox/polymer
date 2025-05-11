@@ -19,18 +19,18 @@ public abstract class PacketCodecsRegistryEntryMixin {
     private RegistryEntry<?> polymer$changeData(RegistryEntry<?> val, RegistryByteBuf buf) {
         var player = PacketContext.get();
 
-        if (val.value() instanceof SoundEvent soundEvent
-                && PolymerSyncedObject.getSyncedObject(Registries.SOUND_EVENT, soundEvent) instanceof PolymerSoundEvent syncedObject) {
-            var replacement = syncedObject.getPolymerReplacement(soundEvent, player);
+        if (val.value() instanceof SoundEvent soundEvent) {
+            if (PolymerSyncedObject.getSyncedObject(Registries.SOUND_EVENT, soundEvent) instanceof PolymerSoundEvent syncedObject) {
+                var replacement = syncedObject.getPolymerReplacement(soundEvent, player);
 
-            if (PolymerSyncedObject.getSyncedObject(Registries.SOUND_EVENT, replacement) instanceof PolymerSoundEvent) {
-                return RegistryEntry.of(replacement);
+                if (PolymerSyncedObject.getSyncedObject(Registries.SOUND_EVENT, replacement) instanceof PolymerSoundEvent) {
+                    return RegistryEntry.of(replacement);
+                }
+
+                return Registries.SOUND_EVENT.getEntry(replacement);
+            } else if (RegistrySyncUtils.isServerEntry(Registries.SOUND_EVENT, soundEvent)) {
+                return RegistryEntry.of(soundEvent);
             }
-
-
-            return Registries.SOUND_EVENT.getEntry(replacement);
-        } else if (val.value() instanceof SoundEvent soundEvent && RegistrySyncUtils.isServerEntry(Registries.SOUND_EVENT, soundEvent)) {
-            return RegistryEntry.of(val.value());
         }
 
         return val;

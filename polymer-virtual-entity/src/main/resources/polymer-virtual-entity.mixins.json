@@ -31,7 +31,7 @@
     "block.PistonBlockEntityMixin",
     "block.PistonBlockMixin",
     "block.ServerChunkLoadingManagerMixin",
-    "block.ServerChunkManagerMixin",
+    "block.ServerWorldMixin",
     "block.WorldChunkMixin",
     "compat.ip_ImmPtlChunkTracking",
     "compat.ip_PlayerChunkLoadingMixin"

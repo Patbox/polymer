@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "eu.pb4.polymer.soundpatcher.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "eu.pb4.polymer.soundpatcher.mixin.PolymerSoundPatcherMixinConfigPlugin",
+  "mixins": [
+    "PacketCodecsRegistryEntryMixin",
+    "ServerWorldMixin",
+    "block.BlockItemMixin",
+    "block.BlockMixin",
+    "block.EntityMixin",
+    "block.LivingEntityMixin",
+    "block.ServerPlayerInteractionManagerMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

@@ -1,0 +1,51 @@
+archivesBaseName = "polymer-sound-patcher"
+version = rootProject.mod_version + "+" + rootProject.minecraft_version
+
+
+sourceSets {
+    testmod {
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.compileClasspath
+    }
+}
+
+loom {
+    runs {
+        testmodClient {
+            client()
+            ideConfigGenerated project.rootProject == project
+            name = "(Blocks) Test Mod Client"
+            source sourceSets.testmod
+        }
+        testmodServer {
+            server()
+            ideConfigGenerated project.rootProject == project
+            name = "(Blocks) Test Mod Server"
+            source sourceSets.testmod
+        }
+    }
+}
+
+dependencies {
+    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+
+    implementation(project(path: ':polymer-common', configuration: 'namedElements'))
+    implementation(project(path: ':polymer-resource-pack', configuration: 'namedElements'))
+    implementation(project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
+    compileOnly(project(path: ':polymer-core', configuration: 'namedElements'))
+
+
+    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.4.0') {
+        exclude(group: "org.quiltmc", module: "quilt-loader")
+    }
+    testmodImplementation sourceSets.main.output
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}

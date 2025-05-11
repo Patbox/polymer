@@ -127,6 +127,7 @@ dependencies {
     include(project(path: ":polymer-common"))
     include(project(path: ":polymer-resource-pack"))
     include(project(path: ":polymer-resource-pack-extras"))
+    //include(project(path: ":polymer-sound-patcher"))
     include(project(path: ":polymer-blocks"))
     include(project(path: ":polymer-virtual-entity"))
 }

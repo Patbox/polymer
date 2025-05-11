@@ -35,9 +35,14 @@ dependencies {
     testmodImplementation (project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
     testmodImplementation (project(path: ':polymer-networking', configuration: 'namedElements'))
     testmodImplementation (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
+    testmodImplementation (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
 
     compileOnly (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
     localRuntime (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
+    compileOnly (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
+    localRuntime (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
+    compileOnly (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
+    localRuntime (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
     modLocalRuntime("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1")
     api include('io.netty:netty-codec-http:4.1.82.Final')
 

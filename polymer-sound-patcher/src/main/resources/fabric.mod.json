@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "polymer-sound-patcher",
+  "version": "${version}",
+  "name": "Polymer (Sound Patcher)",
+  "description": "Polymer extension for crossmod compatible server sound patching!",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/polymer"
+  },
+  "license": "LGPLv3",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "polymc": [
+    ]
+  },
+  "mixins": [
+    "polymer-sound-patcher.mixins.json"
+  ],
+  "depends": {
+    "polymer-core": ">=${version}",
+    "polymer-resource-pack": ">=${version}",
+    "polymer-resource-pack-extras": ">=${version}",
+    "fabricloader": ">=0.15.0"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ],
+      "parent": "polymer-bundled",
+      "update-checker": false
+    }
+  }
+}

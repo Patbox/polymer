@@ -70,4 +70,8 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
     default boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
         return false;
     }
+
+    default boolean playSoundToSelf(BlockState state, ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+        return false;
+    }
 }
