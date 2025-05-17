@@ -108,8 +108,7 @@ public final class PolymerBlockUtils {
     }
 
     public static void registerOverlay(Block block, PolymerBlock polymerBlock) {
-        PolymerSyncedObject.setSyncedObject(Registries.BLOCK, block, polymerBlock);
-        RegistrySyncUtils.setServerEntry(Registries.BLOCK, block);
+        PolymerBlock.registerOverlay(block, polymerBlock);
     }
 
     /**

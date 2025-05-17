@@ -1,12 +1,14 @@
 package eu.pb4.polymer.core.api.item;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -111,5 +113,10 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
 
     default boolean isIgnoringItemInteractionPlaySoundExceptedEntity(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world) {
         return false;
+    }
+
+    static void registerOverlay(Item item, PolymerItem polymerItem) {
+        PolymerSyncedObject.setSyncedObject(Registries.ITEM, item, polymerItem);
+        RegistrySyncUtils.setServerEntry(Registries.ITEM, item);
     }
 }

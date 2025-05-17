@@ -316,8 +316,7 @@ public final class PolymerItemUtils {
         return nbtData.get(POLYMER_STACK_COMPONENTS_CODEC).result().orElse(Map.of());
     }
     public static void registerOverlay(Item item, PolymerItem polymerItem) {
-        PolymerSyncedObject.setSyncedObject(Registries.ITEM, item, polymerItem);
-        RegistrySyncUtils.setServerEntry(Registries.ITEM, item);
+        PolymerItem.registerOverlay(item, polymerItem);
     }
 
     public static boolean isPolymerServerItem(ItemStack itemStack) {

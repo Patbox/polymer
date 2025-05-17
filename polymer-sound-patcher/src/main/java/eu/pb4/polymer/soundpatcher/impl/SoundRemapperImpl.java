@@ -45,7 +45,8 @@ public class SoundRemapperImpl {
     }
 
     public static ScopedOverride ignorePlaySoundExclusion() {
-        if (ignored) {
+        enable();
+        if (SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION.get() != null || ignored) {
             return ScopedOverride.NO_OP;
         }
         SoundRemapperImpl.IGNORE_PLAY_SOUND_EXCLUSION.set(Unit.INSTANCE);

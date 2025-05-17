@@ -23,7 +23,9 @@ public class EntityAttachment implements HolderAttachment {
         this.holder = holder;
         ((HolderAttachmentHolder) entity).polymerVE$addHolder(this);
         this.autoTick = autoTick;
-        this.holder.setAttachment(this);
+        if (this.getClass() == EntityAttachment.class) {
+            this.holder.setAttachment(this);
+        }
     }
 
     public static EntityAttachment of(ElementHolder holder, Entity entity) {

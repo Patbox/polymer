@@ -71,6 +71,9 @@ public final class PolymerUtils {
     }
 
     public static ScopedOverride ignorePlaySoundExclusion() {
+        if (PolymerImplUtils.IGNORE_PLAY_SOUND_EXCLUSION.get() != null) {
+            return ScopedOverride.NO_OP;
+        }
         PolymerImplUtils.IGNORE_PLAY_SOUND_EXCLUSION.set(Unit.INSTANCE);
         return PolymerImplUtils.IGNORE_PLAY_SOUND_EXCLUSION::remove;
     }
