@@ -82,22 +82,23 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         this.polymer$sequence = sequence;
-        var state = this.player.getWorld().getBlockState(pos);
-        if (this.polymer$shouldMineServerSide(pos, state)) {
+        var serverState = this.player.getWorld().getBlockState(pos);
+        if (this.polymer$shouldMineServerSide(pos, serverState)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.polymer$currentBreakingProgress = 0;
-                var ogDelta = state.calcBlockBreakingDelta(this.player, this.world, pos);;
-                if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock virtualBlock) {
-                    state = PolymerBlockUtils.getBlockStateSafely(virtualBlock, state, PacketContext.create(this.player));
+                var serverDelta = serverState.calcBlockBreakingDelta(this.player, this.world, pos);
+                var clientState = serverState;
+                if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, serverState.getBlock()) instanceof PolymerBlock virtualBlock) {
+                    clientState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, serverState, PacketContext.create(this.player));
                 }
 
-                float delta = state.calcBlockBreakingDelta(this.player, this.world, pos);
+                float clientDelta = clientState.calcBlockBreakingDelta(this.player, this.world, pos);
 
-                if (delta >= 1.0f && ogDelta < 1.0f) {
-                    this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
+                if (clientDelta >= 1.0f && serverDelta < 1.0f) {
+                    this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, serverState));
                 }
 
-                if (ogDelta < 1.0f) {
+                if (serverDelta < 1.0f) {
                     polymer$sendMiningFatigue();
                 }
             } else if (action == PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK) {
@@ -105,8 +106,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                     this.polymer$clearMiningEffect();
                 }
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
-                BlockState finalState = state;
-                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, finalState, -1));
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, serverState, -1));
             }
         } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();
@@ -149,8 +149,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Unique
     private void polymer$clearMiningEffect() {
         this.polymer$hasMiningFatigue = false;
-        var x = new EntityAttributeInstance(EntityAttributes.BLOCK_BREAK_SPEED, (a) -> {});
-        x.setBaseValue(-9999);
         this.player.networkHandler.sendPacket(new EntityAttributesS2CPacket(this.player.getId(),
                 List.of(Objects.requireNonNull(this.player.getAttributeInstance(EntityAttributes.BLOCK_BREAK_SPEED)))));
 

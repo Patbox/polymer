@@ -6,6 +6,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,21 +20,23 @@ public class RegistriesMixin {
         }
 
         for (var block : Registries.BLOCK) {
+            var id = Registries.BLOCK.getId(block);
             var group = block.getDefaultState().getSoundGroup();
             if (group != null) {
-                handleSound(group.getHitSound());
-                handleSound(group.getBreakSound());
-                handleSound(group.getFallSound());
-                handleSound(group.getPlaceSound());
-                handleSound(group.getStepSound());
+                handleSound(id, group.getHitSound());
+                handleSound(id, group.getBreakSound());
+                handleSound(id, group.getFallSound());
+                handleSound(id, group.getPlaceSound());
+                handleSound(id, group.getStepSound());
             }
         }
     }
 
-    private static void handleSound(SoundEvent event) {
-        if (event.id().getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && SoundPatchImpl.VANILLA_BLOCK_SOUNDS) {
+    @Unique
+    private static void handleSound(Identifier id, SoundEvent event) {
+        if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && event.id().getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && SoundPatchImpl.VANILLA_BLOCK_SOUNDS) {
             SoundPatcher.convertIntoServerSound(event);
-        } else if (!event.id().getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && SoundPatchImpl.MODDED_BLOCK_SOUNDS) {
+        } else if (!id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && SoundPatchImpl.MODDED_BLOCK_SOUNDS) {
             SoundPatcher.markAsIgnoringSoundExclusions(event);
         }
     }

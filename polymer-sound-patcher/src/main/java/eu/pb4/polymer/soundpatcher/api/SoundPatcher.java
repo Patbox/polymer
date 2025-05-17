@@ -1,14 +1,16 @@
 package eu.pb4.polymer.soundpatcher.api;
 
+import eu.pb4.polymer.soundpatcher.impl.SoundPatchImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundRemapperImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundResourceGenerator;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Experimental
 public final class SoundPatcher {
     private SoundPatcher(){}
-
     public static void markAsIgnoringSoundExclusions(BlockSoundGroup soundGroup) {
         markAsIgnoringSoundExclusions(soundGroup.getStepSound());
         markAsIgnoringSoundExclusions(soundGroup.getBreakSound());
@@ -24,6 +26,10 @@ public final class SoundPatcher {
     public static void markAsIgnoringSoundExclusions(Identifier id) {
         SoundRemapperImpl.enable();
         SoundRemapperImpl.SOUND_EXCEPTION_IGNORER.add(id);
+    }
+
+    public static void convertAllVanillaBlockSoundsIntoServerSounds() {
+        SoundPatchImpl.VANILLA_BLOCK_SOUNDS = true;
     }
 
     public static void convertIntoServerSound(SoundEvent soundEvent) {

@@ -14,12 +14,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public class CoreBridge {
     public static BlockSoundGroup getClientSideSoundGroup(BlockState state, PacketContext context) {
         if (CompatStatus.POLYMER_CORE) {
-            if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
-                state = PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,
-                        PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, context);
-            } else {
-                state = PolymerBlockUtils.getServerSideBlockState(state, context);
-            }
+            state = PolymerBlockUtils.getServerSideBlockState(state, context);
         }
 
         return state.getSoundGroup();
@@ -27,6 +22,10 @@ public class CoreBridge {
 
     public static BlockSoundGroup getClientSideSoundGroupBreaking(BlockState state, PacketContext context) {
         if (CompatStatus.POLYMER_CORE) {
+            if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
+                state = PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,
+                        PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, context);
+            }
             state = PolymerBlockUtils.getServerSideBlockState(state, context);
         }
 

@@ -5,7 +5,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 
 public class SoundPatchImpl {
     public static final boolean FORCE_DISABLE;
-    public static final boolean VANILLA_BLOCK_SOUNDS;
+    public static boolean VANILLA_BLOCK_SOUNDS;
     public static final boolean MODDED_BLOCK_SOUNDS;
 
 

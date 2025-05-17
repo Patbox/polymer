@@ -62,6 +62,7 @@ import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -186,7 +187,14 @@ public class TestMod implements ModInitializer {
     });
 
     public static MaceItem OVERLAY_ITEM = registerItem(Identifier.of("test", "overlay_item"), s -> new MaceItem(s.fireproof()));
-    public static TntBlock OVERLAY_BLOCK = registerBlock(Identifier.of("test", "overlay_block"), TntBlock::new);
+    public static TntBlock OVERLAY_BLOCK = registerBlock(Identifier.of("test", "overlay_block"), s -> new TntBlock(s.sounds(new BlockSoundGroup(
+            0.8f, 1,
+            SoundEvents.ENTITY_CREEPER_DEATH,
+            SoundEvents.ENTITY_CREEPER_PRIMED,
+            SoundEvents.ENTITY_SNIFFER_HAPPY,
+            SoundEvents.ENTITY_SNIFFER_HURT,
+            SoundEvents.ENTITY_GENERIC_EAT.value()
+    ))));
     public static BlockItem OVERLAY_BLOCK_ITEM = registerItem(Identifier.of("test", "overlay_block"), x -> new BlockItem(OVERLAY_BLOCK, x));
     public static EntityType<IronGolemEntity> OVERLAY_ENTITY = registerEntity("overlay_entity",
             EntityType.Builder.create(IronGolemEntity::new, SpawnGroup.CREATURE).dimensions(1f, 1.8f));
@@ -299,15 +307,11 @@ public class TestMod implements ModInitializer {
         PolymerItemUtils.enableStonecutterFix();
 
 
-        for (var sound : Registries.SOUND_EVENT) {
-            if (sound.id().getPath().contains("block.")) {
-                if (sound.id().getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
-                    SoundPatcher.convertIntoServerSound(sound);
-                } else {
-                    SoundPatcher.markAsIgnoringSoundExclusions(sound);
-                }
-            }
-        }
+        SoundPatcher.convertIntoServerSound(Blocks.TNT.getDefaultState().getSoundGroup());
+        SoundPatcher.convertIntoServerSound(Blocks.NOTE_BLOCK.getDefaultState().getSoundGroup());
+        SoundPatcher.convertIntoServerSound(Blocks.DISPENSER.getDefaultState().getSoundGroup());
+        SoundPatcher.convertIntoServerSound(Blocks.EMERALD_BLOCK.getDefaultState().getSoundGroup());
+
 
         PolymerItemUtils.registerOverlay(OVERLAY_ITEM, new PolymerItem() {
             @Override
