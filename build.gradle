@@ -39,6 +39,12 @@ allprojects {
         it.options.release = 21
     }
 
+    javadoc {
+        destinationDir = file("${buildDir}/docs/javadoc")
+        exclude 'eu/pb4/polymer/*/impl/**'
+        exclude 'eu/pb4/polymer/*/mixin/**'
+    }
+
 
     repositories {
         // Add repositories to retrieve artifacts from in here.
@@ -131,6 +137,8 @@ dependencies {
     include(project(path: ":polymer-blocks"))
     include(project(path: ":polymer-virtual-entity"))
 }
+
+
 
 void setupRepositories(RepositoryHandler repositories) {
     def env = System.getenv()

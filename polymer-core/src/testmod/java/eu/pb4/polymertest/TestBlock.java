@@ -10,6 +10,7 @@ import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKeys;
@@ -21,6 +22,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -56,6 +58,17 @@ public class TestBlock extends Block implements PolymerBlock {
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return state.get(TEST) % 2 == 0 ? Blocks.DISPENSER.getDefaultState().with(DispenserBlock.FACING, Direction.UP) : Blocks.NOTE_BLOCK.getDefaultState();
+    }
+
+    @Override
+    protected float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView world, BlockPos pos) {
+        float f = state.getHardness(world, pos);
+        if (f == -1.0F) {
+            return 0.0F;
+        } else {
+            int i = player.canHarvest(state) ? 30 : 50;
+            return player.getBlockBreakingSpeed(state) / f / (float)i;
+        }
     }
 
     @Override

@@ -53,6 +53,9 @@ import xyz.nucleoid.packettweaker.PacketContext;
 import java.util.*;
 import java.util.function.Predicate;
 
+/**
+ * General utility methods used for handling polymer items
+ */
 public final class PolymerItemUtils {
     public static final String POLYMER_STACK = "$polymer:stack";
     private static final String POLYMC_STACK = "PolyMcOriginal";
@@ -87,8 +90,22 @@ public final class PolymerItemUtils {
      */
     public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
 
+    /**
+     * Allows to run additional logic, making interactions work correctly server side,
+     * emulating or preventing otherwise client dictated behaviour.
+     *
+     * See {@link PolymerItem#isPolymerItemInteraction(ServerPlayerEntity, Hand, ItemStack, ServerWorld, ActionResult)}
+     */
     public static final BooleanEvent<PolymerItemInteractionListener> POLYMER_ITEM_INTERACTION_CHECK = new BooleanEvent<>();
+    /**
+     * Changes sound logic within the item use interaction code to always play sounds to the client.
+     *
+     * See {@link PolymerItem#isIgnoringItemInteractionPlaySoundExceptedEntity(ServerPlayerEntity, Hand, ItemStack, ServerWorld)}
+     */
     public static final BooleanEvent<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = new BooleanEvent<>();
+    /**
+     * Event for extending which items should be considered to be server items (have different data on the client).
+     */
     public static final BooleanEvent<ServerItemPredicate> IS_SERVER_ITEM_EVENT = new BooleanEvent<>();
 
     private static final IdentityHashMap<Item, List<ComponentType<?>>> FORCE_SYNCED_COMPONENTS = new IdentityHashMap<>();

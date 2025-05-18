@@ -10,6 +10,7 @@ import eu.pb4.polymer.core.impl.client.compat.FabricFluids;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocolHandler;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocolHandler;
+import eu.pb4.polymer.core.impl.networking.entry.PolymerBlockEntry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.item.tooltip.TooltipType;
@@ -33,6 +34,8 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 				PolymerUtils.reloadWorld(handler1.player);
 			}
 		}));
+		ImplPolymerRegistryEvent.iterateAndRegister(Registries.BLOCK, PolymerBlockEntry::cacheCalcDeltaOverride);
+
 
 		PolyMcUtils.register();
 	}
