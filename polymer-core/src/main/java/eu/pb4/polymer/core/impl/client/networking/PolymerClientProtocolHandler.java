@@ -91,7 +91,13 @@ public class PolymerClientProtocolHandler {
 
         registerCommonHandler(PolymerGenericListPayload.class, PolymerClientProtocolHandler::handleGenericList);
 
-        registerGenericListHandler(S2CPackets.SYNC_BLOCK, PolymerBlockEntry.class, (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(), new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.text(), entry.visual(), getNonDefault(Registries.BLOCK, entry.identifier()))));
+        registerGenericListHandler(S2CPackets.SYNC_BLOCK, PolymerBlockEntry.class, (entry) -> InternalClientRegistry.BLOCKS.set(entry.identifier(), entry.numId(),
+                new ClientPolymerBlock(entry.identifier(), entry.numId(), entry.hardness(), switch (entry.miningDeltaLogic()) {
+                    case DEFAULT -> ClientPolymerBlock.MiningDeltaLogic.DEFAULT;
+                    case VANILLA -> ClientPolymerBlock.MiningDeltaLogic.VANILLA;
+                    case CUSTOM_SERVER -> ClientPolymerBlock.MiningDeltaLogic.CUSTOM_SERVER;
+                    case TOOL_REQUIRED -> ClientPolymerBlock.MiningDeltaLogic.TOOL_REQUIRED;
+                }, entry.text(), entry.visual(), getNonDefault(Registries.BLOCK, entry.identifier()), entry.visualStack())));
         registerGenericListHandler(S2CPackets.SYNC_ITEM, PolymerItemEntry.class, (entry) -> {
 
                     InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),

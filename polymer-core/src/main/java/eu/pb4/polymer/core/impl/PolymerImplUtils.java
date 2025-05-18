@@ -108,7 +108,7 @@ public class PolymerImplUtils {
                     }
 
                     for (var entry : reg) {
-                        msg.accept("" + reg.getRawId(entry) + " | " + reg.getId(entry).toString() + " | Polymer? " + PolymerUtils.isServerOnly(entry));
+                        msg.accept("" + reg.getRawId(entry) + " | " + reg.getId(entry).toString() + " | Polymer? " + PolymerUtils.isServerOnly(reg, entry));
                     }
                 }
                 msg.accept("");
@@ -222,15 +222,15 @@ public class PolymerImplUtils {
         return isPolymerControlled(stack);
     }
     public static boolean isPolymerControlled(ItemStack stack) {
-        return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null || PolymerUtils.isServerOnly(stack);
+        return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null;
     }
 
     public static PolymerTooltipType getTooltipContext(ServerPlayerEntity player) {
         return player != null && player.networkHandler instanceof PolymerPlayNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipType.ADVANCED : PolymerTooltipType.BASIC;
     }
 
-    public static boolean isServerSideSyncableEntry(Registry reg, Object obj) {
-        return PolymerUtils.isServerOnly(obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && PolyMcUtils.isServerSide(reg, obj));
+    public static boolean isServerSideSyncableEntry(@SuppressWarnings("rawtypes") Registry reg, Object obj) {
+        return PolymerUtils.isServerOnly(reg, obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && PolyMcUtils.isServerSide(reg, obj));
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player) {

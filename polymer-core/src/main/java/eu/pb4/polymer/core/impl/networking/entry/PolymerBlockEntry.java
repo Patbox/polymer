@@ -23,21 +23,21 @@ import java.util.Map;
 
 
 @ApiStatus.Internal
-public record PolymerBlockEntry(Identifier identifier, int numId, float hardness, boolean customBreakingDelta,
+public record PolymerBlockEntry(Identifier identifier, int numId, float hardness, MiningDeltaLogic miningDeltaLogic,
                                 Text text, BlockState visual, ItemStack visualStack) {
     private static final PacketCodec<ByteBuf, BlockState> STATE = PacketCodecs.entryOf(Block.STATE_IDS);
     public static final PacketCodec<ContextByteBuf, PolymerBlockEntry> CODEC = PacketCodec.of(PolymerBlockEntry::write, PolymerBlockEntry::read);
-    private static final String REMAPPED_calcBlockBreakingDelta = FabricLoader.getInstance().isDevelopmentEnvironment()
-            ? FabricLoader.getInstance().getMappingResolver()
-            .mapMethodName("intermediary", "net.minecraft.class_4970", "method_9594",
-                    "(Lnet/minecraft/class_2680;Lnet/minecraft/class_1657;Lnet/minecraft/class_1922;Lnet/minecraft/class_2338;)F")
-            : "method_9594";
+    private static final String REMAPPED_calcBlockBreakingDelta = FabricLoader.getInstance().isDevelopmentEnvironment() ? FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_4970", "method_9594", "(Lnet/minecraft/class_2680;Lnet/minecraft/class_1657;Lnet/minecraft/class_1922;Lnet/minecraft/class_2338;)F") : "method_9594";
 
     private static final Map<Class<?>, Boolean> HAS_OVERRIDDEN_DELTA = new IdentityHashMap<>();
 
     public static PolymerBlockEntry of(Block block) {
-        return new PolymerBlockEntry(Registries.BLOCK.getId(block), Registries.BLOCK.getRawId(block),
-                block.getHardness(), HAS_OVERRIDDEN_DELTA.getOrDefault(block.getClass(), Boolean.TRUE),
+        return new PolymerBlockEntry(Registries.BLOCK.getId(block), Registries.BLOCK.getRawId(block), block.getHardness(),
+                HAS_OVERRIDDEN_DELTA.getOrDefault(block.getClass(), Boolean.TRUE)
+                        ? MiningDeltaLogic.CUSTOM_SERVER
+                        : (block.getDefaultState().isToolRequired()
+                        ? MiningDeltaLogic.TOOL_REQUIRED
+                        : MiningDeltaLogic.DEFAULT),
                 block.getName(), block.getDefaultState(), block.asItem() != null ? block.asItem().getDefaultStack() : ItemStack.EMPTY);
     }
 
@@ -51,12 +51,7 @@ public record PolymerBlockEntry(Identifier identifier, int numId, float hardness
 
         while (clazz != AbstractBlock.class) {
             try {
-                clazz.getDeclaredMethod(REMAPPED_calcBlockBreakingDelta,
-                        BlockState.class,
-                        PlayerEntity.class,
-                        BlockView.class,
-                        BlockPos.class
-                );
+                clazz.getDeclaredMethod(REMAPPED_calcBlockBreakingDelta, BlockState.class, PlayerEntity.class, BlockView.class, BlockPos.class);
                 HAS_OVERRIDDEN_DELTA.put(block.getClass(), true);
                 return;
             } catch (Throwable e) {
@@ -74,13 +69,13 @@ public record PolymerBlockEntry(Identifier identifier, int numId, float hardness
         var visual = STATE.decode(buf);
         var visualStack = ItemStack.OPTIONAL_PACKET_CODEC.decode(buf);
         float hardness = -2;
-        boolean customBreakingDelta = true;
+        var miningDeltaLogic = MiningDeltaLogic.CUSTOM_SERVER;
         if (buf.version() >= 12) {
             hardness = buf.readFloat();
-            customBreakingDelta = buf.readBoolean();
+            miningDeltaLogic = buf.readEnumConstant(MiningDeltaLogic.class);
         }
 
-        return new PolymerBlockEntry(id, numId, hardness, customBreakingDelta, name, visual, visualStack);
+        return new PolymerBlockEntry(id, numId, hardness, miningDeltaLogic, name, visual, visualStack);
     }
 
     public void write(ContextByteBuf buf) {
@@ -91,7 +86,14 @@ public record PolymerBlockEntry(Identifier identifier, int numId, float hardness
         ItemStack.OPTIONAL_PACKET_CODEC.encode(buf, this.visualStack);
         if (buf.version() >= 12) {
             buf.writeFloat(this.hardness);
-            buf.writeBoolean(this.customBreakingDelta);
+            buf.writeEnumConstant(this.miningDeltaLogic);
         }
+    }
+
+    public enum MiningDeltaLogic {
+        DEFAULT,
+        TOOL_REQUIRED,
+        CUSTOM_SERVER,
+        VANILLA
     }
 }

@@ -334,7 +334,7 @@ public class Commands {
         var type = (StatType<Object>) RegistryEntryReferenceArgumentType.getRegistryEntry(context, "type", RegistryKeys.STAT_TYPE).value();
 
         for (var statObj : type.getRegistry()) {
-            if (PolymerUtils.isServerOnly(statObj) && type.hasStat(statObj)) {
+            if (PolymerUtils.isServerOnly(type.getRegistry(), statObj) && type.hasStat(statObj)) {
 
 
                 var stat = type.getOrCreateStat(statObj);

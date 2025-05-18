@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.networking.entry;
 
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -27,7 +27,7 @@ public record PolymerTagEntry(Identifier registry, List<TagData> tags) {
                 var ids = new IntArrayList();
 
                 for (var obj : entry) {
-                    if (PolymerUtils.isServerOnly(obj.value())) {
+                    if (PolymerImplUtils.isServerSideSyncableEntry(registry, obj.value())) {
                         ids.add(registry.getRawId(obj.value()));
                     }
                 }

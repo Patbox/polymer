@@ -174,6 +174,7 @@ public final class PolymerUtils {
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated(forRemoval = true)
     public static boolean isServerOnly(Object obj) {
         return obj instanceof PolymerObject
                 || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack))
