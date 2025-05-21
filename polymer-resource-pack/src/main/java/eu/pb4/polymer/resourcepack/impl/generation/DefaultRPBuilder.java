@@ -84,10 +84,14 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
                 var split = path.split("/");
 
-                if (split.length > 3 && split[0].equals("assets") && split[2].equals("atlases")) {
-                    return this.addAtlasFile(path, data);
-                } else if (split.length > 3 && split[0].equals("assets") && split[2].equals("lang")) {
-                    return this.addMergedObjectFile(path, data);
+                if (split.length >= 3 && split[0].equals("assets")) {
+                    if (split[2].equals("atlases")) {
+                        return this.addAtlasFile(path, data);
+                    } else if (split[2].equals("lang")) {
+                        return this.addMergedObjectFile(path, data);
+                    } else if (split[2].equals("sounds.json")) {
+                        return this.addMergedSoundsFile(path, data);
+                    }
                 }
             }
 
@@ -129,6 +133,38 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 var out = this.objectMergeDefinitions.computeIfAbsent(path, (x) -> new JsonObject());
                 for (var key : obj.keySet()) {
                     out.add(key, obj.get(key));
+                }
+                return true;
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean addMergedSoundsFile(String path, byte[] data) {
+        try {
+            var decode = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
+
+            if (decode instanceof JsonObject obj) {
+                var out = this.objectMergeDefinitions.computeIfAbsent(path, (x) -> new JsonObject());
+                for (var key : obj.keySet()) {
+                    var value = obj.getAsJsonObject(key);
+                    if (!out.has(key) || (value.has("replace") && value.get("replace").getAsBoolean())) {
+                        out.add(key, obj.get(key));
+                        continue;
+                    }
+                    var existing = out.getAsJsonObject(key);
+                    if (value.has("subtitle")) {
+                        existing.add("subtitle", value.get("subtitle"));
+                    }
+                    if (value.has("sounds")) {
+                        if (existing.get("sounds") instanceof JsonArray array) {
+                            array.addAll(value.getAsJsonArray("sounds"));
+                        } else {
+                            existing.add("sounds", value.get("sounds"));
+                        }
+                    }
                 }
                 return true;
             }
