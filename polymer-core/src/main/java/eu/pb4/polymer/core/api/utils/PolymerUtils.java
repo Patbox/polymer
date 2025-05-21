@@ -93,7 +93,7 @@ public final class PolymerUtils {
      * Resends world to player. It's useful to run this after player changes resource packs
      */
     public static void reloadWorld(ServerPlayerEntity player) {
-        player.server.execute(() -> {
+        player.getServer().execute(() -> {
             PolymerImplUtils.IS_RELOADING_WORLD.set(Unit.INSTANCE);
             try {
                 player.currentScreenHandler.syncState();

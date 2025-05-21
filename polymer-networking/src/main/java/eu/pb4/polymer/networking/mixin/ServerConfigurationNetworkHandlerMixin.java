@@ -33,11 +33,11 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
             return;
         }
 
-        EarlyPlayConnectionMagic.handle(player, clientData.syncedOptions(), (ServerConfigurationNetworkHandler) (Object) this, player.server, connection, (context) -> {
+        EarlyPlayConnectionMagic.handle(player, clientData.syncedOptions(), (ServerConfigurationNetworkHandler) (Object) this, player.getServer(), connection, (context) -> {
             ((ExtClientConnection) connection).polymerNet$wrongPacketConsumer(context::addStoredPacket);
 
             if (connection.isOpen()) {
-                var oldPlayer = player.server.getPlayerManager().getPlayer(this.getProfile().getId());
+                var oldPlayer = player.getServer().getPlayerManager().getPlayer(this.getProfile().getId());
                 if (oldPlayer != null) {
                     this.disconnect(Text.translatable("multiplayer.disconnect.duplicate_login"));
                 } else {

@@ -13,6 +13,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.*;
 import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
 import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
+import net.minecraft.network.packet.c2s.play.CustomClickActionC2SPacket;
 import net.minecraft.network.packet.s2c.common.CommonPingS2CPacket;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
@@ -149,6 +150,11 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
     @Override
     public void onClientOptions(ClientOptionsC2SPacket packet) {
         this.context.options().set(packet.options());
+    }
+
+    @Override
+    public void method_71953(CustomClickActionC2SPacket customClickActionC2SPacket) {
+
     }
 
     @Override

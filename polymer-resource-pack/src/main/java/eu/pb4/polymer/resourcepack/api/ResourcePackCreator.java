@@ -142,7 +142,7 @@ public final class ResourcePackCreator {
 
         if (this.packDescription != null) {
             builder.getPackMcMetaBuilder().metadata(new PackResourceMetadata(this.packDescription, SharedConstants.getGameVersion()
-                    .getResourceVersion(ResourceType.CLIENT_RESOURCES),
+                    .packVersion(ResourceType.CLIENT_RESOURCES),
                     Optional.empty()));
         }
 

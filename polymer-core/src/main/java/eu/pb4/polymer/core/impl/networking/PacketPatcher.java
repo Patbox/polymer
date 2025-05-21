@@ -190,7 +190,7 @@ public class PacketPatcher {
         NbtCompound override = null;
 
         var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
-
+        var ops = lookup.getOps(NbtOps.INSTANCE);
         if (original.get("shared_data") instanceof NbtCompound shared) {
             if (shared.get("display_item") instanceof NbtCompound itemNbt) {
                 var stack = silentItemStackFromNbt(lookup, itemNbt);
@@ -202,7 +202,7 @@ public class PacketPatcher {
 
                     try {
                         override.getCompoundOrEmpty("shared_data").put("display_item",
-                                stack.isEmpty() ? new NbtCompound() : PolymerItemUtils.getPolymerItemStack(stack, context).toNbt(lookup));
+                                ItemStack.OPTIONAL_CODEC, ops, PolymerItemUtils.getPolymerItemStack(stack, context));
                     } catch (Throwable e) {
                         e.printStackTrace();
                     }
@@ -224,7 +224,7 @@ public class PacketPatcher {
                     nbt.remove("components");
                     nbt.remove("count");
                     stack = PolymerItemUtils.getPolymerItemStack(stack, context);
-                    override.getListOrEmpty("Items").set(i, stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup, nbt));
+                    override.getListOrEmpty("Items").set(i, ItemStack.OPTIONAL_CODEC.encode(stack, ops, nbt).getOrThrow());
                 }
             }
         }
@@ -244,14 +244,11 @@ public class PacketPatcher {
                 stack = PolymerItemUtils.getPolymerItemStack(stack, context);
                 override.put("item", variant
                         ? ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.encodeStart(lookup.getOps(NbtOps.INSTANCE), stack).getOrThrow()
-                        : (stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup))
-                );
+                        : ItemStack.OPTIONAL_CODEC.encodeStart(ops, stack).getOrThrow());
             }
         }
 
         if (original.get("components") instanceof NbtCompound compound) {
-            var ops = lookup.getOps(NbtOps.INSTANCE);
-
             var comp = ComponentMap.CODEC.decode(ops, compound);
             if (comp.isSuccess()) {
                 var map = comp.getOrThrow().getFirst();

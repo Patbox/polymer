@@ -452,7 +452,9 @@ public class Commands {
         var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandStack(), PacketContext.create(player)).copy();
         stack.remove(DataComponentTypes.CUSTOM_DATA);
 
-        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(!stack.isEmpty() ? stack.toNbt(context.getSource().getRegistryManager()) : new NbtCompound()), false);
+        context.getSource().sendFeedback(() -> (new NbtTextFormatter("")).apply(
+                ItemStack.OPTIONAL_CODEC.encodeStart(context.getSource().getRegistryManager().getOps(NbtOps.INSTANCE), stack).getOrThrow()
+        ), false);
 
         return 1;
     }

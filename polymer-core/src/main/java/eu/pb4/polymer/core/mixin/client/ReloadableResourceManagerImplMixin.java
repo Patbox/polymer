@@ -25,7 +25,7 @@ public class ReloadableResourceManagerImplMixin {
     private void polymer$onReload(Executor prepareExecutor, Executor applyExecutor, CompletableFuture<Unit> initialStage, List<ResourcePack> packs, CallbackInfoReturnable<ResourceReload> cir) {
         var player = ClientUtils.getPlayer();
         if (player != null) {
-            player.server.execute(() -> PolymerUtils.reloadWorld(player));
+            player.getServer().execute(() -> PolymerUtils.reloadWorld(player));
         }
     }
 }

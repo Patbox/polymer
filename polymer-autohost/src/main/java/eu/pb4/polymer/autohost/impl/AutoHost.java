@@ -1,6 +1,7 @@
 package eu.pb4.polymer.autohost.impl;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.providers.*;
 import eu.pb4.polymer.common.impl.CommonImpl;
@@ -10,9 +11,11 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import joptsimple.internal.AbbreviationMap;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 
 import java.io.File;
@@ -41,13 +44,14 @@ public class AutoHost implements ModInitializer {
         }
 
         try {
-            AutoHost.message = Text.Serialization.fromJsonTree(AutoHost.config.message, server.getRegistryManager());
+
+            AutoHost.message = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.message).getOrThrow().getFirst();
         } catch (Exception e) {
             AutoHost.message = null;
         }
 
         try {
-            AutoHost.disconnectMessage = Text.Serialization.fromJsonTree(AutoHost.config.disconnectMessage, server.getRegistryManager());
+            AutoHost.disconnectMessage = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.disconnectMessage).getOrThrow().getFirst();
         } catch (Exception e) {
             AutoHost.disconnectMessage = Text.literal("This server requires resource pack enabled to play!");
         }

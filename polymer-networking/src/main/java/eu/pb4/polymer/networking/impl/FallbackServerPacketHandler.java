@@ -58,6 +58,11 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
     }
 
     @Override
+    public void method_71953(CustomClickActionC2SPacket customClickActionC2SPacket) {
+
+    }
+
+    @Override
     public void onCookieResponse(CookieResponseC2SPacket packet) {
 
     }
@@ -309,6 +314,11 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
 
     @Override
     public void onUpdateDifficulty(UpdateDifficultyC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onChangeGameMode(ChangeGameModeC2SPacket packet) {
 
     }
 

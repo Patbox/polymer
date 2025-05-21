@@ -11,6 +11,6 @@ public class ViaVersionUtils {
         if (x != null) {
             return x.getVersion();
         }
-        return SharedConstants.getGameVersion().getProtocolVersion();
+        return SharedConstants.getGameVersion().protocolVersion();
     }
 }

@@ -179,6 +179,11 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
         this.context.options().setValue(packet.options());
     }
 
+    @Override
+    public void method_71953(CustomClickActionC2SPacket customClickActionC2SPacket) {
+
+    }
+
     public final void sendInitialGameJoin() {
         if (!this.isForcingRespawnPacket()) {
             var player = this.getPlayer();
@@ -477,6 +482,11 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
 
     @Override
     public void onUpdateDifficulty(UpdateDifficultyC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onChangeGameMode(ChangeGameModeC2SPacket packet) {
 
     }
 

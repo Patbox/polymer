@@ -25,6 +25,8 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -134,6 +136,16 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     }
 
     @Override
+    protected void readCustomData(ReadView view) {
+
+    }
+
+    @Override
+    protected void writeCustomData(WriteView view) {
+
+    }
+
+    @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
         return this.tater ? EntityType.ITEM_DISPLAY : EntityType.BLOCK_DISPLAY;
     }
@@ -161,7 +173,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
         data.add(DataTracker.SerializedEntry.of(INTER_DUR, 1));
         data.add(DataTracker.SerializedEntry.of(TRANSLATION, this.translation));
         data.add(DataTracker.SerializedEntry.of(ROTATION_LEFT, this.rotationLeft));
-        data.add(DataTracker.SerializedEntry.of(LIGHT, new Brightness(Math.max(player.getWorld().getLightLevel(LightType.BLOCK, this.getBlockPos().up()), this.blockState.getLuminance()), player.getServerWorld().getLightLevel(LightType.SKY, this.getBlockPos().up())).pack()));
+        data.add(DataTracker.SerializedEntry.of(LIGHT, new Brightness(Math.max(player.getWorld().getLightLevel(LightType.BLOCK, this.getBlockPos().up()), this.blockState.getLuminance()), player.getWorld().getLightLevel(LightType.SKY, this.getBlockPos().up())).pack()));
     }
 
     public void applyAffineTransformation(AffineTransformation affineTransformation) {
@@ -170,15 +182,5 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
         scale = affineTransformation.getScale();
         rotationLeft = affineTransformation.getRightRotation();
         this.dataTracker.set(DIRTY_MARKER, this.dataTracker.get(DIRTY_MARKER) + 1);
-    }
-
-    @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
-
-    }
-
-    @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
-
     }
 }

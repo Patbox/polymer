@@ -17,7 +17,7 @@ public class ServerMetadataKeys {
     public static final Identifier LIMITED_F3 = id("settings/limited_f3");
 
     public static void setup() {
-        PolymerServerNetworking.setServerMetadata(MINECRAFT_VERSION, NbtString.of(SharedConstants.getGameVersion().getName()));
+        PolymerServerNetworking.setServerMetadata(MINECRAFT_VERSION, NbtString.of(SharedConstants.getGameVersion().name()));
         PolymerServerNetworking.setServerMetadata(MINECRAFT_PROTOCOL, NbtInt.of(SharedConstants.getProtocolVersion()));
         PolymerServerNetworking.setServerMetadata(LIMITED_F3, NbtByte.of(false));
     }

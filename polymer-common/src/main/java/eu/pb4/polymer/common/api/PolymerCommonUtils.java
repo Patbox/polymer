@@ -243,7 +243,7 @@ public final class PolymerCommonUtils {
         if (CompatStatus.VIAVERSION) {
             return ViaVersionUtils.getProtocol(profile.getId());
         }
-        return SharedConstants.getGameVersion().getProtocolVersion();
+        return SharedConstants.getGameVersion().protocolVersion();
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {

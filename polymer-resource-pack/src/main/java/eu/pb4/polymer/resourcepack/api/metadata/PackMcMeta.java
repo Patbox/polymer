@@ -36,7 +36,7 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
     public static class Builder {
         private PackResourceMetadata metadata = new PackResourceMetadata(
                 Text.literal("Server Resource Pack"),
-                SharedConstants.getGameVersion().getResourceVersion(ResourceType.CLIENT_RESOURCES),
+                SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES),
                 Optional.empty()
         );
         private final List<BlockEntry> filter = new ArrayList<>();

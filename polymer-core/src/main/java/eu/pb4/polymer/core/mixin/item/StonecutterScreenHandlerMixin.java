@@ -41,7 +41,7 @@ public abstract class StonecutterScreenHandlerMixin extends ScreenHandler {
     private void catchPlayer(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context, CallbackInfo ci) {
         if (PolymerItemUtils.isStonecutterFixEnabled() && playerInventory.player instanceof ServerPlayerEntity player) {
             this.player = player;
-            player.networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(player.getServerWorld().getRecipeManager().getPropertySets(), this.availableRecipes));
+            player.networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(player.getWorld().getRecipeManager().getPropertySets(), this.availableRecipes));
         }
     }
 
@@ -52,7 +52,7 @@ public abstract class StonecutterScreenHandlerMixin extends ScreenHandler {
         }
 
         if (this.availableRecipes.isEmpty()) {
-            player.networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(player.getServerWorld().getRecipeManager().getPropertySets(), this.availableRecipes));
+            player.networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(player.getWorld().getRecipeManager().getPropertySets(), this.availableRecipes));
         } else {
             var list = new ArrayList<CuttingRecipeDisplay.GroupEntry<StonecuttingRecipe>>();
 
@@ -62,7 +62,7 @@ public abstract class StonecutterScreenHandlerMixin extends ScreenHandler {
                 list.add(new CuttingRecipeDisplay.GroupEntry<>(clientItem, x.recipe()));
             }
 
-            player.networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(player.getServerWorld().getRecipeManager().getPropertySets(),
+            player.networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(player.getWorld().getRecipeManager().getPropertySets(),
                     new CuttingRecipeDisplay.Grouping<>(list)));
 
         }
