@@ -11,7 +11,7 @@ public class FloodGateUtils {
         return FloodgateApi.getInstance().isFloodgatePlayer(player.getUuid());
     }
 
-    public static boolean isPlayerBroken(GameProfile profile) {
-        return FloodgateApi.getInstance().isFloodgatePlayer(profile.getId());
+    public static boolean isPlayerBroken(UUID uuid) {
+        return FloodgateApi.getInstance().isFloodgatePlayer(uuid);
     }
 }

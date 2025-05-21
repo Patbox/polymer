@@ -10,10 +10,11 @@ public final class CompatStatus {
     public static final boolean POLYMER_BLOCKS = LOADER.isModLoaded("polymer-blocks");
     public static final boolean POLYMER_CORE = LOADER.isModLoaded("polymer-core");
     public static final boolean POLYMER_AUTOHOST = LOADER.isModLoaded("polymer-autohost");
+    public static final boolean POLYMER_SOUND_PATCH = LOADER.isModLoaded("polymer-sound-patch");
     public static final boolean POLYMER_VIRTUAL_ENTITY = LOADER.isModLoaded("polymer-virtual-entity");
-
-
     public static final boolean POLYMER_RESOURCE_PACK = LOADER.isModLoaded("polymer-resource-pack");
+    public static final boolean POLYMER_RESOURCE_PACK_EXTRAS = LOADER.isModLoaded("polymer-resource-pack-extras");
+
     @Deprecated
     public static final boolean POLYMER_RESOURCE_PACKS = POLYMER_RESOURCE_PACK;
 
@@ -47,8 +48,10 @@ public final class CompatStatus {
     public static final boolean PROXY_MODS = FABRIC_PROXY || FABRIC_PROXY_LITE || QFORWARD || FAPROXY;
 
     public static final boolean E4MC = LOADER.isModLoaded("e4mc_minecraft");
+    public static final boolean WORLD_HOST = LOADER.isModLoaded("world-host");
 
     public static final boolean FLOODGATE = LOADER.isModLoaded("floodgate");
+    public static final boolean VIAVERSION = LOADER.isModLoaded("viaversion");
 
     public static final boolean IRIS = LOADER.isModLoaded("iris");
     public static final boolean CANVAS = LOADER.isModLoaded("canvas");

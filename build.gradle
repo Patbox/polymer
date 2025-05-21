@@ -71,6 +71,8 @@ allprojects {
         maven { url "https://maven.theepicblock.nl" }
         maven { url "https://repo.opencollab.dev/maven-snapshots/" }
         maven { url 'https://maven.ladysnake.org/releases' }
+        maven { url = "https://repo.viaversion.com" }
+
         mavenLocal()
     }
 
