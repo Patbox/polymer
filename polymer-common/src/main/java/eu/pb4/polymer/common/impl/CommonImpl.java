@@ -225,6 +225,8 @@ public final class CommonImpl {
                 case "quiltReg" -> CompatStatus.QUILT_REGISTRY;
                 default -> true;
             };
+        } else if (name.startsWith("debug.")) {
+            return CommonImpl.DEVELOPER_MODE;
         }
 
         return true;

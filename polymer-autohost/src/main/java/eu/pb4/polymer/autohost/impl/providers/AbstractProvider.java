@@ -5,6 +5,7 @@ import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import com.sun.net.httpserver.HttpExchange;
+import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
@@ -13,12 +14,15 @@ import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -76,11 +80,26 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     }
 
     @Override
-    public Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection) {
-        return List.of(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.getAddress(connection), this.hash));
+    public final Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection) {
+        var list = new ArrayList<MinecraftServer.ServerResourcePackProperties>();
+        var context = PacketContext.create(connection);
+
+        list.add(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.getMainFilePath(context), this.hash));
+        AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.invoke(x -> x.collectSendResourcePacks(this, context, list::add));
+        return list;
     }
 
-    protected abstract String getAddress(ClientConnection connection);
+    @Override
+    public String getFilePath(PacketContext context, Identifier identifier) {
+        return getAddress(context.getClientConnection(), identifier.getNamespace() + "/" + identifier.getPath());
+    }
+
+    @Override
+    public String getMainFilePath(PacketContext context) {
+        return getAddress(context.getClientConnection(), "main.zip");
+    }
+
+    protected abstract String getAddress(ClientConnection connection, String path);
 
     @Override
     public boolean isReady() {

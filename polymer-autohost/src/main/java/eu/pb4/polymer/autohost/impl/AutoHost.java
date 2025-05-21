@@ -8,6 +8,7 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
+import joptsimple.internal.AbbreviationMap;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -25,6 +26,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class AutoHost implements ModInitializer {
     public static final Map<Identifier, Supplier<ResourcePackDataProvider>> TYPES = new HashMap<>();
     public static final List<MinecraftServer.ServerResourcePackProperties> GLOBAL_RESOURCE_PACKS = new ArrayList<>();
+    public static final Map<String, Path> FILES = new HashMap<>();
     public static AutoHostConfig config = new AutoHostConfig();
     public static Text message = Text.empty();
     public static Text disconnectMessage = Text.empty();
@@ -73,7 +75,6 @@ public class AutoHost implements ModInitializer {
             }
         }
 
-
         CommonImpl.saveConfig("auto-host", config);
 
         provider.serverStarted(server);
@@ -83,17 +84,12 @@ public class AutoHost implements ModInitializer {
         provider.serverStopped(server);
     }
 
-    public static File getFile(String path) {
-        var x = getPath(path);
-        return x != null ? x.toFile() : null;
-    }
-
     public static Path getPath(String path) {
         if (path.equals("main.zip")) {
             return PolymerResourcePackUtils.getMainPath();
         }
 
-        return null;
+        return FILES.get(path);
     }
 
     @Override

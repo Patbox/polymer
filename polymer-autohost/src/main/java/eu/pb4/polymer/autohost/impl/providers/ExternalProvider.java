@@ -22,8 +22,8 @@ public class ExternalProvider extends AbstractProvider {
     }
 
     @Override
-    protected String getAddress(ClientConnection connection) {
-        return this.config.address;
+    protected String getAddress(ClientConnection connection, String path) {
+        return this.config.address + "/" + path;
     }
 
 

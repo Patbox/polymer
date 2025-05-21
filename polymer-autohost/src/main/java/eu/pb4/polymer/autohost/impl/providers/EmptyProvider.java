@@ -6,7 +6,9 @@ import com.google.gson.JsonObject;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,5 +45,15 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     @Override
     public Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection) {
         return List.of();
+    }
+
+    @Override
+    public String getMainFilePath(PacketContext context) {
+        return "main.zip";
+    }
+
+    @Override
+    public String getFilePath(PacketContext context, Identifier identifier) {
+        return identifier.getNamespace() + "/" + identifier.getPath();
     }
 }

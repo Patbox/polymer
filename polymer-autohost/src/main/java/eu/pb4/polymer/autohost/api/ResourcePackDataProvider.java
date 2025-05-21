@@ -8,6 +8,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -28,8 +29,32 @@ public interface ResourcePackDataProvider {
 
     static <T> void register(Identifier identifier, Supplier<ResourcePackDataProvider> providerCreator) {
         AutoHost.TYPES.put(identifier, providerCreator);
-    };
+    }
+
     Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection);
+
+    String getMainFilePath(PacketContext context);
+    String getFilePath(PacketContext context, Identifier identifier);
+
+    default MinecraftServer.ServerResourcePackProperties createProperties(PacketContext context, Identifier address) {
+        return this.createProperties(context,null, address, null);
+    }
+
+    default MinecraftServer.ServerResourcePackProperties createProperties(PacketContext context, Identifier address, @Nullable String hash) {
+        return this.createProperties(context,null, address, hash);
+    }
+
+    default MinecraftServer.ServerResourcePackProperties createProperties(PacketContext context, @Nullable UUID uuid, Identifier address, @Nullable String hash) {
+        return createProperties(uuid, this.getFilePath(context, address), hash);
+    }
+
+    static MinecraftServer.ServerResourcePackProperties createProperties(String address) {
+        return createProperties(null, address, null);
+    }
+
+    static MinecraftServer.ServerResourcePackProperties createProperties(String address, @Nullable String hash) {
+        return createProperties(null, address, hash);
+    }
 
     static MinecraftServer.ServerResourcePackProperties createProperties(@Nullable UUID uuid, String address, @Nullable String hash) {
         return new MinecraftServer.ServerResourcePackProperties(

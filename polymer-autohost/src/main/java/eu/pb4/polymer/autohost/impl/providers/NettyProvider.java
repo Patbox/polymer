@@ -29,11 +29,11 @@ public class NettyProvider extends AbstractProvider {
     public void serverStopped(MinecraftServer server) {}
 
     @Override
-    protected String getAddress(ClientConnection connection) {
+    protected String getAddress(ClientConnection connection, String file) {
         if (this.config.forcedAddress.isEmpty()) {
-            return "http://" + ((ClientConnectionExt) connection).polymerAutoHost$getFullAddress() + "/eu.pb4.polymer.autohost/main.zip";
+            return "http://" + ((ClientConnectionExt) connection).polymerAutoHost$getFullAddress() + "/eu.pb4.polymer.autohost/" + file;
         } else {
-            return this.config.forcedAddress + "/eu.pb4.polymer.autohost/main.zip";
+            return this.config.forcedAddress + "/eu.pb4.polymer.autohost/" + file;
         }
     }
 

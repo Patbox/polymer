@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.mixin.client;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.client.ClientDebugFlags;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocol;
 import eu.pb4.polymer.core.impl.networking.C2SPackets;
@@ -37,9 +38,21 @@ public abstract class KeyboardMixin {
 
     @Inject(method = "processF3", at = @At("TAIL"), cancellable = true)
     private void polymer_processF3(int key, CallbackInfoReturnable<Boolean> cir) {
-        if (key == GLFW.GLFW_KEY_0 && CommonImpl.DEVELOPER_MODE) {
+        if (!CommonImpl.DEVELOPER_MODE) {
+            return;
+        }
+
+        if (key == GLFW.GLFW_KEY_0) {
             PolymerImplUtils.dumpRegistry();
             this.debugLog("Dumped Polymer Client registry!");
+            cir.setReturnValue(true);
+        } else if (key == GLFW.GLFW_KEY_LEFT_BRACKET) {
+            ClientDebugFlags.customItemModels = !ClientDebugFlags.customItemModels;
+            this.debugLog("Component item models: " + ClientDebugFlags.customItemModels);
+            cir.setReturnValue(true);
+        } else if (key == GLFW.GLFW_KEY_RIGHT_BRACKET) {
+            ClientDebugFlags.customFonts = !ClientDebugFlags.customFonts;
+            this.debugLog("Custom fonts: " + ClientDebugFlags.customFonts);
             cir.setReturnValue(true);
         }
     }

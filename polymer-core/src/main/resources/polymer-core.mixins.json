@@ -122,6 +122,8 @@
     "client.compat.rei_CreativeModeTabCollectorImplMixin",
     "client.compat.rei_ItemEntryDefinitionMixin",
     "client.compat.wthit_HarvestProviderMixin",
+    "client.debug.ItemModelManagerMixin",
+    "client.debug.TextRendererMixin",
     "client.entity.EntityMixin",
     "client.item.ItemGroupMixin",
     "client.item.ItemGroupsMixin",

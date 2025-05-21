@@ -7,11 +7,17 @@ import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedFile;
+import io.netty.handler.stream.ChunkedNioFile;
+import io.netty.handler.stream.ChunkedNioStream;
 import io.netty.util.CharsetUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 
 import static io.netty.handler.codec.http.HttpMethod.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -37,22 +43,21 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
 
         var path = request.uri().substring("/eu.pb4.polymer.autohost/".length());
 
-        var file = AutoHost.getFile(path);
+        var file = AutoHost.getPath(path);
 
-
-        if (file == null || !file.isFile() || !ResourcePackDataProvider.getActive().isReady()) {
+        if (file == null || !Files.isRegularFile(file) || !ResourcePackDataProvider.getActive().isReady()) {
             sendError(ctx, FORBIDDEN);
             return;
         }
 
-        RandomAccessFile raf;
+        SeekableByteChannel raf;
         try {
-            raf = new RandomAccessFile(file, "r");
-        } catch (FileNotFoundException ignore) {
+            raf = Files.newByteChannel(file, StandardOpenOption.READ);
+        } catch (Throwable ignore) {
             sendError(ctx, NOT_FOUND);
             return;
         }
-        long fileLength = raf.length();
+        long fileLength = raf.size();
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         HttpUtil.setContentLength(response, fileLength);
@@ -72,12 +77,12 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
         ChannelFuture lastContentFuture;
         if (ctx.pipeline().get(SslHandler.class) == null) {
             sendFileFuture =
-                    ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength), ctx.newProgressivePromise());
+                    ctx.write(new ChunkedNioStream(raf, 8192), ctx.newProgressivePromise());
             // Write the end marker.
             lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
         } else {
             sendFileFuture =
-                    ctx.writeAndFlush(new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)),
+                    ctx.writeAndFlush(new HttpChunkedInput(new ChunkedNioStream(raf, 8192)),
                             ctx.newProgressivePromise());
             // HttpChunkedInput will write the end marker (LastHttpContent) for us.
             lastContentFuture = sendFileFuture;
@@ -88,6 +93,8 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
             // Close the connection when the whole content is written out.
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
+
+        lastContentFuture.addListener((f) -> raf.close());
     }
 
     @Override

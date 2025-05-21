@@ -1,5 +1,6 @@
 package eu.pb4.polymer.resourcepack.extras.api;
 
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
@@ -119,6 +120,7 @@ public final class ResourcePackExtras {
                     if (!path.startsWith("assets/")) {
                         return;
                     }
+                    var originalPath = path;
                     path = path.substring("assets/".length());
 
                     for (var x : this.bridgedModels.entrySet()) {
@@ -128,19 +130,23 @@ public final class ResourcePackExtras {
                             if (!path.endsWith(".json")) {
                                 return;
                             }
-                            path = path.substring(key.getNamespace().length() + "/models/".length(), path.length() - ".json".length());
+                            try {
+                                path = path.substring(key.getNamespace().length() + "/models/".length(), path.length() - ".json".length());
 
-                            var assetPath = AssetPaths.itemAsset(key.withPath("-/" + path));
+                                var assetPath = AssetPaths.itemAsset(key.withPath("-/" + path));
 
-                            if (b.getData(assetPath) != null) {
+                                if (b.getData(assetPath) != null) {
+                                    return;
+                                }
+
+                                var asset = x.getValue().apply(key.withPath(path), b);
+                                if (asset != null) {
+                                    b.addData(assetPath, asset.toJson().getBytes(StandardCharsets.UTF_8));
+                                }
                                 return;
+                            } catch (Throwable e) {
+                                CommonImpl.LOGGER.warn("Invalid resource pack file! {}", originalPath, e);
                             }
-
-                            var asset = x.getValue().apply(key.withPath(path), b);
-                            if (asset != null) {
-                                b.addData(assetPath, asset.toJson().getBytes(StandardCharsets.UTF_8));
-                            }
-                            return;
                         }
                     }
                 });

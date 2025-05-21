@@ -22,7 +22,6 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
     private Config config;
     private HttpServer server;
     public String baseAddress = "";
-    public String fullAddress = "";
 
     @Nullable
     public void serverStarted(MinecraftServer minecraftServer) {
@@ -54,15 +53,14 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
 
     protected boolean updateHash() {
         if (super.updateHash()) {
-            this.fullAddress = this.baseAddress + "main.zip";
             return true;
         }
         return false;
     }
 
     @Override
-    protected String getAddress(ClientConnection connection) {
-        return this.fullAddress;
+    protected String getAddress(ClientConnection connection, String file) {
+        return this.baseAddress + file;
     }
 
     private static InetSocketAddress createBindAddress(MinecraftServer server, Config config) {
