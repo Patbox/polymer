@@ -1,8 +1,10 @@
 package eu.pb4.polymer.soundpatcher.api;
 
+import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
 import eu.pb4.polymer.soundpatcher.impl.SoundPatchImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundRemapperImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundResourceGenerator;
+import eu.pb4.polymer.soundpatcher.impl.VanillaSoundJson;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
@@ -42,6 +44,10 @@ public final class SoundPatcher {
         convertIntoServerSound(soundGroup.getFallSound());
         convertIntoServerSound(soundGroup.getHitSound());
         convertIntoServerSound(soundGroup.getPlaceSound());
+    }
+
+    public static SoundsAsset getVanillaSoundAsset() {
+        return VanillaSoundJson.getSoundAsset();
     }
 
     public static void convertIntoServerSound(Identifier soundEvent) {

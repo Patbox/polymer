@@ -30,7 +30,7 @@ public class VanillaSoundJson {
 
     private static SoundsAsset createSoundAsset() {
         if (CommonImpl.IS_CLIENT) {
-
+            
         }
 
         try {
