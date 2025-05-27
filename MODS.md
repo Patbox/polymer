@@ -443,6 +443,15 @@ processing and storage (or in simpler terms, it's a tech mod)!
 - CurseForge: https://www.curseforge.com/minecraft/mc-mods/power-networks
 
 
+## Pupil (1.21.5 / latest)
+**pupil** is a Kotlin library providing extension functions and a DSL
+for [polymer-virtual-entity](https://github.com/Patbox/polymer). With pupil, you can easily create and manage
+`ElementHolder` instances.
+
+### Links:
+- GitHub: https://github.com/Narimori/pupil
+
+
 ## Random Serverside Blocks (1.18.1)
 *Random Serverside Blocks* adds random server-side blocks. A list can be found at the Modrinth link.
 
