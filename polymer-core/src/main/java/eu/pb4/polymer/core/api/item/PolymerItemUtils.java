@@ -168,8 +168,7 @@ public final class PolymerItemUtils {
             DataComponentTypes.ATTRIBUTE_MODIFIERS,
             DataComponentTypes.BLOCK_ENTITY_DATA,
             DataComponentTypes.CAN_BREAK,
-            DataComponentTypes.CAN_PLACE_ON,
-            DataComponentTypes.DAMAGE
+            DataComponentTypes.CAN_PLACE_ON
     );
 
     private static final ReferenceSet<ComponentType<?>> IGNORE_TOOLTIP_HIDING = ReferenceSet.of(
@@ -494,6 +493,10 @@ public final class PolymerItemUtils {
                 display = display.with(x.type(), true);
             }
         }
+        if (out.contains(DataComponentTypes.DAMAGE) && !itemStack.contains(DataComponentTypes.DAMAGE)) {
+            display = display.with(DataComponentTypes.DAMAGE, true);
+        }
+
         display.hiddenComponents().removeIf(PolymerComponent::isPolymerComponent);
         out.set(DataComponentTypes.TOOLTIP_DISPLAY, display);
 
