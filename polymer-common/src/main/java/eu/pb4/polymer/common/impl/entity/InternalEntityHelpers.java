@@ -36,7 +36,7 @@ public class InternalEntityHelpers {
     private static PlayerEntity createPlayer() {
         PlayerEntity player = null;
         try {
-            player = new PlayerEntity(FakeWorld.INSTANCE_UNSAFE, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
+            player = new PlayerEntity(FakeWorld.INSTANCE_UNSAFE, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
                 @Nullable
                 @Override
                 public GameMode getGameMode() {
@@ -58,7 +58,7 @@ public class InternalEntityHelpers {
                 CommonImpl.LOGGER.error("Failed add player like entity! Trying with alternative method", e);
             }
             try {
-                player = new PlayerEntity(FakeWorld.INSTANCE_REGULAR, BlockPos.ORIGIN, 0, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
+                player = new PlayerEntity(FakeWorld.INSTANCE_REGULAR, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
                     @Nullable
                     @Override
                     public GameMode getGameMode() {

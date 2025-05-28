@@ -6,6 +6,7 @@ import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.ScheduledPacket;
+import io.netty.channel.ChannelFutureListener;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.network.PacketCallbacks;
@@ -71,20 +72,20 @@ public abstract class ServerCommonNetworkHandlerMixin implements PolymerCommonNe
     }
 
 
-    @ModifyVariable(method = "send(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"))
+    @ModifyVariable(method = "send(Lnet/minecraft/network/packet/Packet;Lio/netty/channel/ChannelFutureListener;)V", at = @At("HEAD"))
     private Packet<?> polymer$replacePacket(Packet<ClientPlayPacketListener> packet) {
         return PacketPatcher.replace((ServerCommonNetworkHandler) (Object) this, packet);
     }
 
-    @Inject(method = "send(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("HEAD"), cancellable = true)
-    private void polymer$skipPackets(Packet<ClientPlayPacketListener> packet, PacketCallbacks arg, CallbackInfo ci) {
+    @Inject(method = "send(Lnet/minecraft/network/packet/Packet;Lio/netty/channel/ChannelFutureListener;)V", at = @At("HEAD"), cancellable = true)
+    private void polymer$skipPackets(Packet<ClientPlayPacketListener> packet, ChannelFutureListener listener, CallbackInfo ci) {
         if (PacketPatcher.prevent((ServerCommonNetworkHandler) (Object) this, packet)) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "send(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/PacketCallbacks;)V", at = @At("TAIL"))
-    private void polymer$extra(Packet<ClientPlayPacketListener> packet, PacketCallbacks arg, CallbackInfo ci) {
+    @Inject(method = "send(Lnet/minecraft/network/packet/Packet;Lio/netty/channel/ChannelFutureListener;)V", at = @At("TAIL"))
+    private void polymer$extra(Packet<ClientPlayPacketListener> packet, ChannelFutureListener listener, CallbackInfo ci) {
         PacketPatcher.sendExtra((ServerCommonNetworkHandler) (Object) this, packet);
     }
 }

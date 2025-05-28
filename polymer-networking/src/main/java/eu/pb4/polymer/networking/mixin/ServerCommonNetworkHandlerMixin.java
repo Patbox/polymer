@@ -3,10 +3,10 @@ package eu.pb4.polymer.networking.mixin;
 import eu.pb4.polymer.networking.api.util.ServerDynamicPacket;
 import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
 import eu.pb4.polymer.networking.impl.ServerPacketRegistry;
+import io.netty.channel.ChannelFutureListener;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -73,7 +73,7 @@ public abstract class ServerCommonNetworkHandlerMixin implements NetworkHandlerE
     }
 
     @Inject(method = "send", at = @At("HEAD"), cancellable = true)
-    private void polymerNet$dontLeakDynamic(Packet<?> packet, PacketCallbacks callbacks, CallbackInfo ci) {
+    private void polymerNet$dontLeakDynamic(Packet<?> packet, ChannelFutureListener listener, CallbackInfo ci) {
         if (packet instanceof ServerDynamicPacket) {
             ci.cancel();
         }

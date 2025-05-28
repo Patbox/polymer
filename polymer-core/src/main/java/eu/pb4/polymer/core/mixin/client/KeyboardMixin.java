@@ -10,6 +10,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,10 +25,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class KeyboardMixin {
     @Shadow @Final private MinecraftClient client;
 
-    @Shadow protected abstract void debugLog(String key, Object... args);
+    @Shadow protected abstract void debugLog(Text message);
 
-    @Inject(method = "debugLog(Ljava/lang/String;[Ljava/lang/Object;)V", at = @At("HEAD"))
-    private void polymer_catchChange(String key, Object[] args, CallbackInfo ci) {
+    @Inject(method = "debugLog(Ljava/lang/String;)V", at = @At("HEAD"))
+    private void polymer_catchChange(String key, CallbackInfo ci) {
         if (key.startsWith("debug.advanced_tooltips")) {
             InternalClientRegistry.delayAction(C2SPackets.CHANGE_TOOLTIP + "|pre", 1000, () -> {
                 PolymerClientProtocol.sendTooltipContext(this.client.getNetworkHandler());
@@ -44,15 +45,15 @@ public abstract class KeyboardMixin {
 
         if (key == GLFW.GLFW_KEY_0) {
             PolymerImplUtils.dumpRegistry();
-            this.debugLog("Dumped Polymer Client registry!");
+            this.debugLog(Text.literal("Dumped Polymer Client registry!"));
             cir.setReturnValue(true);
         } else if (key == GLFW.GLFW_KEY_LEFT_BRACKET) {
             ClientDebugFlags.customItemModels = !ClientDebugFlags.customItemModels;
-            this.debugLog("Component item models: " + ClientDebugFlags.customItemModels);
+            this.debugLog(Text.literal("Component item models: " + ClientDebugFlags.customItemModels));
             cir.setReturnValue(true);
         } else if (key == GLFW.GLFW_KEY_RIGHT_BRACKET) {
             ClientDebugFlags.customFonts = !ClientDebugFlags.customFonts;
-            this.debugLog("Custom fonts: " + ClientDebugFlags.customFonts);
+            this.debugLog(Text.literal("Custom fonts: " + ClientDebugFlags.customFonts));
             cir.setReturnValue(true);
         }
     }

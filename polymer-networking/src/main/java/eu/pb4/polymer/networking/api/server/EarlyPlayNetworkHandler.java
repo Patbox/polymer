@@ -180,7 +180,7 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     }
 
     @Override
-    public void method_71953(CustomClickActionC2SPacket customClickActionC2SPacket) {
+    public void onCustomClickAction(CustomClickActionC2SPacket customClickActionC2SPacket) {
 
     }
 

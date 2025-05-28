@@ -58,7 +58,7 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
     }
 
     @Override
-    public void method_71953(CustomClickActionC2SPacket customClickActionC2SPacket) {
+    public void onCustomClickAction(CustomClickActionC2SPacket customClickActionC2SPacket) {
 
     }
 

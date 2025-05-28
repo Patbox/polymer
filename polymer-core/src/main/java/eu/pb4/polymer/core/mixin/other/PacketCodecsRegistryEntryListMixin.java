@@ -17,7 +17,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 
-@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$20", priority = 500)
+@Mixin(targets = "net/minecraft/network/codec/PacketCodecs$21", priority = 500)
 public abstract class PacketCodecsRegistryEntryListMixin {
     /*@ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Lnet/minecraft/registry/entry/RegistryEntryList;)V", at = @At("HEAD"), argsOnly = true)
     private RegistryEntryList polymer$changeData(RegistryEntryList registryEntryList, RegistryByteBuf registryByteBuf) {
