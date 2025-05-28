@@ -8,15 +8,17 @@ import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resource.metadata.PackResourceMetadata;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.dynamic.Range;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -220,6 +222,10 @@ public final class PolymerResourcePackUtils {
                     if (Files.exists(metafile)) {
                         var meta = PackMcMeta.fromString(Files.readString(metafile));
                         builder.getPackMcMetaBuilder().metadata(meta.pack());
+                    } else if (PolymerResourcePackImpl.IGNORE_PACK_VERSION) {
+                        var og = builder.getPackMcMetaBuilder().metadata();
+                        builder.getPackMcMetaBuilder().metadata(new PackResourceMetadata(og.description(), og.packFormat(),
+                                Optional.of(new Range<>(0, Integer.MAX_VALUE))));
                     }
                 } catch (Throwable ignored) {}
             }
