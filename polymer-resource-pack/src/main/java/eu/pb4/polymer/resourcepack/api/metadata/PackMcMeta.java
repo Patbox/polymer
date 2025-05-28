@@ -80,5 +80,13 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
                     this.language.isEmpty() ? Optional.empty() : Optional.of(new LanguageResourceMetadata(this.language))
             );
         }
+
+        public PackResourceMetadata metadata() {
+            return this.metadata;
+        }
+
+        public List<PackOverlaysMetadata.Entry> overlays() {
+            return this.overlay;
+        }
     }
 }
