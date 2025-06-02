@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.MessageDigest;
+import java.time.Duration;
 import java.util.HexFormat;
 
 
@@ -35,5 +36,13 @@ public class TestMod implements ModInitializer {
         AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.register(((provider, context, consumer) -> {
             consumer.accept(provider.createProperties(context, id, finalHashedFile));
         }));
+
+        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register((b) -> {
+            //try {
+                //Thread.sleep(Duration.ofSeconds(15));
+            //} catch (InterruptedException e) {
+            //    throw new RuntimeException(e);
+            //}
+        });
     }
 }

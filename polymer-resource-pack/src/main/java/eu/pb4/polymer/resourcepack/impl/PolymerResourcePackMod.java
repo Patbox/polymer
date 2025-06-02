@@ -21,6 +21,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import static net.minecraft.server.command.CommandManager.literal;
@@ -29,6 +32,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 @ApiStatus.Internal
 public class PolymerResourcePackMod implements ModInitializer, ClientModInitializer {
 	public static boolean alreadyGeneration = false;
+    public static final List<String> STATUS = new CopyOnWriteArrayList<>();
 	@Override
 	public void onInitialize() {
 		if (CompatStatus.POLYMC) {
@@ -79,8 +83,9 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
         Util.getIoWorkerExecutor().execute(() -> {
             try {
                 messageConsumer.accept(Text.literal("[Polymer] Starting resource pack generation..."));
-                boolean success = PolymerResourcePackUtils.buildMain();
-
+                STATUS.clear();
+                boolean success = PolymerResourcePackUtils.buildMain(PolymerResourcePackUtils.getMainPath(), STATUS::add);
+                STATUS.clear();
                 server.execute(() -> {
                     alreadyGeneration = false;
                     if (success) {

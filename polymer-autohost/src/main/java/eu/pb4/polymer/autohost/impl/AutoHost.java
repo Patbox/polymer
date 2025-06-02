@@ -33,6 +33,8 @@ public class AutoHost implements ModInitializer {
     public static AutoHostConfig config = new AutoHostConfig();
     public static Text message = Text.empty();
     public static Text disconnectMessage = Text.empty();
+    public static Text dialogTitle = Text.empty();
+    public static Text dialogDefaultBody = Text.empty();
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
 
     public static void init(MinecraftServer server) {
@@ -44,7 +46,6 @@ public class AutoHost implements ModInitializer {
         }
 
         try {
-
             AutoHost.message = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.message).getOrThrow().getFirst();
         } catch (Exception e) {
             AutoHost.message = null;
@@ -54,6 +55,18 @@ public class AutoHost implements ModInitializer {
             AutoHost.disconnectMessage = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.disconnectMessage).getOrThrow().getFirst();
         } catch (Exception e) {
             AutoHost.disconnectMessage = Text.literal("This server requires resource pack enabled to play!");
+        }
+
+        try {
+            AutoHost.dialogTitle = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogTitle).getOrThrow().getFirst();
+        } catch (Exception e) {
+            AutoHost.dialogTitle = Text.literal("The server's resource pack is still generating");
+        }
+
+        try {
+            AutoHost.dialogDefaultBody = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogDefaultBody).getOrThrow().getFirst();
+        } catch (Exception e) {
+            AutoHost.dialogDefaultBody = Text.literal("Waiting...");
         }
 
         var type = TYPES.get(Identifier.tryParse(config.type));
