@@ -18,6 +18,7 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.item.model.ItemModel;
 import eu.pb4.polymer.resourcepack.extras.api.format.model.ModelAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
 import eu.pb4.polymer.soundpatcher.api.SoundPatcher;
@@ -629,6 +630,8 @@ public class TestMod implements ModInitializer {
                     count.increment();
                     try {
                         var asset = ItemAsset.fromJson(Files.readString(path));
+
+                        assert asset.model().equals(asset.model().replaceChildren(ItemModel.Replacer.NO_OP));
                         //System.out.println(path + ">" + asset);
                         value.increment();
                     } catch (Throwable e) {

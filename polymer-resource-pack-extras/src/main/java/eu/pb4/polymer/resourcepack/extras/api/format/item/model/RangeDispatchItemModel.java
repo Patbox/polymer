@@ -33,6 +33,21 @@ public record RangeDispatchItemModel(NumericProperty property, float scale, List
         return new Builder(property);
     }
 
+    @Override
+    public ItemModel replaceChildren(Replacer replacer) {
+        var list = new ArrayList<Entry>(this.entries.size());
+        for (var entry : this.entries) {
+            var model = replacer.modifyDeep(this, entry.model);
+            if (entry.model != model) {
+                list.add(new Entry(entry.threshold, model));
+            } else {
+                list.add(entry);
+            }
+        }
+
+        return new RangeDispatchItemModel(this.property, scale, list, fallback.map(model -> replacer.modifyDeep(this, model)));
+    }
+
     public static class Builder {
         private final NumericProperty property;
         private final List<Entry> entries = new ArrayList<>();

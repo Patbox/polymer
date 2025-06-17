@@ -15,6 +15,16 @@ public record ConditionItemModel(BooleanProperty property, ItemModel onTrue, Ite
     );
 
     @Override
+    public ItemModel replaceChildren(Replacer replacer) {
+        var onTrue = replacer.modifyDeep(this, onTrue());
+        var onFalse = replacer.modifyDeep(this, onTrue());
+        return new ConditionItemModel(property,
+                onTrue != null ? onTrue : EmptyItemModel.INSTANCE,
+                onFalse != null ? onFalse : EmptyItemModel.INSTANCE
+        );
+    }
+
+    @Override
     public MapCodec<ConditionItemModel> codec() {
         return CODEC;
     }

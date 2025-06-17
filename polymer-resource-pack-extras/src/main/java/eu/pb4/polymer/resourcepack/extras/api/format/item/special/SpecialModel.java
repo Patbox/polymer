@@ -2,11 +2,9 @@ package eu.pb4.polymer.resourcepack.extras.api.format.item.special;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.client.render.item.model.special.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.dynamic.Codecs;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -17,6 +15,7 @@ public interface SpecialModel {
         m.put(Identifier.ofVanilla("conduit"), ConduitSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("chest"), ChestSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("head"), HeadSpecialModel.CODEC);
+        m.put(Identifier.ofVanilla("player_head"), PlayerHeadSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("shulker_box"), ShulkerBoxSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("shield"), ShieldSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("trident"), TridentSpecialModel.CODEC);

@@ -39,6 +39,21 @@ public record SelectItemModel<T extends SelectProperty<V>, V>(Switch<T, V> switc
         }
     }
 
+    @Override
+    public ItemModel replaceChildren(Replacer replacer) {
+        var list = new ArrayList<Case<V>>(this.switchValue.cases.size());
+        for (var entry : this.switchValue.cases) {
+            var model = replacer.modifyDeep(this, entry.model);
+            if (entry.model != model) {
+                list.add(new Case<>(entry.values, model));
+            } else {
+                list.add(entry);
+            }
+        }
+
+        return new SelectItemModel<>(new Switch<>(this.switchValue.property, list), fallback.map(model -> replacer.modifyDeep(this, model)));
+    }
+
     public static <T extends SelectProperty<V>, V> Builder<T, V> builder(T property) {
         return new Builder<>(property);
     }
