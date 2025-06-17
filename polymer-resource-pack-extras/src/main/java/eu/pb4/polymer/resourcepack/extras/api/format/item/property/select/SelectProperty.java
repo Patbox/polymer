@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.polymer.common.impl.LazyIdMapper;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.model.SelectItemModel;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public interface SelectProperty<T> {
-    Codecs.IdMapper<Identifier, Type<?, ?>> TYPES = Util.make(new Codecs.IdMapper<>(), m -> {
+    Codecs.IdMapper<Identifier, Type<?, ?>> TYPES = new LazyIdMapper<>(m -> {
         m.put(Identifier.ofVanilla("custom_model_data"), CustomModelDataStringProperty.TYPE);
         m.put(Identifier.ofVanilla("main_hand"), MainHandProperty.TYPE);
         m.put(Identifier.ofVanilla("charge_type"), ChargeTypeProperty.TYPE);

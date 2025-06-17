@@ -2,6 +2,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.item.tint;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import eu.pb4.polymer.common.impl.LazyIdMapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.dynamic.Codecs;
@@ -9,7 +10,7 @@ import net.minecraft.util.dynamic.Codecs;
 import java.util.function.Function;
 
 public interface ItemTintSource {
-	Codecs.IdMapper<Identifier, MapCodec<? extends ItemTintSource>> TYPES = Util.make(new Codecs.IdMapper<>(), m -> {
+	Codecs.IdMapper<Identifier, MapCodec<? extends ItemTintSource>> TYPES = new LazyIdMapper<>(m -> {
 		m.put(Identifier.ofVanilla("custom_model_data"), CustomModelDataTintSource.CODEC);
 		m.put(Identifier.ofVanilla("constant"), ConstantTintSource.CODEC);
 		m.put(Identifier.ofVanilla("dye"), DyeTintSource.CODEC);
