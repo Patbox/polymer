@@ -49,27 +49,42 @@ dependencies {
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
     modCompileOnly('com.github.TheEpicBlock:PolyMc:5.6.1') {
         exclude(group: "org.quiltmc", module: "quilt-loader")
+        exclude(group: "net.fabricmc.fabric-api")
     }
 
 
-    modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:17.1.2+fabric")
-    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-14.0.1")
+    modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:17.1.2+fabric") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-14.0.1"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
-    modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:18.0.796")
-    modCompileOnly /*modLocalRuntime*/("dev.emi:emi-fabric:1.1.6+1.20.6")
+    modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:18.0.796"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    modCompileOnly /*modLocalRuntime*/("dev.emi:emi-fabric:1.1.6+1.20.6"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")
-    modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:19.0.0.1")
+    modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:19.0.0.1"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
 
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
 
-    modCompileOnly("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1")
+    modCompileOnly("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
-    modCompileOnly 'com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4'
+    modCompileOnly ('com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4') {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     //modLocalRuntime 'maven.modrinth:immersiveportals:v3.0.2-mc1.20'
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.

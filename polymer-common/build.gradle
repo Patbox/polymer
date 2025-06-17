@@ -7,13 +7,21 @@ loom {
 }
 
 dependencies {
-    modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
+    modCompileOnly("me.lucko:fabric-permissions-api:0.1-SNAPSHOT") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
     modApi include("xyz.nucleoid:packet-tweaker:${packet_tweaker_version}") {
         transitive(false)
     }
-    modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
-    modCompileOnly "org.geysermc.floodgate:api:2.2.0-SNAPSHOT"
-    compileOnly "com.viaversion:viaversion-api:5.3.2"
+    modCompileOnly("xyz.nucleoid:disguiselib-fabric:1.2.2") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    modCompileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    compileOnly("com.viaversion:viaversion-api:5.3.2") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 }
 
 afterEvaluate {

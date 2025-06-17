@@ -38,6 +38,7 @@ dependencies {
 
     modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.4.0') {
         exclude(group: "org.quiltmc", module: "quilt-loader")
+        exclude(group: "net.fabricmc.fabric-api")
     }
     testmodImplementation sourceSets.main.output
 }

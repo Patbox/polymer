@@ -35,7 +35,9 @@ dependencies {
     implementation(project(path: ':polymer-resource-pack', configuration: 'namedElements'))
     compileOnly project(path: ":polymer-resource-pack-extras", configuration: "namedElements")
 
-    modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
+    modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     //modLocalRuntime "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
     //modCompileOnly "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
@@ -43,6 +45,7 @@ dependencies {
     //modCompileOnly 'nl.theepicblock:PolyMc:PolyMc:5.1.0+1.19'
     modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.4.0') {
         exclude(group: "org.quiltmc", module: "quilt-loader")
+        exclude(group: "net.fabricmc.fabric-api")
     }
     testmodImplementation sourceSets.main.output
     //testmodImplementation project(":polymer-core").sourceSets.testmod.output
