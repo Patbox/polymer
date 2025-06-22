@@ -17,6 +17,7 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.font.FontAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.model.ItemModel;
 import eu.pb4.polymer.resourcepack.extras.api.format.model.ModelAsset;
@@ -619,6 +620,29 @@ public class TestMod implements ModInitializer {
             var itemsBase = vanillaJar.resolve("/assets/minecraft/items/");
             var modelsBase = vanillaJar.resolve("/assets/minecraft/models/");
             var atlasBase = vanillaJar.resolve("/assets/minecraft/atlases/");
+            var fontBase = vanillaJar.resolve("/assets/minecraft/font/");
+
+            try {
+                var value = new MutableInt();
+                var count = new MutableInt();
+                Files.walk(fontBase).forEach(path -> {
+                    if (!path.toString().endsWith(".json")) {
+                        return;
+                    }
+                    count.increment();
+                    try {
+                        var asset = FontAsset.fromJson(Files.readString(path));
+                        value.increment();
+                    } catch (Throwable e) {
+                        System.err.println("Error while parsing file: " + path);
+                        e.printStackTrace();
+                    }
+                });
+                System.out.println("Parsed " + value + " out of " + count + " fonts!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
 
             try {
                 var value = new MutableInt();

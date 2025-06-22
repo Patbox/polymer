@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.block.packet;
 
 import com.llamalad7.mixinextras.injector.ModifyReceiver;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
@@ -23,6 +24,36 @@ import xyz.nucleoid.packettweaker.PacketContext;
 @Mixin(PalettedContainer.Data.class)
 public abstract class PalettedContainerDataMixin<T> {
     @Shadow public abstract Palette<T> palette();
+
+    @Shadow public abstract PaletteStorage storage();
+
+    @ModifyReturnValue(method = "getPacketSize", at = @At("RETURN"))
+    private int changeCalculatedSize(int value) {
+        var palette = this.palette();
+        if (palette instanceof IdListPalette<T> && palette.get(0) instanceof BlockState) {
+            var player = PacketContext.get();
+            if (player.getClientConnection() == null) {
+                return value;
+            }
+
+            var storage = this.storage();
+            value -= storage.getData().length * 8;
+            int bits;
+
+            var playerBitCount = PolymerServerNetworking.getMetadata(player.getClientConnection(), ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.TYPE);
+            if (playerBitCount == null) {
+                bits = PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC
+                        ? ((PolymerIdList<?>) Block.STATE_IDS).polymer$getVanillaBitCount()
+                        : ((PolymerIdList<?>) Block.STATE_IDS).polymer$getNonPolymerBitCount();
+            } else {
+                bits = playerBitCount.intValue();
+            }
+
+            var elementsPerLong = (char)(64 / bits);
+            value += (storage.getSize() + elementsPerLong - 1) / elementsPerLong * 8;
+        }
+        return value;
+    }
 
     @ModifyReceiver(method = "writePacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/PaletteStorage;getData()[J"), require = 0)
     private PaletteStorage polymer$replaceData(PaletteStorage storage) {

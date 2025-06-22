@@ -167,9 +167,9 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         } else {
             soundOverride = ScopedOverride.NO_OP;
         }
-        soundOverride.close();
 
         var original = operation.call(instance, player, world, stack, hand);
+        soundOverride.close();
 
         if (PolymerItemUtils.isPolymerItemInteraction(this.player, stack, hand, serverWorld, original)) {
             if (original instanceof ActionResult.Success success && success.swingSource() == ActionResult.SwingSource.CLIENT) {

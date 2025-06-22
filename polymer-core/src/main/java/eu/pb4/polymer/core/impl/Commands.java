@@ -25,31 +25,28 @@ import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.command.argument.RegistryEntryArgumentType;
 import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
 import net.minecraft.command.argument.UuidArgumentType;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.WrittenBookContentComponent;
+import net.minecraft.dialog.AfterAction;
+import net.minecraft.dialog.DialogActionButtonData;
+import net.minecraft.dialog.DialogButtonData;
+import net.minecraft.dialog.DialogCommonData;
+import net.minecraft.dialog.action.SimpleDialogAction;
+import net.minecraft.dialog.body.DialogBody;
+import net.minecraft.dialog.body.ItemDialogBody;
+import net.minecraft.dialog.body.PlainMessageDialogBody;
+import net.minecraft.dialog.type.MultiActionDialog;
+import net.minecraft.dialog.type.NoticeDialog;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.nbt.visitor.NbtTextFormatter;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.screen.LecternScreenHandler;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.stat.StatType;
 import net.minecraft.state.property.Property;
@@ -65,7 +62,9 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import javax.naming.spi.StateFactory;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -108,7 +107,7 @@ public class Commands {
 
                                     var groups = PolymerItemGroupUtils.getItemGroups(context.getSource().getPlayerOrThrow());
 
-                                    CommandSource.forEachMatching(groups, remaining, Registries.ITEM_GROUP::getId, group -> builder.suggest(Registries.ITEM_GROUP.getId(group).toString(), group.getDisplayName()));
+                                    CommandSource.forEachMatching(groups, remaining, PolymerItemGroupUtils::getId, group -> builder.suggest(PolymerItemGroupUtils.getId(group).toString(), group.getDisplayName()));
                                     return builder.buildFuture();
                                 })
                                 .executes(Commands::creativeTab)
@@ -247,78 +246,21 @@ public class Commands {
     private static int statsGeneral(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
 
-        var list = new ArrayList<RawFilteredPair<Text>>();
-
-        int line = 0;
-        MutableText text = null;
+        var list = new ArrayList<DialogActionButtonData>();
 
         for (var statType : Registries.STAT_TYPE) {
-            if (text == null) {
-                text = Text.literal("");
-            }
-            text.append(Text.empty().append(Registries.STAT_TYPE.getId(statType).toString()).append("\n").styled(x -> x.withUnderline(true).withColor(Formatting.BLUE)
-                    .withClickEvent(new ClickEvent.RunCommand("polymer stats " + Registries.STAT_TYPE.getId(statType)))));
-            line++;
-
-            if (line == 13) {
-                list.add(RawFilteredPair.of(text));
-                text = null;
-                line = 0;
-            }
+            list.add(new DialogActionButtonData(new DialogButtonData(Text.literal(Registries.STAT_TYPE.getId(statType).toString()), 150),
+                    Optional.of(new SimpleDialogAction(new ClickEvent.RunCommand("polymer stats " + Registries.STAT_TYPE.getId(statType))))));
         }
 
-        if (text != null) {
-            list.add(RawFilteredPair.of(text));
-        }
-
-        var stack = new ItemStack(Items.WRITTEN_BOOK);
-        stack.set(DataComponentTypes.WRITTEN_BOOK_CONTENT, new WrittenBookContentComponent(
-                RawFilteredPair.of("/polymer start"),
-                player.getGameProfile().getName(),
-                0,
-                list,
-                false
-        ));
-
-
-        player.openHandledScreen(new NamedScreenHandlerFactory() {
-            @Override
-            public Text getDisplayName() {
-                return Text.empty();
-            }
-
-            @Nullable
-            @Override
-            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                var lectern = new LecternScreenHandler(syncId) {
-                    @Override
-                    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean canInsertIntoSlot(Slot slot) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onButtonClick(PlayerEntity player, int id) {
-                        if (id == 3) {
-                            return false;
-                        } else {
-                            return super.onButtonClick(player, id);
-                        }
-                    }
-
-                    @Override
-                    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-                        // noop
-                    }
-                };
-                lectern.getSlot(0).setStack(stack);
-                return lectern;
-            }
-        });
+        player.openDialog(RegistryEntry.of(new MultiActionDialog(new DialogCommonData(
+                Text.translatable("gui.stats"),
+                Optional.empty(),
+                true, true,
+                AfterAction.CLOSE,
+                List.of(),
+                List.of()
+        ), list, Optional.of(new DialogActionButtonData(new DialogButtonData(ScreenTexts.DONE, 150), Optional.empty())), 1)));
 
         return 1;
     }
@@ -326,24 +268,16 @@ public class Commands {
     private static int stats(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
 
-        var list = new ArrayList<RawFilteredPair<Text>>();
-
-        int line = 0;
-        MutableText text = null;
+        var list = new ArrayList<DialogBody>();
 
         var type = (StatType<Object>) RegistryEntryReferenceArgumentType.getRegistryEntry(context, "type", RegistryKeys.STAT_TYPE).value();
-
         for (var statObj : type.getRegistry()) {
             if (PolymerUtils.isServerOnly(type.getRegistry(), statObj) && type.hasStat(statObj)) {
-
-
                 var stat = type.getOrCreateStat(statObj);
 
-                if (text == null) {
-                    text = Text.literal("");
-                }
-
                 var statVal = player.getStatHandler().getStat(stat);
+
+                ItemStack stack = ItemStack.EMPTY;
 
                 Text title;
 
@@ -351,77 +285,34 @@ public class Commands {
                     title = PolymerStat.getName(stat1);
                 } else if (statObj instanceof Item item) {
                     title = item.getName();
+                    stack = item.getDefaultStack();
                 } else if (statObj instanceof Block item) {
                     title = item.getName();
+                    stack = item.asItem().getDefaultStack();
                 } else if (statObj instanceof EntityType item) {
                     title = item.getName();
                 } else {
                     title = Text.translatable(Util.createTranslationKey(type.getRegistry().getKey().getValue().getPath(), type.getRegistry().getId(statObj)));
                 }
 
-                text.append(title).append(Text.literal(": ").formatted(Formatting.GRAY)).append(Text.literal(stat.format(statVal) + "\n").formatted(Formatting.DARK_GRAY));
-                line++;
+                var text = Text.empty().append(title).append(Text.literal(": ").formatted(Formatting.GRAY)).append(Text.literal(stat.format(statVal)).formatted(Formatting.WHITE));
 
-                if (line == 13) {
-                    list.add(RawFilteredPair.of(text));
-                    text = null;
-                    line = 0;
+                if (stack.isEmpty()) {
+                    list.add(new PlainMessageDialogBody(text, 200));
+                } else {
+                    list.add(new ItemDialogBody(stack, Optional.of(new PlainMessageDialogBody(text, 200)), true, true, 16, 16));
                 }
             }
         }
 
-        if (text != null) {
-            list.add(RawFilteredPair.of(text));
-        }
-
-        var stack = new ItemStack(Items.WRITTEN_BOOK);
-        stack.set(DataComponentTypes.WRITTEN_BOOK_CONTENT, new WrittenBookContentComponent(
-                RawFilteredPair.of("/polymer start"),
-                player.getGameProfile().getName(),
-                0,
+        player.openDialog(RegistryEntry.of(new NoticeDialog(new DialogCommonData(
+                Text.translatable("gui.stats"),
+                Optional.empty(),
+                true, true,
+                AfterAction.CLOSE,
                 list,
-                false
-        ));
-
-
-        player.openHandledScreen(new NamedScreenHandlerFactory() {
-            @Override
-            public Text getDisplayName() {
-                return Text.empty();
-            }
-
-            @Nullable
-            @Override
-            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                var lectern = new LecternScreenHandler(syncId) {
-                    @Override
-                    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean canInsertIntoSlot(Slot slot) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onButtonClick(PlayerEntity player, int id) {
-                        if (id == 3) {
-                            return false;
-                        } else {
-                            return super.onButtonClick(player, id);
-                        }
-                    }
-
-                    @Override
-                    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-                        // noop
-                    }
-                };
-                lectern.getSlot(0).setStack(stack);
-                return lectern;
-            }
-        });
+                List.of()
+        ), new DialogActionButtonData(new DialogButtonData(ScreenTexts.DONE, 150), Optional.empty()))));
 
         return 1;
     }
