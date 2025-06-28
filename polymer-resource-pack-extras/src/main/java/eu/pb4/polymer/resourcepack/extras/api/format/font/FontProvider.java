@@ -9,13 +9,13 @@ import net.minecraft.util.dynamic.Codecs;
 import java.util.function.Function;
 
 public interface FontProvider {
-    MapCodec<FontProvider> CODEC = MapCodec.assumeMapUnsafe(Codec.lazyInitialized(() -> FontProvider.TYPES.getCodec(Identifier.CODEC).dispatch(FontProvider::codec, Function.identity())));
-    Codecs.IdMapper<Identifier, MapCodec<? extends FontProvider>> TYPES = new LazyIdMapper<>(m -> {
-        m.put(Identifier.ofVanilla("bitmap"), BitmapProvider.CODEC);
-        m.put(Identifier.ofVanilla("space"), SpaceProvider.CODEC);
-        m.put(Identifier.ofVanilla("ttf"), TTFProvider.CODEC);
-        m.put(Identifier.ofVanilla("unihex"), UnihexProvider.CODEC);
-        m.put(Identifier.ofVanilla("reference"), ReferenceProvider.CODEC);
+    MapCodec<FontProvider> CODEC = MapCodec.assumeMapUnsafe(Codec.lazyInitialized(() -> FontProvider.TYPES.getCodec(Codec.STRING).dispatch(FontProvider::codec, Function.identity())));
+    Codecs.IdMapper<String, MapCodec<? extends FontProvider>> TYPES = new LazyIdMapper<>(m -> {
+        m.put("bitmap", BitmapProvider.CODEC);
+        m.put("space", SpaceProvider.CODEC);
+        m.put("ttf", TTFProvider.CODEC);
+        m.put("unihex", UnihexProvider.CODEC);
+        m.put("reference", ReferenceProvider.CODEC);
     });
 
     MapCodec<? extends FontProvider> codec();

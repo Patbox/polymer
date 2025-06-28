@@ -1,10 +1,12 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.potion.Potion;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -45,8 +47,8 @@ public abstract class PotionContentsComponentMixin implements TransformingCompon
             return true;
         }
 
-        for (StatusEffectInstance statusEffectInstance : this.customEffects) {
-            if (statusEffectInstance.getEffectType().value() instanceof PolymerObject) {
+        for (StatusEffectInstance effect : this.customEffects) {
+            if (!PolymerSyncedObject.canSyncRawToClient(Registries.STATUS_EFFECT, effect.getEffectType().value(), context)) {
                 return true;
             }
         }

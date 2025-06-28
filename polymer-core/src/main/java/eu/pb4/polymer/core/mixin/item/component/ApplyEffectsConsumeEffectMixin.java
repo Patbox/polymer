@@ -1,9 +1,10 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
-import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.consume.ApplyEffectsConsumeEffect;
+import net.minecraft.registry.Registries;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,7 +28,7 @@ public abstract class ApplyEffectsConsumeEffectMixin implements TransformingComp
     @Override
     public boolean polymer$requireModification(PacketContext context) {
         for (var effect : this.effects) {
-            if (effect.getEffectType().value() instanceof PolymerObject) {
+            if (!PolymerSyncedObject.canSyncRawToClient(Registries.STATUS_EFFECT, effect.getEffectType().value(), context)) {
                 return true;
             }
         }

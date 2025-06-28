@@ -32,6 +32,8 @@ public interface PacketCodecsEntriesMixin {
 
                     if (obj != null) {
                         return obj;
+                    } else {
+                        return registry.get(0);
                     }
                 }
                 return val;
@@ -53,6 +55,9 @@ public interface PacketCodecsEntriesMixin {
                     if (obj != null) {
                         //noinspection unchecked
                         return (T) registry.getEntry(obj);
+                    } else {
+                        //noinspection unchecked
+                        return (T) registry.getEntry(0);
                     }
                 }
                 return val;

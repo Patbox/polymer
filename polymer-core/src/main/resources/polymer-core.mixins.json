@@ -14,6 +14,7 @@
     "block.PalettedContainerAccessor",
     "block.ServerChunkManagerMixin",
     "block.ServerPlayerInteractionManagerMixin",
+    "block.packet.BlockEntityDataAccessor",
     "block.packet.BlockEntityUpdateS2CPacketMixin",
     "block.packet.BlockEventS2CPacketMixin",
     "block.packet.BlockPaletteMixin",

@@ -1,8 +1,10 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +30,7 @@ public abstract class SuspiciousStewComponentMixin implements TransformingCompon
     @Override
     public boolean polymer$requireModification(PacketContext context) {
         for (var effect : this.effects) {
-            if (effect.effect().value() instanceof PolymerObject) {
+            if (!PolymerSyncedObject.canSyncRawToClient(Registries.STATUS_EFFECT, effect.effect().value(), context)) {
                 return true;
             }
         }

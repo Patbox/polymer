@@ -10,7 +10,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 
 public class InteractionElement extends GenericEntityElement {
-    private InteractionHandler handler = InteractionHandler.EMPTY;
 
     public InteractionElement() {
     }
@@ -23,15 +22,10 @@ public class InteractionElement extends GenericEntityElement {
         return new InteractionElement(InteractionHandler.redirect(redirectedEntity));
     }
 
+    @Deprecated
     public void setHandler(InteractionHandler handler) {
-        this.handler = handler;
+        this.setInteractionHandler(handler);
     }
-
-    @Override
-    public InteractionHandler getInteractionHandler(ServerPlayerEntity player) {
-        return this.handler;
-    }
-
 
     @Override
     protected final EntityType<? extends Entity> getEntityType() {

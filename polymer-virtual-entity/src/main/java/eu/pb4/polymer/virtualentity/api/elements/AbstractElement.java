@@ -16,8 +16,6 @@ public abstract class AbstractElement implements VirtualElement {
     protected Vec3d lastSyncedPos;
     private InteractionHandler handler = InteractionHandler.EMPTY;
 
-
-
     @Override
     public Vec3d getOffset() {
         return this.offset;

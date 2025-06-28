@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.item.component;
 
+import eu.pb4.polymer.core.api.other.PolymerConsumeEffect;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import net.minecraft.component.type.Consumable;
 import net.minecraft.component.type.ConsumableComponent;
@@ -39,7 +40,7 @@ public abstract class ConsumableComponentMixin implements TransformingComponent 
     @Override
     public boolean polymer$requireModification(PacketContext context) {
         for (var effect : this.onConsumeEffects) {
-            if (effect instanceof TransformingComponent t && t.polymer$requireModification(context)) {
+            if (effect instanceof TransformingComponent t && t.polymer$requireModification(context) || !PolymerConsumeEffect.canSync(effect.getType(), effect, context)) {
                 return true;
             }
         }

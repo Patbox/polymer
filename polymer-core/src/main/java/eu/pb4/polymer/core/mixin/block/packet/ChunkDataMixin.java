@@ -17,7 +17,7 @@ import java.util.Map;
 @Mixin(ChunkData.class)
 public class ChunkDataMixin {
     @WrapWithCondition(method = "<init>(Lnet/minecraft/world/chunk/WorldChunk;)V", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"))
-    private boolean skipPolymerEntriesForBedrock(List<?> instance, Object e, @Local Map.Entry<BlockPos, BlockEntity> entry) {
-        return !PolymerBlockUtils.isPolymerBlockEntityType(entry.getValue().getType());
+    private boolean skipPolymerEntriesForBedrock(List<?> instance, Object e) {
+        return !PolymerBlockUtils.isPolymerBlockEntityType(((BlockEntityDataAccessor) e).getType());
     }
 }
