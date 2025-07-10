@@ -31,7 +31,7 @@ public final class PolymerImpl {
     public static final boolean OVERRIDE_POLYMC_MINING;
 
     static {
-        var serverConfig =  CommonImpl.loadConfig("server", ServerConfig.class);
+        var serverConfig =  CommonImpl.loadAndRegisterConfig("server", ServerConfig.class);
 
         ADD_NON_POLYMER_CREATIVE_TABS = serverConfig.displayNonPolymerCreativeTabs;
         RESEND_BLOCKS_AROUND_CLICK = serverConfig.sendBlocksAroundClicked;
@@ -45,7 +45,7 @@ public final class PolymerImpl {
         FIX_STONECUTER = serverConfig.stonecutterFix;
 
         if (PolymerImpl.IS_CLIENT) {
-            var clientConfig =  CommonImpl.loadConfig("client", ClientConfig.class);
+            var clientConfig =  CommonImpl.loadAndRegisterConfig("client", ClientConfig.class);
             DISPLAY_DEBUG_INFO_CLIENT = clientConfig.displayF3Info;
             LOG_INVALID_SERVER_IDS_CLIENT = clientConfig.logInvalidServerEntryIds;
             CHANGING_QOL_CLIENT = !clientConfig.disableNonVisualQualityOfLifeChanges;

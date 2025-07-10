@@ -13,7 +13,7 @@ public class IdentifiedUniqueEntityAttachment extends EntityAttachment implement
         super(holder, entity, autoTick);
         this.id = identifier;
         if (this.getClass() == IdentifiedUniqueEntityAttachment.class) {
-            holder.setAttachment(this);
+            this.attach();
         }
     }
 

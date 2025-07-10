@@ -8,13 +8,13 @@ import org.slf4j.Logger;
 
 @ApiStatus.Internal
 public class NetImpl {
-    public static final boolean SEND_GAME_JOIN_PACKET;
+    //public static final boolean SEND_GAME_JOIN_PACKET;
     public static final Logger LOGGER = CommonImpl.LOGGER;
     public static final boolean IS_DISABLED = false;
 
     static {
-        var config = CommonImpl.loadConfig("networking", NetConfig.class);
+        //var config = CommonImpl.loadAndRegisterConfig("networking", NetConfig.class);
 
-        SEND_GAME_JOIN_PACKET = config.sendGameJoinBeforeSync;
+        //SEND_GAME_JOIN_PACKET = config.sendGameJoinBeforeSync;
     }
 }

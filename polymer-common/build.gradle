@@ -22,6 +22,10 @@ dependencies {
     compileOnly("com.viaversion:viaversion-api:5.3.2") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+    modCompileOnly("com.terraformersmc:modmenu:15.0.0-beta.3") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
 }
 
 afterEvaluate {

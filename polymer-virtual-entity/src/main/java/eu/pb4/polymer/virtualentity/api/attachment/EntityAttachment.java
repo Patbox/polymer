@@ -21,11 +21,15 @@ public class EntityAttachment implements HolderAttachment {
     public EntityAttachment(ElementHolder holder, Entity entity, boolean autoTick) {
         this.entity = entity;
         this.holder = holder;
-        ((HolderAttachmentHolder) entity).polymerVE$addHolder(this);
         this.autoTick = autoTick;
         if (this.getClass() == EntityAttachment.class) {
-            this.holder.setAttachment(this);
+            this.attach();
         }
+    }
+
+    protected void attach() {
+        this.holder.setAttachment(this);
+        ((HolderAttachmentHolder) entity).polymerVE$addHolder(this);
     }
 
     public static EntityAttachment of(ElementHolder holder, Entity entity) {

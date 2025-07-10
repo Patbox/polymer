@@ -18,7 +18,7 @@ public class SoundPatchImpl {
     }
 
     public static Config loadConfig() {
-        return CommonImpl.loadConfig("sound-patch", Config.class);
+        return CommonImpl.loadAndRegisterConfig("sound-patch", Config.class);
     }
 
 

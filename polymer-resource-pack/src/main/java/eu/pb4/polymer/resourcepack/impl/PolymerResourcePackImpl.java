@@ -31,7 +31,7 @@ public class PolymerResourcePackImpl {
     }
 
     public static Config loadConfig() {
-        return CommonImpl.loadConfig("resource-pack", Config.class);
+        return CommonImpl.loadAndRegisterConfig("resource-pack", Config.class);
     }
 
 

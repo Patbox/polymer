@@ -298,12 +298,12 @@ public class DefaultModelData {
         list.add(addSinglePoweredDoor(Blocks.WARPED_DOOR, Blocks.WARPED_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.PALE_OAK_DOOR, Blocks.PALE_OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
 
-        list.add(addSinglePoweredDoor(Blocks.IRON_DOOR, Blocks.IRON_DOOR, direction, doorHinge, doubleBlockHalf, open));
-
         list.add(addSinglePoweredDoor(Blocks.WAXED_COPPER_DOOR, Blocks.WAXED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.WAXED_WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.WAXED_EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.WAXED_OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+
+        list.add(addSinglePoweredDoor(Blocks.IRON_DOOR, Blocks.IRON_DOOR, direction, doorHinge, doubleBlockHalf, open));
     }
 
     private static BlockState addSinglePoweredDoor(Block block, Block replacement, Direction facing, DoorHinge hinge, DoubleBlockHalf half, boolean open) {
@@ -340,12 +340,12 @@ public class DefaultModelData {
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
 
-        list.add(addSinglePoweredClosedTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
-
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
 
         DefaultModelData.USABLE_STATES.put(modelType, list);
     }
@@ -371,12 +371,12 @@ public class DefaultModelData {
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
 
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
-
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
 
         DefaultModelData.USABLE_STATES.put(modelType, list);
     }
@@ -412,11 +412,12 @@ public class DefaultModelData {
     private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
         ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
 
-        addSlab(slabType, waterlogged, Blocks.OAK_SLAB, Blocks.PETRIFIED_OAK_SLAB, list);
         addSlab(slabType, waterlogged, Blocks.CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER_SLAB, list);
         addSlab(slabType, waterlogged, Blocks.EXPOSED_CUT_COPPER_SLAB, Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, list);
         addSlab(slabType, waterlogged, Blocks.WEATHERED_CUT_COPPER_SLAB, Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, list);
         addSlab(slabType, waterlogged, Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, list);
+
+        addSlab(slabType, waterlogged, Blocks.OAK_SLAB, Blocks.PETRIFIED_OAK_SLAB, list);
 
         DefaultModelData.USABLE_STATES.put(modelType, list);
     }

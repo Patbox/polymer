@@ -111,6 +111,8 @@ public class AutoHost implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        CommonImpl.registerConfig("auto-host", AutoHostConfig.class);
+
         ResourcePackDataProvider.register(Identifier.of("polymer", "automatic"), NettyProvider::new);
         ResourcePackDataProvider.register(Identifier.of("polymer", "auto"), NettyProvider::new);
 

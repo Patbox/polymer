@@ -2,6 +2,7 @@ package eu.pb4.polymer.common.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -17,10 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class CommonImpl {
     public static final Logger LOGGER = LoggerFactory.getLogger("Polymer");
@@ -43,6 +41,7 @@ public final class CommonImpl {
     public static final String GITHUB_URL = CONTAINER.getMetadata().getContact().get("sources").orElse("https://pb4.eu");
 
     public static final Map<String, DisabledMixinReason> DISABLED_MIXINS = new HashMap<>();
+    public static final Set<Map.Entry<String, Class<?>>> KNOWN_CONFIGS = new LinkedHashSet<>();
     private static boolean devWarn;
 
     public static DisabledMixinReason getDisabledMixin(String source, String mixin) {
@@ -65,7 +64,7 @@ public final class CommonImpl {
             LOGGER.warn("=================================================================================");
         }
 
-        var config = loadConfig("common", CommonConfig.class);
+        var config = loadAndRegisterConfig("common", CommonConfig.class);
         CORE_COMMAND_MINIMAL_OP = config.coreCommandOperatorLevel;
         DEVELOPER_MODE = config.enableDevTools || DEV_ENV;
         MINIMAL_ABOUT = config.minimalisticAbout;
@@ -121,6 +120,13 @@ public final class CommonImpl {
         return LOADER.getConfigDir().resolve("polymer");
     }
 
+    public static void registerConfig(String name, Class<?> clazz) {
+        KNOWN_CONFIGS.add(Map.entry(name, clazz));
+    }
+    public static <T> T loadAndRegisterConfig(String name, Class<T> clazz) {
+        registerConfig(name, clazz);
+        return loadConfig(name, clazz);
+    }
     public static <T> T loadConfig(String name, Class<T> clazz) {
         try {
             var folder = configDir();

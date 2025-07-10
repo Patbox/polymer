@@ -158,6 +158,7 @@ public final class PolymerItemUtils {
             DataComponentTypes.BREAK_SOUND,
             DataComponentTypes.PROVIDES_BANNER_PATTERNS,
             DataComponentTypes.PROVIDES_TRIM_MATERIAL,
+            DataComponentTypes.CHARGED_PROJECTILES,
             DataComponentTypes.WEAPON,
             DataComponentTypes.TOOLTIP_DISPLAY
     };
@@ -659,7 +660,7 @@ public final class PolymerItemUtils {
 
         var projectile = stack.get(DataComponentTypes.CHARGED_PROJECTILES);
         if (projectile != null) {
-            for (var inner :projectile.getProjectiles()) {
+            for (var inner : projectile.getProjectiles()) {
                 if (isServerItem(inner, context)) {
                     return true;
                 }

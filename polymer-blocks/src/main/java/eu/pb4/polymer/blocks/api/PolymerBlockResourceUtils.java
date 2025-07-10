@@ -17,21 +17,30 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static BlockState requestBlock(BlockModelType type, PolymerBlockModel model) {
+        if (getBlocksLeft(type) == 0) {
+            return null;
+        }
         return CREATOR.requestBlock(type, model);
     }
 
-    @Nullable
     public static BlockState requestEmpty(BlockModelType type) {
-        return CREATOR.requestEmpty(type);
+        var empty = CREATOR.requestEmpty(type);
+        if (empty == null) {
+            throw new IllegalStateException("Empty state should never be null! BlockModelType: " + type);
+        }
+        return empty;
     }
 
     @Nullable
     public static BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
+        if (getBlocksLeft(type) == 0) {
+            return null;
+        }
         return CREATOR.requestBlock(type, model);
     }
 
     public static int getBlocksLeft(BlockModelType type) {
-        return CREATOR.getBlocksLeft(type);
+        return Math.max(CREATOR.getBlocksLeft(type) - 1, 0);
     }
 
     static {

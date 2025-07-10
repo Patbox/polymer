@@ -79,7 +79,7 @@ public final class BlockResourceCreator {
         if (type.name().contains("TRAPDOOR")) {
             predicate = b -> b.isOf(Blocks.IRON_TRAPDOOR);
         } else if (type.name().contains("DOOR")) {
-            predicate = b -> b.isOf(Blocks.IRON_TRAPDOOR);
+            predicate = b -> b.isOf(Blocks.IRON_DOOR);
         }  else if (type == BlockModelType.VINES_BLOCK) {
             predicate = b -> b.isOf(Blocks.TWISTING_VINES);
         }
@@ -105,6 +105,7 @@ public final class BlockResourceCreator {
     public BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
         return requestBlock(type, x -> true, model);
     }
+
     public BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, PolymerBlockModel... model) {
         var states = this.states.get(type);
         if (!states.isEmpty()) {

@@ -15,6 +15,9 @@
   "mixins": [
     "polymer-common.mixins.json"
   ],
+  "entrypoints": {
+    "modmenu": [ "eu.pb4.polymer.common.impl.client.ModMenuConfig" ]
+  },
   "license": "LGPLv3",
   "icon": "assets/iconm.png",
   "environment": "*",

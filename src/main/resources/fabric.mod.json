@@ -15,7 +15,9 @@
     "sources": "https://github.com/Patbox/polymer",
     "issues": "https://github.com/Patbox/polymer/issues"
   },
-
+  "entrypoints": {
+    "modmenu": [ "eu.pb4.polymer.common.impl.client.ModMenuConfig" ]
+  },
   "license": "LGPLv3",
   "icon": "assets/icon.png",
   "environment": "*",
