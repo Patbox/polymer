@@ -5,13 +5,12 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.resource.*;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -23,7 +22,22 @@ public class PolymerResourcePack  {
     @Nullable
     public static ResourcePackProfile.PackFactory setup() {
         Path outputPath = PolymerResourcePackUtils.getMainPath();
-        if ((outputPath.toFile().exists() && generated) || PolymerResourcePackUtils.buildMain(outputPath)) {
+        if (Files.exists(outputPath) && !generated) {
+            try {
+                Files.delete(outputPath);
+            } catch (Throwable e) {
+                // Failed to remove, change path to workaround one!
+                outputPath = outputPath.resolveSibling(outputPath.getFileName().toString() + "_client.zip");
+                try {
+                    Files.delete(outputPath);
+                } catch (Throwable f2) {
+                    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    // I hate windows
+                }
+            }
+        }
+
+        if (generated || PolymerResourcePackUtils.buildMain(outputPath)) {
             generated = true;
             return new ZipResourcePack.ZipBackedFactory(outputPath.toFile());
         } else {

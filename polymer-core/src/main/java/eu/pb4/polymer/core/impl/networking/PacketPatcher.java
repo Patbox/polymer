@@ -129,7 +129,8 @@ public class PacketPatcher {
                     && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
                 return true;
             } else if (packet instanceof BlockEntityUpdateS2CPacket be) {
-                return PolymerBlockUtils.isPolymerBlockEntityType(be.getBlockEntityType());
+                return PolymerSyncedObject.getSyncedObject(Registries.BLOCK_ENTITY_TYPE, be.getBlockEntityType()) instanceof PolymerSyncedObject<BlockEntityType<?>> obj
+                        && obj.getPolymerReplacement(be.getBlockEntityType(), player) == null;
             } else if (packet instanceof RecipeBookAddS2CPacket recipeBook && PolymerImpl.SPLIT_RECIPE_PACKETS > 0 && recipeBook.entries().size() > PolymerImpl.SPLIT_RECIPE_PACKETS) {
                 var list = new ArrayList<RecipeBookAddS2CPacket.Entry>();
                 if (recipeBook.replace()) {

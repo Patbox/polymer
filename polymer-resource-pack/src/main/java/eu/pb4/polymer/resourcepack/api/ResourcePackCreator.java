@@ -137,7 +137,7 @@ public final class ResourcePackCreator {
     public boolean build(Path output, Consumer<String> status) throws ExecutionException, InterruptedException {
         boolean successful = true;
 
-        var builder = new DefaultRPBuilder(output);
+        var builder = new DefaultRPBuilder(output, status);
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {
@@ -156,21 +156,15 @@ public final class ResourcePackCreator {
         status.accept("action:creation_event_finish");
 
         for (var path : this.sourcePaths) {
-            status.accept("action:copy_path_start/" + path);
             successful = builder.copyFromPath(path) && successful;
-            status.accept("action:copy_path_end/" + path);
         }
 
         for (String modId : this.modIdsNoCopy) {
-            status.accept("action:add_source_mod_start/" + modId);
             successful = builder.addAssetsSource(modId) && successful;
-            status.accept("action:add_source_mod_end/" + modId);
         }
 
         for (String modId : this.modIds) {
-            status.accept("action:copy_mod_start/" + modId);
             successful = builder.copyAssets(modId) && successful;
-            status.accept("action:copy_mod_end/" + modId);
         }
 
         status.accept("action:late_creation_event_start");

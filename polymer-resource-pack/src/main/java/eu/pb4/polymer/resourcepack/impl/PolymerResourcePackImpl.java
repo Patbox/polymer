@@ -16,6 +16,7 @@ public class PolymerResourcePackImpl {
     public static final Path DEFAULT_PATH;
     public static final String FILE_NAME;
     public static final boolean IGNORE_PACK_VERSION;
+    public static final boolean LOG_ERRORS;
 
 
     static {
@@ -28,6 +29,7 @@ public class PolymerResourcePackImpl {
         IGNORE_PACK_VERSION = config.ignorePackVersion;
 
         FORCE_REQUIRE = config.markResourcePackAsRequiredByDefault || CompatStatus.POLYMC;
+        LOG_ERRORS = config.logErrors || FabricLoader.getInstance().isDevelopmentEnvironment();
     }
 
     public static Config loadConfig() {
@@ -56,5 +58,8 @@ public class PolymerResourcePackImpl {
         public String _c9 = "Removes the incompatibility warning on the default pack, by marking it as compatible with everything.";
         @SerializedName("ignore_pack_version")
         public boolean ignorePackVersion = false;
+        public String _c10 = "Toggles logging of non-critical errors when generating the pack.";
+        @SerializedName("log_errors")
+        public boolean logErrors = true;
     }
 }

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.play.PickItemFromEntityC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
@@ -73,11 +74,17 @@ public interface VirtualElement {
                 public void attack(ServerPlayerEntity player) {
                     player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.attack(redirectedEntity, player.isSneaking()));
                 }
+
+                @Override
+                public void pickItem(ServerPlayerEntity player, boolean includeData) {
+                    player.networkHandler.onPickItemFromEntity(new PickItemFromEntityC2SPacket(redirectedEntity.getId(), includeData));
+                }
             };
         }
 
         default void interact(ServerPlayerEntity player, Hand hand) {};
         default void interactAt(ServerPlayerEntity player, Hand hand, Vec3d pos) {};
         default void attack(ServerPlayerEntity player) {};
+        default void pickItem(ServerPlayerEntity player, boolean includeData) {};
     }
 }

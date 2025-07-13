@@ -304,9 +304,11 @@ public class TestMod implements ModInitializer {
         //PolymerResourcePackUtils.addModAsAssetsSource("promenade");
         //register(Registries.ITEM_GROUP, Identifier.of("polymer", "test"), ITEM_GROUP);
         PolymerItemGroupUtils.registerPolymerItemGroup(Identifier.of("test:group"), ITEM_GROUP);
-        registerItem(Identifier.of("bugged", "wooden_sword"), (s) -> new BuggedItem(s));
+        registerItem(Identifier.of("bugged", "wooden_sword"), BuggedItem::new);
 
         PolymerItemUtils.enableStonecutterFix();
+
+        register(Registries.DIALOG_TYPE, Identifier.of("test", "dialog"), TestDialog.CODEC);
 
 
         SoundPatcher.convertIntoServerSound(Blocks.TNT.getDefaultState().getSoundGroup());

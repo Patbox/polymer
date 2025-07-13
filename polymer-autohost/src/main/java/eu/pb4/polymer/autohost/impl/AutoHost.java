@@ -19,6 +19,7 @@ import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
@@ -103,7 +104,12 @@ public class AutoHost implements ModInitializer {
 
     public static Path getPath(String path) {
         if (path.equals("main.zip")) {
-            return PolymerResourcePackUtils.getMainPath();
+            var mainPath = PolymerResourcePackUtils.getMainPath();
+            if (PolymerResourcePackMod.useMainPath) {
+                return mainPath;
+            }
+
+            return mainPath.resolveSibling(mainPath.getFileName().toString() + "_server.zip");
         }
 
         return FILES.get(path);

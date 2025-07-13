@@ -16,14 +16,14 @@ public final class PolymerBlockResourceUtils {
     });
 
     @Nullable
-    public static BlockState requestBlock(BlockModelType type, PolymerBlockModel model) {
-        if (getBlocksLeft(type) == 0) {
+    public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel model) {
+        if (CREATOR.getBlocksLeft(type) <= 1) {
             return null;
         }
         return CREATOR.requestBlock(type, model);
     }
 
-    public static BlockState requestEmpty(BlockModelType type) {
+    public static synchronized BlockState requestEmpty(BlockModelType type) {
         var empty = CREATOR.requestEmpty(type);
         if (empty == null) {
             throw new IllegalStateException("Empty state should never be null! BlockModelType: " + type);
@@ -32,14 +32,14 @@ public final class PolymerBlockResourceUtils {
     }
 
     @Nullable
-    public static BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
-        if (getBlocksLeft(type) == 0) {
+    public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
+        if (CREATOR.getBlocksLeft(type) <= 1) {
             return null;
         }
         return CREATOR.requestBlock(type, model);
     }
 
-    public static int getBlocksLeft(BlockModelType type) {
+    public static synchronized int getBlocksLeft(BlockModelType type) {
         return Math.max(CREATOR.getBlocksLeft(type) - 1, 0);
     }
 

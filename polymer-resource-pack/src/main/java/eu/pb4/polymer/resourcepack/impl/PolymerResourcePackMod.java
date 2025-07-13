@@ -21,7 +21,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -33,7 +34,9 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class PolymerResourcePackMod implements ModInitializer, ClientModInitializer {
 	public static boolean alreadyGeneration = false;
     public static final List<String> STATUS = new CopyOnWriteArrayList<>();
-	@Override
+    public static boolean useMainPath = true;
+
+    @Override
 	public void onInitialize() {
 		if (CompatStatus.POLYMC) {
 			PolymerResourcePackUtils.markAsRequired();
@@ -84,8 +87,27 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
             try {
                 messageConsumer.accept(Text.literal("[Polymer] Starting resource pack generation..."));
                 STATUS.clear();
-                boolean success = PolymerResourcePackUtils.buildMain(PolymerResourcePackUtils.getMainPath(), STATUS::add);
+                Path outputPath = PolymerResourcePackUtils.getMainPath();
+                if (Files.exists(outputPath)) {
+                    try {
+                        Files.delete(outputPath);
+                        useMainPath = true;
+                    } catch (Throwable e) {
+                        // Failed to remove, change path to workaround one!
+                        outputPath = outputPath.resolveSibling(outputPath.getFileName().toString() + "_server.zip");
+                        try {
+                            Files.delete(outputPath);
+                            useMainPath = false;
+                        } catch (Throwable f2) {
+                            // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                            // I hate windows
+                        }
+                    }
+                }
+
+                boolean success = PolymerResourcePackUtils.buildMain(outputPath, STATUS::add);
                 STATUS.clear();
+                final var finalOutputPath = outputPath;
                 server.execute(() -> {
                     alreadyGeneration = false;
                     if (success) {
@@ -93,7 +115,7 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                                 .append(Text.literal(PolymerResourcePackImpl.FILE_NAME)
                                         .setStyle(Style.EMPTY.withUnderline(true)
                                                 .withHoverEvent(new HoverEvent.ShowText(
-                                                        Text.literal(PolymerResourcePackUtils.getMainPath().toAbsolutePath().toString())))))
+                                                        Text.literal(finalOutputPath.toAbsolutePath().toString())))))
                         );
                         runnable.run();
                     } else {

@@ -48,8 +48,6 @@ public final class PolymerBlockUtils {
      */
     public static final BooleanEvent<BiPredicate<ServerWorld, ChunkSectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
     private static final NbtCompound STATIC_COMPOUND = new NbtCompound();
-    private static final Set<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
-
     private PolymerBlockUtils() {
     }
 
@@ -59,11 +57,13 @@ public final class PolymerBlockUtils {
      * @param types BlockEntityTypes
      */
     public static void registerBlockEntity(BlockEntityType<?>... types) {
-        BLOCK_ENTITY_TYPES.addAll(Arrays.asList(types));
-
         for (var type : types) {
-            RegistrySyncUtils.setServerEntry(Registries.BLOCK_ENTITY_TYPE, type);
+            registerBlockEntity(type, (obj, ctx) -> null);
         }
+    }
+
+    public static void registerBlockEntity(BlockEntityType<?> type, PolymerSyncedObject<BlockEntityType<?>> syncedObject) {
+        PolymerSyncedObject.setSyncedObject(Registries.BLOCK_ENTITY_TYPE, type, syncedObject);
     }
 
     /**
@@ -72,7 +72,7 @@ public final class PolymerBlockUtils {
      * @param type BlockEntities type
      */
     public static boolean isPolymerBlockEntityType(BlockEntityType<?> type) {
-        return BLOCK_ENTITY_TYPES.contains(type);
+        return PolymerSyncedObject.getSyncedObject(Registries.BLOCK_ENTITY_TYPE, type) != null;
     }
 
     /**

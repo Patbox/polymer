@@ -178,7 +178,7 @@ public final class PolymerResourcePackUtils {
     }
 
     public static ResourcePackBuilder createBuilder(Path output) {
-        return new DefaultRPBuilder(output);
+        return new DefaultRPBuilder(output, (s) -> {});
     }
 
     public static boolean buildMain() {

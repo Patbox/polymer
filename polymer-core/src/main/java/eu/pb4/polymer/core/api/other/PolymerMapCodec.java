@@ -1,52 +1,89 @@
 package eu.pb4.polymer.core.api.other;
 
 import com.mojang.serialization.*;
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import net.minecraft.dialog.body.DialogBody;
+import net.minecraft.dialog.input.InputControl;
+import net.minecraft.dialog.type.Dialog;
 import net.minecraft.enchantment.EnchantmentLevelBasedValue;
 import net.minecraft.enchantment.effect.AllOfEnchantmentEffects;
 import net.minecraft.enchantment.effect.EnchantmentEntityEffect;
 import net.minecraft.enchantment.effect.EnchantmentLocationBasedEffect;
 import net.minecraft.enchantment.effect.EnchantmentValueEffect;
+import net.minecraft.util.Unit;
+import org.jetbrains.annotations.ApiStatus;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 public class PolymerMapCodec<T> extends MapCodec<T> implements PolymerObject {
     private final MapCodec<T> selfCodec;
-    private final MapCodec<Object> fallbackCodec;
-    private final Object fallbackValue;
+    private final Transform<T, Object> fallbackValue;
 
+    @Deprecated(forRemoval = true)
     public <K> PolymerMapCodec(MapCodec<T> selfCodec, MapCodec<K> fallbackCodec, K fallbackValue) {
+        this(selfCodec,  (x, ctx) -> fallbackValue);
+    }
+
+    private PolymerMapCodec(MapCodec<T> selfCodec, Transform<T, Object> fallbackValue) {
         this.selfCodec = selfCodec;
-        //noinspection unchecked
-        this.fallbackCodec = (MapCodec<Object>) fallbackCodec;
         this.fallbackValue = fallbackValue;
     }
 
+    public static <T extends K, K> MapCodec<T> ofStatic(MapCodec<T> selfCodec, K fallbackValue) {
+        return new PolymerMapCodec<T>(selfCodec, (x, ctx) -> fallbackValue);
+    }
+
+    public static <T extends K, K> MapCodec<T> ofDynamic(MapCodec<T> codec, Transform<T, K> transform) {
+        //noinspection unchecked
+        return new PolymerMapCodec<T>(codec, (Transform<T, Object>) transform);
+    }
+
+    public static <T extends Dialog> MapCodec<T> ofDialog(MapCodec<T> codec, Transform<T, Dialog> transform) {
+        return ofDynamic(codec,  transform);
+    }
+
+    public static <T extends DialogBody> MapCodec<T> ofDialogBody(MapCodec<T> codec, Transform<T, DialogBody> transform) {
+        return ofDynamic(codec, transform);
+    }
+
+    public static <T extends InputControl> MapCodec<T> ofDialogInputControl(MapCodec<T> codec, Transform<T, InputControl> transform) {
+        return ofDynamic(codec,  transform);
+    }
+
     public static <T extends EnchantmentValueEffect> MapCodec<T> ofEnchantmentValueEffect(MapCodec<T> codec) {
-        return new PolymerMapCodec<T>(codec, AllOfEnchantmentEffects.ValueEffects.CODEC, new AllOfEnchantmentEffects.ValueEffects(List.of()));
+        return ofStatic(codec, new AllOfEnchantmentEffects.ValueEffects(List.of()));
     }
 
     public static <T extends EnchantmentLocationBasedEffect> MapCodec<T> ofEnchantmentLocationBasedEffect(MapCodec<T> codec) {
-        return new PolymerMapCodec<T>(codec, AllOfEnchantmentEffects.LocationBasedEffects.CODEC, new AllOfEnchantmentEffects.LocationBasedEffects(List.of()));
+        return ofStatic(codec, new AllOfEnchantmentEffects.LocationBasedEffects(List.of()));
     }
 
     public static <T extends EnchantmentEntityEffect> MapCodec<T> ofEnchantmentEntityEffect(MapCodec<T> codec) {
-        return new PolymerMapCodec<T>(codec, AllOfEnchantmentEffects.EntityEffects.CODEC, new AllOfEnchantmentEffects.EntityEffects(List.of()));
+        return ofStatic(codec, new AllOfEnchantmentEffects.EntityEffects(List.of()));
     }
 
     public static <T extends EnchantmentLevelBasedValue> MapCodec<T> ofEnchantmentLevelBasedValue(MapCodec<T> codec) {
-        return new PolymerMapCodec<T>(codec, EnchantmentLevelBasedValue.Constant.TYPE_CODEC, new EnchantmentLevelBasedValue.Constant(0));
+        return ofStatic(codec, new EnchantmentLevelBasedValue.Constant(0));
     }
 
+    @ApiStatus.Internal
+    public Object getPolymerReplacement(T data, PacketContext context) {
+        return this.fallbackValue.transform(data, context);
+    }
+
+
+    @ApiStatus.Internal
+    @Deprecated(forRemoval = true)
     public Object fallbackValue() {
         return fallbackValue;
     }
 
+    @ApiStatus.Internal
+    @Deprecated(forRemoval = true)
     public MapCodec<Object> fallbackCodec() {
-        return fallbackCodec;
+        return MapCodec.unit(Unit.INSTANCE);
     }
 
     @Override
@@ -61,10 +98,10 @@ public class PolymerMapCodec<T> extends MapCodec<T> implements PolymerObject {
 
     @Override
     public <T1> RecordBuilder<T1> encode(T input, DynamicOps<T1> ops, RecordBuilder<T1> prefix) {
-        if (PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
-            return this.fallbackCodec.encode(this.fallbackValue, ops, prefix);
-        }
-
         return this.selfCodec.encode(input, ops, prefix);
+    }
+
+    public interface Transform<T extends K, K> {
+        K transform(T data, PacketContext context);
     }
 }

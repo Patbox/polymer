@@ -62,14 +62,25 @@ public final class PolymerEntityUtils {
         }
 
         for (var type : types) {
-            RegistrySyncUtils.setServerEntry(Registries.ENTITY_TYPE, type);
+            PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
         }
     }
 
     public static <T extends Entity> void registerOverlay(EntityType<T> type, Function<T, PolymerEntity> constructor) {
         //noinspection unchecked
         ENTITY_TYPES.put(type, (Function<Entity, PolymerEntity>) constructor);
-        RegistrySyncUtils.setServerEntry(Registries.ENTITY_TYPE, type);
+        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
+    }
+
+    public static void registerType(EntityType<?> type, PolymerSyncedObject<EntityType<?>> syncedObject) {
+        ENTITY_TYPES.put(type, entity -> entity instanceof PolymerEntity polymerEntity ? polymerEntity : (context -> syncedObject.getPolymerReplacement(((Entity) entity).getType(), context)));
+        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, syncedObject);
+    }
+
+    public static <T extends Entity> void registerOverlay(EntityType<T> type, PolymerSyncedObject<EntityType<?>> syncedObject, Function<T, PolymerEntity> constructor) {
+        //noinspection unchecked
+        ENTITY_TYPES.put(type, (Function<Entity, PolymerEntity>) constructor);
+        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, syncedObject);
     }
 
     @Nullable
@@ -97,7 +108,6 @@ public final class PolymerEntityUtils {
      */
     public static void registerProfession(VillagerProfession profession, PolymerSyncedObject<VillagerProfession> mapper) {
         PolymerSyncedObject.setSyncedObject(Registries.VILLAGER_PROFESSION, profession, mapper);
-        RegistrySyncUtils.setServerEntry(Registries.VILLAGER_PROFESSION, profession);
     }
 
     @Nullable

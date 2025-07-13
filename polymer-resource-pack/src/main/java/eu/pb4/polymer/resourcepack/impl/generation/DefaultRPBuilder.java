@@ -7,12 +7,15 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -31,32 +34,27 @@ import java.util.zip.ZipOutputStream;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class DefaultRPBuilder implements InternalRPBuilder {
+    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultRPBuilder.class);
     public static final Gson GSON = CommonImpl.GSON;
-    private static final Comparator<JsonElement> CMD_COMPARATOR = Comparator.comparingInt(x -> {
-        try {
-            return x.getAsJsonObject().getAsJsonObject("predicate").get("custom_model_data").getAsInt();
-        } catch(Throwable ignored) {
-            return Integer.MAX_VALUE;
-        }
-    });
-
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
-    private final TreeMap<String, byte[]> fileMap = new TreeMap<>();
+    private final HashMap<String, byte[]> fileMap = new HashMap<>();
     private final Path outputPath;
     private final List<ModContainer> modsList = new ArrayList<>();
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
     private final Map<String, JsonObject> objectMergeDefinitions = new HashMap<>();
     private final List<Path> rootPaths = new ArrayList<>();
     private final List<BiFunction<String, byte[], @Nullable byte[]>> converters = new ArrayList<>();
+    private final Consumer<String> status;
     private boolean hasVanilla;
     private final PackMcMeta.Builder packMetadata = new PackMcMeta.Builder();
     private final List<Consumer<ResourcePackBuilder>> preFinishTask = new ArrayList<>();
 
-    public DefaultRPBuilder(Path outputPath) {
+    public DefaultRPBuilder(Path outputPath, Consumer<String> status) {
+        this.status = status;
         try {
             Files.createDirectories(outputPath.getParent());
         } catch (Throwable e) {
-            CommonImpl.LOGGER.warn("Couldn't create " + outputPath.getParent() + " directory!", e);
+            LOGGER.error("Couldn't create " + outputPath.getParent() + " directory!", e);
         }
         this.outputPath = outputPath;
 
@@ -65,7 +63,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 Files.deleteIfExists(outputPath);
             }
         } catch (Exception e) {
-            CommonImpl.LOGGER.warn("Couldn't remove " + outputPath + " file!", e);
+            LOGGER.error("Couldn't remove " + outputPath + " file!", e);
         }
 
     }
@@ -98,7 +96,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             this.fileMap.put(path, data);
             return true;
         } catch (Exception e) {
-            CommonImpl.LOGGER.error("Something went wrong while adding raw data to path: " + path, e);
+            if (PolymerResourcePackImpl.LOG_ERRORS) {
+                LOGGER.warn("Something went wrong while adding raw data to path: " + path, e);
+            }
             return false;
         }
     }
@@ -109,7 +109,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             this.addPackMcMeta(pack, overlayConsumer);
             return true;
         } catch (Throwable e) {
-            CommonImpl.LOGGER.warn("Failed to load '{}'", path, e);
+            if (PolymerResourcePackImpl.LOG_ERRORS) {
+                LOGGER.warn("Failed to load '{}'", path, e);
+            }
         }
 
 
@@ -137,7 +139,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 return true;
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            if (PolymerResourcePackImpl.LOG_ERRORS) {
+                LOGGER.warn("Failed to parse merged object '{}'!", path, e);
+            }
         }
         return false;
     }
@@ -169,8 +173,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 return true;
             }
         } catch (Throwable e) {
-            e.printStackTrace();
-        }
+            if (PolymerResourcePackImpl.LOG_ERRORS) {
+                LOGGER.warn("Failed to parse sound file '{}'!", path, e);
+            }        }
         return false;
     }
 
@@ -184,8 +189,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 return true;
             }
         } catch (Throwable e) {
-            e.printStackTrace();
-        }
+            if (PolymerResourcePackImpl.LOG_ERRORS) {
+                LOGGER.warn("Failed to parse atlas file '{}'!", path, e);
+            }        }
         return false;
     }
     @Override
@@ -196,6 +202,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
             }
 
             if (Files.isDirectory(basePath)) {
+                status.accept("action:copy_path_start/" + basePath);
                 Path finalBasePath = basePath;
                 try (var str = Files.walk(basePath)) {
                     str.forEach((file) -> {
@@ -205,13 +212,15 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             try {
                                 this.addData(path, Files.readAllBytes(file));
                             } catch (IOException e) {
-                                CommonImpl.LOGGER.warn("Failed to load '{}'", path, e);
+                                if (PolymerResourcePackImpl.LOG_ERRORS) {
+                                    LOGGER.warn("Failed to load '{}'", path, e);
+                                }
                             }
 
                         }
                     });
                 }
-
+                status.accept("action:copy_path_end/" + basePath);
                 return true;
             } else if (Files.isRegularFile(basePath)) {
                 try (var fs = FileSystems.newFileSystem(basePath, Collections.emptyMap())) {
@@ -219,15 +228,19 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
                 return true;
             }
+            status.accept("action:copy_path_failed/" + basePath);
             return false;
         } catch (Exception e) {
-            CommonImpl.LOGGER.error("Something went wrong while copying data from: " + basePath, e);
+            LOGGER.error("Something went wrong while copying data from: " + basePath, e);
+            status.accept("action:copy_path_failed/" + basePath);
             return false;
         }
     }
 
     @Override
     public boolean copyAssets(String modId) {
+        status.accept("action:copy_mod_start/" + modId);
+
         Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(modId);
         if (mod.isPresent()) {
             ModContainer container = mod.get();
@@ -245,7 +258,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                             }
                         });
                     } catch (Throwable e) {
-                        CommonImpl.LOGGER.warn("Failed while copying the license!", e);
+                        LOGGER.warn("Failed while copying the license!", e);
                     }
                     var baseToCopy = new ArrayList<String>();
                     baseToCopy.add("assets");
@@ -268,7 +281,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                                         try {
                                             this.addData(x + "/" + path, Files.readAllBytes(file));
                                         } catch (IOException e) {
-                                            CommonImpl.LOGGER.warn("Failed to load '{}'", assets + "/" + path, e);
+                                            LOGGER.warn("Failed to load '{}'", assets + "/" + path, e);
                                         }
                                     }
                                 });
@@ -276,13 +289,17 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         }
                     }
                 }
+                status.accept("action:copy_mod_end/" + modId);
+
                 return true;
             } catch (Exception e) {
-                CommonImpl.LOGGER.error("Something went wrong while copying assets of mod: " + modId, e);
+                status.accept("action:copy_mod_fail/" + modId);
+                LOGGER.error("Something went wrong while copying assets of mod: " + modId, e);
                 return false;
             }
         }
-        CommonImpl.LOGGER.warn("Tried to copy assets from non existing mod " + modId);
+        status.accept("action:copy_mod_fail/" + modId);
+        LOGGER.warn("Tried to copy assets from non existing mod " + modId);
         return false;
     }
 
@@ -308,10 +325,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     @Override
     public boolean addAssetsSource(String modId) {
+        status.accept("action:add_source_mod_start/" + modId);
         if (FabricLoader.getInstance().isModLoaded(modId)) {
             this.rootPaths.addAll(FabricLoader.getInstance().getModContainer(modId).get().getRootPaths());
             return true;
         }
+        status.accept("action:add_source_mod_end/" + modId);
 
         return false;
     }
@@ -334,7 +353,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 return stream.readAllBytes();
             }
         } catch (Throwable e) {
-            CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar!", e);
+            LOGGER.warn("Error occurred while getting data from vanilla jar!", e);
         }
         return null;
     }
@@ -355,7 +374,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
             }
         } catch (Exception e) {
-            CommonImpl.LOGGER.warn("Error occurred while getting data from vanilla jar!", e);
+            LOGGER.warn("Error occurred while getting data from vanilla jar!", e);
         }
 
         return null;
@@ -383,6 +402,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 credits.add("");
                 credits.add("Contains assets from mods: ");
 
+                status.accept("action:update_credits_start");
                 for (var entry : this.modsList) {
                     var b = new StringBuilder(" - ").append(entry.getMetadata().getName()).append(" (").append(entry.getMetadata().getId()).append(")");
                     if (!entry.getMetadata().getLicense().isEmpty()) {
@@ -406,8 +426,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 credits.add("");
 
                 this.buildEvent.invoke((c) -> c.accept(credits));
+                status.accept("action:update_credits_end");
 
                 boolean bool = true;
+
+                status.accept("action:merge_files_start");
 
                 for (var entry : this.atlasDefinitions.entrySet()) {
                     var obj = new JsonObject();
@@ -420,6 +443,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
 
                 this.fileMap.put(AssetPaths.PACK_METADATA, this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8));
+                status.accept("action:merge_files_end");
 
 
                 if (!this.fileMap.containsKey(AssetPaths.PACK_ICON)) {
@@ -435,15 +459,18 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 this.fileMap.put("polymer-credits.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
 
 
+                status.accept("action:pre_finish_task_start");
                 for (var task : this.preFinishTask) {
                     task.accept(this);
                 }
-
+                status.accept("action:pre_finish_task_end");
+                status.accept("action:write_zip_start");
                 bool &= this.writeSingleZip();
+                status.accept("action:write_zip_end");
 
                 return bool;
             } catch (Exception e) {
-                CommonImpl.LOGGER.error("Something went wrong while creating resource pack!", e);
+                LOGGER.error("Something went wrong while creating resource pack!", e);
                 return false;
             }
         });
@@ -462,7 +489,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     split.removeLast();
                     this.fileMap.put(String.join("/", split) + "/", null);
                 }
-
             }
 
             var sorted = new ArrayList<>(this.fileMap.entrySet());
@@ -493,17 +519,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 outputStream.closeEntry();
             }
         } catch (Throwable e) {
-            CommonImpl.LOGGER.warn("Failed to write the zip file!", e);
+            LOGGER.warn("Failed to write the zip file!", e);
             return false;
         }
         return true;
-    }
-
-    private Identifier vId(String path) {
-        return Identifier.of(path);
-    }
-
-    public enum OverridePlace {
-        BEFORE_EXISTING, EXISTING, WITH_CUSTOM_MODEL_DATA, END
     }
 }

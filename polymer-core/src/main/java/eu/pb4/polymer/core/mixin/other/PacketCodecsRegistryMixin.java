@@ -37,6 +37,8 @@ public abstract class PacketCodecsRegistryMixin {
                     //noinspection unchecked
                     return reg.getEntry(replacement);
                 }
+
+                return reg.getEntry(0);
             }
         } else {
             var obj = PolymerSyncedObject.getSyncedObject(reg, val);
@@ -46,6 +48,7 @@ public abstract class PacketCodecsRegistryMixin {
                 if (replacement != null) {
                     return replacement;
                 }
+                return reg.get(0);
             }
         }
 

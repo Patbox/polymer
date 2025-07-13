@@ -5,6 +5,7 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
 import eu.pb4.polymer.virtualentity.impl.PacketInterHandler;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.packet.c2s.play.PickItemFromEntityC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -52,6 +53,22 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
         } catch (Throwable e) {
         }
     }
+    @ModifyVariable(method = "onPickItemFromEntity", at = @At(value = "STORE", ordinal = 0))
+    private Entity polymerVE$onPickEntity(Entity entity, PickItemFromEntityC2SPacket packet) {
+        if (entity == null && !this.polymerVE$holders.isEmpty()) {
+            for (var x : this.polymerVE$holders) {
+                if (x.isPartOf(packet.id())) {
+                    var i = x.getInteraction(packet.id(), this.player);
+                    if (i != null) {
+                        i.pickItem(this.player, packet.includeData());
+                        break;
+                    }
+                }
+            }
+        }
+        return entity;
+    }
+
 
     @ModifyVariable(method = "onPlayerInteractEntity", at = @At(value = "STORE", ordinal = 0))
     private Entity polymerVE$onInteract(Entity entity, PlayerInteractEntityC2SPacket packet) {
