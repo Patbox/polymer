@@ -27,7 +27,7 @@ loom {
 }
 
 dependencies {
-    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
     implementation(project(path: ':polymer-core', configuration: 'namedElements'))
