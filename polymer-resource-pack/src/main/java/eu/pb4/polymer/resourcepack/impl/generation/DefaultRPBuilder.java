@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -482,17 +483,17 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     private boolean writeSingleZip() {
-        try (var outputStream = new ZipOutputStream(new FileOutputStream(this.outputPath.toFile()))) {
-            for (var path : this.fileMap.keySet().toArray(new String[0])) {
-                var split = new ArrayList<>(List.of(path.split("/")));
-                while (split.size() > 1) {
-                    split.removeLast();
-                    this.fileMap.put(String.join("/", split) + "/", null);
-                }
+        for (var path : this.fileMap.keySet().toArray(new String[0])) {
+            var split = new ArrayList<>(List.of(path.split("/")));
+            while (split.size() > 1) {
+                split.removeLast();
+                this.fileMap.put(String.join("/", split) + "/", null);
             }
+        }
+        var sorted = new ArrayList<>(this.fileMap.entrySet());
+        sorted.sort(Map.Entry.comparingByKey());
 
-            var sorted = new ArrayList<>(this.fileMap.entrySet());
-            sorted.sort(Map.Entry.comparingByKey());
+        try (var outputStream = new ZipOutputStream(Files.newOutputStream(this.outputPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
             for (var entry : sorted) {
                 var path = entry.getKey();
                 var outByte = entry.getValue();

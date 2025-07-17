@@ -19,6 +19,7 @@
     "accessors.BlockDisplayEntityAccessor",
     "accessors.DisplayEntityAccessor",
     "accessors.EntityAccessor",
+    "accessors.EntityAttachS2CPacketAccessor",
     "accessors.EntityTrackerAccessor",
     "accessors.EntityTrackerEntryAccessor",
     "accessors.InteractionEntityAccessor",

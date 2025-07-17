@@ -151,7 +151,7 @@ public final class BlockResourceCreator {
             return;
         }
 
-        var map = new HashMap<String, HashMap<String, JsonArray>>();
+        var map = new TreeMap<String, HashMap<String, JsonArray>>();
 
         for (var blockStateEntry : this.models.entrySet()) {
             if (!this.hasRequested.contains(blockStateEntry.getKey().getBlock())) {

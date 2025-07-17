@@ -6,7 +6,9 @@ import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Property;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 public class PolymerBlocksInternal {
@@ -35,7 +37,9 @@ public class PolymerBlocksInternal {
     public static String generateStateName(BlockState state) {
         var stringBuilder = new StringBuilder();
 
-        var iterator = state.getEntries().entrySet().iterator();
+        var entries = new ArrayList<>(state.getEntries().entrySet());
+        entries.sort(Map.Entry.comparingByKey(Comparator.comparing(Property::getName)));
+        var iterator = entries.iterator();
 
         while (iterator.hasNext()) {
             var entry = iterator.next();

@@ -49,6 +49,9 @@ public class AutoHostConfig {
     public String _c13 = "Enables displaying internal resource pack generation status.";
     @SerializedName("dialog_show_status")
     public boolean dialogShowStatus = true;
+    public String _c14 = "Clears all client-side resourcepacks before sending Autohost handled ones.";
+    @SerializedName("clear_all_client_resource_packs")
+    public boolean clearResourcePacks = false;
     public static class ExternalResourcePack {
         public UUID id;
         public String url;

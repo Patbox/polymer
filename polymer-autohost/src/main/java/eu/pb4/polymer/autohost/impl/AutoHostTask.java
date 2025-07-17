@@ -8,6 +8,7 @@ import net.minecraft.dialog.type.NoticeDialog;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket;
 import net.minecraft.network.packet.s2c.common.ClearDialogS2CPacket;
+import net.minecraft.network.packet.s2c.common.ResourcePackRemoveS2CPacket;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
 import net.minecraft.network.packet.s2c.common.ShowDialogS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -50,8 +51,13 @@ public class AutoHostTask implements ServerPlayerConfigurationTask {
 
     @Override
     public void sendPacket(Consumer<Packet<?>> sender) {
+        if (AutoHost.config.clearResourcePacks) {
+            sender.accept(new ResourcePackRemoveS2CPacket(Optional.empty()));
+        }
+
         if (this.hasDelayed) {
             this.sendDialog(sender);
+            return;
         }
         for (var pack : packs) {
             sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), Optional.ofNullable(pack.prompt())));
@@ -77,7 +83,7 @@ public class AutoHostTask implements ServerPlayerConfigurationTask {
 
     public void tick(Consumer<Packet<?>> sender) {
         if (this.hasDelayed && this.isReady.getAsBoolean()) {
-            if (!AutoHost.config.dialog) {
+            if (AutoHost.config.dialog) {
                 sender.accept(ClearDialogS2CPacket.INSTANCE);
             }
             var delayed = this.delayed.get();
@@ -86,6 +92,9 @@ public class AutoHostTask implements ServerPlayerConfigurationTask {
                     requiredPacks.add(pack.id());
                 }
                 waitingFor.add(pack.id());
+            }
+            for (var pack : packs) {
+                sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), Optional.ofNullable(pack.prompt())));
             }
             for (var pack : delayed) {
                 sender.accept(new ResourcePackSendS2CPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), Optional.ofNullable(pack.prompt())));

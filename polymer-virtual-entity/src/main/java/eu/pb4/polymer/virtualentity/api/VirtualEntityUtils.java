@@ -7,6 +7,7 @@ import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.SetCameraEntityS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAttachS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.PlaySoundFromEntityS2CPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.Entity;
@@ -55,6 +56,13 @@ public final class VirtualEntityUtils {
         ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
     }
 
+    public static EntityAttachS2CPacket createEntityAttachPacket(int attachedId, int holdingId) {
+        var packet = PolymerCommonUtils.createUnsafe(EntityAttachS2CPacket.class);
+        var ac = (EntityAttachS2CPacketAccessor) packet;
+        ac.setAttachedEntityId(attachedId);
+        ac.setHoldingEntityId(holdingId);
+        return packet;
+    }
     public static SetCameraEntityS2CPacket createSetCameraEntityPacket(int entityId) {
         var packet = PolymerCommonUtils.createUnsafe(SetCameraEntityS2CPacket.class);
         var ac = (SetCameraEntityS2CPacketAccessor) packet;

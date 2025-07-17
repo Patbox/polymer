@@ -148,6 +148,9 @@ public class PacketPatcher {
                 }
 
                 return true;
+            } else if (packet instanceof EntityAnimationS2CPacket animationS2CPacket && PolymerEntity.get(EntityAttachedPacket.get(packet, animationS2CPacket.getEntityId())) instanceof PolymerEntity polymerEntity
+                    && !InternalEntityHelpers.isLivingEntity(polymerEntity.getPolymerEntityType(PacketContext.create(handler)))) {
+                return true;
             }
         }
 

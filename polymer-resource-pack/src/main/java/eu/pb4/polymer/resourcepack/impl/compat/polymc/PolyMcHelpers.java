@@ -3,6 +3,7 @@ package eu.pb4.polymer.resourcepack.impl.compat.polymc;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import io.github.theepicblock.polymc.PolyMc;
 import io.github.theepicblock.polymc.impl.misc.logging.SimpleLogger;
@@ -24,12 +25,16 @@ public class PolyMcHelpers {
         var pack = io.github.theepicblock.polymc.PolyMc.getMapForResourceGen().generateResourcePack(new SimpleLogger() {
             @Override
             public void error(String string) {
-                PolyMc.LOGGER.error(string);
+                if (PolymerResourcePackImpl.LOG_ERRORS) {
+                    PolyMc.LOGGER.error(string);
+                }
             }
 
             @Override
             public void warn(String string) {
-                PolyMc.LOGGER.warn(string);
+                if (PolymerResourcePackImpl.LOG_ERRORS) {
+                    PolyMc.LOGGER.warn(string);
+                }
             }
 
             @Override
