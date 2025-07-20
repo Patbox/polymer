@@ -6,4 +6,5 @@ import org.jetbrains.annotations.Nullable;
 public interface PolymerEntityProvider {
     @Nullable
     PolymerEntity polymer$getPolymerEntity();
+    void polymer$recreatePolymerEntity();
 }

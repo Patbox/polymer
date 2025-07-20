@@ -14,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.Function;
+
 @Mixin(Entity.class)
 public abstract class EntityMixin implements PolymerEntityProvider {
     @Shadow public abstract EntityType<?> getType();
@@ -25,12 +27,18 @@ public abstract class EntityMixin implements PolymerEntityProvider {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void updatePolymerEntity(EntityType type, World world, CallbackInfo ci) {
-        var constructor = PolymerEntityUtils.getPolymerEntityConstructor(getType());
-        this.polymerEntity = constructor != null ? constructor.get(this) : null;
+        polymer$recreatePolymerEntity();
     }
 
     @Override
     public @Nullable PolymerEntity polymer$getPolymerEntity() {
         return this.polymerEntity;
+    }
+
+    @Override
+    public void polymer$recreatePolymerEntity() {
+        //noinspection unchecked
+        var constructor = (Function<Object, PolymerEntity>) PolymerEntityUtils.getPolymerEntityConstructor(getType());
+        this.polymerEntity = constructor != null ? constructor.apply(this) : null;
     }
 }

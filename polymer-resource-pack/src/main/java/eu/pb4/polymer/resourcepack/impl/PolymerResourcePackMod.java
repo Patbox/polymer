@@ -24,6 +24,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -63,7 +64,7 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
 
 	@Override
 	public void onInitializeClient() {
-		PolymerResourcePack.setup();
+        CompletableFuture.runAsync(PolymerResourcePack::setup);
 	}
 
 	public static int generateResources(CommandContext<ServerCommandSource> context) {

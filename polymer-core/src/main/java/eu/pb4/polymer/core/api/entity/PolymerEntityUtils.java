@@ -5,15 +5,15 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import eu.pb4.polymer.core.impl.entity.OneOfPolymerEntityConstructors;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
+import eu.pb4.polymer.core.impl.interfaces.PolymerEntityProvider;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
 import eu.pb4.polymer.core.mixin.entity.EntityAccessor;
 import eu.pb4.polymer.core.mixin.entity.EntityTrackerAccessor;
 import eu.pb4.polymer.core.mixin.entity.PlayerListS2CPacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import it.unimi.dsi.fastutil.Function;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -33,13 +33,14 @@ import net.minecraft.village.VillagerProfession;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
     }
     public static final BooleanEvent<PolymerEntityInteractionListener> POLYMER_ENTITY_INTERACTION_CHECK = new BooleanEvent<>();
 
-    private static final Map<EntityType<?>, Function<Entity, PolymerEntity>> ENTITY_TYPES = new IdentityHashMap<>();
+    private static final Map<EntityType<?>, Function<Entity, PolymerEntity>> POLYMER_ENTITY_CONSTRUCTORS = new IdentityHashMap<>();
     private static final Set<EntityAttribute> ENTITY_ATTRIBUTES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
     /**
@@ -58,7 +59,7 @@ public final class PolymerEntityUtils {
      */
     public static void registerType(EntityType<?>... types) {
         for (var type : types) {
-            ENTITY_TYPES.put(type, entity -> entity instanceof PolymerEntity polymerEntity ? polymerEntity : null);
+            registerPolymerEntityConstructor(type, entity -> entity instanceof PolymerEntity polymerEntity ? polymerEntity : null);
         }
 
         for (var type : types) {
@@ -66,27 +67,37 @@ public final class PolymerEntityUtils {
         }
     }
 
-    public static <T extends Entity> void registerOverlay(EntityType<T> type, Function<T, PolymerEntity> constructor) {
-        //noinspection unchecked
-        ENTITY_TYPES.put(type, (Function<Entity, PolymerEntity>) constructor);
-        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
+    public static void registerType(EntityType<?> type, PolymerSyncedObject<EntityType<?>> syncedObject) {
+        registerPolymerEntityConstructor(type, entity -> entity instanceof PolymerEntity polymerEntity ? polymerEntity : (context -> syncedObject.getPolymerReplacement(((Entity) entity).getType(), context)));
+        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, syncedObject);
     }
 
-    public static void registerType(EntityType<?> type, PolymerSyncedObject<EntityType<?>> syncedObject) {
-        ENTITY_TYPES.put(type, entity -> entity instanceof PolymerEntity polymerEntity ? polymerEntity : (context -> syncedObject.getPolymerReplacement(((Entity) entity).getType(), context)));
-        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, syncedObject);
+    public static <T extends Entity> void registerOverlay(EntityType<T> type, Function<T, PolymerEntity> constructor) {
+        registerPolymerEntityConstructor(type, constructor);
+        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
     }
 
     public static <T extends Entity> void registerOverlay(EntityType<T> type, PolymerSyncedObject<EntityType<?>> syncedObject, Function<T, PolymerEntity> constructor) {
         //noinspection unchecked
-        ENTITY_TYPES.put(type, (Function<Entity, PolymerEntity>) constructor);
+        registerPolymerEntityConstructor(type, constructor);
         PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, syncedObject);
     }
 
+    public static <T extends Entity> void registerPolymerEntityConstructor(EntityType<T> type, Function<T, @Nullable PolymerEntity> constructor) {
+        if (POLYMER_ENTITY_CONSTRUCTORS.containsKey(type)) {
+            var old = POLYMER_ENTITY_CONSTRUCTORS.get(type);
+            //noinspection rawtypes,unchecked
+            POLYMER_ENTITY_CONSTRUCTORS.put(type, new OneOfPolymerEntityConstructors(constructor, old));
+        } else {
+            //noinspection unchecked
+            POLYMER_ENTITY_CONSTRUCTORS.put(type, (Function<Entity, PolymerEntity>) constructor);
+        }
+    }
+
     @Nullable
-    public static <T extends Entity> Function<T, PolymerEntity> getPolymerEntityConstructor(EntityType<T> type) {
+    public static <T extends Entity> Function<T, @Nullable PolymerEntity> getPolymerEntityConstructor(EntityType<T> type) {
         //noinspection unchecked
-        return (Function<T, PolymerEntity>) ENTITY_TYPES.get(type);
+        return (Function<T, PolymerEntity>) POLYMER_ENTITY_CONSTRUCTORS.get(type);
     }
 
     /**
@@ -121,7 +132,7 @@ public final class PolymerEntityUtils {
      * @param type EntityType
      */
     public static boolean isPolymerEntityType(EntityType<?> type) {
-        return ENTITY_TYPES.containsKey(type);
+        return PolymerSyncedObject.getSyncedObject(Registries.ENTITY_TYPE, type) != null;
     }
 
     public static boolean isPolymerEntityAttribute(RegistryEntry<EntityAttribute> type) {
@@ -190,6 +201,10 @@ public final class PolymerEntityUtils {
         PolymerServerProtocol.sendEntityInfo(player.networkHandler, entityId, entityType);
     }
 
+    public static void recreatePolymerEntity(Entity entity) {
+        ((PolymerEntityProvider) entity).polymer$recreatePolymerEntity();
+    }
+
     public static void refreshEntity(ServerPlayerEntity player, Entity entity) {
         if (entity.getWorld() instanceof ServerWorld world) {
             var tracker = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager).polymer$getEntityTrackers().get(entity.getId());
@@ -222,6 +237,16 @@ public final class PolymerEntityUtils {
 
         return POLYMER_ENTITY_INTERACTION_CHECK.invoke(x -> x.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult));
     }
+
+
+    public static <T extends Entity> void registerOverlay(EntityType<T> type, it.unimi.dsi.fastutil.Function<T, PolymerEntity> constructor) {
+        registerOverlay(type, (Function<T, PolymerEntity>) constructor);
+    }
+
+    public static <T extends Entity> void registerOverlay(EntityType<T> type, PolymerSyncedObject<EntityType<?>> syncedObject, it.unimi.dsi.fastutil.Function<T, PolymerEntity> constructor) {
+        registerOverlay(type, syncedObject, (Function<T, PolymerEntity>) constructor);
+    }
+
 
     @FunctionalInterface
     public interface PolymerEntityInteractionListener {

@@ -16,30 +16,37 @@ import java.util.function.Consumer;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public class PolymerResourcePack  {
-    public static boolean generated = false;
+public class PolymerResourcePack {
+    @Nullable
+    private volatile static Path path = null;
 
     @Nullable
-    public static ResourcePackProfile.PackFactory setup() {
+    public synchronized static ResourcePackProfile.PackFactory setup() {
+        if (path != null && Files.exists(path)) {
+            return new ZipResourcePack.ZipBackedFactory(path);
+        }
+
         Path outputPath = PolymerResourcePackUtils.getMainPath();
-        if (Files.exists(outputPath) && !generated) {
+        if (Files.exists(outputPath)) {
             try {
                 Files.delete(outputPath);
             } catch (Throwable e) {
                 // Failed to remove, change path to workaround one!
                 outputPath = outputPath.resolveSibling(outputPath.getFileName().toString() + "_client.zip");
-                try {
-                    Files.delete(outputPath);
-                } catch (Throwable f2) {
-                    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                    // I hate windows
+                if (Files.exists(outputPath)) {
+                    try {
+                        Files.delete(outputPath);
+                    } catch (Throwable f2) {
+                        // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                        // I hate windows
+                    }
                 }
             }
         }
 
-        if (generated || PolymerResourcePackUtils.buildMain(outputPath)) {
-            generated = true;
-            return new ZipResourcePack.ZipBackedFactory(outputPath.toFile());
+        if (PolymerResourcePackUtils.buildMain(outputPath)) {
+            path = outputPath;
+            return new ZipResourcePack.ZipBackedFactory(outputPath);
         } else {
             return null;
         }
