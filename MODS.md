@@ -389,6 +389,15 @@ Decorate your world! *PolyDecorations* is a server-side furniture/decorations mo
 - Modrinth: https://modrinth.com/mod/polydecorations
 
 
+## PolyDoodads (1.21.1 / latest)
+*PolyDoodads* adds tons of Trinket-compatible items, with various buffs to the player!
+
+### Links:
+- GitHub: https://github.com/globalista-dev/PolyDoodads
+- Modrinth: https://modrinth.com/mod/polydoodads
+- Curseforge: https://www.curseforge.com/minecraft/mc-mods/polydoodads
+
+
 ## PolyFactory (1.21.1 / latest)
 Ever wanted to play with tech mods, but people you play with don't want to install them?
 Or maybe you are making a server, but vanilla gameplay isn't enough? If so, this project will be ideal for you!
