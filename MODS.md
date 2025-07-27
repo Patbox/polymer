@@ -389,7 +389,7 @@ Decorate your world! *PolyDecorations* is a server-side furniture/decorations mo
 - Modrinth: https://modrinth.com/mod/polydecorations
 
 
-## PolyDoodads (1.21.1 / latest)
+## PolyDoodads (1.20.1 / 1.21.1 / 1.21.4 / latest)
 *PolyDoodads* adds tons of Trinket-compatible items, with various buffs to the player!
 
 ### Links:
