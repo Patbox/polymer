@@ -659,7 +659,7 @@ It also checks against Common Protection API to make sure players have access to
 
 ## Gensokyo: Reverie of Lost Dreams (1.21.7 / latest)
 *Gensokyo: Reverie of Lost Dreams* is a  server-side Touhou Project mod.
-it is including Danmaku magic, farming, cooking and enchanting etc..
+it is including Danmaku magic, farming, cooking and *FUMO* etc..
 ### Links
 - Github: https://github.com/SAGUMEDREAM/ReverieDreams
 - Modrinth: https://modrinth.com/mod/gensokyo-reverie-of-lost-dreams
