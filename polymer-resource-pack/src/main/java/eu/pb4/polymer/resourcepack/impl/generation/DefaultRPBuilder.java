@@ -40,7 +40,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
     private final HashMap<String, byte[]> fileMap = new HashMap<>();
     private final Path outputPath;
-    private final List<ModContainer> modsList = new ArrayList<>();
+    private final Set<ModContainer> modsList = new HashSet<>();
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
     private final Map<String, JsonObject> objectMergeDefinitions = new HashMap<>();
     private final List<Path> rootPaths = new ArrayList<>();
@@ -239,6 +239,16 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
+    public boolean addModToCredits(String modId) {
+        Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(modId);
+        if (mod.isPresent()) {
+            ModContainer container = mod.get();
+            this.modsList.add(container);
+        }
+        return mod.isPresent();
+    }
+
+    @Override
     public boolean copyAssets(String modId) {
         status.accept("action:copy_mod_start/" + modId);
 
@@ -404,7 +414,9 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 credits.add("Contains assets from mods: ");
 
                 status.accept("action:update_credits_start");
-                for (var entry : this.modsList) {
+                var modsList = new ArrayList<>(this.modsList);
+                modsList.sort(Comparator.comparing(x -> x.getMetadata().getId()));
+                for (var entry : modsList) {
                     var b = new StringBuilder(" - ").append(entry.getMetadata().getName()).append(" (").append(entry.getMetadata().getId()).append(")");
                     if (!entry.getMetadata().getLicense().isEmpty()) {
                         b.append(" / License: ");

@@ -2,6 +2,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.model;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.polymer.common.impl.SortedMapCodec;
 import it.unimi.dsi.fastutil.floats.FloatList;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.Direction;
@@ -18,7 +19,7 @@ public record ModelElement(Vec3d from, Vec3d to, Map<Direction, Face> faces, Opt
     public static final Codec<ModelElement> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Vec3d.CODEC.fieldOf("from").forGetter(ModelElement::from),
             Vec3d.CODEC.fieldOf("to").forGetter(ModelElement::to),
-            Codec.unboundedMap(Direction.CODEC, Face.CODEC).optionalFieldOf("faces", Map.of()).forGetter(ModelElement::faces),
+            SortedMapCodec.of(Direction.CODEC, Face.CODEC).optionalFieldOf("faces", Map.of()).forGetter(ModelElement::faces),
             Rotation.CODEC.optionalFieldOf("rotation").forGetter(ModelElement::rotation),
             Codec.BOOL.optionalFieldOf("shade", true).forGetter(ModelElement::shade),
             Codecs.rangedInt(0, 15).optionalFieldOf("light_emission", 0).forGetter(ModelElement::lightEmission)

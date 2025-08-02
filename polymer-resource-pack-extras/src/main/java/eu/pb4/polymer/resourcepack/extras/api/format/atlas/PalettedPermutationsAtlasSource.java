@@ -3,6 +3,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.atlas;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.polymer.common.impl.SortedMapCodec;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
@@ -11,7 +12,7 @@ public record PalettedPermutationsAtlasSource(List<Identifier> textures, Identif
     public static final MapCodec<PalettedPermutationsAtlasSource> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.list(Identifier.CODEC).fieldOf("textures").forGetter(PalettedPermutationsAtlasSource::textures),
             Identifier.CODEC.fieldOf("palette_key").forGetter(PalettedPermutationsAtlasSource::paletteKey),
-            Codec.unboundedMap(Codec.STRING, Identifier.CODEC).fieldOf("permutations").forGetter(PalettedPermutationsAtlasSource::permutations)
+            SortedMapCodec.of(Codec.STRING, Identifier.CODEC).fieldOf("permutations").forGetter(PalettedPermutationsAtlasSource::permutations)
     ).apply(instance, PalettedPermutationsAtlasSource::new));
 
     @Override

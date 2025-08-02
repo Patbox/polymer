@@ -41,4 +41,9 @@ public abstract class EntityMixin implements PolymerEntityProvider {
         var constructor = (Function<Object, PolymerEntity>) PolymerEntityUtils.getPolymerEntityConstructor(getType());
         this.polymerEntity = constructor != null ? constructor.apply(this) : null;
     }
+
+    @Override
+    public void polymer$setPolymerEntity(PolymerEntity polymerEntity) {
+        this.polymerEntity = polymerEntity;
+    }
 }

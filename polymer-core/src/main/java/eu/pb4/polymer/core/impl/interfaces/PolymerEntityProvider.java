@@ -7,4 +7,6 @@ public interface PolymerEntityProvider {
     @Nullable
     PolymerEntity polymer$getPolymerEntity();
     void polymer$recreatePolymerEntity();
+
+    void polymer$setPolymerEntity(PolymerEntity polymerEntity);
 }

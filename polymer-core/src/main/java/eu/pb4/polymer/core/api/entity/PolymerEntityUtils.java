@@ -30,6 +30,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.village.VillagerProfession;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -203,6 +204,11 @@ public final class PolymerEntityUtils {
 
     public static void recreatePolymerEntity(Entity entity) {
         ((PolymerEntityProvider) entity).polymer$recreatePolymerEntity();
+    }
+
+    @ApiStatus.Experimental
+    public static void setPolymerEntity(Entity entity, PolymerEntity polymerEntity) {
+        ((PolymerEntityProvider) entity).polymer$setPolymerEntity(polymerEntity);
     }
 
     public static void refreshEntity(ServerPlayerEntity player, Entity entity) {

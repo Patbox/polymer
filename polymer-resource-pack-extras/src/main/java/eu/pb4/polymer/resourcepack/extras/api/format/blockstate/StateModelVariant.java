@@ -2,6 +2,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.blockstate;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.polymer.common.impl.SortedMapCodec;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -18,5 +19,5 @@ public record StateModelVariant(Identifier model, int x, int y, boolean uvlock, 
     );
 
     public static final Codec<List<StateModelVariant>> CODEC = Codec.withAlternative(BASE.listOf(), BASE, List::of);
-    public static final Codec<Map<String, List<StateModelVariant>>> MAP = Codec.unboundedMap(Codec.STRING, CODEC);
+    public static final Codec<Map<String, List<StateModelVariant>>> MAP = SortedMapCodec.of(Codec.STRING, CODEC);
 }

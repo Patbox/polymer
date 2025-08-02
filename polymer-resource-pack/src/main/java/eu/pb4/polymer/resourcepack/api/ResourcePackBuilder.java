@@ -114,4 +114,8 @@ public interface ResourcePackBuilder {
     default PackMcMeta.Builder getPackMcMetaBuilder() {
         return new PackMcMeta.Builder();
     }
+
+    default boolean addModToCredits(String modId) {
+        return false;
+    }
 }

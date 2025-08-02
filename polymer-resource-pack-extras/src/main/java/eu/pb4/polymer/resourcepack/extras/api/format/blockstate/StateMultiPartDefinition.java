@@ -3,6 +3,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.blockstate;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.polymer.common.impl.SortedMapCodec;
 import net.minecraft.util.dynamic.Codecs;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public record StateMultiPartDefinition(When when, List<StateModelVariant> apply)
                        Optional<Map<String, String>> base) {
         public static final When DEFAULT = new When(Optional.empty(), Optional.empty(), Optional.empty());
 
-        private static final Codec<Map<String, String>> STR_MAP = Codec.unboundedMap(Codec.STRING, Codec.withAlternative(Codec.STRING, Codecs.BASIC_OBJECT, String::valueOf));
+        private static final Codec<Map<String, String>> STR_MAP = SortedMapCodec.of(Codec.STRING, Codec.withAlternative(Codec.STRING, Codecs.BASIC_OBJECT, String::valueOf));
         private static final Codec<List<Map<String, String>>> LIST_STR_MAP = STR_MAP.listOf();
         public static final Codec<When> CODEC = Codec.either(
                 LIST_STR_MAP.fieldOf("OR")

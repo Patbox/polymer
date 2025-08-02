@@ -45,12 +45,12 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
-import net.minecraft.util.hit.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -82,6 +82,9 @@ public final class PolymerItemUtils {
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
+    public static final BooleanEvent<BiPredicate<ItemStack, PacketContext>> CONTEXT_ITEM_CHECK = new BooleanEvent<>();
+
+    @Deprecated
     public static final BooleanEvent<Predicate<ItemStack>> ITEM_CHECK = new BooleanEvent<>();
     /**
      * Allows to modify how virtual items looks before being sent to client (only if using build in methods!)
@@ -208,7 +211,7 @@ public final class PolymerItemUtils {
             return createItemStack(itemStack, tooltipContext, context);
         }
 
-        if (ITEM_CHECK.invoke((x) -> x.test(itemStack))) {
+        if (CONTEXT_ITEM_CHECK.invoke((x) -> x.test(itemStack, context))) {
             return createItemStack(itemStack, tooltipContext, context);
         }
 
@@ -372,7 +375,7 @@ public final class PolymerItemUtils {
             }
         }
 
-        return ITEM_CHECK.invoke((x) -> x.test(itemStack));
+        return CONTEXT_ITEM_CHECK.invoke((x) -> x.test(itemStack, context));
     }
 
     /**
@@ -691,5 +694,9 @@ public final class PolymerItemUtils {
     }
 
     public record ItemWithMetadata(Item item, @Nullable Identifier itemModel) {
+    }
+
+    static {
+        CONTEXT_ITEM_CHECK.register((stack, context) -> ITEM_CHECK.invoke(x -> x.test(stack)));
     }
 }
