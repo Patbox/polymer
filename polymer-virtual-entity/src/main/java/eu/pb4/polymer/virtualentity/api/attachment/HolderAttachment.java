@@ -23,6 +23,10 @@ public interface HolderAttachment {
     void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking);
     void updateTracking(ServerPlayNetworkHandler tracking);
 
+    default boolean isRemoved() {
+        return false;
+    }
+
     default void startWatching(ServerPlayerEntity handler) {
         if (this.holder().getAttachment() == this) {
             if (CompatStatus.IMMERSIVE_PORTALS) {

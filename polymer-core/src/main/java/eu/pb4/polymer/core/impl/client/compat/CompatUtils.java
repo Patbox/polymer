@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.client.compat;
 
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
 import net.minecraft.component.DataComponentTypes;
@@ -93,18 +94,8 @@ public class CompatUtils {
         }
     }
 
-    public static String getModName(ItemStack stack) {
-        var id = PolymerItemUtils.getServerIdentifier(stack);
-        if (id != null) {
-            return InternalClientRegistry.getModName(id);
-        }
-        return null;
-    }
-
     public static Identifier getId(@Nullable NbtComponent nbt) {
         return PolymerItemUtils.getServerIdentifier(nbt);
     }
-
-    public record Key(Identifier identifier) {}
 }
 

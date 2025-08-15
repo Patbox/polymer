@@ -4,6 +4,7 @@ import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
@@ -48,7 +49,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
 
         @Override
         public @Nullable String getHoveredItemModName(ItemStack stack, IPluginConfig config) {
-            return CompatUtils.getModName(stack);
+            return PolymerImplUtils.getModName(stack);
         }
     }
 
@@ -119,7 +120,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
                     String modName = IModInfo.get(block.block().identifier()).getName();
 
                     if (modName == null || modName.isEmpty() || modName.equals("Minecraft")) {
-                        modName = InternalClientRegistry.getModName(block.block().identifier());
+                        modName = PolymerImplUtils.getModName(block.block().identifier());
                     }
 
                     tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
@@ -159,7 +160,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
                     }
 
                     if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !id.getNamespace().equals("minecraft"))) {
-                        modName = InternalClientRegistry.getModName(id);
+                        modName = PolymerImplUtils.getModName(id);
                     }
 
                     tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));
@@ -203,7 +204,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
                     }
 
                     if (modName == null || modName.isEmpty() || (modName.equals("Minecraft") && !type.identifier().getNamespace().equals("minecraft"))) {
-                        modName = InternalClientRegistry.getModName(type.identifier());
+                        modName = PolymerImplUtils.getModName(type.identifier());
                     }
 
                     tooltip.setLine(WailaConstants.MOD_NAME_TAG, IWailaConfig.get().getFormatter().modName(modName));

@@ -254,4 +254,18 @@ public class PolymerImplUtils {
             }
         }
     }
+
+    @Nullable
+    public static String getModName(ItemStack stack) {
+        var id = PolymerItemUtils.getServerIdentifier(stack);
+        if (id != null) {
+            return getModName(id);
+        }
+        return null;
+    }
+
+    public static String getModName(Identifier id) {
+        var container = FabricLoader.getInstance().getModContainer(id.getNamespace());
+        return container.isPresent() ? container.get().getMetadata().getName() : (id.getNamespace() + "*");
+    }
 }

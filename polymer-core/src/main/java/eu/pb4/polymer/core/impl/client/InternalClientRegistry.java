@@ -10,6 +10,7 @@ import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.core.impl.interfaces.IndexedNetwork;
@@ -388,10 +389,5 @@ public class InternalClientRegistry {
 
     public static void register() {
 
-    }
-
-    public static String getModName(Identifier id) {
-        var container = FabricLoader.getInstance().getModContainer(id.getNamespace());
-        return container.isPresent() ? container.get().getMetadata().getName() : (id.getNamespace() + "*");
     }
 }

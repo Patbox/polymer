@@ -29,6 +29,7 @@
     "block.packet.WorldEventS2CPacketMixin",
     "block.storage.ChunkSectionMixin",
     "block.storage.WorldChunkMixin",
+    "client.compat.fabric.fabricItem_FabricItemMixin",
     "command.ArgumentNodeMixin",
     "command.CommandManagerMixin",
     "compat.lithium_BlockPaletteMixin",

@@ -221,6 +221,7 @@ public final class CommonImpl {
                 case "fabricSH" -> CompatStatus.FABRIC_SCREEN_HANDLER;
                 case "fabricItemGroup" -> CompatStatus.FABRIC_ITEM_GROUP;
                 case "fabricNetworking" -> CompatStatus.FABRIC_NETWORKING;
+                case "fabricItem" -> CompatStatus.FABRIC_ITEM;
                 case "polymc" -> CompatStatus.POLYMC;
                 case "wthit" -> CompatStatus.WTHIT;
                 case "rei" -> CompatStatus.REI;

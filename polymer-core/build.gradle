@@ -53,14 +53,14 @@ dependencies {
     }
 
 
-    modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:17.1.2+fabric") {
+    modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:19.3.0+fabric") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-14.0.1"){
+    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-16.0.1"){
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:18.0.796"){
+    modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:20.0.811"){
         exclude(group: "net.fabricmc.fabric-api")
     }
     modCompileOnly /*modLocalRuntime*/("dev.emi:emi-fabric:1.1.6+1.20.6"){

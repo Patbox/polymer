@@ -68,7 +68,7 @@ public abstract class ItemGroupMixin implements ClientItemGroupExtension {
             }
 
             if (!this.polymer$entriesSearch.isEmpty()) {
-                applyPolymerGroups(this.displayStacks, this.polymer$entriesSearch);
+                applyPolymerGroups(this.searchTabStacks, this.polymer$entriesSearch);
             }
         }
     }
