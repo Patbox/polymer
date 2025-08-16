@@ -18,7 +18,7 @@ public abstract class MinecraftClientMixin {
 
     @Shadow @Nullable public abstract ClientPlayNetworkHandler getNetworkHandler();
 
-    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V"))
+    @Inject(method = "disconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V"))
     private void polymerNet$onDisconnect(CallbackInfo ci) {
         ClientPacketRegistry.clear(null);
     }

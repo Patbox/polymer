@@ -19,7 +19,8 @@
   "client": [
     "client.ClientCommonNetworkHandlerMixin",
     "client.ClientConfigurationNetworkHandlerMixin",
-    "client.ClientPlayNetworkHandlerMixin"
+    "client.ClientPlayNetworkHandlerMixin",
+    "client.MinecraftClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

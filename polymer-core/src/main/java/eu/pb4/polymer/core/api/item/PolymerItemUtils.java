@@ -239,8 +239,10 @@ public final class PolymerItemUtils {
                 }
 
                 return x;
-            } catch (Throwable ignored) {
-
+            } catch (Throwable e) {
+                if (PolymerImpl.LOG_MORE_ERRORS) {
+                    PolymerImpl.LOGGER.warn("Failed to decode Item Stack!", e);
+                }
             }
         }
 
