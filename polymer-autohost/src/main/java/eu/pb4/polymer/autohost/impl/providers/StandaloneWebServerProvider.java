@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import org.apache.http.HttpStatus;
@@ -89,6 +90,8 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
                 ) {
                     exchange.getResponseHeaders().add("Server", "polymer-autohost");
                     exchange.getResponseHeaders().add("Content-Type", "application/zip");
+                    if (PolymerResourcePackMod.sha1 != null)
+                        exchange.getResponseHeaders().add("Cache-Control", "public, max-age=31536000");
                     exchange.sendResponseHeaders(HttpStatus.SC_OK, size);
 
                     input.transferTo(output);

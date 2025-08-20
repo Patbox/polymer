@@ -103,7 +103,7 @@ public class AutoHost implements ModInitializer {
     }
 
     public static Path getPath(String path) {
-        if (path.equals("main.zip")) {
+        if (path.equals("main.zip") || path.equals(PolymerResourcePackMod.sha1 + ".zip")) {
             var mainPath = PolymerResourcePackUtils.getMainPath();
             if (PolymerResourcePackMod.useMainPath) {
                 return mainPath;
