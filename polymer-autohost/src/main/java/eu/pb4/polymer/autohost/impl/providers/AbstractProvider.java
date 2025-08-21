@@ -96,8 +96,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
 
     @Override
     public String getMainFilePath(PacketContext context) {
-        if (PolymerResourcePackMod.sha1 != null) return getAddress(context.getClientConnection(), PolymerResourcePackMod.sha1 + ".zip");
-        return getAddress(context.getClientConnection(), "main.zip");
+        return getAddress(context.getClientConnection(), "main_" + hash + ".zip");
     }
 
     protected abstract String getAddress(ClientConnection connection, String path);

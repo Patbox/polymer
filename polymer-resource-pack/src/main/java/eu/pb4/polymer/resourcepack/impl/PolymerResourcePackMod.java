@@ -1,6 +1,5 @@
 package eu.pb4.polymer.resourcepack.impl;
 
-import com.google.common.hash.Hashing;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
@@ -21,7 +20,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,8 +36,6 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
 	public static boolean alreadyGeneration = false;
     public static final List<String> STATUS = new CopyOnWriteArrayList<>();
     public static boolean useMainPath = true;
-    @Nullable
-    public static String sha1;
 
     @Override
 	public void onInitialize() {
@@ -116,16 +112,6 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                 server.execute(() -> {
                     alreadyGeneration = false;
                     if (success) {
-                        Path filePath = finalOutputPath;
-                        try {
-                            String sha1Value = com.google.common.io.Files.asByteSource(filePath.toFile()).hash(Hashing.sha1()).toString();
-                            if (!sha1Value.isEmpty()) PolymerResourcePackMod.sha1 = sha1Value;
-
-                        } catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-
                         messageConsumer.accept(Text.literal("[Polymer] Resource pack created successfully! You can find it in game folder as ")
                                 .append(Text.literal(PolymerResourcePackImpl.FILE_NAME)
                                         .setStyle(Style.EMPTY.withUnderline(true)

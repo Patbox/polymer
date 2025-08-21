@@ -90,8 +90,8 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
                 ) {
                     exchange.getResponseHeaders().add("Server", "polymer-autohost");
                     exchange.getResponseHeaders().add("Content-Type", "application/zip");
-                    if (PolymerResourcePackMod.sha1 != null)
-                        exchange.getResponseHeaders().add("Cache-Control", "public, max-age=31536000");
+                    //Might be worth putting the max-age in the config
+                    exchange.getResponseHeaders().add("Cache-Control", "public, max-age=31536000");
                     exchange.sendResponseHeaders(HttpStatus.SC_OK, size);
 
                     input.transferTo(output);
