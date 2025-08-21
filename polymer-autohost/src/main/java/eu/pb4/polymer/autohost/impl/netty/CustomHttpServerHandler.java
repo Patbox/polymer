@@ -61,7 +61,10 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         HttpUtil.setContentLength(response, fileLength);
+        response.headers().add("Server", "polymer-autohost");
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/zip");
+        response.headers().set("Cache-Control", "public, max-age=" + AutoHost.config.cacheControlAge);
+
 
         if (!keepAlive) {
             response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);

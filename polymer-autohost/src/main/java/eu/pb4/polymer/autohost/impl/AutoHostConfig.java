@@ -52,6 +52,13 @@ public class AutoHostConfig {
     public String _c14 = "Clears all client-side resourcepacks before sending Autohost handled ones.";
     @SerializedName("clear_all_client_resource_packs")
     public boolean clearResourcePacks = false;
+    public String _c15 = "Adds hash to name of resource pack file served with web server";
+    @SerializedName("include_hash_in_name")
+    public boolean includeHashInName = true;
+    public String _c16 = "Value of Cache-Control max age header";
+    @SerializedName("cache_control_max_age")
+    public int cacheControlAge = 31536000;
+
     public static class ExternalResourcePack {
         public UUID id;
         public String url;

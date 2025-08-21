@@ -2,6 +2,7 @@ package eu.pb4.polymer.autohost.impl;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.serialization.JsonOps;
+import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.providers.*;
 import eu.pb4.polymer.common.impl.CommonImpl;
@@ -9,17 +10,13 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
-import joptsimple.internal.AbbreviationMap;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
@@ -37,6 +34,8 @@ public class AutoHost implements ModInitializer {
     public static Text dialogTitle = Text.empty();
     public static Text dialogDefaultBody = Text.empty();
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
+
+    public static final String DEFAULT_PATH = AutoHostUtils.getPathFromId(AutoHostUtils.DEFAULT_PACK_ID);
 
     public static void init(MinecraftServer server) {
         var config = CommonImpl.loadConfig("auto-host", AutoHostConfig.class);
@@ -103,7 +102,12 @@ public class AutoHost implements ModInitializer {
     }
 
     public static Path getPath(String path) {
-        if (path.equals("main.zip")) {
+        var plus = path.indexOf('+');
+        if (plus != -1) {
+            path = path.substring(0, plus);
+        }
+
+        if (path.equals(DEFAULT_PATH)) {
             var mainPath = PolymerResourcePackUtils.getMainPath();
             if (PolymerResourcePackMod.useMainPath) {
                 return mainPath;

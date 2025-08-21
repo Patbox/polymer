@@ -36,6 +36,10 @@ public interface ResourcePackDataProvider {
     String getMainFilePath(PacketContext context);
     String getFilePath(PacketContext context, Identifier identifier);
 
+    default String getFilePath(PacketContext context, Identifier identifier, @Nullable String hash) {
+        return this.getFilePath(context, identifier);
+    }
+
     default MinecraftServer.ServerResourcePackProperties createProperties(PacketContext context, Identifier address) {
         return this.createProperties(context,null, address, null);
     }

@@ -90,13 +90,22 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     }
 
     @Override
+    public String getFilePath(PacketContext context, Identifier identifier, @Nullable String hash) {
+        if (!AutoHost.config.includeHashInName) {
+            return getFilePath(context, identifier);
+        }
+
+        return getAddress(context.getClientConnection(), AutoHostUtils.getPathFromId(identifier) + "+" + hash + ".zip");
+    }
+
+    @Override
     public String getFilePath(PacketContext context, Identifier identifier) {
-        return getAddress(context.getClientConnection(), identifier.getNamespace() + "/" + identifier.getPath());
+        return getAddress(context.getClientConnection(), AutoHostUtils.getPathFromId(identifier) + "+pack.zip");
     }
 
     @Override
     public String getMainFilePath(PacketContext context) {
-        return getAddress(context.getClientConnection(), "main.zip");
+        return getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID, hash);
     }
 
     protected abstract String getAddress(ClientConnection connection, String path);

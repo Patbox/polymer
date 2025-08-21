@@ -288,6 +288,6 @@ public class ElementHolder {
     }
 
     public void removePassengerId(int i) {
-        this.attachedPassengerEntityIds.add(i);
+        this.attachedPassengerEntityIds.remove(i);
     }
 }
