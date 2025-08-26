@@ -1,7 +1,7 @@
 # Blocks
 !!! Note
     These docs will only take care about polymer-related part of creation of blocks.
-    You might want to see [official Fabric Wiki](https://fabricmc.net/wiki/tutorial:blocks)
+    You might want to see [official Fabric Docs](https://docs.fabricmc.net/develop/blocks/first-block)
     for more in depth look into how to create blocks. 
     You can skip some client side specific things, as it won't take effect server side 
     (for example models and textures).

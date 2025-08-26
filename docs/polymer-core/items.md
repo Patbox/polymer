@@ -1,7 +1,7 @@
 # Items
 !!! Note
     These docs will only take care about polymer-related part of creation of items.
-    You might want to see [official Fabric Wiki](https://fabricmc.net/wiki/tutorial:items_docs)
+    You might want to see [official Fabric Docs](https://docs.fabricmc.net/develop/items/first-item)
     for more in depth look into how to create items. 
     You can skip some client side specific things, as it won't take effect server side (excluding
     item groups, as they can be used by other mods)
