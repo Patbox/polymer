@@ -1,10 +1,8 @@
 package eu.pb4.polymer.core.mixin.other;
 
-import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.Registries;
@@ -24,7 +22,7 @@ public class FluidMixin {
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void polymer$enableMapping(CallbackInfo ci) {
         ((PolymerIdList<FluidState>) STATE_IDS).polymer$setChecker(
-                x -> x.getFluid() instanceof PolymerObject,
+                x -> PolymerSyncedObject.getSyncedObject(Registries.FLUID, x.getFluid()) != null,
                 x -> PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) (Object) Registries.FLUID, x.getFluid()),
                 x -> "(Fluid) " + Registries.FLUID.getId(x.getFluid()));
     }

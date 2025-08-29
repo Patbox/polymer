@@ -6,6 +6,7 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
+import eu.pb4.polymer.virtualentity.mixin.block.WorldChunkAccessor;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
@@ -88,7 +89,6 @@ public class ChunkAttachment implements HolderAttachment {
     @Override
     public void tick() {
         if (this.removed) return;
-
         if (this.autoTick) {
             this.holder().tick();
         }
@@ -101,7 +101,7 @@ public class ChunkAttachment implements HolderAttachment {
 
     @Override
     public void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking) {
-        if (this.removed) return;
+        if (this.removed || !((WorldChunkAccessor) chunk).isLoadedToWorld()) return;
 
         List<ServerPlayNetworkHandler> watching = new ArrayList<>();
 

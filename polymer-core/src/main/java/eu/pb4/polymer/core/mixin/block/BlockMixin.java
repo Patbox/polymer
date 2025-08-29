@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.mixin.block;
 
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
 import net.minecraft.block.Block;
@@ -31,7 +32,7 @@ public class BlockMixin {
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void polymer$enableMapping(CallbackInfo ci) {
         ((PolymerIdList<BlockState>) STATE_IDS).polymer$setChecker(
-                x -> x.getBlock() instanceof PolymerObject,
+                x -> PolymerSyncedObject.getSyncedObject(Registries.BLOCK, x.getBlock()) != null,
                 x -> PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) (Object) Registries.BLOCK, x.getBlock()),
                 x -> "(Block) " + Registries.BLOCK.getId(x.getBlock())
         );

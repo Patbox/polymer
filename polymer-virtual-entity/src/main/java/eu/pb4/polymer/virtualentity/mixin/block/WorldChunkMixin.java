@@ -4,6 +4,7 @@ import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
+import eu.pb4.polymer.virtualentity.impl.HolderHolder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -104,6 +105,24 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
             var holder = blockWithElementHolder.createElementHolder(serverWorld, pos, state);
             if (holder != null) {
                 new BlockBoundAttachment(holder, (WorldChunk) (Object) this, state, pos.toImmutable(), Vec3d.ofCenter(pos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, pos, state)), blockWithElementHolder.tickElementHolder(serverWorld, pos, state));
+            }
+        }
+    }
+
+    @Inject(method = "setLoadedToWorld", at = @At("TAIL"))
+    private void polymerVE$onChunkUnload(boolean loadedToWorld, CallbackInfo ci) {
+        if (loadedToWorld) {
+            return;
+        }
+
+        var holders = this.polymerVE$getHolders();
+        if (!holders.isEmpty()) {
+            var arr = holders.toArray(HolderHolder.HOLDER_ATTACHMENTS);
+            for (int i = 0; i < arr.length; i++) {
+                var holder = arr[i];
+                if (holder != null) {
+                    holder.destroy();
+                }
             }
         }
     }
