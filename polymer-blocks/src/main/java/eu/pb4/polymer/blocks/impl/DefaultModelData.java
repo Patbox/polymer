@@ -9,6 +9,7 @@ import net.minecraft.block.enums.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
 
 import java.util.*;
@@ -123,6 +124,79 @@ public class DefaultModelData {
             addSlabs(SlabType.TOP, true, BlockModelType.TOP_SLAB_WATERLOGGED);
             addSlabs(SlabType.BOTTOM, false, BlockModelType.BOTTOM_SLAB);
             addSlabs(SlabType.BOTTOM, true, BlockModelType.BOTTOM_SLAB_WATERLOGGED);
+
+            var fullSlabs = List.<Pair<Block, Block>>of(
+                    new Pair<>(Blocks.RESIN_BRICK_SLAB, Blocks.RESIN_BRICKS),
+                    new Pair<>(Blocks.PRISMARINE_SLAB, Blocks.PRISMARINE),
+                    new Pair<>(Blocks.PRISMARINE_BRICK_SLAB, Blocks.PRISMARINE_BRICKS),
+                    new Pair<>(Blocks.DARK_PRISMARINE_SLAB, Blocks.DARK_PRISMARINE),
+                    new Pair<>(Blocks.OAK_SLAB, Blocks.OAK_PLANKS),
+                    new Pair<>(Blocks.SPRUCE_SLAB, Blocks.SPRUCE_PLANKS),
+                    new Pair<>(Blocks.BIRCH_SLAB, Blocks.BIRCH_PLANKS),
+                    new Pair<>(Blocks.JUNGLE_SLAB, Blocks.JUNGLE_PLANKS),
+                    new Pair<>(Blocks.ACACIA_SLAB, Blocks.ACACIA_PLANKS),
+                    new Pair<>(Blocks.CHERRY_SLAB, Blocks.CHERRY_PLANKS),
+                    new Pair<>(Blocks.DARK_OAK_SLAB, Blocks.DARK_OAK_PLANKS),
+                    new Pair<>(Blocks.PALE_OAK_SLAB, Blocks.PALE_OAK_PLANKS),
+                    new Pair<>(Blocks.MANGROVE_SLAB, Blocks.MANGROVE_PLANKS),
+                    new Pair<>(Blocks.BAMBOO_SLAB, Blocks.BAMBOO_PLANKS),
+                    new Pair<>(Blocks.BAMBOO_MOSAIC_SLAB, Blocks.BAMBOO_MOSAIC),
+                    new Pair<>(Blocks.STONE_SLAB, Blocks.STONE),
+                    new Pair<>(Blocks.SANDSTONE_SLAB, Blocks.SANDSTONE),
+                    new Pair<>(Blocks.CUT_SANDSTONE_SLAB, Blocks.CUT_SANDSTONE),
+                    new Pair<>(Blocks.PETRIFIED_OAK_SLAB, Blocks.OAK_PLANKS),
+                    new Pair<>(Blocks.COBBLESTONE_SLAB, Blocks.COBBLESTONE),
+                    new Pair<>(Blocks.BRICK_SLAB, Blocks.BRICKS),
+                    new Pair<>(Blocks.STONE_BRICK_SLAB, Blocks.STONE_BRICKS),
+                    new Pair<>(Blocks.MUD_BRICK_SLAB, Blocks.MUD_BRICKS),
+                    new Pair<>(Blocks.NETHER_BRICK_SLAB, Blocks.NETHER_BRICKS),
+                    new Pair<>(Blocks.QUARTZ_SLAB, Blocks.QUARTZ_BLOCK),
+                    new Pair<>(Blocks.RED_SANDSTONE_SLAB, Blocks.RED_SANDSTONE),
+                    new Pair<>(Blocks.CUT_RED_SANDSTONE_SLAB, Blocks.CUT_RED_SANDSTONE),
+                    new Pair<>(Blocks.PURPUR_SLAB, Blocks.PURPUR_BLOCK),
+                    new Pair<>(Blocks.POLISHED_GRANITE_SLAB, Blocks.POLISHED_GRANITE),
+                    new Pair<>(Blocks.SMOOTH_RED_SANDSTONE_SLAB, Blocks.SMOOTH_RED_SANDSTONE),
+                    new Pair<>(Blocks.MOSSY_STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICKS),
+                    new Pair<>(Blocks.POLISHED_DIORITE_SLAB, Blocks.POLISHED_DIORITE),
+                    new Pair<>(Blocks.MOSSY_COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE),
+                    new Pair<>(Blocks.END_STONE_BRICK_SLAB, Blocks.END_STONE_BRICKS),
+                    new Pair<>(Blocks.SMOOTH_SANDSTONE_SLAB, Blocks.SMOOTH_SANDSTONE),
+                    new Pair<>(Blocks.SMOOTH_QUARTZ_SLAB, Blocks.SMOOTH_QUARTZ),
+                    new Pair<>(Blocks.GRANITE_SLAB, Blocks.GRANITE),
+                    new Pair<>(Blocks.ANDESITE_SLAB, Blocks.ANDESITE),
+                    new Pair<>(Blocks.RED_NETHER_BRICK_SLAB, Blocks.RED_NETHER_BRICKS),
+                    new Pair<>(Blocks.POLISHED_ANDESITE_SLAB, Blocks.POLISHED_ANDESITE),
+                    new Pair<>(Blocks.DIORITE_SLAB, Blocks.DIORITE),
+                    new Pair<>(Blocks.CRIMSON_SLAB, Blocks.CRIMSON_PLANKS),
+                    new Pair<>(Blocks.WARPED_SLAB, Blocks.WARPED_PLANKS),
+                    new Pair<>(Blocks.BLACKSTONE_SLAB, Blocks.BLACKSTONE),
+                    new Pair<>(Blocks.POLISHED_BLACKSTONE_BRICK_SLAB, Blocks.POLISHED_BLACKSTONE_BRICKS),
+                    new Pair<>(Blocks.POLISHED_BLACKSTONE_SLAB, Blocks.POLISHED_BLACKSTONE),
+                    new Pair<>(Blocks.TUFF_SLAB, Blocks.TUFF),
+                    new Pair<>(Blocks.POLISHED_TUFF_SLAB, Blocks.POLISHED_TUFF),
+                    new Pair<>(Blocks.TUFF_BRICK_SLAB, Blocks.TUFF_BRICKS),
+                    new Pair<>(Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.OXIDIZED_CUT_COPPER),
+                    new Pair<>(Blocks.WEATHERED_CUT_COPPER_SLAB, Blocks.WEATHERED_CUT_COPPER),
+                    new Pair<>(Blocks.EXPOSED_CUT_COPPER_SLAB, Blocks.EXPOSED_CUT_COPPER),
+                    new Pair<>(Blocks.CUT_COPPER_SLAB, Blocks.CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, Blocks.WAXED_OXIDIZED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, Blocks.WAXED_WEATHERED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, Blocks.WAXED_EXPOSED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER),
+                    new Pair<>(Blocks.COBBLED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE),
+                    new Pair<>(Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.POLISHED_DEEPSLATE),
+                    new Pair<>(Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES),
+                    new Pair<>(Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICKS)
+            );
+
+            var fullRefs = USABLE_STATES.get(BlockModelType.FULL_BLOCK);
+            for (var pair : fullSlabs) {
+                addSlab(SlabType.DOUBLE, false, pair.getRight(), pair.getLeft(), fullRefs);
+            }
+
+            for (var pair : fullSlabs) {
+                addSlab(SlabType.DOUBLE, true, pair.getRight(), pair.getLeft(), fullRefs);
+            }
         }
 
         {
@@ -427,7 +501,7 @@ public class DefaultModelData {
         DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
-    private static void addSlab(SlabType slabType, boolean waterlogged, Block to, Block from, ReferenceArrayList<BlockState> list) {
+    private static void addSlab(SlabType slabType, boolean waterlogged, Block to, Block from, List<BlockState> list) {
         BlockState state = from.getDefaultState().with(SlabBlock.WATERLOGGED, waterlogged).with(SlabBlock.TYPE, slabType);
         list.add(state);
         DefaultModelData.SPECIAL_REMAPS.put(state, to.getStateWithProperties(state));

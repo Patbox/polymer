@@ -17,6 +17,9 @@
   "entrypoints": {
     "polymc": [
       "eu.pb4.polymer.blocks.impl.PolyMcResourceEntrypoint"
+    ],
+    "main": [
+      "eu.pb4.polymer.blocks.impl.PolymerBlocksInternal"
     ]
   },
   "mixins": [

@@ -2,16 +2,23 @@ package eu.pb4.polymer.blocks.impl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
+import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
+import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.common.impl.CompatStatus;
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Property;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 
-public class PolymerBlocksInternal {
+import static net.minecraft.server.command.CommandManager.literal;
+
+public class PolymerBlocksInternal implements ModInitializer {
     public static Map<BlockState, PolymerBlockModel[]> modelMap = Collections.emptyMap();
 
 
@@ -51,5 +58,43 @@ public class PolymerBlocksInternal {
         }
 
         return stringBuilder.toString();
+    }
+
+    @Override
+    public void onInitialize() {
+        CommonImplUtils.registerCommands(c -> c.then(literal("blocks_module_state_report")
+                .requires(CommonImplUtils.permission("blocks_module_state_report", 3))
+                .executes(ctx -> {
+                    ctx.getSource().sendMessage(Text.literal("States of blockstates provided by polymer-blocks module:"));
+                    if (CompatStatus.POLYMC) {
+                        ctx.getSource().sendMessage(Text.literal("PolyMc is present! Values provided here won't reflect it's state here! Use /polymc command instead!").formatted(Formatting.RED));
+                    }
+
+                    for (var type : BlockModelType.values()) {
+                        ctx.getSource().sendMessage(Text.literal("- " + type + " -> " + PolymerBlockResourceUtils.getBlocksLeft(type) + " / " + DefaultModelData.USABLE_STATES.get(type).size()));
+                    }
+
+                    return 0;
+                })));
+
+        /*
+        var text = new StringBuilder();
+
+        for (var b : Registries.BLOCK) {
+            var x = Registries.BLOCK.getId(b);
+            if (x.getNamespace().equals("minecraft") && x.getPath().endsWith("_slab") && !x.getPath().contains("smooth_stone")) {
+                var base = x.getPath().substring(0, x.getPath().length() - "_slab".length());
+                var other = base + (Registries.BLOCK.containsId(x.withPath(base + "_planks")) ? "_planks" : "");
+
+                text.append("new Pair<>(Blocks.")
+                        .append(x.getPath().toUpperCase(Locale.ROOT))
+                        .append(", Blocks.")
+                        .append(other.toUpperCase(Locale.ROOT))
+                        .append("),\n");
+            }
+        }
+
+        System.out.println(text);
+        */
     }
 }
