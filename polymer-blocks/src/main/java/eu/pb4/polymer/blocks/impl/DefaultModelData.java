@@ -3,7 +3,6 @@ package eu.pb4.polymer.blocks.impl;
 import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.*;
@@ -24,7 +23,7 @@ public class DefaultModelData {
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof Waterloggable && state.get(Properties.WATERLOGGED)));
 
     static {
-        generateDefault(BlockModelType.FULL_BLOCK, Blocks.NOTE_BLOCK);
+        generateDefault(BlockModelType.FULL_BLOCK, Blocks.NOTE_BLOCK, Blocks.TARGET);
         generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK, NOT_WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
         generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
         generateDefault(BlockModelType.TRANSPARENT_BLOCK, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
@@ -237,6 +236,12 @@ public class DefaultModelData {
             addScaffolding(true, false, BlockModelType.BOTTOM_SCAFFOLDING);
             addScaffolding(false, true, BlockModelType.TOP_SCAFFOLDING_WATERLOGGED);
             addScaffolding(true, true, BlockModelType.BOTTOM_SCAFFOLDING_WATERLOGGED);
+        }
+        {
+            addFenceGates(Blocks.ACACIA_FENCE_GATE, Blocks.BAMBOO_FENCE_GATE, Blocks.BIRCH_FENCE_GATE,
+                Blocks.CHERRY_FENCE_GATE, Blocks.CRIMSON_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE,
+                Blocks.JUNGLE_FENCE_GATE, Blocks.MANGROVE_FENCE_GATE, Blocks.OAK_FENCE_GATE,
+                Blocks.PALE_OAK_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.WARPED_FENCE_GATE);
         }
 
         if (false && PolymerImpl.DEV_ENV) {
@@ -475,6 +480,35 @@ public class DefaultModelData {
                 list.add(state);
                 SPECIAL_REMAPS.put(state, state.with(ScaffoldingBlock.DISTANCE, 7));
             }
+        }
+
+        USABLE_STATES.put(modelType, list);
+    }
+
+    private static void addFenceGates(Block... blocks) {
+        for (Block base : blocks) {
+            addFenceGates(base, true, true, true, BlockModelType.NORTH_SOUTH_INWALL_OPEN_GATE);
+            addFenceGates(base, true, true, false, BlockModelType.NORTH_SOUTH_INWALL_GATE);
+            addFenceGates(base, true, false, true, BlockModelType.NORTH_SOUTH_OPEN_GATE);
+            addFenceGates(base, true, false, false, BlockModelType.NORTH_SOUTH_GATE);
+            addFenceGates(base, false, true, true, BlockModelType.EAST_WEST_INWALL_OPEN_GATE);
+            addFenceGates(base, false, true, false, BlockModelType.EAST_WEST_INWALL_GATE);
+            addFenceGates(base, false, false, true, BlockModelType.EAST_WEST_OPEN_GATE);
+            addFenceGates(base, false, false, false, BlockModelType.EAST_WEST_GATE);
+        }
+    }
+    private static void addFenceGates(Block base, boolean northSouth, boolean inWall, boolean open, BlockModelType modelType) {
+        var list = new ReferenceArrayList<BlockState>();
+
+        var directions = northSouth ? new Direction[]{Direction.NORTH, Direction.SOUTH} : new Direction[]{Direction.EAST, Direction.WEST};
+        for (Direction direction : directions) {
+            var state = base.getDefaultState()
+                .with(FenceGateBlock.IN_WALL, inWall)
+                .with(FenceGateBlock.OPEN, open)
+                .with(FenceGateBlock.POWERED, true)
+                .with(FenceGateBlock.FACING, direction);
+            list.add(state);
+            SPECIAL_REMAPS.put(state, state.with(FenceGateBlock.POWERED, false));
         }
 
         USABLE_STATES.put(modelType, list);
