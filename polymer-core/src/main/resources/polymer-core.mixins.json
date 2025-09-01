@@ -96,6 +96,7 @@
     "other.PacketCodecsRegistryEntryListMixin",
     "other.PacketCodecsRegistryEntryMixin",
     "other.PacketCodecsRegistryMixin",
+    "other.RegistriesMixin",
     "other.RegistryElementCodecMixin",
     "other.RegistryEntryIndexMixin",
     "other.RegistryFixedCodecMixin",

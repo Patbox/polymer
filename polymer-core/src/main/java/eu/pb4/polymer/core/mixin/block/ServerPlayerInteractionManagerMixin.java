@@ -67,6 +67,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 this.polymer$currentBreakingProgress = 0;
                 this.player.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(-1, pos, -1));
                 this.finishMining(pos, this.polymer$sequence, "destroyed");
+                this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(this.world, pos));
                 PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, -1));
             } else {
                 var k = this.polymer$currentBreakingProgress > 0.0F ? (int)(this.polymer$currentBreakingProgress * 10) : -1;

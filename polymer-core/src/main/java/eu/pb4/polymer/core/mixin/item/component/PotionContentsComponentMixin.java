@@ -43,7 +43,7 @@ public abstract class PotionContentsComponentMixin implements TransformingCompon
 
     @Override
     public boolean polymer$requireModification(PacketContext context) {
-        if (this.potion.isPresent() && this.potion.get().value() instanceof PolymerObject) {
+        if (this.potion.isPresent() && !PolymerSyncedObject.canSyncRawToClient(Registries.POTION, this.potion.get().value(), context)) {
             return true;
         }
 

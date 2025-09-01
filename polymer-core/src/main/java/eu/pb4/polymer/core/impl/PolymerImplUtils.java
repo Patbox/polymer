@@ -195,26 +195,6 @@ public class PolymerImplUtils {
         return ((PolymerIdList) Block.STATE_IDS).polymer$getOffset();
     }
 
-    public static void setStateIdsLock(boolean value) {
-        ((PolymerIdList) Block.STATE_IDS).polymer$setReorderLock(value);
-    }
-
-    public static boolean getStateIdsLock(boolean value) {
-        return ((PolymerIdList) Block.STATE_IDS).polymer$getReorderLock();
-    }
-
-    public static boolean shouldSkipStateInitialization(Stream<StackWalker.StackFrame> s) {
-        if (CompatStatus.QUILT_REGISTRY) {
-            var x = s.skip(3).findFirst();
-            return x.isPresent() && x.get().getMethodName().contains("lambda$onInit");
-        }
-        return false;
-    }
-
-    public static boolean shouldLogStateRebuild(StackTraceElement[] trace) {
-        return trace.length <= 4 || !trace[4].getClassName().startsWith("org.quiltmc.qsl.registry.impl.sync");
-    }
-
     public static boolean removeFromItemGroup(ItemStack stack) {
         if (stack == null) {
             return true;

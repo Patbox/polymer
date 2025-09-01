@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 
 @Mixin(IdList.class)
 public abstract class IdListMixin<T> implements PolymerIdList<T> {
+    @Final
     @Shadow
     @Mutable
     private List<T> list;
@@ -45,19 +46,12 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     @Shadow public abstract int size();
 
     @Unique
-    private final List<T> polymer$lazyList = new ArrayList<>();
+    private boolean polymer$requireReorder = true;
+
     @Unique
     private final Set<T> polymer$states = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
     @Unique
-    private boolean polymer$locked = true;
-    @Unique
     private int polymer$offset = Integer.MAX_VALUE;
-    @Unique
-    private boolean polymer$hasPolymer = false;
-    @Unique
-    private boolean polymer$initializeLazy = true;
-    @Unique
-    private boolean polymer$reorderLock = false;
     @Unique
     private Predicate<T> polymer$polymerEntryChecker;
     @Unique
@@ -69,66 +63,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
 
     @Inject(method = "add", at = @At("HEAD"), cancellable = true)
     private void polymer$moveToEnd(T value, CallbackInfo ci) {
-        if (this.polymer$isPolymerAware) {
-            if (this.idMap.containsKey(value)) {
-                ci.cancel();
-                return;
-            }
-
-            var isPolymerObj = this.polymer$polymerEntryChecker.test(value);
-
-            if (isPolymerObj || this.polymer$serverEntryChecker.test(value)) {
-                this.polymer$states.add(value);
-            } else {
-                this.polymer$vanillaEntryCount++;
-            }
-
-            if (isPolymerObj) {
-                if (this.polymer$locked) {
-                    this.polymer$lazyList.add(value);
-                    ci.cancel();
-                    return;
-                } else {
-                    this.polymer$hasPolymer = true;
-                    this.polymer$offset = Math.min(this.polymer$offset, this.nextId);
-                }
-            }
-
-            if (this.polymer$hasPolymer && !isPolymerObj && this.polymer$offset <= this.nextId) {
-                if (this.polymer$reorderLock) {
-                    PolymerImpl.LOGGER.warn("Someone registered object while IdList is locked! Related: " + this.polymer$nameCreator.apply(value));
-                } else {
-                    if (PolymerImpl.LOG_BLOCKSTATE_REBUILDS) {
-                        var trace = Thread.currentThread().getStackTrace();
-                        if (PolymerImplUtils.shouldLogStateRebuild(trace)) {
-                            PolymerImpl.LOGGER.warn("Rebuilding IdList! Someone accessed it too early...");
-                            var builder = new StringBuilder();
-                            var line = 0;
-                            for (var stackTrace : trace) {
-                                if (line > 0) {
-                                    builder.append("\t").append(stackTrace.toString()).append("\n");
-                                }
-                                if (line > 24) {
-                                    break;
-                                }
-                                line++;
-                            }
-                            PolymerImpl.LOGGER.warn("Called by:\n" + builder);
-                        }
-                    }
-                    var copy = new ArrayList<>(this.list);
-
-                    this.polymer$clear();
-                    for (var entry : copy) {
-                        if (entry != null) {
-                            this.add(entry);
-                        }
-                    }
-                }
-            }
-            this.polymer$nonPolymerBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
-            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.polymer$vanillaEntryCount);
-        }
+        this.polymer$requireReorder = true;
     }
 
     @Override
@@ -136,40 +71,47 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
         return this.polymer$states;
     }
 
-    @Inject(method = "get", at = @At("HEAD"))
-    private void polymer$onGet(int index, CallbackInfoReturnable<@Nullable T> cir) {
-        this.polymer$initLazy();
-    }
+    @Override
+    public void polymer$reorderEntries() {
+        if (!this.polymer$isPolymerAware || !this.polymer$requireReorder) {
+            return;
+        }
+        this.polymer$vanillaEntryCount = 0;
+        this.polymer$states.clear();
 
-    @Inject(method = "getRawId", at = @At("HEAD"))
-    private void polymer$onGetId(T entry, CallbackInfoReturnable<Integer> cir) {
-        this.polymer$initLazy();
-    }
+        var untouched = new ArrayList<T>();
+        var polymer = new ArrayList<T>();
+        for (var value : this.list) {
+            var isPolymerObj = this.polymer$polymerEntryChecker.test(value);
 
-    @Inject(method = "size", at = @At("HEAD"))
-    private void polymer$onSize(CallbackInfoReturnable<Integer> cir) {
-        this.polymer$initLazy();
-    }
-
-    @Inject(method = "iterator", at = @At("HEAD"))
-    private void polymer$onIterator(CallbackInfoReturnable<Iterator<T>> cir) {
-        this.polymer$initLazy();
-    }
-
-    @Unique
-    private void polymer$initLazy() {
-        if (this.polymer$locked && this.polymer$initializeLazy) {
-            if (StackWalker.getInstance().walk(PolymerImplUtils::shouldSkipStateInitialization)) {
-                return;
+            if (isPolymerObj) {
+                polymer.add(value);
+            } else {
+                untouched.add(value);
             }
 
-            this.polymer$offset = this.nextId;
-            this.polymer$locked = false;
-            this.polymer$lazyList.forEach(this::add);
-            this.polymer$lazyList.clear();
-            this.polymer$nonPolymerBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
-            this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.polymer$vanillaEntryCount);
+            if (!isPolymerObj && !this.polymer$serverEntryChecker.test(value)) {
+                this.polymer$vanillaEntryCount++;
+            } else {
+                this.polymer$states.add(value);
+
+            }
         }
+
+        this.list.clear();
+        this.list.addAll(untouched);
+        this.list.addAll(polymer);
+
+        this.idMap.clear();
+        for (int i = 0; i < this.list.size(); i++) {
+            this.idMap.put(this.list.get(i), i);
+        }
+
+
+        this.polymer$offset = this.list.size() - this.polymer$states.size();
+        this.polymer$nonPolymerBitCount = MathHelper.ceilLog2(this.list.size() - this.polymer$states.size());
+        this.polymer$vanillaBitCount = MathHelper.ceilLog2(this.polymer$vanillaEntryCount);
+        this.polymer$requireReorder = false;
     }
 
     @Override
@@ -191,23 +133,8 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
     }
 
     @Override
-    public void polymer$setIgnoreCalls(boolean value) {
-        this.polymer$initializeLazy = !value;
-    }
-
-    @Override
     public int polymer$getOffset() {
         return this.polymer$offset;
-    }
-
-    @Override
-    public void polymer$setReorderLock(boolean value) {
-        this.polymer$reorderLock = value;
-    }
-
-    @Override
-    public boolean polymer$getReorderLock() {
-        return this.polymer$reorderLock;
     }
 
     @Override
@@ -216,10 +143,7 @@ public abstract class IdListMixin<T> implements PolymerIdList<T> {
         this.idMap.clear();
         this.list.clear();
         this.polymer$vanillaEntryCount = 0;
-        this.polymer$lazyList.clear();
         this.polymer$states.clear();
         this.polymer$offset = Integer.MAX_VALUE;
-        this.polymer$hasPolymer = false;
-        this.polymer$locked = true;
     }
 }

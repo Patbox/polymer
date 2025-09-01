@@ -41,7 +41,7 @@ public abstract class SimpleRegistryMixin<T> implements RegistrySyncExtension<T>
 
     @Inject(method = "freeze", at = @At(value = "INVOKE", target = "Ljava/util/Map;isEmpty()Z"))
     private void reorderOnFreeze(CallbackInfoReturnable<Registry<T>> cir) {
-        polymer_registry_sync$reorderEntries();
+        this.polymer_registry_sync$reorderEntries();
     }
 
     @Override
