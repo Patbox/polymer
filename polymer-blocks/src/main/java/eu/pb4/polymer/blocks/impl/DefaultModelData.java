@@ -117,6 +117,24 @@ public class DefaultModelData {
         }
 
         {
+            var states = new ReferenceArrayList<BlockState>();
+
+            for (var block : new Block[]{ Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE }) {
+                var defaultState = block.getDefaultState();
+                var firstState = block.getDefaultState().with(WeightedPressurePlateBlock.POWER, 1);
+                for (int i = 2; i <= 15; i++) {
+                    SPECIAL_REMAPS.put(defaultState.with(WeightedPressurePlateBlock.POWER, i), firstState);
+                }
+
+                states.addAll(block.getStateManager().getStates());
+                states.remove(defaultState);
+                states.remove(firstState);
+            }
+
+            USABLE_STATES.put(BlockModelType.ACTIVE_PRESSURE_PLATE, states);
+        }
+
+        {
             addDisarmedTripwire(false, BlockModelType.TRIPWIRE_BLOCK);
             addDisarmedTripwire(true, BlockModelType.TRIPWIRE_BLOCK_FLAT);
 
@@ -295,13 +313,23 @@ public class DefaultModelData {
         {
             {
                 List<BlockState> list = new ReferenceArrayList<>();
-                addSculkBlocks(false, list);
+                addSculkBlocks(false, false, list);
                 DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK, list);
             }
             {
                 List<BlockState> list = new ReferenceArrayList<>();
-                addSculkBlocks(true, list);
+                addSculkBlocks(true, false, list);
                 DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK_WATERLOGGED, list);
+            }
+            {
+                List<BlockState> list = new ReferenceArrayList<>();
+                addSculkBlocks(false, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.ACTIVE_SCULK_SENSOR_BLOCK, list);
+            }
+            {
+                List<BlockState> list = new ReferenceArrayList<>();
+                addSculkBlocks(true, true, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.ACTIVE_SCULK_SENSOR_BLOCK_WATERLOGGED, list);
             }
         }
 
@@ -327,30 +355,30 @@ public class DefaultModelData {
         }
     }
 
-    private static void addSculkBlocks(boolean waterlogged, List<BlockState> list) {
-        for (SculkSensorPhase phase : SculkSensorPhase.values()) {
-            if (phase == SculkSensorPhase.ACTIVE) continue;
+    private static void addSculkBlocks(boolean waterlogged, boolean active, List<BlockState> list) {
+        for (var phase : SculkSensorPhase.values()) {
+            if ((phase == SculkSensorPhase.ACTIVE) != active) continue;
             for (int i = 1; i <= 15; i++) {
-                BlockState defaultState = Blocks.SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged);
-                BlockState from = defaultState.with(SculkSensorBlock.POWER, i);
+                var defaultState = Blocks.SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged);
+                var from = defaultState.with(SculkSensorBlock.POWER, i);
                 list.add(from);
                 DefaultModelData.SPECIAL_REMAPS.put(from, defaultState);
             }
         }
 
-        Direction[] facingDirs = new Direction[]{
+        var facingDirs = new Direction[]{
                 Direction.NORTH,
                 Direction.EAST,
                 Direction.SOUTH,
                 Direction.WEST
         };
 
-        for (Direction direction : facingDirs) {
-            for (SculkSensorPhase phase : SculkSensorPhase.values()) {
-                if (phase == SculkSensorPhase.ACTIVE) continue;
+        for (var direction : facingDirs) {
+            for (var phase : SculkSensorPhase.values()) {
+                if ((phase == SculkSensorPhase.ACTIVE) != active) continue;
                 for (int i = 1; i <= 15; i++) {
-                    BlockState defaultState = Blocks.CALIBRATED_SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged).with(CalibratedSculkSensorBlock.FACING, direction);
-                    BlockState from = defaultState.with(SculkSensorBlock.POWER, i);
+                    var defaultState = Blocks.CALIBRATED_SCULK_SENSOR.getDefaultState().with(SculkSensorBlock.SCULK_SENSOR_PHASE, phase).with(SculkSensorBlock.WATERLOGGED, waterlogged).with(CalibratedSculkSensorBlock.FACING, direction);
+                    var from = defaultState.with(SculkSensorBlock.POWER, i);
                     list.add(from);
                     DefaultModelData.SPECIAL_REMAPS.put(from, defaultState);
                 }
