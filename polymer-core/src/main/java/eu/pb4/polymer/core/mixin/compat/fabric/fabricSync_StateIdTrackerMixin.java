@@ -18,12 +18,6 @@ public class fabricSync_StateIdTrackerMixin {
 
     @Inject(method = "recalcStateMap", at = @At("HEAD"), remap = false, require = 0)
     private void polymer_clear(CallbackInfo ci) {
-        ((PolymerIdList) this.stateList).polymer$setIgnoreCalls(true);
         ((PolymerIdList) this.stateList).polymer$clear();
-    }
-
-    @Inject(method = "recalcStateMap", at = @At("TAIL"), remap = false, require = 0)
-    private void polymer_unignore(CallbackInfo ci) {
-        ((PolymerIdList) this.stateList).polymer$setIgnoreCalls(false);
     }
 }
