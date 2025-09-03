@@ -51,7 +51,7 @@ public class DefaultModelData {
         {
             var vines = new ReferenceArrayList<BlockState>();
 
-            for (var block : new Block[]{Blocks.TWISTING_VINES, Blocks.WEEPING_VINES}) {
+            for (var block : new Block[]{ Blocks.TWISTING_VINES, Blocks.WEEPING_VINES }) {
                 var id = Registries.BLOCK.getId(block);
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
