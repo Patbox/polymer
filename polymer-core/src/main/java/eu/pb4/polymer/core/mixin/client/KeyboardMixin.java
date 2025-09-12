@@ -10,6 +10,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
@@ -38,10 +39,12 @@ public abstract class KeyboardMixin {
 
 
     @Inject(method = "processF3", at = @At("TAIL"), cancellable = true)
-    private void polymer_processF3(int key, CallbackInfoReturnable<Boolean> cir) {
+    private void polymer_processF3(KeyInput keyInput, CallbackInfoReturnable<Boolean> cir) {
         if (!CommonImpl.DEVELOPER_MODE) {
             return;
         }
+
+        var key = keyInput.key();
 
         if (key == GLFW.GLFW_KEY_0) {
             PolymerImplUtils.dumpRegistry();

@@ -4,13 +4,14 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
-import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.client.debug.LookingAtPolymerBlockDebugHudEntry;
+import eu.pb4.polymer.core.impl.client.debug.LookingAtPolymerEntityDebugHudEntry;
+import eu.pb4.polymer.core.impl.client.debug.PolymerInfoDebugHudEntry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
 import eu.pb4.polymer.core.impl.interfaces.IndexedNetwork;
@@ -20,22 +21,21 @@ import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.FixedIdList;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.mixin.client.CreativeInventoryScreenAccessor;
+import eu.pb4.polymer.core.mixin.client.debug.DebugHudEntriesAccessor;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.debug.DebugHudEntries;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.component.ComponentType;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.fluid.Fluid;
@@ -49,13 +49,12 @@ import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.IdList;
 import net.minecraft.util.collection.IndexedIterable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.chunk.ChunkStatus;
-import org.apache.commons.lang3.mutable.MutableObject;
+import net.minecraft.world.chunk.PaletteProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -73,6 +72,7 @@ public class InternalClientRegistry {
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
     public static final FixedIdList<ClientPolymerBlock.State> BLOCK_STATES = new FixedIdList<>();
+    public static PaletteProvider<ClientPolymerBlock.State> blockStatesPaletteProvider = PaletteProvider.forBlockStates(BLOCK_STATES);
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>("item", "I");
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPES = new ImplPolymerRegistry<>("entity_type", "E");
     public static final ImplPolymerRegistry<ClientPolymerEntry<VillagerProfession>> VILLAGER_PROFESSIONS = new ImplPolymerRegistry<>("villager_profession", "VP");
@@ -269,7 +269,7 @@ public class InternalClientRegistry {
         BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
         ((PolymerIdList) BLOCK_STATES).polymer$clear();
         BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
-
+        updateBlockStatesPaletteProvider();
 
         MinecraftClient.getInstance().execute(() -> {
             clearTabs(i -> true);
@@ -388,6 +388,12 @@ public class InternalClientRegistry {
     }
 
     public static void register() {
+        DebugHudEntriesAccessor.callRegister(Identifier.of("polymer", "looking_at_server_block"), new LookingAtPolymerBlockDebugHudEntry());
+        DebugHudEntriesAccessor.callRegister(Identifier.of("polymer", "looking_at_server_entity"), new LookingAtPolymerEntityDebugHudEntry());
+        DebugHudEntriesAccessor.callRegister(Identifier.of("polymer", "server_info"), new PolymerInfoDebugHudEntry());
+    }
 
+    public static void updateBlockStatesPaletteProvider() {
+        blockStatesPaletteProvider = PaletteProvider.forBlockStates(InternalClientRegistry.BLOCK_STATES);
     }
 }

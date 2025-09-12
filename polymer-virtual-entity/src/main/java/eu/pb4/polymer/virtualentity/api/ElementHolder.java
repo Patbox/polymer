@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class ElementHolder {
     private final Consumer<Packet<ClientPlayPacketListener>> EMPTY_PACKET_CONSUMER = (p) -> {};
@@ -201,6 +202,14 @@ public class ElementHolder {
     public void sendPacket(Packet<? extends ClientPlayPacketListener> packet) {
         for (var player : players) {
             player.sendPacket(packet);
+        }
+    }
+
+    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet, Predicate<ServerPlayerEntity> predicate) {
+        for (var player : players) {
+            if (predicate.test(player.getPlayer())) {
+                player.sendPacket(packet);
+            }
         }
     }
 

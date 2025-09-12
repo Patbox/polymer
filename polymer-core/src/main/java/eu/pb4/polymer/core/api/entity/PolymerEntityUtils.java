@@ -212,7 +212,7 @@ public final class PolymerEntityUtils {
     }
 
     public static void refreshEntity(ServerPlayerEntity player, Entity entity) {
-        if (entity.getWorld() instanceof ServerWorld world) {
+        if (entity.getEntityWorld() instanceof ServerWorld world) {
             var tracker = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager).polymer$getEntityTrackers().get(entity.getId());
             if (tracker != null) {
                 tracker.stopTracking(player);
@@ -222,7 +222,7 @@ public final class PolymerEntityUtils {
     }
 
     public static void refreshEntity(Entity entity) {
-        if (entity.getWorld() instanceof ServerWorld world) {
+        if (entity.getEntityWorld() instanceof ServerWorld world) {
             var tracker = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager).polymer$getEntityTrackers().get(entity.getId());
             if (tracker != null) {
                 for (var player : ((EntityTrackerAccessor) tracker).getListeners()) {

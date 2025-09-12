@@ -20,7 +20,7 @@ public class ImmersivePortalsUtils {
     public static void sendBlockPackets(ServerPlayNetworkHandler handler, Packet<?> packet) {
         if (packet instanceof CustomPayloadS2CPacket payloadS2CPacket &&  payloadS2CPacket.payload() instanceof PacketRedirection.Payload payload) {
             PacketRedirection.withForceRedirect(Objects.requireNonNull(
-                    handler.player.getServer().getWorld(PortalAPI.serverIntToDimKey(handler.getPlayer().getServer(), payload.dimensionIntId()))), () -> {
+                    handler.player.getEntityWorld().getServer().getWorld(PortalAPI.serverIntToDimKey(handler.getPlayer().getEntityWorld().getServer(), payload.dimensionIntId()))), () -> {
                 BlockPacketUtil.sendFromPacket(payload.packet(), handler);
             });
         } else {

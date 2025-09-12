@@ -101,7 +101,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         if (!this.polymerCore$language.equals(packet.options().language())) {
             this.polymerCore$language = packet.options().language();
             PolymerServerProtocol.sendSyncPackets(player.networkHandler, true);
-            this.sendPacket(new SynchronizeTagsS2CPacket(TagPacketSerializer.serializeTags(this.player.getWorld().getServer().getCombinedDynamicRegistries())));
+            this.sendPacket(new SynchronizeTagsS2CPacket(TagPacketSerializer.serializeTags(this.player.getEntityWorld().getServer().getCombinedDynamicRegistries())));
             this.player.getRecipeBook().sendInitRecipesPacket(this.player);
         }
     }
@@ -126,7 +126,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
 
     @WrapOperation(method = "onPlayerInteractBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerInteractionManager;interactBlock(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult captureBlockInteraction(ServerPlayerInteractionManager instance, ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, Operation<ActionResult> operation, @Local ServerWorld serverWorld) {
-        var oldState = this.player.getWorld().getBlockState(hitResult.getBlockPos());
+        var oldState = this.player.getEntityWorld().getBlockState(hitResult.getBlockPos());
 
         ScopedOverride soundOverride;
         if (PolymerBlockUtils.isIgnoringPlaySoundExceptedEntity(this.player, stack, hand, oldState, hitResult, serverWorld)) {
@@ -241,7 +241,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
 
         @ModifyExpressionValue(method = "processInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler$Interaction;run(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"))
         private ActionResult captureIEntityInteraction(ActionResult original, @Local(argsOnly = true) Hand hand) {
-            if (PolymerEntityUtils.isPolymerEntityInteraction(this.field_28963.player, hand, this.field_28963.player.getStackInHand(hand), (ServerWorld) this.field_28962.getWorld(), this.field_28962, original)) {
+            if (PolymerEntityUtils.isPolymerEntityInteraction(this.field_28963.player, hand, this.field_28963.player.getStackInHand(hand), (ServerWorld) this.field_28962.getEntityWorld(), this.field_28962, original)) {
                 ((LastActionResultStorer) this.field_28963).polymer$setLastActionResult(original);
                 ((LastActionResultStorer) this.field_28963).polymer$setLastActionSource(ActionSource.ENTITY);
             }

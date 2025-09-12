@@ -26,7 +26,7 @@ public class PolymerServerProtocolHandler {
     }
 
     private static void handleTooltipChange(MinecraftServer server, ServerPlayNetworkHandler handler, PolymerChangeTooltipC2SPayload payload) {
-        handler.getPlayer().getServer().execute(() -> {
+        handler.getPlayer().getEntityWorld().getServer().execute(() -> {
             PolymerPlayNetworkHandlerExtension.of(handler).polymer$setAdvancedTooltip(payload.advanced());
 
             if (PolymerServerNetworking.getLastPacketReceivedTime(handler, C2SPackets.CHANGE_TOOLTIP) + 1000 < System.currentTimeMillis()) {

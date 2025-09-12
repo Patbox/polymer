@@ -36,7 +36,7 @@ public final class PolymerItemGroupUtils {
     }
 
     public static Contents getContentsFor(ServerPlayerEntity player, ItemGroup group) {
-        return getContentsFor(group, player.getServer().getRegistryManager(), player.getWorld().getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
+        return getContentsFor(group, player.getEntityWorld().getServer().getRegistryManager(), player.getEntityWorld().getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
     }
 
     public static Contents getContentsFor(ItemGroup group, RegistryWrapper.WrapperLookup lookup, FeatureSet featureSet, boolean operator) {

@@ -26,7 +26,7 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
     protected abstract GameProfile getProfile();
 
 
-    @WrapOperation(method = "onReady", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;onPlayerConnect(Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/server/network/ConnectedClientData;)V"))
+    /*@WrapOperation(method = "onReady", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/PrepareSpawnTask;onReady(Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ConnectedClientData;)Lnet/minecraft/server/network/ServerPlayerEntity;"))
     private void polymerNet$prePlayHandshakeHackfest(PlayerManager manager, ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, Operation<Void> original) {
         if (NetImpl.IS_DISABLED || true) {
             original.call(manager, connection, player, clientData);
@@ -57,5 +57,5 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
                 }
             }
         });
-    }
+    }*/
 }

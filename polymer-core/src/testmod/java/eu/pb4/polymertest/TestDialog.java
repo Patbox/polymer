@@ -25,7 +25,7 @@ public record TestDialog() implements Dialog {
     public DialogCommonData common() {
         PacketContext.get().getGameProfile();
         return new DialogCommonData(Text.literal("Test Dialog"), Optional.empty(), true, true, AfterAction.CLOSE,
-                List.of(new PlainMessageDialogBody(Text.of(PacketContext.get().getGameProfile() != null ? PacketContext.get().getGameProfile().getName() : "<NULL>"), 500)), List.of());
+                List.of(new PlainMessageDialogBody(Text.of(PacketContext.get().getGameProfile() != null ? PacketContext.get().getGameProfile().name() : "<NULL>"), 500)), List.of());
     }
 
     @Override

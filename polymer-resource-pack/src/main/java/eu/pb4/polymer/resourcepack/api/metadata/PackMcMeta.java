@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.resourcepack.mixin.accessors.PackOverlaysMetadataAccessor;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
 import net.minecraft.SharedConstants;
+import net.minecraft.resource.PackVersion;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.BlockEntry;
 import net.minecraft.resource.metadata.PackOverlaysMetadata;
@@ -19,9 +20,9 @@ import java.util.*;
 
 public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> filter, Optional<PackOverlaysMetadata> overlays, Optional<LanguageResourceMetadata> language) {
     public static final Codec<PackMcMeta> CODEC = RecordCodecBuilder.create(instaince -> instaince.group(
-            PackResourceMetadata.CODEC.fieldOf("pack").forGetter(PackMcMeta::pack),
+            PackResourceMetadata.CLIENT_RESOURCES_SERIALIZER.codec().fieldOf("pack").forGetter(PackMcMeta::pack),
             ResourceFilterAccessor.getCODEC().optionalFieldOf("filter").forGetter(PackMcMeta::filter),
-            PackOverlaysMetadataAccessor.getCODEC().optionalFieldOf("overlays").forGetter(PackMcMeta::overlays),
+            PackOverlaysMetadata.CLIENT_RESOURCES_SERIALIZER.codec().optionalFieldOf("overlays").forGetter(PackMcMeta::overlays),
             LanguageResourceMetadata.CODEC.optionalFieldOf("language").forGetter(PackMcMeta::language)
     ).apply(instaince, PackMcMeta::new));
 
@@ -36,8 +37,7 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
     public static class Builder {
         private PackResourceMetadata metadata = new PackResourceMetadata(
                 Text.literal("Server Resource Pack"),
-                SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES),
-                Optional.empty()
+                new Range<>(SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES))
         );
         private final List<BlockEntry> filter = new ArrayList<>();
         private final List<PackOverlaysMetadata.Entry> overlay = new ArrayList<>();
@@ -49,7 +49,7 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
         }
 
         public Builder description(Text description) {
-            this.metadata = new PackResourceMetadata(description, this.metadata.packFormat(), this.metadata.supportedFormats());
+            this.metadata = new PackResourceMetadata(description, this.metadata.supportedFormats());
             return this;
         }
 
@@ -58,7 +58,7 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
             return this;
         }
 
-        public Builder addOverlay(Range<Integer> format, String overlay) {
+        public Builder addOverlay(Range<PackVersion> format, String overlay) {
             this.overlay.add(new PackOverlaysMetadata.Entry(format, overlay));
             return this;
         }

@@ -12,6 +12,7 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.network.*;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -39,7 +40,7 @@ public abstract class ServerConfigurationNetworkHandlerMixin extends ServerCommo
 
     @Inject(method = "queueSendResourcePackTask", at = @At("TAIL"))
     private void polymerAutoHost$addTask(CallbackInfo ci) {
-        if (AutoHost.config.enabled && !this.server.isHost(this.getProfile())) {
+        if (AutoHost.config.enabled && !this.server.isHost(new PlayerConfigEntry(this.getProfile()))) {
             var x = new ArrayList<MinecraftServer.ServerResourcePackProperties>();
             var ready = AutoHost.provider.isReady();
             if (ready) {

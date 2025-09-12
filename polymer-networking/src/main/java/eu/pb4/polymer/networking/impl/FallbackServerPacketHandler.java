@@ -5,6 +5,7 @@ import net.minecraft.network.NetworkPhase;
 import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.packet.c2s.common.*;
+import net.minecraft.network.packet.c2s.config.AcceptCodeOfConductC2SPacket;
 import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
 import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
 import net.minecraft.network.packet.c2s.play.*;
@@ -29,6 +30,11 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
 
     @Override
     public void onSelectKnownPacks(SelectKnownPacksC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onAcceptCodeOfConduct(AcceptCodeOfConductC2SPacket packet) {
 
     }
 
@@ -343,7 +349,7 @@ public record FallbackServerPacketHandler(NetworkPhase phase,
     }
 
     @Override
-    public void onDebugSampleSubscription(DebugSampleSubscriptionC2SPacket packet) {
+    public void onDebugSubscriptionRequest(DebugSubscriptionRequestC2SPacket packet) {
 
     }
 

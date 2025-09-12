@@ -11,7 +11,7 @@ import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAttachS2CPacketAccesso
 import eu.pb4.polymer.virtualentity.mixin.accessors.PlaySoundFromEntityS2CPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerPosition;
+import net.minecraft.entity.EntityPosition;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
@@ -105,7 +105,7 @@ public final class VirtualEntityUtils {
 
             return null;
         } else {
-            return new EntityPositionSyncS2CPacket(id, new PlayerPosition(newPos, Vec3d.ZERO, yaw, pitch), false);
+            return new EntityPositionSyncS2CPacket(id, new EntityPosition(newPos, Vec3d.ZERO, yaw, pitch), false);
         }
     }
 
@@ -125,7 +125,7 @@ public final class VirtualEntityUtils {
             return ImmersivePortalsUtils.isPlayerTracking(player, chunk);
         }
 
-        if (player.getWorld() != chunk.getWorld()) {
+        if (player.getEntityWorld() != chunk.getWorld()) {
             return false;
         }
 

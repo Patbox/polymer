@@ -230,7 +230,7 @@ public final class PolymerCommonUtils {
 
     public static boolean isBedrockPlayer(GameProfile profile) {
         if (CompatStatus.FLOODGATE) {
-            return FloodGateUtils.isPlayerBroken(profile.getId());
+            return FloodGateUtils.isPlayerBroken(profile.id());
         }
         return false;
     }
@@ -241,7 +241,7 @@ public final class PolymerCommonUtils {
 
     public static int getPlayerGameProtocol(GameProfile profile) {
         if (CompatStatus.VIAVERSION) {
-            return ViaVersionUtils.getProtocol(profile.getId());
+            return ViaVersionUtils.getProtocol(profile.id());
         }
         return SharedConstants.getGameVersion().protocolVersion();
     }

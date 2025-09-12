@@ -60,7 +60,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
@@ -183,7 +182,7 @@ public class TestMod implements ModInitializer {
 
         @Override
         public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-            user.startRiding(entity, true);
+            user.startRiding(entity, true, true);
             return super.useOnEntity(stack, user, entity, hand);
         }
     });
@@ -222,7 +221,7 @@ public class TestMod implements ModInitializer {
     public static final EntityType<UnrealBlockEntity> PHYSIC_ENTITY_3 = registerEntity("psych", EntityType.Builder.create(UnrealBlockEntity::new, SpawnGroup.CREATURE).dimensions(1, 1)
             .trackingTickInterval(1));
 
-    public static final Item TEST_ENTITY_EGG = registerItem(Identifier.of("test", "spawn_egg"), (s) -> new PolymerSpawnEggItem(ENTITY, Items.COW_SPAWN_EGG, s));
+    public static final Item TEST_ENTITY_EGG = registerItem(Identifier.of("test", "spawn_egg"), (s) -> new PolymerSpawnEggItem(Items.COW_SPAWN_EGG, s.spawnEgg(ENTITY)));
     public static Item TEST_FOOD;
     public static final Item TEST_FOOD_2 = registerItem(Identifier.of("test", "food2"), (s) -> new SimplePolymerItem(s.food(new FoodComponent.Builder().nutrition(1).saturationModifier(2).build()), Items.CAKE));
     public static final ComponentType<String> TEST = register(Registries.DATA_COMPONENT_TYPE, Identifier.of("test", "test"),
@@ -269,7 +268,7 @@ public class TestMod implements ModInitializer {
 
     public static SimplePolymerItem MARKER_TEST = registerItem(Identifier.of("test", "marker"), (s) -> new ClickItem(s, Items.BLAZE_ROD, (player, hand) -> {
         if (hand == Hand.OFF_HAND) {
-            DebugInfoSender.clearGameTestMarkers((ServerWorld) player.getWorld());
+            //DebugInfoSender.clearGameTestMarkers((ServerWorld) player.getWorld());
         } else {
             // Red Blue Green Alpha
             // Blue Alpha Green Red

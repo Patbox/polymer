@@ -227,12 +227,19 @@ public final class PolymerItemUtils {
     public static ItemStack getRealItemStack(ItemStack itemStack, RegistryWrapper.WrapperLookup lookup) {
         var custom = itemStack.get(DataComponentTypes.CUSTOM_DATA);
 
-        if (custom != null && custom.contains(POLYMER_STACK)) {
+
+        if (custom != null) {
+            var val = custom.copyNbt();
+
+            if (!val.contains(POLYMER_STACK)) {
+                return itemStack;
+            }
+
             try {
-                var counted = custom.get(POLYMER_STACK_HAS_COUNT_CODEC).result().orElse(Boolean.FALSE);
+                var counted = val.decode(POLYMER_STACK_HAS_COUNT_CODEC).orElse(Boolean.FALSE);
 
                 //noinspection deprecation
-                var x = (counted ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).decode(RegistryOps.of(NbtOps.INSTANCE, lookup), NbtOps.INSTANCE.getMap(custom.getNbt()).getOrThrow()).getOrThrow();
+                var x = (counted ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).decode(RegistryOps.of(NbtOps.INSTANCE, lookup), NbtOps.INSTANCE.getMap(val).getOrThrow()).getOrThrow();
 
                 if (!counted) {
                     x.setCount(itemStack.getCount());
@@ -258,9 +265,10 @@ public final class PolymerItemUtils {
     }
 
     public static Identifier getPolymerIdentifier(@Nullable NbtComponent custom) {
-        if (custom != null && custom.contains(POLYMER_STACK)) {
+        if (custom != null) {
+            var val = custom.copyNbt();
             try {
-                return custom.get(POLYMER_STACK_ID_CODEC).result().orElse(null);
+                return val.decode(POLYMER_STACK_ID_CODEC).orElse(null);
             } catch (Throwable ignored) {
 
             }
@@ -287,12 +295,9 @@ public final class PolymerItemUtils {
             return x;
         }
 
-        if (nbtData.contains(POLYMC_STACK)) {
-            try {
-                return nbtData.get(POLYMC_STACK_ID_CODEC).result().orElse(null);
-            } catch (Throwable ignored) {
-
-            }
+        try {
+                return nbtData.copyNbt().decode(POLYMC_STACK_ID_CODEC).orElse(null);
+        } catch (Throwable ignored) {
         }
 
         return null;
@@ -318,15 +323,8 @@ public final class PolymerItemUtils {
             return x;
         }
 
-        if (nbtData.contains(POLYMC_STACK)) {
-            try {
-                return nbtData.get(POLYMC_STACK_COMPONENTS_CODEC).result().orElse(Map.of());
-            } catch (Throwable ignored) {
 
-            }
-        }
-
-        return null;
+        return nbtData.copyNbt().decode(POLYMC_STACK_COMPONENTS_CODEC).orElse(Map.of());
     }
 
     @Nullable
@@ -335,7 +333,7 @@ public final class PolymerItemUtils {
             return null;
         }
 
-        return nbtData.get(POLYMER_STACK_COMPONENTS_CODEC).result().orElse(Map.of());
+        return nbtData.copyNbt().decode(POLYMER_STACK_COMPONENTS_CODEC).orElse(Map.of());
     }
     public static void registerOverlay(Item item, PolymerItem polymerItem) {
         PolymerItem.registerOverlay(item, polymerItem);
@@ -466,7 +464,7 @@ public final class PolymerItemUtils {
                 if (
                         (item instanceof CompassItem && out.contains(DataComponentTypes.LODESTONE_TRACKER))
                                 || (item instanceof PotionItem && out.contains(DataComponentTypes.POTION_CONTENTS))
-                                || (item instanceof PlayerHeadItem && out.contains(DataComponentTypes.PROFILE) && Objects.requireNonNull(out.get(DataComponentTypes.PROFILE)).name().isPresent())
+                                || (item instanceof PlayerHeadItem && out.contains(DataComponentTypes.PROFILE) && Objects.requireNonNull(out.get(DataComponentTypes.PROFILE)).getName().isPresent())
 
                 ) {
                     out.set(DataComponentTypes.CUSTOM_NAME, Text.empty().append(name).setStyle(Style.EMPTY.withItalic(false)));
@@ -482,13 +480,15 @@ public final class PolymerItemUtils {
                                 .encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
                 );
                 if (storeCount) {
-                    return comp.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_HAS_COUNT_CODEC, true).getOrThrow();
+                    var data = comp.copyNbt();
+                    data.putBoolean("$polymer:counted", true);
+                    return NbtComponent.of(data);
                 } else {
                     return comp;
                 }
             }));
         } catch (Throwable e) {
-            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT.with(RegistryOps.of(NbtOps.INSTANCE, lookup), POLYMER_STACK_ID_CODEC, Registries.ITEM.getId(itemStack.getItem())).getOrThrow());
+            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of((NbtCompound) POLYMER_STACK_ID_CODEC.codec().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), Registries.ITEM.getId(itemStack.getItem())).getOrThrow()));
         }
 
 

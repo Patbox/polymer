@@ -57,11 +57,11 @@ public class BlockPacketUtil {
     }
 
     public static void sendUpdate(ServerPlayerEntity player, BlockPos pos) {
-        var state = player.getWorld().getBlockState(pos);
+        var state = player.getEntityWorld().getBlockState(pos);
         player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, state));
 
         if (state.hasBlockEntity()) {
-            var be = player.getWorld().getBlockEntity(pos);
+            var be = player.getEntityWorld().getBlockEntity(pos);
             if (be != null) {
                 player.networkHandler.sendPacket(BlockEntityUpdateS2CPacket.create(be));
             }

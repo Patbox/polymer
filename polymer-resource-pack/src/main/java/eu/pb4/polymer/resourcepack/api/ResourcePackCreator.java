@@ -4,10 +4,12 @@ import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import net.minecraft.SharedConstants;
+import net.minecraft.resource.PackVersion;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.PackResourceMetadata;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.dynamic.Range;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -141,9 +143,8 @@ public final class ResourcePackCreator {
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {
-            builder.getPackMcMetaBuilder().metadata(new PackResourceMetadata(this.packDescription, SharedConstants.getGameVersion()
-                    .packVersion(ResourceType.CLIENT_RESOURCES),
-                    Optional.empty()));
+            builder.getPackMcMetaBuilder().metadata(new PackResourceMetadata(this.packDescription,
+                    new Range<>(SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES))));
         }
 
 

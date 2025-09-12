@@ -22,6 +22,7 @@ import net.minecraft.entity.spawn.SpawnConditionSelectors;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.FuelRegistry;
 import net.minecraft.item.map.MapState;
+import net.minecraft.particle.BlockParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.RecipeManager;
@@ -38,6 +39,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.*;
+import net.minecraft.util.collection.Pool;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -49,6 +51,9 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeEffects;
+import net.minecraft.world.biome.GenerationSettings;
+import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
@@ -159,6 +164,15 @@ public final class FakeWorld extends World implements LightSourceView {
             addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_SOUND_VARIANT,
                     Identifier.of("polymer","wolf"),
                     SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.Type.CLASSIC)));
+
+            addRegistry(new FakeRegistry<>(RegistryKeys.BIOME, Identifier.of("polymer","fake_biome"),
+                    new Biome.Builder()
+                            .temperature(0)
+                            .downfall(0)
+                            .effects(new BiomeEffects.Builder().fogColor(0).waterColor(0).waterFogColor(0).skyColor(0).build())
+                            .spawnSettings(new SpawnSettings.Builder().build())
+                            .generationSettings(GenerationSettings.INSTANCE)
+                            .build()));
         }
     };
     static final ServerRecipeManager RECIPE_MANAGER = new ServerRecipeManager(FALLBACK_REGISTRY_MANAGER);
@@ -278,7 +292,6 @@ public final class FakeWorld extends World implements LightSourceView {
             worldUnsafe = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
             var accessor = (WorldAccessor) worldUnsafe;
             accessor.polymer$setBiomeAccess(new BiomeAccess(worldUnsafe, 1l));
-            accessor.polymer$setBorder(new WorldBorder());
             accessor.polymer$setDebugWorld(true);
             accessor.polymer$setProperties(new FakeWorldProperties());
             accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, Identifier.of("polymer","fake_world")));
@@ -321,7 +334,8 @@ public final class FakeWorld extends World implements LightSourceView {
         INSTANCE = worldUnsafe != null ? worldUnsafe : worldDefault;
     }
 
-    private TickManager tickManager = new TickManager();
+    private final TickManager tickManager = new TickManager();
+    private final WorldBorder worldBorder = new WorldBorder();
 
     protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, FALLBACK_REGISTRY_MANAGER, dimensionType, isClient, debugWorld, seed, 0);
@@ -343,7 +357,7 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
     @Override
-    public void createExplosion(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, ExplosionSourceType explosionSourceType, ParticleEffect particle, ParticleEffect emitterParticle, RegistryEntry<SoundEvent> soundEvent) {
+    public void createExplosion(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, ExplosionSourceType explosionSourceType, ParticleEffect smallParticle, ParticleEffect largeParticle, Pool<BlockParticleEffect> blockParticles, RegistryEntry<SoundEvent> soundEvent) {
 
     }
 
@@ -468,6 +482,11 @@ public final class FakeWorld extends World implements LightSourceView {
     @Override
     public ChunkSkyLight getChunkSkyLight() {
         return null;
+    }
+
+    @Override
+    public WorldBorder getWorldBorder() {
+        return this.worldBorder;
     }
 
 

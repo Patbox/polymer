@@ -60,7 +60,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                 --this.polymer$blockBreakingCooldown;
                 return;
             }
-            this.polymer$currentBreakingProgress += state.calcBlockBreakingDelta(this.player, this.player.getWorld(), pos);
+            this.polymer$currentBreakingProgress += state.calcBlockBreakingDelta(this.player, this.player.getEntityWorld(), pos);
 
             if (this.polymer$currentBreakingProgress >= 1.0F) {
                 this.polymer$blockBreakingCooldown = 5;
@@ -83,7 +83,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         this.polymer$sequence = sequence;
-        var serverState = this.player.getWorld().getBlockState(pos);
+        var serverState = this.player.getEntityWorld().getBlockState(pos);
         if (this.polymer$shouldMineServerSide(pos, serverState)) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.polymer$currentBreakingProgress = 0;
@@ -120,7 +120,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
     private void polymer$enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
-        if (this.polymer$shouldMineServerSide(pos, this.player.getWorld().getBlockState(pos))) {
+        if (this.polymer$shouldMineServerSide(pos, this.player.getEntityWorld().getBlockState(pos))) {
             if (action == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
                 this.startMiningTime += polymer$blockBreakingCooldown;
             }

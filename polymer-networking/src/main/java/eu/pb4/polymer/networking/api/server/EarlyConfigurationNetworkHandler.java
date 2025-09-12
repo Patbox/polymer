@@ -11,6 +11,7 @@ import net.minecraft.network.listener.TickablePacketListener;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.*;
+import net.minecraft.network.packet.c2s.config.AcceptCodeOfConductC2SPacket;
 import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
 import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
 import net.minecraft.network.packet.s2c.common.CommonPingS2CPacket;
@@ -210,6 +211,11 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
 
     @Override
     public void onSelectKnownPacks(SelectKnownPacksC2SPacket packet) {
+
+    }
+
+    @Override
+    public void onAcceptCodeOfConduct(AcceptCodeOfConductC2SPacket packet) {
 
     }
 

@@ -164,7 +164,7 @@ public class PolymerServerProtocol {
 
 
         if (PolymerImpl.LOG_SYNC_TIME) {
-            PolymerImpl.LOGGER.info((fullSync ? "Full" : "Partial") + " sync for {} took {} ms", handler.player.getGameProfile().getName(), ((System.nanoTime() - startTime) / 10000) / 100d);
+            PolymerImpl.LOGGER.info((fullSync ? "Full" : "Partial") + " sync for {} took {} ms", handler.player.getGameProfile().name(), ((System.nanoTime() - startTime) / 10000) / 100d);
         }
     }
 

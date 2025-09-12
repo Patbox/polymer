@@ -14,7 +14,7 @@ public record PolymerSectionUpdateS2CPayload(ChunkSectionPos chunkPos, short[] p
     public static final PacketCodec<ContextByteBuf, PolymerSectionUpdateS2CPayload> CODEC = PacketCodec.of(PolymerSectionUpdateS2CPayload::write, PolymerSectionUpdateS2CPayload::read);
 
     public void write(PacketByteBuf buf) {
-        buf.writeChunkSectionPos(this.chunkPos);
+        ChunkSectionPos.PACKET_CODEC.encode(buf, this.chunkPos);
         buf.writeVarInt(this.pos.length);
         for (int i = 0; i < this.pos.length; i++) {
             buf.writeVarLong((long) this.blocks[i] << 12 | (long)this.pos[i]);
@@ -22,7 +22,7 @@ public record PolymerSectionUpdateS2CPayload(ChunkSectionPos chunkPos, short[] p
     }
 
     public static PolymerSectionUpdateS2CPayload read(PacketByteBuf buf) {
-        var chunkPos = ChunkSectionPos.from(buf.readLong());
+        var chunkPos = ChunkSectionPos.PACKET_CODEC.decode(buf);
         int i = buf.readVarInt();
         var pos = new short[i];
         var blocks = new int[i];

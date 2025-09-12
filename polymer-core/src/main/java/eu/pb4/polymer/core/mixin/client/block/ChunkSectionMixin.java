@@ -7,9 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.registry.Registry;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.PalettedContainer;
-import net.minecraft.world.chunk.ReadableContainer;
+import net.minecraft.world.chunk.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,8 +23,8 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
     @Unique
     private PalettedContainer<ClientPolymerBlock.State> polymer$container;
 
-    @Inject(method = "<init>(Lnet/minecraft/registry/Registry;)V", at = @At("TAIL"))
-    private void polymer$init(Registry biomeRegistry, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/world/chunk/ChunkSection;)V", at = @At("TAIL"))
+    private void polymer$init(ChunkSection section, CallbackInfo ci) {
         this.polymer$createContainers();
     }
 
@@ -35,9 +33,15 @@ public class ChunkSectionMixin implements ClientBlockStorageInterface {
         this.polymer$createContainers();
     }
 
+    @Inject(method = "<init>(Lnet/minecraft/world/chunk/PalettesFactory;)V  ", at = @At("TAIL"))
+    private void polymer$init3(PalettesFactory palettesFactory, CallbackInfo ci) {
+        this.polymer$createContainers();
+    }
 
+
+    @Unique
     private void polymer$createContainers() {
-        this.polymer$container = new PalettedContainer<>(InternalClientRegistry.BLOCK_STATES, ClientPolymerBlock.NONE_STATE, PalettedContainer.PaletteProvider.BLOCK_STATE);
+        this.polymer$container = new PalettedContainer<>(ClientPolymerBlock.NONE_STATE, InternalClientRegistry.blockStatesPaletteProvider);
     }
 
     @Override

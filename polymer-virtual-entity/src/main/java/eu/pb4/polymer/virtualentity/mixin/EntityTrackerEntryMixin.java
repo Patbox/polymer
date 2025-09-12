@@ -27,7 +27,8 @@ public class EntityTrackerEntryMixin {
 
     @Shadow private List<Entity> lastPassengers;
 
-    @Shadow @Final private Consumer<Packet<?>> watchingSender;
+
+    @Shadow @Final private EntityTrackerEntry.TrackerPacketSender packetSender;
 
     @Inject(method = "startTracking", at = @At("TAIL"))
     private void polymerVE$startTracking(ServerPlayerEntity player, CallbackInfo ci) {
@@ -56,7 +57,7 @@ public class EntityTrackerEntryMixin {
         }
 
         if (((EntityExt) this.entity).polymerVE$getAndClearVirtualRiddenDirty() && this.entity.getPassengerList().equals(this.lastPassengers)) {
-            this.watchingSender.accept(new EntityPassengersSetS2CPacket(this.entity));
+            this.packetSender.sendToSelfAndListeners(new EntityPassengersSetS2CPacket(this.entity));
         }
     }
 

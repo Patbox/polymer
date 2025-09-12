@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class EntityElement<T extends Entity> extends AbstractElement {
     private final T entity;
@@ -33,14 +34,27 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     public EntityElement(T entity, ServerWorld world, InteractionHandler handler) {
         this.entity = entity;
-        this.entry = new EntityTrackerEntry(world, this.entity, 1, false, this::sendPacket, (a, b) -> this.sendPacket(a));
-        this.setInteractionHandler(handler);
-    }
+        this.entry = new EntityTrackerEntry(world, this.entity, 1, false, new EntityTrackerEntry.TrackerPacketSender() {
+            @Override
+            public void sendToListeners(Packet<? super ClientPlayPacketListener> packet) {
+                if (getHolder() != null) {
+                    getHolder().sendPacket((Packet<ClientPlayPacketListener>) packet);
+                }
+            }
 
-    private void sendPacket(Packet<?> packet) {
-        if (this.getHolder() != null) {
-            this.getHolder().sendPacket((Packet<ClientPlayPacketListener>) packet);
-        }
+            @Override
+            public void sendToSelfAndListeners(Packet<? super ClientPlayPacketListener> packet) {
+                sendToListeners(packet);
+            }
+
+            @Override
+            public void sendToListenersIf(Packet<? super ClientPlayPacketListener> packet, Predicate<ServerPlayerEntity> predicate) {
+                if (getHolder() != null) {
+                    getHolder().sendPacket((Packet<ClientPlayPacketListener>) packet, predicate);
+                }
+            }
+        });
+        this.setInteractionHandler(handler);
     }
 
     public EntityElement(EntityType<T> entityType, ServerWorld world) {
@@ -139,7 +153,9 @@ public class EntityElement<T extends Entity> extends AbstractElement {
                 //ac.callSetSyncedArmorStack(slot, itemStack);
             });
 
-            this.sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));
+            if (this.getHolder() != null) {
+                this.getHolder().sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));
+            }
         }
     }
 }

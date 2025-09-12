@@ -89,7 +89,7 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     public void tick() {
         super.tick();
 
-        if (this.getWorld().getTime() % 2 == 1) {
+        if (this.getEntityWorld().getTime() % 2 == 1) {
             return;
         }
 

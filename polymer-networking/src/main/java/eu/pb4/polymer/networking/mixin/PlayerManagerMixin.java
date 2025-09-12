@@ -28,7 +28,7 @@ public class PlayerManagerMixin {
         PolymerServerNetworking.ON_PLAY_SYNC.invoke(x -> x.accept(player.networkHandler, handshake));
 
         if (((TempPlayerLoginAttachments) player).polymerNet$getForceRespawnPacket()) {
-            var world = player.getWorld();
+            var world = player.getEntityWorld();
             connection.send(new PlayerRespawnS2CPacket(player.createCommonPlayerSpawnInfo(world), PlayerRespawnS2CPacket.KEEP_ALL));
         }
     }
@@ -36,7 +36,7 @@ public class PlayerManagerMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "onPlayerConnect", at = @At("HEAD"))
     private void polymerNet$storePlayer(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
-        if (player.getServer().isHost(player.getGameProfile())) {
+        if (player.getEntityWorld().getServer().isHost(player.getPlayerConfigEntry())) {
             ClientUtils.backupPlayer = player;
         }
     }
@@ -44,7 +44,7 @@ public class PlayerManagerMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "onPlayerConnect", at = @At("TAIL"))
     private void polymerNet$removePlayer(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
-        if (player.getServer().isHost(player.getGameProfile())) {
+        if (player.getEntityWorld().getServer().isHost(player.getPlayerConfigEntry())) {
             ClientUtils.backupPlayer = null;
         }
     }

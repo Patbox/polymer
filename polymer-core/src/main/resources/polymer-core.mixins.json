@@ -29,7 +29,6 @@
     "block.packet.WorldEventS2CPacketMixin",
     "block.storage.ChunkSectionMixin",
     "block.storage.WorldChunkMixin",
-    "client.compat.fabric.fabricItem_FabricItemMixin",
     "command.ArgumentNodeMixin",
     "command.CommandManagerMixin",
     "compat.lithium_BlockPaletteMixin",
@@ -114,7 +113,6 @@
   "client": [
     "client.ClientPlayNetworkHandlerMixin",
     "client.CreativeInventoryScreenAccessor",
-    "client.DebugHudMixin",
     "client.KeyboardMixin",
     "client.MinecraftClientMixin",
     "client.ReloadableResourceManagerImplMixin",
@@ -138,7 +136,9 @@
     "client.rendering.BlockModelsMixin",
     "client.rendering.EntityRenderersMixin",
     "client.syncreg.IdListMixin",
-    "client.syncreg.SimpleRegistryMixin"
+    "client.syncreg.SimpleRegistryMixin",
+    "client.compat.fabric.fabricItem_FabricItemMixin",
+    "client.debug.DebugHudEntriesAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

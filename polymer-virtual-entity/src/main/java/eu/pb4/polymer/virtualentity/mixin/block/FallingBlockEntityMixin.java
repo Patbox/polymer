@@ -70,7 +70,7 @@ public abstract class FallingBlockEntityMixin extends Entity {
         var att = this.attachment;
 
         if (att != null) {
-            BlockBoundAttachment.fromMoving(att.holder(), (ServerWorld) this.getWorld(), blockPos, this.getBlockState());
+            BlockBoundAttachment.fromMoving(att.holder(), (ServerWorld) this.getEntityWorld(), blockPos, this.getBlockState());
         }
     }
 }

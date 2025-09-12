@@ -42,6 +42,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.PaletteProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,6 +73,7 @@ public class PolymerClientProtocolHandler {
             if (PolymerImpl.LOG_SYNC_TIME_CLIENT) {
                 PolymerImpl.LOGGER.info("Polymer Sync took {} ms", System.currentTimeMillis() - syncStarted);
             }
+            InternalClientRegistry.updateBlockStatesPaletteProvider();
 
             PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
         });

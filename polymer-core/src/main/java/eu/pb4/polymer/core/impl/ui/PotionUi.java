@@ -55,7 +55,7 @@ public class PotionUi extends MicroUi {
             icon.set(DataComponentTypes.CUSTOM_NAME, Text.empty()
                     .append(effectInstance.getEffectType().value().getName())
                     .append(Text.literal(" (")
-                            .append(StatusEffectUtil.getDurationText(effectInstance, 1.0F, this.player.getServer().getTickManager().getTickRate()))
+                            .append(StatusEffectUtil.getDurationText(effectInstance, 1.0F, this.player.getEntityWorld().getServer().getTickManager().getTickRate()))
                             .append(")")
                             .formatted(Formatting.GRAY))
                     .setStyle(Style.EMPTY.withItalic(false))

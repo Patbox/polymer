@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.entity;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import eu.pb4.polymer.core.api.entity.PolymerTrackerPacketSender;
 import eu.pb4.polymer.core.api.other.PlayerBoundConsumer;
 import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
@@ -39,7 +40,7 @@ public abstract class EntityTrackerEntryMixin {
 
     @Shadow @Nullable private List<DataTracker.SerializedEntry<?>> changedEntries;
 
-    @Shadow @Final private Consumer<Packet<?>> watchingSender;
+    @Shadow @Final private EntityTrackerEntry.TrackerPacketSender packetSender;
 
     @ModifyVariable(method = "sendPackets", at = @At("HEAD"), argsOnly = true)
     private Consumer<Packet<?>> polymer$packetWrap(Consumer<Packet<?>> packetConsumer, @Local(argsOnly = true) ServerPlayerEntity player) {
@@ -81,16 +82,16 @@ public abstract class EntityTrackerEntryMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void polymer$tickHead(CallbackInfo ci) {
         var polymerEntity = PolymerEntity.get(this.entity);
-        if (polymerEntity != null && this.watchingSender instanceof PlayerBoundConsumer<Packet<?>> consumer) {
-            polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
+        if (polymerEntity != null && this.packetSender instanceof PolymerTrackerPacketSender accessor) {
+            polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet(accessor.listeners()));
         }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
         var polymerEntity = PolymerEntity.get(this.entity);
-        if (polymerEntity != null && this.watchingSender instanceof PlayerBoundConsumer<Packet<?>> consumer) {
-            polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet(consumer.receivers()));
+        if (polymerEntity != null && this.packetSender instanceof PolymerTrackerPacketSender accessor) {
+            polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet(accessor.listeners()));
         }
     }
 

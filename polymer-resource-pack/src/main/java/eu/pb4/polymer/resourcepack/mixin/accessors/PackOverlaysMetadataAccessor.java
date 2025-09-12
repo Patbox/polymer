@@ -7,8 +7,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PackOverlaysMetadata.class)
 public interface PackOverlaysMetadataAccessor {
-    @Accessor
-    static Codec<PackOverlaysMetadata> getCODEC() {
-        throw new UnsupportedOperationException();
-    }
+
 }

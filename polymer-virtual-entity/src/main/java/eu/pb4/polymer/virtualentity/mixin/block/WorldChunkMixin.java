@@ -16,10 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.UpgradeData;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.*;
 import net.minecraft.world.gen.chunk.BlendingData;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import org.jetbrains.annotations.Nullable;
@@ -45,8 +42,9 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
     @Shadow
     @Final
     private World world;
-    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biome, long inhabitedTime, @Nullable ChunkSection[] sectionArrayInitializer, @Nullable BlendingData blendingData) {
-        super(pos, upgradeData, heightLimitView, biome, inhabitedTime, sectionArrayInitializer, blendingData);
+
+    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, PalettesFactory palettesFactory, long inhabitedTime, @Nullable ChunkSection[] sectionArray, @Nullable BlendingData blendingData) {
+        super(pos, upgradeData, heightLimitView, palettesFactory, inhabitedTime, sectionArray, blendingData);
     }
 
     @Shadow
@@ -97,7 +95,7 @@ public abstract class WorldChunkMixin extends Chunk implements HolderAttachmentH
         }
     }
 
-    @Inject(method = "setBlockState", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;isClient:Z", ordinal = 1, shift = At.Shift.BEFORE))
+    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isClient()Z", ordinal = 1, shift = At.Shift.BEFORE))
     private void polymerVE$addNew(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         var x = this.polymerVE$posHolders.get(pos);
         var blockWithElementHolder = BlockWithElementHolder.get(state);

@@ -15,15 +15,11 @@ public class PolymerSpawnEggItem extends SpawnEggItem implements PolymerItem {
     private final Item polymerItem;
     private final boolean polymerUseModel;
 
-    public PolymerSpawnEggItem(EntityType<? extends MobEntity> type, Settings settings) {
-        this(type, Items.TRIAL_KEY, true, settings);
+    public PolymerSpawnEggItem(Item polymerItem, Settings settings) {
+        this(polymerItem, false, settings);
     }
-
-    public PolymerSpawnEggItem(EntityType<? extends MobEntity> type, Item polymerItem, Settings settings) {
-        this(type, polymerItem, false, settings);
-    }
-    public PolymerSpawnEggItem(EntityType<? extends MobEntity> type, Item polymerItem, boolean useModel, Settings settings) {
-        super(type, settings);
+    public PolymerSpawnEggItem(Item polymerItem, boolean useModel, Settings settings) {
+        super(settings);
         this.polymerItem = polymerItem;
         this.polymerUseModel = useModel;
     }

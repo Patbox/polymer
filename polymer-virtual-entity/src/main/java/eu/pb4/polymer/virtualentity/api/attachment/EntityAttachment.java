@@ -99,7 +99,7 @@ public class EntityAttachment implements HolderAttachment {
 
     @Override
     public boolean canUpdatePosition() {
-        return !this.removed && !this.entity.isRemoved() && this.entity.getWorld().getEntityById(this.entity.getId()) == this.entity;
+        return !this.removed && !this.entity.isRemoved() && this.entity.getEntityWorld().getEntityById(this.entity.getId()) == this.entity;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class EntityAttachment implements HolderAttachment {
     }
 
     private ServerChunkLoadingManager.EntityTracker getTrackerEntry() {
-        return ((ServerChunkLoadingManagerAccessor) ((ServerWorld) this.entity.getWorld()).getChunkManager().chunkLoadingManager).getEntityTrackers().get(this.entity.getId());
+        return ((ServerChunkLoadingManagerAccessor) ((ServerWorld) this.entity.getEntityWorld()).getChunkManager().chunkLoadingManager).getEntityTrackers().get(this.entity.getId());
     }
 
     @Override
@@ -118,7 +118,7 @@ public class EntityAttachment implements HolderAttachment {
 
     @Override
     public ServerWorld getWorld() {
-        return (ServerWorld) this.entity.getWorld();
+        return (ServerWorld) this.entity.getEntityWorld();
     }
 
 

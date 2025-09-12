@@ -1,5 +1,7 @@
 package eu.pb4.polymer.core.api.utils;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -93,15 +95,15 @@ public final class PolymerUtils {
      * Resends world to player. It's useful to run this after player changes resource packs
      */
     public static void reloadWorld(ServerPlayerEntity player) {
-        player.getServer().execute(() -> {
+        player.getEntityWorld().getServer().execute(() -> {
             PolymerImplUtils.IS_RELOADING_WORLD.set(Unit.INSTANCE);
             try {
                 player.currentScreenHandler.syncState();
 
-                var world = player.getWorld();
-                var tacsAccess = ((ServerChunkLoadingManagerAccessor) ((ServerChunkManager) player.getWorld().getChunkManager()).chunkLoadingManager);
+                var world = player.getEntityWorld();
+                var tacsAccess = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager);
 
-                for (var e : ((ServerWorldAccessor) player.getWorld()).polymer_getEntityManager().getLookup().iterate()) {
+                for (var e : ((ServerWorldAccessor) world).polymer_getEntityManager().getLookup().iterate()) {
                     var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
                     if (tracker != null) {
                         tracker.stopTracking(player);
@@ -148,9 +150,8 @@ public final class PolymerUtils {
         return createProfileComponent(value, null);
     }
     public static ProfileComponent createProfileComponent(String value, @Nullable String signature) {
-        var profile = new PropertyMap();
-        profile.put("textures", new Property("textures", value, signature));
-        return new ProfileComponent(Optional.empty(), Optional.empty(), profile);
+        var profile = new PropertyMap(ImmutableMultimap.of("textures", new Property("textures", value, signature)));
+        return ProfileComponent.ofStatic(new GameProfile(Util.NIL_UUID, "", profile));
     }
 
 

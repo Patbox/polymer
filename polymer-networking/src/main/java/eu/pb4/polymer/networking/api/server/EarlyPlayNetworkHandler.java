@@ -511,7 +511,7 @@ public class EarlyPlayNetworkHandler implements ServerPlayPacketListener, Tickab
     }
 
     @Override
-    public void onDebugSampleSubscription(DebugSampleSubscriptionC2SPacket packet) {
+    public void onDebugSubscriptionRequest(DebugSubscriptionRequestC2SPacket packet) {
 
     }
 
