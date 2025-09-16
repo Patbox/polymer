@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BannerPattern;
+import net.minecraft.class_12079;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
@@ -129,37 +130,37 @@ public final class FakeWorld extends World implements LightSourceView {
             addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_VARIANT,
                     Identifier.of("polymer","wolf"),
                     new WolfVariant(new WolfVariant.WolfAssetInfo(
-                            new AssetInfo(Identifier.of("polymer","wolf")),
-                            new AssetInfo(Identifier.of("polymer","wolf")),
-                            new AssetInfo(Identifier.of("polymer","wolf"))), SpawnConditionSelectors.EMPTY)));
+                            new class_12079.AssetInfo(Identifier.of("polymer","wolf")),
+                            new class_12079.AssetInfo(Identifier.of("polymer","wolf")),
+                            new class_12079.AssetInfo(Identifier.of("polymer","wolf"))), SpawnConditionSelectors.EMPTY)));
 
             addRegistry(new FakeRegistry<>(RegistryKeys.COW_VARIANT,
                     Identifier.of("polymer","cow"),
                     new CowVariant(
-                            new ModelAndTexture<>(CowVariant.Model.NORMAL, new AssetInfo(Identifier.of("polymer", "wolf"))
+                            new ModelAndTexture<>(CowVariant.Model.NORMAL, new class_12079.AssetInfo(Identifier.of("polymer", "wolf"))
                             ), SpawnConditionSelectors.EMPTY)));
 
             addRegistry(new FakeRegistry<>(RegistryKeys.PIG_VARIANT,
                     Identifier.of("polymer","pig"),
                     new PigVariant(
-                            new ModelAndTexture<>(PigVariant.Model.NORMAL, new AssetInfo(Identifier.of("polymer", "wolf"))
+                            new ModelAndTexture<>(PigVariant.Model.NORMAL, new class_12079.AssetInfo(Identifier.of("polymer", "wolf"))
                             ), SpawnConditionSelectors.EMPTY)));
 
             addRegistry(new FakeRegistry<>(RegistryKeys.CHICKEN_VARIANT,
                     Identifier.of("polymer","chicken"),
                     new ChickenVariant(
-                            new ModelAndTexture<>(ChickenVariant.Model.NORMAL, new AssetInfo(Identifier.of("polymer", "wolf"))
+                            new ModelAndTexture<>(ChickenVariant.Model.NORMAL, new class_12079.AssetInfo(Identifier.of("polymer", "wolf"))
                             ), SpawnConditionSelectors.EMPTY)));
 
             addRegistry(new FakeRegistry<>(RegistryKeys.CAT_VARIANT,
                     Identifier.of("polymer","cat"),
                     new CatVariant(
-                            new AssetInfo(Identifier.of("polymer", "cat")
+                            new class_12079.AssetInfo(Identifier.of("polymer", "cat")
                             ), SpawnConditionSelectors.EMPTY)));
             addRegistry(new FakeRegistry<>(RegistryKeys.FROG_VARIANT,
                     Identifier.of("polymer","frog"),
                     new FrogVariant(
-                            new AssetInfo(Identifier.of("polymer", "frog")
+                            new class_12079.AssetInfo(Identifier.of("polymer", "frog")
                             ), SpawnConditionSelectors.EMPTY)));
             addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_SOUND_VARIANT,
                     Identifier.of("polymer","wolf"),
@@ -366,6 +367,16 @@ public final class FakeWorld extends World implements LightSourceView {
         return "FakeWorld!";
     }
 
+    @Override
+    public void setSpawnPos(WorldProperties.class_12064 arg) {
+
+    }
+
+    @Override
+    public WorldProperties.class_12064 method_74854() {
+        return null;
+    }
+
     @Nullable
     @Override
     public Entity getEntityById(int id) {
@@ -491,14 +502,10 @@ public final class FakeWorld extends World implements LightSourceView {
 
 
     static class FakeWorldProperties implements MutableWorldProperties {
-        @Override
-        public BlockPos getSpawnPos() {
-            return BlockPos.ORIGIN;
-        }
 
         @Override
-        public float getSpawnAngle() {
-            return 0;
+        public class_12064 method_74893() {
+            return null;
         }
 
         @Override
@@ -543,7 +550,7 @@ public final class FakeWorld extends World implements LightSourceView {
         }
 
         @Override
-        public void setSpawnPos(BlockPos pos, float angle) {
+        public void setSpawnPos(class_12064 arg) {
 
         }
     }

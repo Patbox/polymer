@@ -14,7 +14,10 @@ import java.util.function.Consumer;
 
 @ApiStatus.NonExtendable
 public interface ResourcePackBuilder {
-    boolean addData(String path, byte[] data);
+    default boolean addData(String path, byte[] data) {
+        return this.addData(path, PackResource.of(data));
+    }
+    boolean addData(String path, PackResource resource);
     default boolean addData(String path, WritableAsset data) {
         return this.addData(path, data.toBytes());
     }
@@ -77,7 +80,7 @@ public interface ResourcePackBuilder {
                         if (name.toLowerCase(Locale.ROOT).contains("license")
                                 || name.toLowerCase(Locale.ROOT).contains("licence")) {
                             this.addData("licenses/"
-                                    + field.replace("/", "_").replace("\\", "_") + "/" + name, Files.readAllBytes(file));
+                                    + field.replace("/", "_").replace("\\", "_") + "/" + name, PackResource.of(file));
                         }
                     } catch (Throwable ignored) {
                     }
@@ -90,6 +93,8 @@ public interface ResourcePackBuilder {
     }
 
     byte @Nullable [] getData(String path);
+    @Nullable
+    PackResource getResource(String path);
 
     byte @Nullable [] getDataOrSource(String path);
 
@@ -103,11 +108,23 @@ public interface ResourcePackBuilder {
         return data != null ? new String(data, StandardCharsets.UTF_8) : null;
     }
 
-    void forEachFile(BiConsumer<String, byte[]> consumer);
+    @Deprecated(forRemoval = true)
+    default void forEachFile(BiConsumer<String, byte[]> consumer) {
+        forEachResource((a, b) -> consumer.accept(a, b.readAllBytes()));
+    }
+    void forEachResource(BiConsumer<String, PackResource> consumer);
 
     boolean addAssetsSource(String modId);
 
-    void addWriteConverter(BiFunction<String, byte[], byte @Nullable []> converter);
+    void addResourceConverter(ResourceConverter converter);
+
+    @Deprecated(forRemoval = true)
+    default void addWriteConverter(BiFunction<String, byte[], byte @Nullable []> converter) {
+        this.addResourceConverter((path, data) -> {
+            var t = converter.apply(path, data.readAllBytes());
+            return t != null ? PackResource.of(t) : null;
+        });
+    }
 
     void addPreFinishTask(Consumer<ResourcePackBuilder> consumer);
 
@@ -117,5 +134,10 @@ public interface ResourcePackBuilder {
 
     default boolean addModToCredits(String modId) {
         return false;
+    }
+
+    interface ResourceConverter {
+        @Nullable
+        PackResource convert(String path, PackResource resource);
     }
 }

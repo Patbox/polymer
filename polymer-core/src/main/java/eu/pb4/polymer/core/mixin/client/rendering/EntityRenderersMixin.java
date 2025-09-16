@@ -5,8 +5,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.impl.client.rendering.NullEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactories;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.EntityRenderers;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-@Mixin(EntityRenderers.class)
+@Mixin(EntityRendererFactories.class)
 public class EntityRenderersMixin {
     @ModifyReturnValue(method = "reloadEntityRenderers", at = @At("TAIL"))
     private static Map<EntityType<?>, EntityRenderer<?, ?>> polymer$replaceEntityRenderer(Map<EntityType<?>, EntityRenderer<?, ?>> original,

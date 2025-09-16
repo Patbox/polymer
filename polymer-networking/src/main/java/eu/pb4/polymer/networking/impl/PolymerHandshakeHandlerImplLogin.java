@@ -3,7 +3,6 @@ package eu.pb4.polymer.networking.impl;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonClientConnectionExt;
 import eu.pb4.polymer.networking.api.server.EarlyConfigurationNetworkHandler;
-import eu.pb4.polymer.networking.api.server.EarlyPlayNetworkHandler;
 import eu.pb4.polymer.networking.api.server.PolymerHandshakeHandler;
 import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;

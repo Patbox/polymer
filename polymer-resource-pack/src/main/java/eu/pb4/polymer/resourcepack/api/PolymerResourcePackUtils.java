@@ -208,7 +208,7 @@ public final class PolymerResourcePackUtils {
             var config = PolymerResourcePackImpl.loadConfig();
 
             if (!config.preventedPaths.isEmpty()) {
-                builder.addWriteConverter((path, data) -> {
+                builder.addResourceConverter((path, data) -> {
                     for (var test : config.preventedPaths) {
                         if (path.startsWith(test)) {
                             return null;

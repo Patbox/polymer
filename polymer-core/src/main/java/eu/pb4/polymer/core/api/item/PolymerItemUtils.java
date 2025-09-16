@@ -59,10 +59,10 @@ import java.util.function.Predicate;
 public final class PolymerItemUtils {
     public static final String POLYMER_STACK = "$polymer:stack";
     private static final String POLYMC_STACK = "PolyMcOriginal";
-    public static final MapCodec<ItemStack> POLYMER_STACK_CODEC = ItemStack.CODEC.fieldOf(POLYMER_STACK);
-    public static final MapCodec<ItemStack> POLYMER_STACK_UNCOUNTED_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMER_STACK);
-    public static final MapCodec<Boolean> POLYMER_STACK_HAS_COUNT_CODEC = Codec.BOOL.optionalFieldOf("$polymer:counted", false);
-    public static final MapCodec<Identifier> POLYMER_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMER_STACK);
+    private static final MapCodec<ItemStack> POLYMER_STACK_CODEC = ItemStack.CODEC.fieldOf(POLYMER_STACK);
+    private static final MapCodec<ItemStack> POLYMER_STACK_UNCOUNTED_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMER_STACK);
+    private static final MapCodec<Boolean> POLYMER_STACK_HAS_COUNT_CODEC = Codec.BOOL.optionalFieldOf("$polymer:counted", false);
+    private static final MapCodec<Identifier> POLYMER_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMER_STACK);
 
     private static final Codec<Map<Identifier, NbtElement>> COMPONENTS_CODEC = Codec.unboundedMap(Identifier.CODEC,
             Codec.PASSTHROUGH.comapFlatMap((dynamic) -> {
@@ -70,9 +70,8 @@ public final class PolymerItemUtils {
                 return DataResult.success(nbt == dynamic.getValue() ? nbt.copy() : nbt);
             }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy())));
 
-    public static final MapCodec<Map<Identifier, NbtElement>> POLYMER_STACK_COMPONENTS_CODEC = COMPONENTS_CODEC
+    private static final MapCodec<Map<Identifier, NbtElement>> POLYMER_STACK_COMPONENTS_CODEC = COMPONENTS_CODEC
             .optionalFieldOf("components", Map.of()).fieldOf(POLYMER_STACK);
-
 
     private static final MapCodec<ItemStack> POLYMC_STACK_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMC_STACK);
     private static final MapCodec<Identifier> POLYMC_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMC_STACK);
@@ -84,7 +83,7 @@ public final class PolymerItemUtils {
      */
     public static final BooleanEvent<BiPredicate<ItemStack, PacketContext>> CONTEXT_ITEM_CHECK = new BooleanEvent<>();
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static final BooleanEvent<Predicate<ItemStack>> ITEM_CHECK = new BooleanEvent<>();
     /**
      * Allows to modify how virtual items looks before being sent to client (only if using build in methods!)

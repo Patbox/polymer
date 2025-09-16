@@ -43,7 +43,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
     default Packet<?> getPolymerHeadPacket(BlockState state, BlockPos pos, PacketContext context) {
         NbtCompound main = new NbtCompound();
         main.putString("id", "minecraft:skull");
-        main.put("profile", ProfileComponent.CODEC.encodeStart(NbtOps.INSTANCE,
+        main.put("profile", ProfileComponent.field_49359.encodeStart(NbtOps.INSTANCE,
                 PolymerUtils.createProfileComponent(getPolymerSkinValue(state, pos, context),
                         getPolymerSkinSignature(state, pos, context))).result().get());
         main.putInt("x", pos.getX());

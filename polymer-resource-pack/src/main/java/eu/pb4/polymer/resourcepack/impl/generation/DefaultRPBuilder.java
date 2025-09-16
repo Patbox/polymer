@@ -5,13 +5,13 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
+import eu.pb4.polymer.resourcepack.api.PackResource;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -38,26 +37,24 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Logger LOGGER = LoggerFactory.getLogger(DefaultRPBuilder.class);
     public static final Gson GSON = CommonImpl.GSON;
     public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
-    private final HashMap<String, byte[]> fileMap = new HashMap<>();
-    private final Path outputPath;
+    private final HashMap<String, PackResource> fileMap = new HashMap<>();
+    private final OutputGenerator outputGenerator;
     private final Set<ModContainer> modsList = new HashSet<>();
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
     private final Map<String, JsonObject> objectMergeDefinitions = new HashMap<>();
     private final List<Path> rootPaths = new ArrayList<>();
-    private final List<BiFunction<String, byte[], @Nullable byte[]>> converters = new ArrayList<>();
+    private final List<ResourceConverter> converters = new ArrayList<>();
     private final Consumer<String> status;
     private boolean hasVanilla;
     private final PackMcMeta.Builder packMetadata = new PackMcMeta.Builder();
     private final List<Consumer<ResourcePackBuilder>> preFinishTask = new ArrayList<>();
 
     public DefaultRPBuilder(Path outputPath, Consumer<String> status) {
-        this.status = status;
         try {
             Files.createDirectories(outputPath.getParent());
         } catch (Throwable e) {
             LOGGER.error("Couldn't create " + outputPath.getParent() + " directory!", e);
         }
-        this.outputPath = outputPath;
 
         try {
             if (outputPath.toFile().exists()) {
@@ -66,7 +63,12 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         } catch (Exception e) {
             LOGGER.error("Couldn't remove " + outputPath + " file!", e);
         }
-
+        this.outputGenerator = OutputGenerator.zipGenerator(outputPath);
+        this.status = status;
+    }
+    public DefaultRPBuilder(OutputGenerator generator, Consumer<String> status) {
+        this.status = status;
+        this.outputGenerator = generator;
     }
 
     private static Path getSelfPath(String path) {
@@ -74,22 +76,22 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
-    public boolean addData(String path, byte[] data) {
+    public boolean addData(String path, PackResource data) {
         try {
             if (path.endsWith(".json")) {
                 if (path.equals("pack.mcmeta")) {
-                    return this.addPackMcMeta(path, data, (x) -> {});
+                    return this.addPackMcMeta(path, data.readAllBytes(), (x) -> {});
                 }
 
                 var split = path.split("/");
 
                 if (split.length >= 3 && split[0].equals("assets")) {
                     if (split[2].equals("atlases")) {
-                        return this.addAtlasFile(path, data);
+                        return this.addAtlasFile(path, data.readAllBytes());
                     } else if (split[2].equals("lang")) {
-                        return this.addMergedObjectFile(path, data);
+                        return this.addMergedObjectFile(path, data.readAllBytes());
                     } else if (split[2].equals("sounds.json")) {
-                        return this.addMergedSoundsFile(path, data);
+                        return this.addMergedSoundsFile(path, data.readAllBytes());
                     }
                 }
             }
@@ -316,6 +318,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     @Override
     public byte[] getData(String path) {
+        return this.fileMap.containsKey(path) ? this.fileMap.get(path).readAllBytes() : null    ;
+    }
+
+    @Override
+    public @Nullable PackResource getResource(String path) {
         return this.fileMap.get(path);
     }
 
@@ -323,14 +330,14 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     @Nullable
     public byte[] getDataOrSource(String path) {
         if (this.fileMap.containsKey(path)) {
-            return this.fileMap.get(path);
+            return this.fileMap.get(path).readAllBytes();
         } else {
             return this.getSourceData(path);
         }
     }
 
     @Override
-    public void forEachFile(BiConsumer<String, byte[]> consumer) {
+    public void forEachResource(BiConsumer<String,  PackResource> consumer) {
         Map.copyOf(this.fileMap).forEach(consumer);
     }
 
@@ -347,7 +354,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
-    public void addWriteConverter(BiFunction<String, byte[], @Nullable byte[]> converter) {
+    public void addResourceConverter(ResourceConverter converter) {
         this.converters.add(converter);
     }
 
@@ -448,14 +455,14 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 for (var entry : this.atlasDefinitions.entrySet()) {
                     var obj = new JsonObject();
                     obj.add("sources", entry.getValue());
-                    this.fileMap.put(entry.getKey(), obj.toString().getBytes(StandardCharsets.UTF_8));
+                    this.fileMap.put(entry.getKey(), PackResource.of(obj.toString().getBytes(StandardCharsets.UTF_8)));
                 }
 
                 for (var entry : this.objectMergeDefinitions.entrySet()) {
-                    this.fileMap.put(entry.getKey(), entry.getValue().toString().getBytes(StandardCharsets.UTF_8));
+                    this.fileMap.put(entry.getKey(), PackResource.of(entry.getValue().toString().getBytes(StandardCharsets.UTF_8)));
                 }
 
-                this.fileMap.put(AssetPaths.PACK_METADATA, this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8));
+                this.fileMap.put(AssetPaths.PACK_METADATA, PackResource.of(this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8)));
                 status.accept("action:merge_files_end");
 
 
@@ -463,13 +470,13 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     var filePath = FabricLoader.getInstance().getGameDir().resolve("server-icon.png");
 
                     if (filePath.toFile().exists()) {
-                        this.fileMap.put(AssetPaths.PACK_ICON, Files.readAllBytes(filePath));
+                        this.fileMap.put(AssetPaths.PACK_ICON, PackResource.of(Files.readAllBytes(filePath)));
                     } else {
-                        this.fileMap.put(AssetPaths.PACK_ICON, Files.readAllBytes(getSelfPath("assets/icon.png")));
+                        this.fileMap.put(AssetPaths.PACK_ICON, PackResource.of(Files.readAllBytes(getSelfPath("assets/icon.png"))));
                     }
                 }
 
-                this.fileMap.put("polymer-credits.txt", String.join("\n", credits).getBytes(StandardCharsets.UTF_8));
+                this.fileMap.put("polymer-credits.txt", PackResource.of(String.join("\n", credits).getBytes(StandardCharsets.UTF_8)));
 
 
                 status.accept("action:pre_finish_task_start");
@@ -477,9 +484,21 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                     task.accept(this);
                 }
                 status.accept("action:pre_finish_task_end");
-                status.accept("action:write_zip_start");
-                bool &= this.writeSingleZip();
-                status.accept("action:write_zip_end");
+
+
+                status.accept("action:sort_files_start");
+                for (var path : this.fileMap.keySet().toArray(new String[0])) {
+                    var split = new ArrayList<>(List.of(path.split("/")));
+                    while (split.size() > 1) {
+                        split.removeLast();
+                        this.fileMap.put(String.join("/", split) + "/", null);
+                    }
+                }
+                var sorted = new ArrayList<>(this.fileMap.entrySet());
+                sorted.sort(Map.Entry.comparingByKey());
+                status.accept("action:sort_files_end");
+
+                bool &= this.outputGenerator.generateFile(sorted, this::convertResource, status);
 
                 return bool;
             } catch (Exception e) {
@@ -494,31 +513,40 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         return this.packMetadata;
     }
 
-    private boolean writeSingleZip() {
-        for (var path : this.fileMap.keySet().toArray(new String[0])) {
-            var split = new ArrayList<>(List.of(path.split("/")));
-            while (split.size() > 1) {
-                split.removeLast();
-                this.fileMap.put(String.join("/", split) + "/", null);
+    @Nullable
+    private PackResource convertResource(String path, PackResource resource) {
+        if (this.converters.isEmpty()) {
+            return resource;
+        }
+        for (var conv : this.converters) {
+            resource = conv.convert(path, resource   );
+            if (resource == null) {
+                return null;
             }
         }
-        var sorted = new ArrayList<>(this.fileMap.entrySet());
-        sorted.sort(Map.Entry.comparingByKey());
 
-        try (var outputStream = new ZipOutputStream(Files.newOutputStream(this.outputPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
-            for (var entry : sorted) {
+        return resource;
+    }
+
+    public interface OutputGenerator {
+        boolean generateFile(List<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status);
+
+        static OutputGenerator zipGenerator(Path out) {
+            return (a, b, c) -> writeSingleZip(out, a, b, c);
+        }
+    }
+
+    private static boolean writeSingleZip(Path out, Collection<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status) {
+        status.accept("action:write_zip_start");
+
+        try (var outputStream = new ZipOutputStream(Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
+            for (var entry : resources) {
                 var path = entry.getKey();
-                var outByte = entry.getValue();
+                var resource = entry.getValue();
 
-                if (outByte != null) {
-                    for (var conv : converters) {
-                        outByte = conv.apply(path, outByte);
-                        if (outByte == null) {
-                            break;
-                        }
-                    }
-
-                    if (outByte == null) {
+                if (resource != null) {
+                    resource = converter.convert(path, resource);
+                    if (resource == null) {
                         continue;
                     }
                 }
@@ -526,15 +554,17 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 var zipEntry = new ZipEntry(path);
                 zipEntry.setTime(0);
                 outputStream.putNextEntry(zipEntry);
-                if (outByte != null) {
-                    outputStream.write(outByte);
+                if (resource != null) {
+                    resource.getStream().transferTo(outputStream);
                 }
                 outputStream.closeEntry();
             }
         } catch (Throwable e) {
+            status.accept("action:write_zip_fail");
             LOGGER.warn("Failed to write the zip file!", e);
             return false;
         }
+        status.accept("action:write_zip_end");
         return true;
     }
 }
