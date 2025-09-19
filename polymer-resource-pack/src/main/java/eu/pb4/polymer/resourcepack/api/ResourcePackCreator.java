@@ -13,6 +13,7 @@ import net.minecraft.util.dynamic.Range;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -139,7 +140,21 @@ public final class ResourcePackCreator {
     public boolean build(Path output, Consumer<String> status) throws ExecutionException, InterruptedException {
         boolean successful = true;
 
-        var builder = new DefaultRPBuilder(output, status);
+        try {
+            Files.createDirectories(output.getParent());
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.error("Couldn't create " + output.getParent() + " directory!", e);
+        }
+
+        try {
+            if (output.toFile().exists()) {
+                Files.deleteIfExists(output );
+            }
+        } catch (Exception e) {
+            CommonImpl.LOGGER.error("Couldn't remove " + output  + " file!", e);
+        }
+
+        var builder = new DefaultRPBuilder(ResourcePackBuilder.OutputGenerator.zipGenerator(output), status);
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {

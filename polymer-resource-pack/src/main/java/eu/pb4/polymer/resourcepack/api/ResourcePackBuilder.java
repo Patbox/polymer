@@ -1,13 +1,16 @@
 package eu.pb4.polymer.resourcepack.api;
 
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
+import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -139,5 +142,13 @@ public interface ResourcePackBuilder {
     interface ResourceConverter {
         @Nullable
         PackResource convert(String path, PackResource resource);
+    }
+
+    interface OutputGenerator {
+        boolean generateFile(List<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status);
+
+        static OutputGenerator zipGenerator(Path out) {
+            return (a, b, c) -> DefaultRPBuilder.writeSingleZip(out, a, b, c);
+        }
     }
 }

@@ -48,24 +48,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     private boolean hasVanilla;
     private final PackMcMeta.Builder packMetadata = new PackMcMeta.Builder();
     private final List<Consumer<ResourcePackBuilder>> preFinishTask = new ArrayList<>();
-
-    public DefaultRPBuilder(Path outputPath, Consumer<String> status) {
-        try {
-            Files.createDirectories(outputPath.getParent());
-        } catch (Throwable e) {
-            LOGGER.error("Couldn't create " + outputPath.getParent() + " directory!", e);
-        }
-
-        try {
-            if (outputPath.toFile().exists()) {
-                Files.deleteIfExists(outputPath);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Couldn't remove " + outputPath + " file!", e);
-        }
-        this.outputGenerator = OutputGenerator.zipGenerator(outputPath);
-        this.status = status;
-    }
     public DefaultRPBuilder(OutputGenerator generator, Consumer<String> status) {
         this.status = status;
         this.outputGenerator = generator;
@@ -528,15 +510,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         return resource;
     }
 
-    public interface OutputGenerator {
-        boolean generateFile(List<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status);
-
-        static OutputGenerator zipGenerator(Path out) {
-            return (a, b, c) -> writeSingleZip(out, a, b, c);
-        }
-    }
-
-    private static boolean writeSingleZip(Path out, Collection<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status) {
+    public static boolean writeSingleZip(Path out, Collection<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status) {
         status.accept("action:write_zip_start");
 
         try (var outputStream = new ZipOutputStream(Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {

@@ -2,17 +2,14 @@ package eu.pb4.polymer.core.impl.client.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.class_12075;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EmptyEntityRenderer;
-import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.Registries;
@@ -34,13 +31,13 @@ public class NullEntityRenderer extends EmptyEntityRenderer<Entity> {
     }
 
     @Override
-    public void render(EntityRenderState renderState, MatrixStack matrices, OrderedRenderCommandQueue queue, class_12075 arg) {
-        super.render(renderState, matrices, queue, arg);
+    public void render(EntityRenderState renderState, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraRenderState) {
+        super.render(renderState, matrices, queue, cameraRenderState);
         var text = "NO RENDERER: " + Registries.ENTITY_TYPE.getId(renderState.entityType);
 
         matrices.push();
         matrices.translate(0, renderState.height / 2, 0);
-        matrices.multiply(arg.field_63081);
+        matrices.multiply(cameraRenderState.orientation);
         matrices.scale(0.025F, -0.025F, 0.025F);
         TextRenderer textRenderer = this.getTextRenderer();
         float f = (float)(-textRenderer.getWidth(text)) / 2.0F;

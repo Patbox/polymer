@@ -12,7 +12,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 public class DefaultModelData {
@@ -24,6 +27,8 @@ public class DefaultModelData {
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof Waterloggable && state.get(Properties.WATERLOGGED)));
 
     static {
+        var bools = new boolean[]{false, true};
+
         generateDefault(BlockModelType.FULL_BLOCK, Blocks.NOTE_BLOCK, Blocks.TARGET);
         generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK, NOT_WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
         generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
@@ -51,7 +56,7 @@ public class DefaultModelData {
         {
             var vines = new ReferenceArrayList<BlockState>();
 
-            for (var block : new Block[]{ Blocks.TWISTING_VINES, Blocks.WEEPING_VINES }) {
+            for (var block : new Block[]{Blocks.TWISTING_VINES, Blocks.WEEPING_VINES}) {
                 var id = Registries.BLOCK.getId(block);
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
@@ -119,7 +124,7 @@ public class DefaultModelData {
         {
             var states = new ReferenceArrayList<BlockState>();
 
-            for (var block : new Block[]{ Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE }) {
+            for (var block : new Block[]{Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE}) {
                 var defaultState = block.getDefaultState();
                 var firstState = block.getDefaultState().with(WeightedPressurePlateBlock.POWER, 1);
                 for (int i = 2; i <= 15; i++) {
@@ -132,6 +137,122 @@ public class DefaultModelData {
             }
 
             USABLE_STATES.put(BlockModelType.ACTIVE_PRESSURE_PLATE, states);
+        }
+
+        {
+            var x = new ReferenceArrayList<BlockState>();
+            var y = new ReferenceArrayList<BlockState>();
+            var z = new ReferenceArrayList<BlockState>();
+            var xw = new ReferenceArrayList<BlockState>();
+            var yw = new ReferenceArrayList<BlockState>();
+            var zw = new ReferenceArrayList<BlockState>();
+
+            var pairs = List.of(
+                    new Pair<>(Blocks.WAXED_LIGHTNING_ROD, Blocks.LIGHTNING_ROD),
+                    new Pair<>(Blocks.WAXED_EXPOSED_LIGHTNING_ROD, Blocks.EXPOSED_LIGHTNING_ROD),
+                    new Pair<>(Blocks.WAXED_WEATHERED_LIGHTNING_ROD, Blocks.WEATHERED_LIGHTNING_ROD),
+                    new Pair<>(Blocks.WAXED_OXIDIZED_LIGHTNING_ROD, Blocks.OXIDIZED_LIGHTNING_ROD)
+            );
+
+            for (var pair : pairs) {
+                for (var powered : bools) {
+                    for (var waterlogged : bools) {
+                        for (var dir : Direction.values()) {
+                            var list = switch (dir.getAxis()) {
+                                case X -> waterlogged ? xw : x;
+                                case Y -> waterlogged ? yw : y;
+                                case Z -> waterlogged ? zw : z;
+                            };
+
+                            var state = pair.getLeft().getDefaultState()
+                                    .with(LightningRodBlock.POWERED, powered)
+                                    .with(LightningRodBlock.WATERLOGGED, waterlogged)
+                                    .with(LightningRodBlock.FACING, dir);
+
+                            var base = powered ? Blocks.LIGHTNING_ROD : pair.getRight();
+
+                            list.add(state);
+                            SPECIAL_REMAPS.put(state, base.getStateWithProperties(state));
+
+                            if (powered && pair.getRight() != Blocks.LIGHTNING_ROD) {
+                                state = pair.getRight().getStateWithProperties(state);
+                                list.add(state);
+                                SPECIAL_REMAPS.put(state, base.getStateWithProperties(state));
+                            }
+                        }
+                    }
+                }
+            }
+
+            USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_X, x);
+            USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_Y, y);
+            USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_Z, z);
+            USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_X_WATERLOGGED, xw);
+            USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_Y_WATERLOGGED, yw);
+            USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_Z_WATERLOGGED, zw);
+        }
+
+        {
+            var x = new ReferenceArrayList<BlockState>();
+            var y = new ReferenceArrayList<BlockState>();
+            var z = new ReferenceArrayList<BlockState>();
+            var xw = new ReferenceArrayList<BlockState>();
+            var yw = new ReferenceArrayList<BlockState>();
+            var zw = new ReferenceArrayList<BlockState>();
+
+            for (var pair : Blocks.COPPER_CHAINS.getWaxingMap().entrySet()) {
+                for (var waterlogged : bools) {
+                    for (var dir : Direction.Axis.values()) {
+                        var list = switch (dir) {
+                            case X -> waterlogged ? xw : x;
+                            case Y -> waterlogged ? yw : y;
+                            case Z -> waterlogged ? zw : z;
+                        };
+
+                        var state = pair.getValue().getDefaultState()
+                                .with(ChainBlock.WATERLOGGED, waterlogged)
+                                .with(ChainBlock.AXIS, dir);
+
+                        list.add(state);
+                        SPECIAL_REMAPS.put(state, pair.getKey().getStateWithProperties(state));
+                    }
+
+                }
+            }
+
+            USABLE_STATES.put(BlockModelType.CHAIN_X, x);
+            USABLE_STATES.put(BlockModelType.CHAIN_Y, y);
+            USABLE_STATES.put(BlockModelType.CHAIN_Z, z);
+            USABLE_STATES.put(BlockModelType.CHAIN_X_WATERLOGGED, xw);
+            USABLE_STATES.put(BlockModelType.CHAIN_Y_WATERLOGGED, yw);
+            USABLE_STATES.put(BlockModelType.CHAIN_Z_WATERLOGGED, zw);
+        }
+
+        {
+            var r = new ReferenceArrayList<BlockState>();
+            var h = new ReferenceArrayList<BlockState>();
+            var rw = new ReferenceArrayList<BlockState>();
+            var hw = new ReferenceArrayList<BlockState>();
+
+            for (var pair : Blocks.COPPER_LANTERNS.getWaxingMap().entrySet()) {
+                for (var hanging : bools) {
+                    for (var waterlogged : bools) {
+                        var list = hanging ? (waterlogged ? hw : h) : (waterlogged ? rw : r);
+
+                        var state = pair.getValue().getDefaultState()
+                                .with(LanternBlock.WATERLOGGED, waterlogged)
+                                .with(LanternBlock.HANGING, hanging);
+
+                        list.add(state);
+                        SPECIAL_REMAPS.put(state, pair.getKey().getStateWithProperties(state));
+                    }
+                }
+            }
+
+            USABLE_STATES.put(BlockModelType.LANTERN, r);
+            USABLE_STATES.put(BlockModelType.LANTERN_HANGING, h);
+            USABLE_STATES.put(BlockModelType.LANTERN_WATERLOGGED, rw);
+            USABLE_STATES.put(BlockModelType.LANTERN_HANGING_WATERLOGGED, hw);
         }
 
         {
@@ -341,12 +462,12 @@ public class DefaultModelData {
         }
         {
             addFenceGates(Blocks.ACACIA_FENCE_GATE, Blocks.BAMBOO_FENCE_GATE, Blocks.BIRCH_FENCE_GATE,
-                Blocks.CHERRY_FENCE_GATE, Blocks.CRIMSON_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE,
-                Blocks.JUNGLE_FENCE_GATE, Blocks.MANGROVE_FENCE_GATE, Blocks.OAK_FENCE_GATE,
-                Blocks.PALE_OAK_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.WARPED_FENCE_GATE);
+                    Blocks.CHERRY_FENCE_GATE, Blocks.CRIMSON_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE,
+                    Blocks.JUNGLE_FENCE_GATE, Blocks.MANGROVE_FENCE_GATE, Blocks.OAK_FENCE_GATE,
+                    Blocks.PALE_OAK_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.WARPED_FENCE_GATE);
         }
 
-        if (false && PolymerImpl.DEV_ENV) {
+        if (false) {
             PolymerImpl.LOGGER.info("===== Available States =====");
             for (var model : BlockModelType.values()) {
                 PolymerImpl.LOGGER.info("{}: {}", model.name(), USABLE_STATES.get(model).size());
@@ -572,9 +693,9 @@ public class DefaultModelData {
 
         for (int i = 0; i <= 7; i++) {
             var state = Blocks.SCAFFOLDING.getDefaultState()
-                .with(ScaffoldingBlock.BOTTOM, bottom)
-                .with(ScaffoldingBlock.WATERLOGGED, waterlogged)
-                .with(ScaffoldingBlock.DISTANCE, i);
+                    .with(ScaffoldingBlock.BOTTOM, bottom)
+                    .with(ScaffoldingBlock.WATERLOGGED, waterlogged)
+                    .with(ScaffoldingBlock.DISTANCE, i);
 
             MODELS.put(state, model);
 
@@ -599,16 +720,17 @@ public class DefaultModelData {
             addFenceGates(base, false, false, false, BlockModelType.EAST_WEST_GATE);
         }
     }
+
     private static void addFenceGates(Block base, boolean northSouth, boolean inWall, boolean open, BlockModelType modelType) {
         var list = new ReferenceArrayList<BlockState>();
 
         var directions = northSouth ? new Direction[]{Direction.NORTH, Direction.SOUTH} : new Direction[]{Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
             var state = base.getDefaultState()
-                .with(FenceGateBlock.IN_WALL, inWall)
-                .with(FenceGateBlock.OPEN, open)
-                .with(FenceGateBlock.POWERED, true)
-                .with(FenceGateBlock.FACING, direction);
+                    .with(FenceGateBlock.IN_WALL, inWall)
+                    .with(FenceGateBlock.OPEN, open)
+                    .with(FenceGateBlock.POWERED, true)
+                    .with(FenceGateBlock.FACING, direction);
             list.add(state);
             SPECIAL_REMAPS.put(state, state.with(FenceGateBlock.POWERED, false));
         }

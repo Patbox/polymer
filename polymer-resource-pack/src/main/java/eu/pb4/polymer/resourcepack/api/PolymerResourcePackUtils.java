@@ -182,7 +182,11 @@ public final class PolymerResourcePackUtils {
     }
 
     public static ResourcePackBuilder createBuilder(Path output) {
-        return new DefaultRPBuilder(output, (s) -> {});
+        return new DefaultRPBuilder(ResourcePackBuilder.OutputGenerator.zipGenerator(output), (s) -> {});
+    }
+
+    public static ResourcePackBuilder createBuilder(ResourcePackBuilder.OutputGenerator generator   ) {
+        return new DefaultRPBuilder(generator, (s) -> {});
     }
 
     public static boolean buildMain() {
