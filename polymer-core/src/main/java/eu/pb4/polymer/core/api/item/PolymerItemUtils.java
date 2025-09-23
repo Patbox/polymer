@@ -462,7 +462,7 @@ public final class PolymerItemUtils {
             if (!out.contains(DataComponentTypes.CUSTOM_NAME)) {
                 if (
                         (item instanceof CompassItem && out.contains(DataComponentTypes.LODESTONE_TRACKER))
-                                || (item instanceof PotionItem && out.contains(DataComponentTypes.POTION_CONTENTS))
+                                || ((item instanceof PotionItem || item instanceof TippedArrowItem) && out.contains(DataComponentTypes.POTION_CONTENTS))
                                 || (item instanceof PlayerHeadItem && out.contains(DataComponentTypes.PROFILE) && Objects.requireNonNull(out.get(DataComponentTypes.PROFILE)).getName().isPresent())
 
                 ) {
