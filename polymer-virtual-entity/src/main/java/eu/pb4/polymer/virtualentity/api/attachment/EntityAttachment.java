@@ -113,7 +113,7 @@ public class EntityAttachment implements HolderAttachment {
 
     @Override
     public Vec3d getPos() {
-        return this.entity.getPos();
+        return this.entity.getEntityPos();
     }
 
     @Override

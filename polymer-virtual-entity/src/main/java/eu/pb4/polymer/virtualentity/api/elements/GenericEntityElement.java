@@ -35,6 +35,10 @@ public abstract class GenericEntityElement extends AbstractElement {
     private boolean isRotationDirty;
     private boolean sendPositionUpdates = true;
     private boolean instantPositionUpdates = false;
+    private boolean alwaysSyncAbsolutePosition = false;
+
+    private int updatesSinceLastAbsolutePositionSync = 0;
+
     protected DataTrackerLike createDataTracker() {
         return new SimpleDataTracker(this.getEntityType());
     }
@@ -64,6 +68,14 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     public boolean isSendingPositionUpdates() {
         return this.sendPositionUpdates;
+    }
+
+    public void setAlwaysSyncAbsolutePosition(boolean alwaysSyncAbsolutePosition) {
+        this.alwaysSyncAbsolutePosition = alwaysSyncAbsolutePosition;
+    }
+
+    public boolean isAlwaysSyncingAbsolutePosition() {
+        return alwaysSyncAbsolutePosition;
     }
 
     public void setPitch(float pitch) {
@@ -156,10 +168,12 @@ public abstract class GenericEntityElement extends AbstractElement {
             return;
         }
 
-        if (this.lastSyncedPos == null) {
+        if (this.lastSyncedPos == null || this.alwaysSyncAbsolutePosition || this.updatesSinceLastAbsolutePositionSync > 200) {
             packet = new EntityPositionSyncS2CPacket(this.id, new EntityPosition(pos, Vec3d.ZERO, this.yaw, this.pitch), false);
+            this.updatesSinceLastAbsolutePositionSync = 0;
         } else {
             packet = VirtualEntityUtils.createMovePacket(this.id, this.lastSyncedPos, pos, this.isRotationDirty, this.yaw, this.pitch);
+            this.updatesSinceLastAbsolutePositionSync++;
         }
 
         if (packet != null) {

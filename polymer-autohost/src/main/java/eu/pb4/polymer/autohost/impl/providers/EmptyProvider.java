@@ -5,6 +5,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
+import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -35,7 +37,11 @@ public record EmptyProvider() implements ResourcePackDataProvider {
 
     @Override
     public void serverStarted(MinecraftServer server) {
-
+        try {
+            PolymerResourcePackMod.generateAndCall(server, true, server::sendMessage, () -> {});
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
+        }
     }
 
     @Override

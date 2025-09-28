@@ -31,7 +31,7 @@ public record PolymericTrackerPacketSender(EntityTrackerEntry.TrackerPacketSende
     @Override
     public void sendToSelfAndListeners(Packet<? super ClientPlayPacketListener> packet) {
         //noinspection unchecked
-        polymerEntity.onEntityPacketSent(x -> this.tracker.sendToSelfAndListeners((Packet<? super ClientPlayPacketListener>) x), packet);
+        polymerEntity.onEntityPacketSent(x -> this.tracker.sendToSelfAndListeners((Packet<? super ClientPlayPacketListener>) EntityAttachedPacket.setIfEmpty(x, entity)), packet);
     }
 
     @Override

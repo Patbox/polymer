@@ -36,12 +36,16 @@ public class AutoHost implements ModInitializer {
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
 
     public static final String DEFAULT_PATH = AutoHostUtils.getPathFromId(AutoHostUtils.DEFAULT_PACK_ID);
+    public static boolean generateWhenDisabled = false;
 
     public static void init(MinecraftServer server) {
         var config = CommonImpl.loadConfig("auto-host", AutoHostConfig.class);
         AutoHost.config = config;
 
         if (!config.enabled) {
+            if (generateWhenDisabled) {
+                EmptyProvider.INSTANCE.serverStarted(server);
+            }
             return;
         }
 

@@ -1,7 +1,6 @@
 package eu.pb4.polymer.autohost.api;
 
 import eu.pb4.polymer.autohost.impl.AutoHost;
-import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -25,6 +24,10 @@ public class AutoHostUtils {
 
     public static String getPathFromId(Identifier id) {
         return id.getNamespace() + "/" + id.getPath();
+    }
+
+    public static void requestPackGenerationWhenDisabled() {
+        AutoHost.generateWhenDisabled = true;
     }
 
     public interface SendResourcePackCollector {
