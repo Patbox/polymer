@@ -7,3 +7,4 @@ accessible class net/minecraft/world/chunk/PalettedContainer$Data
 accessible class net/minecraft/item/ItemGroup$Entries
 accessible class net/minecraft/item/ItemGroup$StackVisibility
 accessible method net/minecraft/item/ItemGroup <init> (Lnet/minecraft/item/ItemGroup$Row;ILnet/minecraft/item/ItemGroup$Type;Lnet/minecraft/text/Text;Ljava/util/function/Supplier;Lnet/minecraft/item/ItemGroup$EntryCollector;)V
+accessible method net/minecraft/client/gui/hud/debug/DebugHudEntries register (Lnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/hud/debug/DebugHudEntry;)Lnet/minecraft/util/Identifier;

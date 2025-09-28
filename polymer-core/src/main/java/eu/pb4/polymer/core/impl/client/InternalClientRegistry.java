@@ -21,7 +21,6 @@ import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.FixedIdList;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.mixin.client.CreativeInventoryScreenAccessor;
-import eu.pb4.polymer.core.mixin.client.debug.DebugHudEntriesAccessor;
 import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 
@@ -388,9 +387,9 @@ public class InternalClientRegistry {
     }
 
     public static void register() {
-        DebugHudEntriesAccessor.callRegister(Identifier.of("polymer", "looking_at_server_block"), new LookingAtPolymerBlockDebugHudEntry());
-        DebugHudEntriesAccessor.callRegister(Identifier.of("polymer", "looking_at_server_entity"), new LookingAtPolymerEntityDebugHudEntry());
-        DebugHudEntriesAccessor.callRegister(Identifier.of("polymer", "server_info"), new PolymerInfoDebugHudEntry());
+        DebugHudEntries.register(Identifier.of("polymer", "looking_at_server_block"), new LookingAtPolymerBlockDebugHudEntry());
+        DebugHudEntries.register(Identifier.of("polymer", "looking_at_server_entity"), new LookingAtPolymerEntityDebugHudEntry());
+        DebugHudEntries.register(Identifier.of("polymer", "server_info"), new PolymerInfoDebugHudEntry());
     }
 
     public static void updateBlockStatesPaletteProvider() {

@@ -137,8 +137,7 @@
     "client.rendering.EntityRenderersMixin",
     "client.syncreg.IdListMixin",
     "client.syncreg.SimpleRegistryMixin",
-    "client.compat.fabric.fabricItem_FabricItemMixin",
-    "client.debug.DebugHudEntriesAccessor"
+    "client.compat.fabric.fabricItem_FabricItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1
