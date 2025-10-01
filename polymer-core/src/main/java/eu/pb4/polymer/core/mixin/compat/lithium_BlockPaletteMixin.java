@@ -26,7 +26,7 @@ public class lithium_BlockPaletteMixin {
     }
 
     @Environment(EnvType.CLIENT)
-    @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;get(I)Ljava/lang/Object;"), require = 0)
+    @Redirect(method = "readPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/IndexedIterable;getOrThrow(I)Ljava/lang/Object;"), require = 0)
     private Object polymer$replaceState(IndexedIterable<?> instance, int index) {
         return InternalClientRegistry.decodeRegistry(instance, index);
     }
