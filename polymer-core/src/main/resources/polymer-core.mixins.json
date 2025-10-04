@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "eu.pb4.polymer.core.mixin.PolymerMixinConfigPlugin",
   "mixins": [
+    "NbtComponentAccessor",
     "SerializedAccessor",
     "block.AbstractBlockMixin",
     "block.BlockEntityUpdateS2CPacketAccessor",
@@ -126,6 +127,7 @@
     "client.compat.rei_CreativeModeTabCollectorImplMixin",
     "client.compat.rei_ItemEntryDefinitionMixin",
     "client.compat.wthit_HarvestProviderMixin",
+    "client.compat.fabric.fabricItem_FabricItemMixin",
     "client.debug.ItemModelManagerMixin",
     "client.debug.TextRendererMixin",
     "client.entity.EntityMixin",
@@ -136,8 +138,7 @@
     "client.rendering.BlockModelsMixin",
     "client.rendering.EntityRenderersMixin",
     "client.syncreg.IdListMixin",
-    "client.syncreg.SimpleRegistryMixin",
-    "client.compat.fabric.fabricItem_FabricItemMixin"
+    "client.syncreg.SimpleRegistryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

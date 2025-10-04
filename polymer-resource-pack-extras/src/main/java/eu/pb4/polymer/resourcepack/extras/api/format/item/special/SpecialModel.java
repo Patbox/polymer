@@ -14,6 +14,7 @@ public interface SpecialModel {
         m.put(Identifier.ofVanilla("bed"), BedSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("banner"), BannerSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("conduit"), ConduitSpecialModel.CODEC);
+        m.put(Identifier.ofVanilla("copper_golem_statue"), CopperGolemStatueSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("chest"), ChestSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("head"), HeadSpecialModel.CODEC);
         m.put(Identifier.ofVanilla("player_head"), PlayerHeadSpecialModel.CODEC);

@@ -3,13 +3,12 @@ package eu.pb4.polymer.core.api.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.FunctionEvent;
+import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
@@ -17,28 +16,23 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
-import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import it.unimi.dsi.fastutil.Function;
+import eu.pb4.polymer.core.mixin.NbtComponentAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
-import net.minecraft.block.BlockState;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.*;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeRegistry;
 import net.minecraft.item.*;
-import net.minecraft.item.equipment.trim.ArmorTrim;
 import net.minecraft.item.tooltip.TooltipAppender;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -58,25 +52,15 @@ import java.util.function.Predicate;
  */
 public final class PolymerItemUtils {
     public static final String POLYMER_STACK = "$polymer:stack";
+    public static final String POLYMER_COUNTED = "$polymer:counted";
     private static final String POLYMC_STACK = "PolyMcOriginal";
-    private static final MapCodec<ItemStack> POLYMER_STACK_CODEC = ItemStack.CODEC.fieldOf(POLYMER_STACK);
-    private static final MapCodec<ItemStack> POLYMER_STACK_UNCOUNTED_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMER_STACK);
-    private static final MapCodec<Boolean> POLYMER_STACK_HAS_COUNT_CODEC = Codec.BOOL.optionalFieldOf("$polymer:counted", false);
-    private static final MapCodec<Identifier> POLYMER_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMER_STACK);
+    private static final Codec<Identifier> STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").codec();
 
     private static final Codec<Map<Identifier, NbtElement>> COMPONENTS_CODEC = Codec.unboundedMap(Identifier.CODEC,
             Codec.PASSTHROUGH.comapFlatMap((dynamic) -> {
                 var nbt = dynamic.convert(NbtOps.INSTANCE).getValue();
                 return DataResult.success(nbt == dynamic.getValue() ? nbt.copy() : nbt);
-            }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy())));
-
-    private static final MapCodec<Map<Identifier, NbtElement>> POLYMER_STACK_COMPONENTS_CODEC = COMPONENTS_CODEC
-            .optionalFieldOf("components", Map.of()).fieldOf(POLYMER_STACK);
-
-    private static final MapCodec<ItemStack> POLYMC_STACK_CODEC = ItemStack.UNCOUNTED_CODEC.fieldOf(POLYMC_STACK);
-    private static final MapCodec<Identifier> POLYMC_STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").fieldOf(POLYMC_STACK);
-    private static final MapCodec<Map<Identifier, NbtElement>> POLYMC_STACK_COMPONENTS_CODEC = COMPONENTS_CODEC.optionalFieldOf("components", Map.of()).fieldOf(POLYMC_STACK);
-
+            }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy()))).optionalFieldOf("components", Map.of()).codec();
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(Formatting.WHITE);
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
@@ -228,17 +212,16 @@ public final class PolymerItemUtils {
 
 
         if (custom != null) {
-            var val = custom.copyNbt();
+            var val = ((NbtComponentAccessor) (Object) custom).polymer$getNbtUnsafe();
 
             if (!val.contains(POLYMER_STACK)) {
                 return itemStack;
             }
 
             try {
-                var counted = val.decode(POLYMER_STACK_HAS_COUNT_CODEC).orElse(Boolean.FALSE);
+                var counted = val.getBoolean(POLYMER_COUNTED, false);
 
-                //noinspection deprecation
-                var x = (counted ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).decode(RegistryOps.of(NbtOps.INSTANCE, lookup), NbtOps.INSTANCE.getMap(val).getOrThrow()).getOrThrow();
+                var x = val.get(POLYMER_STACK, (counted ? ItemStack.CODEC : ItemStack.UNCOUNTED_CODEC), lookup.getOps(NbtOps.INSTANCE)).orElseGet(itemStack::copy);
 
                 if (!counted) {
                     x.setCount(itemStack.getCount());
@@ -265,9 +248,12 @@ public final class PolymerItemUtils {
 
     public static Identifier getPolymerIdentifier(@Nullable NbtComponent custom) {
         if (custom != null) {
-            var val = custom.copyNbt();
+            var val = ((NbtComponentAccessor) (Object) custom).polymer$getNbtUnsafe();
+            if (!val.contains(POLYMER_STACK)) {
+                return null;
+            }
             try {
-                return val.decode(POLYMER_STACK_ID_CODEC).orElse(null);
+                return val.get(POLYMER_STACK, STACK_ID_CODEC).orElse(null);
             } catch (Throwable ignored) {
 
             }
@@ -295,7 +281,11 @@ public final class PolymerItemUtils {
         }
 
         try {
-                return nbtData.copyNbt().decode(POLYMC_STACK_ID_CODEC).orElse(null);
+            //noinspection DataFlowIssue
+            var nbt = ((NbtComponentAccessor) (Object) nbtData).polymer$getNbtUnsafe();
+            if (nbt.contains(POLYMC_STACK)) {
+                return nbt.get(POLYMC_STACK, STACK_ID_CODEC).orElse(null);
+            }
         } catch (Throwable ignored) {
         }
 
@@ -323,7 +313,12 @@ public final class PolymerItemUtils {
         }
 
 
-        return nbtData.copyNbt().decode(POLYMC_STACK_COMPONENTS_CODEC).orElse(Map.of());
+        var nbt = ((NbtComponentAccessor) (Object) nbtData).polymer$getNbtUnsafe();
+        if (nbt.contains(POLYMC_STACK)) {
+            return nbt.get(POLYMC_STACK, COMPONENTS_CODEC).orElse(Map.of());
+        }
+
+        return null;
     }
 
     @Nullable
@@ -331,8 +326,12 @@ public final class PolymerItemUtils {
         if (nbtData == null || getPolymerIdentifier(nbtData) == null) {
             return null;
         }
+        var nbt = ((NbtComponentAccessor) (Object) nbtData).polymer$getNbtUnsafe();
+        if (!nbt.contains(POLYMER_STACK)) {
+            return null;
+        }
 
-        return nbtData.copyNbt().decode(POLYMER_STACK_COMPONENTS_CODEC).orElse(Map.of());
+        return nbt.get(POLYMER_STACK, COMPONENTS_CODEC).orElse(Map.of());
     }
     public static void registerOverlay(Item item, PolymerItem polymerItem) {
         PolymerItem.registerOverlay(item, polymerItem);
@@ -474,20 +473,19 @@ public final class PolymerItemUtils {
 
         try {
             out.set(DataComponentTypes.CUSTOM_DATA, PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
-                var comp = NbtComponent.of(
-                        (NbtCompound) (storeCount ? POLYMER_STACK_CODEC : POLYMER_STACK_UNCOUNTED_CODEC).encoder()
-                                .encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), itemStack).getOrThrow()
-                );
+                var nbt = new NbtCompound();
+
+                nbt.put(POLYMER_STACK, storeCount ? ItemStack.CODEC : ItemStack.OPTIONAL_CODEC, lookup.getOps(NbtOps.INSTANCE), itemStack);
+
                 if (storeCount) {
-                    var data = comp.copyNbt();
-                    data.putBoolean("$polymer:counted", true);
-                    return NbtComponent.of(data);
-                } else {
-                    return comp;
+                    nbt.putBoolean(POLYMER_COUNTED, true);
                 }
+
+                return NbtComponent.of(nbt);
             }));
         } catch (Throwable e) {
-            out.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of((NbtCompound) POLYMER_STACK_ID_CODEC.codec().encodeStart(RegistryOps.of(NbtOps.INSTANCE, lookup), Registries.ITEM.getId(itemStack.getItem())).getOrThrow()));
+            var profile = context.getGameProfile();
+            CommonImpl.LOGGER.error("Failed to encode Polymer item stack data {} for {}", itemStack, profile != null ? profile.name() : "<Unknown>");
         }
 
 
