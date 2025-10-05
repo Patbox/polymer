@@ -475,7 +475,7 @@ public final class PolymerItemUtils {
             out.set(DataComponentTypes.CUSTOM_DATA, PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
                 var nbt = new NbtCompound();
 
-                nbt.put(POLYMER_STACK, storeCount ? ItemStack.CODEC : ItemStack.OPTIONAL_CODEC, lookup.getOps(NbtOps.INSTANCE), itemStack);
+                nbt.put(POLYMER_STACK, storeCount ? ItemStack.CODEC : ItemStack.UNCOUNTED_CODEC, lookup.getOps(NbtOps.INSTANCE), itemStack);
 
                 if (storeCount) {
                     nbt.putBoolean(POLYMER_COUNTED, true);
