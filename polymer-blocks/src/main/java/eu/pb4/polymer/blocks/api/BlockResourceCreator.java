@@ -2,6 +2,8 @@ package eu.pb4.polymer.blocks.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import eu.pb4.polymer.blocks.impl.BlockExtBlockMapper;
 import eu.pb4.polymer.blocks.impl.DefaultModelData;
 import eu.pb4.polymer.blocks.impl.PolymerBlocksInternal;
@@ -15,6 +17,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.block.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -160,6 +163,7 @@ public final class BlockResourceCreator {
         }
 
         var map = new TreeMap<String, HashMap<String, JsonArray>>();
+        var bannedStates = new HashMap<String, HashMap<String, String>>();
 
         for (var blockStateEntry : this.models.entrySet()) {
             if (!this.hasRequested.contains(blockStateEntry.getKey().getBlock())) {
@@ -173,7 +177,16 @@ public final class BlockResourceCreator {
             var stateName = PolymerBlocksInternal.generateStateName(state);
             var array = PolymerBlocksInternal.createJsonElement(models);
 
-            map.computeIfAbsent("assets/" + id.getNamespace() + "/blockstates/" + id.getPath() + ".json", (s) -> new HashMap<>()).put(stateName, array);
+            var path = "assets/" + id.getNamespace() + "/blockstates/" + id.getPath() + ".json";
+            map.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, array);
+
+            var banned = bannedStates.computeIfAbsent(path, (s) -> new HashMap<>());
+            for (var prop : state.getProperties()) {
+                var name = prop.getName();
+                var current = banned.get(name) instanceof String primitive ? primitive + "|" : "";
+                //noinspection rawtypes,unchecked
+                banned.put(name, current + "!" + ((Property) prop).name(state.get(prop)));
+            }
         }
 
         for (var baseEntry : map.entrySet()) {
@@ -189,6 +202,37 @@ public final class BlockResourceCreator {
                 }
 
                 modelObject.add("variants", variants);
+
+                var vanillaData = builder.getDataOrSource(baseEntry.getKey());
+                if (vanillaData != null) {
+                    var vanillaJson = JsonParser.parseString(new String(vanillaData, StandardCharsets.UTF_8)).getAsJsonObject();
+                    if (vanillaJson.has("multipart")) {
+                        var multipart = new JsonArray();
+
+                        for (var entry : vanillaJson.get("multipart").getAsJsonArray()) {
+                            var val = entry.getAsJsonObject().deepCopy();
+                            var list = new JsonArray();
+                            if (val.has("when")) {
+                                list.add(val.get("when"));
+                            }
+                            var ban = new JsonArray();
+                            for (var t : bannedStates.get(baseEntry.getKey()).entrySet()) {
+                                var obj = new JsonObject();
+                                obj.addProperty(t.getKey(), t.getValue());
+                            }
+                            var ban2 = new JsonObject();
+                            ban2.add("AND", ban);
+                            list.add(ban2);
+
+                            var when = new JsonObject();
+                            when.add("AND", list);
+
+                            val.add("when", when);
+                            multipart.add(val);
+                        }
+                        modelObject.add("multipart", multipart);
+                    }
+                }
 
                 builder.addData(baseEntry.getKey(), DefaultRPBuilder.GSON.toJson(modelObject).getBytes(StandardCharsets.UTF_8));
             } catch (Exception e) {

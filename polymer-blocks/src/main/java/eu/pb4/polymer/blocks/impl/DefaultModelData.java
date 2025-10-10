@@ -12,10 +12,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
 
-import java.util.EnumMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class DefaultModelData {
@@ -138,6 +135,68 @@ public class DefaultModelData {
 
             USABLE_STATES.put(BlockModelType.ACTIVE_PRESSURE_PLATE, states);
         }
+
+        {
+            var r = new ReferenceArrayList<BlockState>();
+            var w = new ReferenceArrayList<BlockState>();
+
+            for (var block : new Block[]{Blocks.SOUL_CAMPFIRE}) {
+                var state = block.getDefaultState().with(CampfireBlock.LIT, false);
+                for (var dir : Direction.Type.HORIZONTAL) {
+                    for (var signal : bools) {
+                        for (var waterlogged : bools) {
+                            state = state.with(CampfireBlock.FACING, dir).with(CampfireBlock.SIGNAL_FIRE, signal).with(CampfireBlock.WATERLOGGED, waterlogged);
+                            SPECIAL_REMAPS.put(state, Blocks.CAMPFIRE.getStateWithProperties(state));
+                            (waterlogged ? w : r).add(state);
+                        }
+                    }
+                }
+            }
+
+            USABLE_STATES.put(BlockModelType.CAMPFIRE, r);
+            USABLE_STATES.put(BlockModelType.CAMPFIRE_WATERLOGGED, w);
+        }
+
+        {
+            record Bound(BlockModelType type, Direction direction, boolean waterlogged, ReferenceArrayList<BlockState> list) {}
+
+            var bounds = new ArrayList<Bound>();
+
+            for (var dir : Direction.Type.HORIZONTAL) {
+                bounds.add(new Bound(BlockModelType.valueOf(dir.name().toUpperCase(Locale.ROOT) + "_SHELF"), dir, false, new ReferenceArrayList<>()));
+                bounds.add(new Bound(BlockModelType.valueOf(dir.name().toUpperCase(Locale.ROOT) + "_SHELF_WATERLOGGED"), dir, true, new ReferenceArrayList<>()));
+            }
+
+            for (var block : List.of(
+                    Blocks.OAK_SHELF, 
+                    Blocks.SPRUCE_SHELF, 
+                    Blocks.JUNGLE_SHELF, 
+                    Blocks.ACACIA_SHELF, 
+                    Blocks.DARK_OAK_SHELF, 
+                    Blocks.MANGROVE_SHELF,
+                    Blocks.BAMBOO_SHELF,
+                    Blocks.PALE_OAK_SHELF,
+                    Blocks.CHERRY_SHELF,
+                    Blocks.WARPED_SHELF
+            )) {
+                for (var chain : SideChainPart.values()) {
+                    if (chain == SideChainPart.UNCONNECTED) {
+                        continue;
+                    }
+                    for (var bound : bounds) {
+                        var state = block.getDefaultState().with(ShelfBlock.SIDE_CHAIN, chain).with(ShelfBlock.FACING, bound.direction())
+                                .with(ShelfBlock.WATERLOGGED, bound.waterlogged()).with(ShelfBlock.POWERED, false);
+                        SPECIAL_REMAPS.put(state, state.with(ShelfBlock.SIDE_CHAIN, SideChainPart.UNCONNECTED));
+                        bound.list.add(state);
+                    }
+                }
+            }
+
+            for (var b : bounds) {
+                USABLE_STATES.put(b.type(), b.list());
+            }
+        }
+
 
         {
             var x = new ReferenceArrayList<BlockState>();
