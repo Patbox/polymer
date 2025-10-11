@@ -5,6 +5,7 @@ import com.google.common.collect.MultimapBuilder;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.datafixers.util.Either;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.ScopedOverride;
 import eu.pb4.polymer.common.impl.CommonImpl;
@@ -17,6 +18,7 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
+import eu.pb4.polymer.core.mixin.StaticAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
@@ -26,6 +28,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.player.SkinTextures;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
@@ -152,6 +155,10 @@ public final class PolymerUtils {
     public static ProfileComponent createProfileComponent(String value, @Nullable String signature) {
         var profile = new PropertyMap(ImmutableMultimap.of("textures", new Property("textures", value, signature)));
         return ProfileComponent.ofStatic(new GameProfile(Util.NIL_UUID, "", profile));
+    }
+
+    public static ProfileComponent createProfileComponent(SkinTextures.SkinOverride override) {
+        return StaticAccessor.createStatic(Either.right(ProfileComponent.Data.EMPTY), override);
     }
 
 

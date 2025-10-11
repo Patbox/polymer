@@ -22,8 +22,10 @@ import xyz.nucleoid.packettweaker.PacketContext;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -245,20 +247,34 @@ public final class PolymerResourcePackUtils {
                 }
                 var gamePath = FabricLoader.getInstance().getGameDir();
 
-                for (var field : config.includeZips) {
-                    var zipPath = gamePath.resolve(field);
-
+                Consumer<Path> zipReader = (zipPath) -> {
                     if (Files.exists(zipPath)) {
                         try (var fs = FileSystems.newFileSystem(zipPath)) {
                             for (var root : fs.getRootDirectories()) {
-                                builder.copyResourcePackFromPath(root, field);
+                                builder.copyResourcePackFromPath(root, zipPath.getFileName().toString());
                             }
                         } catch (Throwable e) {
                             e.printStackTrace();
                         }
                     }
-                }
+                };
 
+                for (var field : config.includeZips) {
+                    var parts = field.split("/");
+                    if (parts.length == 0) continue;
+
+                    if (parts[parts.length - 1].contains("*")) {
+                        var folderPath = gamePath.resolve(String.join("/", Arrays.copyOfRange(parts, 0, parts.length - 1)));
+                        if (!Files.isDirectory(folderPath)) {
+                            continue;
+                        }
+                        try (var stream = Files.newDirectoryStream(folderPath, parts[parts.length - 1])){
+                            stream.forEach(zipReader);
+                        }
+                    } else {
+                        zipReader.accept(gamePath.resolve(field));
+                    }
+                }
             } catch (Throwable e) {
                 e.printStackTrace();
             }

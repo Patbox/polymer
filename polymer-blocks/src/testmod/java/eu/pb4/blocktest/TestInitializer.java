@@ -34,6 +34,7 @@ public class TestInitializer implements ModInitializer {
         register(BlockModelType.VINES_BLOCK, "block/table");
         register(BlockModelType.BIOME_PLANT_BLOCK, "block/steel_block");
         register(BlockModelType.KELP_BLOCK, "block/titan_ore_nether");
+        registerHead(BlockModelType.HEAD, "block/table2");
 
         registerMulti(BlockModelType.CAMPFIRE,"multi_variants_base", MultiPolymerBlockModel.of()
                 .with(Identifier.ofVanilla("block/redstone_torch"))
@@ -55,6 +56,16 @@ public class TestInitializer implements ModInitializer {
         var id = Identifier.of("blocktest", modelId);
         var block = Registry.register(Registries.BLOCK, id,
                 new TestBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, modelId));
+
+        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
+                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),
+                block, modelId));
+    }
+
+    public static void registerHead(BlockModelType type, String modelId) {
+        var id = Identifier.of("blocktest", modelId);
+        var block = Registry.register(Registries.BLOCK, id,
+                new TestHeadBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, modelId));
 
         Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
                 .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),

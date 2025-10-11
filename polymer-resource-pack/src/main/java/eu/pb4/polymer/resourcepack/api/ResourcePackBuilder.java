@@ -48,7 +48,7 @@ public interface ResourcePackBuilder {
         return copyResourcePackFromPath(root, "__undefined__");
     }
 
-    default boolean copyResourcePackFromPath(Path root, String field) {
+    default boolean copyResourcePackFromPath(Path root, String sourceName) {
         try {
             {
                 var assets = root.resolve("assets");
@@ -83,7 +83,7 @@ public interface ResourcePackBuilder {
                         if (name.toLowerCase(Locale.ROOT).contains("license")
                                 || name.toLowerCase(Locale.ROOT).contains("licence")) {
                             this.addData("licenses/"
-                                    + field.replace("/", "_").replace("\\", "_") + "/" + name, PackResource.of(file));
+                                    + sourceName.replace("/", "_").replace("\\", "_") + "/" + name, PackResource.of(file));
                         }
                     } catch (Throwable ignored) {
                     }

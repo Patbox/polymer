@@ -13,6 +13,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.RotationPropertyHelper;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -157,6 +158,21 @@ public class DefaultModelData {
 
             USABLE_STATES.put(BlockModelType.CAMPFIRE, r);
             USABLE_STATES.put(BlockModelType.CAMPFIRE_WATERLOGGED, w);
+        }
+
+        {
+            var r = new ReferenceArrayList<BlockState>();
+
+            for (var block : new Block[]{Blocks.PLAYER_HEAD}) {
+                var state = block.getDefaultState().with(SkullBlock.POWERED, true);
+                for (int i = 0; i <= RotationPropertyHelper.getMax(); i++) {
+                    state = state.with(SkullBlock.ROTATION, i);
+                    SPECIAL_REMAPS.put(state, state.with(SkullBlock.POWERED, false));
+                    r.add(state);
+                }
+            }
+
+            USABLE_STATES.put(BlockModelType.HEAD, r);
         }
 
         {
