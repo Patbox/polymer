@@ -1,6 +1,7 @@
 package eu.pb4.blocktest;
 
 import eu.pb4.polymer.blocks.api.BlockModelType;
+import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
@@ -34,6 +35,17 @@ public class TestInitializer implements ModInitializer {
         register(BlockModelType.BIOME_PLANT_BLOCK, "block/steel_block");
         register(BlockModelType.KELP_BLOCK, "block/titan_ore_nether");
 
+        registerMulti(BlockModelType.CAMPFIRE,"multi_variants_base", MultiPolymerBlockModel.of()
+                .with(Identifier.ofVanilla("block/redstone_torch"))
+                .with(Identifier.ofVanilla("block/polished_tuff_slab"))
+        );
+
+        registerMulti(BlockModelType.WEST_SHELF,"multi_multi_base", MultiPolymerBlockModel.of()
+                .with(Identifier.ofVanilla("block/torch"))
+                .with(Identifier.ofVanilla("block/polished_tuff_slab"))
+        );
+
+
         for (var model : BlockModelType.values()) {
             registerEmpty(model);
         }
@@ -43,6 +55,16 @@ public class TestInitializer implements ModInitializer {
         var id = Identifier.of("blocktest", modelId);
         var block = Registry.register(Registries.BLOCK, id,
                 new TestBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, modelId));
+
+        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
+                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),
+                block, modelId));
+    }
+
+    public static void registerMulti(BlockModelType type, String modelId, MultiPolymerBlockModel model) {
+        var id = Identifier.of("blocktest", modelId);
+        var block = Registry.register(Registries.BLOCK, id,
+                new TestMultiBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, model));
 
         Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
                 .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),

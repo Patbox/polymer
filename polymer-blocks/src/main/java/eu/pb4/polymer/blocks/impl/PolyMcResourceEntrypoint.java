@@ -28,7 +28,7 @@ public class PolyMcResourceEntrypoint implements PolyMcEntrypoint {
             var clientBlockState = pack.getOrDefaultBlockState(clientBlockId.getNamespace(), clientBlockId.getPath());
 
             var stateName = PolymerBlocksInternal.generateStateName(entry.getKey());
-            var array = PolymerBlocksInternal.createJsonElement(entry.getValue());
+            var array = PolymerBlocksInternal.createJsonElement(entry.getValue().left().orElseThrow());
 
             clientBlockState.setVariant(stateName, pack.getGson().fromJson(array, JBlockStateVariant[].class));
         }

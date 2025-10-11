@@ -1,6 +1,8 @@
 package eu.pb4.polymer.blocks.impl;
 
+import com.mojang.datafixers.util.Either;
 import eu.pb4.polymer.blocks.api.BlockModelType;
+import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -18,7 +20,7 @@ import java.util.function.Predicate;
 public class DefaultModelData {
     public static final Map<BlockModelType, List<BlockState>> USABLE_STATES = new EnumMap<>(BlockModelType.class);
     public static final Map<BlockState, BlockState> SPECIAL_REMAPS = new IdentityHashMap<>();
-    public static final Map<BlockState, PolymerBlockModel[]> MODELS = new IdentityHashMap<>();
+    public static final Map<BlockState, Either<PolymerBlockModel[], MultiPolymerBlockModel>> MODELS = new IdentityHashMap<>();
 
     private static final Predicate<BlockState> WATERLOGGED_PREDICATE = (state -> state.getBlock() instanceof Waterloggable && state.get(Properties.WATERLOGGED));
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof Waterloggable && state.get(Properties.WATERLOGGED)));
@@ -36,15 +38,15 @@ public class DefaultModelData {
 
         {
             var farmland = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/farmland"))};
-            MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 1), farmland);
-            MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 7), new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/farmland_moist"))});
+            MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 1), Either.left(farmland));
+            MODELS.put(Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, 7), Either.left(new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/farmland_moist"))}));
 
 
             var list = new ReferenceArrayList<BlockState>();
             for (int i = 2; i < 7; i++) {
                 var state = Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, i);
                 list.add(state);
-                MODELS.put(state, farmland);
+                MODELS.put(state, Either.left(farmland));
             }
 
             USABLE_STATES.put(BlockModelType.FARMLAND_BLOCK, list);
@@ -57,7 +59,7 @@ public class DefaultModelData {
                 var id = Registries.BLOCK.getId(block);
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
-                    MODELS.put(state, model);
+                    MODELS.put(state, Either.left(model));
                 }
 
                 vines.addAll(block.getStateManager().getStates());
@@ -70,7 +72,7 @@ public class DefaultModelData {
                 var model2 = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath() + "_lit"))};
                 for (var state : Blocks.CAVE_VINES.getStateManager().getStates()) {
                     var berries = state.get(CaveVines.BERRIES);
-                    MODELS.put(state, berries ? model2 : model);
+                    MODELS.put(state, Either.left(berries ? model2 : model));
                     SPECIAL_REMAPS.put(state, Blocks.CAVE_VINES.getDefaultState().with(CaveVines.BERRIES, berries));
                 }
 
@@ -90,7 +92,7 @@ public class DefaultModelData {
                 var id = Registries.BLOCK.getId(Blocks.SUGAR_CANE);
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : Blocks.SUGAR_CANE.getStateManager().getStates()) {
-                    MODELS.put(state, model);
+                    MODELS.put(state, Either.left(model));
                 }
 
                 plant.addAll(Blocks.SUGAR_CANE.getStateManager().getStates());
@@ -108,7 +110,7 @@ public class DefaultModelData {
 
                 var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
                 for (var state : block.getStateManager().getStates()) {
-                    MODELS.put(state, model);
+                    MODELS.put(state, Either.left(model));
                 }
 
                 plant.addAll(block.getStateManager().getStates());
@@ -756,7 +758,7 @@ public class DefaultModelData {
                     .with(ScaffoldingBlock.WATERLOGGED, waterlogged)
                     .with(ScaffoldingBlock.DISTANCE, i);
 
-            MODELS.put(state, model);
+            MODELS.put(state, Either.left(model));
 
             if (i != 7 && !(bottom && i == 0)) {
                 list.add(state);
@@ -808,7 +810,7 @@ public class DefaultModelData {
             var id = Registries.BLOCK.getId(block);
             var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of(id.getNamespace() + ":block/" + id.getPath()))};
             for (var state : block.getStateManager().getStates()) {
-                MODELS.put(state, model);
+                MODELS.put(state, Either.left(model));
                 if (shouldInclude.test(state)) {
                     list.add(state);
                 }

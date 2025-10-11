@@ -2,7 +2,9 @@ package eu.pb4.polymer.blocks.impl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
 import eu.pb4.polymer.blocks.api.BlockModelType;
+import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
@@ -19,7 +21,7 @@ import java.util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class PolymerBlocksInternal implements ModInitializer {
-    public static Map<BlockState, PolymerBlockModel[]> modelMap = Collections.emptyMap();
+    public static Map<BlockState, Either<PolymerBlockModel[], MultiPolymerBlockModel>> modelMap = Collections.emptyMap();
 
 
 

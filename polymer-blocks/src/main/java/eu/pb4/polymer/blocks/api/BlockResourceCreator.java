@@ -3,13 +3,13 @@ package eu.pb4.polymer.blocks.api;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.mojang.datafixers.util.Either;
 import eu.pb4.polymer.blocks.impl.BlockExtBlockMapper;
 import eu.pb4.polymer.blocks.impl.DefaultModelData;
 import eu.pb4.polymer.blocks.impl.PolymerBlocksInternal;
+import eu.pb4.polymer.blocks.impl.VanillaBlockPropertiesPredicate;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.BlockMapper;
-import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
@@ -29,7 +29,7 @@ public final class BlockResourceCreator {
     private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.of("polymer", "block/empty"));
     private final Map<BlockModelType, List<BlockState>> states;
     private final Set<Block> hasRequested = Collections.newSetFromMap(new IdentityHashMap<>());
-    final Map<BlockState, PolymerBlockModel[]> models;
+    final Map<BlockState, Either<PolymerBlockModel[], MultiPolymerBlockModel>> models;
     private final ResourcePackCreator creator;
     private final Runnable onRegister;
     private final BlockExtBlockMapper blockMapper;
@@ -88,10 +88,10 @@ public final class BlockResourceCreator {
         }
 
         if (predicate != null) {
-            x = requestBlockImpl(type, predicate, true, EMPTY);
+            x = requestBlockImpl(type, predicate, true, Either.left(new PolymerBlockModel[]{EMPTY}));
         }
         if (x == null) {
-            x = requestBlockImpl(type, y -> true, true, EMPTY);
+            x = requestBlockImpl(type, y -> true, true, Either.left(new PolymerBlockModel[]{EMPTY}));
         }
         if (x == null) {
             return null;
@@ -110,10 +110,19 @@ public final class BlockResourceCreator {
     }
 
     public BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, PolymerBlockModel... model) {
-        return requestBlockImpl(type, predicate, false, model);
+        return requestBlockImpl(type, predicate, false, Either.left(model));
     }
 
-    private BlockState requestBlockImpl(BlockModelType type, Predicate<BlockState> predicate, boolean reversed, PolymerBlockModel... model) {
+    @Nullable
+    public BlockState requestBlock(BlockModelType type, MultiPolymerBlockModel model) {
+        return requestBlock(type, x -> true, model);
+    }
+
+    public BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, MultiPolymerBlockModel model) {
+        return requestBlockImpl(type, predicate, false, Either.right(model));
+    }
+
+    private BlockState requestBlockImpl(BlockModelType type, Predicate<BlockState> predicate, boolean reversed, Either<PolymerBlockModel[], MultiPolymerBlockModel> model) {
         var states = this.states.get(type);
         if (!states.isEmpty()) {
             if (reversed) {
@@ -162,8 +171,11 @@ public final class BlockResourceCreator {
             return;
         }
 
-        var map = new TreeMap<String, HashMap<String, JsonArray>>();
-        var bannedStates = new HashMap<String, HashMap<String, String>>();
+        var keys = new HashSet<Map.Entry<String, Block>>();
+
+        var variants = new HashMap<String, HashMap<String, JsonArray>>();
+        var multipart = new HashMap<String, List<JsonObject>>();
+        var bannedStates = new HashMap<String, JsonArray>();
 
         for (var blockStateEntry : this.models.entrySet()) {
             if (!this.hasRequested.contains(blockStateEntry.getKey().getBlock())) {
@@ -173,68 +185,109 @@ public final class BlockResourceCreator {
             var models = blockStateEntry.getValue();
 
             var id = Registries.BLOCK.getId(state.getBlock());
-
-            var stateName = PolymerBlocksInternal.generateStateName(state);
-            var array = PolymerBlocksInternal.createJsonElement(models);
-
             var path = "assets/" + id.getNamespace() + "/blockstates/" + id.getPath() + ".json";
-            map.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, array);
+            keys.add(Map.entry(path, state.getBlock()));
 
-            var banned = bannedStates.computeIfAbsent(path, (s) -> new HashMap<>());
+            var banned = bannedStates.computeIfAbsent(path, (s) -> new JsonArray());
+            var obj = new JsonObject();
+            var el = new JsonArray();
+            var selfMulti = new JsonObject();
+
             for (var prop : state.getProperties()) {
                 var name = prop.getName();
-                var current = banned.get(name) instanceof String primitive ? primitive + "|" : "";
+                var obj2 = new JsonObject();
                 //noinspection rawtypes,unchecked
-                banned.put(name, current + "!" + ((Property) prop).name(state.get(prop)));
+                var value = ((Property) prop).name(state.get(prop));
+                obj2.addProperty(name,  "!" + value);
+                selfMulti.addProperty(name, value);
+                el.add(obj2);
             }
+            obj.add("OR", el);
+            banned.add(obj);
+
+            if (models.left().isPresent()) {
+                var stateName = PolymerBlocksInternal.generateStateName(state);
+                var array = PolymerBlocksInternal.createJsonElement(models.left().orElseThrow());
+                variants.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, array);
+            } else {
+                for (var x : models.right().orElseThrow().models()) {
+                    var mult = new JsonObject();
+                    mult.add("when", selfMulti);
+                    mult.add("apply", PolymerBlocksInternal.createJsonElement(x));
+                    multipart.computeIfAbsent(path, (s) -> new ArrayList<>()).add(mult);
+                }
+            }
+
         }
 
-        for (var baseEntry : map.entrySet()) {
+        for (var keyVal : keys) {
+            var key = keyVal.getKey();
             try {
                 var modelObject = new JsonObject();
 
-                var variants = new JsonObject();
+                var variantsObject = new JsonObject();
+                var multipartObject = new JsonArray();
 
-                var values = new ArrayList<>(baseEntry.getValue().entrySet());
-                values.sort(Map.Entry.comparingByKey());
-                for (var entries : values) {
-                    variants.add(entries.getKey(), entries.getValue());
-                }
-
-                modelObject.add("variants", variants);
-
-                var vanillaData = builder.getDataOrSource(baseEntry.getKey());
-                if (vanillaData != null) {
-                    var vanillaJson = JsonParser.parseString(new String(vanillaData, StandardCharsets.UTF_8)).getAsJsonObject();
-                    if (vanillaJson.has("multipart")) {
-                        var multipart = new JsonArray();
-
-                        for (var entry : vanillaJson.get("multipart").getAsJsonArray()) {
-                            var val = entry.getAsJsonObject().deepCopy();
-                            var list = new JsonArray();
-                            if (val.has("when")) {
-                                list.add(val.get("when"));
-                            }
-                            var ban = new JsonArray();
-                            for (var t : bannedStates.get(baseEntry.getKey()).entrySet()) {
-                                var obj = new JsonObject();
-                                obj.addProperty(t.getKey(), t.getValue());
-                            }
-                            var ban2 = new JsonObject();
-                            ban2.add("AND", ban);
-                            list.add(ban2);
-
-                            var when = new JsonObject();
-                            when.add("AND", list);
-
-                            val.add("when", when);
-                            multipart.add(val);
-                        }
-                        modelObject.add("multipart", multipart);
+                if (variants.containsKey(key)) {
+                    var values = new ArrayList<>(variants.get(key).entrySet());
+                    values.sort(Map.Entry.comparingByKey());
+                    for (var entries : values) {
+                        variantsObject.add(entries.getKey(), entries.getValue());
                     }
                 }
 
-                builder.addData(baseEntry.getKey(), DefaultRPBuilder.GSON.toJson(modelObject).getBytes(StandardCharsets.UTF_8));
+
+                if (multipart.containsKey(key)) {
+                    multipart.get(key).forEach(multipartObject::add);
+
+                    var vanillaData = builder.getDataOrSource(key);
+                    if (vanillaData != null) {
+                        var vanillaJson = JsonParser.parseString(new String(vanillaData, StandardCharsets.UTF_8)).getAsJsonObject();
+                        if (vanillaJson.has("variants")) {
+                            var values = new ArrayList<>(vanillaJson.get("variants").getAsJsonObject().entrySet());
+                            values.sort(Map.Entry.comparingByKey());
+                            for (var entries : values) {
+                                var predicate = VanillaBlockPropertiesPredicate.parse(keyVal.getValue().getStateManager(), entries.getKey());
+
+                                for (var state : keyVal.getValue().getStateManager().getStates()) {
+                                    if (predicate.test(state) && !this.models.containsKey(state)) {
+                                        variantsObject.add(PolymerBlocksInternal.generateStateName(state), entries.getValue());
+                                    }
+                                }
+                            }
+                        }
+                        if (vanillaJson.has("multipart")) {
+                            for (var entry : vanillaJson.get("multipart").getAsJsonArray()) {
+                                var val = entry.getAsJsonObject().deepCopy();
+                                var list = new JsonArray();
+                                if (val.has("when")) {
+                                    list.add(val.get("when"));
+                                }
+
+                                var ban2 = new JsonObject();
+                                ban2.add("AND", bannedStates.get(key));
+                                list.add(ban2);
+
+                                var when = new JsonObject();
+                                when.add("AND", list);
+
+                                val.add("when", when);
+                                multipartObject.add(val);
+                            }
+                        }
+                    }
+                }
+
+
+                if (!variantsObject.isEmpty()) {
+                    modelObject.add("variants", variantsObject);
+                }
+
+                if (!multipartObject.isEmpty()) {
+                    modelObject.add("multipart", multipartObject);
+                }
+
+                builder.addData(key, DefaultRPBuilder.GSON.toJson(modelObject).getBytes(StandardCharsets.UTF_8));
             } catch (Exception e) {
                 PolymerImpl.LOGGER.warn("Exception occurred while building block model!", e);
             }

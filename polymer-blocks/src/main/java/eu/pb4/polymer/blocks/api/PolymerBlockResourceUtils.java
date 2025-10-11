@@ -39,6 +39,14 @@ public final class PolymerBlockResourceUtils {
         return CREATOR.requestBlock(type, model);
     }
 
+    @Nullable
+    public static synchronized BlockState requestBlock(BlockModelType type, MultiPolymerBlockModel model) {
+        if (CREATOR.getBlocksLeft(type) <= 1) {
+            return null;
+        }
+        return CREATOR.requestBlock(type, model);
+    }
+
     public static synchronized int getBlocksLeft(BlockModelType type) {
         return Math.max(CREATOR.getBlocksLeft(type) - 1, 0);
     }
