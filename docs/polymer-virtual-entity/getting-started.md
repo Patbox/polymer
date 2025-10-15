@@ -15,6 +15,6 @@ dependencies {
 }
 ```
 
-For `[TAG]`/polymer-blocks version I recommend you checking [this maven](https://maven.nucleoid.xyz/eu/pb4/polymer-virtual-entity/).
+For `[TAG]`/polymer-virtual-entity version I recommend you checking [this maven](https://maven.nucleoid.xyz/eu/pb4/polymer-virtual-entity/).
 
 Latest version: ![version](https://img.shields.io/maven-metadata/v?color=%23579B67&label=&metadataUrl=https://maven.nucleoid.xyz/eu/pb4/polymer-networking/maven-metadata.xml)
