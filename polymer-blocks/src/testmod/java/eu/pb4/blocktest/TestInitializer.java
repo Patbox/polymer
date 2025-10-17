@@ -5,6 +5,7 @@ import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
@@ -17,6 +18,7 @@ import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Locale;
+import java.util.function.BiFunction;
 
 public class TestInitializer implements ModInitializer {
     //public static final PolymerItemGroupUtils ITEM_GROUP = PolymerItemGroupUtils.create(Identifier.of("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
@@ -34,7 +36,8 @@ public class TestInitializer implements ModInitializer {
         register(BlockModelType.VINES_BLOCK, "block/table");
         register(BlockModelType.BIOME_PLANT_BLOCK, "block/steel_block");
         register(BlockModelType.KELP_BLOCK, "block/titan_ore_nether");
-        registerHead(BlockModelType.HEAD, "block/table2");
+        registerCustom("block/table2", (s, id) -> new TestHeadBlock(s, BlockModelType.HEAD, id));
+        registerCustom("block/oak_fence", (s, id) -> new TestBarsBlock(s));
 
         registerMulti(BlockModelType.CAMPFIRE,"multi_variants_base", MultiPolymerBlockModel.of()
                 .with(Identifier.ofVanilla("block/redstone_torch"))
@@ -50,6 +53,31 @@ public class TestInitializer implements ModInitializer {
         for (var model : BlockModelType.values()) {
             registerEmpty(model);
         }
+
+
+        /*var str = new StringBuilder();
+        for (int i = 0; i < 32; i++) {
+            str.append("BARS");
+
+            var noDirs = true;
+            for (var dir : Direction.Type.HORIZONTAL) {
+               if (((i >> (dir.getIndex() - 1)) & 1) == 1) {
+                    noDirs = false;
+                    str.append("_").append(dir.name().toUpperCase(Locale.ROOT));
+               }
+            }
+            if (noDirs) {
+                str.append("_CENTER");
+            }
+
+
+            if ((i & 1) == 1) {
+                str.append("_WATERLOGGED");
+            }
+
+            str.append(",\n");
+        }
+        System.out.println(str);*/
     }
 
     public static void register(BlockModelType type, String modelId) {
@@ -62,14 +90,14 @@ public class TestInitializer implements ModInitializer {
                 block, modelId));
     }
 
-    public static void registerHead(BlockModelType type, String modelId) {
-        var id = Identifier.of("blocktest", modelId);
+    public static void registerCustom(String baseId, BiFunction<AbstractBlock.Settings, String, Block> func) {
+        var id = Identifier.of("blocktest", baseId);
         var block = Registry.register(Registries.BLOCK, id,
-                new TestHeadBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, modelId));
+               func.apply(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), baseId));
 
         Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
                 .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),
-                block, modelId));
+                block, baseId));
     }
 
     public static void registerMulti(BlockModelType type, String modelId, MultiPolymerBlockModel model) {

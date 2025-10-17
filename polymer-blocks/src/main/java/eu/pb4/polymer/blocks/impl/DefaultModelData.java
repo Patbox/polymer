@@ -9,7 +9,9 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.*;
 import net.minecraft.registry.Registries;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
@@ -163,7 +165,7 @@ public class DefaultModelData {
         {
             var r = new ReferenceArrayList<BlockState>();
 
-            for (var block : new Block[]{Blocks.PLAYER_HEAD}) {
+            for (var block : new Block[]{ Blocks.PLAYER_HEAD }) {
                 var state = block.getDefaultState().with(SkullBlock.POWERED, true);
                 for (int i = 0; i <= RotationPropertyHelper.getMax(); i++) {
                     state = state.with(SkullBlock.ROTATION, i);
@@ -181,8 +183,8 @@ public class DefaultModelData {
             var bounds = new ArrayList<Bound>();
 
             for (var dir : Direction.Type.HORIZONTAL) {
-                bounds.add(new Bound(BlockModelType.valueOf(dir.name().toUpperCase(Locale.ROOT) + "_SHELF"), dir, false, new ReferenceArrayList<>()));
-                bounds.add(new Bound(BlockModelType.valueOf(dir.name().toUpperCase(Locale.ROOT) + "_SHELF_WATERLOGGED"), dir, true, new ReferenceArrayList<>()));
+                bounds.add(new Bound(BlockModelType.getShelf(dir, false), dir, false, new ReferenceArrayList<>()));
+                bounds.add(new Bound(BlockModelType.getShelf(dir, true), dir, true, new ReferenceArrayList<>()));
             }
 
             for (var block : List.of(
@@ -303,6 +305,43 @@ public class DefaultModelData {
             USABLE_STATES.put(BlockModelType.CHAIN_X_WATERLOGGED, xw);
             USABLE_STATES.put(BlockModelType.CHAIN_Y_WATERLOGGED, yw);
             USABLE_STATES.put(BlockModelType.CHAIN_Z_WATERLOGGED, zw);
+        }
+
+        {
+            record Bound(BlockModelType type, List<BooleanProperty> properties, ReferenceArrayList<BlockState> list) {}
+            var bounds = new ArrayList<Bound>();
+
+            var properties = new BooleanProperty[] {
+                    PaneBlock.WATERLOGGED,
+                    PaneBlock.NORTH,
+                    PaneBlock.SOUTH,
+                    PaneBlock.WEST,
+                    PaneBlock.EAST,
+            };
+
+            for (var i = 0; i < 32; i++) {
+                var b = new Bound(BlockModelType.values()[BlockModelType.BARS_CENTER.ordinal() + i], new ArrayList<>(), new ReferenceArrayList<>());
+                USABLE_STATES.put(b.type(), b.list());
+
+                for (int a = 0; a < properties.length; a++) {
+                    if (((i >> a) & 1) == 1) {
+                        b.properties.add(properties[a]);
+                    }
+                }
+
+                bounds.add(b);
+            }
+
+            for (var pair : Blocks.COPPER_BARS.getWaxingMap().entrySet()) {
+                for (var b : bounds) {
+                    var state = pair.getValue().getDefaultState();
+                    for (var p : b.properties) {
+                        state = state.with(p, true);
+                    }
+                    b.list.add(state);
+                    SPECIAL_REMAPS.put(state, pair.getKey().getStateWithProperties(state));
+                }
+            }
         }
 
         {

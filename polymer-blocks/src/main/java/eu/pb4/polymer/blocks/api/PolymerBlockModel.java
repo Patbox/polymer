@@ -18,4 +18,8 @@ public record PolymerBlockModel(Identifier model, int x, int y, boolean uvLock, 
     public static PolymerBlockModel of(Identifier model, int x, int y, boolean uvLock, int weight) {
         return new PolymerBlockModel(model, x, y, uvLock, weight);
     }
+
+    public static PolymerBlockModel of(Identifier model, int x, int y, boolean uvLock) {
+        return new PolymerBlockModel(model, x, y, uvLock, 1);
+    }
 }
