@@ -140,6 +140,8 @@ public interface ResourcePackBuilder {
     }
 
     interface ResourceConverter {
+        ResourceConverter NO_OP = (a, b) -> b;
+
         @Nullable
         PackResource convert(String path, PackResource resource);
     }

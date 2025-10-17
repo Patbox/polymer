@@ -46,9 +46,15 @@ public class AutoHostConfig {
     public String _c12 = "Default body text before status is ready (or when it's disabled).";
     @SerializedName("dialog_default_body")
     public JsonElement dialogDefaultBody = new JsonPrimitive("Waiting...");
+    public String _c17 = "Text below name with some extra informations about resource pack generation";
+    @SerializedName("dialog_body_header")
+    public JsonElement dialogHeader = new JsonPrimitive("This server requires a resource pack, which hasn't finished generating yet...\nIt might take a moment for it to finish!");
     public String _c13 = "Enables displaying internal resource pack generation status.";
     @SerializedName("dialog_show_status")
     public boolean dialogShowStatus = true;
+    public String _c18 = "Enables displaying 'dots' indicating that work is being done!";
+    @SerializedName("dialog_show_dots")
+    public boolean dialogShowDots = true;
     public String _c14 = "Clears all client-side resourcepacks before sending Autohost handled ones.";
     @SerializedName("clear_all_client_resource_packs")
     public boolean clearResourcePacks = false;

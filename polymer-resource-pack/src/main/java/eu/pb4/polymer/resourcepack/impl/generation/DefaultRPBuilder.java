@@ -480,7 +480,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 sorted.sort(Map.Entry.comparingByKey());
                 status.accept("action:sort_files_end");
 
-                bool &= this.outputGenerator.generateFile(sorted, this::convertResource, status);
+                bool &= this.outputGenerator.generateFile(sorted, this.converters.isEmpty() ? ResourceConverter.NO_OP : this::convertResource, status);
 
                 return bool;
             } catch (Exception e) {
@@ -497,11 +497,8 @@ public class DefaultRPBuilder implements InternalRPBuilder {
 
     @Nullable
     private PackResource convertResource(String path, PackResource resource) {
-        if (this.converters.isEmpty()) {
-            return resource;
-        }
         for (var conv : this.converters) {
-            resource = conv.convert(path, resource   );
+            resource = conv.convert(path, resource);
             if (resource == null) {
                 return null;
             }

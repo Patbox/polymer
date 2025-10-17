@@ -66,6 +66,7 @@ dependencies {
     modCompileOnly /*modLocalRuntime*/("dev.emi:emi-fabric:1.1.6+1.20.6"){
         exclude(group: "net.fabricmc.fabric-api")
     }
+    //modCompileOnly "maven.modrinth:eiv:3.0.3+1.21.8"
 
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
     //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")

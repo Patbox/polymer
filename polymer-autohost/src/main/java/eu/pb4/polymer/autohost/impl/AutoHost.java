@@ -33,6 +33,7 @@ public class AutoHost implements ModInitializer {
     public static Text disconnectMessage = Text.empty();
     public static Text dialogTitle = Text.empty();
     public static Text dialogDefaultBody = Text.empty();
+    public static Text dialogHeader = Text.empty();
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
 
     public static final String DEFAULT_PATH = AutoHostUtils.getPathFromId(AutoHostUtils.DEFAULT_PACK_ID);
@@ -72,6 +73,13 @@ public class AutoHost implements ModInitializer {
         } catch (Exception e) {
             AutoHost.dialogDefaultBody = Text.literal("Waiting...");
         }
+
+        try {
+            AutoHost.dialogHeader = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogHeader).getOrThrow().getFirst();
+        } catch (Exception e) {
+            AutoHost.dialogHeader = Text.literal("This server requires a resource pack, which hasn't finished generating yet...\nIt might take a moment for it to finish!");
+        }
+
 
         var type = TYPES.get(Identifier.tryParse(config.type));
 
