@@ -32,6 +32,45 @@ public class DefaultModelData {
         var bools = new boolean[]{false, true};
 
         generateDefault(BlockModelType.FULL_BLOCK, Blocks.NOTE_BLOCK, Blocks.TARGET);
+        {
+            var list = USABLE_STATES.get(BlockModelType.FULL_BLOCK);
+
+            for (var pair : List.of(Blocks.BEEHIVE, Blocks.BEE_NEST)) {
+                for (var dir : Direction.Type.HORIZONTAL) {
+                    var base = pair.getDefaultState().with(BeehiveBlock.FACING, dir);
+                    for (int lvl = 1; lvl < 5; lvl++) {
+                        var state = base.with(BeehiveBlock.HONEY_LEVEL, lvl);
+                        list.add(state);
+                        SPECIAL_REMAPS.put(state, base);
+                    }
+                }
+            }
+
+            for (var pair : List.of(Blocks.DISPENSER, Blocks.DROPPER)) {
+                for (var dir : Direction.values()) {
+                    var base = pair.getDefaultState().with(DispenserBlock.FACING, dir);
+                    var state = base.with(DispenserBlock.TRIGGERED, true);
+                    list.add(state);
+                    SPECIAL_REMAPS.put(state, base);
+
+                }
+            }
+
+            for (var pair : List.of(
+                    new Pair<>(Blocks.INFESTED_STONE, Blocks.STONE),
+                    new Pair<>(Blocks.INFESTED_COBBLESTONE, Blocks.COBBLESTONE),
+                    new Pair<>(Blocks.INFESTED_STONE_BRICKS, Blocks.STONE_BRICKS),
+                    new Pair<>(Blocks.INFESTED_MOSSY_STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS),
+                    new Pair<>(Blocks.INFESTED_CRACKED_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS),
+                    new Pair<>(Blocks.INFESTED_CHISELED_STONE_BRICKS, Blocks.CHISELED_STONE_BRICKS),
+                    new Pair<>(Blocks.INFESTED_DEEPSLATE, Blocks.CHISELED_DEEPSLATE)
+            )) {
+                for (var state : pair.getLeft().getStateManager().getStates()) {
+                    list.add(state);
+                    SPECIAL_REMAPS.put(state, pair.getRight().getStateWithProperties(state));
+                }
+            }
+        }
         generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK, NOT_WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
         generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
         generateDefault(BlockModelType.TRANSPARENT_BLOCK, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
@@ -434,10 +473,10 @@ public class DefaultModelData {
                     new Pair<>(Blocks.WEATHERED_CUT_COPPER_SLAB, Blocks.WEATHERED_CUT_COPPER),
                     new Pair<>(Blocks.EXPOSED_CUT_COPPER_SLAB, Blocks.EXPOSED_CUT_COPPER),
                     new Pair<>(Blocks.CUT_COPPER_SLAB, Blocks.CUT_COPPER),
-                    new Pair<>(Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, Blocks.WAXED_OXIDIZED_CUT_COPPER),
-                    new Pair<>(Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, Blocks.WAXED_WEATHERED_CUT_COPPER),
-                    new Pair<>(Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, Blocks.WAXED_EXPOSED_CUT_COPPER),
-                    new Pair<>(Blocks.WAXED_CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, Blocks.OXIDIZED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, Blocks.WEATHERED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, Blocks.EXPOSED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_CUT_COPPER_SLAB, Blocks.CUT_COPPER),
                     new Pair<>(Blocks.COBBLED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE),
                     new Pair<>(Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.POLISHED_DEEPSLATE),
                     new Pair<>(Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES),

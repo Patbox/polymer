@@ -11,7 +11,15 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.BlockState;
+import net.minecraft.dialog.AfterAction;
+import net.minecraft.dialog.DialogActionButtonData;
+import net.minecraft.dialog.DialogButtonData;
+import net.minecraft.dialog.DialogCommonData;
+import net.minecraft.dialog.body.PlainMessageDialogBody;
+import net.minecraft.dialog.type.NoticeDialog;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -67,13 +75,29 @@ public class PolymerBlocksInternal implements ModInitializer {
         CommonImplUtils.registerCommands(c -> c.then(literal("blocks_module_state_report")
                 .requires(CommonImplUtils.permission("blocks_module_state_report", 3))
                 .executes(ctx -> {
-                    ctx.getSource().sendMessage(Text.literal("States of blockstates provided by polymer-blocks module:"));
                     if (CompatStatus.POLYMC) {
                         ctx.getSource().sendMessage(Text.literal("PolyMc is present! Values provided here won't reflect it's state here! Use /polymc command instead!").formatted(Formatting.RED));
                     }
+                    if (ctx.getSource().getPlayer() != null) {
+                        var text = Text.empty();
+                        for (var type : BlockModelType.values()) {
+                            text.append("- " + type + " -> " + PolymerBlockResourceUtils.getBlocksLeft(type) + " / " + DefaultModelData.USABLE_STATES.get(type).size() + "\n");
+                        }
+                        ctx.getSource().getPlayerOrThrow().openDialog(RegistryEntry.of(new NoticeDialog(new DialogCommonData(
+                                Text.literal("States of blockstates provided by polymer-blocks module"),
+                                Optional.empty(),
+                                true,
+                                 true,
+                                AfterAction.CLOSE,
+                                List.of(new PlainMessageDialogBody(text, 300)),
+                                List.of()
+                        ), new DialogActionButtonData(new DialogButtonData(ScreenTexts.OK, DialogButtonData.DEFAULT_WIDTH), Optional.empty()))));
+                    } else {
+                        ctx.getSource().sendMessage(Text.literal("States of blockstates provided by polymer-blocks module:"));
 
-                    for (var type : BlockModelType.values()) {
-                        ctx.getSource().sendMessage(Text.literal("- " + type + " -> " + PolymerBlockResourceUtils.getBlocksLeft(type) + " / " + DefaultModelData.USABLE_STATES.get(type).size()));
+                        for (var type : BlockModelType.values()) {
+                            ctx.getSource().sendMessage(Text.literal("- " + type + " -> " + PolymerBlockResourceUtils.getBlocksLeft(type) + " / " + DefaultModelData.USABLE_STATES.get(type).size()));
+                        }
                     }
 
                     return 0;
