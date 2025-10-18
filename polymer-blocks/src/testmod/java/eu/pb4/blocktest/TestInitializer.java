@@ -8,6 +8,8 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.block.enums.StairShape;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -15,6 +17,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Locale;
@@ -76,6 +79,29 @@ public class TestInitializer implements ModInitializer {
             }
 
             str.append(",\n");
+        }
+        System.out.println(str);*/
+
+        /*var str = new StringBuilder();
+        var bools = new boolean[] { false, true };
+        for (var dir : Direction.Type.HORIZONTAL) {
+            for (var half : BlockHalf.values()) {
+                for (var shape : StairShape.values()) {
+                    for (var waterlogged : bools) {
+                        var self = new StringBuilder();
+                        self.append("STAIRS_").append(dir.name())
+                                .append("_").append(half.name())
+                                .append("_").append(shape.name());
+
+
+                        if (waterlogged) {
+                            self.append("_WATERLOGGED");
+                        }
+                        str.append(self);
+                        str.append(",\n");
+                    }
+                }
+            }
         }
         System.out.println(str);*/
     }

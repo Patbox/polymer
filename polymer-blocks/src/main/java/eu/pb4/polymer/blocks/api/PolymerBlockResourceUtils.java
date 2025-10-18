@@ -17,7 +17,7 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel model) {
-        if (CREATOR.getBlocksLeft(type) <= 1) {
+        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
             return null;
         }
         return CREATOR.requestBlock(type, model);
@@ -33,7 +33,7 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
-        if (CREATOR.getBlocksLeft(type) <= 1) {
+        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
             return null;
         }
         return CREATOR.requestBlock(type, model);
@@ -41,13 +41,17 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, MultiPolymerBlockModel model) {
-        if (CREATOR.getBlocksLeft(type) <= 1) {
+        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
             return null;
         }
         return CREATOR.requestBlock(type, model);
     }
 
     public static synchronized int getBlocksLeft(BlockModelType type) {
+        if (CREATOR.hasRequestedEmpty(type)) {
+            return CREATOR.getBlocksLeft(type);
+        }
+
         return Math.max(CREATOR.getBlocksLeft(type) - 1, 0);
     }
 

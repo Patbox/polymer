@@ -1,8 +1,12 @@
 package eu.pb4.polymer.blocks.api;
 
+import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.block.enums.SlabType;
+import net.minecraft.block.enums.StairShape;
 import net.minecraft.util.math.Direction;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 public enum BlockModelType {
@@ -17,20 +21,24 @@ public enum BlockModelType {
     BIOME_PLANT_BLOCK,
     KELP_BLOCK,
     CACTUS_BLOCK,
-    SCULK_SENSOR_BLOCK,
-    SCULK_SENSOR_BLOCK_WATERLOGGED,
-    ACTIVE_SCULK_SENSOR_BLOCK,
-    ACTIVE_SCULK_SENSOR_BLOCK_WATERLOGGED,
     TRIPWIRE_BLOCK,
     TRIPWIRE_BLOCK_FLAT,
     ACTIVE_PRESSURE_PLATE,
     HEAD,
+    // Sculk
+    SCULK_SENSOR_BLOCK,
+    SCULK_SENSOR_BLOCK_WATERLOGGED,
+    ACTIVE_SCULK_SENSOR_BLOCK,
+    ACTIVE_SCULK_SENSOR_BLOCK_WATERLOGGED,
+    // Slab
     TOP_SLAB,
     TOP_SLAB_WATERLOGGED,
     BOTTOM_SLAB,
     BOTTOM_SLAB_WATERLOGGED,
+    // Campfire
     CAMPFIRE,
     CAMPFIRE_WATERLOGGED,
+    // Trapdoor
     TOP_TRAPDOOR,
     BOTTOM_TRAPDOOR,
     NORTH_TRAPDOOR,
@@ -43,26 +51,31 @@ public enum BlockModelType {
     EAST_TRAPDOOR_WATERLOGGED,
     SOUTH_TRAPDOOR_WATERLOGGED,
     WEST_TRAPDOOR_WATERLOGGED,
+    // Lightning rod
     LIGHTNING_ROD_X,
     LIGHTNING_ROD_Y,
     LIGHTNING_ROD_Z,
     LIGHTNING_ROD_X_WATERLOGGED,
     LIGHTNING_ROD_Y_WATERLOGGED,
     LIGHTNING_ROD_Z_WATERLOGGED,
+    // Chain
     CHAIN_X,
     CHAIN_Y,
     CHAIN_Z,
     CHAIN_X_WATERLOGGED,
     CHAIN_Y_WATERLOGGED,
     CHAIN_Z_WATERLOGGED,
+    // Lantern
     LANTERN,
     LANTERN_HANGING,
     LANTERN_WATERLOGGED,
     LANTERN_HANGING_WATERLOGGED,
+    // Door
     NORTH_DOOR,
     EAST_DOOR,
     SOUTH_DOOR,
     WEST_DOOR,
+    // Shelf
     NORTH_SHELF,
     EAST_SHELF,
     SOUTH_SHELF,
@@ -71,10 +84,12 @@ public enum BlockModelType {
     EAST_SHELF_WATERLOGGED,
     SOUTH_SHELF_WATERLOGGED,
     WEST_SHELF_WATERLOGGED,
+    // Scaffolding
     TOP_SCAFFOLDING,
     BOTTOM_SCAFFOLDING,
     TOP_SCAFFOLDING_WATERLOGGED,
     BOTTOM_SCAFFOLDING_WATERLOGGED,
+    // Gate
     NORTH_SOUTH_INWALL_GATE,
     NORTH_SOUTH_INWALL_OPEN_GATE,
     NORTH_SOUTH_GATE,
@@ -83,7 +98,7 @@ public enum BlockModelType {
     EAST_WEST_INWALL_OPEN_GATE,
     EAST_WEST_GATE,
     EAST_WEST_OPEN_GATE,
-
+    // Bars
     BARS_CENTER,
     BARS_CENTER_WATERLOGGED,
     BARS_NORTH,
@@ -116,6 +131,87 @@ public enum BlockModelType {
     BARS_EAST_SOUTH_WEST_WATERLOGGED,
     BARS_NORTH_EAST_SOUTH_WEST,
     BARS_NORTH_EAST_SOUTH_WEST_WATERLOGGED,
+    // Stairs
+    STAIRS_NORTH_TOP_STRAIGHT,
+    STAIRS_NORTH_TOP_STRAIGHT_WATERLOGGED,
+    STAIRS_NORTH_TOP_INNER_LEFT,
+    STAIRS_NORTH_TOP_INNER_LEFT_WATERLOGGED,
+    STAIRS_NORTH_TOP_INNER_RIGHT,
+    STAIRS_NORTH_TOP_INNER_RIGHT_WATERLOGGED,
+    STAIRS_NORTH_TOP_OUTER_LEFT,
+    STAIRS_NORTH_TOP_OUTER_LEFT_WATERLOGGED,
+    STAIRS_NORTH_TOP_OUTER_RIGHT,
+    STAIRS_NORTH_TOP_OUTER_RIGHT_WATERLOGGED,
+    STAIRS_NORTH_BOTTOM_STRAIGHT,
+    STAIRS_NORTH_BOTTOM_STRAIGHT_WATERLOGGED,
+    STAIRS_NORTH_BOTTOM_INNER_LEFT,
+    STAIRS_NORTH_BOTTOM_INNER_LEFT_WATERLOGGED,
+    STAIRS_NORTH_BOTTOM_INNER_RIGHT,
+    STAIRS_NORTH_BOTTOM_INNER_RIGHT_WATERLOGGED,
+    STAIRS_NORTH_BOTTOM_OUTER_LEFT,
+    STAIRS_NORTH_BOTTOM_OUTER_LEFT_WATERLOGGED,
+    STAIRS_NORTH_BOTTOM_OUTER_RIGHT,
+    STAIRS_NORTH_BOTTOM_OUTER_RIGHT_WATERLOGGED,
+    STAIRS_EAST_TOP_STRAIGHT,
+    STAIRS_EAST_TOP_STRAIGHT_WATERLOGGED,
+    STAIRS_EAST_TOP_INNER_LEFT,
+    STAIRS_EAST_TOP_INNER_LEFT_WATERLOGGED,
+    STAIRS_EAST_TOP_INNER_RIGHT,
+    STAIRS_EAST_TOP_INNER_RIGHT_WATERLOGGED,
+    STAIRS_EAST_TOP_OUTER_LEFT,
+    STAIRS_EAST_TOP_OUTER_LEFT_WATERLOGGED,
+    STAIRS_EAST_TOP_OUTER_RIGHT,
+    STAIRS_EAST_TOP_OUTER_RIGHT_WATERLOGGED,
+    STAIRS_EAST_BOTTOM_STRAIGHT,
+    STAIRS_EAST_BOTTOM_STRAIGHT_WATERLOGGED,
+    STAIRS_EAST_BOTTOM_INNER_LEFT,
+    STAIRS_EAST_BOTTOM_INNER_LEFT_WATERLOGGED,
+    STAIRS_EAST_BOTTOM_INNER_RIGHT,
+    STAIRS_EAST_BOTTOM_INNER_RIGHT_WATERLOGGED,
+    STAIRS_EAST_BOTTOM_OUTER_LEFT,
+    STAIRS_EAST_BOTTOM_OUTER_LEFT_WATERLOGGED,
+    STAIRS_EAST_BOTTOM_OUTER_RIGHT,
+    STAIRS_EAST_BOTTOM_OUTER_RIGHT_WATERLOGGED,
+    STAIRS_SOUTH_TOP_STRAIGHT,
+    STAIRS_SOUTH_TOP_STRAIGHT_WATERLOGGED,
+    STAIRS_SOUTH_TOP_INNER_LEFT,
+    STAIRS_SOUTH_TOP_INNER_LEFT_WATERLOGGED,
+    STAIRS_SOUTH_TOP_INNER_RIGHT,
+    STAIRS_SOUTH_TOP_INNER_RIGHT_WATERLOGGED,
+    STAIRS_SOUTH_TOP_OUTER_LEFT,
+    STAIRS_SOUTH_TOP_OUTER_LEFT_WATERLOGGED,
+    STAIRS_SOUTH_TOP_OUTER_RIGHT,
+    STAIRS_SOUTH_TOP_OUTER_RIGHT_WATERLOGGED,
+    STAIRS_SOUTH_BOTTOM_STRAIGHT,
+    STAIRS_SOUTH_BOTTOM_STRAIGHT_WATERLOGGED,
+    STAIRS_SOUTH_BOTTOM_INNER_LEFT,
+    STAIRS_SOUTH_BOTTOM_INNER_LEFT_WATERLOGGED,
+    STAIRS_SOUTH_BOTTOM_INNER_RIGHT,
+    STAIRS_SOUTH_BOTTOM_INNER_RIGHT_WATERLOGGED,
+    STAIRS_SOUTH_BOTTOM_OUTER_LEFT,
+    STAIRS_SOUTH_BOTTOM_OUTER_LEFT_WATERLOGGED,
+    STAIRS_SOUTH_BOTTOM_OUTER_RIGHT,
+    STAIRS_SOUTH_BOTTOM_OUTER_RIGHT_WATERLOGGED,
+    STAIRS_WEST_TOP_STRAIGHT,
+    STAIRS_WEST_TOP_STRAIGHT_WATERLOGGED,
+    STAIRS_WEST_TOP_INNER_LEFT,
+    STAIRS_WEST_TOP_INNER_LEFT_WATERLOGGED,
+    STAIRS_WEST_TOP_INNER_RIGHT,
+    STAIRS_WEST_TOP_INNER_RIGHT_WATERLOGGED,
+    STAIRS_WEST_TOP_OUTER_LEFT,
+    STAIRS_WEST_TOP_OUTER_LEFT_WATERLOGGED,
+    STAIRS_WEST_TOP_OUTER_RIGHT,
+    STAIRS_WEST_TOP_OUTER_RIGHT_WATERLOGGED,
+    STAIRS_WEST_BOTTOM_STRAIGHT,
+    STAIRS_WEST_BOTTOM_STRAIGHT_WATERLOGGED,
+    STAIRS_WEST_BOTTOM_INNER_LEFT,
+    STAIRS_WEST_BOTTOM_INNER_LEFT_WATERLOGGED,
+    STAIRS_WEST_BOTTOM_INNER_RIGHT,
+    STAIRS_WEST_BOTTOM_INNER_RIGHT_WATERLOGGED,
+    STAIRS_WEST_BOTTOM_OUTER_LEFT,
+    STAIRS_WEST_BOTTOM_OUTER_LEFT_WATERLOGGED,
+    STAIRS_WEST_BOTTOM_OUTER_RIGHT,
+    STAIRS_WEST_BOTTOM_OUTER_RIGHT_WATERLOGGED,
     ;
 
 
@@ -125,10 +221,17 @@ public enum BlockModelType {
                 : (waterlogged ? ACTIVE_SCULK_SENSOR_BLOCK_WATERLOGGED : ACTIVE_SCULK_SENSOR_BLOCK);
     }
 
-    public static BlockModelType getSlab(boolean top, boolean waterlogged) {
-        return top
-                ? (waterlogged ? TOP_SLAB_WATERLOGGED : TOP_SLAB)
-                : (waterlogged ? BOTTOM_SLAB_WATERLOGGED : BOTTOM_SLAB);
+    public static BlockModelType getSlab(SlabType type, boolean waterlogged) {
+        if (type == SlabType.DOUBLE) {
+            return FULL_BLOCK;
+        }
+        return getSlab(type == SlabType.BOTTOM, waterlogged);
+    }
+
+    public static BlockModelType getSlab(boolean bottom, boolean waterlogged) {
+        return bottom
+                ? (waterlogged ? BOTTOM_SLAB_WATERLOGGED : BOTTOM_SLAB)
+                : (waterlogged ? TOP_SLAB_WATERLOGGED : TOP_SLAB);
     }
 
     public static BlockModelType getTrapdoor(Direction direction, boolean waterlogged) {
@@ -220,10 +323,10 @@ public enum BlockModelType {
         };
     }
 
-    public static BlockModelType getScaffolding(boolean top, boolean waterlogged) {
-        return top
-                ? (waterlogged ? TOP_SCAFFOLDING_WATERLOGGED : TOP_SCAFFOLDING)
-                : (waterlogged ? BOTTOM_SCAFFOLDING_WATERLOGGED : BOTTOM_SCAFFOLDING);
+    public static BlockModelType getScaffolding(boolean bottom, boolean waterlogged) {
+        return bottom
+                ? (waterlogged ? BOTTOM_SCAFFOLDING_WATERLOGGED : BOTTOM_SCAFFOLDING)
+                : (waterlogged ? TOP_SCAFFOLDING_WATERLOGGED : TOP_SCAFFOLDING);
     }
 
     public static BlockModelType getGate(Direction.Axis axis, boolean inwall, boolean open) {
@@ -272,5 +375,33 @@ public enum BlockModelType {
         }
 
         return BlockModelType.values()[BARS_CENTER.ordinal() + id];
+    }
+
+    public static BlockModelType getBars(boolean waterlogged, boolean north, boolean south, boolean west, boolean east) {
+        var set = EnumSet.noneOf(Direction.class);
+        if (north) set.add(Direction.NORTH);
+        if (south) set.add(Direction.SOUTH);
+        if (west) set.add(Direction.WEST);
+        if (east) set.add(Direction.EAST);
+        return getBars(waterlogged, set);
+    }
+
+    public static BlockModelType getStairs(Direction direction, BlockHalf blockHalf, StairShape shape, boolean waterlogged) {
+        if (direction.getAxis().isVertical()) {
+            throw new IllegalArgumentException("Only horizontal directions are supported!");
+        }
+
+        var self = new StringBuilder();
+        self.append("STAIRS_").append(direction.name())
+                .append("_").append(blockHalf.name())
+                .append("_").append(shape.name());
+
+
+        if (waterlogged) {
+            self.append("_WATERLOGGED");
+        }
+
+        // Bit ugly, but works
+        return BlockModelType.valueOf(self.toString());
     }
 }

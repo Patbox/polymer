@@ -165,6 +165,10 @@ public final class BlockResourceCreator {
         return this.states.get(type).size();
     }
 
+    public boolean hasRequestedEmpty(BlockModelType type) {
+        return this.emptyBlocks.containsKey(type);
+    }
+
     private void generateResources(DefaultRPBuilder builder, List<String> credits) {
         if (CompatStatus.POLYMC && this == PolymerBlockResourceUtils.CREATOR) {
             // PolyMC's generation is better, so just leave it for now...

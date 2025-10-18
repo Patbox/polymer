@@ -52,7 +52,17 @@ public class DefaultModelData {
                     var state = base.with(DispenserBlock.TRIGGERED, true);
                     list.add(state);
                     SPECIAL_REMAPS.put(state, base);
+                }
+            }
 
+            for (var pair : List.of(Blocks.CREAKING_HEART)) {
+                for (var dir : Direction.Axis.values()) {
+                    for (var active : CreakingHeartState.values()) {
+                        var base = pair.getDefaultState().with(CreakingHeartBlock.AXIS, dir).with(CreakingHeartBlock.ACTIVE, active);
+                        var state = base.with(CreakingHeartBlock.NATURAL, true);
+                        list.add(state);
+                        SPECIAL_REMAPS.put(state, base);
+                    }
                 }
             }
 
@@ -63,7 +73,15 @@ public class DefaultModelData {
                     new Pair<>(Blocks.INFESTED_MOSSY_STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS),
                     new Pair<>(Blocks.INFESTED_CRACKED_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS),
                     new Pair<>(Blocks.INFESTED_CHISELED_STONE_BRICKS, Blocks.CHISELED_STONE_BRICKS),
-                    new Pair<>(Blocks.INFESTED_DEEPSLATE, Blocks.CHISELED_DEEPSLATE)
+                    new Pair<>(Blocks.INFESTED_DEEPSLATE, Blocks.CHISELED_DEEPSLATE),
+                    new Pair<>(Blocks.WAXED_COPPER_BLOCK, Blocks.COPPER_BLOCK),
+                    new Pair<>(Blocks.WAXED_EXPOSED_COPPER, Blocks.EXPOSED_COPPER),
+                    new Pair<>(Blocks.WAXED_WEATHERED_COPPER, Blocks.WEATHERED_COPPER),
+                    new Pair<>(Blocks.WAXED_OXIDIZED_COPPER, Blocks.OXIDIZED_COPPER),
+                    new Pair<>(Blocks.WAXED_CUT_COPPER, Blocks.CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_EXPOSED_CUT_COPPER, Blocks.EXPOSED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_WEATHERED_CUT_COPPER, Blocks.WEATHERED_CUT_COPPER),
+                    new Pair<>(Blocks.WAXED_OXIDIZED_CUT_COPPER, Blocks.OXIDIZED_CUT_COPPER)
             )) {
                 for (var state : pair.getLeft().getStateManager().getStates()) {
                     list.add(state);
@@ -214,6 +232,41 @@ public class DefaultModelData {
             }
 
             USABLE_STATES.put(BlockModelType.HEAD, r);
+        }
+
+        {
+            record Bound(BlockModelType type, Direction direction, BlockHalf blockHalf, StairShape shape, boolean waterlogged, ReferenceArrayList<BlockState> list) { }
+
+            var bounds = new ArrayList<Bound>();
+
+            for (var dir : Direction.Type.HORIZONTAL) {
+                for (var half : BlockHalf.values()) {
+                    for (var shape : StairShape.values()) {
+                        for (var waterlogged : bools) {
+                            var b = new Bound(BlockModelType.getStairs(dir, half, shape, waterlogged), dir, half, shape, waterlogged, new ReferenceArrayList<>());
+                            bounds.add(b);
+                            USABLE_STATES.put(b.type, b.list);
+                        }
+                    }
+                }
+            }
+
+            for (var block : List.of(
+                    new Pair<>(Blocks.WAXED_CUT_COPPER_STAIRS, Blocks.CUT_COPPER_STAIRS),
+                    new Pair<>(Blocks.WAXED_EXPOSED_CUT_COPPER_STAIRS, Blocks.EXPOSED_CUT_COPPER_STAIRS),
+                    new Pair<>(Blocks.WAXED_WEATHERED_CUT_COPPER_STAIRS, Blocks.WEATHERED_CUT_COPPER_STAIRS),
+                    new Pair<>(Blocks.WAXED_OXIDIZED_CUT_COPPER_STAIRS, Blocks.OXIDIZED_CUT_COPPER_STAIRS)
+            )) {
+                for (var bound : bounds) {
+                    var state = block.getLeft().getDefaultState()
+                            .with(StairsBlock.FACING, bound.direction)
+                            .with(StairsBlock.HALF, bound.blockHalf)
+                            .with(StairsBlock.SHAPE, bound.shape)
+                            .with(StairsBlock.WATERLOGGED, bound.waterlogged());
+                    SPECIAL_REMAPS.put(state, block.getRight().getStateWithProperties(state));
+                    bound.list.add(state);
+                }
+            }
         }
 
         {
