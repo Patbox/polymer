@@ -1,5 +1,7 @@
 # Mods using Polymer
 A list of server-side Fabric or Quilt mods using Polymer, ordered alphabetically.  
+This list is incomplete and might contain outdated informattion!
+Alternatively you can also check this Modrinth Collection: https://modrinth.com/collection/hvT46U6D
 *Some mods work best with Polymer's auto-generated resource pack: `/polymer generate-packs`*
 
 
