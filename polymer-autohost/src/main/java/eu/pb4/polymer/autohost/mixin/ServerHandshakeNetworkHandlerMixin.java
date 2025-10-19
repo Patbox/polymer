@@ -1,5 +1,7 @@
 package eu.pb4.polymer.autohost.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.autohost.impl.ClientConnectionExt;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
@@ -15,6 +17,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerHandshakeNetworkHandler.class)
 public class ServerHandshakeNetworkHandlerMixin {
     @Shadow @Final private ClientConnection connection;
+
+    @ModifyExpressionValue(method = "onHandshake", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;acceptsStatusQuery()Z"))
+    private boolean delayOnlineStatusForAutohost(boolean original) {
+        if (AutoHost.config.delayPlayerListMotd && AutoHost.config.enabled && !AutoHost.provider.isReady()) {
+            return false;
+        }
+        return original;
+    }
 
     @Inject(method = "login", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;transitionInbound(Lnet/minecraft/network/state/NetworkState;Lnet/minecraft/network/listener/PacketListener;)V"))
     private void storeConnectionData(HandshakeC2SPacket packet, boolean transfer, CallbackInfo ci) {

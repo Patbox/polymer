@@ -479,6 +479,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 var sorted = new ArrayList<>(this.fileMap.entrySet());
                 sorted.sort(Map.Entry.comparingByKey());
                 status.accept("action:sort_files_end");
+                //Thread.sleep(100000);
 
                 bool &= this.outputGenerator.generateFile(sorted, this.converters.isEmpty() ? ResourceConverter.NO_OP : this::convertResource, status);
 

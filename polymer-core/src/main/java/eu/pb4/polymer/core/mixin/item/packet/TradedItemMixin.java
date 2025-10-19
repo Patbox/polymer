@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.item.packet;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.networking.TransformingPacketCodec;
 import eu.pb4.polymer.core.impl.other.ComponentChangesMap;
@@ -21,9 +22,12 @@ public class TradedItemMixin {
             var stack = PolymerItemUtils.getPolymerItemStack(input, PacketContext.get());
             return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentMapPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
         }, (buf, tradedItem) -> {
-            var input = tradedItem.itemStack();
-            var stack = PolymerItemUtils.getRealItemStack(input, buf.getRegistryManager());
-            return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentMapPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
+            if (PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
+                var input = tradedItem.itemStack();
+                var stack = PolymerItemUtils.getRealItemStack(input, buf.getRegistryManager());
+                return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentMapPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
+            }
+            return tradedItem;
         });
     }
 }

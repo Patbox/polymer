@@ -22,7 +22,7 @@ public class PolymerServerProtocolHandler {
 
         ServerMetadataKeys.setup();
         S2CPackets.SYNC_BLOCK.getNamespace();
-        C2SPackets.WORLD_PICK_BLOCK.getNamespace();
+        C2SPackets.CHANGE_TOOLTIP.getNamespace();
     }
 
     private static void handleTooltipChange(MinecraftServer server, ServerPlayNetworkHandler handler, PolymerChangeTooltipC2SPayload payload) {

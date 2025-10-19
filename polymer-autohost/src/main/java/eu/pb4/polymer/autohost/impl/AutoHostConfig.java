@@ -46,9 +46,9 @@ public class AutoHostConfig {
     public String _c12 = "Default body text before status is ready (or when it's disabled).";
     @SerializedName("dialog_default_body")
     public JsonElement dialogDefaultBody = new JsonPrimitive("Waiting...");
-    public String _c17 = "Text below name with some extra informations about resource pack generation";
+    public String _c17 = "Text below name with some extra information about resource pack generation";
     @SerializedName("dialog_body_header")
-    public JsonElement dialogHeader = new JsonPrimitive("This server requires a resource pack, which hasn't finished generating yet...\nIt might take a moment for it to finish!");
+    public JsonElement dialogHeader = new JsonPrimitive("This server requires a resource pack, which hasn't finished generating yet...\nIt might take a while for it to finish!");
     public String _c13 = "Enables displaying internal resource pack generation status.";
     @SerializedName("dialog_show_status")
     public boolean dialogShowStatus = true;
@@ -64,6 +64,10 @@ public class AutoHostConfig {
     public String _c16 = "Value of Cache-Control max age header";
     @SerializedName("cache_control_max_age")
     public int cacheControlAge = 31536000;
+
+    public String _c19 = "Delays server from showing as online on player list until resource pack is generated.";
+    @SerializedName("delay_player_list_motd_until_generated")
+    public boolean delayPlayerListMotd = false;
 
     public static class ExternalResourcePack {
         public UUID id;

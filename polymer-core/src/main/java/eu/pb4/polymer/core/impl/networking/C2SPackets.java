@@ -11,8 +11,6 @@ import net.minecraft.util.Identifier;
 import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
 
 public class C2SPackets {
-    public static final Identifier WORLD_PICK_BLOCK = id("world/pick_block");
-    public static final Identifier WORLD_PICK_ENTITY = id("world/pick_entity");
     public static final Identifier CHANGE_TOOLTIP = id("other/change_tooltip");
 
     public static <T extends CustomPayload> void register(Identifier id, PacketCodec<ContextByteBuf, T> codec, int... ver) {

@@ -44,7 +44,7 @@ public class S2CPackets {
     public static final Identifier DEBUG_VALIDATE_STATES = id("debug/validate_states");
 
     public static <T extends CustomPayload> void register(Identifier id, PacketCodec<ContextByteBuf, T> codec, int... ver) {
-        PolymerNetworking.registerS2CVersioned(id, IntList.of(ver), codec);
+        PolymerNetworking.registerS2CVersioned(id, IntList.of(ver), PayloadUtil.protocolSecured(codec));
     }
 
     public static <T extends CustomPayload> void register(Identifier id, Supplier<T> t, int... ver) {
@@ -53,7 +53,7 @@ public class S2CPackets {
 
     public static <T> CustomPayload.Id<PolymerGenericListPayload<T>> registerList(Identifier id, PacketCodec<ContextByteBuf, T> entry, int... ver) {
         var ide = new CustomPayload.Id<PolymerGenericListPayload<T>>(id);
-        PolymerNetworking.registerS2CVersioned(ide, IntList.of(ver), PolymerGenericListPayload.codec(ide, entry));
+        PolymerNetworking.registerS2CVersioned(ide, IntList.of(ver), PayloadUtil.protocolSecured(PolymerGenericListPayload.codec(ide, entry)));
         return ide;
     }
 

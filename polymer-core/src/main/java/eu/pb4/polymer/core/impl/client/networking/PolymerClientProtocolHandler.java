@@ -15,6 +15,7 @@ import eu.pb4.polymer.core.impl.networking.S2CPackets;
 import eu.pb4.polymer.core.impl.networking.entry.*;
 import eu.pb4.polymer.core.impl.networking.entry.DebugBlockStateEntry;
 import eu.pb4.polymer.core.impl.networking.payloads.PolymerGenericListPayload;
+import eu.pb4.polymer.core.impl.networking.payloads.PolymerNoOpPayload;
 import eu.pb4.polymer.core.impl.networking.payloads.s2c.*;
 import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
@@ -61,6 +62,7 @@ public class PolymerClientProtocolHandler {
     private static long syncStarted = -1;
 
     public static void register() {
+        registerCommonHandler(PolymerNoOpPayload.class, (client, handler, packet) -> {});
         registerPlayHandler(PolymerBlockUpdateS2CPayload.class, PolymerClientProtocolHandler::handleSetBlock);
         registerPlayHandler(PolymerSectionUpdateS2CPayload.class, PolymerClientProtocolHandler::handleWorldSectionUpdate);
         registerPlayHandler(PolymerEntityS2CPayload.class, PolymerClientProtocolHandler::handleEntity);

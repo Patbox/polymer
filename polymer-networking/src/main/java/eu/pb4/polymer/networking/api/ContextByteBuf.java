@@ -1,7 +1,6 @@
 package eu.pb4.polymer.networking.api;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
 import eu.pb4.polymer.networking.impl.NetworkHandlerExtension;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.ClientConnection;

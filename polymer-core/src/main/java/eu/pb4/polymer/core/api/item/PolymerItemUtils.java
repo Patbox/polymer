@@ -525,8 +525,6 @@ public final class PolymerItemUtils {
             if (PolymerImpl.LOG_MORE_ERRORS) {
                 PolymerImpl.LOGGER.error("Failed to get tooltip of " + itemStack, e);
             }
-            out.set(DataComponentTypes.ITEM_NAME, itemStack.getOrDefault(DataComponentTypes.ITEM_NAME,
-                    itemStack.getItem().getName(itemStack)));
         }
         return ITEM_MODIFICATION_EVENT.invoke((col) -> {
             var custom = out;

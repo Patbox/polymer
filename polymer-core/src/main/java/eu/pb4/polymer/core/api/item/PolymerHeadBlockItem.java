@@ -38,13 +38,15 @@ public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
         return null;
     }
 
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
-        ItemStack out = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
-
+    @Override
+    public void modifyBasePolymerItemStack(ItemStack out, ItemStack stack, PacketContext context) {
         out.set(DataComponentTypes.PROFILE, PolymerUtils.createProfileComponent(
                 this.polymerBlock.getPolymerSkinValue(this.getBlock().getDefaultState(), BlockPos.ORIGIN, context),
                 this.polymerBlock.getPolymerSkinSignature(this.getBlock().getDefaultState(), BlockPos.ORIGIN, context)
         ));
-        return out;
+    }
+
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+        return PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
     }
 }
