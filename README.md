@@ -1,5 +1,5 @@
 # Polymer
-It's a library for creating server side content, that work for player's without mods or (required) resource packs!
+It's a library for creating server side content, that work for players without mods or (required) resource packs!
 You can create blocks, items and entities, that not only will work fully server side (and singleplayer), but also
 are still real custom ones, allowing for better integration with data packs and other mods (servers still see it as 
 `mymod:custom` and not `minecraft:player_head`, unlike bukkit/spigot ones, that only emulate them).
