@@ -539,4 +539,34 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         status.accept("action:write_zip_end");
         return true;
     }
+
+    public static boolean writeFolder(Path out, Collection<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status) {
+        status.accept("action:write_folder_start");
+
+        try {
+            for (var entry : resources) {
+                var path = entry.getKey();
+                var resource = entry.getValue();
+                if (resource == null) {
+                    continue;
+                }
+
+                resource = converter.convert(path, resource);
+                if (resource == null) {
+                    continue;
+                }
+                var finalPath = out.resolve(entry.getKey());
+                Files.createDirectories(finalPath.getParent());
+                try (var stream = Files.newOutputStream(finalPath, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
+                    resource.getStream().transferTo(stream);
+                }
+            }
+        } catch (Throwable e) {
+            status.accept("action:write_folder_fail");
+            LOGGER.warn("Failed to write the file!", e);
+            return false;
+        }
+        status.accept("action:write_folder_end");
+        return true;
+    }
 }

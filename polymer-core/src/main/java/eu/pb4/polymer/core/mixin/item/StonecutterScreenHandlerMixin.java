@@ -56,7 +56,7 @@ public abstract class StonecutterScreenHandlerMixin extends ScreenHandler {
         } else {
             var list = new ArrayList<CuttingRecipeDisplay.GroupEntry<StonecuttingRecipe>>();
 
-            var clientItem = Ingredient.ofItem(PolymerItemUtils.getClientItemStack(stack, PacketContext.create(this.player)).getItem());
+            var clientItem = Ingredient.ofItem(stack.getItem());
 
             for (var x : this.availableRecipes.entries()) {
                 list.add(new CuttingRecipeDisplay.GroupEntry<>(clientItem, x.recipe()));

@@ -152,5 +152,9 @@ public interface ResourcePackBuilder {
         static OutputGenerator zipGenerator(Path out) {
             return (a, b, c) -> DefaultRPBuilder.writeSingleZip(out, a, b, c);
         }
+
+        static OutputGenerator folder(Path out) {
+            return (a, b, c) -> DefaultRPBuilder.writeFolder(out, a, b, c);
+        }
     }
 }

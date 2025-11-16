@@ -29,10 +29,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.component.ComponentType;
@@ -85,6 +87,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static net.minecraft.server.command.CommandManager.literal;
@@ -306,6 +309,15 @@ public class TestMod implements ModInitializer {
         registerItem(Identifier.of("bugged", "wooden_sword"), BuggedItem::new);
 
         PolymerItemUtils.enableStonecutterFix();
+
+        RegistryEntryAddedCallback.allEntries(Registries.RECIPE_SERIALIZER, new Consumer<RegistryEntry.Reference<RecipeSerializer<?>>>() {
+            @Override
+            public void accept(RegistryEntry.Reference<RecipeSerializer<?>> ref) {
+                if (ref.getKey().orElseThrow().getValue().getNamespace().equals("minecraft")) {
+                    RecipeSynchronization.synchronizeRecipeSerializer(ref.value());
+                }
+            }
+        });
 
         register(Registries.DIALOG_TYPE, Identifier.of("test", "dialog"), TestDialog.CODEC);
 

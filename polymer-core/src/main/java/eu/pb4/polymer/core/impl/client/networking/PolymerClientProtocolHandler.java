@@ -144,6 +144,7 @@ public class PolymerClientProtocolHandler {
         PolymerClientNetworking.BEFORE_METADATA_SYNC.register(() -> {
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.ADVANCED_TOOLTIP, NbtByte.of(MinecraftClient.getInstance().options.advancedItemTooltips));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.of(MathHelper.ceilLog2(Block.STATE_IDS.size())));
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.EXTENDED_RECIPE_INGREDIENTS, NbtByte.of(PolymerImpl.EXTENDED_RECIPE_INGREDIENTS));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.of(SharedConstants.getProtocolVersion()));
         });
     }
