@@ -757,7 +757,7 @@ public class DefaultModelData {
     }
 
     private static void addTrapdoorHalf(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
-        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
+        var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
         list.add(addSingleClosedTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSingleClosedTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSingleClosedTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
@@ -782,12 +782,10 @@ public class DefaultModelData {
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
 
         list.add(addSinglePoweredClosedTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
-
-        DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
     private static void addTrapdoorDirection(Direction facing, BlockHalf half, boolean waterlogged, BlockModelType modelType) {
-        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
+        var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
 
         list.add(addSingleOpenTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
         list.add(addSingleOpenTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
@@ -813,8 +811,6 @@ public class DefaultModelData {
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
 
         list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
-
-        DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
     private static BlockState addSingleOpenTrapdoor(Block block, Block replacement, Direction facing, BlockHalf half, boolean waterlogged) {
@@ -846,7 +842,7 @@ public class DefaultModelData {
     }
 
     private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
-        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
+        var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
 
         addSlab(slabType, waterlogged, Blocks.CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER_SLAB, list);
         addSlab(slabType, waterlogged, Blocks.EXPOSED_CUT_COPPER_SLAB, Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, list);
@@ -854,8 +850,6 @@ public class DefaultModelData {
         addSlab(slabType, waterlogged, Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, list);
 
         addSlab(slabType, waterlogged, Blocks.OAK_SLAB, Blocks.PETRIFIED_OAK_SLAB, list);
-
-        DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
     private static void addSlab(SlabType slabType, boolean waterlogged, Block to, Block from, List<BlockState> list) {
@@ -865,7 +859,7 @@ public class DefaultModelData {
     }
 
     private static void addDisarmedTripwire(boolean attached, BlockModelType modelType) {
-        ReferenceArrayList<BlockState> list = new ReferenceArrayList<>();
+        var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
         // generate all permutations of north, south, east, west, powered
         {
             var base = Blocks.TRIPWIRE.getDefaultState().with(TripwireBlock.DISARMED, true);
@@ -890,14 +884,12 @@ public class DefaultModelData {
                 }
             }
         }
-
-        DefaultModelData.USABLE_STATES.put(modelType, list);
     }
 
     private static void addScaffolding(boolean bottom, boolean waterlogged, BlockModelType modelType) {
 
         var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.of("minecraft:block/scaffolding_" + (bottom ? "unstable" : "stable")))};
-        var list = new ReferenceArrayList<BlockState>();
+        var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
 
         for (int i = 0; i <= 7; i++) {
             var state = Blocks.SCAFFOLDING.getDefaultState()
@@ -912,8 +904,6 @@ public class DefaultModelData {
                 SPECIAL_REMAPS.put(state, state.with(ScaffoldingBlock.DISTANCE, 7));
             }
         }
-
-        USABLE_STATES.put(modelType, list);
     }
 
     private static void addFenceGates(Block... blocks) {
@@ -930,7 +920,7 @@ public class DefaultModelData {
     }
 
     private static void addFenceGates(Block base, boolean northSouth, boolean inWall, boolean open, BlockModelType modelType) {
-        var list = new ReferenceArrayList<BlockState>();
+        var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
 
         var directions = northSouth ? new Direction[]{Direction.NORTH, Direction.SOUTH} : new Direction[]{Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
@@ -942,8 +932,6 @@ public class DefaultModelData {
             list.add(state);
             SPECIAL_REMAPS.put(state, state.with(FenceGateBlock.POWERED, false));
         }
-
-        USABLE_STATES.put(modelType, list);
     }
 
     private static void generateDefault(BlockModelType type, Block... blocks) {
@@ -951,7 +939,7 @@ public class DefaultModelData {
     }
 
     private static void generateDefault(BlockModelType type, Predicate<BlockState> shouldInclude, Block... blocks) {
-        var list = new ReferenceArrayList<BlockState>();
+        var list = USABLE_STATES.computeIfAbsent(type, x -> new ReferenceArrayList<>());
 
         for (var block : blocks) {
             var id = Registries.BLOCK.getId(block);
@@ -970,7 +958,5 @@ public class DefaultModelData {
                 list.remove(block.getDefaultState());
             }
         }
-
-        USABLE_STATES.put(type, list);
     }
 }
