@@ -12,6 +12,7 @@
     "EntityAccessor",
     "EntityMixin",
     "ItemDisplayEntityAccessor",
+    "LeashableMixin",
     "OctavePerlinNoiseSamplerMixin",
     "PlayerEntityMixin",
     "RedstoneLampMixin",

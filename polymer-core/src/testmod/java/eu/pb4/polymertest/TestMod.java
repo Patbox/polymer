@@ -29,12 +29,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -70,6 +72,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradedItem;
 import net.minecraft.village.VillagerProfession;
@@ -369,6 +372,8 @@ public class TestMod implements ModInitializer {
             }
         });
 
+        PolymerEntityUtils.POLYMER_ENTITY_INTERACTION_CHECK.register((player, hand, stack, world, entity, actionResult) -> entity instanceof ServerPlayerEntity && stack.isOf(Items.LEAD));
+
         FabricDefaultAttributeRegistry.register(OVERLAY_ENTITY, IronGolemEntity.createIronGolemAttributes());
 
         Registry.register(Registries.STATUS_EFFECT, Identifier.of("test", "effect"), STATUS_EFFECT);
@@ -382,6 +387,16 @@ public class TestMod implements ModInitializer {
         for (var i = 0; i < 1600; i++) {
             registerBlock(Identifier.of("test", "filler_" + i), TestBlock::new);
         }
+
+        var instaMine = registerBlock(Identifier.of("test", "insta_mine"), AbstractBlock.Settings.create().strength(0).breakInstantly(), (s) -> new SimplePolymerBlock(s, Blocks.TINTED_GLASS));
+        registerItem(Identifier.of("test", "insta_mine"), s -> new PolymerBlockItem(instaMine, s));
+        PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
+            if (state.isOf(instaMine)) {
+                player.sendMessage(Text.literal("Broke instabrek"), false);
+                return false;
+            }
+            return true;
+        });
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             var t = registerBlock(Identifier.of("test", "server_block"), AbstractBlock.Settings.copy(Blocks.OBSIDIAN), (s) -> new SimplePolymerBlock(s, Blocks.TINTED_GLASS));

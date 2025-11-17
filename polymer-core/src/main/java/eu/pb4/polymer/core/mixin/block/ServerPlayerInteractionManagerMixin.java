@@ -136,6 +136,12 @@ public abstract class ServerPlayerInteractionManagerMixin {
     private void polymer$clearBreakingTime(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         this.polymer$currentBreakingProgress = 0;
     }
+
+    @Inject(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerInteractionManager;finishMining(Lnet/minecraft/util/math/BlockPos;ILjava/lang/String;)V", ordinal = 1))
+    private void polymer$clearBreakingTimeInstaMine(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
+        this.polymer$currentBreakingProgress = 0;
+    }
+
     @Inject(method = "processBlockBreakingAction", at = @At("TAIL"))
     private void polymer$enforceBlockBreakingCooldown(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         if (this.polymer$shouldMineServerSide(pos, this.player.getEntityWorld().getBlockState(pos))) {

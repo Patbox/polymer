@@ -3,6 +3,7 @@ package eu.pb4.polymer.virtualentity.api;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
+import eu.pb4.polymer.virtualentity.impl.SafeBundler;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -44,9 +45,9 @@ public class ElementHolder {
     public <T extends VirtualElement> T addElement(T element) {
         if (this.addElementWithoutUpdates(element)) {
             for (var player : this.players) {
-                var x = new ArrayList<Packet<? super ClientPlayPacketListener>>();
-                element.startWatching(player.getPlayer(), x::add);
-                player.sendPacket(new BundleS2CPacket(x));
+                var x = new SafeBundler(player::sendPacket);
+                element.startWatching(player.getPlayer(), x);
+                x.finish();
             }
         }
         return element;
@@ -94,19 +95,19 @@ public class ElementHolder {
         }
         this.players.add(player);
         ((HolderHolder) player).polymer$addHolder(this);
-        var packets = new ArrayList<Packet<? super ClientPlayPacketListener>>();
+        var packets = new SafeBundler(player::sendPacket);
 
         for (var e : this.elements) {
-            e.startWatching(player.getPlayer(), packets::add);
+            e.startWatching(player.getPlayer(), packets);
         }
 
-        this.startWatchingExtraPackets(player, packets::add);
+        this.startWatchingExtraPackets(player, packets);
 
         if (this.attachment != null) {
-            this.attachment.startWatchingExtraPackets(player, packets::add);
+            this.attachment.startWatchingExtraPackets(player, packets);
         }
 
-        player.sendPacket(new BundleS2CPacket(packets));
+        packets.finish();
 
         return true;
     }

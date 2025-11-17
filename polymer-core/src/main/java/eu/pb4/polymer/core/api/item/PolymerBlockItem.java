@@ -1,12 +1,17 @@
 package eu.pb4.polymer.core.api.item;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -39,5 +44,15 @@ public class PolymerBlockItem extends BlockItem implements PolymerItem {
     @Override
     public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
         return this.polymerUseModel ? PolymerItem.super.getPolymerItemModel(stack, context) : null;
+    }
+
+    @Override
+    public boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult) {
+        return true;
+    }
+
+    @Override
+    public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
+        return true;
     }
 }
