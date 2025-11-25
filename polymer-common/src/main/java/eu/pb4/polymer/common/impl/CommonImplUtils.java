@@ -6,6 +6,8 @@ import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.Hash;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.permission.Permission;
+import net.minecraft.command.permission.PermissionLevel;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
@@ -91,7 +93,7 @@ public class CommonImplUtils {
         if (CompatStatus.FABRIC_PERMISSION_API_V0) {
             return Permissions.require("polymer." + path, operatorLevel);
         } else {
-            return source -> source.hasPermissionLevel(operatorLevel);
+            return source -> source.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(operatorLevel)));
         }
     }
 
@@ -99,7 +101,7 @@ public class CommonImplUtils {
         if (CompatStatus.FABRIC_PERMISSION_API_V0) {
             return Permissions.check(player, "polymer." + path, operatorLevel);
         } else {
-            return player.hasPermissionLevel(operatorLevel);
+            return player.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(operatorLevel)));
         }
     }
 

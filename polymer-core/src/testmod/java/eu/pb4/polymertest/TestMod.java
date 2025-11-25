@@ -542,7 +542,7 @@ public class TestMod implements ModInitializer {
         });
 
         TradeOfferHelper.registerVillagerOffers(VillagerProfession.FARMER, 1, (factories, rebalanced) -> {
-            factories.add((e, r) -> (new TradeOffer(new TradedItem(TEST_FOOD, 2), Optional.of(new TradedItem(TEST_FOOD, 1)),
+            factories.add((w, e, r) -> (new TradeOffer(new TradedItem(TEST_FOOD, 2), Optional.of(new TradedItem(TEST_FOOD, 1)),
                     TEST_FOOD.getDefaultStack(), 67, 0, 1)));
         });
 

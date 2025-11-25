@@ -146,7 +146,10 @@ public final class PolymerItemUtils {
             DataComponentTypes.PROVIDES_TRIM_MATERIAL,
             DataComponentTypes.CHARGED_PROJECTILES,
             DataComponentTypes.WEAPON,
-            DataComponentTypes.TOOLTIP_DISPLAY
+            DataComponentTypes.TOOLTIP_DISPLAY,
+            DataComponentTypes.KINETIC_WEAPON,
+            DataComponentTypes.PIERCING_WEAPON,
+            DataComponentTypes.ATTACK_RANGE
     };
 
     private static boolean stonecutterFix = PolymerImpl.FIX_STONECUTER;

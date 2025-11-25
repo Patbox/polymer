@@ -5,13 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -91,7 +89,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
                     exchange.getResponseHeaders().add("Server", "polymer-autohost");
                     exchange.getResponseHeaders().add("Content-Type", "application/zip");
                     exchange.getResponseHeaders().add("Cache-Control", "public, max-age=" + AutoHost.config.cacheControlAge);
-                    exchange.sendResponseHeaders(HttpStatus.SC_OK, size);
+                    exchange.sendResponseHeaders(201, size);
 
                     input.transferTo(output);
                     output.flush();

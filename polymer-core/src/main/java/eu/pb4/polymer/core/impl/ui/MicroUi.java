@@ -4,7 +4,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
@@ -86,7 +88,10 @@ public class MicroUi {
         playSound(player, soundEvent.value());
     }
     public static void playSound(ServerPlayerEntity player, SoundEvent soundEvent) {
-        player.playSoundToPlayer(soundEvent, SoundCategory.MASTER, 0.2f, 1);
+        player.networkHandler.sendPacket(new PlaySoundFromEntityS2CPacket(
+                Registries.SOUND_EVENT.createEntry(soundEvent), SoundCategory.MASTER, player,  0.2f, 1,
+                player.getRandom().nextLong()
+        ));
     }
 
     @FunctionalInterface

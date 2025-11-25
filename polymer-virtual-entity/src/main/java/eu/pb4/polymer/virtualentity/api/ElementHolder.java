@@ -298,6 +298,6 @@ public class ElementHolder {
     }
 
     public void removePassengerId(int i) {
-        this.attachedPassengerEntityIds.remove(i);
+        this.attachedPassengerEntityIds.removeInt(i);
     }
 }

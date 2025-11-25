@@ -116,7 +116,7 @@ public final class ResourcePackExtras {
     private void setup(ResourcePackBuilder builder) {
         if (!this.bridgedModels.isEmpty()) {
             builder.addPreFinishTask((b) -> {
-                b.forEachFile((path, out) -> {
+                b.forEachResource((path, out) -> {
                     if (!path.startsWith("assets/")) {
                         return;
                     }

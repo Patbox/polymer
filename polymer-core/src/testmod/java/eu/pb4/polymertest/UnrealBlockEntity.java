@@ -33,7 +33,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
@@ -48,20 +50,20 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     TrackedData<Byte> ITEM_DISPLAY = ItemDisplayEntityAccessor.getITEM_DISPLAY();
 
     TrackedData<BlockState> BLOCK_STATE = BlockDisplayEntityAccessor.getBLOCK_STATE();
-    TrackedData<Vector3f> TRANSLATION = DisplayEntityAccessor.getTRANSLATION();
-    TrackedData<Vector3f> SCALE = DisplayEntityAccessor.getSCALE();
-    TrackedData<Quaternionf> ROTATION_LEFT = DisplayEntityAccessor.getLEFT_ROTATION();
-    TrackedData<Quaternionf> ROTATION_RIGHT = DisplayEntityAccessor.getRIGHT_ROTATION();
+    TrackedData<Vector3fc> TRANSLATION = DisplayEntityAccessor.getTRANSLATION();
+    TrackedData<Vector3fc> SCALE = DisplayEntityAccessor.getSCALE();
+    TrackedData<Quaternionfc> ROTATION_LEFT = DisplayEntityAccessor.getLEFT_ROTATION();
+    TrackedData<Quaternionfc> ROTATION_RIGHT = DisplayEntityAccessor.getRIGHT_ROTATION();
     //TrackedData<Long> INTER_START = DisplayEntityAccessor.getINTERPOLATION_START();
     TrackedData<Integer> INTER_DUR = DisplayEntityAccessor.getINTERPOLATION_DURATION();
     TrackedData<Integer> LIGHT = DisplayEntityAccessor.getBRIGHTNESS();
 
     //private final EntityRigidBody rigidBody;
     private BlockState blockState;
-    private Vector3f scale;
-    private Vector3f translation;
-    private Quaternionf rotationLeft;
-    private Quaternionf rotationRight;
+    private Vector3fc scale;
+    private Vector3fc translation;
+    private Quaternionfc rotationLeft;
+    private Quaternionfc rotationRight;
     private Vector3f trackerPos = new Vector3f();
     private Vector3f trackerNext = new Vector3f();
     private Vector3f translation0 = new Vector3f();

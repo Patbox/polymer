@@ -8,13 +8,15 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.item.ItemStack;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public final class DisplayTrackedData {
-    public final static TrackedData<Vector3f> TRANSLATION = DisplayEntityAccessor.getTRANSLATION();
-    public final static TrackedData<Vector3f> SCALE = DisplayEntityAccessor.getSCALE();
-    public final static TrackedData<Quaternionf> LEFT_ROTATION = DisplayEntityAccessor.getLEFT_ROTATION();
-    public final static TrackedData<Quaternionf> RIGHT_ROTATION = DisplayEntityAccessor.getRIGHT_ROTATION();
+    public final static TrackedData<Vector3fc> TRANSLATION = DisplayEntityAccessor.getTRANSLATION();
+    public final static TrackedData<Vector3fc> SCALE = DisplayEntityAccessor.getSCALE();
+    public final static TrackedData<Quaternionfc> LEFT_ROTATION = DisplayEntityAccessor.getLEFT_ROTATION();
+    public final static TrackedData<Quaternionfc> RIGHT_ROTATION = DisplayEntityAccessor.getRIGHT_ROTATION();
     public final static TrackedData<Integer> INTERPOLATION_DURATION = DisplayEntityAccessor.getINTERPOLATION_DURATION();
     public final static TrackedData<Integer> TELEPORTATION_DURATION = DisplayEntityAccessor.getTELEPORT_DURATION();
     public final static TrackedData<Integer> START_INTERPOLATION = DisplayEntityAccessor.getSTART_INTERPOLATION();

@@ -50,6 +50,8 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.world.*;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
+import net.minecraft.world.attribute.WorldEnvironmentAttributeAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeEffects;
 import net.minecraft.world.biome.GenerationSettings;
@@ -169,7 +171,7 @@ public final class FakeWorld extends World implements LightSourceView {
                     new Biome.Builder()
                             .temperature(0)
                             .downfall(0)
-                            .effects(new BiomeEffects.Builder().fogColor(0).waterColor(0).waterFogColor(0).skyColor(0).build())
+                            .effects(new BiomeEffects.Builder().waterColor(0).build())
                             .spawnSettings(new SpawnSettings.Builder().build())
                             .generationSettings(GenerationSettings.INSTANCE)
                             .build()));
@@ -286,7 +288,12 @@ public final class FakeWorld extends World implements LightSourceView {
     static {
         World worldUnsafe, worldDefault;
 
-        var dimType = RegistryEntry.Reference.intrusive(new RegistryEntryOwner<>() {}, new DimensionType(OptionalLong.empty(), true, false, false, true, 1.0D, true, false, -64, 384, 384, BlockTags.INFINIBURN_OVERWORLD, DimensionTypes.OVERWORLD_ID, 0.0F, Optional.empty(), new DimensionType.MonsterSettings(false, true, UniformIntProvider.create(0, 7), 0)));
+        var dimType = RegistryEntry.Reference.intrusive(new RegistryEntryOwner<>() {},
+                new DimensionType(true, false, false, 1.0D,
+                        -64, 256, 256, BlockTags.INFINIBURN_OVERWORLD,  1,
+                        new DimensionType.MonsterSettings(UniformIntProvider.create(0, 7), 0),
+                        DimensionType.Skybox.NONE, DimensionType.CardinalLightType.DEFAULT, EnvironmentAttributeMap.builder().build(),
+                        RegistryEntryList.of()));
         ((ReferenceAccessor) dimType).callSetRegistryKey(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, Identifier.of("overworld")));
         try {
             worldUnsafe = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
@@ -446,6 +453,11 @@ public final class FakeWorld extends World implements LightSourceView {
     @Override
     public DynamicRegistryManager getRegistryManager() {
         return FALLBACK_REGISTRY_MANAGER;
+    }
+
+    @Override
+    public WorldEnvironmentAttributeAccess getEnvironmentAttributes() {
+        return WorldEnvironmentAttributeAccess.builder().build();
     }
 
     @Override
