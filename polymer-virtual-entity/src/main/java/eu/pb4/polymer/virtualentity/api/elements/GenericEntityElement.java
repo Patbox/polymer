@@ -117,6 +117,10 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     @Override
     public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+        if (!this.elementVisiblityPredicate.test(player)) {
+            return;
+        }
+
         packetConsumer.accept(this.createSpawnPacket(player));
 
         this.sendChangedTrackerEntries(player, packetConsumer);
@@ -177,7 +181,7 @@ public abstract class GenericEntityElement extends AbstractElement {
         }
 
         if (packet != null) {
-            this.getHolder().sendPacket(packet);
+            this.sendPacket(packet);
             if (!(packet instanceof EntityS2CPacket.Rotate)) {
                 this.lastSyncedPos = pos;
             }
@@ -189,7 +193,7 @@ public abstract class GenericEntityElement extends AbstractElement {
         if (this.dataTracker.isDirty()) {
             var dirty = this.dataTracker.getDirtyEntries();
             if (dirty != null) {
-                this.getHolder().sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
+                this.sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
             }
         }
     }
@@ -198,7 +202,7 @@ public abstract class GenericEntityElement extends AbstractElement {
         if (this.isRotationDirty) {
             var i = MathHelper.floor(yaw * 256.0F / 360.0F);
             var j = MathHelper.floor(pitch * 256.0F / 360.0F);
-            this.getHolder().sendPacket(new EntityS2CPacket.Rotate(id, (byte) i, (byte) j, false));
+            this.sendPacket(new EntityS2CPacket.Rotate(id, (byte) i, (byte) j, false));
             this.isRotationDirty = false;
         }
     }

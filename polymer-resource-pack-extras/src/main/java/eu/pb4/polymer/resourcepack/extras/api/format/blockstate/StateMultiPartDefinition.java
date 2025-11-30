@@ -1,40 +1,133 @@
 package eu.pb4.polymer.resourcepack.extras.api.format.blockstate;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import eu.pb4.polymer.common.impl.SortedMapCodec;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.dynamic.Codecs;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
-public record StateMultiPartDefinition(When when, List<StateModelVariant> apply) {
+public record StateMultiPartDefinition(Optional<Condition> when, List<StateModelVariant> apply) {
     public static final Codec<StateMultiPartDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    When.CODEC.optionalFieldOf("when", When.DEFAULT).forGetter(StateMultiPartDefinition::when),
+                    Condition.CODEC.optionalFieldOf("when").forGetter(StateMultiPartDefinition::when),
                     StateModelVariant.CODEC.fieldOf("apply").forGetter(StateMultiPartDefinition::apply)
             ).apply(instance, StateMultiPartDefinition::new)
     );
 
-    public record When(Optional<List<Map<String, String>>> or, Optional<List<Map<String, String>>> and,
-                       Optional<Map<String, String>> base) {
-        public static final When DEFAULT = new When(Optional.empty(), Optional.empty(), Optional.empty());
 
-        private static final Codec<Map<String, String>> STR_MAP = SortedMapCodec.of(Codec.STRING, Codec.withAlternative(Codec.STRING, Codecs.BASIC_OBJECT, String::valueOf));
-        private static final Codec<List<Map<String, String>>> LIST_STR_MAP = STR_MAP.listOf();
-        public static final Codec<When> CODEC = Codec.either(
-                LIST_STR_MAP.fieldOf("OR")
-                        .xmap(x -> new When(Optional.of(x), Optional.empty(), Optional.empty()), x -> x.or.orElseThrow()).codec(),
-                Codec.either(
-                        LIST_STR_MAP.fieldOf("AND")
-                             .xmap(x -> new When(Optional.empty(), Optional.of(x), Optional.empty()), x -> x.and.orElseThrow()).codec(),
-                        STR_MAP.xmap(x -> new When(Optional.empty(), Optional.empty(), Optional.of(x)), x -> x.base.orElseThrow()))
-                ).xmap(x -> x.left().orElseGet(() -> x.right().orElseThrow().left().orElseGet(x.right().get().right()::get)),
+    public sealed interface Condition permits CombinedCondition, KeyValueCondition {
+        Codec<Condition> CODEC = Codec.recursive(
+                "condition",
+                self -> {
+                    Codec<CombinedCondition> combinerCodec = Codec.simpleMap(CombinedCondition.Operation.CODEC, self.listOf(), StringIdentifiable.toKeyable(CombinedCondition.Operation.values()))
+                            .codec()
+                            .comapFlatMap(map -> {
+                                if (map.size() != 1) {
+                                    return DataResult.error(() -> "Invalid map size for combiner condition, expected exactly one element");
+                                } else {
+                                    var entry = map.entrySet().iterator().next();
+                                    return DataResult.success(new CombinedCondition(entry.getKey(), entry.getValue()));
+                                }
+                            }, condition -> Map.of(condition.operation(), condition.terms()));
+                    return Codec.either(combinerCodec, KeyValueCondition.CODEC).flatComapMap(either -> either.map(l -> l, r -> (Condition) r), condition -> {
+                        return switch (condition) {
+                            case CombinedCondition combiner ->
+                                    DataResult.<Either<CombinedCondition, KeyValueCondition>>success(Either.left(combiner));
+                            case KeyValueCondition keyValue ->
+                                    DataResult.<Either<CombinedCondition, KeyValueCondition>>success(Either.right(keyValue));
+                            default ->
+                                    DataResult.<Either<CombinedCondition, KeyValueCondition>>error(() -> "Unrecognized condition");
+                        };
+                    });
+                }
+        );
+    }
 
-                    x -> x.or.isPresent() ? Either.left(x)
-                            : x.and.isPresent() ? Either.right(Either.left(x)) : Either.right(Either.right(x))
-                );
+    public record CombinedCondition(CombinedCondition.Operation operation, List<Condition> terms) implements Condition {
+        public enum Operation implements StringIdentifiable {
+            AND("AND"),
+            OR("OR");
+
+            public static final Codec<CombinedCondition.Operation> CODEC = StringIdentifiable.createCodec(CombinedCondition.Operation::values);
+            private final String name;
+
+            Operation(final String name) {
+                this.name = name;
+            }
+
+            @Override
+            public String asString() {
+                return this.name;
+            }
+        }
+    }
+
+    public record KeyValueCondition(Map<String, KeyValueCondition.Terms> tests) implements Condition {
+        public static final Codec<KeyValueCondition> CODEC = Codecs.nonEmptyMap(Codec.unboundedMap(Codec.STRING, KeyValueCondition.Terms.CODEC))
+                .xmap(KeyValueCondition::new, KeyValueCondition::tests);
+
+        public record Term(String value, boolean negated) {
+            private static final String NEGATE = "!";
+
+            public Term(String value, boolean negated) {
+                if (value.isEmpty()) {
+                    throw new IllegalArgumentException("Empty term");
+                } else {
+                    this.value = value;
+                    this.negated = negated;
+                }
+            }
+
+            public static KeyValueCondition.Term parse(final String value) {
+                return value.startsWith("!") ? new KeyValueCondition.Term(value.substring(1), true) : new KeyValueCondition.Term(value, false);
+            }
+
+            public String toString() {
+                return this.negated ? "!" + this.value : this.value;
+            }
+        }
+
+        public record Terms(List<KeyValueCondition.Term> entries) {
+            private static final char SEPARATOR = '|';
+            private static final Joiner JOINER = Joiner.on('|');
+            private static final Splitter SPLITTER = Splitter.on('|');
+            private static final Codec<String> LEGACY_REPRESENTATION_CODEC = Codec.either(Codec.INT, Codec.BOOL)
+                    .flatComapMap(either -> either.map(String::valueOf, String::valueOf), o -> DataResult.error(() -> "This codec can't be used for encoding"));
+            public static final Codec<KeyValueCondition.Terms> CODEC = Codec.withAlternative(Codec.STRING, LEGACY_REPRESENTATION_CODEC)
+                    .comapFlatMap(KeyValueCondition.Terms::parse, KeyValueCondition.Terms::toString);
+
+            public Terms(List<KeyValueCondition.Term> entries) {
+                if (entries.isEmpty()) {
+                    throw new IllegalArgumentException("Empty value for property");
+                } else {
+                    this.entries = entries;
+                }
+            }
+
+            public static DataResult<KeyValueCondition.Terms> parse(final String value) {
+                List<KeyValueCondition.Term> terms = SPLITTER.splitToStream(value).map(KeyValueCondition.Term::parse).toList();
+                if (terms.isEmpty()) {
+                    return DataResult.error(() -> "Empty value for property");
+                } else {
+                    for (KeyValueCondition.Term entry : terms) {
+                        if (entry.value.isEmpty()) {
+                            return DataResult.error(() -> "Empty term in value '" + value + "'");
+                        }
+                    }
+
+                    return DataResult.success(new KeyValueCondition.Terms(terms));
+                }
+            }
+
+            public String toString() {
+                return JOINER.join(this.entries);
+            }
+        }
     }
 }

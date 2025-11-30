@@ -1,13 +1,19 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.impl.SafeBundler;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public abstract class AbstractElement implements VirtualElement {
+    private static final Predicate<ServerPlayerEntity> DEFAULT_VISIBILITY = p -> true;
     private ElementHolder holder;
     private Vec3d offset = Vec3d.ZERO;
     @Nullable
@@ -15,6 +21,8 @@ public abstract class AbstractElement implements VirtualElement {
     @Nullable
     protected Vec3d lastSyncedPos;
     private InteractionHandler handler = InteractionHandler.EMPTY;
+
+    protected Predicate<ServerPlayerEntity> elementVisiblityPredicate = DEFAULT_VISIBILITY;
 
     @Override
     public Vec3d getOffset() {
@@ -61,5 +69,47 @@ public abstract class AbstractElement implements VirtualElement {
 
     public void setInteractionHandler(InteractionHandler handler) {
         this.handler = handler;
+    }
+
+    public final void setVisibilityPredicate(Predicate<ServerPlayerEntity> predicate) {
+        if (this.elementVisiblityPredicate == predicate) {
+            return;
+        }
+        var oldPredicate = this.elementVisiblityPredicate;
+        if (this.holder != null) {
+            for (var player : this.holder.getWatchingPlayers()) {
+                if (oldPredicate.test(player.getPlayer()) && !predicate.test(player.getPlayer())) {
+                    var x = new SafeBundler(player::sendPacket);
+                    this.stopWatching(player.getPlayer(), x);
+                    x.finish();
+                }
+            }
+        }
+        this.elementVisiblityPredicate = predicate;
+        if (this.holder != null) {
+            for (var player : this.holder.getWatchingPlayers()) {
+                if (!oldPredicate.test(player.getPlayer()) && predicate.test(player.getPlayer())) {
+                    var x = new SafeBundler(player::sendPacket);
+                    this.startWatching(player.getPlayer(), x);
+                    x.finish();
+                }
+            }
+        }
+    }
+
+    public final Predicate<ServerPlayerEntity> getVisibilityPredicate() {
+        return this.elementVisiblityPredicate;
+    }
+
+    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet) {
+        if (this.holder != null) {
+            this.holder.sendPacket(packet, DEFAULT_VISIBILITY);
+        }
+    }
+
+    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet, Predicate<ServerPlayerEntity> predicate) {
+        if (this.holder != null) {
+            this.holder.sendPacket(packet, predicate.and(DEFAULT_VISIBILITY));
+        }
     }
 }

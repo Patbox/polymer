@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 public final class PolymerCommonUtils {
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
     private static final ThreadLocal<LogicOverride> FORCE_NETWORKING = ThreadLocal.withInitial(() -> LogicOverride.DEFAULT);
-    private final static String SAFE_CLIENT_SHA1 = "ce92fd8d1b2460c41ceda07ae7b3fe863a80d045";
+    private final static String SAFE_CLIENT_SHA1 = "70ab73433d42e46d3838462e724cdb3c0116b0c4";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientPath;
     private static Path cachedClientJarRoot;

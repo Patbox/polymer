@@ -37,9 +37,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
         this.entry = new EntityTrackerEntry(world, this.entity, 1, false, new EntityTrackerEntry.TrackerPacketSender() {
             @Override
             public void sendToListeners(Packet<? super ClientPlayPacketListener> packet) {
-                if (getHolder() != null) {
-                    getHolder().sendPacket((Packet<ClientPlayPacketListener>) packet);
-                }
+                sendPacket((Packet<ClientPlayPacketListener>) packet);
             }
 
             @Override
@@ -49,9 +47,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
             @Override
             public void sendToListenersIf(Packet<? super ClientPlayPacketListener> packet, Predicate<ServerPlayerEntity> predicate) {
-                if (getHolder() != null) {
-                    getHolder().sendPacket((Packet<ClientPlayPacketListener>) packet, predicate);
-                }
+                sendPacket((Packet<ClientPlayPacketListener>) packet, predicate);
             }
         });
         this.setInteractionHandler(handler);
@@ -102,11 +98,17 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     @Override
     public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+        if (!this.elementVisiblityPredicate.test(player)) {
+            return;
+        }
         this.entry.sendPackets(player, packetConsumer);
     }
 
     @Override
     public void stopWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+        if (!this.elementVisiblityPredicate.test(player)) {
+            return;
+        }
        packetConsumer.accept(new EntitiesDestroyS2CPacket(this.entity.getId()));
     }
 
@@ -154,7 +156,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
             });
 
             if (this.getHolder() != null) {
-                this.getHolder().sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));
+                sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));
             }
         }
     }
