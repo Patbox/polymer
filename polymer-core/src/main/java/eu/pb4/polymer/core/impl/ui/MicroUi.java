@@ -89,7 +89,7 @@ public class MicroUi {
     }
     public static void playSound(ServerPlayerEntity player, SoundEvent soundEvent) {
         player.networkHandler.sendPacket(new PlaySoundFromEntityS2CPacket(
-                Registries.SOUND_EVENT.createEntry(soundEvent), SoundCategory.MASTER, player,  0.2f, 1,
+                Registries.SOUND_EVENT.getEntry(soundEvent), SoundCategory.MASTER, player,  0.2f, 1,
                 player.getRandom().nextLong()
         ));
     }
