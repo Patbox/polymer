@@ -9,6 +9,7 @@ import eu.pb4.polymer.common.impl.compat.ViaVersionUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.NetworkSide;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
@@ -115,22 +116,28 @@ public final class PolymerCommonUtils {
 
     public static void executeWithNetworkingLogic(Runnable runnable) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.TRUE);
-        runnable.run();
-        FORCE_NETWORKING.set(val);
+        try {
+            FORCE_NETWORKING.set(LogicOverride.TRUE);
+            runnable.run();
+        } finally {
+            FORCE_NETWORKING.set(val);
+        }
     }
 
     public static void executeWithNetworkingLogic(PacketListener listener, Runnable runnable) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.TRUE);
-        PacketContext.runWithContext(listener, runnable);
-        FORCE_NETWORKING.set(val);
+        try {
+            FORCE_NETWORKING.set(LogicOverride.TRUE);
+            PacketContext.runWithContext(listener, runnable);
+        } finally {
+            FORCE_NETWORKING.set(val);
+        }
     }
 
     public static void executeWithoutNetworkingLogic(Runnable runnable) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.FALSE);
         try {
+            FORCE_NETWORKING.set(LogicOverride.FALSE);
             PacketContext.runWithContext(null, runnable);
         } finally {
             FORCE_NETWORKING.set(val);
@@ -139,8 +146,8 @@ public final class PolymerCommonUtils {
 
     public static <T> T executeWithNetworkingLogic(Supplier<T> supplier) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.TRUE);
         try {
+            FORCE_NETWORKING.set(LogicOverride.TRUE);
             return supplier.get();
         } finally {
             FORCE_NETWORKING.set(val);
@@ -149,8 +156,8 @@ public final class PolymerCommonUtils {
 
     public static <T> T executeWithNetworkingLogic(PacketListener listener, Supplier<T> supplier) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.TRUE);
         try {
+            FORCE_NETWORKING.set(LogicOverride.TRUE);
             return PacketContext.supplyWithContext(listener, supplier);
         } finally {
             FORCE_NETWORKING.set(val);
@@ -159,21 +166,22 @@ public final class PolymerCommonUtils {
 
     public static <T> T executeWithoutNetworkingLogic(Supplier<T> supplier) {
         var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.FALSE);
         try {
+            FORCE_NETWORKING.set(LogicOverride.FALSE);
             return PacketContext.supplyWithContext(null, supplier);
         } finally {
             FORCE_NETWORKING.set(val);
         }
     }
 
+    @Deprecated(forRemoval = true)
     public static ScopedOverride executeWithNetworkingLogic() {
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(LogicOverride.TRUE);
 
         return () -> FORCE_NETWORKING.set(val);
     }
-
+    @Deprecated(forRemoval = true)
     public static ScopedOverride executeWithNetworkingLogic(PacketListener listener) {
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(LogicOverride.TRUE);
@@ -187,6 +195,7 @@ public final class PolymerCommonUtils {
         };
     }
 
+    @Deprecated(forRemoval = true)
     public static ScopedOverride executeWithoutNetworkingLogic() {
         var val = FORCE_NETWORKING.get();
         FORCE_NETWORKING.set(LogicOverride.FALSE);
@@ -206,18 +215,18 @@ public final class PolymerCommonUtils {
     }
 
     public static boolean isNetworkingThread() {
-        return FORCE_NETWORKING.get().value(Thread.currentThread().getName().startsWith("Netty"));
+        return FORCE_NETWORKING.get().value(PacketContext.get().getBackingPacketListener() != null);
     }
 
     public static boolean isServerNetworkingThread() {
         return FORCE_NETWORKING.get().value(
-                Thread.currentThread().getName().startsWith("Netty") && Thread.currentThread().getName().contains("Server")
+                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.getSide() == NetworkSide.SERVERBOUND
         );
     }
 
     public static boolean isClientNetworkingThread() {
         return CommonImpl.IS_CLIENT && FORCE_NETWORKING.get().value(
-                Thread.currentThread().getName().startsWith("Netty") && Thread.currentThread().getName().contains("Client")
+                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.getSide() == NetworkSide.CLIENTBOUND
         );
     }
 
@@ -300,8 +309,9 @@ public final class PolymerCommonUtils {
         return CommonImplUtils.createUnsafe(clazz);
     }
 
+    @Deprecated(forRemoval = true)
     public static boolean isServerNetworkingThreadWithContext() {
-        return isServerNetworkingThread() && PacketContext.get().getClientConnection() != null;
+        return isServerNetworkingThread();
     }
 
     public interface ResourcePackChangeCallback {

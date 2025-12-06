@@ -31,12 +31,12 @@ public class ItemStackMixin {
         return (mapCodec) -> function.apply(mapCodec).xmap(content -> { // Decode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var context = PacketContext.get();
-                var lookup = context.getRegistryWrapperLookup() != null ? context .getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
+                var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
                 return PolymerItemUtils.getRealItemStack(content, lookup);
             }
             return content;
         }, content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
+            if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var ctx = PacketContext.get();
                 if (ctx.getBackingPacketListener() == null) {
                     return content;
@@ -57,7 +57,7 @@ public class ItemStackMixin {
             }
             return content;
         }, content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
+            if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var ctx = PacketContext.get();
                 if (ctx.getBackingPacketListener() == null) {
                     return content;

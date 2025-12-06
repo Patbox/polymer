@@ -44,7 +44,7 @@ public abstract class BlockStateMixin implements BlockStateExtra {
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;createCodec(Lcom/mojang/serialization/Codec;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
     private static Codec<BlockState> patchCodec(Codec<BlockState> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThreadWithContext() && PolymerSyncedObject.getSyncedObject(Registries.BLOCK, content.getBlock()) != null) {
+            if (PolymerCommonUtils.isServerNetworkingThread() && PolymerSyncedObject.getSyncedObject(Registries.BLOCK, content.getBlock()) != null) {
                 return PolymerBlockUtils.getPolymerBlockState(content, PacketContext.get());
             }
             return content;

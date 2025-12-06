@@ -22,7 +22,7 @@ public class TradedItemMixin {
             var stack = PolymerItemUtils.getPolymerItemStack(input, PacketContext.get());
             return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentMapPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;
         }, (buf, tradedItem) -> {
-            if (PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
+            if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var input = tradedItem.itemStack();
                 var stack = PolymerItemUtils.getRealItemStack(input, buf.getRegistryManager());
                 return stack != input ? new TradedItem(stack.getItem().getRegistryEntry(), stack.getCount(), ComponentMapPredicate.of(new ComponentChangesMap(stack.getComponentChanges()))) : tradedItem;

@@ -25,7 +25,7 @@ public class KeyDispatchCodecMixin {
         if (encoderResult.isError()) {
             return encoderResult;
         }
-        if (encoderResult.getOrThrow() instanceof PolymerMapCodec<?> codec && PolymerCommonUtils.isServerNetworkingThreadWithContext()) {
+        if (encoderResult.getOrThrow() instanceof PolymerMapCodec<?> codec && PolymerCommonUtils.isServerNetworkingThread()) {
             //noinspection unchecked
             var rep = ((PolymerMapCodec<Object>) codec).getPolymerReplacement(object.get(), PacketContext.get());
             object.set(rep);
