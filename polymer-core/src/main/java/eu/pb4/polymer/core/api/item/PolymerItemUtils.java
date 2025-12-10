@@ -14,6 +14,7 @@ import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerMod;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.mixin.NbtComponentAccessor;
@@ -39,6 +40,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -438,7 +440,16 @@ public final class PolymerItemUtils {
             polymerItem.modifyBasePolymerItemStack(out, itemStack, context);
         }
 
-        var lookup = context.getRegistryWrapperLookup();
+        var lookupOrNull = context.getRegistryWrapperLookup();
+
+        if (lookupOrNull == null) {
+            var server = PolymerMod.getServer();
+            if (server != null) {
+                lookupOrNull = server.getRegistryManager();
+            }
+        }
+
+        var lookup = lookupOrNull;
 
         {
             var current = itemStack.get(DataComponentTypes.USE_COOLDOWN);

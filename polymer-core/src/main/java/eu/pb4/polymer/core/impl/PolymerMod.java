@@ -14,18 +14,31 @@ import eu.pb4.polymer.core.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.core.impl.networking.entry.PolymerBlockEntry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 
 @ApiStatus.Internal
 public class PolymerMod implements ModInitializer, ClientModInitializer {
+
+    private static MinecraftServer server;
+
+    public static @Nullable MinecraftServer getServer() {
+        return server;
+    }
+
 	@Override
 	public void onInitialize() {
+        ServerLifecycleEvents.SERVER_STARTING.register(s -> server = s);
+        ServerLifecycleEvents.SERVER_STOPPED.register(s -> server = null);
+
 		CommonImplUtils.registerCommands(Commands::register);
 		CommonImplUtils.registerDevCommands(Commands::registerDev);
 
