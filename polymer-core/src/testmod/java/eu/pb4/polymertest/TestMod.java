@@ -319,6 +319,8 @@ public class TestMod implements ModInitializer {
         SoundPatcher.convertIntoServerSound(Blocks.EMERALD_BLOCK.getDefaultState().getSoundGroup());
 
 
+        registerItem(Identifier.of("test", "hoe"), MelonHoe::new);
+
         PolymerItemUtils.registerOverlay(OVERLAY_ITEM, new PolymerItem() {
             @Override
             public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
