@@ -1,7 +1,6 @@
 package eu.pb4.polymer.autohost.api;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.network.ClientConnection;
@@ -12,7 +11,6 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 

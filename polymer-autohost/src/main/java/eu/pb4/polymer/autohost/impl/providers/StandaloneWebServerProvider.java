@@ -52,13 +52,6 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
         }
     }
 
-    protected boolean updateHash() {
-        if (super.updateHash()) {
-            return true;
-        }
-        return false;
-    }
-
     @Override
     protected String getAddress(ClientConnection connection, String file) {
         return this.baseAddress + file;
@@ -79,13 +72,8 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
             var path = AutoHost.getPath(exchange.getRequestURI().getPath().substring(1));
 
             if (Files.exists(path)) {
-                var updateTime = Files.getLastModifiedTime(path).toMillis();
-                if (updateTime > lastUpdate) {
-                    updateHash();
-                }
-
                 try (
-                        var input = Files.newInputStream(PolymerResourcePackUtils.getMainPath());
+                        var input = Files.newInputStream(path);
                         var output = exchange.getResponseBody()
                 ) {
                     exchange.getResponseHeaders().add("Server", "polymer-autohost");

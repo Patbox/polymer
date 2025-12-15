@@ -1,10 +1,6 @@
 package eu.pb4.polymer.autohost.impl.providers;
 
-import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
-import com.google.gson.JsonElement;
-import com.google.gson.annotations.SerializedName;
-import com.sun.net.httpserver.HttpExchange;
 import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.AutoHost;
@@ -15,22 +11,19 @@ import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class AbstractProvider implements ResourcePackDataProvider {
     public long size = 0;
     public String hash = "";
     public long lastUpdate = 0;
+
     public boolean enabled;
     public boolean isPackReady = false;
     private Consumer<ResourcePackBuilder> eventA;
