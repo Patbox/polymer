@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -113,6 +114,7 @@ public class AutoHost implements ModInitializer {
         provider.serverStopped(server);
     }
 
+    @Nullable
     public static Path getPath(String path) {
         var plus = path.indexOf('+');
         if (plus != -1) {

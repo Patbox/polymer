@@ -29,7 +29,11 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
             server = HttpServer.create(address, 0);
 
             server.createContext("/", this::handle);
-            server.setExecutor(Executors.newFixedThreadPool(2));
+            server.setExecutor(Executors.newFixedThreadPool(2, x -> {
+                var thread = new Thread(x);
+                thread.setDaemon(true);
+                return thread;
+            }));
             server.start();
 
             this.baseAddress = config.externalAddress;
@@ -69,7 +73,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
         if ("GET".equals(exchange.getRequestMethod())) {
             var path = AutoHost.getPath(exchange.getRequestURI().getPath().substring(1));
 
-            if (Files.exists(path)) {
+            if (path != null && Files.exists(path)) {
                 try (
                         var input = Files.newInputStream(path);
                         var output = exchange.getResponseBody()
