@@ -23,6 +23,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     public long size = 0;
     public String hash = "";
     public long lastUpdate = 0;
+
     public boolean enabled;
     public boolean isPackReady = false;
     private Consumer<ResourcePackBuilder> eventA;
