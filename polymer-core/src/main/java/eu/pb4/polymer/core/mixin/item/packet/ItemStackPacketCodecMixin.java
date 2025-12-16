@@ -23,6 +23,10 @@ public abstract class ItemStackPacketCodecMixin {
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Lnet/minecraft/item/ItemStack;)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private ItemStack polymer$replaceWithVanillaItem(ItemStack itemStack, @Local(argsOnly = true) RegistryByteBuf buf) {
         var player = PacketContext.get();
+        if (player.getRegistryWrapperLookup() == null) {
+            player = PacketContext.create(buf.getRegistryManager());
+        }
+
         return PolymerItemUtils.getPolymerItemStack(itemStack, player);
     }
 
