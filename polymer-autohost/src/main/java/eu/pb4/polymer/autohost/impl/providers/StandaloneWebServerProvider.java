@@ -76,6 +76,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
             var path = AutoHost.getPath(exchange.getRequestURI().getPath().substring(1));
 
             if (path != null && Files.exists(path)) {
+                var size = Files.size(path);
                 try (
                         var input = Files.newInputStream(path);
                         var output = exchange.getResponseBody()
@@ -83,7 +84,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
                     exchange.getResponseHeaders().add("Server", "polymer-autohost");
                     exchange.getResponseHeaders().add("Content-Type", "application/zip");
                     exchange.getResponseHeaders().add("Cache-Control", "public, max-age=" + AutoHost.config.cacheControlAge);
-                    exchange.sendResponseHeaders(HttpStatus.SC_OK, 0);
+                    exchange.sendResponseHeaders(HttpStatus.SC_OK, size);
                     input.transferTo(output);
                     output.flush();
                 }
