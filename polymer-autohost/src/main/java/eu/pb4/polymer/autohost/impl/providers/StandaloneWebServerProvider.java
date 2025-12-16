@@ -74,6 +74,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
             var path = AutoHost.getPath(exchange.getRequestURI().getPath().substring(1));
 
             if (path != null && Files.exists(path)) {
+                var size = Files.size(path);
                 try (
                         var input = Files.newInputStream(path);
                         var output = exchange.getResponseBody()
