@@ -5,25 +5,25 @@ import eu.pb4.polymer.virtualentity.api.tracker.DataTrackerLike;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EntityPosition;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.phys.Vec3;
 
 @SuppressWarnings("ConstantConditions")
 public abstract class GenericEntityElement extends AbstractElement {
@@ -116,7 +116,7 @@ public abstract class GenericEntityElement extends AbstractElement {
     protected abstract EntityType<? extends Entity> getEntityType();
 
     @Override
-    public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+    public void startWatching(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {
         if (!this.elementVisiblityPredicate.test(player)) {
             return;
         }
@@ -126,30 +126,30 @@ public abstract class GenericEntityElement extends AbstractElement {
         this.sendChangedTrackerEntries(player, packetConsumer);
     }
 
-    protected Packet<ClientPlayPacketListener> createSpawnPacket(ServerPlayerEntity player) {
+    protected Packet<ClientGamePacketListener> createSpawnPacket(ServerPlayer player) {
         if (this.lastSyncedPos == null) {
             this.lastSyncedPos = this.getCurrentPos();
         }
-        return new EntitySpawnS2CPacket(this.id, this.uuid, this.lastSyncedPos.x, this.lastSyncedPos.y, this.lastSyncedPos.z, this.pitch, this.yaw, this.getEntityType(), 0, Vec3d.ZERO, this.yaw);
+        return new ClientboundAddEntityPacket(this.id, this.uuid, this.lastSyncedPos.x, this.lastSyncedPos.y, this.lastSyncedPos.z, this.pitch, this.yaw, this.getEntityType(), 0, Vec3.ZERO, this.yaw);
     }
 
-    protected void sendChangedTrackerEntries(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+    protected void sendChangedTrackerEntries(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {
         var changed = this.dataTracker.getChangedEntries();
 
         if (changed != null) {
-            packetConsumer.accept(new EntityTrackerUpdateS2CPacket(this.id, changed));
+            packetConsumer.accept(new ClientboundSetEntityDataPacket(this.id, changed));
         }
     }
 
     @Override
-    public void notifyMove(Vec3d oldPos, Vec3d newPos, Vec3d delta) {
+    public void notifyMove(Vec3 oldPos, Vec3 newPos, Vec3 delta) {
         if (this.sendPositionUpdates && this.instantPositionUpdates) {
             this.sendPositionUpdates();
         }
     }
 
     @Override
-    public void stopWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+    public void stopWatching(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {
     }
 
     @Override
@@ -165,7 +165,7 @@ public abstract class GenericEntityElement extends AbstractElement {
         if (this.getHolder() == null) {
             return;
         }
-        Packet<ClientPlayPacketListener> packet = null;
+        Packet<ClientGamePacketListener> packet = null;
         var pos = this.getCurrentPos();
 
         if (pos.equals(this.lastSyncedPos)) {
@@ -173,7 +173,7 @@ public abstract class GenericEntityElement extends AbstractElement {
         }
 
         if (this.lastSyncedPos == null || this.alwaysSyncAbsolutePosition || this.updatesSinceLastAbsolutePositionSync > 200) {
-            packet = new EntityPositionSyncS2CPacket(this.id, new EntityPosition(pos, Vec3d.ZERO, this.yaw, this.pitch), false);
+            packet = new ClientboundEntityPositionSyncPacket(this.id, new PositionMoveRotation(pos, Vec3.ZERO, this.yaw, this.pitch), false);
             this.updatesSinceLastAbsolutePositionSync = 0;
         } else {
             packet = VirtualEntityUtils.createMovePacket(this.id, this.lastSyncedPos, pos, this.isRotationDirty, this.yaw, this.pitch);
@@ -182,7 +182,7 @@ public abstract class GenericEntityElement extends AbstractElement {
 
         if (packet != null) {
             this.sendPacket(packet);
-            if (!(packet instanceof EntityS2CPacket.Rotate)) {
+            if (!(packet instanceof ClientboundMoveEntityPacket.Rot)) {
                 this.lastSyncedPos = pos;
             }
         }
@@ -193,16 +193,16 @@ public abstract class GenericEntityElement extends AbstractElement {
         if (this.dataTracker.isDirty()) {
             var dirty = this.dataTracker.getDirtyEntries();
             if (dirty != null) {
-                this.sendPacket(new EntityTrackerUpdateS2CPacket(this.id, dirty));
+                this.sendPacket(new ClientboundSetEntityDataPacket(this.id, dirty));
             }
         }
     }
 
     protected void sendRotationUpdates() {
         if (this.isRotationDirty) {
-            var i = MathHelper.floor(yaw * 256.0F / 360.0F);
-            var j = MathHelper.floor(pitch * 256.0F / 360.0F);
-            this.sendPacket(new EntityS2CPacket.Rotate(id, (byte) i, (byte) j, false));
+            var i = Mth.floor(yaw * 256.0F / 360.0F);
+            var j = Mth.floor(pitch * 256.0F / 360.0F);
+            this.sendPacket(new ClientboundMoveEntityPacket.Rot(id, (byte) i, (byte) j, false));
             this.isRotationDirty = false;
         }
     }
@@ -211,11 +211,11 @@ public abstract class GenericEntityElement extends AbstractElement {
         return this.dataTracker;
     }
 
-    public EntityPose getPose() {
+    public Pose getPose() {
         return this.dataTracker.get(EntityTrackedData.POSE);
     }
 
-    public void setPose(EntityPose pose) {
+    public void setPose(Pose pose) {
         this.dataTracker.set(EntityTrackedData.POSE, pose);
     }
 
@@ -286,11 +286,11 @@ public abstract class GenericEntityElement extends AbstractElement {
     }
 
     @Nullable
-    public Text getCustomName() {
+    public Component getCustomName() {
         return this.dataTracker.get(EntityTrackedData.CUSTOM_NAME).orElse(null);
     }
 
-    public void setCustomName(@Nullable Text name) {
+    public void setCustomName(@Nullable Component name) {
         this.dataTracker.set(EntityTrackedData.CUSTOM_NAME, Optional.ofNullable(name));
     }
 

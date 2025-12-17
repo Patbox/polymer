@@ -19,8 +19,8 @@ public record SpaceProvider(Map<String, Float> advances) implements FontProvider
         return CODEC;
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static eu.pb4.polymer.resourcepack.extras.api.format.font.SpaceProvider.Builder builder() {
+        return new eu.pb4.polymer.resourcepack.extras.api.format.font.SpaceProvider.Builder();
     }
 
 
@@ -30,17 +30,17 @@ public record SpaceProvider(Map<String, Float> advances) implements FontProvider
         private Builder() {
         }
 
-        public Builder add(String character, int size) {
+        public eu.pb4.polymer.resourcepack.extras.api.format.font.SpaceProvider.Builder add(String character, int size) {
             this.map.put(character, size);
             return this;
         }
 
-        public Builder add(int character, int size) {
+        public eu.pb4.polymer.resourcepack.extras.api.format.font.SpaceProvider.Builder add(int character, int size) {
             this.map.put(Character.toString(character), size);
             return this;
         }
 
-        public Builder add(char character, int size) {
+        public eu.pb4.polymer.resourcepack.extras.api.format.font.SpaceProvider.Builder add(char character, int size) {
             this.map.put(Character.toString(character), size);
             return this;
         }

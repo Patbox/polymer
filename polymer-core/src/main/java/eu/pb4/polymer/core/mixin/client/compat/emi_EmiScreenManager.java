@@ -5,10 +5,6 @@ import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.screen.EmiScreenManager;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.visitor.NbtOrderedStringFormatter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,13 +13,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.SnbtPrinterTagVisitor;
+import net.minecraft.world.item.ItemStack;
 
 @Pseudo
 @Mixin(EmiScreenManager.class)
 public class emi_EmiScreenManager {
-    @Shadow private static MinecraftClient client;
+    @Shadow private static Minecraft client;
 
-    @Inject(method = "give", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), require = 0, cancellable = true)
+    @Inject(method = "give", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;getKey(Ljava/lang/Object;)Lnet/minecraft/resources/Identifier;"), require = 0, cancellable = true)
     private static void polymerCore$replaceWithServerItem(EmiStack eStack, int amount, int mode, CallbackInfoReturnable<Boolean> cir, @Local(ordinal = 0) ItemStack stack) {
         try {
             if (CompatUtils.isServerSide(stack)) {
@@ -35,7 +34,7 @@ public class emi_EmiScreenManager {
                     for (var e : comp.entrySet()) {
                         command.append(e.getKey().toString());
                         command.append('=');
-                        command.append(new NbtOrderedStringFormatter("", 0, new ArrayList<>()).apply(e.getValue()));
+                        command.append(new SnbtPrinterTagVisitor("", 0, new ArrayList<>()).visit(e.getValue()));
                     }
                     command.append(']');
                 }
@@ -46,7 +45,7 @@ public class emi_EmiScreenManager {
                 if (amount != 1) {
                 command.append(" ").append(amount);
                 }
-                client.player.networkHandler.sendChatCommand(command.toString());
+                client.player.connection.sendCommand(command.toString());
                 cir.setReturnValue(true);
             }
         } catch (Throwable e) {

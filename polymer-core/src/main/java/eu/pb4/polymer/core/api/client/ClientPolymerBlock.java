@@ -5,29 +5,29 @@ import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
-public record ClientPolymerBlock(Identifier identifier, int numId, float hardness, MiningDeltaLogic miningDeltaLogic, Text name, BlockState defaultBlockState,
+public record ClientPolymerBlock(Identifier identifier, int numId, float hardness, MiningDeltaLogic miningDeltaLogic, Component name, BlockState defaultBlockState,
                                  @Nullable Block registryEntry, ItemStack displayStack) implements ClientPolymerEntry<Block> {
-    public static final ClientPolymerBlock NONE = new ClientPolymerBlock(PolymerImplUtils.id("none"), 0, -2, MiningDeltaLogic.VANILLA, Text.empty(), Blocks.AIR.getDefaultState(), null, ItemStack.EMPTY);
+    public static final ClientPolymerBlock NONE = new ClientPolymerBlock(PolymerImplUtils.id("none"), 0, -2, MiningDeltaLogic.VANILLA, Component.empty(), Blocks.AIR.defaultBlockState(), null, ItemStack.EMPTY);
     public static final State NONE_STATE = new State(Collections.emptyMap(), NONE);
     public static final PolymerRegistry<ClientPolymerBlock> REGISTRY = InternalClientRegistry.BLOCKS;
 
-    public ClientPolymerBlock(Identifier identifier, int numId, Text name, BlockState defaultBlockState, @Nullable Block registryEntry) {
-        this(identifier, numId, name, defaultBlockState, registryEntry, defaultBlockState.getBlock().asItem().getDefaultStack());
+    public ClientPolymerBlock(Identifier identifier, int numId, Component name, BlockState defaultBlockState, @Nullable Block registryEntry) {
+        this(identifier, numId, name, defaultBlockState, registryEntry, defaultBlockState.getBlock().asItem().getDefaultInstance());
     }
 
-    public ClientPolymerBlock(Identifier identifier, int numId, Text name, BlockState defaultBlockState) {
+    public ClientPolymerBlock(Identifier identifier, int numId, Component name, BlockState defaultBlockState) {
         this(identifier, numId, name, defaultBlockState, null);
     }
 
@@ -35,7 +35,7 @@ public record ClientPolymerBlock(Identifier identifier, int numId, float hardnes
         return this == NONE;
     }
 
-    public ClientPolymerBlock(Identifier identifier, int numId, Text name, BlockState defaultBlockState,
+    public ClientPolymerBlock(Identifier identifier, int numId, Component name, BlockState defaultBlockState,
                               @Nullable Block registryEntry, ItemStack displayStack) {
         this(identifier, numId, -2, MiningDeltaLogic.CUSTOM_SERVER, name, defaultBlockState, registryEntry, displayStack);
     }

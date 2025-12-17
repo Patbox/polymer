@@ -5,21 +5,19 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.common.impl.FakeWorld;
-import eu.pb4.polymer.common.mixin.DataTrackerAccessor;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import eu.pb4.polymer.common.mixin.SyncedEntityDataAccessor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.disguiselib.api.EntityDisguise;
@@ -31,15 +29,15 @@ import java.util.Map;
 @SuppressWarnings({"unused", "unchecked"})
 public class InternalEntityHelpers {
     private static final Map<EntityType<?>, @Nullable Entity> EXAMPLE_ENTITIES = new HashMap<>();
-    private static final Map<EntityType<?>, DataTracker.Entry<?>[]> TRACKED_DATA = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
+    private static final Map<EntityType<?>, SynchedEntityData.DataItem<?>[]> TRACKED_DATA = new Object2ObjectOpenCustomHashMap<>(CommonImplUtils.IDENTITY_HASH);
 
-    private static PlayerEntity createPlayer() {
-        PlayerEntity player = null;
+    private static Player createPlayer() {
+        Player player = null;
         try {
-            player = new PlayerEntity(FakeWorld.INSTANCE_UNSAFE, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
+            player = new Player(FakeWorld.INSTANCE_UNSAFE, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
                 @Nullable
                 @Override
-                public GameMode getGameMode() {
+                public GameType gameMode() {
                     return null;
                 }
 
@@ -58,10 +56,10 @@ public class InternalEntityHelpers {
                 CommonImpl.LOGGER.error("Failed add player like entity! Trying with alternative method", e);
             }
             try {
-                player = new PlayerEntity(FakeWorld.INSTANCE_REGULAR, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
+                player = new Player(FakeWorld.INSTANCE_REGULAR, new GameProfile(Util.NIL_UUID, "TinyPotato")) {
                     @Nullable
                     @Override
-                    public GameMode getGameMode() {
+                    public GameType gameMode() {
                         return null;
                     }
 
@@ -85,13 +83,13 @@ public class InternalEntityHelpers {
         return player;
     };
 
-    public static DataTracker.Entry<?>[] getExampleTrackedDataOfEntityType(EntityType<?> type) {
+    public static SynchedEntityData.DataItem<?>[] getExampleTrackedDataOfEntityType(EntityType<?> type) {
         var val = TRACKED_DATA.get(type);
 
         if (val == null) {
             var ent = getEntity(type);
             if (ent != null) {
-                var map = ((DataTrackerAccessor) ent.getDataTracker()).getEntries();
+                var map = ((SyncedEntityDataAccessor) ent.getEntityData()).getItemsById();
                 TRACKED_DATA.put(type, map);
                 return map;
             }
@@ -109,10 +107,10 @@ public class InternalEntityHelpers {
     }
 
     public static boolean isMobEntity(EntityType<?> type) {
-        return getEntity(type) instanceof MobEntity;
+        return getEntity(type) instanceof Mob;
     }
 
-    public static boolean canPatchTrackedData(ServerPlayerEntity player, Entity entity) {
+    public static boolean canPatchTrackedData(ServerPlayer player, Entity entity) {
         if (CompatStatus.DISGUISELIB) {
             return !((EntityDisguise) entity).isDisguised() || ((EntityDisguise) player).hasTrueSight();
         }
@@ -129,12 +127,12 @@ public class InternalEntityHelpers {
             }
 
             try {
-                entity = type.create(FakeWorld.INSTANCE_UNSAFE, SpawnReason.LOAD);
+                entity = type.create(FakeWorld.INSTANCE_UNSAFE, EntitySpawnReason.LOAD);
             } catch (Throwable e) {
                 try {
-                    entity = type.create(FakeWorld.INSTANCE_REGULAR, SpawnReason.LOAD);
+                    entity = type.create(FakeWorld.INSTANCE_REGULAR, EntitySpawnReason.LOAD);
                 } catch (Throwable e2) {
-                    var id = Registries.ENTITY_TYPE.getId(type);
+                    var id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
                     if (CommonImpl.ENABLE_TEMPLATE_ENTITY_WARNINGS) {
                         CommonImpl.LOGGER.warn(String.format(
                                 "Couldn't create template entity of %s... Defaulting to empty. %s",

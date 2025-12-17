@@ -2,13 +2,13 @@ package eu.pb4.polymer.networking.impl;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.networking.api.server.EarlyConfigurationNetworkHandler;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkPhase;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
-import net.minecraft.network.state.ConfigurationStates;
+import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.configuration.ConfigurationProtocols;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerLoginNetworkHandler;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +22,7 @@ import java.util.function.Function;
 public class EarlyConfigurationConnectionMagic {
     private static final List<Function<EarlyConfigurationNetworkHandler.Context, EarlyConfigurationNetworkHandler>> CONSTRUCTORS = new ArrayList<>();
 
-    public static void handle(GameProfile profile, SyncedClientOptions options, ServerLoginNetworkHandler loginHandler, MinecraftServer server, ClientConnection connection, Consumer<ContextImpl> finish) {
+    public static void handle(GameProfile profile, ClientInformation options, ServerLoginPacketListenerImpl loginHandler, MinecraftServer server, Connection connection, Consumer<ContextImpl> finish) {
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
         var ctx = new ContextImpl(server, profile, connection, loginHandler, new ArrayList<>(), (c) -> {
@@ -36,8 +36,8 @@ public class EarlyConfigurationConnectionMagic {
         }, new AtomicReference<>(options));
 
 
-        connection.transitionInbound(ConfigurationStates.C2S,
-                new FallbackServerPacketHandler(NetworkPhase.CONFIGURATION, ctx.options()::set, ctx.storedPackets()::add, loginHandler::onDisconnected));
+        connection.setupInboundProtocol(ConfigurationProtocols.SERVERBOUND,
+                new FallbackServerPacketHandler(ConnectionProtocol.CONFIGURATION, ctx.options()::set, ctx.storedPackets()::add, loginHandler::onDisconnect));
 
         ctx.continueRunning().accept(ctx);
     }
@@ -53,11 +53,11 @@ public class EarlyConfigurationConnectionMagic {
     public record ContextImpl(
             MinecraftServer server,
             GameProfile profile,
-            ClientConnection connection,
-            ServerLoginNetworkHandler loginHandler,
+            Connection connection,
+            ServerLoginPacketListenerImpl loginHandler,
             List<Packet<?>> storedPackets,
             Consumer<ContextImpl> continueRunning,
-            AtomicReference<SyncedClientOptions> options
+            AtomicReference<ClientInformation> options
     ) implements EarlyConfigurationNetworkHandler.Context {
     }
 }

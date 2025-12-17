@@ -1,7 +1,7 @@
 package eu.pb4.polymer.networking.impl.client;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
+import eu.pb4.polymer.common.impl.CommonPacketListenerImplExt;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import eu.pb4.polymer.networking.api.client.PolymerClientPacketHandler;
 import eu.pb4.polymer.networking.impl.*;
@@ -11,30 +11,29 @@ import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientCommonNetworkHandler;
-import net.minecraft.client.network.ClientConfigurationNetworkHandler;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.CustomPayload;
-
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
+import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
 @ApiStatus.Internal
 public class ClientPacketRegistry {
-    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientCommonNetworkHandler, ?>>> COMMON_PACKET_LISTENERS = new HashMap<>();
-    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientPlayNetworkHandler, ?>>> PLAY_PACKET_LISTENERS = new HashMap<>();
-    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientConfigurationNetworkHandler, ?>>> CONFIG_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientCommonPacketListenerImpl, ?>>> COMMON_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientPacketListener, ?>>> PLAY_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerClientPacketHandler<ClientConfigurationPacketListenerImpl, ?>>> CONFIG_PACKET_LISTENERS = new HashMap<>();
     public static final Object2IntMap<Identifier> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
-    public static final Map<Identifier, NbtElement> SERVER_METADATA = new HashMap<>();
-    public static final Map<Identifier, NbtElement> METADATA = new HashMap<>();
+    public static final Map<Identifier, Tag> SERVER_METADATA = new HashMap<>();
+    public static final Map<Identifier, Tag> METADATA = new HashMap<>();
     public static String lastVersion;
     public static void register() {
         PolymerClientNetworking.registerCommonHandler(HandshakePayload.class, ClientPacketRegistry::handleHandshake);
@@ -43,12 +42,12 @@ public class ClientPacketRegistry {
         PolymerClientNetworking.registerCommonHandler(HelloS2CPayload.class, ClientPacketRegistry::handleHello);
     }
 
-    private static void handleHello(MinecraftClient client, ClientCommonNetworkHandler handler, HelloS2CPayload payload) {
+    private static void handleHello(Minecraft client, ClientCommonPacketListenerImpl handler, HelloS2CPayload payload) {
         sendHandshake(handler);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes", "UnstableApiUsage"})
-    public static boolean handle(MinecraftClient client, ClientCommonNetworkHandler handler, CustomPayload packet) {
+    public static boolean handle(Minecraft client, ClientCommonPacketListenerImpl handler, CustomPacketPayload packet) {
         var packetHandlers = COMMON_PACKET_LISTENERS.get(packet.getClass());
         boolean handled = false;
         if (packetHandlers != null) {
@@ -58,7 +57,7 @@ public class ClientPacketRegistry {
             handled = !packetHandlers.isEmpty();
         }
 
-        if (handler instanceof ClientPlayNetworkHandler playNetworkHandler) {
+        if (handler instanceof ClientPacketListener playNetworkHandler) {
             var packetHandlers2 = PLAY_PACKET_LISTENERS.get(packet.getClass());
             if (packetHandlers2 != null) {
                 for (var pHandler : packetHandlers2) {
@@ -66,7 +65,7 @@ public class ClientPacketRegistry {
                 }
                 handled = handled || !packetHandlers2.isEmpty();
             }
-        } else if (handler instanceof ClientConfigurationNetworkHandler networkHandler) {
+        } else if (handler instanceof ClientConfigurationPacketListenerImpl networkHandler) {
             var packetHandlers2 = CONFIG_PACKET_LISTENERS.get(packet.getClass());
             if (packetHandlers2 != null) {
                 for (var pHandler : packetHandlers2) {
@@ -79,14 +78,14 @@ public class ClientPacketRegistry {
         return handled;
     }
 
-    public static void clear(@Nullable ClientCommonNetworkHandler handler) {
+    public static void clear(@Nullable ClientCommonPacketListenerImpl handler) {
         lastVersion = "";
         CLIENT_PROTOCOL.clear();
         synchronized (SERVER_METADATA) {
             SERVER_METADATA.clear();
         }
         if (handler != null) {
-            var ext = (ExtClientConnection) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection();
+            var ext = (ExtConnection) ((CommonPacketListenerImplExt) handler).polymerCommon$getConnection();
             ext.polymerNet$getMetadataMap().clear();
             ext.polymerNet$getSupportMap().clear();
             ext.polymerNet$setVersion("");
@@ -95,20 +94,20 @@ public class ClientPacketRegistry {
         PolymerClientNetworking.AFTER_DISABLE.invoke(Runnable::run);
     }
 
-    public static void handleMetadata(MinecraftClient client, ClientCommonNetworkHandler handler, MetadataPayload payload) {
+    public static void handleMetadata(Minecraft client, ClientCommonPacketListenerImpl handler, MetadataPayload payload) {
         synchronized (SERVER_METADATA) {
             SERVER_METADATA.clear();
             SERVER_METADATA.putAll(payload.map());
         }
 
-        var ext = (ExtClientConnection) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection();
+        var ext = (ExtConnection) ((CommonPacketListenerImplExt) handler).polymerCommon$getConnection();
         ext.polymerNet$getMetadataMap().clear();
         ext.polymerNet$getMetadataMap().putAll(payload.map());
 
         PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoke(Runnable::run);
     }
 
-    public static void handleHandshake(MinecraftClient client, ClientCommonNetworkHandler handler, HandshakePayload payload) {
+    public static void handleHandshake(Minecraft client, ClientCommonPacketListenerImpl handler, HandshakePayload payload) {
         CLIENT_PROTOCOL.clear();
         SERVER_METADATA.clear();
 
@@ -116,7 +115,7 @@ public class ClientPacketRegistry {
 
         payload.packetVersions().forEach((id, ver) -> CLIENT_PROTOCOL.put(id, ClientPackets.getBestSupported(id, ver)));
 
-        var ext = (ExtClientConnection) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection();
+        var ext = (ExtConnection) ((CommonPacketListenerImplExt) handler).polymerCommon$getConnection();
         ext.polymerNet$getSupportMap().putAll(CLIENT_PROTOCOL);
         ext.polymerNet$setVersion(lastVersion);
 
@@ -124,20 +123,20 @@ public class ClientPacketRegistry {
         sendMetadata(handler);
     }
 
-    private static void sendMetadata(ClientCommonNetworkHandler handler) {
+    private static void sendMetadata(ClientCommonPacketListenerImpl handler) {
         try {
             PolymerClientNetworking.BEFORE_METADATA_SYNC.invoke(Runnable::run);
-            handler.sendPacket(new CustomPayloadC2SPacket(new MetadataPayload(METADATA)));
+            handler.send(new ServerboundCustomPayloadPacket(new MetadataPayload(METADATA)));
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
-    public static void handleDisable(MinecraftClient client, ClientCommonNetworkHandler handler, DisableS2CPayload payload) {
+    public static void handleDisable(Minecraft client, ClientCommonPacketListenerImpl handler, DisableS2CPayload payload) {
         clear(handler);
     }
 
-    public static void sendHandshake(ClientCommonNetworkHandler handler) {
-        handler.sendPacket(new CustomPayloadC2SPacket(new HandshakePayload(CommonImpl.VERSION, ServerPackets.VERSION_REGISTRY)));
+    public static void sendHandshake(ClientCommonPacketListenerImpl handler) {
+        handler.send(new ServerboundCustomPayloadPacket(new HandshakePayload(CommonImpl.VERSION, ServerPackets.VERSION_REGISTRY)));
     }
 }

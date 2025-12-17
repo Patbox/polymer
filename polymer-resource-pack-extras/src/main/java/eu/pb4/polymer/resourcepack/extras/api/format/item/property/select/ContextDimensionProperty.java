@@ -1,17 +1,17 @@
 package eu.pb4.polymer.resourcepack.extras.api.format.item.property.select;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.world.World;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
-public record ContextDimensionProperty() implements SelectProperty<RegistryKey<World>> {
-	public static final Type<ContextDimensionProperty, RegistryKey<World>> TYPE = new Type<>(
-		MapCodec.unit(new ContextDimensionProperty()), RegistryKey.createCodec(RegistryKeys.WORLD)
+public record ContextDimensionProperty() implements SelectProperty<ResourceKey<Level>> {
+	public static final Type<ContextDimensionProperty, ResourceKey<Level>> TYPE = new Type<>(
+		MapCodec.unit(new ContextDimensionProperty()), ResourceKey.codec(Registries.DIMENSION)
 	);
 
 	@Override
-	public Type<ContextDimensionProperty, RegistryKey<World>> type() {
+	public Type<ContextDimensionProperty, ResourceKey<Level>> type() {
 		return TYPE;
 	}
 }

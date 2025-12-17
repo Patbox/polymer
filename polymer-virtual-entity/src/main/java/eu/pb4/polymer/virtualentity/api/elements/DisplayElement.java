@@ -1,12 +1,12 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
+import com.mojang.math.MatrixUtil;
+import com.mojang.math.Transformation;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.Brightness;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.util.math.AffineTransformation;
-import net.minecraft.util.math.MatrixUtil;
+import net.minecraft.util.Brightness;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
 
@@ -14,9 +14,9 @@ import org.joml.*;
 @SuppressWarnings("ConstantConditions")
 public abstract class DisplayElement extends GenericEntityElement {
     @Override
-    protected abstract EntityType<? extends DisplayEntity> getEntityType();
+    protected abstract EntityType<? extends Display> getEntityType();
 
-    public void setTransformation(AffineTransformation transformation) {
+    public void setTransformation(Transformation transformation) {
         this.dataTracker.set(DisplayTrackedData.TRANSLATION, transformation.getTranslation());
         this.dataTracker.set(DisplayTrackedData.LEFT_ROTATION, transformation.getLeftRotation());
         this.dataTracker.set(DisplayTrackedData.SCALE, transformation.getScale());
@@ -113,11 +113,11 @@ public abstract class DisplayElement extends GenericEntityElement {
         }
     }
 
-    public DisplayEntity.BillboardMode getBillboardMode() {
-        return DisplayEntity.BillboardMode.FROM_INDEX.apply(this.dataTracker.get(DisplayTrackedData.BILLBOARD));
+    public Display.BillboardConstraints getBillboardMode() {
+        return Display.BillboardConstraints.BY_ID.apply(this.dataTracker.get(DisplayTrackedData.BILLBOARD));
     }
 
-    public void setBillboardMode(DisplayEntity.BillboardMode billboardMode) {
+    public void setBillboardMode(Display.BillboardConstraints billboardMode) {
         this.dataTracker.set(DisplayTrackedData.BILLBOARD, (byte) billboardMode.ordinal());
     }
 

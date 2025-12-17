@@ -1,365 +1,366 @@
 package eu.pb4.polymer.networking.impl;
 
-import net.minecraft.network.DisconnectionInfo;
-import net.minecraft.network.NetworkPhase;
-import net.minecraft.network.listener.ServerConfigurationPacketListener;
-import net.minecraft.network.listener.ServerPlayPacketListener;
-import net.minecraft.network.packet.c2s.common.*;
-import net.minecraft.network.packet.c2s.config.AcceptCodeOfConductC2SPacket;
-import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
-import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
-import net.minecraft.network.packet.c2s.play.*;
-import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.DisconnectionDetails;
+import net.minecraft.network.protocol.common.*;
+import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
+import net.minecraft.network.protocol.configuration.ServerboundAcceptCodeOfConductPacket;
+import net.minecraft.network.protocol.configuration.ServerboundFinishConfigurationPacket;
+import net.minecraft.network.protocol.configuration.ServerboundSelectKnownPacks;
+import net.minecraft.network.protocol.cookie.ServerboundCookieResponsePacket;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket;
+import net.minecraft.server.level.ClientInformation;
 
 import java.util.function.Consumer;
 
-public record FallbackServerPacketHandler(NetworkPhase phase,
-                                          Consumer<SyncedClientOptions> optionsConsumer,
-                                          Consumer<CustomPayloadC2SPacket> payloadConsumer,
-                                          Consumer<DisconnectionInfo> disconnectionInfoConsumer
-) implements ServerConfigurationPacketListener, ServerPlayPacketListener {
+public record FallbackServerPacketHandler(ConnectionProtocol phase,
+                                          Consumer<ClientInformation> optionsConsumer,
+                                          Consumer<ServerboundCustomPayloadPacket> payloadConsumer,
+                                          Consumer<DisconnectionDetails> disconnectionInfoConsumer
+) implements ServerConfigurationPacketListener, ServerGamePacketListener {
     @Override
-    public NetworkPhase getPhase() {
+    public ConnectionProtocol protocol() {
         return phase;
     }
 
     @Override
-    public void onReady(ReadyC2SPacket packet) {
+    public void handleConfigurationFinished(ServerboundFinishConfigurationPacket packet) {
 
     }
 
     @Override
-    public void onSelectKnownPacks(SelectKnownPacksC2SPacket packet) {
+    public void handleSelectKnownPacks(ServerboundSelectKnownPacks packet) {
 
     }
 
     @Override
-    public void onAcceptCodeOfConduct(AcceptCodeOfConductC2SPacket packet) {
+    public void handleAcceptCodeOfConduct(ServerboundAcceptCodeOfConductPacket packet) {
 
     }
 
     @Override
-    public void onKeepAlive(KeepAliveC2SPacket packet) {
+    public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
 
     }
 
     @Override
-    public void onPong(CommonPongC2SPacket packet) {
+    public void handlePong(ServerboundPongPacket packet) {
 
     }
 
     @Override
-    public void onCustomPayload(CustomPayloadC2SPacket packet) {
+    public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
         this.payloadConsumer.accept(packet);
     }
 
     @Override
-    public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
+    public void handleResourcePackResponse(ServerboundResourcePackPacket packet) {
 
     }
 
     @Override
-    public void onClientOptions(ClientOptionsC2SPacket packet) {
-        optionsConsumer.accept(packet.options());
+    public void handleClientInformation(ServerboundClientInformationPacket packet) {
+        optionsConsumer.accept(packet.information());
     }
 
     @Override
-    public void onCustomClickAction(CustomClickActionC2SPacket customClickActionC2SPacket) {
-
-    }
-
-    @Override
-    public void onCookieResponse(CookieResponseC2SPacket packet) {
+    public void handleCustomClickAction(ServerboundCustomClickActionPacket customClickActionC2SPacket) {
 
     }
 
     @Override
-    public void onDisconnected(DisconnectionInfo info) {
+    public void handleCookieResponse(ServerboundCookieResponsePacket packet) {
+
+    }
+
+    @Override
+    public void onDisconnect(DisconnectionDetails info) {
         this.disconnectionInfoConsumer.accept(info);
     }
 
     @Override
-    public boolean isConnectionOpen() {
+    public boolean isAcceptingMessages() {
         return true;
     }
 
     @Override
-    public void onHandSwing(HandSwingC2SPacket packet) {
+    public void handleAnimate(ServerboundSwingPacket packet) {
 
     }
 
     @Override
-    public void onChatMessage(ChatMessageC2SPacket packet) {
+    public void handleChat(ServerboundChatPacket packet) {
 
     }
 
     @Override
-    public void onCommandExecution(CommandExecutionC2SPacket packet) {
+    public void handleChatCommand(ServerboundChatCommandPacket packet) {
 
     }
 
     @Override
-    public void onChatCommandSigned(ChatCommandSignedC2SPacket packet) {
+    public void handleSignedChatCommand(ServerboundChatCommandSignedPacket packet) {
 
     }
 
     @Override
-    public void onMessageAcknowledgment(MessageAcknowledgmentC2SPacket packet) {
+    public void handleChatAck(ServerboundChatAckPacket packet) {
 
     }
 
     @Override
-    public void onClientStatus(ClientStatusC2SPacket packet) {
+    public void handleClientCommand(ServerboundClientCommandPacket packet) {
 
     }
 
     @Override
-    public void onButtonClick(ButtonClickC2SPacket packet) {
+    public void handleContainerButtonClick(ServerboundContainerButtonClickPacket packet) {
 
     }
 
     @Override
-    public void onClickSlot(ClickSlotC2SPacket packet) {
+    public void handleContainerClick(ServerboundContainerClickPacket packet) {
 
     }
 
     @Override
-    public void onCraftRequest(CraftRequestC2SPacket packet) {
+    public void handlePlaceRecipe(ServerboundPlaceRecipePacket packet) {
 
     }
 
     @Override
-    public void onCloseHandledScreen(CloseHandledScreenC2SPacket packet) {
+    public void handleContainerClose(ServerboundContainerClosePacket packet) {
 
     }
 
     @Override
-    public void onPlayerInteractEntity(PlayerInteractEntityC2SPacket packet) {
+    public void handleInteract(ServerboundInteractPacket packet) {
 
     }
 
     @Override
-    public void onPlayerMove(PlayerMoveC2SPacket packet) {
+    public void handleMovePlayer(ServerboundMovePlayerPacket packet) {
 
     }
 
     @Override
-    public void onUpdatePlayerAbilities(UpdatePlayerAbilitiesC2SPacket packet) {
+    public void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket packet) {
 
     }
 
     @Override
-    public void onPlayerAction(PlayerActionC2SPacket packet) {
+    public void handlePlayerAction(ServerboundPlayerActionPacket packet) {
 
     }
 
     @Override
-    public void onClientCommand(ClientCommandC2SPacket packet) {
+    public void handlePlayerCommand(ServerboundPlayerCommandPacket packet) {
 
     }
 
     @Override
-    public void onPlayerInput(PlayerInputC2SPacket packet) {
+    public void handlePlayerInput(ServerboundPlayerInputPacket packet) {
 
     }
 
     @Override
-    public void onUpdateSelectedSlot(UpdateSelectedSlotC2SPacket packet) {
+    public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) {
 
     }
 
     @Override
-    public void onCreativeInventoryAction(CreativeInventoryActionC2SPacket packet) {
+    public void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet) {
 
     }
 
     @Override
-    public void onUpdateSign(UpdateSignC2SPacket packet) {
+    public void handleSignUpdate(ServerboundSignUpdatePacket packet) {
 
     }
 
     @Override
-    public void onPlayerInteractBlock(PlayerInteractBlockC2SPacket packet) {
+    public void handleUseItemOn(ServerboundUseItemOnPacket packet) {
 
     }
 
     @Override
-    public void onPlayerInteractItem(PlayerInteractItemC2SPacket packet) {
+    public void handleUseItem(ServerboundUseItemPacket packet) {
 
     }
 
     @Override
-    public void onSpectatorTeleport(SpectatorTeleportC2SPacket packet) {
+    public void handleTeleportToEntityPacket(ServerboundTeleportToEntityPacket packet) {
 
     }
 
     @Override
-    public void onBoatPaddleState(BoatPaddleStateC2SPacket packet) {
+    public void handlePaddleBoat(ServerboundPaddleBoatPacket packet) {
 
     }
 
     @Override
-    public void onVehicleMove(VehicleMoveC2SPacket packet) {
+    public void handleMoveVehicle(ServerboundMoveVehiclePacket packet) {
 
     }
 
     @Override
-    public void onTeleportConfirm(TeleportConfirmC2SPacket packet) {
+    public void handleAcceptTeleportPacket(ServerboundAcceptTeleportationPacket packet) {
 
     }
 
     @Override
-    public void onPlayerLoaded(PlayerLoadedC2SPacket packet) {
+    public void handleAcceptPlayerLoad(ServerboundPlayerLoadedPacket packet) {
 
     }
 
     @Override
-    public void onRecipeBookData(RecipeBookDataC2SPacket packet) {
+    public void handleRecipeBookSeenRecipePacket(ServerboundRecipeBookSeenRecipePacket packet) {
 
     }
 
     @Override
-    public void onBundleItemSelected(BundleItemSelectedC2SPacket packet) {
+    public void handleBundleItemSelectedPacket(ServerboundSelectBundleItemPacket packet) {
 
     }
 
     @Override
-    public void onRecipeCategoryOptions(RecipeCategoryOptionsC2SPacket packet) {
+    public void handleRecipeBookChangeSettingsPacket(ServerboundRecipeBookChangeSettingsPacket packet) {
 
     }
 
     @Override
-    public void onAdvancementTab(AdvancementTabC2SPacket packet) {
+    public void handleSeenAdvancements(ServerboundSeenAdvancementsPacket packet) {
 
     }
 
     @Override
-    public void onRequestCommandCompletions(RequestCommandCompletionsC2SPacket packet) {
+    public void handleCustomCommandSuggestions(ServerboundCommandSuggestionPacket packet) {
 
     }
 
     @Override
-    public void onUpdateCommandBlock(UpdateCommandBlockC2SPacket packet) {
+    public void handleSetCommandBlock(ServerboundSetCommandBlockPacket packet) {
 
     }
 
     @Override
-    public void onUpdateCommandBlockMinecart(UpdateCommandBlockMinecartC2SPacket packet) {
+    public void handleSetCommandMinecart(ServerboundSetCommandMinecartPacket packet) {
 
     }
 
     @Override
-    public void onPickItemFromBlock(PickItemFromBlockC2SPacket packet) {
+    public void handlePickItemFromBlock(ServerboundPickItemFromBlockPacket packet) {
 
     }
 
     @Override
-    public void onPickItemFromEntity(PickItemFromEntityC2SPacket packet) {
+    public void handlePickItemFromEntity(ServerboundPickItemFromEntityPacket packet) {
 
     }
 
     @Override
-    public void onRenameItem(RenameItemC2SPacket packet) {
+    public void handleRenameItem(ServerboundRenameItemPacket packet) {
 
     }
 
     @Override
-    public void onUpdateBeacon(UpdateBeaconC2SPacket packet) {
+    public void handleSetBeaconPacket(ServerboundSetBeaconPacket packet) {
 
     }
 
     @Override
-    public void onUpdateStructureBlock(UpdateStructureBlockC2SPacket packet) {
+    public void handleSetStructureBlock(ServerboundSetStructureBlockPacket packet) {
 
     }
 
     @Override
-    public void onSetTestBlock(SetTestBlockC2SPacket packet) {
+    public void handleSetTestBlock(ServerboundSetTestBlockPacket packet) {
 
     }
 
     @Override
-    public void onTestInstanceBlockAction(TestInstanceBlockActionC2SPacket packet) {
+    public void handleTestInstanceBlockAction(ServerboundTestInstanceBlockActionPacket packet) {
 
     }
 
     @Override
-    public void onSelectMerchantTrade(SelectMerchantTradeC2SPacket packet) {
+    public void handleSelectTrade(ServerboundSelectTradePacket packet) {
 
     }
 
     @Override
-    public void onBookUpdate(BookUpdateC2SPacket packet) {
+    public void handleEditBook(ServerboundEditBookPacket packet) {
 
     }
 
     @Override
-    public void onQueryEntityNbt(QueryEntityNbtC2SPacket packet) {
+    public void handleEntityTagQuery(ServerboundEntityTagQueryPacket packet) {
 
     }
 
     @Override
-    public void onSlotChangedState(SlotChangedStateC2SPacket packet) {
+    public void handleContainerSlotStateChanged(ServerboundContainerSlotStateChangedPacket packet) {
 
     }
 
     @Override
-    public void onQueryBlockNbt(QueryBlockNbtC2SPacket packet) {
+    public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQueryPacket packet) {
 
     }
 
     @Override
-    public void onUpdateJigsaw(UpdateJigsawC2SPacket packet) {
+    public void handleSetJigsawBlock(ServerboundSetJigsawBlockPacket packet) {
 
     }
 
     @Override
-    public void onJigsawGenerating(JigsawGeneratingC2SPacket packet) {
+    public void handleJigsawGenerate(ServerboundJigsawGeneratePacket packet) {
 
     }
 
     @Override
-    public void onUpdateDifficulty(UpdateDifficultyC2SPacket packet) {
+    public void handleChangeDifficulty(ServerboundChangeDifficultyPacket packet) {
 
     }
 
     @Override
-    public void onChangeGameMode(ChangeGameModeC2SPacket packet) {
+    public void handleChangeGameMode(ServerboundChangeGameModePacket packet) {
 
     }
 
     @Override
-    public void onUpdateDifficultyLock(UpdateDifficultyLockC2SPacket packet) {
+    public void handleLockDifficulty(ServerboundLockDifficultyPacket packet) {
 
     }
 
     @Override
-    public void onPlayerSession(PlayerSessionC2SPacket packet) {
+    public void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket packet) {
 
     }
 
     @Override
-    public void onAcknowledgeReconfiguration(AcknowledgeReconfigurationC2SPacket packet) {
+    public void handleConfigurationAcknowledged(ServerboundConfigurationAcknowledgedPacket packet) {
 
     }
 
     @Override
-    public void onAcknowledgeChunks(AcknowledgeChunksC2SPacket packet) {
+    public void handleChunkBatchReceived(ServerboundChunkBatchReceivedPacket packet) {
 
     }
 
     @Override
-    public void onDebugSubscriptionRequest(DebugSubscriptionRequestC2SPacket packet) {
+    public void handleDebugSubscriptionRequest(ServerboundDebugSubscriptionRequestPacket packet) {
 
     }
 
     @Override
-    public void onClientTickEnd(ClientTickEndC2SPacket packet) {
+    public void handleClientTickEnd(ServerboundClientTickEndPacket packet) {
 
     }
 
     @Override
-    public void onQueryPing(QueryPingC2SPacket packet) {
+    public void handlePingRequest(ServerboundPingRequestPacket packet) {
 
     }
 }

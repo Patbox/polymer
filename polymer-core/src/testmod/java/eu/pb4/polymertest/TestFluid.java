@@ -1,18 +1,17 @@
 package eu.pb4.polymertest;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 public abstract class TestFluid extends BaseTestFluid {
     @Override
-    public Fluid getStill() {
+    public Fluid getSource() {
         return TestMod.STILL_FLUID;
     }
 
@@ -22,39 +21,39 @@ public abstract class TestFluid extends BaseTestFluid {
     }
 
     @Override
-    public Item getBucketItem() {
+    public Item getBucket() {
         return TestMod.FLUID_BUCKET;
     }
 
     @Override
-    protected int getMaxFlowDistance(WorldView world) {
+    protected int getSlopeFindDistance(LevelReader world) {
         return 8;
     }
 
     @Override
-    protected BlockState toBlockState(FluidState fluidState) {
-        return TestMod.FLUID_BLOCK.getDefaultState().with(Properties.LEVEL_15, getBlockStateLevel(fluidState));
+    protected BlockState createLegacyBlock(FluidState fluidState) {
+        return TestMod.FLUID_BLOCK.defaultBlockState().setValue(BlockStateProperties.LEVEL, getLegacyLevel(fluidState));
     }
 
     public static class Flowing extends TestFluid {
         @Override
-        protected void appendProperties(StateManager.Builder<Fluid, FluidState> builder) {
-            super.appendProperties(builder);
+        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+            super.createFluidStateDefinition(builder);
             builder.add(LEVEL);
         }
 
         @Override
-        protected boolean isInfinite(ServerWorld world) {
+        protected boolean canConvertToSource(ServerLevel world) {
             return false;
         }
 
         @Override
-        public int getLevel(FluidState fluidState) {
-            return fluidState.get(LEVEL);
+        public int getAmount(FluidState fluidState) {
+            return fluidState.getValue(LEVEL);
         }
 
         @Override
-        public boolean isStill(FluidState fluidState) {
+        public boolean isSource(FluidState fluidState) {
             return false;
         }
     }
@@ -62,17 +61,17 @@ public abstract class TestFluid extends BaseTestFluid {
     public static class Still extends TestFluid {
 
         @Override
-        protected boolean isInfinite(ServerWorld world) {
+        protected boolean canConvertToSource(ServerLevel world) {
             return false;
         }
 
         @Override
-        public int getLevel(FluidState fluidState) {
+        public int getAmount(FluidState fluidState) {
             return 8;
         }
 
         @Override
-        public boolean isStill(FluidState fluidState) {
+        public boolean isSource(FluidState fluidState) {
             return true;
         }
     }

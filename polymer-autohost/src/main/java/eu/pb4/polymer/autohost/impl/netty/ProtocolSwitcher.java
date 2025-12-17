@@ -6,14 +6,14 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import net.minecraft.network.OpaqueByteBufHolder;
+import net.minecraft.network.HiddenByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 public class ProtocolSwitcher extends ChannelInboundHandlerAdapter {
     public static final String ID = "polymer:autohost/protocol_switcher";
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
-        if (!(OpaqueByteBufHolder.unpack(msg) instanceof ByteBuf buf)) {
+        if (!(HiddenByteBuf.unpack(msg) instanceof ByteBuf buf)) {
             return;
         }
         var i = buf.readerIndex();

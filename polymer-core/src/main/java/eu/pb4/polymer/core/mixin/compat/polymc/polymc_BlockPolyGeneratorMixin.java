@@ -5,8 +5,8 @@ import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.compat.polymc.PolymerBlockPoly;
 import io.github.theepicblock.polymc.api.PolyRegistry;
 import io.github.theepicblock.polymc.impl.generator.BlockPolyGenerator;
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Block;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +18,7 @@ public class polymc_BlockPolyGeneratorMixin {
 
     @Inject(method = "generatePoly", at = @At("HEAD"), cancellable = true, remap = false)
     private static void polymer_addVirtualBlockPoly(Block block, PolyRegistry builder, CallbackInfoReturnable cir) {
-        if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, block) instanceof PolymerBlock) {
+        if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, block) instanceof PolymerBlock) {
             cir.setReturnValue(new PolymerBlockPoly());
         }
     }

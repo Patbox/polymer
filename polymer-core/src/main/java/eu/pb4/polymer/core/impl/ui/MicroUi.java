@@ -1,22 +1,22 @@
 package eu.pb4.polymer.core.impl.ui;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -29,24 +29,24 @@ import org.jetbrains.annotations.Nullable;
  */
 public class MicroUi {
     private final UiElement[] elements;
-    private Text title = Text.empty();
-    private final ScreenHandlerType<?> type;
+    private Component title = Component.empty();
+    private final MenuType<?> type;
     protected final int size;
 
     public MicroUi(int lines) {
         this.size = lines * 9;
         this.type = switch (lines) {
-            case 1 -> ScreenHandlerType.GENERIC_9X1;
-            case 2 -> ScreenHandlerType.GENERIC_9X2;
-            case 3 -> ScreenHandlerType.GENERIC_9X3;
-            case 4 -> ScreenHandlerType.GENERIC_9X4;
-            case 5 -> ScreenHandlerType.GENERIC_9X5;
-            default -> ScreenHandlerType.GENERIC_9X6;
+            case 1 -> MenuType.GENERIC_9x1;
+            case 2 -> MenuType.GENERIC_9x2;
+            case 3 -> MenuType.GENERIC_9x3;
+            case 4 -> MenuType.GENERIC_9x4;
+            case 5 -> MenuType.GENERIC_9x5;
+            default -> MenuType.GENERIC_9x6;
         };
         this.elements = new UiElement[this.size];
     }
 
-    public MicroUi title(Text title) {
+    public MicroUi title(Component title) {
         this.title = title;
         return this;
     }
@@ -58,16 +58,16 @@ public class MicroUi {
 
     protected void tick() {}
 
-    public void open(ServerPlayerEntity player) {
-        player.openHandledScreen(new NamedScreenHandlerFactory() {
+    public void open(ServerPlayer player) {
+        player.openMenu(new MenuProvider() {
             @Override
-            public Text getDisplayName() {
+            public Component getDisplayName() {
                 return MicroUi.this.title;
             }
 
             @Nullable
             @Override
-            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+            public AbstractContainerMenu createMenu(int syncId, Inventory inv, Player player) {
                 return new InternalScreenHandler(syncId, inv, player);
             }
         });
@@ -84,12 +84,12 @@ public class MicroUi {
         return this;
     }
 
-    public static void playSound(ServerPlayerEntity player, RegistryEntry<SoundEvent> soundEvent) {
+    public static void playSound(ServerPlayer player, Holder<SoundEvent> soundEvent) {
         playSound(player, soundEvent.value());
     }
-    public static void playSound(ServerPlayerEntity player, SoundEvent soundEvent) {
-        player.networkHandler.sendPacket(new PlaySoundFromEntityS2CPacket(
-                Registries.SOUND_EVENT.getEntry(soundEvent), SoundCategory.MASTER, player,  0.2f, 1,
+    public static void playSound(ServerPlayer player, SoundEvent soundEvent) {
+        player.connection.send(new ClientboundSoundEntityPacket(
+                BuiltInRegistries.SOUND_EVENT.wrapAsHolder(soundEvent), SoundSource.MASTER, player,  0.2f, 1,
                 player.getRandom().nextLong()
         ));
     }
@@ -97,14 +97,14 @@ public class MicroUi {
     @FunctionalInterface
     public interface PlayerClickAction {
         PlayerClickAction NOOP = (a, b, c, d) -> {};
-        void onClick(ServerPlayerEntity player, int slotIndex, int button, SlotActionType actionType);
+        void onClick(ServerPlayer player, int slotIndex, int button, ClickType actionType);
     }
 
     private record UiElement(ItemStack stack, PlayerClickAction action) {
     }
 
-    private class InternalScreenHandler extends ScreenHandler {
-        protected InternalScreenHandler(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+    private class InternalScreenHandler extends AbstractContainerMenu {
+        protected InternalScreenHandler(int syncId, Inventory playerInventory, Player player) {
             super(MicroUi.this.type, syncId);
 
             var inv = new InternalInventory(MicroUi.this);
@@ -124,39 +124,39 @@ public class MicroUi {
         }
 
         @Override
-        public boolean canUse(PlayerEntity player) {
+        public boolean stillValid(Player player) {
             return true;
         }
 
         @Override
-        public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+        public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
             if (slotIndex > -1 && slotIndex < MicroUi.this.size) {
                 var slot = MicroUi.this.elements[slotIndex];
                 if (slot != null) {
-                    slot.action().onClick((ServerPlayerEntity) player, slotIndex, button, actionType);
+                    slot.action().onClick((ServerPlayer) player, slotIndex, button, actionType);
                 }
-                ((ServerPlayerEntity) player).networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, 0, slotIndex, this.getSlot(slotIndex).getStack()));
-                ((ServerPlayerEntity) player).networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, 0, 0, this.getCursorStack()));
-            } else if (actionType != SlotActionType.QUICK_MOVE) {
-                super.onSlotClick(slotIndex, button, actionType, player);
+                ((ServerPlayer) player).connection.send(new ClientboundContainerSetSlotPacket(this.containerId, 0, slotIndex, this.getSlot(slotIndex).getItem()));
+                ((ServerPlayer) player).connection.send(new ClientboundContainerSetSlotPacket(-1, 0, 0, this.getCarried()));
+            } else if (actionType != ClickType.QUICK_MOVE) {
+                super.clicked(slotIndex, button, actionType, player);
             }
         }
 
         @Override
-        public void sendContentUpdates() {
+        public void broadcastChanges() {
             MicroUi.this.tick();
-            super.sendContentUpdates();
+            super.broadcastChanges();
         }
 
         @Override
-        public ItemStack quickMove(PlayerEntity player, int slot) {
+        public ItemStack quickMoveStack(Player player, int slot) {
             return ItemStack.EMPTY;
         }
     }
 
-    private record InternalInventory(MicroUi ui) implements Inventory {
+    private record InternalInventory(MicroUi ui) implements Container {
         @Override
-        public int size() {
+        public int getContainerSize() {
             return ui.size;
         }
 
@@ -166,37 +166,37 @@ public class MicroUi {
         }
 
         @Override
-        public ItemStack getStack(int slot) {
+        public ItemStack getItem(int slot) {
             return ui.elements[slot] != null ? ui.elements[slot].stack : ItemStack.EMPTY;
         }
 
         @Override
-        public ItemStack removeStack(int slot, int amount) {
+        public ItemStack removeItem(int slot, int amount) {
             return ItemStack.EMPTY;
         }
 
         @Override
-        public ItemStack removeStack(int slot) {
+        public ItemStack removeItemNoUpdate(int slot) {
             return ItemStack.EMPTY;
         }
 
         @Override
-        public void setStack(int slot, ItemStack stack) {
+        public void setItem(int slot, ItemStack stack) {
 
         }
 
         @Override
-        public void markDirty() {
+        public void setChanged() {
 
         }
 
         @Override
-        public boolean canPlayerUse(PlayerEntity player) {
+        public boolean stillValid(Player player) {
             return true;
         }
 
         @Override
-        public void clear() {
+        public void clearContent() {
 
         }
     }

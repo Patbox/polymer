@@ -5,13 +5,12 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "eu.pb4.polymer.resourcepack.mixin.PolymerResourcePackMixinConfigPlugin",
   "mixins": [
-    "accessors.BlockEntryAccessor",
-    "accessors.PackOverlaysMetadataAccessor",
-    "accessors.ResourceFilterAccessor",
-    "accessors.VanillaResourcePackProviderAccessor"
+    "accessors.IdentifierPatternAccessor",
+    "accessors.ResourceFilterSectionAccessor",
+    "accessors.BuiltInPackSourceAccessor"
   ],
   "client": [
-    "client.ResourcePackManagerMixin"
+    "client.PackRepositoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

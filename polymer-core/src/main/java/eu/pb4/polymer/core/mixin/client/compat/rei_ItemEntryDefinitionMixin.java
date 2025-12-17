@@ -10,8 +10,8 @@ import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
 import me.shedaniel.rei.plugin.client.entry.ItemEntryDefinition;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class rei_ItemEntryDefinitionMixin {
     @Shadow public abstract ItemStack copy(EntryStack<ItemStack> entry, ItemStack value);
 
-    @Inject(method = "equals(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Lme/shedaniel/rei/api/common/entry/comparison/ComparisonContext;)Z", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "equals(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;Lme/shedaniel/rei/api/common/entry/comparison/ComparisonContext;)Z", at = @At("HEAD"), cancellable = true, require = 0)
     private void polymer$areEqual(ItemStack o1, ItemStack o2, ComparisonContext context, CallbackInfoReturnable<Boolean> cir) {
         var lId = PolymerItemUtils.getServerIdentifier(o1);
         var rId = PolymerItemUtils.getServerIdentifier(o2);
@@ -41,7 +41,7 @@ public abstract class rei_ItemEntryDefinitionMixin {
         }
     }
 
-    @Inject(method = "hash(Lme/shedaniel/rei/api/common/entry/EntryStack;Lnet/minecraft/item/ItemStack;Lme/shedaniel/rei/api/common/entry/comparison/ComparisonContext;)J", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "hash(Lme/shedaniel/rei/api/common/entry/EntryStack;Lnet/minecraft/world/item/ItemStack;Lme/shedaniel/rei/api/common/entry/comparison/ComparisonContext;)J", at = @At("HEAD"), cancellable = true, require = 0)
     private void polymer$hash(EntryStack<ItemStack> entry, ItemStack value, ComparisonContext context, CallbackInfoReturnable<Long> cir) {
         var id = PolymerItemUtils.getServerIdentifier(value);
         if (id != null) {
@@ -53,7 +53,7 @@ public abstract class rei_ItemEntryDefinitionMixin {
         }
     }
 
-    @Inject(method = "wildcard(Lme/shedaniel/rei/api/common/entry/EntryStack;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "wildcard(Lme/shedaniel/rei/api/common/entry/EntryStack;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"), cancellable = true, require = 0)
     private void polymer$wildcard(EntryStack<ItemStack> entry, ItemStack value, CallbackInfoReturnable<ItemStack> cir) {
         var id1 = PolymerItemUtils.getServerIdentifier(value);
         if (id1 != null) {
@@ -67,7 +67,7 @@ public abstract class rei_ItemEntryDefinitionMixin {
         }
     }
 
-    @Inject(method = "getIdentifier(Lme/shedaniel/rei/api/common/entry/EntryStack;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/util/Identifier;", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "getIdentifier(Lme/shedaniel/rei/api/common/entry/EntryStack;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/resources/Identifier;", at = @At("HEAD"), cancellable = true, require = 0)
     private void polymer$getIdentifier(EntryStack<ItemStack> entry, ItemStack value, CallbackInfoReturnable<@Nullable Identifier> cir) {
         var id1 = PolymerItemUtils.getServerIdentifier(value);
         if (id1 != null) {

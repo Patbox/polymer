@@ -1,9 +1,9 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockDisplayElement extends DisplayElement {
     public BlockDisplayElement(BlockState state) {
@@ -21,7 +21,7 @@ public class BlockDisplayElement extends DisplayElement {
     }
 
     @Override
-    protected final EntityType<? extends DisplayEntity> getEntityType() {
+    protected final EntityType<? extends Display> getEntityType() {
         return EntityType.BLOCK_DISPLAY;
     }
 }

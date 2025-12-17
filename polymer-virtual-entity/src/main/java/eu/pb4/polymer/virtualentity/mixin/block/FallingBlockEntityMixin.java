@@ -7,13 +7,13 @@ import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.impl.attachment.FallingBlockEntityAttachment;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FallingBlockEntity.class)
 public abstract class FallingBlockEntityMixin extends Entity {
-    public FallingBlockEntityMixin(EntityType<?> type, World world) {
+    public FallingBlockEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
@@ -35,14 +35,14 @@ public abstract class FallingBlockEntityMixin extends Entity {
     @Unique
     private FallingBlockEntityAttachment attachment;
 
-    @Inject(method = "spawnFromBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z", shift = At.Shift.BEFORE))
-    private static void getCurrentAttachment(World world, BlockPos pos, BlockState state, CallbackInfoReturnable<FallingBlockEntity> cir, @Local FallingBlockEntity entity,
+    @Inject(method = "fall", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", shift = At.Shift.BEFORE))
+    private static void getCurrentAttachment(Level world, BlockPos pos, BlockState state, CallbackInfoReturnable<FallingBlockEntity> cir, @Local FallingBlockEntity entity,
                                              @Share("holder") LocalRef<ElementHolder> ref) {
         var x = BlockBoundAttachment.get(world, pos);
         if (x != null) {
             var holder = BlockWithElementHolder.get(x.getBlockState());
             if (holder != null) {
-                var transformed = holder.createMovingElementHolder((ServerWorld) world, pos, x.getBlockState(), x.holder());
+                var transformed = holder.createMovingElementHolder((ServerLevel) world, pos, x.getBlockState(), x.holder());
 
                 if (transformed != null) {
                     if (transformed == x.holder()) {
@@ -55,8 +55,8 @@ public abstract class FallingBlockEntityMixin extends Entity {
         }
     }
 
-    @Inject(method = "spawnFromBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntity(Lnet/minecraft/entity/Entity;)Z", shift = At.Shift.AFTER))
-    private static void attach(World world, BlockPos pos, BlockState state, CallbackInfoReturnable<FallingBlockEntity> cir, @Local FallingBlockEntity entity,
+    @Inject(method = "fall", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = At.Shift.AFTER))
+    private static void attach(Level world, BlockPos pos, BlockState state, CallbackInfoReturnable<FallingBlockEntity> cir, @Local FallingBlockEntity entity,
                                              @Share("holder") LocalRef<ElementHolder> ref) {
         var x = ref.get();
         if (x != null)  {
@@ -65,12 +65,12 @@ public abstract class FallingBlockEntityMixin extends Entity {
     }
 
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z", shift = At.Shift.BEFORE))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", shift = At.Shift.BEFORE))
     private void updatePos(CallbackInfo ci, @Local(ordinal = 0) BlockPos blockPos) {
         var att = this.attachment;
 
         if (att != null) {
-            BlockBoundAttachment.fromMoving(att.holder(), (ServerWorld) this.getEntityWorld(), blockPos, this.getBlockState());
+            BlockBoundAttachment.fromMoving(att.holder(), (ServerLevel) this.level(), blockPos, this.getBlockState());
         }
     }
 }

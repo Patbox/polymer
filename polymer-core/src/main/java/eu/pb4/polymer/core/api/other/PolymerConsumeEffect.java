@@ -3,15 +3,15 @@ package eu.pb4.polymer.core.api.other;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.impl.other.PolymerComponentImpl;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import net.minecraft.item.consume.ConsumeEffect;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public interface PolymerConsumeEffect extends PolymerObject {
     static void registerConsumeEffect(ConsumeEffect.Type<?>... types) {
         for (var type : types) {
-            RegistrySyncUtils.setServerEntry(Registries.CONSUME_EFFECT_TYPE, type);
+            RegistrySyncUtils.setServerEntry(BuiltInRegistries.CONSUME_EFFECT_TYPE, type);
             PolymerComponentImpl.UNSYNCED_CONSUME_EFFECTS.add(type);
         }
     }

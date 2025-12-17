@@ -7,34 +7,34 @@ import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.providers.*;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CommonNetworkHandlerExt;
+import eu.pb4.polymer.common.impl.CommonPacketListenerImplExt;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class AutoHost implements ModInitializer {
     public static final Map<Identifier, Supplier<ResourcePackDataProvider>> TYPES = new HashMap<>();
-    public static final List<MinecraftServer.ServerResourcePackProperties> GLOBAL_RESOURCE_PACKS = new ArrayList<>();
+    public static final List<MinecraftServer.ServerResourcePackInfo> GLOBAL_RESOURCE_PACKS = new ArrayList<>();
     public static final Map<String, Path> FILES = new HashMap<>();
     public static AutoHostConfig config = new AutoHostConfig();
-    public static Text message = Text.empty();
-    public static Text disconnectMessage = Text.empty();
-    public static Text dialogTitle = Text.empty();
-    public static Text dialogDefaultBody = Text.empty();
-    public static Text dialogHeader = Text.empty();
+    public static Component message = Component.empty();
+    public static Component disconnectMessage = Component.empty();
+    public static Component dialogTitle = Component.empty();
+    public static Component dialogDefaultBody = Component.empty();
+    public static Component dialogHeader = Component.empty();
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
 
     public static final String DEFAULT_PATH = AutoHostUtils.getPathFromId(AutoHostUtils.DEFAULT_PACK_ID);
@@ -52,33 +52,33 @@ public class AutoHost implements ModInitializer {
         }
 
         try {
-            AutoHost.message = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.message).getOrThrow().getFirst();
+            AutoHost.message = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.message).getOrThrow().getFirst();
         } catch (Exception e) {
             AutoHost.message = null;
         }
 
         try {
-            AutoHost.disconnectMessage = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.disconnectMessage).getOrThrow().getFirst();
+            AutoHost.disconnectMessage = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.disconnectMessage).getOrThrow().getFirst();
         } catch (Exception e) {
-            AutoHost.disconnectMessage = Text.literal("This server requires resource pack enabled to play!");
+            AutoHost.disconnectMessage = Component.literal("This server requires resource pack enabled to play!");
         }
 
         try {
-            AutoHost.dialogTitle = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogTitle).getOrThrow().getFirst();
+            AutoHost.dialogTitle = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogTitle).getOrThrow().getFirst();
         } catch (Exception e) {
-            AutoHost.dialogTitle = Text.literal("The server's resource pack is still generating");
+            AutoHost.dialogTitle = Component.literal("The server's resource pack is still generating");
         }
 
         try {
-            AutoHost.dialogDefaultBody = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogDefaultBody).getOrThrow().getFirst();
+            AutoHost.dialogDefaultBody = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogDefaultBody).getOrThrow().getFirst();
         } catch (Exception e) {
-            AutoHost.dialogDefaultBody = Text.literal("Waiting...");
+            AutoHost.dialogDefaultBody = Component.literal("Waiting...");
         }
 
         try {
-            AutoHost.dialogHeader = TextCodecs.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogHeader).getOrThrow().getFirst();
+            AutoHost.dialogHeader = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.dialogHeader).getOrThrow().getFirst();
         } catch (Exception e) {
-            AutoHost.dialogHeader = Text.literal("This server requires a resource pack, which hasn't finished generating yet...\nIt might take a moment for it to finish!");
+            AutoHost.dialogHeader = Component.literal("This server requires a resource pack, which hasn't finished generating yet...\nIt might take a moment for it to finish!");
         }
 
 
@@ -137,27 +137,27 @@ public class AutoHost implements ModInitializer {
     public void onInitialize() {
         CommonImpl.registerConfig("auto-host", AutoHostConfig.class);
 
-        ResourcePackDataProvider.register(Identifier.of("polymer", "automatic"), NettyProvider::new);
-        ResourcePackDataProvider.register(Identifier.of("polymer", "auto"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "automatic"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "auto"), NettyProvider::new);
 
-        ResourcePackDataProvider.register(Identifier.of("polymer", "netty"), NettyProvider::new);
-        ResourcePackDataProvider.register(Identifier.of("polymer", "same_port"), NettyProvider::new);
-        ResourcePackDataProvider.register(Identifier.of("polymer", "http_server"), StandaloneWebServerProvider::new);
-        ResourcePackDataProvider.register(Identifier.of("polymer", "standalone"), StandaloneWebServerProvider::new);
-        ResourcePackDataProvider.register(Identifier.of("polymer", "external"), ExternalProvider::new);
-        ResourcePackDataProvider.register(Identifier.of("polymer", "empty"), EmptyProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "netty"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "same_port"), NettyProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "http_server"), StandaloneWebServerProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "standalone"), StandaloneWebServerProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "external"), ExternalProvider::new);
+        ResourcePackDataProvider.register(Identifier.fromNamespaceAndPath("polymer", "empty"), EmptyProvider::new);
 
         CommonImplUtils.registerCommands((c) -> c.then(literal("generate-pack")
                         .requires(CommonImplUtils.permission("command.generate", 3))
                         .then(literal("reload").executes((ctx -> {
                             return PolymerResourcePackMod.generateResources(ctx, () -> {
                                 if (!provider.isReady()) {
-                                    ctx.getSource().sendMessage(Text.literal("[Polymer] AutoHost module isn't configured/loaded correctly so resource pack won't be synced!"));
+                                    ctx.getSource().sendSystemMessage(Component.literal("[Polymer] AutoHost module isn't configured/loaded correctly so resource pack won't be synced!"));
                                     return;
                                 }
-                                for (var player : ctx.getSource().getServer().getPlayerManager().getPlayerList()) {
-                                    for (var x : provider.getProperties(((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$getConnection())) {
-                                        player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
+                                for (var player : ctx.getSource().getServer().getPlayerList().getPlayers()) {
+                                    for (var x : provider.getProperties(((CommonPacketListenerImplExt) player.connection).polymerCommon$getConnection())) {
+                                        player.connection.send(new ClientboundResourcePackPushPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
                                     }
                                 }
                             });
@@ -168,8 +168,8 @@ public class AutoHost implements ModInitializer {
         CommonImplUtils.registerDevCommands((c) -> {
             c.then(literal("reload_resourcepack").executes(context -> {
                 if (provider.isReady()) {
-                    for (var x : provider.getProperties(((CommonNetworkHandlerExt) context.getSource().getPlayerOrThrow().networkHandler).polymerCommon$getConnection())) {
-                        context.getSource().getPlayerOrThrow().networkHandler.sendPacket(new ResourcePackSendS2CPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
+                    for (var x : provider.getProperties(((CommonPacketListenerImplExt) context.getSource().getPlayerOrException().connection).polymerCommon$getConnection())) {
+                        context.getSource().getPlayerOrException().connection.send(new ClientboundResourcePackPushPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
                     }
                 }
                 return 0;

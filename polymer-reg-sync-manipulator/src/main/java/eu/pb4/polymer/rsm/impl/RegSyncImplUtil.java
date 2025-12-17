@@ -1,6 +1,6 @@
 package eu.pb4.polymer.rsm.impl;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public class RegSyncImplUtil {
     public static boolean isVanillaId(Identifier id) {

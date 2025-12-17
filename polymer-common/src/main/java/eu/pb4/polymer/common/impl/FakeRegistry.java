@@ -2,49 +2,48 @@ package eu.pb4.polymer.common.impl;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryInfo;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.entry.RegistryEntryOwner;
-import net.minecraft.registry.tag.TagGroupLoader;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Stream;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistrationInfo;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagLoader;
+import net.minecraft.util.RandomSource;
 
-public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Identifier defaultId, T defaultValue) implements Registry<T>, RegistryEntryOwner<T> {
+public record FakeRegistry<T>(ResourceKey<? extends Registry<T>> registryKey, Identifier defaultId, T defaultValue) implements Registry<T>, HolderOwner<T> {
 
     @Override
-    public RegistryKey<? extends Registry<T>> getKey() {
+    public ResourceKey<? extends Registry<T>> key() {
         return registryKey;
     }
 
     @Nullable
     @Override
-    public Identifier getId(T value) {
+    public Identifier getKey(T value) {
         return defaultId;
     }
 
     @Override
-    public Optional<RegistryKey<T>> getKey(T entry) {
-        return Optional.of(RegistryKey.of(registryKey, defaultId));
+    public Optional<ResourceKey<T>> getResourceKey(T entry) {
+        return Optional.of(ResourceKey.create(registryKey, defaultId));
     }
 
     @Override
-    public int getRawId(@Nullable T value) {
+    public int getId(@Nullable T value) {
         return 0;
     }
 
     @Nullable
     @Override
-    public T get(int index) {
+    public T byId(int index) {
         return defaultValue;
     }
 
@@ -55,58 +54,58 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
 
     @Nullable
     @Override
-    public T get(@Nullable RegistryKey<T> key) {
+    public T getValue(@Nullable ResourceKey<T> key) {
         return defaultValue;
     }
 
     @Nullable
     @Override
-    public T get(@Nullable Identifier id) {
+    public T getValue(@Nullable Identifier id) {
         return defaultValue;
     }
 
     @Override
-    public Optional<RegistryEntryInfo> getEntryInfo(RegistryKey<T> key) {
-        return Optional.of(RegistryEntryInfo.DEFAULT);
+    public Optional<RegistrationInfo> registrationInfo(ResourceKey<T> key) {
+        return Optional.of(RegistrationInfo.BUILT_IN);
     }
 
     @Override
-    public Lifecycle getLifecycle() {
+    public Lifecycle registryLifecycle() {
         return Lifecycle.experimental();
     }
 
     @Override
-    public Optional<RegistryEntry.Reference<T>> getDefaultEntry() {
-        return Optional.of(createEntry(defaultValue));
+    public Optional<Holder.Reference<T>> getAny() {
+        return Optional.of(createIntrusiveHolder(defaultValue));
     }
 
     @Override
-    public Set<Identifier> getIds() {
+    public Set<Identifier> keySet() {
         return Set.of(defaultId);
     }
 
     @Override
-    public Set<Map.Entry<RegistryKey<T>, T>> getEntrySet() {
+    public Set<Map.Entry<ResourceKey<T>, T>> entrySet() {
         return Set.of();
     }
 
     @Override
-    public Set<RegistryKey<T>> getKeys() {
+    public Set<ResourceKey<T>> registryKeySet() {
         return Set.of();
     }
 
     @Override
-    public Optional<RegistryEntry.Reference<T>> getRandom(Random random) {
+    public Optional<Holder.Reference<T>> getRandom(RandomSource random) {
         return Optional.empty();
     }
 
     @Override
-    public boolean containsId(Identifier id) {
+    public boolean containsKey(Identifier id) {
         return true;
     }
 
     @Override
-    public boolean contains(RegistryKey<T> key) {
+    public boolean containsKey(ResourceKey<T> key) {
         return true;
     }
 
@@ -116,42 +115,42 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
     }
 
     @Override
-    public RegistryEntry.Reference<T> createEntry(T value) {
-        return RegistryEntry.Reference.intrusive(this, value);
+    public Holder.Reference<T> createIntrusiveHolder(T value) {
+        return Holder.Reference.createIntrusive(this, value);
     }
 
     @Override
-    public Optional<RegistryEntry.Reference<T>> getEntry(int rawId) {
-        return getDefaultEntry();
+    public Optional<Holder.Reference<T>> get(int rawId) {
+        return getAny();
     }
 
     @Override
-    public Optional<RegistryEntry.Reference<T>> getEntry(Identifier id) {
-        return getDefaultEntry();
+    public Optional<Holder.Reference<T>> get(Identifier id) {
+        return getAny();
     }
 
     @Override
-    public RegistryEntry<T> getEntry(T value) {
-        return RegistryEntry.of(value);
+    public Holder<T> wrapAsHolder(T value) {
+        return Holder.direct(value);
     }
 
     @Override
-    public Stream<RegistryEntry.Reference<T>> streamEntries() {
+    public Stream<Holder.Reference<T>> listElements() {
         return Stream.empty();
     }
 
     @Override
-    public Stream<RegistryEntryList.Named<T>> getTags() {
+    public Stream<HolderSet.Named<T>> listTags() {
         return Stream.empty();
     }
 
     @Override
-    public Stream<RegistryEntryList.Named<T>> streamTags() {
+    public Stream<HolderSet.Named<T>> getTags() {
         return Stream.empty();
     }
 
     @Override
-    public PendingTagLoad<T> startTagReload(TagGroupLoader.RegistryTags<T> tags) {
+    public PendingTags<T> prepareTagReload(TagLoader.LoadResult<T> tags) {
         return null;
     }
 
@@ -172,12 +171,12 @@ public record FakeRegistry<T>(RegistryKey<? extends Registry<T>> registryKey, Id
     }
 
     @Override
-    public Optional<RegistryEntry.Reference<T>> getOptional(RegistryKey<T> key) {
-        return getEntry(key.getValue());
+    public Optional<Holder.Reference<T>> get(ResourceKey<T> key) {
+        return get(key.identifier());
     }
 
     @Override
-    public Optional<RegistryEntryList.Named<T>> getOptional(TagKey<T> tag) {
+    public Optional<HolderSet.Named<T>> get(TagKey<T> tag) {
         return Optional.empty();
     }
 }

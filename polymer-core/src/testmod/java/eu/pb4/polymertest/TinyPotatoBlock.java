@@ -1,21 +1,20 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.block.PolymerHeadBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TinyPotatoBlock extends Block implements PolymerHeadBlock {
-    public TinyPotatoBlock(Settings settings) {
+    public TinyPotatoBlock(Properties settings) {
         super(settings);
     }
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return Blocks.PLAYER_HEAD.getDefaultState();
+        return Blocks.PLAYER_HEAD.defaultBlockState();
     }
 
     @Override

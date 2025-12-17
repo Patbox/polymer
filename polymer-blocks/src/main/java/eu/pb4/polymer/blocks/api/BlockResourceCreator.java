@@ -14,11 +14,15 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import net.minecraft.block.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -26,7 +30,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public final class BlockResourceCreator {
-    private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.of("polymer", "block/empty"));
+    private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.fromNamespaceAndPath("polymer", "block/empty"));
     private final Map<BlockModelType, List<BlockState>> states;
     private final Set<Block> hasRequested = Collections.newSetFromMap(new IdentityHashMap<>());
     final Map<BlockState, Either<PolymerBlockModel[], MultiPolymerBlockModel>> models;
@@ -80,11 +84,11 @@ public final class BlockResourceCreator {
         }
         Predicate<BlockState> predicate = null;
         if (type.name().contains("TRAPDOOR")) {
-            predicate = b -> b.isOf(Blocks.IRON_TRAPDOOR);
+            predicate = b -> b.is(Blocks.IRON_TRAPDOOR);
         } else if (type.name().contains("DOOR")) {
-            predicate = b -> b.isOf(Blocks.IRON_DOOR);
+            predicate = b -> b.is(Blocks.IRON_DOOR);
         }  else if (type == BlockModelType.VINES_BLOCK) {
-            predicate = b -> b.isOf(Blocks.TWISTING_VINES);
+            predicate = b -> b.is(Blocks.TWISTING_VINES);
         }
 
         if (predicate != null) {
@@ -144,15 +148,15 @@ public final class BlockResourceCreator {
             this.hasRequested.add(state.getBlock());
             this.registerEvent();
 
-            if (state.getBlock() instanceof Waterloggable) {
+            if (state.getBlock() instanceof SimpleWaterloggedBlock) {
                 this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS
                         .getOrDefault(state, (state.getBlock() instanceof LeavesBlock
-                                ? state.getBlock().getDefaultState().with(LeavesBlock.PERSISTENT, true) : state.getBlock().getDefaultState()).with(Properties.WATERLOGGED, state.get(Properties.WATERLOGGED)))
+                                ? state.getBlock().defaultBlockState().setValue(LeavesBlock.PERSISTENT, true) : state.getBlock().defaultBlockState()).setValue(BlockStateProperties.WATERLOGGED, state.getValue(BlockStateProperties.WATERLOGGED)))
                 );
             } else {
                 this.blockMapper.stateMap.put(state, DefaultModelData.SPECIAL_REMAPS
                         .getOrDefault(state, state.getBlock() instanceof LeavesBlock
-                                ? state.getBlock().getDefaultState().with(LeavesBlock.PERSISTENT, true) : state.getBlock().getDefaultState())
+                                ? state.getBlock().defaultBlockState().setValue(LeavesBlock.PERSISTENT, true) : state.getBlock().defaultBlockState())
                 );
             }
 
@@ -188,7 +192,7 @@ public final class BlockResourceCreator {
             var state = blockStateEntry.getKey();
             var models = blockStateEntry.getValue();
 
-            var id = Registries.BLOCK.getId(state.getBlock());
+            var id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
             var path = "assets/" + id.getNamespace() + "/blockstates/" + id.getPath() + ".json";
             keys.add(Map.entry(path, state.getBlock()));
 
@@ -201,7 +205,7 @@ public final class BlockResourceCreator {
                 var name = prop.getName();
                 var obj2 = new JsonObject();
                 //noinspection rawtypes,unchecked
-                var value = ((Property) prop).name(state.get(prop));
+                var value = ((Property) prop).getName(state.getValue(prop));
                 obj2.addProperty(name,  "!" + value);
                 selfMulti.addProperty(name, value);
                 el.add(obj2);
@@ -251,9 +255,9 @@ public final class BlockResourceCreator {
                             var values = new ArrayList<>(vanillaJson.get("variants").getAsJsonObject().entrySet());
                             values.sort(Map.Entry.comparingByKey());
                             for (var entries : values) {
-                                var predicate = VanillaBlockPropertiesPredicate.parse(keyVal.getValue().getStateManager(), entries.getKey());
+                                var predicate = VanillaBlockPropertiesPredicate.parse(keyVal.getValue().getStateDefinition(), entries.getKey());
 
-                                for (var state : keyVal.getValue().getStateManager().getStates()) {
+                                for (var state : keyVal.getValue().getStateDefinition().getPossibleStates()) {
                                     if (predicate.test(state) && !this.models.containsKey(state)) {
                                         variantsObject.add(PolymerBlocksInternal.generateStateName(state), entries.getValue());
                                     }

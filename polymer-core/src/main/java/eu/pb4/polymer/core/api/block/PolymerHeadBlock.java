@@ -1,16 +1,14 @@
 package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public interface PolymerHeadBlock extends PolymerBlock {
@@ -30,7 +28,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
 
     @Override
     default BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return Blocks.PLAYER_HEAD.getDefaultState();
+        return Blocks.PLAYER_HEAD.defaultBlockState();
     }
 
     /**
@@ -41,9 +39,9 @@ public interface PolymerHeadBlock extends PolymerBlock {
      * @return A Packet
      */
     default Packet<?> getPolymerHeadPacket(BlockState state, BlockPos pos, PacketContext context) {
-        NbtCompound main = new NbtCompound();
+        CompoundTag main = new CompoundTag();
         main.putString("id", "minecraft:skull");
-        main.put("profile", ProfileComponent.CODEC.encodeStart(NbtOps.INSTANCE,
+        main.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE,
                 PolymerUtils.createProfileComponent(getPolymerSkinValue(state, pos, context),
                         getPolymerSkinSignature(state, pos, context))).result().get());
         main.putInt("x", pos.getX());
@@ -53,7 +51,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
     }
 
     @Override
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, PacketContext.NotNullWithPlayer context) {
-        context.getPlayer().networkHandler.sendPacket(this.getPolymerHeadPacket(blockState, pos.toImmutable(), context));
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, PacketContext.NotNullWithPlayer context) {
+        context.getPlayer().connection.send(this.getPolymerHeadPacket(blockState, pos.immutable(), context));
     }
 }

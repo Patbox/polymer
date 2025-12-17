@@ -2,18 +2,19 @@ package eu.pb4.polymertest;
 
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.recipe.*;
-import net.minecraft.recipe.book.RecipeBookCategories;
-import net.minecraft.recipe.book.RecipeBookCategory;
-import net.minecraft.recipe.book.RecipeBookGroup;
-import net.minecraft.recipe.display.RecipeDisplay;
-import net.minecraft.recipe.input.RecipeInput;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.world.World;
-
+import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.level.Level;
 import java.util.List;
 
 public class TestRecipe implements Recipe<RecipeInput> {
@@ -26,12 +27,12 @@ public class TestRecipe implements Recipe<RecipeInput> {
 
 
     @Override
-    public boolean matches(RecipeInput inventory, World world) {
+    public boolean matches(RecipeInput inventory, Level world) {
         return false;
     }
 
     @Override
-    public ItemStack craft(RecipeInput inventory, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack assemble(RecipeInput inventory, HolderLookup.Provider lookup) {
         return this.output.copy();
     }
 
@@ -46,22 +47,22 @@ public class TestRecipe implements Recipe<RecipeInput> {
     }
 
     @Override
-    public IngredientPlacement getIngredientPlacement() {
-        return IngredientPlacement.NONE;
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public List<RecipeDisplay> getDisplays() {
+    public List<RecipeDisplay> display() {
         return List.of();
     }
 
     @Override
-    public RecipeBookCategory getRecipeBookCategory() {
+    public RecipeBookCategory recipeBookCategory() {
         return RecipeBookCategories.CAMPFIRE;
     }
 
     @Override
-    public boolean isIgnoredInRecipeBook() {
+    public boolean isSpecial() {
         return true;
     }
 
@@ -72,7 +73,7 @@ public class TestRecipe implements Recipe<RecipeInput> {
         }
 
         @Override
-        public PacketCodec<RegistryByteBuf, TestRecipe> packetCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, TestRecipe> streamCodec() {
             return null;
         }
     }

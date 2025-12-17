@@ -1,20 +1,20 @@
 package eu.pb4.polymertest.mixin;
 
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(DisplayEntity.ItemDisplayEntity.class)
+@Mixin(Display.ItemDisplay.class)
 public interface ItemDisplayEntityAccessor {
     @Accessor
-    static TrackedData<ItemStack> getITEM() {
+    static EntityDataAccessor<ItemStack> getDATA_ITEM_STACK_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Byte> getITEM_DISPLAY() {
+    static EntityDataAccessor<Byte> getDATA_ITEM_DISPLAY_ID() {
         throw new UnsupportedOperationException();
     }
 }

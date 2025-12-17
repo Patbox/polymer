@@ -4,33 +4,33 @@ import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import io.github.theepicblock.polymc.api.misc.PolyMapProvider;
 import io.github.theepicblock.polymc.impl.Util;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class PolymcInteractionReplacement implements PolymerBlockUtils.MineEventListener, PolymerBlockUtils.PolymerBlockInteractionListener, PolymerItemUtils.PolymerItemInteractionListener, PolymerItemUtils.ServerItemPredicate {
     @Override
-    public boolean onBlockMine(BlockState state, BlockPos pos, ServerPlayerEntity player) {
-        return !player.isCreative() && (isPolyMcBlock(state, player) || isPolyMcItem(player.getMainHandStack(), player));
+    public boolean onBlockMine(BlockState state, BlockPos pos, ServerPlayer player) {
+        return !player.isCreative() && (isPolyMcBlock(state, player) || isPolyMcItem(player.getMainHandItem(), player));
     }
 
     @Override
-    public boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult) {
+    public boolean isPolymerBlockInteraction(BlockState state, ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, BlockHitResult blockHitResult, InteractionResult actionResult) {
         return isPolyMcBlock(state, player) || isPolyMcItem(stack, player);
     }
 
     @Override
-    public boolean isPolymerItemInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, ActionResult actionResult) {
+    public boolean isPolymerItemInteraction(ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, InteractionResult actionResult) {
         return isPolyMcItem(stack, player);
     }
 
-    private boolean isPolyMcItem(ItemStack itemStack, ServerPlayerEntity player) {
+    private boolean isPolyMcItem(ItemStack itemStack, ServerPlayer player) {
         if (!Util.isPolyMapVanillaLike(player) ) {
             return false;
         }
@@ -40,7 +40,7 @@ public class PolymcInteractionReplacement implements PolymerBlockUtils.MineEvent
         return (tool != null && !(tool instanceof PassthroughPoly));
     }
 
-    private boolean isPolyMcBlock(BlockState state, ServerPlayerEntity player) {
+    private boolean isPolyMcBlock(BlockState state, ServerPlayer player) {
         if (!Util.isPolyMapVanillaLike(player)) {
             return false;
         }

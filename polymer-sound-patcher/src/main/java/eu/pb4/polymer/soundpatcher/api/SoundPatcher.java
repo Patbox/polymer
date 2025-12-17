@@ -5,15 +5,15 @@ import eu.pb4.polymer.soundpatcher.impl.SoundPatchImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundRemapperImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundResourceGenerator;
 import eu.pb4.polymer.soundpatcher.impl.VanillaSoundJson;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.block.SoundType;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
 public final class SoundPatcher {
     private SoundPatcher(){}
-    public static void markAsIgnoringSoundExclusions(BlockSoundGroup soundGroup) {
+    public static void markAsIgnoringSoundExclusions(SoundType soundGroup) {
         markAsIgnoringSoundExclusions(soundGroup.getStepSound());
         markAsIgnoringSoundExclusions(soundGroup.getBreakSound());
         markAsIgnoringSoundExclusions(soundGroup.getFallSound());
@@ -22,7 +22,7 @@ public final class SoundPatcher {
     }
     
     public static void markAsIgnoringSoundExclusions(SoundEvent soundEvent) {
-        markAsIgnoringSoundExclusions(soundEvent.id());
+        markAsIgnoringSoundExclusions(soundEvent.location());
     }
 
     public static void markAsIgnoringSoundExclusions(Identifier id) {
@@ -35,10 +35,10 @@ public final class SoundPatcher {
     }
 
     public static void convertIntoServerSound(SoundEvent soundEvent) {
-        convertIntoServerSound(soundEvent.id());
+        convertIntoServerSound(soundEvent.location());
     }
 
-    public static void convertIntoServerSound(BlockSoundGroup soundGroup) {
+    public static void convertIntoServerSound(SoundType soundGroup) {
         convertIntoServerSound(soundGroup.getStepSound());
         convertIntoServerSound(soundGroup.getBreakSound());
         convertIntoServerSound(soundGroup.getFallSound());
@@ -56,7 +56,7 @@ public final class SoundPatcher {
         }
         markAsIgnoringSoundExclusions(soundEvent);
         SoundRemapperImpl.enable();
-        var id = Identifier.of(SoundResourceGenerator.NAMESPACE, soundEvent.getNamespace() + "." + soundEvent.getPath());
+        var id = Identifier.fromNamespaceAndPath(SoundResourceGenerator.NAMESPACE, soundEvent.getNamespace() + "." + soundEvent.getPath());
         if (SoundRemapperImpl.register(soundEvent, id)) {
             SoundResourceGenerator.moveSoundEvent(soundEvent.getPath(), id.getPath());
         }

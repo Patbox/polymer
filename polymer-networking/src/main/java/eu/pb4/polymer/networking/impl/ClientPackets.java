@@ -3,19 +3,17 @@ package eu.pb4.polymer.networking.impl;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 
 @ApiStatus.Internal
 public class ClientPackets {
-    public static final HashMap<Identifier, PacketCodec<ByteBuf, ?>> PAYLOAD_CODEC = new HashMap<>();
+    public static final HashMap<Identifier, StreamCodec<ByteBuf, ?>> PAYLOAD_CODEC = new HashMap<>();
     public static final Map<Identifier, int[]> VERSION_REGISTRY = new HashMap<>();
     public static final Object2IntOpenHashMap<Identifier> LATEST = new Object2IntOpenHashMap<>();
 
@@ -34,7 +32,7 @@ public class ClientPackets {
         return -1;
     }
 
-    public static void register(Identifier id, PacketCodec<ByteBuf, ?> codec, int... ver) {
+    public static void register(Identifier id, StreamCodec<ByteBuf, ?> codec, int... ver) {
         VERSION_REGISTRY.put(id, ver);
         PAYLOAD_CODEC.put(id, codec);
         LATEST.put(id, getBestSupported(id, ver));

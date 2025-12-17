@@ -2,8 +2,8 @@ package eu.pb4.polymer.rsm.api;
 
 import eu.pb4.polymer.rsm.impl.QuiltRegistryUtils;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 
 public final class RegistrySyncUtils {
     private RegistrySyncUtils() {}
@@ -21,7 +21,7 @@ public final class RegistrySyncUtils {
     }
 
     public static <T> boolean isServerEntry(Registry<T> registry, Identifier identifier) {
-        return registry.containsId(identifier) ? isServerEntry(registry, registry.get(identifier)) : false;
+        return registry.containsKey(identifier) ? isServerEntry(registry, registry.getValue(identifier)) : false;
     }
 
     public static <T> void setServerEntry(Registry<T> registry, T entry) {
@@ -32,10 +32,10 @@ public final class RegistrySyncUtils {
     }
 
     public static <T> void setServerEntry(Registry<T> registry, Identifier identifier) {
-        if (registry.containsId(identifier)) {
-            setServerEntry(registry, registry.get(identifier));
+        if (registry.containsKey(identifier)) {
+            setServerEntry(registry, registry.getValue(identifier));
         } else {
-            throw new IllegalArgumentException("Entry '" + identifier + "' of registry '" + registry.getKey().getValue() + "' isn't registered!");
+            throw new IllegalArgumentException("Entry '" + identifier + "' of registry '" + registry.key().identifier() + "' isn't registered!");
         }
     }
 }

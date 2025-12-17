@@ -1,9 +1,8 @@
 package eu.pb4.polymer.blocks.api;
 
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.resources.Identifier;
 
 public record MultiPolymerBlockModel(List<PolymerBlockModel[]> models) {
     public static MultiPolymerBlockModel of() {

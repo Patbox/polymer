@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.mixin.item.packet;
 
 import eu.pb4.polymer.core.impl.interfaces.SkipCheck;
-import net.minecraft.recipe.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

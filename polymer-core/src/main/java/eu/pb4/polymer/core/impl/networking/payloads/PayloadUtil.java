@@ -6,19 +6,19 @@ import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
 import net.minecraft.SharedConstants;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.network.codec.StreamCodec;
 
 public interface PayloadUtil {
     int PROTOCOL = SharedConstants.getProtocolVersion();
 
     @SuppressWarnings("unchecked")
-    static <T> PacketCodec<ContextByteBuf, T> protocolSecured(PacketCodec<ContextByteBuf, T> codec) {
-        var c = (PacketCodec<ContextByteBuf, Object>) codec;
-        return (PacketCodec<ContextByteBuf, T>) (Object) new PacketCodec<ContextByteBuf, Object>() {
+    static <T> StreamCodec<ContextByteBuf, T> protocolSecured(StreamCodec<ContextByteBuf, T> codec) {
+        var c = (StreamCodec<ContextByteBuf, Object>) codec;
+        return (StreamCodec<ContextByteBuf, T>) (Object) new StreamCodec<ContextByteBuf, Object>() {
             @Override
             public Object decode(ContextByteBuf buf) {
-                var data = PolymerNetworking.getMetadata(buf.clientConnection(), ServerMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.TYPE);
+                var data = PolymerNetworking.getMetadata(buf.clientConnection(), ServerMetadataKeys.MINECRAFT_PROTOCOL, IntTag.TYPE);
                 if (data == null || data.intValue() != PROTOCOL) {
                     buf.skipBytes(buf.readableBytes());
                     return PolymerNoOpPayload.INSTANCE;

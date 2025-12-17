@@ -1,94 +1,94 @@
 package eu.pb4.polymer.virtualentity.mixin.accessors;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
     @Accessor
-    static TrackedData<Integer> getFROZEN_TICKS() {
+    static EntityDataAccessor<Integer> getDATA_TICKS_FROZEN() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Boolean> getNO_GRAVITY() {
+    static EntityDataAccessor<Boolean> getDATA_NO_GRAVITY() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<EntityPose> getPOSE() {
+    static EntityDataAccessor<Pose> getDATA_POSE() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Byte> getFLAGS() {
+    static EntityDataAccessor<Byte> getDATA_SHARED_FLAGS_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static int getON_FIRE_FLAG_INDEX() {
+    static int getFLAG_ONFIRE() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static int getSNEAKING_FLAG_INDEX() {
+    static int getFLAG_SHIFT_KEY_DOWN() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static int getSPRINTING_FLAG_INDEX() {
+    static int getFLAG_SPRINTING() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static int getSWIMMING_FLAG_INDEX() {
+    static int getFLAG_SWIMMING() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static int getINVISIBLE_FLAG_INDEX() {
+    static int getFLAG_INVISIBLE() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static int getGLOWING_FLAG_INDEX() {
+    static int getFLAG_GLOWING() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static int getGLIDING_FLAG_INDEX() {
+    static int getFLAG_FALL_FLYING() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Integer> getAIR() {
+    static EntityDataAccessor<Integer> getDATA_AIR_SUPPLY_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Optional<Text>> getCUSTOM_NAME() {
+    static EntityDataAccessor<Optional<Component>> getDATA_CUSTOM_NAME() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Boolean> getNAME_VISIBLE() {
+    static EntityDataAccessor<Boolean> getDATA_CUSTOM_NAME_VISIBLE() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Boolean> getSILENT() {
+    static EntityDataAccessor<Boolean> getDATA_SILENT() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static AtomicInteger getCURRENT_ID() {
+    static AtomicInteger getENTITY_COUNTER() {
         throw new UnsupportedOperationException();
     }
 }

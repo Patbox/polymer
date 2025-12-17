@@ -7,29 +7,34 @@ import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.SetCameraEntityS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAttachS2CPacketAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.PlaySoundFromEntityS2CPacketAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.ClientboundSetEntityLinkPacketAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.ClientboundSoundEntityPacketAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPosition;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.*;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 
 public final class VirtualEntityUtils {
     private VirtualEntityUtils() {}
     public static int requestEntityId() {
-        return EntityAccessor.getCURRENT_ID().incrementAndGet();
+        return EntityAccessor.getENTITY_COUNTER().incrementAndGet();
     }
 
     public static void addVirtualPassenger(Entity entity, int passengerId) {
@@ -56,26 +61,26 @@ public final class VirtualEntityUtils {
         ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
     }
 
-    public static EntityAttachS2CPacket createEntityAttachPacket(int attachedId, int holdingId) {
-        var packet = PolymerCommonUtils.createUnsafe(EntityAttachS2CPacket.class);
-        var ac = (EntityAttachS2CPacketAccessor) packet;
-        ac.setAttachedEntityId(attachedId);
-        ac.setHoldingEntityId(holdingId);
+    public static ClientboundSetEntityLinkPacket createEntityAttachPacket(int attachedId, int holdingId) {
+        var packet = PolymerCommonUtils.createUnsafe(ClientboundSetEntityLinkPacket.class);
+        var ac = (ClientboundSetEntityLinkPacketAccessor) packet;
+        ac.setSourceId(attachedId);
+        ac.setDestId(holdingId);
         return packet;
     }
-    public static SetCameraEntityS2CPacket createSetCameraEntityPacket(int entityId) {
-        var packet = PolymerCommonUtils.createUnsafe(SetCameraEntityS2CPacket.class);
+    public static ClientboundSetCameraPacket createSetCameraEntityPacket(int entityId) {
+        var packet = PolymerCommonUtils.createUnsafe(ClientboundSetCameraPacket.class);
         var ac = (SetCameraEntityS2CPacketAccessor) packet;
-        ac.setEntityId(entityId);
+        ac.setCameraId(entityId);
         return packet;
     }
 
-    public static PlaySoundFromEntityS2CPacket createPlaySoundFromEntityPacket(int entityId, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {
-        var packet = PolymerCommonUtils.createUnsafe(PlaySoundFromEntityS2CPacket.class);
-        var ac = (PlaySoundFromEntityS2CPacketAccessor) packet;
-        ac.setEntityId(entityId);
+    public static ClientboundSoundEntityPacket createPlaySoundFromEntityPacket(int entityId, Holder<SoundEvent> sound, SoundSource category, float volume, float pitch, long seed) {
+        var packet = PolymerCommonUtils.createUnsafe(ClientboundSoundEntityPacket.class);
+        var ac = (ClientboundSoundEntityPacketAccessor) packet;
+        ac.setId(entityId);
         ac.setSound(sound);
-        ac.setCategory(category);
+        ac.setSource(category);
         ac.setVolume(volume);
         ac.setPitch(pitch);
         ac.setSeed(seed);
@@ -84,10 +89,10 @@ public final class VirtualEntityUtils {
 
 
     @Nullable
-    public static Packet<ClientPlayPacketListener> createMovePacket(int id, Vec3d oldPos, Vec3d newPos, boolean rotate, float yaw, float pitch) {
-        var byteYaw = MathHelper.floor(yaw * 256.0F / 360.0F);
-        var bytePitch = MathHelper.floor(pitch * 256.0F / 360.0F);
-        boolean areDifferentEnough = oldPos.subtract(newPos).lengthSquared() >= 7.62939453125E-6D;
+    public static Packet<ClientGamePacketListener> createMovePacket(int id, Vec3 oldPos, Vec3 newPos, boolean rotate, float yaw, float pitch) {
+        var byteYaw = Mth.floor(yaw * 256.0F / 360.0F);
+        var bytePitch = Mth.floor(pitch * 256.0F / 360.0F);
+        boolean areDifferentEnough = oldPos.subtract(newPos).lengthSqr() >= 7.62939453125E-6D;
         long newX = Math.round((newPos.x - oldPos.x) * 4096.0D);
         long newY = Math.round((newPos.y - oldPos.y) * 4096.0D);
         long newZ = Math.round((newPos.z - oldPos.z) * 4096.0D);
@@ -95,47 +100,47 @@ public final class VirtualEntityUtils {
         if (!bl5) {
             if ((!areDifferentEnough || !rotate)) {
                 if (areDifferentEnough) {
-                    return new EntityS2CPacket.MoveRelative(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), false);
+                    return new ClientboundMoveEntityPacket.Pos(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), false);
                 } else if (rotate) {
-                    return new EntityS2CPacket.Rotate(id, (byte) byteYaw, (byte) bytePitch, false);
+                    return new ClientboundMoveEntityPacket.Rot(id, (byte) byteYaw, (byte) bytePitch, false);
                 }
             } else {
-                return new EntityS2CPacket.RotateAndMoveRelative(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), (byte) byteYaw, (byte) bytePitch, false);
+                return new ClientboundMoveEntityPacket.PosRot(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), (byte) byteYaw, (byte) bytePitch, false);
             }
 
             return null;
         } else {
-            return new EntityPositionSyncS2CPacket(id, new EntityPosition(newPos, Vec3d.ZERO, yaw, pitch), false);
+            return new ClientboundEntityPositionSyncPacket(id, new PositionMoveRotation(newPos, Vec3.ZERO, yaw, pitch), false);
         }
     }
 
-    public static EntityPassengersSetS2CPacket createRidePacket(int id, IntList list) {
+    public static ClientboundSetPassengersPacket createRidePacket(int id, IntList list) {
         return createRidePacket(id, list.toIntArray());
     }
 
-    public static EntityPassengersSetS2CPacket createRidePacket(int id, int[] list) {
-        var packet = PolymerCommonUtils.createUnsafe(EntityPassengersSetS2CPacket.class);
-        ((EntityPassengersSetS2CPacketAccessor) packet).setEntityId(id);
-        ((EntityPassengersSetS2CPacketAccessor) packet).setPassengerIds(list);
+    public static ClientboundSetPassengersPacket createRidePacket(int id, int[] list) {
+        var packet = PolymerCommonUtils.createUnsafe(ClientboundSetPassengersPacket.class);
+        ((EntityPassengersSetS2CPacketAccessor) packet).setVehicle(id);
+        ((EntityPassengersSetS2CPacketAccessor) packet).setPassengers(list);
         return packet;
     }
 
-    public static boolean isPlayerTracking(ServerPlayerEntity player, WorldChunk chunk) {
+    public static boolean isPlayerTracking(ServerPlayer player, LevelChunk chunk) {
         if (CompatStatus.IMMERSIVE_PORTALS) {
             return ImmersivePortalsUtils.isPlayerTracking(player, chunk);
         }
 
-        if (player.getEntityWorld() != chunk.getWorld()) {
+        if (player.level() != chunk.getLevel()) {
             return false;
         }
 
-        return player.getChunkFilter().isWithinDistance(chunk.getPos().x, chunk.getPos().z);
+        return player.getChunkTrackingView().contains(chunk.getPos().x, chunk.getPos().z);
     }
 
     /**
      * Purely for compatibility with immersive portals.
      */
-    public static void wrapCallWithContext(ServerWorld world, Runnable call) {
+    public static void wrapCallWithContext(ServerLevel world, Runnable call) {
         if (CompatStatus.IMMERSIVE_PORTALS) {
             ImmersivePortalsUtils.callRedirected(world, call);
         } else {

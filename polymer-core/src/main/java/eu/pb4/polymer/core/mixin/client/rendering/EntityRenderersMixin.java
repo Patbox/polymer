@@ -4,25 +4,25 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.impl.client.rendering.NullEntityRenderer;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactories;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.EntityType;
 
-@Mixin(EntityRendererFactories.class)
+@Mixin(EntityRenderers.class)
 public class EntityRenderersMixin {
-    @ModifyReturnValue(method = "reloadEntityRenderers", at = @At("TAIL"))
+    @ModifyReturnValue(method = "createEntityRenderers", at = @At("TAIL"))
     private static Map<EntityType<?>, EntityRenderer<?, ?>> polymer$replaceEntityRenderer(Map<EntityType<?>, EntityRenderer<?, ?>> original,
-                                                                                          @Local(argsOnly = true) EntityRendererFactory.Context ctx) {
+                                                                                          @Local(argsOnly = true) EntityRendererProvider.Context ctx) {
         var entityMap = new IdentityHashMap<EntityType<?>, EntityRenderer<?, ?>>();
 
-        for (var ent : Registries.ENTITY_TYPE) {
+        for (var ent : BuiltInRegistries.ENTITY_TYPE) {
             if (PolymerEntityUtils.isPolymerEntityType(ent) && !original.containsKey(ent)) {
                 if (entityMap.isEmpty()) {
                     entityMap.putAll(original);

@@ -2,31 +2,30 @@ package eu.pb4.polymer.core.impl.ui;
 
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.entity.effect.StatusEffectUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Rarity;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
-
+import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.List;
 import java.util.Optional;
 
 
 public class PotionUi extends MicroUi {
-    private final ServerPlayerEntity player;
+    private final ServerPlayer player;
     private int tickVal;
 
-    public PotionUi(ServerPlayerEntity player) {
+    public PotionUi(ServerPlayer player) {
         super(6);
-        this.title(Text.literal("Status Effects"));
+        this.title(Component.literal("Status Effects"));
         this.player = player;
         this.drawUi();
 
@@ -36,28 +35,28 @@ public class PotionUi extends MicroUi {
     private void drawUi() {
         int id = 0;
         this.clear();
-        for (var effectInstance : this.player.getStatusEffects()) {
+        for (var effectInstance : this.player.getActiveEffects()) {
             if (id == this.size) {
                 return;
             }
             ItemStack icon;
-            if (PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, effectInstance.getEffectType().value()) instanceof PolymerStatusEffect polymerStatusEffect) {
-                icon = polymerStatusEffect.getPolymerIcon(effectInstance.getEffectType().value(), this.player);
+            if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, effectInstance.getEffect().value()) instanceof PolymerStatusEffect polymerStatusEffect) {
+                icon = polymerStatusEffect.getPolymerIcon(effectInstance.getEffect().value(), this.player);
                 if (icon == null) {
                     continue;
                 }
             } else {
-                icon = Items.POTION.getDefaultStack();
-                icon.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Optional.empty(), Optional.of(effectInstance.getEffectType().value().getColor()), List.of(), Optional.empty()));
+                icon = Items.POTION.getDefaultInstance();
+                icon.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.of(effectInstance.getEffect().value().getColor()), List.of(), Optional.empty()));
             }
-            icon.set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT.with(DataComponentTypes.POTION_CONTENTS, true));
-            icon.set(DataComponentTypes.RARITY, Rarity.COMMON);
-            icon.set(DataComponentTypes.CUSTOM_NAME, Text.empty()
-                    .append(effectInstance.getEffectType().value().getName())
-                    .append(Text.literal(" (")
-                            .append(StatusEffectUtil.getDurationText(effectInstance, 1.0F, this.player.getEntityWorld().getServer().getTickManager().getTickRate()))
+            icon.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.POTION_CONTENTS, true));
+            icon.set(DataComponents.RARITY, Rarity.COMMON);
+            icon.set(DataComponents.CUSTOM_NAME, Component.empty()
+                    .append(effectInstance.getEffect().value().getDisplayName())
+                    .append(Component.literal(" (")
+                            .append(MobEffectUtil.formatDuration(effectInstance, 1.0F, this.player.level().getServer().tickRateManager().tickrate()))
                             .append(")")
-                            .formatted(Formatting.GRAY))
+                            .withStyle(ChatFormatting.GRAY))
                     .setStyle(Style.EMPTY.withItalic(false))
             );
 

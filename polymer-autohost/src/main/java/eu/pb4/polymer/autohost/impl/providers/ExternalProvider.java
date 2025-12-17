@@ -3,7 +3,7 @@ package eu.pb4.polymer.autohost.impl.providers;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
 
 public class ExternalProvider extends AbstractProvider {
     private Config config = new Config();
@@ -22,7 +22,7 @@ public class ExternalProvider extends AbstractProvider {
     }
 
     @Override
-    protected String getAddress(ClientConnection connection, String path) {
+    protected String getAddress(Connection connection, String path) {
         return this.config.address + "/" + path;
     }
 

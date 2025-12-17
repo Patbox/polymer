@@ -8,12 +8,12 @@ import eu.pb4.polymer.resourcepack.api.ResourcePackCreator;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.model.BasicItemModel;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.tint.CustomModelDataTintSource;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiFunction;
+import net.minecraft.resources.Identifier;
 
 /**
  * Utilities allowing simple creation of resource pack
@@ -56,7 +56,7 @@ public final class ResourcePackExtras {
     }
 
     public static Identifier bridgeModel(Identifier model) {
-        return model.withPrefixedPath("-/");
+        return model.withPrefix("-/");
     }
 
     /**

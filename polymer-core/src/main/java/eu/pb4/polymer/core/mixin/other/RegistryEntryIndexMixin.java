@@ -5,8 +5,6 @@ import com.mojang.serialization.Codec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.interfaces.RegistryEntryRegistry;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,8 +13,9 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Optional;
 import java.util.function.Function;
+import net.minecraft.core.Registry;
 
-@Mixin(targets = "net/minecraft/registry/Registry$1")
+@Mixin(targets = "net/minecraft/core/Registry$1")
 public class RegistryEntryIndexMixin<T> implements RegistryEntryRegistry<T> {
 
     @SuppressWarnings("rawtypes")

@@ -6,18 +6,20 @@ import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
-import net.minecraft.block.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -29,71 +31,71 @@ import java.util.Collection;
 // Bug reported with
 // https://github.com/Dev0Louis/Zauber/blob/54fd6f06a9f1c83fdf37641f587da2b27860b98b/src/main/java/dev/louis/zauber/block/ManaCauldron.java
 public class ManaCauldron extends Block implements PolymerBlock, BlockWithElementHolder {
-    public static final MapCodec<ManaCauldron> CODEC = createCodec(ManaCauldron::new);
-    public static final IntProperty MANA_LEVEL = IntProperty.of("mana_level", 0, 2);
+    public static final MapCodec<ManaCauldron> CODEC = simpleCodec(ManaCauldron::new);
+    public static final IntegerProperty MANA_LEVEL = IntegerProperty.create("mana_level", 0, 2);
 
-    protected ManaCauldron(Settings settings) {
+    protected ManaCauldron(Properties settings) {
         super(settings);
-        setDefaultState(getDefaultState().with(MANA_LEVEL, 0));
+        registerDefaultState(defaultBlockState().setValue(MANA_LEVEL, 0));
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(MANA_LEVEL);
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        world.setBlockState(pos, state.cycle(MANA_LEVEL));
-        return ActionResult.PASS;
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+        world.setBlockAndUpdate(pos, state.cycle(MANA_LEVEL));
+        return InteractionResult.PASS;
     }
 
     @Override
-    protected MapCodec<? extends Block> getCodec() {
+    protected MapCodec<? extends Block> codec() {
         return CODEC;
     }
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return Blocks.CAULDRON.getDefaultState();
+        return Blocks.CAULDRON.defaultBlockState();
     }
 
     @Override
-    public boolean tickElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public boolean tickElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return true;
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new CustomHolder(initialBlockState);
     }
 
     public static class CustomHolder extends ElementHolder {
-        private static final BlockState EMPTY_STATE = Blocks.AIR.getDefaultState();
-        private static final BlockState HALF_FILLED_STATE = Blocks.LIGHT_BLUE_STAINED_GLASS.getDefaultState();
-        private static final BlockState FULL_STATE = Blocks.LIGHT_BLUE_STAINED_GLASS.getDefaultState();
-        private static final BlockState MANA_BUBBLE_STATE = Blocks.LIGHT_BLUE_STAINED_GLASS.getDefaultState();
+        private static final BlockState EMPTY_STATE = Blocks.AIR.defaultBlockState();
+        private static final BlockState HALF_FILLED_STATE = Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
+        private static final BlockState FULL_STATE = Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
+        private static final BlockState MANA_BUBBLE_STATE = Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
         private final BlockDisplayElement manaFill;
         private final Collection<BlockDisplayElementWithVelocity> manaBubbles = new ArrayList<>();
-        private final Random random = Random.create();
+        private final RandomSource random = RandomSource.create();
         private int age;
 
         public CustomHolder(BlockState initialBlockState) {
             this.manaFill = this.addElement(new BlockDisplayElement(this.getState(initialBlockState)));
-            this.manaFill.setOffset(new Vec3d(-0.375, 0, -0.375));
-            this.manaFill.setScale(new Vector3f(0.75f, 0.2f * initialBlockState.get(MANA_LEVEL) + (float)Math.sin(age / 50f) * 0.05f, 0.75f));
+            this.manaFill.setOffset(new Vec3(-0.375, 0, -0.375));
+            this.manaFill.setScale(new Vector3f(0.75f, 0.2f * initialBlockState.getValue(MANA_LEVEL) + (float)Math.sin(age / 50f) * 0.05f, 0.75f));
             this.manaFill.setGlowing(false);
         }
 
         @Override
         public void onTick() {
              this.age++;
-            this.manaFill.setOffset(new Vec3d(-0.375, 0, -0.375));
+            this.manaFill.setOffset(new Vec3(-0.375, 0, -0.375));
             var attachment = this.getAttachment();
             if (attachment == null) throw new IllegalStateException("Attachment is null");
             var blockBoundAttachment = ((BlockBoundAttachment)attachment);
             var blockPos = blockBoundAttachment.getBlockPos();
-            var manaLevel = blockBoundAttachment.getBlockState().get(MANA_LEVEL);
+            var manaLevel = blockBoundAttachment.getBlockState().getValue(MANA_LEVEL);
             var offset = (float)Math.sin(age / 50f) * 0.05f;
             this.manaFill.setScale(new Vector3f(0.75f, 0.2f * manaLevel + offset, 0.75f));
             this.manaFill.setBlockState(this.getState(this.getAttachment().getWorld(), blockPos));
@@ -101,10 +103,10 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
             var world = attachment.getWorld();
             if (manaLevel > 0) {
                 if (age % (4 - manaLevel) == 0) {
-                    world.spawnParticles(ParticleTypes.UNDERWATER, false, true, blockPos.getX() + 0.5, blockPos.getY() + 0.75 + offset, blockPos.getZ() + 0.5, 10, 0.15, 0.15, 0.15, 1);
+                    world.sendParticles(ParticleTypes.UNDERWATER, false, true, blockPos.getX() + 0.5, blockPos.getY() + 0.75 + offset, blockPos.getZ() + 0.5, 10, 0.15, 0.15, 0.15, 1);
                 }
                 if (manaBubbles.size() < manaLevel * 10) {
-                    Vec3d velocity = new Vec3d((random.nextFloat() - 0.5) * 0.2, 0.05f * manaLevel, (random.nextFloat() - 0.5) * 0.2);
+                    Vec3 velocity = new Vec3((random.nextFloat() - 0.5) * 0.2, 0.05f * manaLevel, (random.nextFloat() - 0.5) * 0.2);
                     var blockDisplayEntity = new BlockDisplayElementWithVelocity(MANA_BUBBLE_STATE, velocity);
                     blockDisplayEntity.setScale(new Vector3f(0.1f));
                     this.addElement(blockDisplayEntity);
@@ -113,13 +115,13 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
             }
 
             manaBubbles.removeIf(element -> {
-                var remove = element.getOffset().getY() > 3 * manaLevel || random.nextFloat() > 0.93f;
+                var remove = element.getOffset().y() > 3 * manaLevel || random.nextFloat() > 0.93f;
                 if (remove) {
                     var pos = this.getAttachment().getPos().add(element.getOffset());
                     if (random.nextFloat() > 0.5f) {
 
                     }
-                    world.spawnParticles(
+                    world.sendParticles(
                             ParticleTypes.BUBBLE_POP,
                             false, false,
                             pos.x,
@@ -142,12 +144,12 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
 
         }
 
-        public BlockState getState(ServerWorld world, BlockPos pos) {
+        public BlockState getState(ServerLevel world, BlockPos pos) {
             return this.getState(world.getBlockState(pos));
         }
 
         public BlockState getState(BlockState state) {
-            var manaLevel = state.get(MANA_LEVEL);
+            var manaLevel = state.getValue(MANA_LEVEL);
             return switch (manaLevel) {
                 case 0 -> EMPTY_STATE;
                 case 1 -> HALF_FILLED_STATE;
@@ -158,9 +160,9 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
     }
 
     public static class BlockDisplayElementWithVelocity extends BlockDisplayElement {
-        private Vec3d velocity;
+        private Vec3 velocity;
 
-        public BlockDisplayElementWithVelocity(BlockState state, Vec3d velocity) {
+        public BlockDisplayElementWithVelocity(BlockState state, Vec3 velocity) {
             super(state);
             this.velocity = velocity;
         }
@@ -173,7 +175,7 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
             super.tick();
         }
 
-        public Vec3d getVelocity() {
+        public Vec3 getVelocity() {
             return velocity;
         }
     }

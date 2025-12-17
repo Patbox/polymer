@@ -26,7 +26,7 @@ public abstract class MinecraftServerMixin {
             e.printStackTrace();
         }
     }
-    @Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;"))
+    @Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;buildServerStatus()Lnet/minecraft/network/protocol/status/ServerStatus;"))
     private void polymer_autohost_init(CallbackInfo ci) {
         if (!this.started) {
             AutoHost.init((MinecraftServer) (Object) this);
@@ -34,7 +34,7 @@ public abstract class MinecraftServerMixin {
         }
     }
 
-    @Inject(method = "shutdown", at = @At("TAIL"))
+    @Inject(method = "stopServer", at = @At("TAIL"))
     private void polymer_autohost_end(CallbackInfo ci) {
         AutoHost.end((MinecraftServer) (Object) this);
     }

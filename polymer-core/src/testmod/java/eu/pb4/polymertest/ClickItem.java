@@ -1,23 +1,24 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.function.BiConsumer;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class ClickItem extends SimplePolymerItem {
 
-    private final BiConsumer<ServerPlayerEntity, Hand> executor;
+    private final BiConsumer<ServerPlayer, InteractionHand> executor;
 
-    public ClickItem(Settings settings, Item virtualItem, BiConsumer<ServerPlayerEntity, Hand> executor) {
+    public ClickItem(Properties settings, Item virtualItem, BiConsumer<ServerPlayer, InteractionHand> executor) {
         super(settings, virtualItem);
         this.executor = executor;
     }
@@ -28,10 +29,10 @@ public class ClickItem extends SimplePolymerItem {
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (user instanceof ServerPlayerEntity player) {
+    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+        if (user instanceof ServerPlayer player) {
             this.executor.accept(player, hand);
         }
-        return ActionResult.SUCCESS_SERVER;
+        return InteractionResult.SUCCESS_SERVER;
     }
 }

@@ -6,34 +6,34 @@ import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.interfaces.SkipCheck;
 import eu.pb4.polymer.core.impl.networking.TransformingPacketCodec;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.recipe.display.SlotDisplay;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.ArrayList;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 @Mixin(SlotDisplay.class)
 public interface SlotDisplayMixin {
     @SuppressWarnings("DataFlowIssue")
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;dispatch(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/PacketCodec;"))
-    private static PacketCodec<RegistryByteBuf, SlotDisplay> transformDisplays(PacketCodec<RegistryByteBuf, SlotDisplay> original) {
+    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/StreamCodec;dispatch(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;"))
+    private static StreamCodec<RegistryFriendlyByteBuf, SlotDisplay> transformDisplays(StreamCodec<RegistryFriendlyByteBuf, SlotDisplay> original) {
         return TransformingPacketCodec.encodeOnly(original, (buf, display) -> switch (display) {
-            case SlotDisplay.ItemSlotDisplay item when PolymerSyncedObject.getSyncedObject(Registries.ITEM, item.item().value()) instanceof PolymerItem ->
-                    new SlotDisplay.StackSlotDisplay(item.item().value().getDefaultStack());
+            case SlotDisplay.ItemSlotDisplay item when PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, item.item().value()) instanceof PolymerItem ->
+                    new SlotDisplay.ItemStackSlotDisplay(item.item().value().getDefaultInstance());
             case SlotDisplay.TagSlotDisplay tagSlot when !((SkipCheck) (Object) tagSlot).polymer$skipped() -> {
-                var tag = buf.getRegistryManager().getOrThrow(RegistryKeys.ITEM).getOptional(tagSlot.tag());
+                var tag = buf.registryAccess().lookupOrThrow(Registries.ITEM).get(tagSlot.tag());
                 if (tag.isEmpty()) {
                     yield tagSlot;
                 }
 
                 var array = new ArrayList<SlotDisplay>();
                 for (var entry : tag.get()) {
-                    if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, entry.value()) instanceof PolymerItem) {
-                        array.add(new SlotDisplay.StackSlotDisplay(entry.value().getDefaultStack()));
+                    if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, entry.value()) instanceof PolymerItem) {
+                        array.add(new SlotDisplay.ItemStackSlotDisplay(entry.value().getDefaultInstance()));
                     }
                 }
                 if (!array.isEmpty()) {
@@ -47,7 +47,7 @@ public interface SlotDisplayMixin {
                     }
 
                     array.addFirst(out);
-                    yield new SlotDisplay.CompositeSlotDisplay(array);
+                    yield new SlotDisplay.Composite(array);
                 }
                 yield tagSlot;
             }

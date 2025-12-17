@@ -9,7 +9,7 @@ import eu.pb4.polymer.resourcepack.api.PackResource;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
-import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
+import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterSectionAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import org.jetbrains.annotations.ApiStatus;
@@ -23,7 +23,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -104,7 +103,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     private void addPackMcMeta(PackMcMeta pack, Consumer<String> overlayConsumer) {
-        pack.filter().ifPresent(x -> ((ResourceFilterAccessor) x).getBlocks().forEach(this.packMetadata::addFilter));
+        pack.filter().ifPresent(x -> ((ResourceFilterSectionAccessor) x).getBlockList().forEach(this.packMetadata::addFilter));
         pack.overlays().ifPresent(x -> x.overlays().forEach((o) -> {
             overlayConsumer.accept(o.overlay());
             this.packMetadata.addOverlay(o);

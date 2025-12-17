@@ -3,26 +3,24 @@ package eu.pb4.polymer.networking.api.server;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.impl.EarlyConfigurationConnectionMagic;
-import eu.pb4.polymer.networking.mixin.ClientConnectionAccessor;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.DisconnectionInfo;
-import net.minecraft.network.listener.ServerConfigurationPacketListener;
-import net.minecraft.network.listener.TickablePacketListener;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.*;
-import net.minecraft.network.packet.c2s.config.AcceptCodeOfConductC2SPacket;
-import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
-import net.minecraft.network.packet.c2s.config.SelectKnownPacksC2SPacket;
-import net.minecraft.network.packet.s2c.common.CommonPingS2CPacket;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
-import net.minecraft.network.packet.s2c.common.KeepAliveS2CPacket;
+import eu.pb4.polymer.networking.mixin.ConnectionAccessor;
+import net.minecraft.network.Connection;
+import net.minecraft.network.DisconnectionDetails;
+import net.minecraft.network.TickablePacketListener;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.*;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
+import net.minecraft.network.protocol.configuration.ServerboundAcceptCodeOfConductPacket;
+import net.minecraft.network.protocol.configuration.ServerboundFinishConfigurationPacket;
+import net.minecraft.network.protocol.configuration.ServerboundSelectKnownPacks;
+import net.minecraft.network.protocol.cookie.ServerboundCookieResponsePacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerLoginNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.ContextProvidingPacketListener;
@@ -31,41 +29,38 @@ import java.util.function.Function;
 
 /**
  * This api exposes Polymer's early play packets utilities.
- *
+ * <p>
  * Use carefully, as client might not be initialized, or it might have leftover state from previous EarlyPlay handlers
  * Use this only if you know what you are doing and you need to do sync/packets before player joins a world.
  */
 
 public class EarlyConfigurationNetworkHandler implements ServerConfigurationPacketListener, TickablePacketListener, ContextProvidingPacketListener {
 
-    public static void register(Function<Context, EarlyConfigurationNetworkHandler> constructor) {
-        EarlyConfigurationConnectionMagic.register(constructor);
-    }
-
     private final EarlyConfigurationConnectionMagic.ContextImpl context;
     private final Identifier identifier;
-
     private volatile long lastResponse = 0;
-
     private volatile int keepAliveSent = 0;
     private volatile int keepAliveReceived = 0;
     private volatile int pingsId = 1024;
     private volatile boolean canContinue = true;
     private volatile boolean alreadyContinued;
-
     public EarlyConfigurationNetworkHandler(Identifier identifier, Context context) {
         this.context = (EarlyConfigurationConnectionMagic.ContextImpl) context;
         this.identifier = identifier;
 
-        ((ClientConnectionAccessor) this.context.connection()).setPacketListener(this);
+        ((ConnectionAccessor) this.context.connection()).setPacketListener(this);
         this.sendKeepAlive();
+    }
+
+    public static void register(Function<Context, EarlyConfigurationNetworkHandler> constructor) {
+        EarlyConfigurationConnectionMagic.register(constructor);
     }
 
     public final Identifier getId() {
         return this.identifier;
     }
 
-    public void handleDisconnect(DisconnectionInfo reason) {
+    public void handleDisconnect(DisconnectionDetails reason) {
 
     }
 
@@ -73,14 +68,15 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
 
     }
 
-    public boolean handleCustomPayload(CustomPayloadC2SPacket packet) {
+    public boolean tryHandleCustomPayload(ServerboundCustomPayloadPacket packet) {
         return false;
     }
+
 
     @Override
     public final void tick() {
         if (this.lastResponse == 1200) {
-            this.disconnect(Text.translatable("multiplayer.disconnect.slow_login"));
+            this.disconnect(Component.translatable("multiplayer.disconnect.slow_login"));
         } else if (this.lastResponse == 20) {
             this.sendKeepAlive();
         }
@@ -92,7 +88,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
     }
 
     @Override
-    public final void onKeepAlive(KeepAliveC2SPacket packet) {
+    public final void handleKeepAlive(ServerboundKeepAlivePacket packet) {
         this.lastResponse = -20;
         this.keepAliveReceived++;
         if (this.canContinue) {
@@ -104,7 +100,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
     }
 
     @Override
-    public void onPong(CommonPongC2SPacket packet) {
+    public void handlePong(ServerboundPongPacket packet) {
 
     }
 
@@ -112,13 +108,13 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
         this.context.connection().send(packet);
     }
 
-    protected void sendPacket(CustomPayload payload) {
-        this.sendPacket(new CustomPayloadS2CPacket(payload));
+    protected void sendPacket(CustomPacketPayload payload) {
+        this.sendPacket(new ClientboundCustomPayloadPacket(payload));
     }
 
     public final void sendKeepAlive(long value) {
         this.keepAliveSent++;
-        this.sendPacket(new KeepAliveS2CPacket(value));
+        this.sendPacket(new ClientboundKeepAlivePacket(value));
     }
 
     public final void sendKeepAlive() {
@@ -126,7 +122,7 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
     }
 
     public final void sendPing(int id) {
-        this.sendPacket(new CommonPingS2CPacket(id));
+        this.sendPacket(new ClientboundPingPacket(id));
     }
 
     public final int sendPing() {
@@ -136,41 +132,41 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
     }
 
     @Override
-    public final void onCustomPayload(CustomPayloadC2SPacket packet) {
-        if (!handleCustomPayload(packet)) {
+    public final void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
+        if (!tryHandleCustomPayload(packet)) {
             this.context.storedPackets().add(packet);
         }
     }
 
     @Override
-    public void onResourcePackStatus(ResourcePackStatusC2SPacket packet) {
+    public void handleResourcePackResponse(ServerboundResourcePackPacket packet) {
 
     }
 
     @Override
-    public void onClientOptions(ClientOptionsC2SPacket packet) {
-        this.context.options().set(packet.options());
+    public void handleClientInformation(ServerboundClientInformationPacket packet) {
+        this.context.options().set(packet.information());
     }
 
     @Override
-    public void onCustomClickAction(CustomClickActionC2SPacket customClickActionC2SPacket) {
+    public void handleCustomClickAction(ServerboundCustomClickActionPacket customClickActionC2SPacket) {
 
     }
 
     @Override
-    public void onDisconnected(DisconnectionInfo info) {
+    public void onDisconnect(DisconnectionDetails info) {
         this.context.storedPackets().clear();
         this.handleDisconnect(info);
     }
 
-    public final ClientConnection getConnection() {
+    public final Connection getConnection() {
         return this.context.connection();
     }
 
-    public final void disconnect(Text reason) {
+    public final void disconnect(Component reason) {
         try {
             CommonImpl.LOGGER.info("Disconnecting {} on {}: {}", this.getConnectionInfo(), this.getId(), reason.getString());
-            this.sendPacket(new DisconnectS2CPacket(reason));
+            this.sendPacket(new ClientboundDisconnectPacket(reason));
             this.context.connection().disconnect(reason);
             this.context.storedPackets().clear();
         } catch (Exception var3) {
@@ -192,46 +188,40 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
 
     public final String getConnectionInfo() {
         if (this.getGameProfile() != null) {
-            GameProfile var10000 = this.getGameProfile() ;
-            return "" + var10000 + " (" + this.context.connection().getAddress() + ")";
+            GameProfile var10000 = this.getGameProfile();
+            return var10000 + " (" + this.context.connection().getRemoteAddress() + ")";
         } else {
-            return String.valueOf(this.context.connection().getAddress());
+            return String.valueOf(this.context.connection().getRemoteAddress());
         }
     }
 
     @Override
-    public boolean isConnectionOpen() {
-        return this.getConnection().isOpen();
+    public boolean isAcceptingMessages() {
+        return this.getConnection().isConnected();
     }
 
     @Override
-    public void onReady(ReadyC2SPacket packet) {
-
-    }
-
-    @Override
-    public void onSelectKnownPacks(SelectKnownPacksC2SPacket packet) {
+    public void handleConfigurationFinished(ServerboundFinishConfigurationPacket packet) {
 
     }
 
     @Override
-    public void onAcceptCodeOfConduct(AcceptCodeOfConductC2SPacket packet) {
+    public void handleSelectKnownPacks(ServerboundSelectKnownPacks packet) {
 
     }
 
     @Override
-    public void onCookieResponse(CookieResponseC2SPacket packet) {
+    public void handleAcceptCodeOfConduct(ServerboundAcceptCodeOfConductPacket packet) {
 
-    }
-
-    @ApiStatus.NonExtendable
-    public interface Context {
-        MinecraftServer server();
-        GameProfile profile();
     }
 
     @Override
-    public final @Nullable ServerPlayerEntity getPlayerForPacketTweaker() {
+    public void handleCookieResponse(ServerboundCookieResponsePacket packet) {
+
+    }
+
+    @Override
+    public final @Nullable ServerPlayer getPlayerForPacketTweaker() {
         return null;
     }
 
@@ -245,11 +235,18 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
     }
 
     @Override
-    public SyncedClientOptions getClientOptionsForPacketTweaker() {
+    public ClientInformation getClientOptionsForPacketTweaker() {
         return this.context.options().get();
     }
 
-    protected final ServerLoginNetworkHandler getLoginNetworkHandler() {
+    protected final ServerLoginPacketListenerImpl getLoginNetworkHandler() {
         return this.context.loginHandler();
+    }
+
+    @ApiStatus.NonExtendable
+    public interface Context {
+        MinecraftServer server();
+
+        GameProfile profile();
     }
 }

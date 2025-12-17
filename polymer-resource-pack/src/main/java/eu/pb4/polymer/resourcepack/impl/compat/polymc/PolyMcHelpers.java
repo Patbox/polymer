@@ -9,15 +9,15 @@ import eu.pb4.polymer.resourcepack.impl.generation.InternalRPBuilder;
 import io.github.theepicblock.polymc.PolyMc;
 import io.github.theepicblock.polymc.impl.misc.logging.SimpleLogger;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
 
 @ApiStatus.Internal
 @SuppressWarnings({"deprecation", "unchecked"})
@@ -71,11 +71,11 @@ public class PolyMcHelpers {
 
 
     public static void overrideCommand(MinecraftServer server) {
-        var dispatcher = server.getCommandManager().getDispatcher();
+        var dispatcher = server.getCommands().getDispatcher();
         var generateNode
                 = dispatcher.findNode(List.of("polymc", "generate")).createBuilder();
 
-        dispatcher.register((LiteralArgumentBuilder<ServerCommandSource>) dispatcher.findNode(List.of("polymc"))
+        dispatcher.register((LiteralArgumentBuilder<CommandSourceStack>) dispatcher.findNode(List.of("polymc"))
                 .createBuilder().then(generateNode.then(literal("resources").executes(PolymerResourcePackMod::generateResources)))
         );
     }

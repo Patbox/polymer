@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.impl.compat.polymc;
 import io.github.theepicblock.polymc.api.block.BlockPoly;
 import io.github.theepicblock.polymc.api.entity.EntityPoly;
 import io.github.theepicblock.polymc.api.item.ItemPoly;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 
 public interface PassthroughPoly {

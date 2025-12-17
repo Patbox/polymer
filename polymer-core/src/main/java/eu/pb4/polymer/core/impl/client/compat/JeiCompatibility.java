@@ -7,13 +7,12 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 
 public class JeiCompatibility implements IModPlugin {
-    private static final Identifier ID = Identifier.of("polymer", "jei_plugin");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath("polymer", "jei_plugin");
 
 
     @Override

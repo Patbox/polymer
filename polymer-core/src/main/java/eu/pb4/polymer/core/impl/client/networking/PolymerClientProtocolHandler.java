@@ -10,40 +10,39 @@ import eu.pb4.polymer.core.impl.ServerMetadataKeys;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientEntityExtension;
-import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.core.impl.client.interfaces.ClientCreativeModeTabExtension;
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
 import eu.pb4.polymer.core.impl.networking.entry.*;
-import eu.pb4.polymer.core.impl.networking.entry.DebugBlockStateEntry;
 import eu.pb4.polymer.core.impl.networking.payloads.PolymerGenericListPayload;
 import eu.pb4.polymer.core.impl.networking.payloads.PolymerNoOpPayload;
 import eu.pb4.polymer.core.impl.networking.payloads.s2c.*;
 import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
-import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
+import eu.pb4.polymer.core.mixin.other.CreativeModeTabsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import eu.pb4.polymer.networking.impl.NetImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.SharedConstants;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientCommonNetworkHandler;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.command.argument.BlockArgumentParser;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.nbt.NbtByte;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.*;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.PaletteProvider;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -101,28 +100,28 @@ public class PolymerClientProtocolHandler {
                     case VANILLA -> ClientPolymerBlock.MiningDeltaLogic.VANILLA;
                     case CUSTOM_SERVER -> ClientPolymerBlock.MiningDeltaLogic.CUSTOM_SERVER;
                     case TOOL_REQUIRED -> ClientPolymerBlock.MiningDeltaLogic.TOOL_REQUIRED;
-                }, entry.text(), entry.visual(), getNonDefault(Registries.BLOCK, entry.identifier()), entry.visualStack())));
+                }, entry.text(), entry.visual(), getNonDefault(BuiltInRegistries.BLOCK, entry.identifier()), entry.visualStack())));
         registerGenericListHandler(S2CPackets.SYNC_ITEM, PolymerItemEntry.class, (entry) -> {
 
                     InternalClientRegistry.ITEMS.set(entry.identifier(), entry.numId(),
                             new ClientPolymerItem(
                                     entry.identifier(),
                                     entry.representation(),
-                                    getNonDefault(Registries.ITEM, entry.identifier())
+                                    getNonDefault(BuiltInRegistries.ITEM, entry.identifier())
                             ));
                 });
         registerGenericListHandler(S2CPackets.SYNC_BLOCKSTATE, PolymerBlockStateEntry.class,
-                (entry) -> InternalClientRegistry.BLOCK_STATES.set(new ClientPolymerBlock.State(entry.properties(), InternalClientRegistry.BLOCKS.get(entry.blockId()), blockStateOrNull(entry.properties(), InternalClientRegistry.BLOCKS.get(entry.blockId()))), entry.numId()));
+                (entry) -> InternalClientRegistry.BLOCK_STATES.addMapping(new ClientPolymerBlock.State(entry.properties(), InternalClientRegistry.BLOCKS.byId(entry.blockId()), blockStateOrNull(entry.properties(), InternalClientRegistry.BLOCKS.byId(entry.blockId()))), entry.numId()));
 
         registerGenericListHandler(S2CPackets.SYNC_ENTITY, PolymerEntityEntry.class,
-                (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), getNonDefault(Registries.ENTITY_TYPE, entry.identifier()))));
+                (entry) -> InternalClientRegistry.ENTITY_TYPES.set(entry.identifier(), entry.rawId(), new ClientPolymerEntityType(entry.identifier(), entry.name(), getNonDefault(BuiltInRegistries.ENTITY_TYPE, entry.identifier()))));
 
-        registerGenericListHandler(S2CPackets.SYNC_VILLAGER_PROFESSION, InternalClientRegistry.VILLAGER_PROFESSIONS, Registries.VILLAGER_PROFESSION);
-        registerGenericListHandler(S2CPackets.SYNC_BLOCK_ENTITY, InternalClientRegistry.BLOCK_ENTITY, Registries.BLOCK_ENTITY_TYPE);
-        registerGenericListHandler(S2CPackets.SYNC_STATUS_EFFECT, InternalClientRegistry.STATUS_EFFECT, Registries.STATUS_EFFECT);
-        registerGenericListHandler(S2CPackets.SYNC_FLUID, InternalClientRegistry.FLUID, Registries.FLUID);
-        registerGenericListHandler(S2CPackets.SYNC_DATA_COMPONENT_TYPE, InternalClientRegistry.DATA_COMPONENT_TYPE, Registries.DATA_COMPONENT_TYPE);
-        registerGenericListHandler(S2CPackets.SYNC_ENCHANTMENT_COMPONENT_TYPE, InternalClientRegistry.ENCHANTMENT_COMPONENT_TYPE, Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE);
+        registerGenericListHandler(S2CPackets.SYNC_VILLAGER_PROFESSION, InternalClientRegistry.VILLAGER_PROFESSIONS, BuiltInRegistries.VILLAGER_PROFESSION);
+        registerGenericListHandler(S2CPackets.SYNC_BLOCK_ENTITY, InternalClientRegistry.BLOCK_ENTITY, BuiltInRegistries.BLOCK_ENTITY_TYPE);
+        registerGenericListHandler(S2CPackets.SYNC_STATUS_EFFECT, InternalClientRegistry.STATUS_EFFECT, BuiltInRegistries.MOB_EFFECT);
+        registerGenericListHandler(S2CPackets.SYNC_FLUID, InternalClientRegistry.FLUID, BuiltInRegistries.FLUID);
+        registerGenericListHandler(S2CPackets.SYNC_DATA_COMPONENT_TYPE, InternalClientRegistry.DATA_COMPONENT_TYPE, BuiltInRegistries.DATA_COMPONENT_TYPE);
+        registerGenericListHandler(S2CPackets.SYNC_ENCHANTMENT_COMPONENT_TYPE, InternalClientRegistry.ENCHANTMENT_COMPONENT_TYPE, BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE);
 
 
         registerGenericListHandler(S2CPackets.SYNC_TAGS, PolymerTagEntry.class, PolymerClientProtocolHandler::registerTag);
@@ -133,8 +132,8 @@ public class PolymerClientProtocolHandler {
 
         PolymerClientNetworking.AFTER_METADATA_RECEIVED.register(() -> {
             InternalClientRegistry.setVersion(PolymerClientNetworking.getServerVersion(),
-                    PolymerClientNetworking.getMetadata(ServerMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.TYPE));
-            var limitedF3 = PolymerClientNetworking.getMetadata(ServerMetadataKeys.LIMITED_F3, NbtByte.TYPE);
+                    PolymerClientNetworking.getMetadata(ServerMetadataKeys.MINECRAFT_PROTOCOL, IntTag.TYPE));
+            var limitedF3 = PolymerClientNetworking.getMetadata(ServerMetadataKeys.LIMITED_F3, ByteTag.TYPE);
 
             InternalClientRegistry.limitedF3 = limitedF3 != null && limitedF3.byteValue() != 0;
         });
@@ -142,14 +141,14 @@ public class PolymerClientProtocolHandler {
         PolymerClientNetworking.AFTER_DISABLE.register(InternalClientRegistry::disable);
 
         PolymerClientNetworking.BEFORE_METADATA_SYNC.register(() -> {
-            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.ADVANCED_TOOLTIP, NbtByte.of(MinecraftClient.getInstance().options.advancedItemTooltips));
-            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, NbtInt.of(MathHelper.ceilLog2(Block.STATE_IDS.size())));
-            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, NbtInt.of(SharedConstants.getProtocolVersion()));
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.ADVANCED_TOOLTIP, ByteTag.valueOf(Minecraft.getInstance().options.advancedItemTooltips));
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.valueOf(Mth.ceillog2(Block.BLOCK_STATE_REGISTRY.size())));
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, IntTag.valueOf(SharedConstants.getProtocolVersion()));
         });
     }
 
     private static <T> T getNonDefault(DefaultedRegistry<T> registry, Identifier identifier) {
-        return registry.containsId(identifier) ? registry.get(identifier) : null;
+        return registry.containsKey(identifier) ? registry.getValue(identifier) : null;
     }
 
     private static <T> void registerGenericListHandler(Identifier id, Class<T> targetClass, Consumer<T> consumer) {
@@ -171,17 +170,17 @@ public class PolymerClientProtocolHandler {
 
     private static void handleDebugValidateStates(DebugBlockStateEntry entry) {
         if (CommonImpl.DEVELOPER_MODE) {
-            var chat = MinecraftClient.getInstance().inGameHud.getChatHud();
+            var chat = Minecraft.getInstance().gui.getChat();
 
-            var state = Block.STATE_IDS.get(entry.numId());
+            var state = Block.BLOCK_STATE_REGISTRY.byId(entry.numId());
 
             if (state == null) {
-                chat.addMessage(Text.literal("Missing BlockState! | " + entry.numId() + " | Server: " + entry.asString()));
+                chat.addMessage(Component.literal("Missing BlockState! | " + entry.numId() + " | Server: " + entry.asString()));
             } else {
                 var debug = DebugBlockStateEntry.of(state, null, 0);
 
                 if (!debug.equals(entry)) {
-                    chat.addMessage(Text.literal("Mismatched BlockState! | " + entry.numId() + " | Server: " + entry.asString() + " | Client: " + debug.asString()));
+                    chat.addMessage(Component.literal("Mismatched BlockState! | " + entry.numId() + " | Server: " + entry.asString() + " | Client: " + debug.asString()));
                 }
             }
         }
@@ -206,7 +205,7 @@ public class PolymerClientProtocolHandler {
             }
 
             try {
-                var parsed = BlockArgumentParser.block(Registries.BLOCK, new StringReader(path.toString()), false);
+                var parsed = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK, new StringReader(path.toString()), false);
 
                 return parsed.blockState();
             } catch (Exception e) {
@@ -217,20 +216,20 @@ public class PolymerClientProtocolHandler {
         return null;
     }
 
-    private static void handleItemGroupApplyUpdates(MinecraftClient client, ClientCommonNetworkHandler handler, PolymerItemGroupApplyUpdateS2CPayload payload) {
+    private static void handleItemGroupApplyUpdates(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupApplyUpdateS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
-            MinecraftClient.getInstance().execute(() -> {
-                if (ItemGroupsAccessor.getDisplayContext() != null) {
-                    ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
+            Minecraft.getInstance().execute(() -> {
+                if (CreativeModeTabsAccessor.getCACHED_PARAMETERS() != null) {
+                    CreativeModeTabsAccessor.callBuildAllTabContents(CreativeModeTabsAccessor.getCACHED_PARAMETERS());
                 }
                 PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
             });
         }
     }
 
-    private static void handleItemGroupDefine(MinecraftClient client, ClientCommonNetworkHandler handler, PolymerItemGroupDefineS2CPayload payload) {
+    private static void handleItemGroupDefine(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupDefineS2CPayload payload) {
         if ( InternalClientRegistry.enabled) {
-            MinecraftClient.getInstance().execute(() -> {
+            Minecraft.getInstance().execute(() -> {
                 InternalClientRegistry.clearTabs((t) -> t.getIdentifier().equals(payload.groupId()));
                 InternalClientRegistry.createItemGroup(payload.groupId(), payload.name(), payload.icon());
             });
@@ -238,22 +237,22 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleItemGroupRemove(MinecraftClient client, ClientCommonNetworkHandler handler, PolymerItemGroupRemoveS2CPayload payload) {
+    private static void handleItemGroupRemove(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupRemoveS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
-            MinecraftClient.getInstance().execute(() -> {
+            Minecraft.getInstance().execute(() -> {
                 InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(payload.groupId()));
             });
         }
 
     }
 
-    private static void handleItemGroupContentsAdd(MinecraftClient client, ClientCommonNetworkHandler handler, PolymerItemGroupContentAddS2CPayload payload) {
+    private static void handleItemGroupContentsAdd(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupContentAddS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
-            MinecraftClient.getInstance().execute(() -> {
-                ItemGroup group = InternalClientRegistry.getItemGroup(payload.groupId());
+            Minecraft.getInstance().execute(() -> {
+                CreativeModeTab group = InternalClientRegistry.getItemGroup(payload.groupId());
 
                 if (group != null) {
-                    var groupAccess = (ClientItemGroupExtension) group;
+                    var groupAccess = (ClientCreativeModeTabExtension) group;
 
                     groupAccess.polymer$handleEntries(payload.stacksMain(), payload.stacksSearch());
                 }
@@ -261,13 +260,13 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleItemGroupContentsClear(MinecraftClient client, ClientCommonNetworkHandler handler, PolymerItemGroupContentClearS2CPayload payload) {
+    private static void handleItemGroupContentsClear(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupContentClearS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
-            MinecraftClient.getInstance().execute(() -> {
-                ItemGroup group = InternalClientRegistry.getItemGroup(payload.groupId());
+            Minecraft.getInstance().execute(() -> {
+                CreativeModeTab group = InternalClientRegistry.getItemGroup(payload.groupId());
 
                 if (group != null) {
-                    var groupAccess = (ClientItemGroupExtension) group;
+                    var groupAccess = (ClientCreativeModeTabExtension) group;
                     groupAccess.polymer$clearStacks();
                 }
 
@@ -275,10 +274,10 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleEntity(MinecraftClient client, ClientPlayNetworkHandler handler, PolymerEntityS2CPayload payload) {
+    private static void handleEntity(Minecraft client, ClientPacketListener handler, PolymerEntityS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
-            MinecraftClient.getInstance().execute(() -> {
-                var entity = handler.getWorld().getEntityById(payload.entityId());
+            Minecraft.getInstance().execute(() -> {
+                var entity = handler.getLevel().getEntity(payload.entityId());
                 if (entity != null) {
                     ((ClientEntityExtension) entity).polymer$setId(payload.typeId());
                 }
@@ -286,14 +285,14 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleSetBlock(MinecraftClient client, ClientPlayNetworkHandler handler, PolymerBlockUpdateS2CPayload payload) {
+    private static void handleSetBlock(Minecraft client, ClientPacketListener handler, PolymerBlockUpdateS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
-            MinecraftClient.getInstance().execute(() -> {
-                var block = InternalClientRegistry.BLOCK_STATES.get(payload.blockId());
+            Minecraft.getInstance().execute(() -> {
+                var block = InternalClientRegistry.BLOCK_STATES.byId(payload.blockId());
                 if (block != null) {
                     var pos = payload.pos();
-                    var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
-                            ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
+                    var chunk = Minecraft.getInstance().level.getChunkSource().getChunk(
+                            SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()),
                             ChunkStatus.FULL,
                             false
                     );
@@ -312,12 +311,12 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleWorldSectionUpdate(MinecraftClient client, ClientPlayNetworkHandler handler, PolymerSectionUpdateS2CPayload payload) {
+    private static void handleWorldSectionUpdate(Minecraft client, ClientPacketListener handler, PolymerSectionUpdateS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
             var sectionPos = payload.chunkPos();
 
-            MinecraftClient.getInstance().execute(() -> {
-                var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
+            Minecraft.getInstance().execute(() -> {
+                var chunk = Minecraft.getInstance().level.getChunkSource().getChunk(
                         sectionPos.getX(), sectionPos.getZ(),
                         ChunkStatus.FULL,
                         false
@@ -326,17 +325,17 @@ public class PolymerClientProtocolHandler {
                 var states = payload.blocks();
 
                 if (chunk != null) {
-                    var section = chunk.getSection(chunk.sectionCoordToIndex(sectionPos.getY()));
+                    var section = chunk.getSection(chunk.getSectionIndexFromSectionY(sectionPos.getY()));
                     if (section instanceof ClientBlockStorageInterface storage) {
-                        var mutableBlockPos = new BlockPos.Mutable(0, 0, 0);
+                        var mutableBlockPos = new BlockPos.MutableBlockPos(0, 0, 0);
                         for (int i = 0; i < states.length; i++) {
                             var pos = blockPos[i];
-                            var block = InternalClientRegistry.BLOCK_STATES.get(states[i]);
+                            var block = InternalClientRegistry.BLOCK_STATES.byId(states[i]);
                             if (block != null) {
-                                var x = ChunkSectionPos.unpackLocalX(pos);
-                                var y = ChunkSectionPos.unpackLocalY(pos);
-                                var z = ChunkSectionPos.unpackLocalZ(pos);
-                                mutableBlockPos.set(sectionPos.getMinX() + x, sectionPos.getMinX() + y, sectionPos.getMinX() + z);
+                                var x = SectionPos.sectionRelativeX(pos);
+                                var y = SectionPos.sectionRelativeY(pos);
+                                var z = SectionPos.sectionRelativeZ(pos);
+                                mutableBlockPos.set(sectionPos.minBlockX() + x, sectionPos.minBlockX() + y, sectionPos.minBlockX() + z);
                                 PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(mutableBlockPos, block));
                                 storage.polymer$setClientBlock(x, y, z, block);
 
@@ -353,7 +352,7 @@ public class PolymerClientProtocolHandler {
     }
 
 
-    private static <T> void handleGenericList(MinecraftClient client, ClientCommonNetworkHandler handle, PolymerGenericListPayload<?> payload) {
+    private static <T> void handleGenericList(Minecraft client, ClientCommonPacketListenerImpl handle, PolymerGenericListPayload<?> payload) {
         if (!InternalClientRegistry.enabled) {
             return;
         }
@@ -374,6 +373,6 @@ public class PolymerClientProtocolHandler {
 
     interface EntryReader<T> {
         @Nullable
-        T read(PacketByteBuf buf, int version);
+        T read(FriendlyByteBuf buf, int version);
     }
 }

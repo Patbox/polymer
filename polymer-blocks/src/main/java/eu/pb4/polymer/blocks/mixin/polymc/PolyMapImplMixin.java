@@ -2,8 +2,8 @@ package eu.pb4.polymer.blocks.mixin.polymc;
 
 import eu.pb4.polymer.blocks.impl.BlockExtBlockMapper;
 import io.github.theepicblock.polymc.api.PolyMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(PolyMap.class)
 public interface PolyMapImplMixin {
     @Inject(method = "getClientState", at = @At("HEAD"), cancellable = true, require = 0)
-    private void skipPolymerHandledBlocks(BlockState serverBlock, ServerPlayerEntity player, CallbackInfoReturnable<BlockState> cir) {
+    private void skipPolymerHandledBlocks(BlockState serverBlock, ServerPlayer player, CallbackInfoReturnable<BlockState> cir) {
         if (BlockExtBlockMapper.INSTANCE.stateMap.containsKey(serverBlock)) {
             cir.setReturnValue(serverBlock);
         }

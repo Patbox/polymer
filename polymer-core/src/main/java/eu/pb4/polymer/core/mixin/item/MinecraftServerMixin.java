@@ -10,18 +10,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
-    @Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;setupServer()Z"))
+    @Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;initServer()Z"))
     private void polymerCore$beforeSetup(CallbackInfo info) {
         PolymerItemGroupUtils.invalidateItemGroupCache();
     }
 
-    @Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;", ordinal = 0))
+    @Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;buildServerStatus()Lnet/minecraft/network/protocol/status/ServerStatus;", ordinal = 0))
     private void polymerCore$beforeStartTicking(CallbackInfo info) {
         PolymerBlockStateEntry.CACHE.clear();
         PolymerItemGroupUtils.invalidateItemGroupCache();
     }
 
-    @Inject(method = "shutdown", at = @At("TAIL"))
+    @Inject(method = "stopServer", at = @At("TAIL"))
     private void polymerCore$shutdown(CallbackInfo info) {
         PolymerBlockStateEntry.CACHE.clear();
         PolymerItemGroupUtils.invalidateItemGroupCache();

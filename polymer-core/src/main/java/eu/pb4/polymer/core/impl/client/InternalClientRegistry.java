@@ -13,47 +13,47 @@ import eu.pb4.polymer.core.impl.client.debug.LookingAtPolymerBlockDebugHudEntry;
 import eu.pb4.polymer.core.impl.client.debug.LookingAtPolymerEntityDebugHudEntry;
 import eu.pb4.polymer.core.impl.client.debug.PolymerInfoDebugHudEntry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientBlockStorageInterface;
-import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
+import eu.pb4.polymer.core.impl.client.interfaces.ClientCreativeModeTabExtension;
 import eu.pb4.polymer.core.impl.interfaces.IndexedNetwork;
-import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
+import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.FixedIdList;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
-import eu.pb4.polymer.core.mixin.client.CreativeInventoryScreenAccessor;
-import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
+import eu.pb4.polymer.core.mixin.client.CreativeModeInventoryScreenAccessor;
+import eu.pb4.polymer.core.mixin.other.CreativeModeTabsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.SharedConstants;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.debug.DebugHudEntries;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.component.ComponentType;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.IndexedIterable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.PaletteProvider;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.IdMap;
+import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.Strategy;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -71,16 +71,16 @@ public class InternalClientRegistry {
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
     public static final FixedIdList<ClientPolymerBlock.State> BLOCK_STATES = new FixedIdList<>();
-    public static PaletteProvider<ClientPolymerBlock.State> blockStatesPaletteProvider = PaletteProvider.forBlockStates(BLOCK_STATES);
+    public static Strategy<ClientPolymerBlock.State> blockStatesPaletteProvider = Strategy.createForBlockStates(BLOCK_STATES);
     public static final ImplPolymerRegistry<ClientPolymerItem> ITEMS = new ImplPolymerRegistry<>("item", "I");
     public static final ImplPolymerRegistry<ClientPolymerEntityType> ENTITY_TYPES = new ImplPolymerRegistry<>("entity_type", "E");
     public static final ImplPolymerRegistry<ClientPolymerEntry<VillagerProfession>> VILLAGER_PROFESSIONS = new ImplPolymerRegistry<>("villager_profession", "VP");
     public static final ImplPolymerRegistry<ClientPolymerEntry<BlockEntityType<?>>> BLOCK_ENTITY = new ImplPolymerRegistry<>("block_entity", "BE");
-    public static final ImplPolymerRegistry<ClientPolymerEntry<StatusEffect>> STATUS_EFFECT = new ImplPolymerRegistry<>("status_effect", "SE");
+    public static final ImplPolymerRegistry<ClientPolymerEntry<MobEffect>> STATUS_EFFECT = new ImplPolymerRegistry<>("status_effect", "SE");
     public static final ImplPolymerRegistry<ClientPolymerEntry<Fluid>> FLUID = new ImplPolymerRegistry<>("fluid", "FL");
-    public static final ImplPolymerRegistry<ClientPolymerEntry<ScreenHandlerType<?>>> SCREEN_HANDLER = new ImplPolymerRegistry<>("screen_handler", "SH");
-    public static final ImplPolymerRegistry<ClientPolymerEntry<ComponentType<?>>> DATA_COMPONENT_TYPE = new ImplPolymerRegistry<>("data_component_type", "DC");
-    public static final ImplPolymerRegistry<ClientPolymerEntry<ComponentType<?>>> ENCHANTMENT_COMPONENT_TYPE = new ImplPolymerRegistry<>("enchantment_component_type", "EC");
+    public static final ImplPolymerRegistry<ClientPolymerEntry<MenuType<?>>> SCREEN_HANDLER = new ImplPolymerRegistry<>("screen_handler", "SH");
+    public static final ImplPolymerRegistry<ClientPolymerEntry<DataComponentType<?>>> DATA_COMPONENT_TYPE = new ImplPolymerRegistry<>("data_component_type", "DC");
+    public static final ImplPolymerRegistry<ClientPolymerEntry<DataComponentType<?>>> ENCHANTMENT_COMPONENT_TYPE = new ImplPolymerRegistry<>("enchantment_component_type", "EC");
     public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>("item_groups", "IG");
     public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, FLUID, SCREEN_HANDLER, ITEM_GROUPS, DATA_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
@@ -98,27 +98,27 @@ public class InternalClientRegistry {
 
     private static Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMap() {
         var map = new HashMap<Registry<?>, ImplPolymerRegistry<?>>();
-        map.put(Registries.BLOCK, BLOCKS);
-        map.put(Registries.ENTITY_TYPE, ENTITY_TYPES);
-        map.put(Registries.ITEM, ITEMS);
-        map.put(Registries.STATUS_EFFECT, STATUS_EFFECT);
-        map.put(Registries.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
-        map.put(Registries.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
-        map.put(Registries.FLUID, FLUID);
-        map.put(Registries.DATA_COMPONENT_TYPE, DATA_COMPONENT_TYPE);
-        map.put(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
+        map.put(BuiltInRegistries.BLOCK, BLOCKS);
+        map.put(BuiltInRegistries.ENTITY_TYPE, ENTITY_TYPES);
+        map.put(BuiltInRegistries.ITEM, ITEMS);
+        map.put(BuiltInRegistries.MOB_EFFECT, STATUS_EFFECT);
+        map.put(BuiltInRegistries.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
+        map.put(BuiltInRegistries.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
+        map.put(BuiltInRegistries.FLUID, FLUID);
+        map.put(BuiltInRegistries.DATA_COMPONENT_TYPE, DATA_COMPONENT_TYPE);
+        map.put(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
         return (Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>>) (Object) map;
     }
 
     private static Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> createRegMapId(Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> byVanilla) {
-        return byVanilla.entrySet().stream().map(x -> Map.entry(x.getKey().getKey().getValue(), x.getValue())).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+        return byVanilla.entrySet().stream().map(x -> Map.entry(x.getKey().key().identifier(), x.getValue())).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
     }
 
     public static ClientPolymerBlock.State getBlockAt(BlockPos pos) {
         try {
-            if (MinecraftClient.getInstance().world != null) {
-                var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
-                        ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
+            if (Minecraft.getInstance().level != null) {
+                var chunk = Minecraft.getInstance().level.getChunkSource().getChunk(
+                        SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()),
                         ChunkStatus.FULL,
                         true
                 );
@@ -132,9 +132,9 @@ public class InternalClientRegistry {
     }
 
     public static void setBlockAt(BlockPos pos, ClientPolymerBlock.State state) {
-        if (MinecraftClient.getInstance().world != null) {
-            var chunk = MinecraftClient.getInstance().world.getChunkManager().getChunk(
-                    ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()),
+        if (Minecraft.getInstance().level != null) {
+            var chunk = Minecraft.getInstance().level.getChunkSource().getChunk(
+                    SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()),
                     ChunkStatus.FULL,
                     true
             );
@@ -145,7 +145,7 @@ public class InternalClientRegistry {
         }
     }
 
-    public static void setVersion(String version, @Nullable NbtInt protocolVersion) {
+    public static void setVersion(String version, @Nullable IntTag protocolVersion) {
         serverVersion = version;
         serverHasPolymer = !version.isEmpty();
         enabled = serverHasPolymer && protocolVersion != null && protocolVersion.intValue() == SharedConstants.getProtocolVersion();
@@ -163,7 +163,7 @@ public class InternalClientRegistry {
 
     @Nullable
     public static BlockState getRealBlockState(int rawPolymerId) {
-        var state = InternalClientRegistry.BLOCK_STATES.get(rawPolymerId);
+        var state = InternalClientRegistry.BLOCK_STATES.byId(rawPolymerId);
         if (state != null && state.blockState() != null) {
             if (PolymerClientDecoded.checkDecode(state.blockState().getBlock())) {
                 return state.blockState();
@@ -176,33 +176,33 @@ public class InternalClientRegistry {
     }
 
     private static void setDecoders() {
-        IndexedNetwork.set(Block.STATE_IDS, InternalClientRegistry::getRealBlockState);
-        IndexedNetwork.set(Registries.ITEM, InternalClientRegistry::decodeItem);
+        IndexedNetwork.set(Block.BLOCK_STATE_REGISTRY, InternalClientRegistry::getRealBlockState);
+        IndexedNetwork.set(BuiltInRegistries.ITEM, InternalClientRegistry::decodeItem);
 
-        setSimpleDecoder((Registry<EntityType>) (Object) Registries.ENTITY_TYPE, (PolymerRegistry<ClientPolymerEntry<EntityType>>) (Object) ENTITY_TYPES);
-        setSimpleDecoder(Registries.BLOCK, (PolymerRegistry<ClientPolymerEntry<Block>>) (Object) BLOCKS);
+        setSimpleDecoder((Registry<EntityType>) (Object) BuiltInRegistries.ENTITY_TYPE, (PolymerRegistry<ClientPolymerEntry<EntityType>>) (Object) ENTITY_TYPES);
+        setSimpleDecoder(BuiltInRegistries.BLOCK, (PolymerRegistry<ClientPolymerEntry<Block>>) (Object) BLOCKS);
 
-        setSimpleDecoder(Registries.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
-        setSimpleDecoder(Registries.STATUS_EFFECT, STATUS_EFFECT);
-        setSimpleDecoder(Registries.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
-        setSimpleDecoder(Registries.FLUID, FLUID);
-        setSimpleDecoder(Registries.SCREEN_HANDLER, SCREEN_HANDLER);
-        setSimpleDecoder(Registries.DATA_COMPONENT_TYPE, DATA_COMPONENT_TYPE);
-        setSimpleDecoder(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
+        setSimpleDecoder(BuiltInRegistries.VILLAGER_PROFESSION, VILLAGER_PROFESSIONS);
+        setSimpleDecoder(BuiltInRegistries.MOB_EFFECT, STATUS_EFFECT);
+        setSimpleDecoder(BuiltInRegistries.BLOCK_ENTITY_TYPE, BLOCK_ENTITY);
+        setSimpleDecoder(BuiltInRegistries.FLUID, FLUID);
+        setSimpleDecoder(BuiltInRegistries.MENU, SCREEN_HANDLER);
+        setSimpleDecoder(BuiltInRegistries.DATA_COMPONENT_TYPE, DATA_COMPONENT_TYPE);
+        setSimpleDecoder(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
     }
 
 
-    public static Object decodeRegistry(IndexedIterable<?> instance, int i) {
+    public static Object decodeRegistry(IdMap<?> instance, int i) {
         if (serverHasPolymer) {
-            return PolymerCommonUtils.executeWithNetworkingLogic(() -> instance.getOrThrow(i));
+            return PolymerCommonUtils.executeWithNetworkingLogic(() -> instance.byIdOrThrow(i));
         }
 
-        return instance.getOrThrow(i);
+        return instance.byIdOrThrow(i);
     }
 
     private static Item decodeItem(int id) {
         if (InternalClientRegistry.enabled) {
-            var item = InternalClientRegistry.ITEMS.get(id);
+            var item = InternalClientRegistry.ITEMS.byId(id);
             if (item != null) {
                 if (item.registryEntry() != null) {
                     return item.registryEntry();
@@ -215,10 +215,10 @@ public class InternalClientRegistry {
         return null;
     }
 
-    private static <T> void setSimpleDecoder(final IndexedIterable<T> registry, final PolymerRegistry<ClientPolymerEntry<T>> polymerRegistry) {
+    private static <T> void setSimpleDecoder(final IdMap<T> registry, final PolymerRegistry<ClientPolymerEntry<T>> polymerRegistry) {
         IndexedNetwork.set(registry, (id) -> {
             if (InternalClientRegistry.enabled) {
-                var item = polymerRegistry.get(id);
+                var item = polymerRegistry.byId(id);
 
                 if (item != null && item.registryEntry() != null) {
                     return item.registryEntry();
@@ -266,25 +266,25 @@ public class InternalClientRegistry {
         VIRTUAL_ITEM_CACHE.clear();
 
         BLOCKS.set(ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
-        ((PolymerIdList) BLOCK_STATES).polymer$clear();
-        BLOCK_STATES.set(ClientPolymerBlock.NONE_STATE, 0);
+        ((PolymerIdMapper) BLOCK_STATES).polymer$clear();
+        BLOCK_STATES.addMapping(ClientPolymerBlock.NONE_STATE, 0);
         updateBlockStatesPaletteProvider();
 
-        MinecraftClient.getInstance().execute(() -> {
+        Minecraft.getInstance().execute(() -> {
             clearTabs(i -> true);
 
-            for (var group : Registries.ITEM_GROUP) {
-                if (group.getType() == ItemGroup.Type.CATEGORY) {
+            for (var group : BuiltInRegistries.CREATIVE_MODE_TAB) {
+                if (group.getType() == CreativeModeTab.Type.CATEGORY) {
                     try {
-                        ((ClientItemGroupExtension) group).polymer$clearStacks();
+                        ((ClientCreativeModeTabExtension) group).polymer$clearStacks();
                     } catch (Throwable e) {
                         PolymerImpl.LOGGER.warn("Can't clear stacks of ItemGroup!", e);
                     }
                 }
             }
             try {
-                if (ItemGroupsAccessor.getDisplayContext() != null) {
-                    ItemGroupsAccessor.callUpdateEntries(ItemGroupsAccessor.getDisplayContext());
+                if (CreativeModeTabsAccessor.getCACHED_PARAMETERS() != null) {
+                    CreativeModeTabsAccessor.callBuildAllTabContents(CreativeModeTabsAccessor.getCACHED_PARAMETERS());
                 }
             } catch (Throwable e) {
                 PolymerImpl.LOGGER.warn("Can't update entries of ItemGroups!", e);
@@ -298,11 +298,11 @@ public class InternalClientRegistry {
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
         try {
             ITEM_GROUPS.removeIf(removePredicate);
-            CreativeInventoryScreenAccessor.setSelectedTab(ItemGroups.getDefaultTab());
+            CreativeModeInventoryScreenAccessor.setSelectedTab(CreativeModeTabs.getDefaultTab());
 
             if (CompatStatus.FABRIC_ITEM_GROUP || CompatStatus.QUILT_ITEM_GROUP) {
                 try {
-                    for (var f1 : CreativeInventoryScreen.class.getDeclaredFields()) {
+                    for (var f1 : CreativeModeInventoryScreen.class.getDeclaredFields()) {
                         if (f1.getName().contains("currentPage")) {
                             f1.setAccessible(true);
                             f1.setInt(null, 0);
@@ -316,13 +316,13 @@ public class InternalClientRegistry {
                 }
             }
 
-            int count = Registries.ITEM_GROUP.size() - 4;
+            int count = BuiltInRegistries.CREATIVE_MODE_TAB.size() - 4;
             for (var x : ITEM_GROUPS) {
                 var page = (count / TABS_PER_PAGE);
                 int pageIndex = count % TABS_PER_PAGE;
-                ItemGroup.Row row = pageIndex < (TABS_PER_PAGE / 2) ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
-                var c = row == ItemGroup.Row.TOP ? pageIndex % TABS_PER_PAGE : (pageIndex - TABS_PER_PAGE / 2) % (TABS_PER_PAGE);
-                ((ClientItemGroupExtension) x).polymerCore$setPos(row, c);
+                CreativeModeTab.Row row = pageIndex < (TABS_PER_PAGE / 2) ? CreativeModeTab.Row.TOP : CreativeModeTab.Row.BOTTOM;
+                var c = row == CreativeModeTab.Row.TOP ? pageIndex % TABS_PER_PAGE : (pageIndex - TABS_PER_PAGE / 2) % (TABS_PER_PAGE);
+                ((ClientCreativeModeTabExtension) x).polymerCore$setPos(row, c);
                 setItemGroupPage(x, page);
                 count++;
             }
@@ -331,8 +331,8 @@ public class InternalClientRegistry {
         }
     }
 
-    private static void setItemGroupPage(ItemGroup group, int page) {
-        ((ClientItemGroupExtension) group).polymerCore$setPage(page);
+    private static void setItemGroupPage(CreativeModeTab group, int page) {
+        ((ClientCreativeModeTabExtension) group).polymerCore$setPage(page);
         if (CompatStatus.FABRIC_ITEM_GROUP) {
             try {
                 ((net.fabricmc.fabric.impl.itemgroup.FabricItemGroupImpl) group).fabric_setPage(page);
@@ -342,18 +342,18 @@ public class InternalClientRegistry {
         }
     }
 
-    public static void createItemGroup(Identifier id, Text name, ItemStack icon) {
+    public static void createItemGroup(Identifier id, Component name, ItemStack icon) {
         try {
-            var existing = Registries.ITEM_GROUP.get(id);
+            var existing = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(id);
             if (existing != null) {
                 return;
             }
-            int count = (Registries.ITEM_GROUP.size() - 4) + ITEM_GROUPS.size();
+            int count = (BuiltInRegistries.CREATIVE_MODE_TAB.size() - 4) + ITEM_GROUPS.size();
 
             var page = (count / TABS_PER_PAGE);
             int pageIndex = count % TABS_PER_PAGE;
-            ItemGroup.Row row = pageIndex < (TABS_PER_PAGE / 2) ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
-            var c = row == ItemGroup.Row.TOP ? pageIndex % TABS_PER_PAGE : (pageIndex - TABS_PER_PAGE / 2) % (TABS_PER_PAGE);
+            CreativeModeTab.Row row = pageIndex < (TABS_PER_PAGE / 2) ? CreativeModeTab.Row.TOP : CreativeModeTab.Row.BOTTOM;
+            var c = row == CreativeModeTab.Row.TOP ? pageIndex % TABS_PER_PAGE : (pageIndex - TABS_PER_PAGE / 2) % (TABS_PER_PAGE);
 
             var group = new InternalClientItemGroup(row, c, id, name, icon);
             ITEM_GROUPS.set(id, group);
@@ -364,12 +364,12 @@ public class InternalClientRegistry {
         }
     }
 
-    public static ItemGroup getItemGroup(Identifier id) {
+    public static CreativeModeTab getItemGroup(Identifier id) {
         var x = ITEM_GROUPS.get(id);
         if (x != null) {
             return x;
         }
-        return Registries.ITEM_GROUP.get(id);
+        return BuiltInRegistries.CREATIVE_MODE_TAB.getValue(id);
     }
 
     public static int getClientProtocolVer(Identifier identifier) {
@@ -387,12 +387,12 @@ public class InternalClientRegistry {
     }
 
     public static void register() {
-        DebugHudEntries.register(Identifier.of("polymer", "looking_at_server_block"), new LookingAtPolymerBlockDebugHudEntry());
-        DebugHudEntries.register(Identifier.of("polymer", "looking_at_server_entity"), new LookingAtPolymerEntityDebugHudEntry());
-        DebugHudEntries.register(Identifier.of("polymer", "server_info"), new PolymerInfoDebugHudEntry());
+        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("polymer", "looking_at_server_block"), new LookingAtPolymerBlockDebugHudEntry());
+        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("polymer", "looking_at_server_entity"), new LookingAtPolymerEntityDebugHudEntry());
+        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("polymer", "server_info"), new PolymerInfoDebugHudEntry());
     }
 
     public static void updateBlockStatesPaletteProvider() {
-        blockStatesPaletteProvider = PaletteProvider.forBlockStates(InternalClientRegistry.BLOCK_STATES);
+        blockStatesPaletteProvider = Strategy.createForBlockStates(InternalClientRegistry.BLOCK_STATES);
     }
 }

@@ -3,8 +3,8 @@ package eu.pb4.polymer.resourcepack.extras.api.format.item.special;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 
 public record ShulkerBoxSpecialModel(Identifier texture, float openness, Direction facing) implements SpecialModel {
     public static final MapCodec<ShulkerBoxSpecialModel> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

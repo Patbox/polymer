@@ -1,10 +1,9 @@
 package eu.pb4.polymer.core.api.item;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -15,15 +14,15 @@ public class SimplePolymerItem extends Item implements PolymerItem {
     private final Item polymerItem;
     private final boolean polymerUseModel;
 
-    public SimplePolymerItem(Settings settings) {
+    public SimplePolymerItem(Properties settings) {
         this(settings, Items.TRIAL_KEY, true);
     }
 
-    public SimplePolymerItem(Settings settings, Item polymerItem) {
+    public SimplePolymerItem(Properties settings, Item polymerItem) {
         this(settings, polymerItem, false);
     }
 
-    public SimplePolymerItem(Settings settings, Item polymerItem, boolean useModel) {
+    public SimplePolymerItem(Properties settings, Item polymerItem, boolean useModel) {
         super(settings);
         this.polymerItem = polymerItem;
         this.polymerUseModel = useModel;

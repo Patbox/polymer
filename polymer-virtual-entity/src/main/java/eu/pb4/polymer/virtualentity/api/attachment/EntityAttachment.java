@@ -2,15 +2,14 @@ package eu.pb4.polymer.virtualentity.api.attachment;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
-import eu.pb4.polymer.virtualentity.mixin.accessors.EntityTrackerAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.ServerChunkLoadingManagerAccessor;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ServerChunkLoadingManager;
-import net.minecraft.util.math.Vec3d;
-
+import eu.pb4.polymer.virtualentity.mixin.accessors.TrackedEntityAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.ChunkMapAccessor;
 import java.util.Collection;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class EntityAttachment implements HolderAttachment {
@@ -68,7 +67,7 @@ public class EntityAttachment implements HolderAttachment {
     }
 
     @Override
-    public void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking) {
+    public void updateCurrentlyTracking(Collection<ServerGamePacketListenerImpl> currentlyTracking) {
         if (this.removed) return;
 
         if (this.holder.getAttachment() != this) {
@@ -84,7 +83,7 @@ public class EntityAttachment implements HolderAttachment {
             return;
         }
 
-        var watching = ((EntityTrackerAccessor) entry).getListeners();
+        var watching = ((TrackedEntityAccessor) entry).getSeenBy();
 
         for (var player : currentlyTracking) {
             if (!watching.contains(player)) {
@@ -93,32 +92,32 @@ public class EntityAttachment implements HolderAttachment {
         }
 
         for (var x : watching) {
-            this.holder.startWatching(x.getPlayer().networkHandler);
+            this.holder.startWatching(x.getPlayer().connection);
         }
     }
 
     @Override
     public boolean canUpdatePosition() {
-        return !this.removed && !this.entity.isRemoved() && this.entity.getEntityWorld().getEntityById(this.entity.getId()) == this.entity;
+        return !this.removed && !this.entity.isRemoved() && this.entity.level().getEntity(this.entity.getId()) == this.entity;
     }
 
     @Override
-    public void updateTracking(ServerPlayNetworkHandler tracking) {
+    public void updateTracking(ServerGamePacketListenerImpl tracking) {
         // left that to impl logic
     }
 
-    private ServerChunkLoadingManager.EntityTracker getTrackerEntry() {
-        return ((ServerChunkLoadingManagerAccessor) ((ServerWorld) this.entity.getEntityWorld()).getChunkManager().chunkLoadingManager).getEntityTrackers().get(this.entity.getId());
+    private ChunkMap.TrackedEntity getTrackerEntry() {
+        return ((ChunkMapAccessor) ((ServerLevel) this.entity.level()).getChunkSource().chunkMap).getEntityTrackers().get(this.entity.getId());
     }
 
     @Override
-    public Vec3d getPos() {
-        return this.entity.getEntityPos();
+    public Vec3 getPos() {
+        return this.entity.position();
     }
 
     @Override
-    public ServerWorld getWorld() {
-        return (ServerWorld) this.entity.getEntityWorld();
+    public ServerLevel getWorld() {
+        return (ServerLevel) this.entity.level();
     }
 
 

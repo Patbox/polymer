@@ -1,9 +1,10 @@
 package eu.pb4.polymer.core.impl;
 
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
+
+import net.minecraft.resources.Identifier;
 
 @ApiStatus.Internal
 public class ClientMetadataKeys {

@@ -2,77 +2,89 @@ package eu.pb4.polymer.common.impl;
 
 
 import eu.pb4.polymer.common.mixin.ReferenceAccessor;
-import eu.pb4.polymer.common.mixin.WorldAccessor;
+import eu.pb4.polymer.common.mixin.LevelAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.ObjectIterators;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BannerPattern;
-import net.minecraft.component.type.MapIdComponent;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.boss.dragon.EnderDragonPart;
-import net.minecraft.entity.damage.DamageScaling;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
-import net.minecraft.entity.damage.DamageType;
-import net.minecraft.entity.decoration.painting.PaintingVariant;
-import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.spawn.SpawnConditionSelectors;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.FuelRegistry;
-import net.minecraft.item.map.MapState;
-import net.minecraft.particle.BlockParticleEffect;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.recipe.BrewingRecipeRegistry;
-import net.minecraft.recipe.RecipeManager;
-import net.minecraft.recipe.ServerRecipeManager;
-import net.minecraft.registry.*;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.entry.RegistryEntryOwner;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.resource.featuretoggle.FeatureFlags;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.ClientAsset;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.particles.ExplosionParticleInfo;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.*;
-import net.minecraft.util.collection.Pool;
-import net.minecraft.util.function.LazyIterationConsumer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.intprovider.UniformIntProvider;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.profiler.ProfilerSystem;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.*;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
-import net.minecraft.world.attribute.WorldEnvironmentAttributeAccess;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeEffects;
-import net.minecraft.world.biome.GenerationSettings;
-import net.minecraft.world.biome.SpawnSettings;
-import net.minecraft.world.biome.source.BiomeAccess;
-import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkManager;
-import net.minecraft.world.chunk.ChunkProvider;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.light.ChunkSkyLight;
-import net.minecraft.world.chunk.light.LightSourceView;
-import net.minecraft.world.chunk.light.LightingProvider;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.dimension.DimensionTypes;
-import net.minecraft.world.entity.EntityLookup;
-import net.minecraft.world.event.GameEvent;
-import net.minecraft.world.explosion.ExplosionBehavior;
-import net.minecraft.world.tick.OrderedTick;
-import net.minecraft.world.tick.QueryableTickScheduler;
-import net.minecraft.world.tick.TickManager;
+import net.minecraft.world.attribute.EnvironmentAttributeSystem;
+import net.minecraft.world.damagesource.DamageScaling;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.chicken.ChickenVariant;
+import net.minecraft.world.entity.animal.cow.CowVariant;
+import net.minecraft.world.entity.animal.feline.CatVariant;
+import net.minecraft.world.entity.animal.frog.FrogVariant;
+import net.minecraft.world.entity.animal.pig.PigVariant;
+import net.minecraft.world.entity.animal.wolf.WolfSoundVariants;
+import net.minecraft.world.entity.animal.wolf.WolfVariant;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
+import net.minecraft.world.entity.decoration.painting.PaintingVariant;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.variant.ModelAndTexture;
+import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.crafting.RecipeAccess;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.FuelValues;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.chunk.LightChunk;
+import net.minecraft.world.level.chunk.LightChunkGetter;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.lighting.ChunkSkyLightSources;
+import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapId;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.ticks.LevelTickAccess;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,23 +92,22 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @ApiStatus.Internal
-public final class FakeWorld extends World implements LightSourceView {
-    public static final World INSTANCE;
+public final class FakeWorld extends Level implements LightChunk {
+    public static final Level INSTANCE;
 
-    public static final World INSTANCE_UNSAFE;
-    public static final World INSTANCE_REGULAR;
+    public static final Level INSTANCE_UNSAFE;
+    public static final Level INSTANCE_REGULAR;
     static final Scoreboard SCOREBOARD = new Scoreboard();
 
-    static final DynamicRegistryManager FALLBACK_REGISTRY_MANAGER = new DynamicRegistryManager.Immutable() {
-        private static final Map<RegistryKey<?>, Registry<?>> REGISTRIES = new HashMap<>();
+    static final RegistryAccess FALLBACK_REGISTRY_MANAGER = new RegistryAccess.Frozen() {
+        private static final Map<ResourceKey<?>, Registry<?>> REGISTRIES = new HashMap<>();
         @Override
-        public Optional<Registry> getOptional(RegistryKey key) {
-            var x = Registries.REGISTRIES.get(key);
+        public Optional<Registry> lookup(ResourceKey key) {
+            var x = BuiltInRegistries.REGISTRY.getValue(key);
             if (x != null) {
                 return Optional.of(x);
             }
@@ -111,81 +122,81 @@ public final class FakeWorld extends World implements LightSourceView {
         }
 
         @Override
-        public Stream<Entry<?>> streamAllRegistries() {
+        public Stream<RegistryEntry<?>> registries() {
             return Stream.empty();
         }
 
         public static void addRegistry(FakeRegistry<?> registry) {
-            REGISTRIES.put(registry.getKey(), registry);
+            REGISTRIES.put(registry.key(), registry);
         }
 
         static {
-            addRegistry(new FakeRegistry<>(RegistryKeys.DAMAGE_TYPE, Identifier.of("polymer","fake_damage"),
+            addRegistry(new FakeRegistry<>(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath("polymer","fake_damage"),
                     new DamageType("", DamageScaling.NEVER, 0)));
-            addRegistry(new FakeRegistry<>(RegistryKeys.BANNER_PATTERN,
-                    Identifier.of("polymer","fake_pattern"),
-                    new BannerPattern(Identifier.of("polymer","fake_pattern"), "")));
-            addRegistry(new FakeRegistry<>(RegistryKeys.PAINTING_VARIANT,
-                    Identifier.of("polymer","painting"),
-                    new PaintingVariant(1, 1, Identifier.of("polymer","painting"), Optional.empty(), Optional.empty())));
-            addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_VARIANT,
-                    Identifier.of("polymer","wolf"),
-                    new WolfVariant(new WolfVariant.WolfAssetInfo(
-                            new AssetInfo.TextureAssetInfo(Identifier.of("polymer","wolf")),
-                            new AssetInfo.TextureAssetInfo(Identifier.of("polymer","wolf")),
-                            new AssetInfo.TextureAssetInfo(Identifier.of("polymer","wolf"))), SpawnConditionSelectors.EMPTY)));
+            addRegistry(new FakeRegistry<>(Registries.BANNER_PATTERN,
+                    Identifier.fromNamespaceAndPath("polymer","fake_pattern"),
+                    new BannerPattern(Identifier.fromNamespaceAndPath("polymer","fake_pattern"), "")));
+            addRegistry(new FakeRegistry<>(Registries.PAINTING_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","painting"),
+                    new PaintingVariant(1, 1, Identifier.fromNamespaceAndPath("polymer","painting"), Optional.empty(), Optional.empty())));
+            addRegistry(new FakeRegistry<>(Registries.WOLF_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","wolf"),
+                    new WolfVariant(new WolfVariant.AssetInfo(
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer","wolf")),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer","wolf")),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer","wolf"))), SpawnPrioritySelectors.EMPTY)));
 
-            addRegistry(new FakeRegistry<>(RegistryKeys.COW_VARIANT,
-                    Identifier.of("polymer","cow"),
+            addRegistry(new FakeRegistry<>(Registries.COW_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","cow"),
                     new CowVariant(
-                            new ModelAndTexture<>(CowVariant.Model.NORMAL, new AssetInfo.TextureAssetInfo(Identifier.of("polymer", "wolf"))
-                            ), SpawnConditionSelectors.EMPTY)));
+                            new ModelAndTexture<>(CowVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))
+                            ), SpawnPrioritySelectors.EMPTY)));
 
-            addRegistry(new FakeRegistry<>(RegistryKeys.PIG_VARIANT,
-                    Identifier.of("polymer","pig"),
+            addRegistry(new FakeRegistry<>(Registries.PIG_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","pig"),
                     new PigVariant(
-                            new ModelAndTexture<>(PigVariant.Model.NORMAL, new AssetInfo.TextureAssetInfo(Identifier.of("polymer", "wolf"))
-                            ), SpawnConditionSelectors.EMPTY)));
+                            new ModelAndTexture<>(PigVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))
+                            ), SpawnPrioritySelectors.EMPTY)));
 
-            addRegistry(new FakeRegistry<>(RegistryKeys.CHICKEN_VARIANT,
-                    Identifier.of("polymer","chicken"),
+            addRegistry(new FakeRegistry<>(Registries.CHICKEN_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","chicken"),
                     new ChickenVariant(
-                            new ModelAndTexture<>(ChickenVariant.Model.NORMAL, new AssetInfo.TextureAssetInfo(Identifier.of("polymer", "wolf"))
-                            ), SpawnConditionSelectors.EMPTY)));
+                            new ModelAndTexture<>(ChickenVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))
+                            ), SpawnPrioritySelectors.EMPTY)));
 
-            addRegistry(new FakeRegistry<>(RegistryKeys.CAT_VARIANT,
-                    Identifier.of("polymer","cat"),
+            addRegistry(new FakeRegistry<>(Registries.CAT_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","cat"),
                     new CatVariant(
-                            new AssetInfo.TextureAssetInfo(Identifier.of("polymer", "cat")
-                            ), SpawnConditionSelectors.EMPTY)));
-            addRegistry(new FakeRegistry<>(RegistryKeys.FROG_VARIANT,
-                    Identifier.of("polymer","frog"),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "cat")
+                            ), SpawnPrioritySelectors.EMPTY)));
+            addRegistry(new FakeRegistry<>(Registries.FROG_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","frog"),
                     new FrogVariant(
-                            new AssetInfo.TextureAssetInfo(Identifier.of("polymer", "frog")
-                            ), SpawnConditionSelectors.EMPTY)));
-            addRegistry(new FakeRegistry<>(RegistryKeys.WOLF_SOUND_VARIANT,
-                    Identifier.of("polymer","wolf"),
-                    SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.Type.CLASSIC)));
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "frog")
+                            ), SpawnPrioritySelectors.EMPTY)));
+            addRegistry(new FakeRegistry<>(Registries.WOLF_SOUND_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer","wolf"),
+                    SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.SoundSet.CLASSIC)));
 
-            addRegistry(new FakeRegistry<>(RegistryKeys.BIOME, Identifier.of("polymer","fake_biome"),
-                    new Biome.Builder()
+            addRegistry(new FakeRegistry<>(Registries.BIOME, Identifier.fromNamespaceAndPath("polymer","fake_biome"),
+                    new Biome.BiomeBuilder()
                             .temperature(0)
                             .downfall(0)
-                            .effects(new BiomeEffects.Builder().waterColor(0).build())
-                            .spawnSettings(new SpawnSettings.Builder().build())
-                            .generationSettings(GenerationSettings.INSTANCE)
+                            .specialEffects(new BiomeSpecialEffects.Builder().waterColor(0).build())
+                            .mobSpawnSettings(new MobSpawnSettings.Builder().build())
+                            .generationSettings(BiomeGenerationSettings.EMPTY)
                             .build()));
         }
     };
-    static final ServerRecipeManager RECIPE_MANAGER = new ServerRecipeManager(FALLBACK_REGISTRY_MANAGER);
-    private static final FeatureSet FEATURES = FeatureFlags.FEATURE_MANAGER.getFeatureSet();
-    private static final FuelRegistry FUEL_REGISTRY = new FuelRegistry.Builder(FALLBACK_REGISTRY_MANAGER, FeatureSet.empty()).build();
-    final ChunkManager chunkManager = new ChunkManager() {
-        private LightingProvider lightingProvider = null;
+    static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
+    private static final FeatureFlagSet FEATURES = FeatureFlags.REGISTRY.allFlags();
+    private static final FuelValues FUEL_REGISTRY = new FuelValues.Builder(FALLBACK_REGISTRY_MANAGER, FeatureFlagSet.of()).build();
+    final ChunkSource chunkManager = new ChunkSource() {
+        private LevelLightEngine lightingProvider = null;
 
         @Nullable
         @Override
-        public Chunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
+        public ChunkAccess getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
             return null;
         }
 
@@ -195,27 +206,27 @@ public final class FakeWorld extends World implements LightSourceView {
         }
 
         @Override
-        public String getDebugString() {
+        public String gatherStats() {
             return "Potato";
         }
 
         @Override
-        public int getLoadedChunkCount() {
+        public int getLoadedChunksCount() {
             return 0;
         }
 
         @Override
-        public LightingProvider getLightingProvider() {
+        public LevelLightEngine getLightEngine() {
             if (this.lightingProvider == null) {
-                this.lightingProvider = new LightingProvider(new ChunkProvider() {
+                this.lightingProvider = new LevelLightEngine(new LightChunkGetter() {
                     @Nullable
                     @Override
-                    public LightSourceView getChunk(int chunkX, int chunkZ) {
+                    public LightChunk getChunkForLighting(int chunkX, int chunkZ) {
                         return FakeWorld.this;
                     }
 
                     @Override
-                    public BlockView getWorld() {
+                    public BlockGetter getLevel() {
                         return FakeWorld.this;
                     }
                 }, false, false);
@@ -225,11 +236,11 @@ public final class FakeWorld extends World implements LightSourceView {
         }
 
         @Override
-        public BlockView getWorld() {
+        public BlockGetter getLevel() {
             return FakeWorld.this;
         }
     };
-    private static final EntityLookup<Entity> ENTITY_LOOKUP = new EntityLookup<>() {
+    private static final LevelEntityGetter<Entity> ENTITY_LOOKUP = new LevelEntityGetter<>() {
         @Nullable
         @Override
         public Entity get(int id) {
@@ -243,70 +254,70 @@ public final class FakeWorld extends World implements LightSourceView {
         }
 
         @Override
-        public Iterable<Entity> iterate() {
+        public Iterable<Entity> getAll() {
             return () -> ObjectIterators.emptyIterator();
         }
 
         @Override
-        public <U extends Entity> void forEach(TypeFilter<Entity, U> filter, LazyIterationConsumer<U> consumer) {
+        public <U extends Entity> void get(EntityTypeTest<Entity, U> filter, AbortableIterationConsumer<U> consumer) {
 
         }
 
         @Override
-        public void forEachIntersects(Box box, Consumer<Entity> action) {
+        public void get(AABB box, Consumer<Entity> action) {
 
         }
 
         @Override
-        public <U extends Entity> void forEachIntersects(TypeFilter<Entity, U> filter, Box box, LazyIterationConsumer<U> consumer) {
+        public <U extends Entity> void get(EntityTypeTest<Entity, U> filter, AABB box, AbortableIterationConsumer<U> consumer) {
 
         }
 
     };
-    private static final QueryableTickScheduler<?> FAKE_SCHEDULER = new QueryableTickScheduler<Object>() {
+    private static final LevelTickAccess<?> FAKE_SCHEDULER = new LevelTickAccess<Object>() {
         @Override
-        public boolean isTicking(BlockPos pos, Object type) {
+        public boolean willTickThisTick(BlockPos pos, Object type) {
             return false;
         }
 
         @Override
-        public void scheduleTick(OrderedTick<Object> orderedTick) {
+        public void schedule(ScheduledTick<Object> orderedTick) {
 
         }
 
         @Override
-        public boolean isQueued(BlockPos pos, Object type) {
+        public boolean hasScheduledTick(BlockPos pos, Object type) {
             return false;
         }
 
         @Override
-        public int getTickCount() {
+        public int count() {
             return 0;
         }
     };
 
     static {
-        World worldUnsafe, worldDefault;
+        Level worldUnsafe, worldDefault;
 
-        var dimType = RegistryEntry.Reference.intrusive(new RegistryEntryOwner<>() {},
+        var dimType = Holder.Reference.createIntrusive(new HolderOwner<>() {},
                 new DimensionType(true, false, false, 1.0D,
                         -64, 256, 256, BlockTags.INFINIBURN_OVERWORLD,  1,
-                        new DimensionType.MonsterSettings(UniformIntProvider.create(0, 7), 0),
+                        new DimensionType.MonsterSettings(UniformInt.of(0, 7), 0),
                         DimensionType.Skybox.NONE, DimensionType.CardinalLightType.DEFAULT, EnvironmentAttributeMap.builder().build(),
-                        RegistryEntryList.of()));
-        ((ReferenceAccessor) dimType).callSetRegistryKey(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, Identifier.of("overworld")));
+                        HolderSet.direct()));
+        ((ReferenceAccessor) dimType).callBindKey(ResourceKey.create(Registries.DIMENSION_TYPE, Identifier.parse("overworld")));
         try {
             worldUnsafe = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
-            var accessor = (WorldAccessor) worldUnsafe;
-            accessor.polymer$setBiomeAccess(new BiomeAccess(worldUnsafe, 1l));
+            var accessor = (LevelAccessor) worldUnsafe;
+            accessor.polymer$setBiomeAccess(new BiomeManager(worldUnsafe, 1l));
             accessor.polymer$setDebugWorld(true);
             accessor.polymer$setProperties(new FakeWorldProperties());
-            accessor.polymer$setRegistryKey(RegistryKey.of(RegistryKeys.WORLD, Identifier.of("polymer","fake_world")));
+            accessor.polymer$setRegistryKey(ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("polymer","fake_world")));
             //accessor.polymer$setDimensionKey(DimensionTypes.OVERWORLD);
             accessor.polymer$setDimensionEntry(dimType);
             accessor.polymer$setThread(Thread.currentThread());
-            accessor.polymer$setRandom(Random.create());
-            accessor.polymer$setAsyncRandom(Random.createThreadSafe());
+            accessor.polymer$setRandom(RandomSource.create());
+            accessor.polymer$setAsyncRandom(RandomSource.createThreadSafe());
             accessor.polymer$setBlockEntityTickers(new ArrayList<>());
             accessor.polymer$setPendingBlockEntityTickers(new ArrayList<>());
             try {
@@ -323,7 +334,7 @@ public final class FakeWorld extends World implements LightSourceView {
         try {
             worldDefault = new FakeWorld(
                     new FakeWorldProperties(),
-                    RegistryKey.of(RegistryKeys.WORLD, Identifier.of("polymer", "fake_world")),
+                    ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("polymer", "fake_world")),
                     dimType,
                     false,
                     true,
@@ -341,73 +352,73 @@ public final class FakeWorld extends World implements LightSourceView {
         INSTANCE = worldUnsafe != null ? worldUnsafe : worldDefault;
     }
 
-    private final TickManager tickManager = new TickManager();
+    private final TickRateManager tickManager = new TickRateManager();
     private final WorldBorder worldBorder = new WorldBorder();
 
-    protected FakeWorld(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, boolean isClient, boolean debugWorld, long seed) {
+    protected FakeWorld(WritableLevelData properties, ResourceKey<Level> registryRef, Holder<DimensionType> dimensionType, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, FALLBACK_REGISTRY_MANAGER, dimensionType, isClient, debugWorld, seed, 0);
     }
 
     @Override
-    public void updateListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
+    public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
 
     }
 
     @Override
-    public void playSound(@Nullable Entity source, double x, double y, double z, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {
+    public void playSeededSound(@Nullable Entity source, double x, double y, double z, Holder<SoundEvent> sound, SoundSource category, float volume, float pitch, long seed) {
 
     }
 
     @Override
-    public void playSoundFromEntity(@Nullable Entity source, Entity entity, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {
+    public void playSeededSound(@Nullable Entity source, Entity entity, Holder<SoundEvent> sound, SoundSource category, float volume, float pitch, long seed) {
 
     }
 
     @Override
-    public void createExplosion(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, ExplosionSourceType explosionSourceType, ParticleEffect smallParticle, ParticleEffect largeParticle, Pool<BlockParticleEffect> blockParticles, RegistryEntry<SoundEvent> soundEvent) {
+    public void explode(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator behavior, double x, double y, double z, float power, boolean createFire, ExplosionInteraction explosionSourceType, ParticleOptions smallParticle, ParticleOptions largeParticle, WeightedList<ExplosionParticleInfo> blockParticles, Holder<SoundEvent> soundEvent) {
 
     }
 
     @Override
-    public String asString() {
+    public String gatherChunkSourceStats() {
         return "FakeWorld!";
     }
 
     @Override
-    public void setSpawnPoint(WorldProperties.SpawnPoint spawnPoint) {
+    public void setRespawnData(LevelData.RespawnData spawnPoint) {
 
     }
 
     @Override
-    public WorldProperties.SpawnPoint getSpawnPoint() {
+    public LevelData.RespawnData getRespawnData() {
         return null;
     }
 
     @Nullable
     @Override
-    public Entity getEntityById(int id) {
+    public Entity getEntity(int id) {
         return null;
     }
 
     @Override
-    public Collection<EnderDragonPart> getEnderDragonParts() {
+    public Collection<EnderDragonPart> dragonParts() {
         return List.of();
     }
 
 
     @Override
-    public TickManager getTickManager() {
+    public TickRateManager tickRateManager() {
         return this.tickManager;
     }
 
     @Nullable
     @Override
-    public MapState getMapState(MapIdComponent id) {
+    public MapItemSavedData getMapData(MapId id) {
         return null;
     }
 
     @Override
-    public void setBlockBreakingInfo(int entityId, BlockPos pos, int progress) {
+    public void destroyBlockProgress(int entityId, BlockPos pos, int progress) {
 
     }
 
@@ -417,77 +428,77 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
     @Override
-    public RecipeManager getRecipeManager() {
+    public RecipeAccess recipeAccess() {
         return RECIPE_MANAGER;
     }
 
     @Override
-    protected EntityLookup<Entity> getEntityLookup() {
+    protected LevelEntityGetter<Entity> getEntities() {
         return ENTITY_LOOKUP;
     }
 
     @Override
-    public QueryableTickScheduler<Block> getBlockTickScheduler() {
-        return (QueryableTickScheduler<Block>) FAKE_SCHEDULER;
+    public LevelTickAccess<Block> getBlockTicks() {
+        return (LevelTickAccess<Block>) FAKE_SCHEDULER;
     }
 
     @Override
-    public QueryableTickScheduler<Fluid> getFluidTickScheduler() {
-        return (QueryableTickScheduler<Fluid>) FAKE_SCHEDULER;
+    public LevelTickAccess<Fluid> getFluidTicks() {
+        return (LevelTickAccess<Fluid>) FAKE_SCHEDULER;
     }
 
     @Override
-    public ChunkManager getChunkManager() {
+    public ChunkSource getChunkSource() {
         return chunkManager;
     }
 
     @Override
-    public void syncWorldEvent(@Nullable Entity source, int eventId, BlockPos pos, int data) {
+    public void levelEvent(@Nullable Entity source, int eventId, BlockPos pos, int data) {
 
     }
 
     @Override
-    public void emitGameEvent(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter) {
+    public void gameEvent(Holder<GameEvent> event, Vec3 emitterPos, GameEvent.Context emitter) {
 
     }
     @Override
-    public DynamicRegistryManager getRegistryManager() {
+    public RegistryAccess registryAccess() {
         return FALLBACK_REGISTRY_MANAGER;
     }
 
     @Override
-    public WorldEnvironmentAttributeAccess getEnvironmentAttributes() {
-        return WorldEnvironmentAttributeAccess.builder().build();
+    public EnvironmentAttributeSystem environmentAttributes() {
+        return EnvironmentAttributeSystem.builder().build();
     }
 
     @Override
-    public BrewingRecipeRegistry getBrewingRecipeRegistry() {
+    public PotionBrewing potionBrewing() {
         return null;
     }
 
 
     @Override
-    public FuelRegistry getFuelRegistry() {
+    public FuelValues fuelValues() {
         return FUEL_REGISTRY;
     }
 
     @Override
-    public FeatureSet getEnabledFeatures() {
+    public FeatureFlagSet enabledFeatures() {
         return FEATURES;
     }
 
     @Override
-    public float getBrightness(Direction direction, boolean shaded) {
+    public float getShade(Direction direction, boolean shaded) {
         return 0;
     }
 
     @Override
-    public List<? extends PlayerEntity> getPlayers() {
+    public List<? extends Player> players() {
         return Collections.emptyList();
     }
 
     @Override
-    public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
+    public Holder<Biome> getUncachedNoiseBiome(int biomeX, int biomeY, int biomeZ) {
         return null;//BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
     }
 
@@ -497,12 +508,12 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
     @Override
-    public void forEachLightSource(BiConsumer<BlockPos, BlockState> callback) {
+    public void findBlockLightSources(BiConsumer<BlockPos, BlockState> callback) {
 
     }
 
     @Override
-    public ChunkSkyLight getChunkSkyLight() {
+    public ChunkSkyLightSources getSkyLightSources() {
         return null;
     }
 
@@ -512,21 +523,21 @@ public final class FakeWorld extends World implements LightSourceView {
     }
 
 
-    static class FakeWorldProperties implements MutableWorldProperties {
+    static class FakeWorldProperties implements WritableLevelData {
 
 
         @Override
-        public SpawnPoint getSpawnPoint() {
+        public RespawnData getRespawnData() {
             return null;
         }
 
         @Override
-        public long getTime() {
+        public long getGameTime() {
             return 0;
         }
 
         @Override
-        public long getTimeOfDay() {
+        public long getDayTime() {
             return 0;
         }
 
@@ -562,7 +573,7 @@ public final class FakeWorld extends World implements LightSourceView {
         }
 
         @Override
-        public void setSpawnPoint(SpawnPoint spawnPoint) {
+        public void setSpawn(RespawnData spawnPoint) {
 
         }
     }

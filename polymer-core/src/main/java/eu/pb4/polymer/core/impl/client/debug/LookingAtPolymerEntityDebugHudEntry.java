@@ -3,45 +3,41 @@ package eu.pb4.polymer.core.impl.client.debug;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.debug.DebugHudEntry;
-import net.minecraft.client.gui.hud.debug.DebugHudLines;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
+import net.minecraft.client.gui.components.debug.DebugScreenEntry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 
-public class LookingAtPolymerEntityDebugHudEntry implements DebugHudEntry {
-    private static final Identifier SECTION_ID = Identifier.ofVanilla("looking_at_entity");
+public class LookingAtPolymerEntityDebugHudEntry implements DebugScreenEntry {
+    private static final Identifier SECTION_ID = Identifier.withDefaultNamespace("looking_at_entity");
 
     @Override
-    public void render(DebugHudLines lines, @Nullable World world, @Nullable WorldChunk clientChunk, @Nullable WorldChunk chunk) {
+    public void display(DebugScreenDisplayer lines, @Nullable Level world, @Nullable LevelChunk clientChunk, @Nullable LevelChunk chunk) {
         if (!InternalClientRegistry.enabled) {
             return;
         }
 
-        MinecraftClient minecraftClient = MinecraftClient.getInstance();
-        var type = PolymerClientUtils.getEntityType(minecraftClient.targetedEntity);
+        Minecraft minecraftClient = Minecraft.getInstance();
+        var type = PolymerClientUtils.getEntityType(minecraftClient.crosshairPickEntity);
 
         List<String> list = new ArrayList<>();
         if (type != null) {
-            list.add(Formatting.UNDERLINE + "Targeted Client Entity");
+            list.add(ChatFormatting.UNDERLINE + "Targeted Client Entity");
             list.add(String.valueOf(type.identifier()));
         }
 
-        lines.addLinesToSection(SECTION_ID, list);
+        lines.addToGroup(SECTION_ID, list);
     }
 
     @Override
-    public boolean canShow(boolean reducedDebugInfo) {
-        return DebugHudEntry.super.canShow(reducedDebugInfo) && InternalClientRegistry.enabled;
+    public boolean isAllowed(boolean reducedDebugInfo) {
+        return DebugScreenEntry.super.isAllowed(reducedDebugInfo) && InternalClientRegistry.enabled;
     }
 }

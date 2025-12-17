@@ -5,9 +5,6 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.serialization.Codec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.HoverEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,17 +12,19 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Optional;
 import java.util.function.Function;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 
 @Mixin(Registry.class)
 public interface RegistryMixin {
-    @Shadow RegistryEntry<Object> getEntry(Object value);
+    @Shadow Holder<Object> wrapAsHolder(Object value);
 
-    @Shadow Optional<RegistryEntry.Reference<Object>> getEntry(int rawId);
+    @Shadow Optional<Holder.Reference<Object>> get(int rawId);
 
-    @ModifyReturnValue(method = "getReferenceEntryCodec", at = @At(value = "RETURN"))
-    private Codec<RegistryEntry.Reference<Object>> patchCodec(Codec<RegistryEntry.Reference<Object>> codec) {
+    @ModifyReturnValue(method = "referenceHolderWithLifecycle", at = @At(value = "RETURN"))
+    private Codec<Holder.Reference<Object>> patchCodec(Codec<Holder.Reference<Object>> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThread() && content.hasKeyAndValue()
+            if (PolymerCommonUtils.isServerNetworkingThread() && content.isBound()
                     && content.value() instanceof PolymerSyncedObject<?> obj) {
                 var ctx = PacketContext.get();
                 if (obj.canSyncRawToClient(ctx)) {
@@ -33,7 +32,7 @@ public interface RegistryMixin {
                 }
                 //noinspection unchecked
                 var val = ((PolymerSyncedObject<Object>) obj).getPolymerReplacement(content.value(), ctx);
-                return val != null && this.getEntry(val) instanceof RegistryEntry.Reference<Object> ref ? ref : this.getEntry(0).orElseThrow();
+                return val != null && this.wrapAsHolder(val) instanceof Holder.Reference<Object> ref ? ref : this.get(0).orElseThrow();
             }
             return content;
         });

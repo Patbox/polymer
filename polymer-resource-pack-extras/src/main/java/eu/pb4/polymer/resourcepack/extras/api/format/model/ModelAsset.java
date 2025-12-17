@@ -6,12 +6,11 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.common.impl.SortedMapCodec;
 import eu.pb4.polymer.resourcepack.api.WritableAsset;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.*;
 import java.util.function.Consumer;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.phys.Vec3;
 
 public record ModelAsset(Optional<Identifier> parent, Optional<List<ModelElement>> elements, Map<String, String> textures,
                          Map<ItemDisplayContext, ModelTransformation> display,
@@ -107,7 +106,7 @@ public record ModelAsset(Optional<Identifier> parent, Optional<List<ModelElement
             return this;
         }
 
-        public Builder element(Vec3d from, Vec3d to, Consumer<ModelElement.Builder> builderConsumer) {
+        public Builder element(Vec3 from, Vec3 to, Consumer<ModelElement.Builder> builderConsumer) {
             var builder = ModelElement.builder(from, to);
             builderConsumer.accept(builder);
             return this.element(builder.build());

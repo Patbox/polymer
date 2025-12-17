@@ -2,18 +2,17 @@ package eu.pb4.polymer.core.impl.networking.payloads.s2c;
 
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public record PolymerItemGroupRemoveS2CPayload(Identifier groupId) implements CustomPayload {
-    public static final CustomPayload.Id<PolymerItemGroupRemoveS2CPayload> ID = new CustomPayload.Id<>(S2CPackets.SYNC_ITEM_GROUP_REMOVE);
-    public static final PacketCodec<ContextByteBuf, PolymerItemGroupRemoveS2CPayload> CODEC = Identifier.PACKET_CODEC.xmap(PolymerItemGroupRemoveS2CPayload::new, PolymerItemGroupRemoveS2CPayload::groupId).cast();
+public record PolymerItemGroupRemoveS2CPayload(Identifier groupId) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<PolymerItemGroupRemoveS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_ITEM_GROUP_REMOVE);
+    public static final StreamCodec<ContextByteBuf, PolymerItemGroupRemoveS2CPayload> CODEC = Identifier.STREAM_CODEC.map(PolymerItemGroupRemoveS2CPayload::new, PolymerItemGroupRemoveS2CPayload::groupId).cast();
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

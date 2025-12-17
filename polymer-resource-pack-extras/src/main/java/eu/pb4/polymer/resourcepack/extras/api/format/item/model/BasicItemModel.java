@@ -4,9 +4,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import eu.pb4.polymer.resourcepack.extras.api.format.item.tint.ItemTintSource;
-import net.minecraft.util.Identifier;
-
 import java.util.List;
+import net.minecraft.resources.Identifier;
 
 public record BasicItemModel(Identifier model, List<ItemTintSource> tints) implements ItemModel {
     public static final MapCodec<BasicItemModel> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

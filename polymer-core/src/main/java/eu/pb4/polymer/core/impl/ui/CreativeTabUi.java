@@ -1,29 +1,29 @@
 package eu.pb4.polymer.core.impl.ui;
 
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemStackSet;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackLinkedSet;
 
 public class CreativeTabUi extends MicroUi {
     private static final int ITEMS_PER_PAGE = 45;
 
-    private final ItemGroup itemGroup;
-    private final DefaultedList<ItemStack> items;
+    private final CreativeModeTab itemGroup;
+    private final NonNullList<ItemStack> items;
     private int page;
 
-    public CreativeTabUi(ServerPlayerEntity player, ItemGroup itemGroup) {
+    public CreativeTabUi(ServerPlayer player, CreativeModeTab itemGroup) {
         super(6);
         this.title(itemGroup.getDisplayName());
         this.itemGroup = itemGroup;
-        this.items = DefaultedList.of();
-        if (itemGroup == ItemGroups.getSearchGroup()) {
-            var set = ItemStackSet.create();
+        this.items = NonNullList.create();
+        if (itemGroup == CreativeModeTabs.searchTab()) {
+            var set = ItemStackLinkedSet.createTypeAndComponentsSet();
 
             for (var group : PolymerItemGroupUtils.getItemGroups(player)) {
                 set.addAll(PolymerItemGroupUtils.getContentsFor(player, group).search());
@@ -86,66 +86,66 @@ public class CreativeTabUi extends MicroUi {
         this.slot(ITEMS_PER_PAGE + 8, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
     }
 
-    protected void onMouseClick(ItemStack itemStack, int slotId, int button, SlotActionType actionType, ServerPlayerEntity player) {
-        boolean bl = actionType == SlotActionType.QUICK_MOVE;
-        actionType = slotId == -999 && actionType == SlotActionType.PICKUP ? SlotActionType.THROW : actionType;
+    protected void onMouseClick(ItemStack itemStack, int slotId, int button, ClickType actionType, ServerPlayer player) {
+        boolean bl = actionType == ClickType.QUICK_MOVE;
+        actionType = slotId == -999 && actionType == ClickType.PICKUP ? ClickType.THROW : actionType;
 
-        var handler = player.currentScreenHandler;
+        var handler = player.containerMenu;
 
-        if (actionType != SlotActionType.QUICK_CRAFT) {
-            ItemStack i = handler.getCursorStack();
-            if (actionType == SlotActionType.SWAP) {
+        if (actionType != ClickType.QUICK_CRAFT) {
+            ItemStack i = handler.getCarried();
+            if (actionType == ClickType.SWAP) {
                 if (!itemStack.isEmpty()) {
                     ItemStack itemStack2 = itemStack.copy();
-                    itemStack2.setCount(itemStack2.getMaxCount());
-                    player.getInventory().setStack(button, itemStack2);
-                    player.playerScreenHandler.sendContentUpdates();
+                    itemStack2.setCount(itemStack2.getMaxStackSize());
+                    player.getInventory().setItem(button, itemStack2);
+                    player.inventoryMenu.broadcastChanges();
                 }
 
                 return;
             }
 
-            if (actionType == SlotActionType.CLONE) {
-                if (handler.getCursorStack().isEmpty() && !itemStack.isEmpty()) {
+            if (actionType == ClickType.CLONE) {
+                if (handler.getCarried().isEmpty() && !itemStack.isEmpty()) {
                     ItemStack itemStack2 = itemStack.copy();
-                    itemStack2.setCount(itemStack2.getMaxCount());
-                    handler.setCursorStack(itemStack2);
+                    itemStack2.setCount(itemStack2.getMaxStackSize());
+                    handler.setCarried(itemStack2);
                 }
 
                 return;
             }
 
-            if (actionType == SlotActionType.THROW) {
+            if (actionType == ClickType.THROW) {
                 if (!itemStack.isEmpty()) {
                     ItemStack itemStack2 = itemStack.copy();
-                    itemStack2.setCount(button == 0 ? 1 : itemStack2.getMaxCount());
-                    player.dropItem(itemStack2, true);
+                    itemStack2.setCount(button == 0 ? 1 : itemStack2.getMaxStackSize());
+                    player.drop(itemStack2, true);
                     //this.client.interactionManager.dropCreativeStack(itemStack2);
                 }
 
                 return;
             }
 
-            if (!i.isEmpty() && !itemStack.isEmpty() && ItemStack.areItemsAndComponentsEqual(itemStack, i)) {
+            if (!i.isEmpty() && !itemStack.isEmpty() && ItemStack.isSameItemSameComponents(itemStack, i)) {
                 if (button == 0) {
                     if (bl) {
-                        i.setCount(i.getMaxCount());
-                    } else if (i.getCount() < i.getMaxCount()) {
-                        i.increment(1);
+                        i.setCount(i.getMaxStackSize());
+                    } else if (i.getCount() < i.getMaxStackSize()) {
+                        i.grow(1);
                     }
                 } else {
-                    i.decrement(1);
+                    i.shrink(1);
                 }
             } else if (!itemStack.isEmpty() && i.isEmpty()) {
-                handler.setCursorStack(itemStack.copy());
-                i = handler.getCursorStack();
+                handler.setCarried(itemStack.copy());
+                i = handler.getCarried();
                 if (bl) {
-                    i.setCount(i.getMaxCount());
+                    i.setCount(i.getMaxStackSize());
                 }
             } else if (button == 0) {
-                handler.setCursorStack(ItemStack.EMPTY);
+                handler.setCarried(ItemStack.EMPTY);
             } else {
-                handler.getCursorStack().decrement(1);
+                handler.getCarried().shrink(1);
             }
         }
     }

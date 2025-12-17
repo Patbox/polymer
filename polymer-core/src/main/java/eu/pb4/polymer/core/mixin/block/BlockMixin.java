@@ -1,21 +1,20 @@
 package eu.pb4.polymer.core.mixin.block;
 
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.WorldEventS2CPacket;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.collection.IdList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
+import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.IdMapper;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,22 +26,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class BlockMixin {
     @Shadow
     @Final
-    public static IdList<BlockState> STATE_IDS;
+    public static IdMapper<BlockState> BLOCK_STATE_REGISTRY;
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void polymer$enableMapping(CallbackInfo ci) {
-        ((PolymerIdList<BlockState>) STATE_IDS).polymer$setChecker(
-                x -> PolymerSyncedObject.getSyncedObject(Registries.BLOCK, x.getBlock()) != null,
-                x -> PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) (Object) Registries.BLOCK, x.getBlock()),
-                x -> "(Block) " + Registries.BLOCK.getId(x.getBlock())
+        ((PolymerIdMapper<BlockState>) BLOCK_STATE_REGISTRY).polymer$setChecker(
+                x -> PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, x.getBlock()) != null,
+                x -> PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) (Object) BuiltInRegistries.BLOCK, x.getBlock()),
+                x -> "(Block) " + BuiltInRegistries.BLOCK.getKey(x.getBlock())
         );
     }
 
-    @Inject(method = "spawnBreakParticles", at = @At("HEAD"))
-    private void addPolymerParticles(World world, PlayerEntity player, BlockPos pos, BlockState state, CallbackInfo ci) {
-        if (player instanceof ServerPlayerEntity serverPlayer
+    @Inject(method = "spawnDestroyParticles", at = @At("HEAD"))
+    private void addPolymerParticles(Level world, Player player, BlockPos pos, BlockState state, CallbackInfo ci) {
+        if (player instanceof ServerPlayer serverPlayer
                 && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)) {
-            serverPlayer.networkHandler.sendPacket(new WorldEventS2CPacket(WorldEvents.BLOCK_BROKEN, pos, Block.getRawIdFromState(state), false));
+            serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
         }
     }
 }

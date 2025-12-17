@@ -1,13 +1,13 @@
 package eu.pb4.polymer.resourcepack.extras.api.format.item.property.select;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.util.Arm;
+import net.minecraft.world.entity.HumanoidArm;
 
-public record MainHandProperty() implements SelectProperty<Arm> {
-    public static final Type<MainHandProperty, Arm> TYPE = new Type<>(MapCodec.unit(new MainHandProperty()), Arm.CODEC);
+public record MainHandProperty() implements SelectProperty<HumanoidArm> {
+    public static final Type<MainHandProperty, HumanoidArm> TYPE = new Type<>(MapCodec.unit(new MainHandProperty()), HumanoidArm.CODEC);
 
     @Override
-    public Type<MainHandProperty, Arm> type() {
+    public Type<MainHandProperty, HumanoidArm> type() {
         return TYPE;
     }
 }

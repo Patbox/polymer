@@ -2,30 +2,29 @@ package eu.pb4.polymertest;
 
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.other.PolymerMapCodec;
-import net.minecraft.enchantment.EnchantmentEffectContext;
-import net.minecraft.enchantment.effect.EnchantmentEntityEffect;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.enchantment.EnchantedItemInUse;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import net.minecraft.world.phys.Vec3;
 
-public record TestEnchantmentEntityEffect(Text text) implements EnchantmentEntityEffect {
+public record TestEnchantmentEntityEffect(Component text) implements EnchantmentEntityEffect {
     public static final MapCodec<TestEnchantmentEntityEffect> CODEC = PolymerMapCodec.ofEnchantmentEntityEffect(
-            TextCodecs.CODEC.fieldOf("text")
+            ComponentSerialization.CODEC.fieldOf("text")
             .xmap(TestEnchantmentEntityEffect::new, TestEnchantmentEntityEffect::text));
 
     @Override
-    public void apply(ServerWorld world, int level, EnchantmentEffectContext context, Entity user, Vec3d pos) {
-        if (user instanceof ServerPlayerEntity player) {
-            player.sendMessage(text);
+    public void apply(ServerLevel world, int level, EnchantedItemInUse context, Entity user, Vec3 pos) {
+        if (user instanceof ServerPlayer player) {
+            player.sendSystemMessage(text);
         }
     }
 
     @Override
-    public MapCodec<? extends EnchantmentEntityEffect> getCodec() {
+    public MapCodec<? extends EnchantmentEntityEffect> codec() {
         return CODEC;
     }
 }

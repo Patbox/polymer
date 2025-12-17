@@ -4,12 +4,11 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockAwareAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,8 +18,8 @@ public final class PistonAttachment extends ChunkAttachment implements BlockAwar
     private final Direction direction;
     private BlockState blockState;
 
-    public PistonAttachment(ElementHolder holder, WorldChunk chunk, BlockState state, BlockPos blockPos, Direction direction) {
-        super(holder, chunk, Vec3d.ofCenter(blockPos), false);
+    public PistonAttachment(ElementHolder holder, LevelChunk chunk, BlockState state, BlockPos blockPos, Direction direction) {
+        super(holder, chunk, Vec3.atCenterOf(blockPos), false);
         this.blockPos = blockPos;
         this.direction = direction;
         this.blockState = state;
@@ -40,7 +39,7 @@ public final class PistonAttachment extends ChunkAttachment implements BlockAwar
     }
 
     public void update(float d) {
-        this.pos = Vec3d.ofCenter(this.blockPos).offset(this.direction, d);
+        this.pos = Vec3.atCenterOf(this.blockPos).relative(this.direction, d);
         this.holder().tick();
     }
     public BlockPos getBlockPos() {

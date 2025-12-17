@@ -1,27 +1,26 @@
 package eu.pb4.polymer.core.impl.ui;
 
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
-import eu.pb4.polymer.core.mixin.other.ItemGroupsAccessor;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 
 public class CreativeTabListUi extends MicroUi {
     private static final int ITEMS_PER_PAGE = 45;
-    private final List<ItemGroup> items;
+    private final List<CreativeModeTab> items;
 
     private int page;
 
-    public CreativeTabListUi(ServerPlayerEntity player) {
+    public CreativeTabListUi(ServerPlayer player) {
         super(6);
-        this.title(Text.literal("Creative Item Groups"));
+        this.title(Component.literal("Creative Item Groups"));
         this.items = new ArrayList<>();
         this.items.addAll(PolymerItemGroupUtils.getItemGroups(player));
         this.page = 0;
@@ -35,12 +34,12 @@ public class CreativeTabListUi extends MicroUi {
         int end = Math.min((page + 1) * ITEMS_PER_PAGE, this.items.size());
         for (int i = start; i < end; i++) {
             var itemGroup = this.items.get(i);
-            var icon = itemGroup.getIcon().copy();
+            var icon = itemGroup.getIconItem().copy();
             var text = itemGroup.getDisplayName().copy();
             if (!text.getStyle().isItalic()) {
                 text.setStyle(text.getStyle().withItalic(false));
             }
-            icon.set(DataComponentTypes.CUSTOM_NAME, text);
+            icon.set(DataComponents.CUSTOM_NAME, text);
             //icon.getOrCreateNbt().putInt("HideFlags", 255);
             this.slot(i - start, icon, (player, slotIndex, button, actionType) -> {
                 playSound(player, SoundEvents.UI_BUTTON_CLICK);
@@ -68,7 +67,7 @@ public class CreativeTabListUi extends MicroUi {
         this.slot(ITEMS_PER_PAGE + 3, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 4, MicroUiElements.BUTTON_SEARCH, (player, slotIndex, button, actionType) -> {
             playSound(player, SoundEvents.UI_BUTTON_CLICK);
-            new CreativeTabUi(player, ItemGroups.getSearchGroup());
+            new CreativeTabUi(player, CreativeModeTabs.searchTab());
         });
         this.slot(ITEMS_PER_PAGE + 5, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
         this.slot(ITEMS_PER_PAGE + 6, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);

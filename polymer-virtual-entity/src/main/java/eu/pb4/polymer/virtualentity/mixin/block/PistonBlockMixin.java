@@ -8,25 +8,25 @@ import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.impl.PistonExt;
 import eu.pb4.polymer.virtualentity.impl.attachment.PistonAttachment;
-import net.minecraft.block.PistonBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(PistonBlock.class)
+@Mixin(PistonBaseBlock.class)
 public class PistonBlockMixin {
-    @Inject(method = "move", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/util/math/BlockPos;offset(Lnet/minecraft/util/math/Direction;)Lnet/minecraft/util/math/BlockPos;", ordinal = 1, shift = At.Shift.BEFORE))
-    private void collectAttachmentHolder(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir,
+    @Inject(method = "moveBlocks", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/core/BlockPos;relative(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;", ordinal = 1, shift = At.Shift.BEFORE))
+    private void collectAttachmentHolder(Level world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir,
                                          @Local(ordinal = 2) BlockPos blockPos, @Share("attachment") LocalRef<PistonAttachment> attachment) {
-        if (world instanceof ServerWorld serverWorld) {
+        if (world instanceof ServerLevel serverWorld) {
             var x = BlockBoundAttachment.get(world, blockPos);
 
             if (x != null ) {
@@ -38,15 +38,15 @@ public class PistonBlockMixin {
                         if (transformed == x.holder()) {
                             x.destroy();
                         }
-                        attachment.set(new PistonAttachment(transformed, world.getWorldChunk(blockPos), x.getBlockState(), blockPos, retract ? dir : dir.getOpposite()));
+                        attachment.set(new PistonAttachment(transformed, world.getChunkAt(blockPos), x.getBlockState(), blockPos, retract ? dir : dir.getOpposite()));
                     }
                 }
             }
         }
     }
 
-    @ModifyArg(method = "move", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/World;addBlockEntity(Lnet/minecraft/block/entity/BlockEntity;)V", ordinal = 0))
+    @ModifyArg(method = "moveBlocks", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/level/Level;setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V", ordinal = 0))
     private BlockEntity collectAttachmentHolder(BlockEntity blockEntity, @Share("attachment") LocalRef<PistonAttachment> attachment) {
         var val = attachment.get();
         if (val != null && blockEntity != null) {

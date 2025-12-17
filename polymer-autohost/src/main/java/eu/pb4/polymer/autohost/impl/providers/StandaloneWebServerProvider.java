@@ -8,7 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,12 +55,12 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
     }
 
     @Override
-    protected String getAddress(ClientConnection connection, String file) {
+    protected String getAddress(Connection connection, String file) {
         return this.baseAddress + file;
     }
 
     private static InetSocketAddress createBindAddress(MinecraftServer server, Config config) {
-        var serverIp = server.getServerIp();
+        var serverIp = server.getLocalIp();
         if (!Strings.isNullOrEmpty(serverIp)) {
             return new InetSocketAddress(serverIp, config.port);
         } else {

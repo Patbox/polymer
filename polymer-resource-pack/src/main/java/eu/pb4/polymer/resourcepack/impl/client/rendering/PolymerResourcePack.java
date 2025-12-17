@@ -4,8 +4,14 @@ import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resource.*;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.FilePackResources;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackSelectionConfig;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.RepositorySource;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,9 +27,9 @@ public class PolymerResourcePack {
     private volatile static Path path = null;
 
     @Nullable
-    public synchronized static ResourcePackProfile.PackFactory setup() {
+    public synchronized static Pack.ResourcesSupplier setup() {
         if (path != null && Files.exists(path)) {
-            return new ZipResourcePack.ZipBackedFactory(path);
+            return new FilePackResources.FileResourcesSupplier(path);
         }
 
         Path outputPath = PolymerResourcePackUtils.getMainPath();
@@ -46,25 +52,25 @@ public class PolymerResourcePack {
 
         if (PolymerResourcePackUtils.buildMain(outputPath)) {
             path = outputPath;
-            return new ZipResourcePack.ZipBackedFactory(outputPath);
+            return new FilePackResources.FileResourcesSupplier(outputPath);
         } else {
             return null;
         }
     }
 
-    public static class Provider implements ResourcePackProvider {
+    public static class Provider implements RepositorySource {
         @Override
-        public void register(Consumer<ResourcePackProfile> profileAdder) {
+        public void loadPacks(Consumer<Pack> profileAdder) {
             if (PolymerResourcePackUtils.hasResources()) {
                 var pack = PolymerResourcePack.setup();
 
                 if (pack != null) {
-                    profileAdder.accept(ResourcePackProfile.create(
-                            new ResourcePackInfo(ClientUtils.PACK_ID,
-                            Text.translatable("text.polymer.resource_pack.name"), ResourcePackSource.BUILTIN, Optional.empty()),
+                    profileAdder.accept(Pack.readMetaAndCreate(
+                            new PackLocationInfo(ClientUtils.PACK_ID,
+                            Component.translatable("text.polymer.resource_pack.name"), PackSource.BUILT_IN, Optional.empty()),
                             pack,
-                            ResourceType.CLIENT_RESOURCES,
-                            new ResourcePackPosition(PolymerResourcePackUtils.isRequired(), ResourcePackProfile.InsertionPosition.TOP, false)
+                            PackType.CLIENT_RESOURCES,
+                            new PackSelectionConfig(PolymerResourcePackUtils.isRequired(), Pack.Position.TOP, false)
                     ));
                 }
             }

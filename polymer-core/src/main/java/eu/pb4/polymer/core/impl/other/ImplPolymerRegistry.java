@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import net.minecraft.resources.Identifier;
 
 @ApiStatus.Internal
 public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
@@ -62,7 +62,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     }
 
     @Override
-    public T get(int id) {
+    public T byId(int id) {
         try {
             return this.rawIdMap.get(id);
         } catch (Throwable e) {
@@ -81,12 +81,12 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     }
 
     @Override
-    public Identifier getId(T entry) {
+    public Identifier getEntryId(T entry) {
         return this.identifierMap.getOrDefault(entry, this.defaultIdentifier);
     }
 
     @Override
-    public int getRawId(T entry) {
+    public int getId(T entry) {
         return this.entryIdMap.getInt(entry);
     }
 
@@ -199,7 +199,7 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     }
 
     public Key getKey(Identifier id) {
-        var key = this.getId(this.get(id));
+        var key = this.getEntryId(this.get(id));
 
         if (key == null) {
             return Key.EMPTY;
@@ -209,6 +209,6 @@ public class ImplPolymerRegistry<T> implements PolymerRegistry<T> {
     }
 
     public record Key(Identifier identifier) {
-        public static final Key EMPTY = new Key(Identifier.of("polymer:empty"));
+        public static final Key EMPTY = new Key(Identifier.parse("polymer:empty"));
     }
 }

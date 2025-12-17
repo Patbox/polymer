@@ -1,8 +1,7 @@
 package eu.pb4.polymer.core.api.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public interface StatelessPolymerBlock extends PolymerBlock {
@@ -15,6 +14,6 @@ public interface StatelessPolymerBlock extends PolymerBlock {
 
     @Override
     default BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return this.getPolymerBlock(state, context).getDefaultState();
+        return this.getPolymerBlock(state, context).defaultBlockState();
     }
 }

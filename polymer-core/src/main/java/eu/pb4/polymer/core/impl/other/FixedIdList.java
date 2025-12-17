@@ -1,13 +1,13 @@
 package eu.pb4.polymer.core.impl.other;
 
-import eu.pb4.polymer.core.mixin.other.IdListAccessor;
-import net.minecraft.util.collection.IdList;
+import eu.pb4.polymer.core.mixin.other.IdMapperAccessor;
+import net.minecraft.core.IdMapper;
 
-public class FixedIdList<T> extends IdList<T> {
+public class FixedIdList<T> extends IdMapper<T> {
 
     @Override
     public int size() {
-        return ((IdListAccessor) (Object) this).getList().size();
+        return ((IdMapperAccessor) (Object) this).getIdToT().size();
     }
 
     public int mapSize() {

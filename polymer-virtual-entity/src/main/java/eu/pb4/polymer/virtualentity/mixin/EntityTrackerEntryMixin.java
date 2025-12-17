@@ -5,11 +5,6 @@ import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
-import net.minecraft.server.network.EntityTrackerEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,18 +15,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
-@Mixin(EntityTrackerEntry.class)
+@Mixin(ServerEntity.class)
 public class EntityTrackerEntryMixin {
     @Shadow @Final private Entity entity;
 
     @Shadow private List<Entity> lastPassengers;
 
 
-    @Shadow @Final private EntityTrackerEntry.TrackerPacketSender packetSender;
+    @Shadow @Final private ServerEntity.Synchronizer synchronizer;
 
-    @Inject(method = "startTracking", at = @At("TAIL"))
-    private void polymerVE$startTracking(ServerPlayerEntity player, CallbackInfo ci) {
+    @Inject(method = "addPairing", at = @At("TAIL"))
+    private void polymerVE$startTracking(ServerPlayer player, CallbackInfo ci) {
         boolean hasPassangers = false;
         var a = ((HolderAttachmentHolder) this.entity).polymerVE$getHolders();
         if (!a.isEmpty()) {
@@ -42,11 +41,11 @@ public class EntityTrackerEntryMixin {
         }
 
         if (hasPassangers || !((EntityExt) this.entity).polymerVE$getVirtualRidden().isEmpty()) {
-            player.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(this.entity));
+            player.connection.send(new ClientboundSetPassengersPacket(this.entity));
         }
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "sendChanges", at = @At("HEAD"))
     private void polymerVE$tick(CallbackInfo ci) {
         var a = ((HolderAttachmentHolder) this.entity).polymerVE$getHolders();
         if (!a.isEmpty()) {
@@ -56,13 +55,13 @@ public class EntityTrackerEntryMixin {
             }
         }
 
-        if (((EntityExt) this.entity).polymerVE$getAndClearVirtualRiddenDirty() && this.entity.getPassengerList().equals(this.lastPassengers)) {
-            this.packetSender.sendToSelfAndListeners(new EntityPassengersSetS2CPacket(this.entity));
+        if (((EntityExt) this.entity).polymerVE$getAndClearVirtualRiddenDirty() && this.entity.getPassengers().equals(this.lastPassengers)) {
+            this.synchronizer.sendToTrackingPlayersAndSelf(new ClientboundSetPassengersPacket(this.entity));
         }
     }
 
-    @Inject(method = "stopTracking", at = @At("TAIL"))
-    private void polymerVE$stopTracking(ServerPlayerEntity player, CallbackInfo ci) {
+    @Inject(method = "removePairing", at = @At("TAIL"))
+    private void polymerVE$stopTracking(ServerPlayer player, CallbackInfo ci) {
         for (var x : ((HolderAttachmentHolder) this.entity).polymerVE$getHolders()) {
             x.stopWatching(player);
         }

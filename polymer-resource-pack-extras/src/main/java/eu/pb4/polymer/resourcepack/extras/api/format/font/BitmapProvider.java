@@ -3,10 +3,9 @@ package eu.pb4.polymer.resourcepack.extras.api.format.font;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.resources.Identifier;
 
 public record BitmapProvider(Identifier file, List<String> chars, int ascent, int height) implements FontProvider {
     public static final MapCodec<BitmapProvider> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -26,8 +25,8 @@ public record BitmapProvider(Identifier file, List<String> chars, int ascent, in
         return CODEC;
     }
 
-    public static Builder builder(Identifier file) {
-        return new Builder(file);
+    public static eu.pb4.polymer.resourcepack.extras.api.format.font.BitmapProvider.Builder builder(Identifier file) {
+        return new eu.pb4.polymer.resourcepack.extras.api.format.font.BitmapProvider.Builder(file);
     }
 
     public static class Builder implements FontProvider.Builder {
@@ -40,17 +39,17 @@ public record BitmapProvider(Identifier file, List<String> chars, int ascent, in
             this.file = file;
         }
 
-        public Builder chars(String string) {
+        public eu.pb4.polymer.resourcepack.extras.api.format.font.BitmapProvider.Builder chars(String string) {
             this.chars.add(string);
             return this;
         }
 
-        public Builder height(int height) {
+        public eu.pb4.polymer.resourcepack.extras.api.format.font.BitmapProvider.Builder height(int height) {
             this.height = height;
             return this;
         }
 
-        public Builder ascent(int ascent) {
+        public eu.pb4.polymer.resourcepack.extras.api.format.font.BitmapProvider.Builder ascent(int ascent) {
             this.ascent = ascent;
             return this;
         }

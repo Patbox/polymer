@@ -8,13 +8,13 @@ import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import eu.pb4.polymer.common.impl.compat.ViaVersionUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
-import net.minecraft.network.listener.PacketListener;
+import net.minecraft.network.Connection;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 import xyz.nucleoid.packettweaker.impl.MutableContext;
@@ -210,7 +210,7 @@ public final class PolymerCommonUtils {
     }
 
 
-    public static World getFakeWorld() {
+    public static Level getFakeWorld() {
         return FakeWorld.INSTANCE;
     }
 
@@ -220,17 +220,17 @@ public final class PolymerCommonUtils {
 
     public static boolean isServerNetworkingThread() {
         return FORCE_NETWORKING.get().value(
-                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.getSide() == NetworkSide.SERVERBOUND
+                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.flow() == PacketFlow.SERVERBOUND
         );
     }
 
     public static boolean isClientNetworkingThread() {
         return CommonImpl.IS_CLIENT && FORCE_NETWORKING.get().value(
-                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.getSide() == NetworkSide.CLIENTBOUND
+                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.flow() == PacketFlow.CLIENTBOUND
         );
     }
 
-    public static boolean isBedrockPlayer(ServerPlayerEntity player) {
+    public static boolean isBedrockPlayer(ServerPlayer player) {
         if (CompatStatus.FLOODGATE) {
             return FloodGateUtils.isPlayerBroken(player);
         }
@@ -244,7 +244,7 @@ public final class PolymerCommonUtils {
         return false;
     }
 
-    public static int getPlayerGameProtocol(ServerPlayerEntity player) {
+    public static int getPlayerGameProtocol(ServerPlayer player) {
         return getPlayerGameProtocol(player.getGameProfile());
     }
 
@@ -252,25 +252,25 @@ public final class PolymerCommonUtils {
         if (CompatStatus.VIAVERSION) {
             return ViaVersionUtils.getProtocol(profile.id());
         }
-        return SharedConstants.getGameVersion().protocolVersion();
+        return SharedConstants.getCurrentVersion().protocolVersion();
     }
 
-    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {
+    public static boolean hasResourcePack(@Nullable ServerPlayer player, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || (player != null && player.networkHandler != null && ((CommonClientConnectionExt) ((CommonNetworkHandlerExt) player.networkHandler)
+                || (player != null && player.connection != null && ((CommonConnectionExt) ((CommonPacketListenerImplExt) player.connection)
                 .polymerCommon$getConnection()).polymerCommon$hasResourcePack(uuid))
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
-    public static boolean hasResourcePack(ServerCommonNetworkHandler handler, UUID uuid) {
+    public static boolean hasResourcePack(ServerCommonPacketListenerImpl handler, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || (((CommonClientConnectionExt) ((CommonNetworkHandlerExt) handler).polymerCommon$getConnection()).polymerCommon$hasResourcePack(uuid))
+                || (((CommonConnectionExt) ((CommonPacketListenerImplExt) handler).polymerCommon$getConnection()).polymerCommon$hasResourcePack(uuid))
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
-    public static boolean hasResourcePack(ClientConnection connection, UUID uuid) {
+    public static boolean hasResourcePack(Connection connection, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || ((CommonClientConnectionExt) connection).polymerCommon$hasResourcePack(uuid)
+                || ((CommonConnectionExt) connection).polymerCommon$hasResourcePack(uuid)
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
@@ -287,12 +287,12 @@ public final class PolymerCommonUtils {
         return true;
     }
 
-    public static void setHasResourcePack(ServerPlayerEntity player, UUID uuid, boolean status) {
-        ((CommonClientConnectionExt) ((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$getConnection()).polymerCommon$setResourcePack(uuid, status);
+    public static void setHasResourcePack(ServerPlayer player, UUID uuid, boolean status) {
+        ((CommonConnectionExt) ((CommonPacketListenerImplExt) player.connection).polymerCommon$getConnection()).polymerCommon$setResourcePack(uuid, status);
     }
 
-    public static void setHasResourcePack(ClientConnection player, UUID uuid, boolean status) {
-        ((CommonClientConnectionExt) player).polymerCommon$setResourcePack(uuid, status);
+    public static void setHasResourcePack(Connection player, UUID uuid, boolean status) {
+        ((CommonConnectionExt) player).polymerCommon$setResourcePack(uuid, status);
     }
 
     /**
@@ -315,6 +315,6 @@ public final class PolymerCommonUtils {
     }
 
     public interface ResourcePackChangeCallback {
-        void onResourcePackChange(ServerCommonNetworkHandler handler, UUID uuid, boolean oldStatus, boolean newStatus);
+        void onResourcePackChange(ServerCommonPacketListenerImpl handler, UUID uuid, boolean oldStatus, boolean newStatus);
     }
 }

@@ -12,12 +12,12 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.CustomValue;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
 
 
 @ApiStatus.Internal
@@ -67,26 +67,26 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
         CompletableFuture.runAsync(PolymerResourcePack::setup);
 	}
 
-	public static int generateResources(CommandContext<ServerCommandSource> context) {
-        generateAndCall(context.getSource().getServer(), false, x -> context.getSource().sendFeedback(() -> x, true), () -> {});
+	public static int generateResources(CommandContext<CommandSourceStack> context) {
+        generateAndCall(context.getSource().getServer(), false, x -> context.getSource().sendSuccess(() -> x, true), () -> {});
         return 1;
     }
 
-    public static int generateResources(CommandContext<ServerCommandSource> context, Runnable runnable) {
-        generateAndCall(context.getSource().getServer(), false, x -> context.getSource().sendFeedback(() -> x, true), runnable);
+    public static int generateResources(CommandContext<CommandSourceStack> context, Runnable runnable) {
+        generateAndCall(context.getSource().getServer(), false, x -> context.getSource().sendSuccess(() -> x, true), runnable);
         return 1;
     }
 
-    public static void generateAndCall(MinecraftServer server, boolean ignoreLock, Consumer<Text> messageConsumer, Runnable runnable) {
+    public static void generateAndCall(MinecraftServer server, boolean ignoreLock, Consumer<Component> messageConsumer, Runnable runnable) {
         if (alreadyGeneration && !ignoreLock) {
-            messageConsumer.accept(Text.literal("[Polymer] Pack is already generating! Wait for it to finish..."));
+            messageConsumer.accept(Component.literal("[Polymer] Pack is already generating! Wait for it to finish..."));
             return;
         }
         alreadyGeneration = true;
 
-        Util.getIoWorkerExecutor().execute(() -> {
+        Util.ioPool().execute(() -> {
             try {
-                messageConsumer.accept(Text.literal("[Polymer] Starting resource pack generation..."));
+                messageConsumer.accept(Component.literal("[Polymer] Starting resource pack generation..."));
                 STATUS.clear();
                 Path outputPath = PolymerResourcePackUtils.getMainPath();
                 if (Files.exists(outputPath)) {
@@ -112,19 +112,19 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                 server.execute(() -> {
                     alreadyGeneration = false;
                     if (success) {
-                        messageConsumer.accept(Text.literal("[Polymer] Resource pack created successfully! You can find it in game folder as ")
-                                .append(Text.literal(PolymerResourcePackImpl.FILE_NAME)
-                                        .setStyle(Style.EMPTY.withUnderline(true)
+                        messageConsumer.accept(Component.literal("[Polymer] Resource pack created successfully! You can find it in game folder as ")
+                                .append(Component.literal(PolymerResourcePackImpl.FILE_NAME)
+                                        .setStyle(Style.EMPTY.withUnderlined(true)
                                                 .withHoverEvent(new HoverEvent.ShowText(
-                                                        Text.literal(finalOutputPath.toAbsolutePath().toString())))))
+                                                        Component.literal(finalOutputPath.toAbsolutePath().toString())))))
                         );
                         runnable.run();
                     } else {
-                        messageConsumer.accept(Text.literal("[Polymer] Found issues while creating resource pack! See logs above for more detail!").formatted(Formatting.RED));
+                        messageConsumer.accept(Component.literal("[Polymer] Found issues while creating resource pack! See logs above for more detail!").withStyle(ChatFormatting.RED));
                     }
                 });
             } catch (Throwable e) {
-                messageConsumer.accept(Text.literal("[Polymer] Found critical issues while creating resource pack! See logs above for more detail!").formatted(Formatting.RED));
+                messageConsumer.accept(Component.literal("[Polymer] Found critical issues while creating resource pack! See logs above for more detail!").withStyle(ChatFormatting.RED));
                 CommonImpl.LOGGER.error("Failed to generate the resource pack!", e);
                 alreadyGeneration = false;
             }

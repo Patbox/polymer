@@ -1,10 +1,9 @@
 package eu.pb4.polymer.core.impl.interfaces;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
-import eu.pb4.polymer.core.mixin.entity.EntityAttributesS2CPacketMixin;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 public interface EntityAttachedPacket {
@@ -30,7 +29,7 @@ public interface EntityAttachedPacket {
         return packet instanceof EntityAttachedPacket e ? (T) e.polymer$setEntity(entity) : packet;
     }
 
-    static boolean shouldSend(Packet<?> packet, ServerPlayerEntity player) {
+    static boolean shouldSend(Packet<?> packet, ServerPlayer player) {
         var x = PolymerEntity.get(get(packet));
         return x == null || x.sendPacketsTo(player);
     }

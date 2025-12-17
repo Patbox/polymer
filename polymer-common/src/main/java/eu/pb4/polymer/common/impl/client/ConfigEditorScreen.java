@@ -1,21 +1,25 @@
 package eu.pb4.polymer.common.impl.client;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.*;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineEditBox;
+import net.minecraft.client.gui.components.MultiLineTextWidget;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 
 public class ConfigEditorScreen extends Screen {
-    private static final Text SUB_TITLE = Text.literal("Note: Some settings only apply after restart.");
+    private static final Component SUB_TITLE = Component.literal("Note: Some settings only apply after restart.");
     private final String config;
     private final Class<?> clazz;
     private final Runnable runnable;
-    private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
-    private EditBoxWidget textField;
-    private ButtonWidget saveAndQuilt = null;
+    private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
+    private MultiLineEditBox textField;
+    private Button saveAndQuilt = null;
     public ConfigEditorScreen(String config, Class<?> clazz, Runnable object) {
-        super(Text.literal(config));
+        super(Component.literal(config));
         this.config = config;
         this.clazz = clazz;
         this.runnable = object;
@@ -23,21 +27,21 @@ public class ConfigEditorScreen extends Screen {
 
     @Override
     protected void init() {
-        var t = new MultilineTextWidget(Text.literal(config).append("\n").append(SUB_TITLE), this.textRenderer).setCentered(true);
+        var t = new MultiLineTextWidget(Component.literal(config).append("\n").append(SUB_TITLE), this.font).setCentered(true);
         t.setHeight(18);
-        this.layout.addHeader(t);
+        this.layout.addToHeader(t);
 
-        var textField = EditBoxWidget.builder().build(this.textRenderer, Math.min(this.width - 40, 512), this.height, Text.empty());
+        var textField = MultiLineEditBox.builder().build(this.font, Math.min(this.width - 40, 512), this.height, Component.empty());
         if (this.textField == null) {
             var cfg = CommonImpl.GSON_PRETTY.toJson(CommonImpl.loadConfig(config, clazz));
-            textField.setText(cfg);
+            textField.setValue(cfg);
         } else {
-            textField.setText(this.textField.getText());
+            textField.setValue(this.textField.getValue());
         }
         this.textField = textField;
-        textField.setChangeListener((text) -> {
+        textField.setValueListener((text) -> {
             try {
-                CommonImpl.GSON_PRETTY.fromJson(this.textField.getText(), this.clazz);
+                CommonImpl.GSON_PRETTY.fromJson(this.textField.getValue(), this.clazz);
                 this.saveAndQuilt.active = true;
             } catch (Throwable e) {
                 this.saveAndQuilt.active = false;
@@ -45,37 +49,37 @@ public class ConfigEditorScreen extends Screen {
         });
 
 
-        this.layout.addBody(textField);
+        this.layout.addToContents(textField);
 
-        var footer = DirectionalLayoutWidget.horizontal().spacing(8);
+        var footer = LinearLayout.horizontal().spacing(8);
 
-        this.saveAndQuilt = footer.add(ButtonWidget.builder(Text.literal("Save and Exit"), (button) -> {
+        this.saveAndQuilt = footer.addChild(Button.builder(Component.literal("Save and Exit"), (button) -> {
             try {
-                var cfg = CommonImpl.GSON_PRETTY.fromJson(this.textField.getText(), this.clazz);
+                var cfg = CommonImpl.GSON_PRETTY.fromJson(this.textField.getValue(), this.clazz);
                 CommonImpl.saveConfig(this.config, cfg);
-                this.close();
+                this.onClose();
             } catch (Throwable e) {
                 // Ignored
             }
         }).width(200).build());
-        footer.add(ButtonWidget.builder(ScreenTexts.CANCEL, (button) -> {
-            this.close();
+        footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, (button) -> {
+            this.onClose();
         }).width(200).build());
 
-        this.layout.addFooter(footer);
-        this.layout.refreshPositions();
+        this.layout.addToFooter(footer);
+        this.layout.arrangeElements();
         this.textField.setHeight(this.layout.getContentHeight());
-        this.layout.refreshPositions();
+        this.layout.arrangeElements();
 
-        this.layout.forEachChild(this::addDrawableChild);
+        this.layout.visitWidgets(this::addRenderableWidget);
     }
 
     @Override
-    protected void refreshWidgetPositions() {
-        this.layout.refreshPositions();
+    protected void repositionElements() {
+        this.layout.arrangeElements();
     }
     @Override
-    public void close() {
+    public void onClose() {
         this.runnable.run();
     }
 }

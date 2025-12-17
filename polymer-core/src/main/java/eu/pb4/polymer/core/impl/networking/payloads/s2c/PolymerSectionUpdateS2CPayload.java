@@ -2,27 +2,26 @@ package eu.pb4.polymer.core.impl.networking.payloads.s2c;
 
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public record PolymerSectionUpdateS2CPayload(ChunkSectionPos chunkPos, short[] pos, int[] blocks)  implements CustomPayload {
-    public static final CustomPayload.Id<PolymerSectionUpdateS2CPayload> ID = new CustomPayload.Id<>(S2CPackets.WORLD_CHUNK_SECTION_UPDATE);
-    public static final PacketCodec<ContextByteBuf, PolymerSectionUpdateS2CPayload> CODEC = PacketCodec.of(PolymerSectionUpdateS2CPayload::write, PolymerSectionUpdateS2CPayload::read);
+public record PolymerSectionUpdateS2CPayload(SectionPos chunkPos, short[] pos, int[] blocks)  implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<PolymerSectionUpdateS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.WORLD_CHUNK_SECTION_UPDATE);
+    public static final StreamCodec<ContextByteBuf, PolymerSectionUpdateS2CPayload> CODEC = StreamCodec.ofMember(PolymerSectionUpdateS2CPayload::write, PolymerSectionUpdateS2CPayload::read);
 
-    public void write(PacketByteBuf buf) {
-        ChunkSectionPos.PACKET_CODEC.encode(buf, this.chunkPos);
+    public void write(FriendlyByteBuf buf) {
+        SectionPos.STREAM_CODEC.encode(buf, this.chunkPos);
         buf.writeVarInt(this.pos.length);
         for (int i = 0; i < this.pos.length; i++) {
             buf.writeVarLong((long) this.blocks[i] << 12 | (long)this.pos[i]);
         }
     }
 
-    public static PolymerSectionUpdateS2CPayload read(PacketByteBuf buf) {
-        var chunkPos = ChunkSectionPos.PACKET_CODEC.decode(buf);
+    public static PolymerSectionUpdateS2CPayload read(FriendlyByteBuf buf) {
+        var chunkPos = SectionPos.STREAM_CODEC.decode(buf);
         int i = buf.readVarInt();
         var pos = new short[i];
         var blocks = new int[i];
@@ -38,7 +37,7 @@ public record PolymerSectionUpdateS2CPayload(ChunkSectionPos chunkPos, short[] p
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

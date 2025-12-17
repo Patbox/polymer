@@ -2,18 +2,15 @@ package eu.pb4.polymer.core.api.item;
 
 import eu.pb4.polymer.core.api.block.PolymerHeadBlock;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import net.minecraft.block.Block;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -23,7 +20,7 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
     private final PolymerHeadBlock polymerBlock;
 
-    public <T extends Block & PolymerHeadBlock> PolymerHeadBlockItem(T block, Settings settings) {
+    public <T extends Block & PolymerHeadBlock> PolymerHeadBlockItem(T block, Properties settings) {
         super(block, settings);
         this.polymerBlock = block;
     }
@@ -40,13 +37,13 @@ public class PolymerHeadBlockItem extends BlockItem implements PolymerItem {
 
     @Override
     public void modifyBasePolymerItemStack(ItemStack out, ItemStack stack, PacketContext context) {
-        out.set(DataComponentTypes.PROFILE, PolymerUtils.createProfileComponent(
-                this.polymerBlock.getPolymerSkinValue(this.getBlock().getDefaultState(), BlockPos.ORIGIN, context),
-                this.polymerBlock.getPolymerSkinSignature(this.getBlock().getDefaultState(), BlockPos.ORIGIN, context)
+        out.set(DataComponents.PROFILE, PolymerUtils.createProfileComponent(
+                this.polymerBlock.getPolymerSkinValue(this.getBlock().defaultBlockState(), BlockPos.ZERO, context),
+                this.polymerBlock.getPolymerSkinSignature(this.getBlock().defaultBlockState(), BlockPos.ZERO, context)
         ));
     }
 
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
         return PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
     }
 }

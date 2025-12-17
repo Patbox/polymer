@@ -6,13 +6,13 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MainMixin",
-    "SimpleRegistryMixin",
+    "MappedRegistryMixin",
     "fabric.fabricSync_RegistrySyncManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 0
   },
   "client": [
-    "client.MinecraftClientMixin"
+    "client.MinecraftMixin"
   ]
 }

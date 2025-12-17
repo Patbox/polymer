@@ -5,19 +5,18 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
 import eu.pb4.polymer.core.impl.InternalServerRegistry;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.interfaces.ItemGroupExtra;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
+import eu.pb4.polymer.core.impl.interfaces.CreativeModeTabExtra;
 import java.util.*;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 
 
 /**
@@ -25,7 +24,7 @@ import java.util.*;
  * It also has its own server side functionality
  */
 public final class PolymerItemGroupUtils {
-    public static final PolymerRegistry<ItemGroup> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
+    public static final PolymerRegistry<CreativeModeTab> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
     /**
      * Even called on synchronization of ItemGroups
      */
@@ -35,16 +34,16 @@ public final class PolymerItemGroupUtils {
     private PolymerItemGroupUtils() {
     }
 
-    public static Contents getContentsFor(ServerPlayerEntity player, ItemGroup group) {
-        return getContentsFor(group, player.getEntityWorld().getServer().getRegistryManager(), player.getEntityWorld().getEnabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
+    public static Contents getContentsFor(ServerPlayer player, CreativeModeTab group) {
+        return getContentsFor(group, player.level().getServer().registryAccess(), player.level().enabledFeatures(), CommonImplUtils.permissionCheck(player, "op_items", 2));
     }
 
-    public static Contents getContentsFor(ItemGroup group, RegistryWrapper.WrapperLookup lookup, FeatureSet featureSet, boolean operator) {
+    public static Contents getContentsFor(CreativeModeTab group, HolderLookup.Provider lookup, FeatureFlagSet featureSet, boolean operator) {
         var key = new ItemGroupKey(getId(group), operator);
         var value = CONTENT_CACHE.get(key);
         if (value == null) {
             try {
-                 value = ((ItemGroupExtra) group).polymer$getContentsWith(getId(group), featureSet, operator, lookup);
+                 value = ((CreativeModeTabExtra) group).polymer$getContentsWith(getId(group), featureSet, operator, lookup);
             } catch (Throwable t) {
                 // Some mods use client classes in their item groups because vanilla doesn't call them on the server anymore
                 // Catch instead of letting the game crash, even though it's their fault...
@@ -59,12 +58,12 @@ public final class PolymerItemGroupUtils {
     /**
      * Returns list of ItemGroups accessible by player
      */
-    public static List<ItemGroup> getItemGroups(ServerPlayerEntity player) {
-        var list = new LinkedHashSet<ItemGroup>();
+    public static List<CreativeModeTab> getItemGroups(ServerPlayer player) {
+        var list = new LinkedHashSet<CreativeModeTab>();
 
-        for (var g : ItemGroups.getGroups()) {
+        for (var g : CreativeModeTabs.allTabs()) {
             try {
-                if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
+                if (g.getType() == CreativeModeTab.Type.CATEGORY && ((CreativeModeTabExtra) g).polymer$isSyncable()) {
                     list.add(g);
                 }
             } catch (Throwable e) {
@@ -74,7 +73,7 @@ public final class PolymerItemGroupUtils {
 
         for (var g : InternalServerRegistry.ITEM_GROUPS) {
             try {
-                if (g.getType() == ItemGroup.Type.CATEGORY && ((ItemGroupExtra) g).polymer$isSyncable()) {
+                if (g.getType() == CreativeModeTab.Type.CATEGORY && ((CreativeModeTabExtra) g).polymer$isSyncable()) {
                     list.add(g);
                 }
             } catch (Throwable e) {
@@ -84,12 +83,12 @@ public final class PolymerItemGroupUtils {
 
         var sync = new PolymerItemGroupUtils.ItemGroupListBuilder() {
             @Override
-            public void add(ItemGroup group) {
+            public void add(CreativeModeTab group) {
                 list.add(group);
             }
 
             @Override
-            public void remove(ItemGroup group) {
+            public void remove(CreativeModeTab group) {
                 list.remove(group);
             }
         };
@@ -99,16 +98,16 @@ public final class PolymerItemGroupUtils {
         return new ArrayList<>(list);
     }
 
-    public static boolean isPolymerItemGroup(ItemGroup group) {
+    public static boolean isPolymerItemGroup(CreativeModeTab group) {
         return InternalServerRegistry.ITEM_GROUPS.containsEntry(group);
     }
 
-    public static ItemGroup.Builder builder() {
-        return new ItemGroup.Builder(ItemGroup.Row.BOTTOM, -1);
+    public static CreativeModeTab.Builder builder() {
+        return new CreativeModeTab.Builder(CreativeModeTab.Row.BOTTOM, -1);
     }
 
-    public static void registerPolymerItemGroup(Identifier identifier, ItemGroup group) {
-        if (Registries.ITEM_GROUP.containsId(identifier)) {
+    public static void registerPolymerItemGroup(Identifier identifier, CreativeModeTab group) {
+        if (BuiltInRegistries.CREATIVE_MODE_TAB.containsKey(identifier)) {
             PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered in vanilla registry!", identifier);
         } else if (contains(identifier)) {
             PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered under the same id!", identifier);
@@ -121,26 +120,26 @@ public final class PolymerItemGroupUtils {
 
     public static Boolean contains(Identifier identifier) { return InternalServerRegistry.ITEM_GROUPS.contains(identifier); }
 
-    public static void registerPolymerItemGroup(RegistryKey<ItemGroup> identifier, ItemGroup group) {
-        registerPolymerItemGroup(identifier.getValue(), group);
+    public static void registerPolymerItemGroup(ResourceKey<CreativeModeTab> identifier, CreativeModeTab group) {
+        registerPolymerItemGroup(identifier.identifier(), group);
     }
 
-    public static Identifier getId(ItemGroup group) {
-        var x = REGISTRY.getId(group);
+    public static Identifier getId(CreativeModeTab group) {
+        var x = REGISTRY.getEntryId(group);
 
         if (x == null) {
-            return Registries.ITEM_GROUP.getId(group);
+            return BuiltInRegistries.CREATIVE_MODE_TAB.getKey(group);
         }
         return x;
     }
 
-    public static RegistryKey<ItemGroup> getKey(ItemGroup group) {
-        var x = REGISTRY.getId(group);
+    public static ResourceKey<CreativeModeTab> getKey(CreativeModeTab group) {
+        var x = REGISTRY.getEntryId(group);
 
         if (x == null) {
-            return Registries.ITEM_GROUP.getKey(group).orElseThrow();
+            return BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(group).orElseThrow();
         }
-        return RegistryKey.of(RegistryKeys.ITEM_GROUP, x);
+        return ResourceKey.create(Registries.CREATIVE_MODE_TAB, x);
     }
 
     public static void invalidateItemGroupCache() {
@@ -149,13 +148,13 @@ public final class PolymerItemGroupUtils {
 
     @FunctionalInterface
     public interface ItemGroupEventListener {
-        void onItemGroupGet(ServerPlayerEntity player, ItemGroupListBuilder builder);
+        void onItemGroupGet(ServerPlayer player, ItemGroupListBuilder builder);
     }
 
     public interface ItemGroupListBuilder {
-        void add(ItemGroup group);
+        void add(CreativeModeTab group);
 
-        void remove(ItemGroup group);
+        void remove(CreativeModeTab group);
     }
 
     public record Contents(Collection<ItemStack> main, Collection<ItemStack> search) {

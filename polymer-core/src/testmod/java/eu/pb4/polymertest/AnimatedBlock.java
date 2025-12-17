@@ -9,93 +9,99 @@ import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.EntityElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import net.minecraft.block.*;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.biome.source.BiomeCoords;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.QuartPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4x3f;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWithElementHolder {
-    public static final BooleanProperty CAN_FALL = BooleanProperty.of("can_fall");
-    public static final EnumProperty<Direction> FACING = Properties.FACING;
+    public static final BooleanProperty CAN_FALL = BooleanProperty.create("can_fall");
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 
-    public AnimatedBlock(Settings settings) {
+    public AnimatedBlock(Properties settings) {
         super(settings);
-        setDefaultState(this.getDefaultState().with(CAN_FALL, false));
+        registerDefaultState(this.defaultBlockState().setValue(CAN_FALL, false));
     }
 
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(CAN_FALL, FACING);
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return super.getPlacementState(ctx).with(FACING, ctx.getSide());
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return super.getStateForPlacement(ctx).setValue(FACING, ctx.getClickedFace());
     }
 
     @Override
-    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        if (state.get(CAN_FALL)) {
-            super.scheduledTick(state, world, pos, random);
+    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+        if (state.getValue(CAN_FALL)) {
+            super.tick(state, world, pos, random);
         }
     }
 
     @Override
-    public int getColor(BlockState state, BlockView world, BlockPos pos) {
+    public int getDustColor(BlockState state, BlockGetter world, BlockPos pos) {
         return 0;
     }
 
     @Override
-    protected MapCodec<? extends FallingBlock> getCodec() {
+    protected MapCodec<? extends FallingBlock> codec() {
         return null;
     }
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return Blocks.BARRIER.getDefaultState();
+        return Blocks.BARRIER.defaultBlockState();
     }
 
     @Override
-    public boolean tickElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public boolean tickElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return true;
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new CustomHolder(world, initialBlockState);
     }
 
     public static class CustomHolder extends ElementHolder {
-        private final EntityElement<SheepEntity> entity;
+        private final EntityElement<Sheep> entity;
         private final ItemDisplayElement centralElement;
         private final ItemDisplayElement planetElement;
         private final ItemDisplayElement moonElement;
         private int tick = 0;
 
-        public CustomHolder(ServerWorld world, BlockState state) {
+        public CustomHolder(ServerLevel world, BlockState state) {
             this.planetElement = this.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
             this.moonElement = this.addElement(new ItemDisplayElement(Items.DECORATED_POT));
             this.centralElement = this.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
-            this.centralElement.setModelTransformation(ItemDisplayContext.FIXED);
-            this.moonElement.setModelTransformation(ItemDisplayContext.FIXED);
-            this.planetElement.setModelTransformation(ItemDisplayContext.FIXED);
+            this.centralElement.setItemDisplayContext(ItemDisplayContext.FIXED);
+            this.moonElement.setItemDisplayContext(ItemDisplayContext.FIXED);
+            this.planetElement.setItemDisplayContext(ItemDisplayContext.FIXED);
             this.centralElement.setInterpolationDuration(3);
             this.moonElement.setInterpolationDuration(3);
             this.planetElement.setInterpolationDuration(3);
@@ -105,7 +111,7 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
             this.entity = this.addElement(new EntityElement<>(EntityType.SHEEP, world));
             this.updateRotation(state);
             entity.entity().setColor(DyeColor.PINK);
-            entity.setOffset(new Vec3d(0, 1, 0));
+            entity.setOffset(new Vec3(0, 1, 0));
             this.centralElement.setGlowing(true);
             this.centralElement.setGlowColorOverride(0x000000);
             this.animate();
@@ -114,13 +120,13 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
         private void updateRotation(BlockState state) {
             var yaw = 0f;
             var pitch = 0f;
-            var dir = state.get(FACING);
+            var dir = state.getValue(FACING);
 
             if (dir.getAxis() == Direction.Axis.Y) {
                 pitch = dir == Direction.DOWN ? 180 : 0;
             } else {
                 pitch = 90;
-                yaw = dir.getPositiveHorizontalDegrees();
+                yaw = dir.toYRot();
             }
 
             this.planetElement.setRotation(pitch, yaw);
@@ -144,19 +150,19 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
         @Override
         protected void onAttachmentSet(HolderAttachment attachment, @Nullable HolderAttachment oldAttachment) {
             if (attachment instanceof ChunkAttachment chunkAttachment) {
-                var pos = BlockPos.ofFloored(attachment.getPos());
-                this.centralElement.setGlowColorOverride(chunkAttachment.getChunk().getBiomeForNoiseGen(
-                        BiomeCoords.fromBlock(pos.getX()),
-                        BiomeCoords.fromBlock(pos.getY()),
-                        BiomeCoords.fromBlock(pos.getZ())
+                var pos = BlockPos.containing(attachment.getPos());
+                this.centralElement.setGlowColorOverride(chunkAttachment.getChunk().getNoiseBiome(
+                        QuartPos.fromBlock(pos.getX()),
+                        QuartPos.fromBlock(pos.getY()),
+                        QuartPos.fromBlock(pos.getZ())
                 ).value().getWaterColor());
             }
         }
 
         public void animate() {
             if (this.tick % 3 == 0) {
-                this.centralElement.setTransformation(new Matrix4x3f().rotateY(this.tick / 200f).rotateX(MathHelper.PI / 16).scale(2.2f));
-                var planet = new Matrix4x3f().rotateX(-MathHelper.PI / 16).rotateY(this.tick / 40f).translate(3.6f, 0, 0).rotateY(this.tick / 30f).rotateX(MathHelper.PI / 12).rotateZ(MathHelper.PI / 12).scale(1f);
+                this.centralElement.setTransformation(new Matrix4x3f().rotateY(this.tick / 200f).rotateX(Mth.PI / 16).scale(2.2f));
+                var planet = new Matrix4x3f().rotateX(-Mth.PI / 16).rotateY(this.tick / 40f).translate(3.6f, 0, 0).rotateY(this.tick / 30f).rotateX(Mth.PI / 12).rotateZ(Mth.PI / 12).scale(1f);
                 this.planetElement.setTransformation(planet);
                 this.moonElement.setTransformation(planet.rotateY(this.tick / 8f).translate(1.4f, 0, 0).scale(0.42f));
 

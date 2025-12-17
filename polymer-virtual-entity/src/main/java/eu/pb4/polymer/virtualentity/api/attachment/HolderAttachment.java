@@ -5,29 +5,28 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.impl.SimpleUpdateType;
 import eu.pb4.polymer.virtualentity.impl.VoidUpdateType;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.Collection;
 import java.util.function.Consumer;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.phys.Vec3;
 
 public interface HolderAttachment {
     ElementHolder holder();
     void destroy();
-    Vec3d getPos();
-    ServerWorld getWorld();
-    void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking);
-    void updateTracking(ServerPlayNetworkHandler tracking);
+    Vec3 getPos();
+    ServerLevel getWorld();
+    void updateCurrentlyTracking(Collection<ServerGamePacketListenerImpl> currentlyTracking);
+    void updateTracking(ServerGamePacketListenerImpl tracking);
 
     default boolean isRemoved() {
         return false;
     }
 
-    default void startWatching(ServerPlayerEntity handler) {
+    default void startWatching(ServerPlayer handler) {
         if (this.holder().getAttachment() == this) {
             if (CompatStatus.IMMERSIVE_PORTALS) {
                 VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().startWatching(handler));
@@ -37,7 +36,7 @@ public interface HolderAttachment {
         }
     }
 
-    default void startWatching(ServerPlayNetworkHandler handler) {
+    default void startWatching(ServerGamePacketListenerImpl handler) {
         if (this.holder().getAttachment() == this) {
             if (CompatStatus.IMMERSIVE_PORTALS) {
                 VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().startWatching(handler));
@@ -47,9 +46,9 @@ public interface HolderAttachment {
         }
     }
 
-    default void startWatchingExtraPackets(ServerPlayNetworkHandler handler, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {};
+    default void startWatchingExtraPackets(ServerGamePacketListenerImpl handler, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {};
 
-    default void stopWatching(ServerPlayerEntity handler) {
+    default void stopWatching(ServerPlayer handler) {
         if (this.holder().getAttachment() == this) {
             if (CompatStatus.IMMERSIVE_PORTALS) {
                 VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().stopWatching(handler));
@@ -59,7 +58,7 @@ public interface HolderAttachment {
         }
     }
 
-    default void stopWatching(ServerPlayNetworkHandler handler) {
+    default void stopWatching(ServerGamePacketListenerImpl handler) {
         if (this.holder().getAttachment() == this) {
             if (CompatStatus.IMMERSIVE_PORTALS) {
                 VirtualEntityUtils.wrapCallWithContext(this.getWorld(), () -> this.holder().stopWatching(handler));

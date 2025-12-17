@@ -7,8 +7,6 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,10 +14,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.function.Function;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(BlockState.class)
 public abstract class BlockStateMixin implements BlockStateExtra {
-    @Shadow protected abstract BlockState asBlockState();
+    @Shadow protected abstract BlockState asState();
 
     @Unique
     private boolean polymer$calculatedIsLight;
@@ -32,8 +32,8 @@ public abstract class BlockStateMixin implements BlockStateExtra {
             return this.polymer$isLight;
         }
 
-        if (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, this.asBlockState().getBlock()) instanceof PolymerBlock polymerBlock) {
-            this.polymer$isLight = this.asBlockState().getLuminance() != polymerBlock.getPolymerBlockState(this.asBlockState(), PacketContext.create()).getLuminance();
+        if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, this.asState().getBlock()) instanceof PolymerBlock polymerBlock) {
+            this.polymer$isLight = this.asState().getLightEmission() != polymerBlock.getPolymerBlockState(this.asState(), PacketContext.create()).getLightEmission();
         }
 
 
@@ -41,10 +41,10 @@ public abstract class BlockStateMixin implements BlockStateExtra {
         return false;
     }
 
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;createCodec(Lcom/mojang/serialization/Codec;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
+    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;codec(Lcom/mojang/serialization/Codec;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
     private static Codec<BlockState> patchCodec(Codec<BlockState> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThread() && PolymerSyncedObject.getSyncedObject(Registries.BLOCK, content.getBlock()) != null) {
+            if (PolymerCommonUtils.isServerNetworkingThread() && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, content.getBlock()) != null) {
                 return PolymerBlockUtils.getPolymerBlockState(content, PacketContext.get());
             }
             return content;

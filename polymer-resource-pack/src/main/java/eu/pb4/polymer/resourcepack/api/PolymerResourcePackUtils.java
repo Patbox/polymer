@@ -9,13 +9,12 @@ import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
-import net.minecraft.resource.PackVersion;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.metadata.PackResourceMetadata;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.dynamic.Range;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackFormat;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.util.InclusiveRange;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -23,9 +22,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -89,7 +86,7 @@ public final class PolymerResourcePackUtils {
      * @param player Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasPack(@Nullable ServerPlayerEntity player, UUID uuid) {
+    public static boolean hasPack(@Nullable ServerPlayer player, UUID uuid) {
         return PolymerCommonUtils.hasResourcePack(player, uuid);
     }
 
@@ -112,7 +109,7 @@ public final class PolymerResourcePackUtils {
      * @param handler Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasPack(ServerCommonNetworkHandler handler, UUID uuid) {
+    public static boolean hasPack(ServerCommonPacketListenerImpl handler, UUID uuid) {
         return PolymerCommonUtils.hasResourcePack(handler, uuid);
     }
 
@@ -124,7 +121,7 @@ public final class PolymerResourcePackUtils {
      * @param player Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasMainPack(@Nullable ServerPlayerEntity player) {
+    public static boolean hasMainPack(@Nullable ServerPlayer player) {
         return hasPack(player, getMainUuid());
     }
 
@@ -145,7 +142,7 @@ public final class PolymerResourcePackUtils {
      * @param handler Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasMainPack(ServerCommonNetworkHandler handler) {
+    public static boolean hasMainPack(ServerCommonPacketListenerImpl handler) {
         return hasPack(handler, getMainUuid());
     }
 
@@ -163,10 +160,10 @@ public final class PolymerResourcePackUtils {
      * @param player Player to change status
      * @param status true if player has resource pack, otherwise false
      */
-    public static void setPlayerStatus(ServerPlayerEntity player, UUID uuid, boolean status) {
+    public static void setPlayerStatus(ServerPlayer player, UUID uuid, boolean status) {
         //((CommonClientConnectionExt) player).polymerCommon$setResourcePack(status);
-        if (player.networkHandler != null) {
-            ((CommonClientConnectionExt) player.networkHandler).polymerCommon$setResourcePack(uuid, status);
+        if (player.connection != null) {
+            ((CommonConnectionExt) player.connection).polymerCommon$setResourcePack(uuid, status);
         }
     }
 
@@ -179,8 +176,8 @@ public final class PolymerResourcePackUtils {
         return DEFAULT_CHECK;
     }
 
-    public static void ignoreNextDefaultCheck(ServerPlayerEntity player) {
-        ((CommonNetworkHandlerExt) player.networkHandler).polymerCommon$setIgnoreNextResourcePack();
+    public static void ignoreNextDefaultCheck(ServerPlayer player) {
+        ((CommonPacketListenerImplExt) player.connection).polymerCommon$setIgnoreNextResourcePack();
     }
 
     public static ResourcePackBuilder createBuilder(Path output) {
@@ -234,8 +231,8 @@ public final class PolymerResourcePackUtils {
                         builder.getPackMcMetaBuilder().metadata(meta.pack());
                     } else if (PolymerResourcePackImpl.IGNORE_PACK_VERSION) {
                         var og = builder.getPackMcMetaBuilder().metadata();
-                        builder.getPackMcMetaBuilder().metadata(new PackResourceMetadata(og.description(), new Range<>(
-                                SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES), new PackVersion(Integer.MAX_VALUE, Integer.MAX_VALUE)
+                        builder.getPackMcMetaBuilder().metadata(new PackMetadataSection(og.description(), new InclusiveRange<>(
+                                SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES), new PackFormat(Integer.MAX_VALUE, Integer.MAX_VALUE)
                         )));
                     }
                 } catch (Throwable ignored) {}

@@ -1,35 +1,34 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public class TestStatusEffect extends StatusEffect implements PolymerStatusEffect {
+public class TestStatusEffect extends MobEffect implements PolymerStatusEffect {
     protected TestStatusEffect() {
-        super(StatusEffectCategory.BENEFICIAL, 110011);
+        super(MobEffectCategory.BENEFICIAL, 110011);
     }
 
     @Override
-    public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier) {
-        if (entity.getMainHandStack().isDamageable()) {
-            entity.getMainHandStack().damage(amplifier + 1, entity, EquipmentSlot.MAINHAND);
+    public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier) {
+        if (entity.getMainHandItem().isDamageableItem()) {
+            entity.getMainHandItem().hurtAndBreak(amplifier + 1, entity, EquipmentSlot.MAINHAND);
         }
         return true;
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 
     @Override
-    public StatusEffect getPolymerReplacement(StatusEffect effect, PacketContext context) {
-        return StatusEffects.CONDUIT_POWER.value();
+    public MobEffect getPolymerReplacement(MobEffect effect, PacketContext context) {
+        return MobEffects.CONDUIT_POWER.value();
     }
 }

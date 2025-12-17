@@ -4,18 +4,18 @@ package eu.pb4.polymer.core.impl.compat;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.text.Text;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
 import org.jetbrains.annotations.ApiStatus;
 import xyz.nucleoid.server.translations.api.Localization;
 
 @ApiStatus.Internal
 public class ServerTranslationUtils {
     public static final boolean IS_PRESENT;
-    public static Text parseFor(ServerPlayNetworkHandler handler, Text text) {
+    public static Component parseFor(ServerGamePacketListenerImpl handler, Component text) {
         if (IS_PRESENT && !CommonImplUtils.isMainPlayer(handler.player)) {
             return Localization.text(text, handler.player);
         } else {
@@ -23,13 +23,13 @@ public class ServerTranslationUtils {
         }
     }
 
-    public static ItemStack parseFor(ServerPlayNetworkHandler handler, ItemStack stack) {
+    public static ItemStack parseFor(ServerGamePacketListenerImpl handler, ItemStack stack) {
         stack = stack.copy();
 
         if (IS_PRESENT && !CommonImplUtils.isMainPlayer(handler.player)) {
-            stack.apply(DataComponentTypes.ITEM_NAME, null, x -> x != null ? parseFor(handler, x) : null);
-            stack.apply(DataComponentTypes.CUSTOM_NAME, null, x -> x != null ? parseFor(handler, x) : null);
-            stack.apply(DataComponentTypes.LORE, null, x -> x != null ? new LoreComponent(x.lines()
+            stack.update(DataComponents.ITEM_NAME, null, x -> x != null ? parseFor(handler, x) : null);
+            stack.update(DataComponents.CUSTOM_NAME, null, x -> x != null ? parseFor(handler, x) : null);
+            stack.update(DataComponents.LORE, null, x -> x != null ? new ItemLore(x.lines()
                     .stream().map(y -> parseFor(handler, y)).toList()) : null);
         }
         return stack;

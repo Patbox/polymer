@@ -2,17 +2,17 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 
 public class TestBowItem extends BowItem implements PolymerItem {
-    public TestBowItem(Settings settings, String model) {
+    public TestBowItem(Properties settings, String model) {
         super(settings);
     }
 
@@ -23,6 +23,6 @@ public class TestBowItem extends BowItem implements PolymerItem {
 
     @Override
     public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
-        return Identifier.of("polymertest", "bow");
+        return Identifier.fromNamespaceAndPath("polymertest", "bow");
     }
 }

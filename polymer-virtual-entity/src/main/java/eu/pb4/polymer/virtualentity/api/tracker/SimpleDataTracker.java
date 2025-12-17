@@ -2,14 +2,14 @@ package eu.pb4.polymer.virtualentity.api.tracker;
 
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.EntityType;
 
 public class SimpleDataTracker implements DataTrackerLike {
     private final Entry<?>[] entries;
@@ -23,18 +23,18 @@ public class SimpleDataTracker implements DataTrackerLike {
         for (int i = 0; i < entries.length; i++) {
             var x = entries[i];
             //noinspection unchecked
-            this.entries[i] = new Entry(x.getData(), x.get());
+            this.entries[i] = new Entry(x.getAccessor(), x.getValue());
         }
     }
 
     @Override
-    public <T> T get(TrackedData<T> data) {
+    public <T> T get(EntityDataAccessor<T> data) {
         var entry = this.getEntry(data);
         return entry != null ? entry.get() : null;
     }
 
     @Nullable
-    public <T> Entry<T> getEntry(TrackedData<T> data) {
+    public <T> Entry<T> getEntry(EntityDataAccessor<T> data) {
         if (data.id() > this.entries.length) {
             return null;
         }
@@ -50,13 +50,13 @@ public class SimpleDataTracker implements DataTrackerLike {
     }
 
     @Override
-    public boolean isDirty(TrackedData<?> key) {
+    public boolean isDirty(EntityDataAccessor<?> key) {
         var x = getEntry(key);
         return x != null && x.isDirty();
     }
 
     @Override
-    public <T> void set(TrackedData<T> key, T value, boolean forceDirty) {
+    public <T> void set(EntityDataAccessor<T> key, T value, boolean forceDirty) {
         var entry = getEntry(key);
         if (entry != null && (forceDirty || ObjectUtils.notEqual(value, entry.get()))) {
             entry.set(value);
@@ -66,7 +66,7 @@ public class SimpleDataTracker implements DataTrackerLike {
     }
 
     @Override
-    public <T> void setDirty(TrackedData<T> key, boolean isDirty) {
+    public <T> void setDirty(EntityDataAccessor<T> key, boolean isDirty) {
         var entry = getEntry(key);
         if (entry != null) {
             entry.setDirty(isDirty);
@@ -81,8 +81,8 @@ public class SimpleDataTracker implements DataTrackerLike {
 
     @Override
     @Nullable
-    public List<DataTracker.SerializedEntry<?>> getDirtyEntries() {
-        List<DataTracker.SerializedEntry<?>> list = null;
+    public List<SynchedEntityData.DataValue<?>> getDirtyEntries() {
+        List<SynchedEntityData.DataValue<?>> list = null;
         if (this.dirty) {
             for (int i = 0; i < this.entries.length; i++) {
                 var entry = this.entries[i];
@@ -103,8 +103,8 @@ public class SimpleDataTracker implements DataTrackerLike {
 
     @Override
     @Nullable
-    public List<DataTracker.SerializedEntry<?>> getChangedEntries() {
-        List<DataTracker.SerializedEntry<?>> list = null;
+    public List<SynchedEntityData.DataValue<?>> getChangedEntries() {
+        List<SynchedEntityData.DataValue<?>> list = null;
         for (int i = 0; i < this.entries.length; i++) {
             var entry = this.entries[i];
             if (!entry.isUnchanged()) {
@@ -120,18 +120,18 @@ public class SimpleDataTracker implements DataTrackerLike {
     }
 
     public static class Entry<T> {
-        final TrackedData<T> data;
+        final EntityDataAccessor<T> data;
         private final T initialValue;
         T value;
         private boolean dirty;
 
-        public Entry(TrackedData<T> data, T value) {
+        public Entry(EntityDataAccessor<T> data, T value) {
             this.data = data;
             this.initialValue = value;
             this.value = value;
         }
 
-        public TrackedData<T> getData() {
+        public EntityDataAccessor<T> getData() {
             return this.data;
         }
 
@@ -155,8 +155,8 @@ public class SimpleDataTracker implements DataTrackerLike {
             return this.initialValue.equals(this.value);
         }
 
-        public DataTracker.SerializedEntry<T> toSerialized() {
-            return DataTracker.SerializedEntry.of(this.data, this.value);
+        public SynchedEntityData.DataValue<T> toSerialized() {
+            return SynchedEntityData.DataValue.create(this.data, this.value);
         }
     }
 }

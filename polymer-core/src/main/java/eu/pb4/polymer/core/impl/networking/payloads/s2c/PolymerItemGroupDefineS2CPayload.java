@@ -2,33 +2,33 @@ package eu.pb4.polymer.core.impl.networking.payloads.s2c;
 
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-public record PolymerItemGroupDefineS2CPayload(Identifier groupId, Text name, ItemStack icon) implements CustomPayload {
-    public static final CustomPayload.Id<PolymerItemGroupDefineS2CPayload> ID = new CustomPayload.Id<>(S2CPackets.SYNC_ITEM_GROUP_DEFINE);
-    public static final PacketCodec<ContextByteBuf, PolymerItemGroupDefineS2CPayload> CODEC = PacketCodec.of(PolymerItemGroupDefineS2CPayload::write, PolymerItemGroupDefineS2CPayload::read);
+public record PolymerItemGroupDefineS2CPayload(Identifier groupId, Component name, ItemStack icon) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<PolymerItemGroupDefineS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_ITEM_GROUP_DEFINE);
+    public static final StreamCodec<ContextByteBuf, PolymerItemGroupDefineS2CPayload> CODEC = StreamCodec.ofMember(PolymerItemGroupDefineS2CPayload::write, PolymerItemGroupDefineS2CPayload::read);
 
-    public void write(PacketByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeIdentifier(this.groupId);
 
-        TextCodecs.PACKET_CODEC.encode(buf, name);
-        ItemStack.PACKET_CODEC.encode((RegistryByteBuf) buf, icon);
+        ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.encode(buf, name);
+        ItemStack.STREAM_CODEC.encode((RegistryFriendlyByteBuf) buf, icon);
     }
 
-    public static PolymerItemGroupDefineS2CPayload read(PacketByteBuf buf) {
-        return new PolymerItemGroupDefineS2CPayload(buf.readIdentifier(), TextCodecs.PACKET_CODEC.decode(buf), ItemStack.PACKET_CODEC.decode((RegistryByteBuf) buf));
+    public static PolymerItemGroupDefineS2CPayload read(FriendlyByteBuf buf) {
+        return new PolymerItemGroupDefineS2CPayload(buf.readIdentifier(), ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.decode(buf), ItemStack.STREAM_CODEC.decode((RegistryFriendlyByteBuf) buf));
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

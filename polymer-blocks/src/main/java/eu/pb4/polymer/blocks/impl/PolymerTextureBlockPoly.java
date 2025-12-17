@@ -2,7 +2,7 @@ package eu.pb4.polymer.blocks.impl;
 
 import eu.pb4.polymer.core.impl.compat.polymc.PassthroughPoly;
 import io.github.theepicblock.polymc.api.block.BlockPoly;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class PolymerTextureBlockPoly implements BlockPoly, PassthroughPoly {
     @Override

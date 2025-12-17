@@ -1,12 +1,12 @@
 package eu.pb4.polymer.rsm.impl;
 
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.SimpleRegistry;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 
 @ApiStatus.Internal
 public final class QuiltRegistryUtils {
@@ -21,7 +21,7 @@ public final class QuiltRegistryUtils {
             try {
                 if (markAsOptional == null && !triedOnce1) {
                     triedOnce1 = true;
-                    markAsOptional = Class.forName("org.quiltmc.qsl.registry.api.sync.RegistrySynchronization").getMethod("setEntryOptional", SimpleRegistry.class, Object.class);
+                    markAsOptional = Class.forName("org.quiltmc.qsl.registry.api.sync.RegistrySynchronization").getMethod("setEntryOptional", MappedRegistry.class, Object.class);
                 }
 
                 if (markAsOptional != null) {
@@ -39,7 +39,7 @@ public final class QuiltRegistryUtils {
             try {
                 if (isOptional == null && !triedOnce2) {
                     triedOnce2 = true;
-                    isOptional = Class.forName("org.quiltmc.qsl.registry.api.sync.RegistrySynchronization").getMethod("isEntryOptional", SimpleRegistry.class, Object.class);
+                    isOptional = Class.forName("org.quiltmc.qsl.registry.api.sync.RegistrySynchronization").getMethod("isEntryOptional", MappedRegistry.class, Object.class);
                 }
 
                 if (isOptional != null) {

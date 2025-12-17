@@ -1,12 +1,11 @@
 package eu.pb4.polymer.core.impl.networking;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-
 import java.util.function.BiFunction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
-public record TransformingPacketCodec<B, V>(PacketCodec<B, V> codec, BiFunction<B, V, V> encodeTransform, BiFunction<B, V, V> decodeTransform) implements PacketCodec<B, V> {
-    private static final BiFunction<PacketByteBuf, Object, Object> PASSTHROUGH = (b, o) -> o;
+public record TransformingPacketCodec<B, V>(StreamCodec<B, V> codec, BiFunction<B, V, V> encodeTransform, BiFunction<B, V, V> decodeTransform) implements StreamCodec<B, V> {
+    private static final BiFunction<FriendlyByteBuf, Object, Object> PASSTHROUGH = (b, o) -> o;
 
     @Override
     public V decode(B buf) {
@@ -18,7 +17,7 @@ public record TransformingPacketCodec<B, V>(PacketCodec<B, V> codec, BiFunction<
         this.codec.encode(buf, this.encodeTransform.apply(buf, value));
     }
 
-    public static <B, V> PacketCodec<B, V> encodeOnly(PacketCodec<B, V> codec, BiFunction<B, V, V> encodeTransform) {
+    public static <B, V> StreamCodec<B, V> encodeOnly(StreamCodec<B, V> codec, BiFunction<B, V, V> encodeTransform) {
         //noinspection unchecked
         return new TransformingPacketCodec<>(codec, encodeTransform, (BiFunction<B, V, V>) PASSTHROUGH);
     }

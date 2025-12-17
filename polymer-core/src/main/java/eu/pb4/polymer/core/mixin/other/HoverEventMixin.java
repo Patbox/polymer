@@ -6,15 +6,15 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Objects;
 import java.util.function.Function;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
 
 @Mixin(HoverEvent.class)
 public interface HoverEventMixin {
@@ -22,11 +22,11 @@ public interface HoverEventMixin {
     private static Codec<HoverEvent> patchCodec(Codec<HoverEvent> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
-                if (content.getAction() == HoverEvent.Action.SHOW_ENTITY) {
+                if (content.action() == HoverEvent.Action.SHOW_ENTITY) {
                     var val = Objects.requireNonNull(((HoverEvent.ShowEntity) content).entity());
-                    if (PolymerEntityUtils.isPolymerEntityType(val.entityType)) {
-                        val = new HoverEvent.EntityContent(val.entityType, val.uuid, val.name);
-                        return new HoverEvent.ShowText(Texts.join(val.asTooltip(), Text.literal("\n")));
+                    if (PolymerEntityUtils.isPolymerEntityType(val.type)) {
+                        val = new HoverEvent.EntityTooltipInfo(val.type, val.uuid, val.name);
+                        return new HoverEvent.ShowText(ComponentUtils.formatList(val.getTooltipLines(), Component.literal("\n")));
                     }
                 }
             }

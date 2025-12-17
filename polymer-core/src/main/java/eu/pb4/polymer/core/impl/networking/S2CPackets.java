@@ -7,12 +7,12 @@ import eu.pb4.polymer.core.impl.networking.payloads.s2c.*;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Supplier;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
 import static eu.pb4.polymer.core.impl.PolymerImplUtils.id;
 
@@ -43,32 +43,32 @@ public class S2CPackets {
 
     public static final Identifier DEBUG_VALIDATE_STATES = id("debug/validate_states");
 
-    public static <T extends CustomPayload> void register(Identifier id, PacketCodec<ContextByteBuf, T> codec, int... ver) {
+    public static <T extends CustomPacketPayload> void register(Identifier id, StreamCodec<ContextByteBuf, T> codec, int... ver) {
         PolymerNetworking.registerS2CVersioned(id, IntList.of(ver), PayloadUtil.protocolSecured(codec));
     }
 
-    public static <T extends CustomPayload> void register(Identifier id, Supplier<T> t, int... ver) {
-        PolymerNetworking.registerS2CVersioned(id, IntList.of(ver), PacketCodec.unit(t.get()));
+    public static <T extends CustomPacketPayload> void register(Identifier id, Supplier<T> t, int... ver) {
+        PolymerNetworking.registerS2CVersioned(id, IntList.of(ver), StreamCodec.unit(t.get()));
     }
 
-    public static <T> CustomPayload.Id<PolymerGenericListPayload<T>> registerList(Identifier id, PacketCodec<ContextByteBuf, T> entry, int... ver) {
-        var ide = new CustomPayload.Id<PolymerGenericListPayload<T>>(id);
+    public static <T> CustomPacketPayload.Type<PolymerGenericListPayload<T>> registerList(Identifier id, StreamCodec<ContextByteBuf, T> entry, int... ver) {
+        var ide = new CustomPacketPayload.Type<PolymerGenericListPayload<T>>(id);
         PolymerNetworking.registerS2CVersioned(ide, IntList.of(ver), PayloadUtil.protocolSecured(PolymerGenericListPayload.codec(ide, entry)));
         return ide;
     }
 
-    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerBlockEntry>> SYNC_BLOCK_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerBlockStateEntry>> SYNC_BLOCKSTATE_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerItemEntry>> SYNC_ITEM_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerEntityEntry>> SYNC_ENTITY_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<PolymerTagEntry>> SYNC_TAGS_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<DebugBlockStateEntry>> DEBUG_VALIDATE_STATES_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_FLUID_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_VILLAGER_PROFESSION_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_DATA_COMPONENT_TYPE_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_ENCHANTMENT_COMPONENT_TYPE_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_BLOCK_ENTITY_ID;
-    public static final CustomPayload.Id<PolymerGenericListPayload<IdValueEntry>> SYNC_STATUS_EFFECT_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<PolymerBlockEntry>> SYNC_BLOCK_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<PolymerBlockStateEntry>> SYNC_BLOCKSTATE_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<PolymerItemEntry>> SYNC_ITEM_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<PolymerEntityEntry>> SYNC_ENTITY_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<PolymerTagEntry>> SYNC_TAGS_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<DebugBlockStateEntry>> DEBUG_VALIDATE_STATES_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<IdValueEntry>> SYNC_FLUID_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<IdValueEntry>> SYNC_VILLAGER_PROFESSION_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<IdValueEntry>> SYNC_DATA_COMPONENT_TYPE_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<IdValueEntry>> SYNC_ENCHANTMENT_COMPONENT_TYPE_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<IdValueEntry>> SYNC_BLOCK_ENTITY_ID;
+    public static final CustomPacketPayload.Type<PolymerGenericListPayload<IdValueEntry>> SYNC_STATUS_EFFECT_ID;
 
     static {
         register(SYNC_STARTED, PolymerSyncStartedS2CPayload::new, 6);

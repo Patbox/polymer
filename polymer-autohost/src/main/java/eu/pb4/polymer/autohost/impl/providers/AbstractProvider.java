@@ -8,9 +8,9 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -44,7 +44,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
         });
 
         try {
-            PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendMessage, () -> {});
+            PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendSystemMessage, () -> {});
         } catch (Throwable e) {
             CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
         }
@@ -73,8 +73,8 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     }
 
     @Override
-    public final Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection) {
-        var list = new ArrayList<MinecraftServer.ServerResourcePackProperties>();
+    public final Collection<MinecraftServer.ServerResourcePackInfo> getProperties(Connection connection) {
+        var list = new ArrayList<MinecraftServer.ServerResourcePackInfo>();
         var context = PacketContext.create(connection);
 
         list.add(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.getMainFilePath(context), this.hash));
@@ -101,7 +101,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
         return getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID, hash);
     }
 
-    protected abstract String getAddress(ClientConnection connection, String path);
+    protected abstract String getAddress(Connection connection, String path);
 
     @Override
     public boolean isReady() {

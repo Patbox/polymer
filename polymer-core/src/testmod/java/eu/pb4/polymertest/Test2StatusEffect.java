@@ -1,24 +1,24 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.particle.VibrationParticleEffect;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.event.BlockPositionSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.VibrationParticleOption;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.gameevent.BlockPositionSource;
 
-public class Test2StatusEffect extends StatusEffect implements PolymerStatusEffect {
+public class Test2StatusEffect extends MobEffect implements PolymerStatusEffect {
     protected Test2StatusEffect() {
-        super(StatusEffectCategory.BENEFICIAL, 0x000000, new VibrationParticleEffect(new BlockPositionSource(BlockPos.ORIGIN), 1000));
+        super(MobEffectCategory.BENEFICIAL, 0x000000, new VibrationParticleOption(new BlockPositionSource(BlockPos.ZERO), 1000));
     }
 
     @Override
-    public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier) {
-        if (entity.getMainHandStack().isDamageable()) {
-            entity.getMainHandStack().damage(amplifier + 1, entity, EquipmentSlot.MAINHAND);
+    public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier) {
+        if (entity.getMainHandItem().isDamageableItem()) {
+            entity.getMainHandItem().hurtAndBreak(amplifier + 1, entity, EquipmentSlot.MAINHAND);
         }
         return true;
     }
@@ -26,7 +26,7 @@ public class Test2StatusEffect extends StatusEffect implements PolymerStatusEffe
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 }

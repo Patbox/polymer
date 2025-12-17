@@ -1,18 +1,17 @@
 package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
-import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
 import eu.pb4.polymer.core.impl.other.BlockMapperImpl;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 import java.util.function.BiFunction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Do not use, unless you really need it, and you are 100% sure about what you need!
@@ -56,21 +55,21 @@ public interface BlockMapper {
     static BlockMapper getFrom(PacketContext context) {
         return getFrom(context.getPlayer());
     }
-    static BlockMapper getFrom(@Nullable ServerPlayerEntity player) {
-        return player != null ? PolymerPlayNetworkHandlerExtension.of(player).polymer$getBlockMapper() : BlockMapper.createDefault();
+    static BlockMapper getFrom(@Nullable ServerPlayer player) {
+        return player != null ? PolymerGamePacketListenerExtension.of(player).polymer$getBlockMapper() : BlockMapper.createDefault();
     }
 
-    static void resetMapper(@Nullable ServerPlayerEntity player) {
+    static void resetMapper(@Nullable ServerPlayer player) {
         if (player != null) {
-            PolymerPlayNetworkHandlerExtension.of(player).polymer$setBlockMapper(getDefault(PacketContext.create(player)));
+            PolymerGamePacketListenerExtension.of(player).polymer$setBlockMapper(getDefault(PacketContext.create(player)));
         }
     }
 
-    static void set(ServerPlayNetworkHandler handler, BlockMapper mapper) {
-        PolymerPlayNetworkHandlerExtension.of(handler).polymer$setBlockMapper(mapper);
+    static void set(ServerGamePacketListenerImpl handler, BlockMapper mapper) {
+        PolymerGamePacketListenerExtension.of(handler).polymer$setBlockMapper(mapper);
     }
 
-    static BlockMapper get(ServerPlayNetworkHandler handler) {
-        return PolymerPlayNetworkHandlerExtension.of(handler).polymer$getBlockMapper();
+    static BlockMapper get(ServerGamePacketListenerImpl handler) {
+        return PolymerGamePacketListenerExtension.of(handler).polymer$getBlockMapper();
     }
 }

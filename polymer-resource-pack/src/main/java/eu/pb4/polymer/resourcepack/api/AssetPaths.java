@@ -1,6 +1,6 @@
 package eu.pb4.polymer.resourcepack.api;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public final class AssetPaths {
     public static String PACK_METADATA = "pack.mcmeta";

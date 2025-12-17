@@ -1,10 +1,10 @@
 package eu.pb4.polymer.virtualentity.api.tracker;
 
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 
 public class WrappingDataTracker implements DataTrackerLike {
     private final DataTrackerLike dataTracker;
@@ -14,17 +14,17 @@ public class WrappingDataTracker implements DataTrackerLike {
     }
     
     @Override
-    public <T> @Nullable T get(TrackedData<T> data) {
+    public <T> @Nullable T get(EntityDataAccessor<T> data) {
         return dataTracker.get(data);
     }
 
     @Override
-    public <T> void set(TrackedData<T> key, T value, boolean forceDirty) {
+    public <T> void set(EntityDataAccessor<T> key, T value, boolean forceDirty) {
         dataTracker.set(key, value, forceDirty);
     }
 
     @Override
-    public <T> void setDirty(TrackedData<T> key, boolean isDirty) {
+    public <T> void setDirty(EntityDataAccessor<T> key, boolean isDirty) {
         dataTracker.set(key, dataTracker.get(key), isDirty);
     }
 
@@ -34,17 +34,17 @@ public class WrappingDataTracker implements DataTrackerLike {
     }
 
     @Override
-    public boolean isDirty(TrackedData<?> key) {
+    public boolean isDirty(EntityDataAccessor<?> key) {
         return dataTracker.isDirty(key);
     }
 
     @Override
-    public @Nullable List<DataTracker.SerializedEntry<?>> getDirtyEntries() {
+    public @Nullable List<SynchedEntityData.DataValue<?>> getDirtyEntries() {
         return dataTracker.getDirtyEntries();
     }
 
     @Override
-    public @Nullable List<DataTracker.SerializedEntry<?>> getChangedEntries() {
+    public @Nullable List<SynchedEntityData.DataValue<?>> getChangedEntries() {
         return dataTracker.getChangedEntries();
     }
 }

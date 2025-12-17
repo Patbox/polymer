@@ -1,25 +1,25 @@
 package eu.pb4.polymertest.mixin;
 
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.particle.ParticleEffect;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.world.entity.AreaEffectCloud;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(AreaEffectCloudEntity.class)
+@Mixin(AreaEffectCloud.class)
 public interface AECAccessor {
-    @Accessor("RADIUS")
-    static TrackedData<Float> getRadius() {
+    @Accessor("DATA_RADIUS")
+    static EntityDataAccessor<Float> getRadius() {
         throw new AssertionError();
     }
 
-    @Accessor("WAITING")
-    static TrackedData<Boolean> getWaiting() {
+    @Accessor("DATA_WAITING")
+    static EntityDataAccessor<Boolean> getWaiting() {
         throw new AssertionError();
     }
 
-    @Accessor("PARTICLE")
-    static TrackedData<ParticleEffect> getParticle() {
+    @Accessor("DATA_PARTICLE")
+    static EntityDataAccessor<ParticleOptions> getParticle() {
         throw new AssertionError();
     }
 }

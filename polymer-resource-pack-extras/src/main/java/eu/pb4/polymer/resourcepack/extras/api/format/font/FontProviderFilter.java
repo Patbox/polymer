@@ -11,7 +11,7 @@ public record FontProviderFilter(TriState uniform, TriState jp) {
     public static final FontProviderFilter UNIFORM_JP = new FontProviderFilter(TriState.TRUE, TriState.TRUE);
 
     public static final Codec<FontProviderFilter> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.BOOL.xmap(x -> x ? TriState.TRUE : TriState.FALSE, x -> x.asBoolean(true)).optionalFieldOf("uniform", TriState.DEFAULT).forGetter(FontProviderFilter::uniform),
-            Codec.BOOL.xmap(x -> x ? TriState.TRUE : TriState.FALSE, x -> x.asBoolean(true)).optionalFieldOf("jp", TriState.DEFAULT).forGetter(FontProviderFilter::jp)
+            Codec.BOOL.xmap(x -> x ? TriState.TRUE : TriState.FALSE, x -> x.toBoolean(true)).optionalFieldOf("uniform", TriState.DEFAULT).forGetter(FontProviderFilter::uniform),
+            Codec.BOOL.xmap(x -> x ? TriState.TRUE : TriState.FALSE, x -> x.toBoolean(true)).optionalFieldOf("jp", TriState.DEFAULT).forGetter(FontProviderFilter::jp)
     ).apply(instance, FontProviderFilter::new));
 }

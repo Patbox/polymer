@@ -3,10 +3,10 @@ package eu.pb4.polymer.virtualentity.impl.attachment;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockAwareAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class FallingBlockEntityAttachment extends EntityAttachment implements BlockAwareAttachment {
     public FallingBlockEntityAttachment(ElementHolder holder, FallingBlockEntity entity) {
@@ -15,7 +15,7 @@ public class FallingBlockEntityAttachment extends EntityAttachment implements Bl
 
     @Override
     public BlockPos getBlockPos() {
-        return ((FallingBlockEntity) this.entity).getFallingBlockPos();
+        return ((FallingBlockEntity) this.entity).getStartPos();
     }
 
     @Override
@@ -29,7 +29,7 @@ public class FallingBlockEntityAttachment extends EntityAttachment implements Bl
     }
 
     @Override
-    public Vec3d getPos() {
+    public Vec3 getPos() {
         return super.getPos().add(0, 0.5, 0);
     }
 }

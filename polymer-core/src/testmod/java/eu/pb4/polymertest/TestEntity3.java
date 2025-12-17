@@ -1,5 +1,6 @@
 package eu.pb4.polymertest;
 
+import com.mojang.math.Axis;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
@@ -12,29 +13,23 @@ import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.Items;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.joml.Matrix4x3fStack;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
-public class TestEntity3 extends CreeperEntity implements PolymerEntity {
+public class TestEntity3 extends Creeper implements PolymerEntity {
     private final ElementHolder holder;
     private final EntityAttachment attachment;
     private final ItemDisplayElement leftLeg = new ItemDisplayElement(Items.RED_CONCRETE);
@@ -48,20 +43,20 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     private float previousLimbPos = Float.MIN_NORMAL;
     private float deathAngle;
 
-    public TestEntity3(EntityType<TestEntity3> entityEntityType, World world) {
+    public TestEntity3(EntityType<TestEntity3> entityEntityType, Level world) {
         super(entityEntityType, world);
         this.holder = new ElementHolder() {
             @Override
-            protected void notifyElementsOfPositionUpdate(Vec3d newPos, Vec3d delta) {
+            protected void notifyElementsOfPositionUpdate(Vec3 newPos, Vec3 delta) {
                 TestEntity3.this.rideAnchor.notifyMove(this.currentPos, newPos, delta);
             }
 
             @Override
-            public Vec3d getPos() {
+            public Vec3 getPos() {
                 return this.getAttachment().getPos();
             }
         };
-        this.rideAnchor.setOffset(new Vec3d(0, 1.3f, 0));
+        this.rideAnchor.setOffset(new Vec3(0, 1.3f, 0));
 
         leftLeg.setInterpolationDuration(2);
         leftLeg.ignorePositionUpdates();
@@ -89,21 +84,21 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     public void tick() {
         super.tick();
 
-        if (this.getEntityWorld().getTime() % 2 == 1) {
+        if (this.level().getGameTime() % 2 == 1) {
             return;
         }
 
-        this.updateLimbs(false);
+        this.calculateEntityAnimation(false);
         this.updateAnimation();
 
         this.holder.tick();
     }
 
     private void updateAnimation() {
-        var speed = this.limbAnimator.getSpeed();
-        var limbPos = this.limbAnimator.getAnimationProgress();
+        var speed = this.walkAnimation.speed();
+        var limbPos = this.walkAnimation.position();
         float f = ((float)this.deathTime) / 20.0F * 1.6F;
-        f = MathHelper.sqrt(f);
+        f = Mth.sqrt(f);
         if (f > 1.0F) {
             f = 1.0F;
         }
@@ -123,9 +118,9 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
 
         stack.clear();
         stack.translate(0, -0.2f, 0);
-        stack.rotateY((float) Math.toRadians(- MathHelper.lerpAngleDegrees(0.5f, this.lastYaw, this.getYaw())) + (float) (0.00001f * Math.random()));
+        stack.rotateY((float) Math.toRadians(- Mth.rotLerp(0.5f, this.yRotO, this.getYRot())) + (float) (0.00001f * Math.random()));
         if (this.deathTime > 0) {
-            stack.rotate(RotationAxis.POSITIVE_Z.rotation(f * MathHelper.HALF_PI));
+            stack.rotate(Axis.ZP.rotation(f * Mth.HALF_PI));
         }
         stack.scale(2);
         stack.pushMatrix();
@@ -136,12 +131,12 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
         stack.popMatrix();
 
         stack.pushMatrix();
-        stack.translate(0.15f, 0.4f, 0).rotateX(MathHelper.cos(limbPos * 0.6662F) * 1.4F * speed).translate(0, -0.125f, 0).scale(0.5f, 0.8f, 0.5f);
+        stack.translate(0.15f, 0.4f, 0).rotateX(Mth.cos(limbPos * 0.6662F) * 1.4F * speed).translate(0, -0.125f, 0).scale(0.5f, 0.8f, 0.5f);
         leftLeg.setTransformation(stack);
         stack.popMatrix();
 
         stack.pushMatrix();
-        stack.translate(-0.15f, 0.4f, 0).rotateX(MathHelper.cos(limbPos * 0.6662F + 3.1415927F) * 1.4F * speed).translate(0, -0.125f, 0).scale(0.5f, 0.8f, 0.5f);
+        stack.translate(-0.15f, 0.4f, 0).rotateX(Mth.cos(limbPos * 0.6662F + 3.1415927F) * 1.4F * speed).translate(0, -0.125f, 0).scale(0.5f, 0.8f, 0.5f);
         rightLeg.setTransformation(stack);
         stack.popMatrix();
     }
@@ -152,9 +147,9 @@ public class TestEntity3 extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
-        data.add(DataTracker.SerializedEntry.of(EntityTrackedData.FLAGS, (byte) (1 << EntityTrackedData.INVISIBLE_FLAG_INDEX)));
-        data.add(new DataTracker.SerializedEntry(EntityAccessor.getNO_GRAVITY().id(), EntityAccessor.getNO_GRAVITY().dataType(), true));
-        data.add(DataTracker.SerializedEntry.of(ArmorStandEntity.ARMOR_STAND_FLAGS, (byte) (ArmorStandEntity.SMALL_FLAG | ArmorStandEntity.MARKER_FLAG)));
+    public void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data, ServerPlayer player, boolean initial) {
+        data.add(SynchedEntityData.DataValue.create(EntityTrackedData.FLAGS, (byte) (1 << EntityTrackedData.INVISIBLE_FLAG_INDEX)));
+        data.add(new SynchedEntityData.DataValue(EntityAccessor.getDATA_NO_GRAVITY().id(), EntityAccessor.getDATA_NO_GRAVITY().serializer(), true));
+        data.add(SynchedEntityData.DataValue.create(ArmorStand.DATA_CLIENT_FLAGS, (byte) (ArmorStand.CLIENT_FLAG_SMALL | ArmorStand.CLIENT_FLAG_MARKER)));
     }
 }

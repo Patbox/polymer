@@ -2,16 +2,16 @@ package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 /**
@@ -34,11 +34,11 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
      *
      * @param blockState Real BlockState of block
      * @param pos Position of block. Keep in mind it's mutable,
- *            so make sure to use {@link BlockPos.Mutable#toImmutable()}
+ *            so make sure to use {@link BlockPos.MutableBlockPos#immutable()}
  *            in case of using in packets, as it's reused for other positions!
      * @param contexts Context packet is sent to. Should always contain a player
      */
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, PacketContext.NotNullWithPlayer contexts) { }
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, PacketContext.NotNullWithPlayer contexts) { }
 
     /**
      * You can override this method in case of issues with light updates of this block. In most cases it's not needed.
@@ -61,24 +61,24 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
         return PolymerBlockUtils.getPolymerBlock(block, context);
     }
 
-    default boolean handleMiningOnServer(ItemStack tool, BlockState state, BlockPos pos, ServerPlayerEntity player) {
+    default boolean handleMiningOnServer(ItemStack tool, BlockState state, BlockPos pos, ServerPlayer player) {
         return true;
     }
 
-    default boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult) {
+    default boolean isPolymerBlockInteraction(BlockState state, ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, BlockHitResult blockHitResult, InteractionResult actionResult) {
         return true;
     }
 
-    default boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
+    default boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, BlockHitResult blockHitResult) {
         return false;
     }
 
-    default boolean playSoundToSelf(BlockState state, ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+    default boolean playSoundToSelf(BlockState state, ServerPlayer player, ServerLevel world, BlockPos pos) {
         return false;
     }
 
     static void registerOverlay(Block block, PolymerBlock polymerBlock) {
-        PolymerSyncedObject.setSyncedObject(Registries.BLOCK, block, polymerBlock);
-        RegistrySyncUtils.setServerEntry(Registries.BLOCK, block);
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.BLOCK, block, polymerBlock);
+        RegistrySyncUtils.setServerEntry(BuiltInRegistries.BLOCK, block);
     }
 }

@@ -4,11 +4,6 @@ package eu.pb4.polymer.virtualentity.mixin;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
 import eu.pb4.polymer.virtualentity.impl.PacketInterHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.c2s.play.PickItemFromEntityC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,13 +14,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundPickItemFromEntityPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
 
-@Mixin(ServerPlayNetworkHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 public class ServerPlayNetworkHandlerMixin implements HolderHolder {
     @Unique
     private final Collection<ElementHolder> polymerVE$holders = new ArrayList<>();
     @Shadow
-    public ServerPlayerEntity player;
+    public ServerPlayer player;
 
     @Override
     public void polymer$addHolder(ElementHolder holderAttachment) {
@@ -53,8 +53,8 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
         } catch (Throwable e) {
         }
     }
-    @ModifyVariable(method = "onPickItemFromEntity", at = @At(value = "STORE", ordinal = 0))
-    private Entity polymerVE$onPickEntity(Entity entity, PickItemFromEntityC2SPacket packet) {
+    @ModifyVariable(method = "handlePickItemFromEntity", at = @At(value = "STORE", ordinal = 0))
+    private Entity polymerVE$onPickEntity(Entity entity, ServerboundPickItemFromEntityPacket packet) {
         if (entity == null && !this.polymerVE$holders.isEmpty()) {
             for (var x : this.polymerVE$holders) {
                 if (x.isPartOf(packet.id())) {
@@ -70,15 +70,15 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
     }
 
 
-    @ModifyVariable(method = "onPlayerInteractEntity", at = @At(value = "STORE", ordinal = 0))
-    private Entity polymerVE$onInteract(Entity entity, PlayerInteractEntityC2SPacket packet) {
+    @ModifyVariable(method = "handleInteract", at = @At(value = "STORE", ordinal = 0))
+    private Entity polymerVE$onInteract(Entity entity, ServerboundInteractPacket packet) {
         if (entity == null && !this.polymerVE$holders.isEmpty()) {
             var id = ((PlayerInteractEntityC2SPacketAccessor) packet).getEntityId();
             for (var x : this.polymerVE$holders) {
                 if (x.isPartOf(id)) {
                     var i = x.getInteraction(id, this.player);
                     if (i != null) {
-                        packet.handle(new PacketInterHandler(this.player, i));
+                        packet.dispatch(new PacketInterHandler(this.player, i));
                         break;
                     }
                 }

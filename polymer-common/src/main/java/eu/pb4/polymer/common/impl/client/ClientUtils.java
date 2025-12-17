@@ -2,31 +2,31 @@ package eu.pb4.polymer.common.impl.client;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class ClientUtils {
     public static final String PACK_ID = "$polymer-resources";
-    public static volatile ServerPlayerEntity backupPlayer;
+    public static volatile ServerPlayer backupPlayer;
 
     public static boolean isResourcePackLoaded() {
-        return MinecraftClient.getInstance().getResourcePackManager().getEnabledIds().contains(PACK_ID);
+        return Minecraft.getInstance().getResourcePackRepository().getSelectedIds().contains(PACK_ID);
     }
 
     public static boolean isSingleplayer() {
-        return MinecraftClient.getInstance().getServer() != null;
+        return Minecraft.getInstance().getSingleplayerServer() != null;
     }
 
-    public static ServerPlayerEntity getPlayer() {
-        if (MinecraftClient.getInstance().getServer() != null) {
-            if (MinecraftClient.getInstance().player != null) {
-                var p = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(MinecraftClient.getInstance().player.getUuid());
+    public static ServerPlayer getPlayer() {
+        if (Minecraft.getInstance().getSingleplayerServer() != null) {
+            if (Minecraft.getInstance().player != null) {
+                var p = Minecraft.getInstance().getSingleplayerServer().getPlayerList().getPlayer(Minecraft.getInstance().player.getUUID());
                 if (p != null) {
                     return p;
                 }
@@ -37,13 +37,13 @@ public class ClientUtils {
     }
 
     public static boolean isClientThread() {
-        return MinecraftClient.getInstance().isOnThread();
+        return Minecraft.getInstance().isSameThread();
     }
 
-    public static RegistryWrapper.WrapperLookup getLookup() {
-        if (MinecraftClient.getInstance().world != null) {
-            return MinecraftClient.getInstance().world.getRegistryManager();
+    public static HolderLookup.Provider getLookup() {
+        if (Minecraft.getInstance().level != null) {
+            return Minecraft.getInstance().level.registryAccess();
         }
-        return DynamicRegistryManager.of(Registries.REGISTRIES);
+        return RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     }
 }

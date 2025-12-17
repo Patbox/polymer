@@ -16,27 +16,32 @@ import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.interfaces.StatusEffectPacketExtension;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.listener.ServerConfigurationPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.config.FeaturesS2CPacket;
-import net.minecraft.network.packet.s2c.play.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.resource.featuretoggle.FeatureFlag;
-import net.minecraft.resource.featuretoggle.FeatureFlags;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.configuration.ClientboundUpdateEnabledFeaturesPacket;
+import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.flag.FeatureFlag;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -47,52 +52,52 @@ import java.util.List;
 public class PacketPatcher {
 
     private static final Codec<ItemStack> ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Registries.ITEM.getEntryCodec().fieldOf("item").forGetter(ItemStack::getRegistryEntry),
-            ComponentChanges.CODEC.optionalFieldOf("components", ComponentChanges.EMPTY).forGetter(ItemStack::getComponentChanges)
+            BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder),
+            DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(ItemStack::getComponentsPatch)
     ).apply(instance, (item, components) -> new ItemStack(item, 1, components)));
 
-    public static Packet<?> replace(ServerCommonNetworkHandler handler, Packet<?> packet) {
-        if (handler instanceof ServerPlayNetworkHandler handler1) {
-            if (packet instanceof EntityEquipmentUpdateS2CPacket original) {
-                var entity = EntityAttachedPacket.get(original, original.getEntityId());
+    public static Packet<?> replace(ServerCommonPacketListenerImpl handler, Packet<?> packet) {
+        if (handler instanceof ServerGamePacketListenerImpl handler1) {
+            if (packet instanceof ClientboundSetEquipmentPacket original) {
+                var entity = EntityAttachedPacket.get(original, original.getEntity());
                 var polymerEntity = PolymerEntity.get(entity);
                 if (polymerEntity != null) {
                     return EntityAttachedPacket.setIfEmpty(
-                            new EntityEquipmentUpdateS2CPacket(entity.getId(), polymerEntity.getPolymerVisibleEquipment(original.getEquipmentList(), handler1.getPlayer())),
+                            new ClientboundSetEquipmentPacket(entity.getId(), polymerEntity.getPolymerVisibleEquipment(original.getSlots(), handler1.getPlayer())),
                             entity
                     );
                 }
             }
 
-            if (packet instanceof BundleS2CPacket bundleS2CPacket) {
-                var list = new ArrayList<Packet<? super ClientPlayPacketListener>>();
-                for (var value : bundleS2CPacket.getPackets()) {
+            if (packet instanceof ClientboundBundlePacket bundleS2CPacket) {
+                var list = new ArrayList<Packet<? super ClientGamePacketListener>>();
+                for (var value : bundleS2CPacket.subPackets()) {
                     var x = replace(handler, value);
                     if (!prevent(handler, x)) {
                         //noinspection unchecked
-                        list.add((Packet<ClientPlayPacketListener>) x);
+                        list.add((Packet<ClientGamePacketListener>) x);
                     }
                 }
 
-                return new BundleS2CPacket(list);
+                return new ClientboundBundlePacket(list);
             }
         } else if (handler instanceof ServerConfigurationPacketListener) {
-            if (packet instanceof FeaturesS2CPacket featuresS2CPacket) {
+            if (packet instanceof ClientboundUpdateEnabledFeaturesPacket featuresS2CPacket) {
                 var x = PolymerUtils.getClientEnabledFeatureFlags();
 
                 if (x.isEmpty()) {
                     return packet;
                 }
 
-                FeatureSet set = FeatureFlags.FEATURE_MANAGER.featureSetOf(x.toArray(new FeatureFlag[0]));
+                FeatureFlagSet set = FeatureFlags.REGISTRY.subset(x.toArray(new FeatureFlag[0]));
 
                 if (featuresS2CPacket.features().getClass() == HashSet.class) {
-                    featuresS2CPacket.features().addAll(FeatureFlags.FEATURE_MANAGER.toId(set));
+                    featuresS2CPacket.features().addAll(FeatureFlags.REGISTRY.toNames(set));
                 } else {
                     var y = new HashSet<Identifier>();
                     y.addAll(featuresS2CPacket.features());
-                    y.addAll(FeatureFlags.FEATURE_MANAGER.toId(set));
-                    return new FeaturesS2CPacket(y);
+                    y.addAll(FeatureFlags.REGISTRY.toNames(set));
+                    return new ClientboundUpdateEnabledFeaturesPacket(y);
                 }
             }
 
@@ -101,54 +106,54 @@ public class PacketPatcher {
         return packet;
     }
 
-    public static void sendExtra(ServerCommonNetworkHandler handler, Packet<?> packet) {
-        if (handler.getClass() == ServerPlayNetworkHandler.class) {
+    public static void sendExtra(ServerCommonPacketListenerImpl handler, Packet<?> packet) {
+        if (handler.getClass() == ServerGamePacketListenerImpl.class) {
             if (CompatStatus.IMMERSIVE_PORTALS) {
-                ImmersivePortalsUtils.sendBlockPackets((ServerPlayNetworkHandler) handler, packet);
+                ImmersivePortalsUtils.sendBlockPackets((ServerGamePacketListenerImpl) handler, packet);
             } else {
-                BlockPacketUtil.sendFromPacket(packet, (ServerPlayNetworkHandler) handler);
+                BlockPacketUtil.sendFromPacket(packet, (ServerGamePacketListenerImpl) handler);
             }
         }
     }
 
-    public static boolean prevent(ServerCommonNetworkHandler handler, Packet<?> packet) {
-        if (handler.getClass() == ServerPlayNetworkHandler.class) {
+    public static boolean prevent(ServerCommonPacketListenerImpl handler, Packet<?> packet) {
+        if (handler.getClass() == ServerGamePacketListenerImpl.class) {
             var player = PacketContext.create(handler);
             //noinspection DataFlowIssue
             if ((
                     packet instanceof StatusEffectPacketExtension packet2
-                            && ((PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, packet2.polymer$getStatusEffect()) != null
-                            && PolymerSyncedObject.getSyncedObject(Registries.STATUS_EFFECT, packet2.polymer$getStatusEffect()).getPolymerReplacement(packet2.polymer$getStatusEffect(), player) == null))
+                            && ((PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, packet2.polymer$getStatusEffect()) != null
+                            && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, packet2.polymer$getStatusEffect()).getPolymerReplacement(packet2.polymer$getStatusEffect(), player) == null))
             ) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())
             ) {
                 return true;
-            } else if ((packet instanceof EntityEquipmentUpdateS2CPacket original && original.getEquipmentList().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())) {
+            } else if ((packet instanceof ClientboundSetEquipmentPacket original && original.getSlots().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())) {
                 return true;
-            } else if ((packet instanceof EntityAttributesS2CPacket original
+            } else if ((packet instanceof ClientboundUpdateAttributesPacket original
                     && PolymerEntity.get(EntityAttachedPacket.get(packet, original.getEntityId())) instanceof PolymerEntity entity
                     && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
                 return true;
-            } else if (packet instanceof BlockEntityUpdateS2CPacket be) {
-                return PolymerSyncedObject.getSyncedObject(Registries.BLOCK_ENTITY_TYPE, be.getBlockEntityType()) instanceof PolymerSyncedObject<BlockEntityType<?>> obj
-                        && obj.getPolymerReplacement(be.getBlockEntityType(), player) == null;
-            } else if (packet instanceof RecipeBookAddS2CPacket recipeBook && PolymerImpl.SPLIT_RECIPE_PACKETS > 0 && recipeBook.entries().size() > PolymerImpl.SPLIT_RECIPE_PACKETS) {
-                var list = new ArrayList<RecipeBookAddS2CPacket.Entry>();
+            } else if (packet instanceof ClientboundBlockEntityDataPacket be) {
+                return PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK_ENTITY_TYPE, be.getType()) instanceof PolymerSyncedObject<BlockEntityType<?>> obj
+                        && obj.getPolymerReplacement(be.getType(), player) == null;
+            } else if (packet instanceof ClientboundRecipeBookAddPacket recipeBook && PolymerImpl.SPLIT_RECIPE_PACKETS > 0 && recipeBook.entries().size() > PolymerImpl.SPLIT_RECIPE_PACKETS) {
+                var list = new ArrayList<ClientboundRecipeBookAddPacket.Entry>();
                 if (recipeBook.replace()) {
-                    handler.sendPacket(new RecipeBookAddS2CPacket(List.of(), true));
+                    handler.send(new ClientboundRecipeBookAddPacket(List.of(), true));
                 }
                 for (var entry : recipeBook.entries()) {
                     list.add(entry);
                     if (list.size() >= PolymerImpl.SPLIT_RECIPE_PACKETS) {
-                        handler.sendPacket(new RecipeBookAddS2CPacket(list, false));
+                        handler.send(new ClientboundRecipeBookAddPacket(list, false));
                         list = new ArrayList<>();
                     }
                 }
                 if (!list.isEmpty()) {
-                    handler.sendPacket(new RecipeBookAddS2CPacket(list, false));
+                    handler.send(new ClientboundRecipeBookAddPacket(list, false));
                 }
 
                 return true;
-            } else if (packet instanceof EntityAnimationS2CPacket animationS2CPacket && PolymerEntity.get(EntityAttachedPacket.get(packet, animationS2CPacket.getEntityId())) instanceof PolymerEntity polymerEntity
+            } else if (packet instanceof ClientboundAnimatePacket animationS2CPacket && PolymerEntity.get(EntityAttachedPacket.get(packet, animationS2CPacket.getId())) instanceof PolymerEntity polymerEntity
                     && !InternalEntityHelpers.isLivingEntity(polymerEntity.getPolymerEntityType(PacketContext.create(handler)))) {
                 return true;
             }
@@ -158,11 +163,11 @@ public class PacketPatcher {
     }
 
     @Nullable
-    private static ItemStack silentItemStackFromNbt(RegistryWrapper.WrapperLookup lookup, NbtCompound nbt) {
+    private static ItemStack silentItemStackFromNbt(HolderLookup.Provider lookup, CompoundTag nbt) {
         if (nbt.isEmpty()) {
             return null;
         }
-        var ops = lookup.getOps(NbtOps.INSTANCE);
+        var ops = lookup.createSerializationContext(NbtOps.INSTANCE);
         var result = ItemStack.CODEC.parse(ops, nbt);
         if (result.isSuccess()) {
             return result.getOrThrow();
@@ -171,12 +176,12 @@ public class PacketPatcher {
     }
 
     @Nullable
-    private static ItemStack silentItemVariantFromNbt(RegistryWrapper.WrapperLookup lookup, NbtCompound nbt) {
+    private static ItemStack silentItemVariantFromNbt(HolderLookup.Provider lookup, CompoundTag nbt) {
         if (nbt.isEmpty()) {
             return null;
         }
 
-        var ops = lookup.getOps(NbtOps.INSTANCE);
+        var ops = lookup.createSerializationContext(NbtOps.INSTANCE);
         var result = ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.parse(ops, nbt);
         if (result.isSuccess()) {
             return result.getOrThrow();
@@ -184,16 +189,16 @@ public class PacketPatcher {
         return null;
     }
 
-    public static NbtCompound transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, NbtCompound original) {
+    public static CompoundTag transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, CompoundTag original) {
         if (original.isEmpty()) {
             return original;
         }
-        NbtCompound override = null;
+        CompoundTag override = null;
 
         var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
-        var ops = lookup.getOps(NbtOps.INSTANCE);
-        if (original.get("shared_data") instanceof NbtCompound shared) {
-            if (shared.get("display_item") instanceof NbtCompound itemNbt) {
+        var ops = lookup.createSerializationContext(NbtOps.INSTANCE);
+        if (original.get("shared_data") instanceof CompoundTag shared) {
+            if (shared.get("display_item") instanceof CompoundTag itemNbt) {
                 var stack = silentItemStackFromNbt(lookup, itemNbt);
                 if (stack != null && PolymerItemUtils.isPolymerServerItem(stack, context)) {
                     //noinspection ConstantValue
@@ -202,7 +207,7 @@ public class PacketPatcher {
                     }
 
                     try {
-                        override.getCompoundOrEmpty("shared_data").put("display_item",
+                        override.getCompoundOrEmpty("shared_data").store("display_item",
                                 ItemStack.OPTIONAL_CODEC, ops, PolymerItemUtils.getPolymerItemStack(stack, context));
                     } catch (Throwable e) {
                         e.printStackTrace();
@@ -212,7 +217,7 @@ public class PacketPatcher {
         }
 
 
-        if (original.get("Items") instanceof NbtList list) {
+        if (original.get("Items") instanceof ListTag list) {
             for (int i = 0; i < list.size(); i++) {
                 var nbt = list.getCompoundOrEmpty(i);
                 var stack = silentItemStackFromNbt(lookup, nbt);
@@ -230,7 +235,7 @@ public class PacketPatcher {
             }
         }
 
-        if (original.get("item") instanceof NbtCompound nbt) {
+        if (original.get("item") instanceof CompoundTag nbt) {
             var stack = silentItemStackFromNbt(lookup, nbt);
             boolean variant = false;
             if (stack == null) {
@@ -244,31 +249,31 @@ public class PacketPatcher {
                 }
                 stack = PolymerItemUtils.getPolymerItemStack(stack, context);
                 override.put("item", variant
-                        ? ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.encodeStart(lookup.getOps(NbtOps.INSTANCE), stack).getOrThrow()
+                        ? ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.encodeStart(lookup.createSerializationContext(NbtOps.INSTANCE), stack).getOrThrow()
                         : ItemStack.OPTIONAL_CODEC.encodeStart(ops, stack).getOrThrow());
             }
         }
 
-        if (original.get("components") instanceof NbtCompound compound) {
-            var comp = ComponentMap.CODEC.decode(ops, compound);
+        if (original.get("components") instanceof CompoundTag compound) {
+            var comp = DataComponentMap.CODEC.decode(ops, compound);
             if (comp.isSuccess()) {
                 var map = comp.getOrThrow().getFirst();
-                ComponentMap.Builder builder = null;
+                DataComponentMap.Builder builder = null;
 
                 for (var component : map) {
                     if (component.value() instanceof TransformingComponent transformingComponent && transformingComponent.polymer$requireModification(context)) {
                         if (builder == null) {
-                            builder = ComponentMap.builder();
+                            builder = DataComponentMap.builder();
                             builder.addAll(map);
                         }
                         //noinspection unchecked
-                        builder.add((ComponentType<? super Object>) component.type(), transformingComponent.polymer$getTransformed(context));
+                        builder.set((DataComponentType<? super Object>) component.type(), transformingComponent.polymer$getTransformed(context));
                     } else if (!PolymerComponent.canSync(component.type(), component.value(), context)) {
                         if (builder == null) {
-                            builder = ComponentMap.builder();
+                            builder = DataComponentMap.builder();
                             builder.addAll(map);
                         }
-                        builder.add(component.type(), null);
+                        builder.set(component.type(), null);
                     }
                 }
 
@@ -276,7 +281,7 @@ public class PacketPatcher {
                     if (override == null) {
                         override = original.copy();
                     }
-                    override.put("components", ComponentMap.CODEC.encodeStart(ops, builder.build()).result().orElse(new NbtCompound()));
+                    override.put("components", DataComponentMap.CODEC.encodeStart(ops, builder.build()).result().orElse(new CompoundTag()));
                 }
             }
         }

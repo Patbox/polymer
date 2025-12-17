@@ -2,20 +2,20 @@ package eu.pb4.blocktest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestItem extends BlockItem implements PolymerItem {
     private final Identifier polymerModel;
-    public TestItem(Settings settings, Block block, String modelId) {
+    public TestItem(Properties settings, Block block, String modelId) {
         super(block, settings);
-        this.polymerModel = ResourcePackExtras.bridgeModel(Identifier.of("blocktest", modelId));
+        this.polymerModel = ResourcePackExtras.bridgeModel(Identifier.fromNamespaceAndPath("blocktest", modelId));
 
     }
 

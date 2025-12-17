@@ -7,8 +7,8 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerIdList;
-import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
+import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
@@ -17,17 +17,22 @@ import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.*;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -37,32 +42,31 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class PolymerImplUtils {
     public static final ThreadLocal<Unit> IS_RELOADING_WORLD = new ThreadLocal<>();
     public static final ThreadLocal<Unit> IGNORE_PLAY_SOUND_EXCLUSION = new ThreadLocal<>();
-    public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdList<BlockState>) Block.STATE_IDS).polymer$getPolymerEntries();
-    public static final RegistryWrapper.WrapperLookup FALLBACK_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
+    public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdMapper<BlockState>) Block.BLOCK_STATE_REGISTRY).polymer$getPolymerEntries();
+    public static final HolderLookup.Provider FALLBACK_LOOKUP = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
     public static Identifier id(String path) {
-        return Identifier.of(PolymerUtils.ID, path);
+        return Identifier.fromNamespaceAndPath(PolymerUtils.ID, path);
     }
 
     public static String getAsString(BlockState state) {
         var builder = new StringBuilder();
 
-        builder.append(Registries.BLOCK.getId(state.getBlock()));
+        builder.append(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
 
-        if (!state.getEntries().isEmpty()) {
+        if (!state.getValues().isEmpty()) {
             builder.append("[");
-            var iterator = state.getEntries().entrySet().iterator();
+            var iterator = state.getValues().entrySet().iterator();
 
             while (iterator.hasNext()) {
                 var entry = iterator.next();
                 builder.append(entry.getKey().getName());
                 builder.append("=");
-                builder.append(((Property) entry.getKey()).name(entry.getValue()));
+                builder.append(((Property) entry.getKey()).getName(entry.getValue()));
 
                 if (iterator.hasNext()) {
                     builder.append(",");
@@ -93,9 +97,9 @@ public class PolymerImplUtils {
 
             {
                 msg.accept("== Vanilla Registries");
-                for (var reg : ((Registry<Registry<Object>>) Registries.REGISTRIES)) {
+                for (var reg : ((Registry<Registry<Object>>) BuiltInRegistries.REGISTRY)) {
                     msg.accept("");
-                    msg.accept("== Registry: " + ((Registry<Object>) (Object) Registries.REGISTRIES).getId(reg).toString());
+                    msg.accept("== Registry: " + ((Registry<Object>) (Object) BuiltInRegistries.REGISTRY).getKey(reg).toString());
                     msg.accept("");
                     if (reg instanceof RegistrySyncExtension regEx) {
                         msg.accept("= Status: " + regEx.polymer_registry_sync$getStatus().name());
@@ -108,7 +112,7 @@ public class PolymerImplUtils {
                     }
 
                     for (var entry : reg) {
-                        msg.accept("" + reg.getRawId(entry) + " | " + reg.getId(entry).toString() + " | Polymer? " + PolymerUtils.isServerOnly(reg, entry));
+                        msg.accept("" + reg.getId(entry) + " | " + reg.getKey(entry).toString() + " | Polymer? " + PolymerUtils.isServerOnly(reg, entry));
                     }
                 }
                 msg.accept("");
@@ -116,18 +120,18 @@ public class PolymerImplUtils {
                 msg.accept("");
                 msg.accept("= Polymer Starts: " + PolymerImplUtils.getBlockStateOffset());
                 msg.accept("");
-                msg.accept("= All States: " + Block.STATE_IDS.size());
+                msg.accept("= All States: " + Block.BLOCK_STATE_REGISTRY.size());
 
                 //noinspection unchecked
-                var pl = (PolymerIdList<BlockState>) Block.STATE_IDS;
+                var pl = (PolymerIdMapper<BlockState>) Block.BLOCK_STATE_REGISTRY;
                 msg.accept("= Polymer States: " + pl.polymer$getPolymerEntries().size());
-                msg.accept("= Server Bits: " + MathHelper.ceilLog2(Block.STATE_IDS.size()));
+                msg.accept("= Server Bits: " + Mth.ceillog2(Block.BLOCK_STATE_REGISTRY.size()));
                 msg.accept("= Vanilla Bits: " + pl.polymer$getVanillaBitCount());
                 msg.accept("= NonPolymer Bits: " + pl.polymer$getNonPolymerBitCount());
                 msg.accept("");
 
-                for (var state : Block.STATE_IDS) {
-                    msg.accept(Block.STATE_IDS.getRawId(state) + " | " + getAsString(state) + " | Polymer? " + (PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock())));
+                for (var state : Block.BLOCK_STATE_REGISTRY) {
+                    msg.accept(Block.BLOCK_STATE_REGISTRY.getId(state) + " | " + getAsString(state) + " | Polymer? " + (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock())));
                 }
             }
 
@@ -135,7 +139,7 @@ public class PolymerImplUtils {
             msg.accept("== Server/Local Polymer Item Groups");
             msg.accept("");
             for (var entry : InternalServerRegistry.ITEM_GROUPS) {
-                msg.accept(InternalServerRegistry.ITEM_GROUPS.getId(entry).toString());
+                msg.accept(InternalServerRegistry.ITEM_GROUPS.getEntryId(entry).toString());
             }
 
             {
@@ -149,7 +153,7 @@ public class PolymerImplUtils {
                         msg.accept("== Registry: " + reg2.getName() + " (Client)");
                         msg.accept("");
                         for (var entry : reg2) {
-                            msg.accept(reg2.getRawId(entry) + " | " + reg2.getId(entry));
+                            msg.accept(reg2.getId(entry) + " | " + reg2.getId(entry));
                         }
                         msg.accept("");
                         msg.accept("=== Tags:");
@@ -167,7 +171,7 @@ public class PolymerImplUtils {
                     msg.accept("");
 
                     for (var entry : InternalClientRegistry.BLOCK_STATES) {
-                        msg.accept(InternalClientRegistry.BLOCK_STATES.getRawId(entry) + " | " + entry.block().identifier());
+                        msg.accept(InternalClientRegistry.BLOCK_STATES.getId(entry) + " | " + entry.block().identifier());
                     }
                 }
             }
@@ -192,7 +196,7 @@ public class PolymerImplUtils {
     }
 
     public static int getBlockStateOffset() {
-        return ((PolymerIdList) Block.STATE_IDS).polymer$getOffset();
+        return ((PolymerIdMapper) Block.BLOCK_STATE_REGISTRY).polymer$getOffset();
     }
 
     public static boolean removeFromItemGroup(ItemStack stack) {
@@ -205,27 +209,27 @@ public class PolymerImplUtils {
         return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null;
     }
 
-    public static PolymerTooltipType getTooltipContext(ServerPlayerEntity player) {
-        return player != null && player.networkHandler instanceof PolymerPlayNetworkHandlerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipType.ADVANCED : PolymerTooltipType.BASIC;
+    public static PolymerTooltipType getTooltipContext(ServerPlayer player) {
+        return player != null && player.connection instanceof PolymerGamePacketListenerExtension h && h.polymer$advancedTooltip() ? PolymerTooltipType.ADVANCED : PolymerTooltipType.BASIC;
     }
 
     public static boolean isServerSideSyncableEntry(@SuppressWarnings("rawtypes") Registry reg, Object obj) {
         return PolymerUtils.isServerOnly(reg, obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && PolyMcUtils.isServerSide(reg, obj));
     }
 
-    public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player) {
+    public static ItemStack convertStack(ItemStack representation, ServerPlayer player) {
         return convertStack(representation, player, PolymerUtils.getTooltipType(player));
     }
 
-    public static ItemStack convertStack(ItemStack representation, ServerPlayerEntity player, TooltipType context) {
-        return ServerTranslationUtils.parseFor(player.networkHandler, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, PacketContext.create(player)), player));
+    public static ItemStack convertStack(ItemStack representation, ServerPlayer player, TooltipFlag context) {
+        return ServerTranslationUtils.parseFor(player.connection, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, PacketContext.create(player)), player));
     }
 
-    public static void callItemGroupEvents(Identifier id, ItemGroup itemGroup, List<ItemStack> parentTabStacks, List<ItemStack> searchTabStacks, ItemGroup.DisplayContext context) {
+    public static void callItemGroupEvents(Identifier id, CreativeModeTab itemGroup, List<ItemStack> parentTabStacks, List<ItemStack> searchTabStacks, CreativeModeTab.ItemDisplayParameters context) {
         if (CompatStatus.FABRIC_ITEM_GROUP) {
             try {
                 var fabricCollector = new FabricItemGroupEntries(context, parentTabStacks, searchTabStacks);
-                ItemGroupEvents.modifyEntriesEvent(RegistryKey.of(RegistryKeys.ITEM_GROUP, id)).invoker().modifyEntries(fabricCollector);
+                ItemGroupEvents.modifyEntriesEvent(ResourceKey.create(Registries.CREATIVE_MODE_TAB, id)).invoker().modifyEntries(fabricCollector);
                 ItemGroupEvents.MODIFY_ENTRIES_ALL.invoker().modifyEntries(itemGroup, fabricCollector);
             } catch (Throwable e) {
                 if (PolymerImpl.LOG_MORE_ERRORS) {

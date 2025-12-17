@@ -2,12 +2,11 @@ package eu.pb4.polymer.resourcepack.extras.api.format.sound;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import net.minecraft.resources.Identifier;
 
 public record SoundEntry(boolean replace, List<SoundDefinition> sounds, Optional<String> subtitle) {
     public static final Codec<SoundEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(

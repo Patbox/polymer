@@ -4,15 +4,14 @@ import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class EmptyBlock extends Block implements PolymerTexturedBlock {
     private final BlockState polymerBlockState;
 
-    public EmptyBlock(Settings settings, BlockModelType type) {
+    public EmptyBlock(Properties settings, BlockModelType type) {
         super(settings);
         this.polymerBlockState = PolymerBlockResourceUtils.requestEmpty(type);
 

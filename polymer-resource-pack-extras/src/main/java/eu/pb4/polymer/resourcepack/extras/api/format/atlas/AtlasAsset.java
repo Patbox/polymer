@@ -5,16 +5,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.resourcepack.api.WritableAsset;
-import eu.pb4.polymer.resourcepack.mixin.accessors.BlockEntryAccessor;
-import net.minecraft.resource.metadata.BlockEntry;
-import net.minecraft.util.Identifier;
-
+import eu.pb4.polymer.resourcepack.mixin.accessors.IdentifierPatternAccessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.IdentifierPattern;
 
 public record AtlasAsset(List<AtlasSource> sources) implements WritableAsset.Json {
     public static final Codec<AtlasAsset> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -50,20 +49,20 @@ public record AtlasAsset(List<AtlasSource> sources) implements WritableAsset.Jso
             return this.add(new DirectoryAtlasSource(source, prefix));
         }
 
-        public Builder filter(BlockEntry entry) {
+        public Builder filter(IdentifierPattern entry) {
             return this.add(new FilterAtlasSource(entry));
         }
 
         public Builder filter(Pattern namespace, Pattern path) {
-            return this.add(new FilterAtlasSource(BlockEntryAccessor.createBlockEntry(Optional.ofNullable(namespace), Optional.ofNullable(path))));
+            return this.add(new FilterAtlasSource(IdentifierPatternAccessor.create(Optional.ofNullable(namespace), Optional.ofNullable(path))));
         }
 
         public Builder filterNamespace(Pattern namespace) {
-            return this.add(new FilterAtlasSource(BlockEntryAccessor.createBlockEntry(Optional.ofNullable(namespace), Optional.empty())));
+            return this.add(new FilterAtlasSource(IdentifierPatternAccessor.create(Optional.ofNullable(namespace), Optional.empty())));
         }
 
         public Builder filterPath(Pattern path) {
-            return this.add(new FilterAtlasSource(BlockEntryAccessor.createBlockEntry(Optional.empty(), Optional.ofNullable(path))));
+            return this.add(new FilterAtlasSource(IdentifierPatternAccessor.create(Optional.empty(), Optional.ofNullable(path))));
         }
 
         public Builder unstitch(Identifier resource, double divisorX, double divisorY, Consumer<RegionConsumer> regionConsumer) {

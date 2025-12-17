@@ -5,14 +5,14 @@ import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import snownee.jade.addon.core.ModNameProvider;
@@ -56,12 +56,12 @@ public class JadeCompatibility implements IWailaPlugin {
 
                     var itemStack = block.block().displayStack();
                     if (itemStack.isEmpty()) {
-                        itemStack = state.getPickStack(accessor.getLevel(), accessor.getPosition(), false);
+                        itemStack = state.getCloneItemStack(accessor.getLevel(), accessor.getPosition(), false);
                         if (!itemStack.isEmpty() && state.hasBlockEntity()) {
                             var blockEntity = accessor.getLevel().getBlockEntity(accessor.getPosition());
 
                             if (blockEntity != null) {
-                                itemStack.applyComponentsFrom(blockEntity.getComponents());
+                                itemStack.applyComponents(blockEntity.components());
                             }
                         }
                     }
@@ -91,7 +91,7 @@ public class JadeCompatibility implements IWailaPlugin {
                     RegistryNameProvider.Mode mode = config.getEnum(JadeIds.DEBUG_REGISTRY_NAME);
 
                     if (mode != RegistryNameProvider.Mode.OFF) {
-                        if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
+                        if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || Minecraft.getInstance().options.advancedItemTooltips) {
                             tooltip.add(formatting.registryName(block.block().identifier().toString()));
                         }
                     }
@@ -103,12 +103,12 @@ public class JadeCompatibility implements IWailaPlugin {
                     if (config.get(JadeIds.DEBUG_BLOCK_STATES)) {
                         ITooltip box = JadeUI.tooltip();
                         block.states().entrySet().forEach((p) -> {
-                            MutableText valueText = Text.literal(" " + p.getValue()).formatted();
+                            MutableComponent valueText = Component.literal(" " + p.getValue()).withStyle();
                             if (p.getValue().equals("true") || p.getValue().equals("false")) {
-                                valueText = valueText.formatted(p.getValue().equals("true") ? Formatting.GREEN : Formatting.RED);
+                                valueText = valueText.withStyle(p.getValue().equals("true") ? ChatFormatting.GREEN : ChatFormatting.RED);
                             }
 
-                            box.add(Text.literal(p.getKey() + ":").append(valueText));
+                            box.add(Component.literal(p.getKey() + ":").append(valueText));
                         });
                         tooltip.add(JadeUI.box(box, BoxStyle.nestedBox()));
                     }
@@ -177,7 +177,7 @@ public class JadeCompatibility implements IWailaPlugin {
                     try {
 
                         if (mode != RegistryNameProvider.Mode.OFF) {
-                            if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || MinecraftClient.getInstance().options.advancedItemTooltips) {
+                            if (mode != RegistryNameProvider.Mode.ADVANCED_TOOLTIPS || Minecraft.getInstance().options.advancedItemTooltips) {
                                 tooltip.add(formatting.registryName(type.identifier().toString()));
                             }
                         }

@@ -1,39 +1,36 @@
 package eu.pb4.polymer.networking.api.util;
 
-import net.minecraft.network.listener.ClientCommonPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.PacketType;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketType;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 
 @FunctionalInterface
 public interface ServerDynamicPacket extends Packet<ClientCommonPacketListener> {
-    static Packet<ClientCommonPacketListener> of(BiFunction<ServerCommonNetworkHandler, @Nullable ServerPlayerEntity, Packet<ClientCommonPacketListener>> builder) {
+    static Packet<ClientCommonPacketListener> of(BiFunction<ServerCommonPacketListenerImpl, @Nullable ServerPlayer, Packet<ClientCommonPacketListener>> builder) {
         return (ServerDynamicPacket) builder::apply;
     }
 
-    Packet<ClientCommonPacketListener> createPacket(ServerCommonNetworkHandler handler, @Nullable ServerPlayerEntity player);
+    Packet<ClientCommonPacketListener> createPacket(ServerCommonPacketListenerImpl handler, @Nullable ServerPlayer player);
 
 
     @Override
-    default void apply(ClientCommonPacketListener listener) {
+    default void handle(ClientCommonPacketListener listener) {
         throw new UnsupportedOperationException("This is not real packet!");
     }
 
     @Override
-    default PacketType<ServerDynamicPacket> getPacketType() {
+    default PacketType<ServerDynamicPacket> type() {
         throw new UnsupportedOperationException("This is not real packet!");
     }
 
 
     @Override
-    default boolean isWritingErrorSkippable() {
+    default boolean isSkippable() {
         return true;
     }
 }

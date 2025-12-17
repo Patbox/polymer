@@ -1,9 +1,6 @@
 package eu.pb4.polymer.blocks.impl;
 
 import com.google.common.base.Splitter;
-import net.minecraft.state.State;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Property;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -11,12 +8,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.StateHolder;
+import net.minecraft.world.level.block.state.properties.Property;
 
 public class VanillaBlockPropertiesPredicate {
     private static final Splitter COMMA_SPLITTER = Splitter.on(',');
     private static final Splitter EQUAL_SIGN_SPLITTER = Splitter.on('=').limit(2);
 
-    public static <O, S extends State<O, S>> Predicate<State<O, S>> parse(StateManager<O, S> stateManager, String string) {
+    public static <O, S extends StateHolder<O, S>> Predicate<StateHolder<O, S>> parse(StateDefinition<O, S> stateManager, String string) {
         var map = new HashMap<Property<?>, Comparable<?>>();
         var parts = COMMA_SPLITTER.split(string).iterator();
 
@@ -34,7 +34,7 @@ public class VanillaBlockPropertiesPredicate {
                             }
 
                             entry = var2.next();
-                        } while (Objects.equals(state.get((Property) entry.getKey()), entry.getValue()));
+                        } while (Objects.equals(state.getValue((Property) entry.getKey()), entry.getValue()));
 
                         return false;
                     };
@@ -60,6 +60,6 @@ public class VanillaBlockPropertiesPredicate {
 
     @Nullable
     private static <T extends Comparable<T>> T parse(Property<T> property, String value) {
-        return property.parse(value).orElse(null);
+        return property.getValue(value).orElse(null);
     }
 }

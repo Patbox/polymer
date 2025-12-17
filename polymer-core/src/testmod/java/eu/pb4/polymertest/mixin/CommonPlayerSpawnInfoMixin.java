@@ -1,7 +1,7 @@
 package eu.pb4.polymertest.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.network.packet.s2c.play.CommonPlayerSpawnInfo;
+import net.minecraft.network.protocol.game.CommonPlayerSpawnInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;

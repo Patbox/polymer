@@ -5,24 +5,24 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.util.Identifier;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
-public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entry> stacksMain, List<Entry> stacksSearch) implements CustomPayload {
-    public static final CustomPayload.Id<PolymerItemGroupContentAddS2CPayload> ID = new CustomPayload.Id<>(S2CPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
-    public static final PacketCodec<ContextByteBuf, PolymerItemGroupContentAddS2CPayload> CODEC = PacketCodec.of(PolymerItemGroupContentAddS2CPayload::write, PolymerItemGroupContentAddS2CPayload::read);
-    public static PolymerItemGroupContentAddS2CPayload of(int version, ItemGroup group, ServerPlayNetworkHandler handler) {
+public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entry> stacksMain, List<Entry> stacksSearch) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<PolymerItemGroupContentAddS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
+    public static final StreamCodec<ContextByteBuf, PolymerItemGroupContentAddS2CPayload> CODEC = StreamCodec.ofMember(PolymerItemGroupContentAddS2CPayload::write, PolymerItemGroupContentAddS2CPayload::read);
+    public static PolymerItemGroupContentAddS2CPayload of(int version, CreativeModeTab group, ServerGamePacketListenerImpl handler) {
         List<Entry> entryMain;
         List<Entry> entrySearch;
 
@@ -40,13 +40,13 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
             entrySearch = List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, stackSearch));
 
             for (var item : contents.main()) {
-                if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(BuiltInRegistries.ITEM, item.getItem())) {
                     stackMain.add(item);
                 }
             }
 
             for (var item : contents.search()) {
-                if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+                if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(BuiltInRegistries.ITEM, item.getItem())) {
                     stackSearch.add(item);
                 }
             }
@@ -67,7 +67,7 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
 
         ItemStack previous = ItemStack.EMPTY;
         for (var item : main) {
-            if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(Registries.ITEM, item.getItem())) {
+            if (PolymerItemUtils.isPolymerServerItem(item, ctx) || PolymerImplUtils.isServerSideSyncableEntry(BuiltInRegistries.ITEM, item.getItem())) {
                 stacks.add(item);
             } else {
                 if (!stacks.isEmpty()) {
@@ -89,8 +89,8 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
         buf.writeIdentifier(this.groupId);
 
         if (buf.version() == 9) {
-            ItemStack.OPTIONAL_LIST_PACKET_CODEC.encode(buf, this.stacksMain.isEmpty() ? List.of() : this.stacksMain.getFirst().stacks());
-            ItemStack.OPTIONAL_LIST_PACKET_CODEC.encode(buf, this.stacksSearch.isEmpty() ? List.of() : this.stacksSearch.getFirst().stacks());
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC.encode(buf, this.stacksMain.isEmpty() ? List.of() : this.stacksMain.getFirst().stacks());
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC.encode(buf, this.stacksSearch.isEmpty() ? List.of() : this.stacksSearch.getFirst().stacks());
             return;
         }
 
@@ -105,8 +105,8 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
     public static PolymerItemGroupContentAddS2CPayload read(ContextByteBuf buf) {
         if (buf.version() == 9) {
             return new PolymerItemGroupContentAddS2CPayload(buf.readIdentifier(),
-                    List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, ItemStack.OPTIONAL_LIST_PACKET_CODEC.decode(buf))),
-                    List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, ItemStack.OPTIONAL_LIST_PACKET_CODEC.decode(buf)))
+                    List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, ItemStack.OPTIONAL_LIST_STREAM_CODEC.decode(buf))),
+                    List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, ItemStack.OPTIONAL_LIST_STREAM_CODEC.decode(buf)))
             );
         }
         return new PolymerItemGroupContentAddS2CPayload(buf.readIdentifier(),
@@ -116,32 +116,32 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 
     public record Entry(Mode mode, ItemStack relative, List<ItemStack> stacks) {
-        public static final PacketCodec<ContextByteBuf, Entry> PACKET_CODEC = PacketCodec.ofStatic(Entry::write, Entry::read);
+        public static final StreamCodec<ContextByteBuf, Entry> PACKET_CODEC = StreamCodec.of(Entry::write, Entry::read);
 
         private static Entry read(ContextByteBuf byteBuf) {
             var mode = Mode.values()[byteBuf.readVarInt()];
             var stack = ItemStack.EMPTY;
             if (mode == Mode.RELATIVE) {
-                stack = ItemStack.PACKET_CODEC.decode(byteBuf);
+                stack = ItemStack.STREAM_CODEC.decode(byteBuf);
             }
-            var list = ItemStack.OPTIONAL_LIST_PACKET_CODEC.decode(byteBuf);
+            var list = ItemStack.OPTIONAL_LIST_STREAM_CODEC.decode(byteBuf);
             return new Entry(mode, stack, list);
         }
 
         private static void write(ContextByteBuf byteBuf, Entry entry) {
             byteBuf.writeVarInt(entry.mode.ordinal());
             if (entry.mode == Mode.RELATIVE) {
-                ItemStack.PACKET_CODEC.encode(byteBuf, entry.relative);
+                ItemStack.STREAM_CODEC.encode(byteBuf, entry.relative);
             }
-            ItemStack.OPTIONAL_LIST_PACKET_CODEC.encode(byteBuf, entry.stacks);
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC.encode(byteBuf, entry.stacks);
         }
 
-        public static final PacketCodec<ContextByteBuf, List<Entry>> LIST_PACKET_CODEC = PACKET_CODEC.collect(PacketCodecs.toList());
+        public static final StreamCodec<ContextByteBuf, List<Entry>> LIST_PACKET_CODEC = PACKET_CODEC.apply(ByteBufCodecs.list());
     }
 
     public enum Mode {

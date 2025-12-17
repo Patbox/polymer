@@ -1,12 +1,10 @@
 package eu.pb4.polymer.networking.impl;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-
 import java.util.Map;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 
 public interface ExtCustomPayloadCodec {
-    void polymer$setCodecMap(Map<Identifier, PacketCodec<ByteBuf, ?>> codecs);
+    void polymer$setCodecMap(Map<Identifier, StreamCodec<ByteBuf, ?>> codecs);
 }

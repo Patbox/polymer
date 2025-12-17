@@ -7,27 +7,26 @@ import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.block.WorldChunkAccessor;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.chunk.WorldChunk;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class ChunkAttachment implements HolderAttachment {
     private final ElementHolder holder;
-    private final WorldChunk chunk;
-    protected Vec3d pos;
+    private final LevelChunk chunk;
+    protected Vec3 pos;
     private final boolean autoTick;
     private volatile boolean removed = false;
 
-    public ChunkAttachment(ElementHolder holder, WorldChunk chunk, Vec3d position, boolean autoTick) {
+    public ChunkAttachment(ElementHolder holder, LevelChunk chunk, Vec3 position, boolean autoTick) {
         this.chunk = chunk;
         this.pos = position;
         this.holder = holder;
@@ -40,32 +39,32 @@ public class ChunkAttachment implements HolderAttachment {
         this.holder.setAttachment(this);
     }
 
-    public static HolderAttachment of(ElementHolder holder, ServerWorld world, BlockPos pos) {
-        return of(holder, world, Vec3d.ofCenter(pos));
+    public static HolderAttachment of(ElementHolder holder, ServerLevel world, BlockPos pos) {
+        return of(holder, world, Vec3.atCenterOf(pos));
     }
 
-    public static HolderAttachment ofTicking(ElementHolder holder, ServerWorld world, BlockPos pos) {
-        return ofTicking(holder, world, Vec3d.ofCenter(pos));
+    public static HolderAttachment ofTicking(ElementHolder holder, ServerLevel world, BlockPos pos) {
+        return ofTicking(holder, world, Vec3.atCenterOf(pos));
     }
 
-    public static HolderAttachment of(ElementHolder holder, ServerWorld world, Vec3d pos) {
-        var chunk = world.getChunk(BlockPos.ofFloored(pos));
+    public static HolderAttachment of(ElementHolder holder, ServerLevel world, Vec3 pos) {
+        var chunk = world.getChunk(BlockPos.containing(pos));
 
-        if (chunk instanceof WorldChunk chunk1) {
+        if (chunk instanceof LevelChunk chunk1) {
             return new ChunkAttachment(holder, chunk1, pos, false);
         } else {
-            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + BlockPos.ofFloored(pos).toShortString() + ", but it isn't loaded!", new NullPointerException());
+            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + BlockPos.containing(pos).toShortString() + ", but it isn't loaded!", new NullPointerException());
             return new ManualAttachment(holder, world, () -> pos);
         }
     }
 
-    public static HolderAttachment ofTicking(ElementHolder holder, ServerWorld world, Vec3d pos) {
-        var chunk = world.getChunk(BlockPos.ofFloored(pos));
+    public static HolderAttachment ofTicking(ElementHolder holder, ServerLevel world, Vec3 pos) {
+        var chunk = world.getChunk(BlockPos.containing(pos));
 
-        if (chunk instanceof WorldChunk chunk1) {
+        if (chunk instanceof LevelChunk chunk1) {
             return new ChunkAttachment(holder, chunk1, pos, true);
         } else {
-            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + BlockPos.ofFloored(pos).toShortString() + ", but it isn't loaded!", new NullPointerException());
+            CommonImpl.LOGGER.warn("Some mod tried to attach to chunk at " + BlockPos.containing(pos).toShortString() + ", but it isn't loaded!", new NullPointerException());
             return new ManualAttachment(holder, world, () -> pos);
         }
     }
@@ -100,13 +99,13 @@ public class ChunkAttachment implements HolderAttachment {
     }
 
     @Override
-    public void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking) {
-        if (this.removed || !((WorldChunkAccessor) chunk).isLoadedToWorld()) return;
+    public void updateCurrentlyTracking(Collection<ServerGamePacketListenerImpl> currentlyTracking) {
+        if (this.removed || !((WorldChunkAccessor) chunk).isLoaded()) return;
 
-        List<ServerPlayNetworkHandler> watching = new ArrayList<>();
+        List<ServerGamePacketListenerImpl> watching = new ArrayList<>();
 
-        for (ServerPlayerEntity x : getPlayersWatchingChunk(chunk)) {
-            ServerPlayNetworkHandler networkHandler = x.networkHandler;
+        for (ServerPlayer x : getPlayersWatchingChunk(chunk)) {
+            ServerGamePacketListenerImpl networkHandler = x.connection;
             watching.add(networkHandler);
         }
 
@@ -117,37 +116,37 @@ public class ChunkAttachment implements HolderAttachment {
         }
 
         for (var x : watching) {
-            this.holder.startWatching(x.getPlayer().networkHandler);
+            this.holder.startWatching(x.getPlayer().connection);
         }
     }
 
-    private static List<ServerPlayerEntity> getPlayersWatchingChunk(WorldChunk chunk) {
+    private static List<ServerPlayer> getPlayersWatchingChunk(LevelChunk chunk) {
         if (CompatStatus.IMMERSIVE_PORTALS) {
             return ImmersivePortalsUtils.getPlayerTracking(chunk);
         } else {
-            return ((ServerChunkManager) chunk.getWorld().getChunkManager()).chunkLoadingManager.getPlayersWatchingChunk(chunk.getPos(), false);
+            return ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false);
         }
     }
 
     @Override
-    public void updateTracking(ServerPlayNetworkHandler tracking) {
+    public void updateTracking(ServerGamePacketListenerImpl tracking) {
         if (this.removed) return;
-        if (tracking.player.isDead() || !VirtualEntityUtils.isPlayerTracking(tracking.getPlayer(), this.chunk)) {
+        if (tracking.player.isDeadOrDying() || !VirtualEntityUtils.isPlayerTracking(tracking.getPlayer(), this.chunk)) {
             this.stopWatching(tracking);
         }
     }
 
     @Override
-    public Vec3d getPos() {
+    public Vec3 getPos() {
         return this.pos;
     }
 
     @Override
-    public ServerWorld getWorld() {
-        return (ServerWorld) this.chunk.getWorld();
+    public ServerLevel getWorld() {
+        return (ServerLevel) this.chunk.getLevel();
     }
 
-    public WorldChunk getChunk() {
+    public LevelChunk getChunk() {
         return this.chunk;
     }
 

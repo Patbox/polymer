@@ -9,17 +9,17 @@ import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.PairComponent;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,12 +71,12 @@ public class WthitCompatibility implements IWailaClientPlugin {
 
                 var itemStack = block.block().displayStack();
                 if (itemStack.isEmpty()) {
-                    itemStack = state.getPickStack(accessor.getWorld(), accessor.getPosition(), false);
+                    itemStack = state.getCloneItemStack(accessor.getWorld(), accessor.getPosition(), false);
                     if (!itemStack.isEmpty() && state.hasBlockEntity()) {
                         var blockEntity = accessor.getWorld().getBlockEntity(accessor.getPosition());
 
                         if (blockEntity != null) {
-                            itemStack.applyComponentsFrom(blockEntity.getComponents());
+                            itemStack.applyComponents(blockEntity.components());
                         }
                     }
                 }
@@ -105,8 +105,8 @@ public class WthitCompatibility implements IWailaClientPlugin {
                 if (block != ClientPolymerBlock.NONE_STATE) {
                     for (var state : block.states().entrySet()) {
                         var value = state.getValue();
-                        var valueText = Text.literal(value).setStyle(Style.EMPTY.withColor(value.equals("true") ? Formatting.GREEN : value.equals("false") ? Formatting.RED : Formatting.RESET));
-                        tooltip.addLine(new PairComponent(Text.literal(state.getKey()), valueText));
+                        var valueText = Component.literal(value).setStyle(Style.EMPTY.withColor(value.equals("true") ? ChatFormatting.GREEN : value.equals("false") ? ChatFormatting.RED : ChatFormatting.RESET));
+                        tooltip.addLine(new PairComponent(Component.literal(state.getKey()), valueText));
                     }
                 }
             }
@@ -136,7 +136,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
         public void appendHead(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_REGISTRY)) {
 
-                var stack = accessor.<ItemEntity>getEntity().getStack();
+                var stack = accessor.<ItemEntity>getEntity().getItem();
                 var id = PolymerItemUtils.getServerIdentifier(stack);
 
                 if (id != null) {
@@ -150,11 +150,11 @@ public class WthitCompatibility implements IWailaClientPlugin {
         @Override
         public void appendTail(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
-                var stack = accessor.<ItemEntity>getEntity().getStack();
+                var stack = accessor.<ItemEntity>getEntity().getItem();
                 var id = PolymerItemUtils.getServerIdentifier(stack);
                 if (id != null) {
                     String modName = null;
-                    var regBlock = Registries.ITEM.get(id);
+                    var regBlock = BuiltInRegistries.ITEM.getValue(id);
                     if (regBlock != null && regBlock != Items.AIR) {
                         modName = IModInfo.get(regBlock).getName();
                     }
@@ -198,7 +198,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
                 var type = PolymerClientUtils.getEntityType(accessor.<ItemEntity>getEntity());
                 if (type != null) {
                     String modName = null;
-                    var regBlock = Registries.ENTITY_TYPE.get(type.identifier());
+                    var regBlock = BuiltInRegistries.ENTITY_TYPE.getValue(type.identifier());
                     if (regBlock != null) {
                         modName = IModInfo.get(InternalEntityHelpers.getEntity(regBlock)).getName();
                     }

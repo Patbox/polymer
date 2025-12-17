@@ -1,6 +1,6 @@
 package eu.pb4.polymer.blocks.api;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public record PolymerBlockModel(Identifier model, int x, int y, boolean uvLock, int weight) {
     public static PolymerBlockModel of(Identifier model) {

@@ -1,20 +1,19 @@
 package eu.pb4.polymer.virtualentity.api.attachment;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Supplier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.phys.Vec3;
 
 public final class ManualAttachment implements HolderAttachment {
     private final ElementHolder holder;
-    private final ServerWorld world;
-    private final Supplier<Vec3d> posSupplier;
+    private final ServerLevel world;
+    private final Supplier<Vec3> posSupplier;
 
-    public ManualAttachment(ElementHolder holder, ServerWorld world, Supplier<Vec3d> posSupplier) {
+    public ManualAttachment(ElementHolder holder, ServerLevel world, Supplier<Vec3> posSupplier) {
         this.holder = holder;
         this.world = world;
         this.posSupplier = posSupplier;
@@ -29,21 +28,21 @@ public final class ManualAttachment implements HolderAttachment {
     }
 
     @Override
-    public Vec3d getPos() {
+    public Vec3 getPos() {
         return this.posSupplier.get();
     }
 
     @Override
-    public ServerWorld getWorld() {
+    public ServerLevel getWorld() {
         return this.world;
     }
 
     @Override
-    public void updateCurrentlyTracking(Collection<ServerPlayNetworkHandler> currentlyTracking) {
+    public void updateCurrentlyTracking(Collection<ServerGamePacketListenerImpl> currentlyTracking) {
     }
 
     @Override
-    public void updateTracking(ServerPlayNetworkHandler tracking) {
+    public void updateTracking(ServerGamePacketListenerImpl tracking) {
     }
 
     @Override
@@ -51,11 +50,11 @@ public final class ManualAttachment implements HolderAttachment {
         return holder;
     }
 
-    public ServerWorld world() {
+    public ServerLevel world() {
         return world;
     }
 
-    public Supplier<Vec3d> posSupplier() {
+    public Supplier<Vec3> posSupplier() {
         return posSupplier;
     }
 

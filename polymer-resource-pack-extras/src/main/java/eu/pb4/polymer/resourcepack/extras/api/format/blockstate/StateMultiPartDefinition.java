@@ -6,12 +6,11 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.dynamic.Codecs;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.StringRepresentable;
 
 public record StateMultiPartDefinition(Optional<Condition> when, List<StateModelVariant> apply) {
     public static final Codec<StateMultiPartDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -25,7 +24,7 @@ public record StateMultiPartDefinition(Optional<Condition> when, List<StateModel
         Codec<Condition> CODEC = Codec.recursive(
                 "condition",
                 self -> {
-                    Codec<CombinedCondition> combinerCodec = Codec.simpleMap(CombinedCondition.Operation.CODEC, self.listOf(), StringIdentifiable.toKeyable(CombinedCondition.Operation.values()))
+                    Codec<CombinedCondition> combinerCodec = Codec.simpleMap(CombinedCondition.Operation.CODEC, self.listOf(), StringRepresentable.keys(CombinedCondition.Operation.values()))
                             .codec()
                             .comapFlatMap(map -> {
                                 if (map.size() != 1) {
@@ -50,11 +49,11 @@ public record StateMultiPartDefinition(Optional<Condition> when, List<StateModel
     }
 
     public record CombinedCondition(CombinedCondition.Operation operation, List<Condition> terms) implements Condition {
-        public enum Operation implements StringIdentifiable {
+        public enum Operation implements StringRepresentable {
             AND("AND"),
             OR("OR");
 
-            public static final Codec<CombinedCondition.Operation> CODEC = StringIdentifiable.createCodec(CombinedCondition.Operation::values);
+            public static final Codec<CombinedCondition.Operation> CODEC = StringRepresentable.fromEnum(CombinedCondition.Operation::values);
             private final String name;
 
             Operation(final String name) {
@@ -62,14 +61,14 @@ public record StateMultiPartDefinition(Optional<Condition> when, List<StateModel
             }
 
             @Override
-            public String asString() {
+            public String getSerializedName() {
                 return this.name;
             }
         }
     }
 
     public record KeyValueCondition(Map<String, KeyValueCondition.Terms> tests) implements Condition {
-        public static final Codec<KeyValueCondition> CODEC = Codecs.nonEmptyMap(Codec.unboundedMap(Codec.STRING, KeyValueCondition.Terms.CODEC))
+        public static final Codec<KeyValueCondition> CODEC = ExtraCodecs.nonEmptyMap(Codec.unboundedMap(Codec.STRING, KeyValueCondition.Terms.CODEC))
                 .xmap(KeyValueCondition::new, KeyValueCondition::tests);
 
         public record Term(String value, boolean negated) {

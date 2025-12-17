@@ -1,0 +1,19 @@
+package eu.pb4.polymer.core.impl.interfaces;
+
+import org.jetbrains.annotations.ApiStatus;
+
+import java.util.Collection;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+@ApiStatus.Internal
+public interface PolymerIdMapper<T> {
+    void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker, Function<T, String> name);
+    Collection<T> polymer$getPolymerEntries();
+    int polymer$getOffset();
+    void polymer$clear();
+
+    int polymer$getNonPolymerBitCount();
+    int polymer$getVanillaBitCount();
+    void polymer$reorderEntries();
+}

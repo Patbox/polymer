@@ -4,12 +4,10 @@ import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import net.minecraft.SharedConstants;
-import net.minecraft.resource.PackVersion;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.metadata.PackResourceMetadata;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.dynamic.Range;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.util.InclusiveRange;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -30,7 +28,7 @@ public final class ResourcePackCreator {
     private final Set<String> modIds = new HashSet<>();
     private final Set<String> modIdsNoCopy = new HashSet<>();
     private final Set<Path> sourcePaths = new HashSet<>();
-    private Text packDescription = null;
+    private Component packDescription = null;
     private byte[] packIcon = null;
 
     ResourcePackCreator() {
@@ -92,7 +90,7 @@ public final class ResourcePackCreator {
     }
 
     @Nullable
-    public Text getPackDescription() {
+    public Component getPackDescription() {
         return this.packDescription;
     }
 
@@ -102,7 +100,7 @@ public final class ResourcePackCreator {
      * @param description new description
      */
     public void setPackDescription(String description) {
-        this.packDescription = Text.literal(description);
+        this.packDescription = Component.literal(description);
     }
 
     /**
@@ -110,7 +108,7 @@ public final class ResourcePackCreator {
      *
      * @param description new description
      */
-    public void setPackDescription(Text description) {
+    public void setPackDescription(Component description) {
         this.packDescription = description;
     }
 
@@ -158,8 +156,8 @@ public final class ResourcePackCreator {
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {
-            builder.getPackMcMetaBuilder().metadata(new PackResourceMetadata(this.packDescription,
-                    new Range<>(SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES))));
+            builder.getPackMcMetaBuilder().metadata(new PackMetadataSection(this.packDescription,
+                    new InclusiveRange<>(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES))));
         }
 
 

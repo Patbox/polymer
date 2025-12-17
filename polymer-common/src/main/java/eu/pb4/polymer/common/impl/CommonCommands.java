@@ -4,14 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.net.URI;
@@ -20,64 +12,72 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
 
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
 public class CommonCommands {
-    public static final List<BiConsumer<LiteralArgumentBuilder<ServerCommandSource>, CommandRegistryAccess>> COMMANDS_DEV = new ArrayList<>();
-    public static final List<BiConsumer<LiteralArgumentBuilder<ServerCommandSource>, CommandRegistryAccess>> COMMANDS = new ArrayList<>();
-    private static final Text[] ABOUT_PLAYER;
-    private static final Text[] ABOUT_COLORLESS;
+    public static final List<BiConsumer<LiteralArgumentBuilder<CommandSourceStack>, CommandBuildContext>> COMMANDS_DEV = new ArrayList<>();
+    public static final List<BiConsumer<LiteralArgumentBuilder<CommandSourceStack>, CommandBuildContext>> COMMANDS = new ArrayList<>();
+    private static final Component[] ABOUT_PLAYER;
+    private static final Component[] ABOUT_COLORLESS;
 
     static {
-        var about = new ArrayList<Text>();
-        var extraData = Text.empty();
+        var about = new ArrayList<Component>();
+        var extraData = Component.empty();
         try {
-            extraData.append(Text.literal("[")
-                    .append(Text.literal("Contributors")
-                            .setStyle(Style.EMPTY.withColor(Formatting.AQUA)
+            extraData.append(Component.literal("[")
+                    .append(Component.literal("Contributors")
+                            .setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA)
                                     .withHoverEvent(new HoverEvent.ShowText(
-                                            Text.literal(String.join("\n", CommonImpl.CONTRIBUTORS))
+                                            Component.literal(String.join("\n", CommonImpl.CONTRIBUTORS))
                                     ))
                             ))
                     .append("] ")
-            ).append(Text.literal("[")
-                    .append(Text.literal("GitHub")
-                            .setStyle(Style.EMPTY.withColor(Formatting.BLUE).withUnderline(true)
+            ).append(Component.literal("[")
+                    .append(Component.literal("GitHub")
+                            .setStyle(Style.EMPTY.withColor(ChatFormatting.BLUE).withUnderlined(true)
                                     .withClickEvent(new ClickEvent.OpenUrl(URI.create(CommonImpl.GITHUB_URL)))
                                     .withHoverEvent(new HoverEvent.ShowText(
-                                            Text.literal(CommonImpl.GITHUB_URL)
+                                            Component.literal(CommonImpl.GITHUB_URL)
                                     ))
                             ))
-                    .append("]")).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY));
+                    .append("]")).setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY));
 
-            about.add(Text.empty()
-                    .append(Text.literal("Polymer ").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true)))
-                    .append(Text.literal(CommonImpl.VERSION).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
+            about.add(Component.empty()
+                    .append(Component.literal("Polymer ").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true)))
+                    .append(Component.literal(CommonImpl.VERSION).setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))));
 
-            about.add(Text.literal("» " + CommonImpl.DESCRIPTION).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+            about.add(Component.literal("» " + CommonImpl.DESCRIPTION).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 
             about.add(extraData);
         } catch (Throwable e) {
             e.printStackTrace();
         }
 
-        ABOUT_COLORLESS = about.toArray(new Text[0]);
+        ABOUT_COLORLESS = about.toArray(new Component[0]);
 
         if (CommonImpl.MINIMAL_ABOUT || CommonImplUtils.ICON.length == 0) {
             ABOUT_PLAYER = ABOUT_COLORLESS;
         } else {
-            var output = new ArrayList<Text>();
+            var output = new ArrayList<Component>();
             about.clear();
             try {
-                about.add(Text.literal("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true).withClickEvent(new ClickEvent.OpenUrl(URI.create(CommonImpl.GITHUB_URL)))));
-                about.add(Text.literal("Version: ").setStyle(Style.EMPTY.withColor(0xf7e1a7))
-                        .append(Text.literal(CommonImpl.VERSION).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
+                about.add(Component.literal("Polymer").setStyle(Style.EMPTY.withColor(0xb4ff90).withBold(true).withClickEvent(new ClickEvent.OpenUrl(URI.create(CommonImpl.GITHUB_URL)))));
+                about.add(Component.literal("Version: ").setStyle(Style.EMPTY.withColor(0xf7e1a7))
+                        .append(Component.literal(CommonImpl.VERSION).setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))));
 
                 about.add(extraData);
-                about.add(Text.empty());
+                about.add(Component.empty());
 
                 var desc = new ArrayList<>(List.of(CommonImpl.DESCRIPTION.split(" ")));
 
@@ -87,13 +87,13 @@ public class CommonCommands {
                         (descPart.isEmpty() ? descPart : descPart.append(" ")).append(desc.remove(0));
 
                         if (descPart.length() > 16) {
-                            about.add(Text.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                            about.add(Component.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
                             descPart = new StringBuilder();
                         }
                     }
 
                     if (descPart.length() > 0) {
-                        about.add(Text.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                        about.add(Component.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
                     }
                 }
 
@@ -112,17 +112,17 @@ public class CommonCommands {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                var invalid = Text.literal("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
+                var invalid = Component.literal("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
 
                 output.add(invalid);
                 about.add(invalid);
             }
 
-            ABOUT_PLAYER = output.toArray(new Text[0]);
+            ABOUT_PLAYER = output.toArray(new Component[0]);
         }
     }
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext access) {
         var command = literal("polymer")
                 .requires(CommonImplUtils.permission("command.core", CommonImpl.CORE_COMMAND_MINIMAL_OP))
                 .executes(CommonCommands::about);
@@ -140,7 +140,7 @@ public class CommonCommands {
             }
 
             dev.then(literal("is_bedrock").executes((ctx) -> {
-                ctx.getSource().sendFeedback(() -> Text.literal("Bedrock: " + PolymerCommonUtils.isBedrockPlayer(ctx.getSource().getPlayer())), false);
+                ctx.getSource().sendSuccess(() -> Component.literal("Bedrock: " + PolymerCommonUtils.isBedrockPlayer(ctx.getSource().getPlayer())), false);
                 return 0;
             }));
 
@@ -150,9 +150,9 @@ public class CommonCommands {
         dispatcher.register(command);
     }
 
-    private static int about(CommandContext<ServerCommandSource> context) {
-        for (var text : (context.getSource().getEntity() instanceof ServerPlayerEntity ? ABOUT_PLAYER : ABOUT_COLORLESS)) {
-            context.getSource().sendFeedback(() -> text, false);
+    private static int about(CommandContext<CommandSourceStack> context) {
+        for (var text : (context.getSource().getEntity() instanceof ServerPlayer ? ABOUT_PLAYER : ABOUT_COLORLESS)) {
+            context.getSource().sendSuccess(() -> text, false);
         }
 
         return 0;

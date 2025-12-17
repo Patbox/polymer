@@ -7,9 +7,9 @@ import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -38,7 +38,7 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     @Override
     public void serverStarted(MinecraftServer server) {
         try {
-            PolymerResourcePackMod.generateAndCall(server, true, server::sendMessage, () -> {});
+            PolymerResourcePackMod.generateAndCall(server, true, server::sendSystemMessage, () -> {});
         } catch (Throwable e) {
             CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
         }
@@ -50,7 +50,7 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     }
 
     @Override
-    public Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection) {
+    public Collection<MinecraftServer.ServerResourcePackInfo> getProperties(Connection connection) {
         return List.of();
     }
 

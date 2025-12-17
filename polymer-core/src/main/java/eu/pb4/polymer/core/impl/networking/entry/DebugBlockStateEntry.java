@@ -1,47 +1,47 @@
 package eu.pb4.polymer.core.impl.networking.entry;
 
 import eu.pb4.polymer.networking.api.ContextByteBuf;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 @ApiStatus.Internal
 public record DebugBlockStateEntry(Map<String, String> states, int numId, Identifier blockId) {
-    public static final PacketCodec<ContextByteBuf, DebugBlockStateEntry> CODEC = PacketCodec.of(DebugBlockStateEntry::write, DebugBlockStateEntry::read);
+    public static final StreamCodec<ContextByteBuf, DebugBlockStateEntry> CODEC = StreamCodec.ofMember(DebugBlockStateEntry::write, DebugBlockStateEntry::read);
 
 
-    public void write(PacketByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(numId);
         buf.writeIdentifier(blockId);
-        buf.writeMap(states, PacketByteBuf::writeString, PacketByteBuf::writeString);
+        buf.writeMap(states, FriendlyByteBuf::writeUtf, FriendlyByteBuf::writeUtf);
     }
 
-    public static DebugBlockStateEntry of(BlockState state, ServerPlayNetworkHandler player, int version) {
+    public static DebugBlockStateEntry of(BlockState state, ServerGamePacketListenerImpl player, int version) {
         var list = new HashMap<String, String>();
 
-        for (var entry : state.getEntries().entrySet()) {
-            list.put(entry.getKey().getName(), ((Property) entry.getKey()).name(entry.getValue()));
+        for (var entry : state.getValues().entrySet()) {
+            list.put(entry.getKey().getName(), ((Property) entry.getKey()).getName(entry.getValue()));
         }
 
         return new DebugBlockStateEntry(list,
-                Block.STATE_IDS.getRawId(state),
-                Registries.BLOCK.getId(state.getBlock())
+                Block.BLOCK_STATE_REGISTRY.getId(state),
+                BuiltInRegistries.BLOCK.getKey(state.getBlock())
         );
     }
 
-    public static DebugBlockStateEntry read(PacketByteBuf buf) {
+    public static DebugBlockStateEntry read(FriendlyByteBuf buf) {
         var numId = buf.readVarInt();
         var blockId = buf.readIdentifier();
-        var states = buf.readMap(PacketByteBuf::readString, PacketByteBuf::readString);
+        var states = buf.readMap(FriendlyByteBuf::readUtf, FriendlyByteBuf::readUtf);
         return new DebugBlockStateEntry(states, numId, blockId);
     }
 

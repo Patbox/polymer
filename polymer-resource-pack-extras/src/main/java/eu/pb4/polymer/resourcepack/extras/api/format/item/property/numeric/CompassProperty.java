@@ -3,7 +3,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.item.property.numeric;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
 public record CompassProperty(boolean wobble, Target target) implements NumericProperty {
     public static final MapCodec<CompassProperty> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -16,13 +16,13 @@ public record CompassProperty(boolean wobble, Target target) implements NumericP
         return CODEC;
     }
 
-    public enum Target implements StringIdentifiable {
+    public enum Target implements StringRepresentable {
         NONE("none"),
         LODESTONE("lodestone"),
         SPAWN("spawn"),
         RECOVERY("recovery");
 
-        public static final Codec<Target> CODEC = StringIdentifiable.createCodec(Target::values);
+        public static final Codec<Target> CODEC = StringRepresentable.fromEnum(Target::values);
         private final String name;
 
         Target(final String name) {
@@ -30,7 +30,7 @@ public record CompassProperty(boolean wobble, Target target) implements NumericP
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return this.name;
         }
     }

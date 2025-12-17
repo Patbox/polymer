@@ -1,13 +1,10 @@
 package eu.pb4.polymer.networking.api.server;
 
-import net.minecraft.client.network.ClientCommonNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 
 @FunctionalInterface
-public interface PolymerServerPacketHandler<H extends ServerCommonNetworkHandler, T extends CustomPayload> {
+public interface PolymerServerPacketHandler<H extends ServerCommonPacketListenerImpl, T extends CustomPacketPayload> {
     void onPacket(MinecraftServer server, H handler, T packet);
 }

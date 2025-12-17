@@ -5,10 +5,6 @@ import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.util.Pair;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,34 +19,38 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.Entity;
 
-@Mixin(EntityPassengersSetS2CPacket.class)
+@Mixin(ClientboundSetPassengersPacket.class)
 public class EntityPassengersSetS2CPacketMixin {
     @Shadow @Mutable
-    private int[] passengerIds;
+    private int[] passengers;
     @Unique
-    private final List<Pair<Collection<ServerPlayNetworkHandler>, IntList>> virtualPassengers = new ArrayList<>();
+    private final List<Tuple<Collection<ServerGamePacketListenerImpl>, IntList>> virtualPassengers = new ArrayList<>();
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;)V", at = @At(value = "TAIL"))
+    @Inject(method = "<init>(Lnet/minecraft/world/entity/Entity;)V", at = @At(value = "TAIL"))
     private void polymerVE$addExtraPassangers(Entity entity, CallbackInfo ci) {
         var virt = ((EntityExt) entity).polymerVE$getVirtualRidden();
         if (!virt.isEmpty()) {
-            var old = this.passengerIds;
-            this.passengerIds = Arrays.copyOf(this.passengerIds, old.length + virt.size());
+            var old = this.passengers;
+            this.passengers = Arrays.copyOf(this.passengers, old.length + virt.size());
             for (int i = 0; i < virt.size(); i++) {
-                this.passengerIds[i + old.length] = virt.getInt(i);
+                this.passengers[i + old.length] = virt.getInt(i);
             }
         }
 
         for (var holder : ((HolderAttachmentHolder) entity).polymerVE$getHolders()) {
             var x = holder.holder().getAttachedPassengerEntityIds();
             if (!x.isEmpty()) {
-                this.virtualPassengers.add(new Pair<>(holder.holder().getWatchingPlayers(), x));
+                this.virtualPassengers.add(new Tuple<>(holder.holder().getWatchingPlayers(), x));
             }
         }
     }
 
-    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeIntArray([I)Lnet/minecraft/network/PacketByteBuf;"))
+    @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;writeVarIntArray([I)Lnet/minecraft/network/FriendlyByteBuf;"))
     private int[] addDynamicPassengers(int[] a) {
         // This can be null due to Unsafe!
         //noinspection ConstantValue
@@ -65,8 +65,8 @@ public class EntityPassengersSetS2CPacketMixin {
         var arr = new IntArrayList(a);
 
         for (var x : this.virtualPassengers) {
-            if (x.getLeft().contains(player.getPlayer().networkHandler)) {
-                arr.addAll(x.getRight());
+            if (x.getA().contains(player.getPlayer().connection)) {
+                arr.addAll(x.getB());
             }
         }
 

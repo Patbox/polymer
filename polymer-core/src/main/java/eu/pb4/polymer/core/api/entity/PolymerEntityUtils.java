@@ -9,32 +9,32 @@ import eu.pb4.polymer.core.impl.entity.OneOfPolymerEntityConstructors;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.interfaces.PolymerEntityProvider;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
-import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
+import eu.pb4.polymer.core.mixin.block.packet.ServerMapAccessor;
 import eu.pb4.polymer.core.mixin.entity.EntityAccessor;
-import eu.pb4.polymer.core.mixin.entity.EntityTrackerAccessor;
-import eu.pb4.polymer.core.mixin.entity.PlayerListS2CPacketAccessor;
+import eu.pb4.polymer.core.mixin.entity.TrackedEntityAccessor;
+import eu.pb4.polymer.core.mixin.entity.ClientboundPlayerInfoUpdatePacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.village.VillagerProfession;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.item.ItemStack;
 
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
@@ -42,7 +42,7 @@ public final class PolymerEntityUtils {
     public static final BooleanEvent<PolymerEntityInteractionListener> POLYMER_ENTITY_INTERACTION_CHECK = new BooleanEvent<>();
 
     private static final Map<EntityType<?>, Function<Entity, PolymerEntity>> POLYMER_ENTITY_CONSTRUCTORS = new IdentityHashMap<>();
-    private static final Set<EntityAttribute> ENTITY_ATTRIBUTES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
+    private static final Set<Attribute> ENTITY_ATTRIBUTES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
     /**
      * Allows to get next free entity id you can use for networking
@@ -50,7 +50,7 @@ public final class PolymerEntityUtils {
      * @return free entity id
      */
     public static int requestFreeId() {
-        return EntityAccessor.getCURRENT_ID().incrementAndGet();
+        return EntityAccessor.getENTITY_COUNTER().incrementAndGet();
     }
 
     /**
@@ -64,24 +64,24 @@ public final class PolymerEntityUtils {
         }
 
         for (var type : types) {
-            PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
+            PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
         }
     }
 
     public static void registerType(EntityType<?> type, PolymerSyncedObject<EntityType<?>> syncedObject) {
         registerPolymerEntityConstructor(type, entity -> entity instanceof PolymerEntity polymerEntity ? polymerEntity : (context -> syncedObject.getPolymerReplacement(((Entity) entity).getType(), context)));
-        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, syncedObject);
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, syncedObject);
     }
 
     public static <T extends Entity> void registerOverlay(EntityType<T> type, Function<T, PolymerEntity> constructor) {
         registerPolymerEntityConstructor(type, constructor);
-        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
     }
 
     public static <T extends Entity> void registerOverlay(EntityType<T> type, PolymerSyncedObject<EntityType<?>> syncedObject, Function<T, PolymerEntity> constructor) {
         //noinspection unchecked
         registerPolymerEntityConstructor(type, constructor);
-        PolymerSyncedObject.setSyncedObject(Registries.ENTITY_TYPE, type, syncedObject);
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, syncedObject);
     }
 
     public static <T extends Entity> void registerPolymerEntityConstructor(EntityType<T> type, Function<T, @Nullable PolymerEntity> constructor) {
@@ -105,10 +105,10 @@ public final class PolymerEntityUtils {
      * Marks EntityAttribute as server-side only
      */
     @SafeVarargs
-    public static void registerAttribute(RegistryEntry<EntityAttribute>... attributes) {
+    public static void registerAttribute(Holder<Attribute>... attributes) {
         for (var type : attributes) {
             ENTITY_ATTRIBUTES.add(type.value());
-            RegistrySyncUtils.setServerEntry(Registries.ATTRIBUTE, type.value());
+            RegistrySyncUtils.setServerEntry(BuiltInRegistries.ATTRIBUTE, type.value());
         }
     }
 
@@ -119,12 +119,12 @@ public final class PolymerEntityUtils {
      * @param mapper object managing mapping to client compatible one
      */
     public static void registerProfession(VillagerProfession profession, PolymerSyncedObject<VillagerProfession> mapper) {
-        PolymerSyncedObject.setSyncedObject(Registries.VILLAGER_PROFESSION, profession, mapper);
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.VILLAGER_PROFESSION, profession, mapper);
     }
 
     @Nullable
     public static PolymerSyncedObject<VillagerProfession> getPolymerProfession(VillagerProfession profession) {
-        return PolymerSyncedObject.getSyncedObject(Registries.VILLAGER_PROFESSION, profession);
+        return PolymerSyncedObject.getSyncedObject(BuiltInRegistries.VILLAGER_PROFESSION, profession);
     }
 
     /**
@@ -133,10 +133,10 @@ public final class PolymerEntityUtils {
      * @param type EntityType
      */
     public static boolean isPolymerEntityType(EntityType<?> type) {
-        return PolymerSyncedObject.getSyncedObject(Registries.ENTITY_TYPE, type) != null;
+        return PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ENTITY_TYPE, type) != null;
     }
 
-    public static boolean isPolymerEntityAttribute(RegistryEntry<EntityAttribute> type) {
+    public static boolean isPolymerEntityAttribute(Holder<Attribute> type) {
         return ENTITY_ATTRIBUTES.contains(type.value());
     }
 
@@ -144,7 +144,7 @@ public final class PolymerEntityUtils {
      * @param type EntityType
      * @return Array of default DataTracker entries for entity type
      */
-    public static DataTracker.Entry<?>[] getDefaultTrackedData(EntityType<?> type) {
+    public static SynchedEntityData.DataItem<?>[] getDefaultTrackedData(EntityType<?> type) {
         return InternalEntityHelpers.getExampleTrackedDataOfEntityType(type);
     }
 
@@ -175,9 +175,9 @@ public final class PolymerEntityUtils {
     /**
      * @return Creates PlayerEntity spawn packet, that can be used by VirtualEntities
      */
-    public static PlayerListS2CPacket createMutablePlayerListPacket(EnumSet<PlayerListS2CPacket.Action> actions) {
-        var packet = new PlayerListS2CPacket(actions, List.of());
-        ((PlayerListS2CPacketAccessor) packet).setEntries(new ArrayList<>());
+    public static ClientboundPlayerInfoUpdatePacket createMutablePlayerListPacket(EnumSet<ClientboundPlayerInfoUpdatePacket.Action> actions) {
+        var packet = new ClientboundPlayerInfoUpdatePacket(actions, List.of());
+        ((ClientboundPlayerInfoUpdatePacketAccessor) packet).setEntries(new ArrayList<>());
         return packet;
     }
 
@@ -185,11 +185,11 @@ public final class PolymerEntityUtils {
         return packet instanceof EntityAttachedPacket;
     }
 
-    public static <T extends Packet<ClientPlayPacketListener>> T setEntityContext(T packet, Entity entity) {
+    public static <T extends Packet<ClientGamePacketListener>> T setEntityContext(T packet, Entity entity) {
         return EntityAttachedPacket.setIfEmpty(packet, entity);
     }
 
-    public static <T extends Packet<ClientPlayPacketListener>> T forceSetEntityContext(T packet, Entity entity) {
+    public static <T extends Packet<ClientGamePacketListener>> T forceSetEntityContext(T packet, Entity entity) {
         return EntityAttachedPacket.set(packet, entity);
     }
 
@@ -198,8 +198,8 @@ public final class PolymerEntityUtils {
         return EntityAttachedPacket.get(packet);
     }
 
-    public static void sendEntityType(ServerPlayerEntity player, int entityId, EntityType<?> entityType) {
-        PolymerServerProtocol.sendEntityInfo(player.networkHandler, entityId, entityType);
+    public static void sendEntityType(ServerPlayer player, int entityId, EntityType<?> entityType) {
+        PolymerServerProtocol.sendEntityInfo(player.connection, entityId, entityType);
     }
 
     public static void recreatePolymerEntity(Entity entity) {
@@ -211,33 +211,33 @@ public final class PolymerEntityUtils {
         ((PolymerEntityProvider) entity).polymer$setPolymerEntity(polymerEntity);
     }
 
-    public static void refreshEntity(ServerPlayerEntity player, Entity entity) {
-        if (entity.getEntityWorld() instanceof ServerWorld world) {
-            var tracker = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager).polymer$getEntityTrackers().get(entity.getId());
+    public static void refreshEntity(ServerPlayer player, Entity entity) {
+        if (entity.level() instanceof ServerLevel world) {
+            var tracker = ((ServerMapAccessor) world.getChunkSource().chunkMap).polymer$getEntityTrackers().get(entity.getId());
             if (tracker != null) {
-                tracker.stopTracking(player);
-                tracker.updateTrackedStatus(player);
+                tracker.removePlayer(player);
+                tracker.updatePlayer(player);
             }
         }
     }
 
     public static void refreshEntity(Entity entity) {
-        if (entity.getEntityWorld() instanceof ServerWorld world) {
-            var tracker = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager).polymer$getEntityTrackers().get(entity.getId());
+        if (entity.level() instanceof ServerLevel world) {
+            var tracker = ((ServerMapAccessor) world.getChunkSource().chunkMap).polymer$getEntityTrackers().get(entity.getId());
             if (tracker != null) {
-                for (var player : ((EntityTrackerAccessor) tracker).getListeners()) {
-                    ((EntityTrackerAccessor) tracker).getEntry().stopTracking(player.getPlayer());
-                    ((EntityTrackerAccessor) tracker).getEntry().startTracking(player.getPlayer());
+                for (var player : ((TrackedEntityAccessor) tracker).getSeenBy()) {
+                    ((TrackedEntityAccessor) tracker).getServerEntity().removePairing(player.getPlayer());
+                    ((TrackedEntityAccessor) tracker).getServerEntity().addPairing(player.getPlayer());
                 }
             }
         }
     }
 
-    public static boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, Entity entity, ActionResult actionResult) {
+    public static boolean isPolymerEntityInteraction(ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, Entity entity, InteractionResult actionResult) {
         var polymerEntity = PolymerEntity.get(entity);
         if (polymerEntity != null && polymerEntity.isPolymerEntityInteraction(player, hand, stack, world, actionResult)) {
             return true;
-        } else if (PolymerSyncedObject.getSyncedObject(Registries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult)) {
+        } else if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult)) {
             return true;
         }
 
@@ -256,7 +256,7 @@ public final class PolymerEntityUtils {
 
     @FunctionalInterface
     public interface PolymerEntityInteractionListener {
-        boolean isPolymerEntityInteraction(ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, Entity entity, ActionResult actionResult);
+        boolean isPolymerEntityInteraction(ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, Entity entity, InteractionResult actionResult);
     }
 }
 

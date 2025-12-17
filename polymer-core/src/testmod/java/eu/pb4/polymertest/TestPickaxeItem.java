@@ -1,18 +1,21 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
-import net.minecraft.item.*;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ToolMaterial;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
 public class TestPickaxeItem extends Item implements VanillaModeledPolymerItem {
 
-    public TestPickaxeItem(Item polymerItem, ToolMaterial material, int attackDamage, float attackSpeed, Settings settings) {
-        super(settings.tool(material, BlockTags.PICKAXE_MINEABLE, attackDamage, attackSpeed, 0));
+    public TestPickaxeItem(Item polymerItem, ToolMaterial material, int attackDamage, float attackSpeed, Properties settings) {
+        super(settings.tool(material, BlockTags.MINEABLE_WITH_PICKAXE, attackDamage, attackSpeed, 0));
     }
 
     @Override
@@ -23,12 +26,12 @@ public class TestPickaxeItem extends Item implements VanillaModeledPolymerItem {
 
     @Override
     public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
-        return Identifier.of("polymertest", "pickaxe");
+        return Identifier.fromNamespaceAndPath("polymertest", "pickaxe");
     }
 
     @Override
-    public void modifyClientTooltip(List<Text> tooltip, ItemStack stack, PacketContext context) {
-        tooltip.add(0, Text.literal("Hello"));
-        tooltip.add(Text.literal("World!"));
+    public void modifyClientTooltip(List<Component> tooltip, ItemStack stack, PacketContext context) {
+        tooltip.add(0, Component.literal("Hello"));
+        tooltip.add(Component.literal("World!"));
     }
 }

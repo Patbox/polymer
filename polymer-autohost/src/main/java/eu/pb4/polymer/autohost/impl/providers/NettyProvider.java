@@ -2,9 +2,9 @@ package eu.pb4.polymer.autohost.impl.providers;
 
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
-import eu.pb4.polymer.autohost.impl.ClientConnectionExt;
+import eu.pb4.polymer.autohost.impl.ConnectionExt;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
 
 public class NettyProvider extends AbstractProvider {
@@ -29,9 +29,9 @@ public class NettyProvider extends AbstractProvider {
     public void serverStopped(MinecraftServer server) {}
 
     @Override
-    protected String getAddress(ClientConnection connection, String file) {
+    protected String getAddress(Connection connection, String file) {
         if (this.config.forcedAddress.isEmpty()) {
-            return "http://" + ((ClientConnectionExt) connection).polymerAutoHost$getFullAddress() + "/eu.pb4.polymer.autohost/" + file;
+            return "http://" + ((ConnectionExt) connection).polymerAutoHost$getFullAddress() + "/eu.pb4.polymer.autohost/" + file;
         } else {
             return this.config.forcedAddress + "/eu.pb4.polymer.autohost/" + file;
         }

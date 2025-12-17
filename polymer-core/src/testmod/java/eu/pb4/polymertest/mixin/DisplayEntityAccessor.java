@@ -1,7 +1,7 @@
 package eu.pb4.polymertest.mixin;
 
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.world.entity.Display;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
@@ -9,35 +9,35 @@ import org.joml.Vector3fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(DisplayEntity.class)
+@Mixin(Display.class)
 public interface DisplayEntityAccessor {
     @Accessor
-    static TrackedData<Vector3fc> getTRANSLATION() {
+    static EntityDataAccessor<Vector3fc> getDATA_TRANSLATION_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Vector3fc> getSCALE() {
+    static EntityDataAccessor<Vector3fc> getDATA_SCALE_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Quaternionfc> getLEFT_ROTATION() {
+    static EntityDataAccessor<Quaternionfc> getDATA_LEFT_ROTATION_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Quaternionfc> getRIGHT_ROTATION() {
+    static EntityDataAccessor<Quaternionfc> getDATA_RIGHT_ROTATION_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Integer> getINTERPOLATION_DURATION() {
+    static EntityDataAccessor<Integer> getDATA_TRANSFORMATION_INTERPOLATION_DURATION_ID() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor
-    static TrackedData<Integer> getBRIGHTNESS() {
+    static EntityDataAccessor<Integer> getDATA_BRIGHTNESS_OVERRIDE_ID() {
         throw new UnsupportedOperationException();
     }
 }

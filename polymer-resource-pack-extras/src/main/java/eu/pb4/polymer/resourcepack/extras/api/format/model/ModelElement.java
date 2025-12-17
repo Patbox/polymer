@@ -4,53 +4,52 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.common.impl.SortedMapCodec;
 import it.unimi.dsi.fastutil.floats.FloatList;
-import net.minecraft.util.dynamic.Codecs;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.core.Direction;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
-public record ModelElement(Vec3d from, Vec3d to, Map<Direction, Face> faces, Optional<Rotation> rotation,
+public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optional<Rotation> rotation,
                            boolean shade, int lightEmission) {
     public static final Codec<ModelElement> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Vec3d.CODEC.fieldOf("from").forGetter(ModelElement::from),
-            Vec3d.CODEC.fieldOf("to").forGetter(ModelElement::to),
+            Vec3.CODEC.fieldOf("from").forGetter(ModelElement::from),
+            Vec3.CODEC.fieldOf("to").forGetter(ModelElement::to),
             SortedMapCodec.of(Direction.CODEC, Face.CODEC).optionalFieldOf("faces", Map.of()).forGetter(ModelElement::faces),
             Rotation.CODEC.optionalFieldOf("rotation").forGetter(ModelElement::rotation),
             Codec.BOOL.optionalFieldOf("shade", true).forGetter(ModelElement::shade),
-            Codecs.rangedInt(0, 15).optionalFieldOf("light_emission", 0).forGetter(ModelElement::lightEmission)
+            ExtraCodecs.intRange(0, 15).optionalFieldOf("light_emission", 0).forGetter(ModelElement::lightEmission)
     ).apply(instance, ModelElement::new));
 
-    public ModelElement(Vec3d from, Vec3d to, Map<Direction, Face> faces, Optional<Rotation> rotation,
+    public ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optional<Rotation> rotation,
                         boolean shade) {
         this(from, to, faces, rotation, shade, 0);
     }
-    public ModelElement(Vec3d from, Vec3d to, Map<Direction, Face> faces, Optional<Rotation> rotation) {
+    public ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optional<Rotation> rotation) {
         this(from, to, faces, rotation, true, 0);
     }
 
-    public ModelElement(Vec3d from, Vec3d to, Map<Direction, Face> faces) {
+    public ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces) {
         this(from, to, faces, Optional.empty(), true, 0);
     }
 
-    public record Rotation(Vec3d origin, Direction.Axis axis, float angle, boolean rescale) {
+    public record Rotation(Vec3 origin, Direction.Axis axis, float angle, boolean rescale) {
         public static final Codec<Rotation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Vec3d.CODEC.optionalFieldOf("origin", Vec3d.ZERO).forGetter(Rotation::origin),
+                Vec3.CODEC.optionalFieldOf("origin", Vec3.ZERO).forGetter(Rotation::origin),
                 Direction.Axis.CODEC.fieldOf("axis").forGetter(Rotation::axis),
                 Codec.FLOAT.fieldOf("angle").forGetter(Rotation::angle),
                 Codec.BOOL.optionalFieldOf("rescale", false).forGetter(Rotation::rescale)
         ).apply(instance, Rotation::new));
 
-        public Rotation(Vec3d origin, Direction.Axis axis, float angle) {
+        public Rotation(Vec3 origin, Direction.Axis axis, float angle) {
             this(origin, axis, angle, false);
         }
 
         public Rotation(Direction.Axis axis, float angle) {
-            this(Vec3d.ZERO, axis, angle, false);
+            this(Vec3.ZERO, axis, angle, false);
         }
     }
 
@@ -86,29 +85,29 @@ public record ModelElement(Vec3d from, Vec3d to, Map<Direction, Face> faces, Opt
         }
     }
 
-    public static Builder builder(Vec3d from, Vec3d to) {
+    public static Builder builder(Vec3 from, Vec3 to) {
         return new Builder(from, to);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class Builder {
-        private final Vec3d from;
-        private final Vec3d to;
+        private final Vec3 from;
+        private final Vec3 to;
         private final Map<Direction, Face> faces = new EnumMap<>(Direction.class);
         private Optional<Rotation> rotation = Optional.empty();
         private boolean shade = true;
         private int lightEmission = 0;
 
-        private Builder(Vec3d from, Vec3d to) {
+        private Builder(Vec3 from, Vec3 to) {
             this.from = from;
             this.to = to;
         }
 
-        public Builder rotation(Vec3d origin, Direction.Axis axis, float angle, boolean rescale) {
+        public Builder rotation(Vec3 origin, Direction.Axis axis, float angle, boolean rescale) {
             return this.rotation(new Rotation(origin, axis, angle, rescale));
         }
 
-        public Builder rotation(Vec3d origin, Direction.Axis axis, float angle) {
+        public Builder rotation(Vec3 origin, Direction.Axis axis, float angle) {
             return this.rotation(new Rotation(origin, axis, angle));
         }
 
@@ -164,7 +163,7 @@ public record ModelElement(Vec3d from, Vec3d to, Map<Direction, Face> faces, Opt
         }
 
         public Builder lightEmission(int lightEmission) {
-            this.lightEmission = MathHelper.clamp(lightEmission, 0, 15);
+            this.lightEmission = Mth.clamp(lightEmission, 0, 15);
             return this;
         }
 

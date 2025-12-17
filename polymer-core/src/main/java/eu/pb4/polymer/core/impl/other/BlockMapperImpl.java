@@ -4,18 +4,18 @@ import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.Registries;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockMapperImpl {
     public static final BlockMapper DEFAULT = new BlockMapper() {
         @Override
         public BlockState toClientSideState(BlockState state, PacketContext player) {
-            return PolymerSyncedObject.getSyncedObject(Registries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock ? PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player) : state;
+            return PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock ? PolymerBlockUtils.getBlockStateSafely(polymerBlock, state, player) : state;
         }
 
         @Override
@@ -29,7 +29,7 @@ public class BlockMapperImpl {
             @Override
             public BlockState toClientSideState(BlockState state, PacketContext player) {
                 var clientState = blockStateMap.get(state);
-                return clientState != null ? DEFAULT.toClientSideState(clientState, player) : Blocks.AIR.getDefaultState();
+                return clientState != null ? DEFAULT.toClientSideState(clientState, player) : Blocks.AIR.defaultBlockState();
             }
 
             @Override

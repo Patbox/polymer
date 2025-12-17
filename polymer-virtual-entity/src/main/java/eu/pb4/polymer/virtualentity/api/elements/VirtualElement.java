@@ -2,18 +2,18 @@ package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.PickItemFromEntityC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundPickItemFromEntityPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public interface VirtualElement {
     IntList getEntityIds();
@@ -24,35 +24,35 @@ public interface VirtualElement {
     @Nullable
     ElementHolder getHolder();
 
-    Vec3d getOffset();
-    void setOffset(Vec3d vec3d);
+    Vec3 getOffset();
+    void setOffset(Vec3 vec3d);
     @Nullable
-    default Vec3d getOverridePos() {
+    default Vec3 getOverridePos() {
         return null;
     }
 
     @Nullable
-    default void setOverridePos(Vec3d vec3d) {};
+    default void setOverridePos(Vec3 vec3d) {};
 
-    default Vec3d getCurrentPos() {
+    default Vec3 getCurrentPos() {
         var pos = this.getOverridePos();
-        return pos != null ? pos : (this.getHolder() != null ? this.getHolder().getPos().add(this.getOffset()) : Vec3d.ZERO);
+        return pos != null ? pos : (this.getHolder() != null ? this.getHolder().getPos().add(this.getOffset()) : Vec3.ZERO);
     }
 
 
     @Nullable
-    default Vec3d getLastSyncedPos() {
+    default Vec3 getLastSyncedPos() {
         return this.getCurrentPos();
     }
 
-    void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer);
-    void stopWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer);
-    void notifyMove(Vec3d oldPos, Vec3d currentPos, Vec3d delta);
+    void startWatching(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer);
+    void stopWatching(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer);
+    void notifyMove(Vec3 oldPos, Vec3 currentPos, Vec3 delta);
     void tick();
 
-    InteractionHandler getInteractionHandler(ServerPlayerEntity player);
+    InteractionHandler getInteractionHandler(ServerPlayer player);
 
-    default void setInitialPosition(Vec3d newPos) {
+    default void setInitialPosition(Vec3 newPos) {
     }
 
     interface InteractionHandler {
@@ -61,30 +61,30 @@ public interface VirtualElement {
         static InteractionHandler redirect(Entity redirectedEntity) {
             return new InteractionHandler() {
                 @Override
-                public void interact(ServerPlayerEntity player, Hand hand) {
-                    player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.interact(redirectedEntity, player.isSneaking(), hand));
+                public void interact(ServerPlayer player, InteractionHand hand) {
+                    player.connection.handleInteract(ServerboundInteractPacket.createInteractionPacket(redirectedEntity, player.isShiftKeyDown(), hand));
                 }
 
                 @Override
-                public void interactAt(ServerPlayerEntity player, Hand hand, Vec3d pos) {
-                    player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.interactAt(redirectedEntity, player.isSneaking(), hand, pos));
+                public void interactAt(ServerPlayer player, InteractionHand hand, Vec3 pos) {
+                    player.connection.handleInteract(ServerboundInteractPacket.createInteractionPacket(redirectedEntity, player.isShiftKeyDown(), hand, pos));
                 }
 
                 @Override
-                public void attack(ServerPlayerEntity player) {
-                    player.networkHandler.onPlayerInteractEntity(PlayerInteractEntityC2SPacket.attack(redirectedEntity, player.isSneaking()));
+                public void attack(ServerPlayer player) {
+                    player.connection.handleInteract(ServerboundInteractPacket.createAttackPacket(redirectedEntity, player.isShiftKeyDown()));
                 }
 
                 @Override
-                public void pickItem(ServerPlayerEntity player, boolean includeData) {
-                    player.networkHandler.onPickItemFromEntity(new PickItemFromEntityC2SPacket(redirectedEntity.getId(), includeData));
+                public void pickItem(ServerPlayer player, boolean includeData) {
+                    player.connection.handlePickItemFromEntity(new ServerboundPickItemFromEntityPacket(redirectedEntity.getId(), includeData));
                 }
             };
         }
 
-        default void interact(ServerPlayerEntity player, Hand hand) {};
-        default void interactAt(ServerPlayerEntity player, Hand hand, Vec3d pos) {};
-        default void attack(ServerPlayerEntity player) {};
-        default void pickItem(ServerPlayerEntity player, boolean includeData) {};
+        default void interact(ServerPlayer player, InteractionHand hand) {};
+        default void interactAt(ServerPlayer player, InteractionHand hand, Vec3 pos) {};
+        default void attack(ServerPlayer player) {};
+        default void pickItem(ServerPlayer player, boolean includeData) {};
     }
 }

@@ -1,16 +1,18 @@
 package eu.pb4.polymer.core.impl.client.compat;
 
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import eu.pb4.polymer.core.impl.client.interfaces.ClientItemGroupExtension;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.item.*;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import eu.pb4.polymer.core.impl.client.interfaces.ClientCreativeModeTabExtension;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackLinkedSet;
+import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,10 +23,10 @@ import java.util.function.Consumer;
 @ApiStatus.Internal
 public class CompatUtils {
     public static boolean areSamePolymerType(ItemStack a, ItemStack b) {
-        return Objects.equals(getItemId(a.getItem(), a.get(DataComponentTypes.CUSTOM_DATA)), getItemId(b.getItem(), b.get(DataComponentTypes.CUSTOM_DATA)));
+        return Objects.equals(getItemId(a.getItem(), a.get(DataComponents.CUSTOM_DATA)), getItemId(b.getItem(), b.get(DataComponents.CUSTOM_DATA)));
     }
 
-    public static boolean areSamePolymerType(Object ai, NbtComponent a, Object bi, NbtComponent b) {
+    public static boolean areSamePolymerType(Object ai, CustomData a, Object bi, CustomData b) {
         return Objects.equals(getItemId(ai, a), getItemId(bi, b));
     }
 
@@ -38,7 +40,7 @@ public class CompatUtils {
     }
 
     @Nullable
-    public static Map<Identifier, NbtElement> getBackingComponents(ItemStack stack) {
+    public static Map<Identifier, Tag> getBackingComponents(ItemStack stack) {
         return PolymerItemUtils.getServerComponents(stack);
     }
 
@@ -46,15 +48,15 @@ public class CompatUtils {
         return PolymerItemUtils.getServerIdentifier(stack) != null;
     }
 
-    public static boolean isServerSide(@Nullable NbtComponent component) {
+    public static boolean isServerSide(@Nullable CustomData component) {
         return PolymerItemUtils.getServerIdentifier(component) != null;
     }
 
     @Nullable
     public static Object getKey(ItemStack stack) {
-        return getKey(stack.get(DataComponentTypes.CUSTOM_DATA));
+        return getKey(stack.get(DataComponents.CUSTOM_DATA));
     }
-    public static Object getKey(@Nullable NbtComponent component) {
+    public static Object getKey(@Nullable CustomData component) {
         var id = PolymerItemUtils.getServerIdentifier(component);
         if (id == null) {
             return null;
@@ -64,14 +66,14 @@ public class CompatUtils {
             return InternalClientRegistry.ITEMS.getKey(id);
         }
 
-        return Registries.ITEM.get(id);
+        return BuiltInRegistries.ITEM.getValue(id);
     }
 
-    private static Identifier getItemId(Object item, @Nullable NbtComponent nbtComponent) {
+    private static Identifier getItemId(Object item, @Nullable CustomData nbtComponent) {
         var id = PolymerItemUtils.getServerIdentifier(nbtComponent);
 
         if (id == null && item instanceof Item item1) {
-            return item1.getRegistryEntry().registryKey().getValue();
+            return item1.builtInRegistryHolder().key().identifier();
         }
 
         return id;
@@ -79,14 +81,14 @@ public class CompatUtils {
 
 
     public static void iterateItems(Consumer<ItemStack> consumer) {
-        var stacks = ItemStackSet.create();
+        var stacks = ItemStackLinkedSet.createTypeAndComponentsSet();
 
-        for (var group : ItemGroups.getGroups()) {
-            if (group.getType() != ItemGroup.Type.CATEGORY) {
+        for (var group : CreativeModeTabs.allTabs()) {
+            if (group.getType() != CreativeModeTab.Type.CATEGORY) {
                 continue;
             }
-            stacks.addAll(((ClientItemGroupExtension) group).polymer$getStacksGroup());
-            stacks.addAll(((ClientItemGroupExtension) group).polymer$getStacksSearch());
+            stacks.addAll(((ClientCreativeModeTabExtension) group).polymer$getStacksGroup());
+            stacks.addAll(((ClientCreativeModeTabExtension) group).polymer$getStacksSearch());
         }
 
         for (var stack : stacks) {
@@ -94,7 +96,7 @@ public class CompatUtils {
         }
     }
 
-    public static Identifier getId(@Nullable NbtComponent nbt) {
+    public static Identifier getId(@Nullable CustomData nbt) {
         return PolymerItemUtils.getServerIdentifier(nbt);
     }
 }

@@ -2,11 +2,11 @@ package eu.pb4.polymer.virtualentity.api;
 
 import eu.pb4.polymer.virtualentity.impl.BlockExt;
 import eu.pb4.polymer.virtualentity.impl.VirtualEntityMod;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,25 +18,25 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface BlockWithElementHolder {
     @Nullable
-    default ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    default ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return null;
     }
 
-    default Vec3d getElementHolderOffset(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
-        return Vec3d.ZERO;
+    default Vec3 getElementHolderOffset(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
+        return Vec3.ZERO;
     }
 
-    default boolean tickElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    default boolean tickElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return false;
     }
 
     @Nullable
-    default ElementHolder createMovingElementHolder(ServerWorld world, BlockPos blockPos, BlockState blockState, @Nullable ElementHolder oldStaticElementHolder) {
+    default ElementHolder createMovingElementHolder(ServerLevel world, BlockPos blockPos, BlockState blockState, @Nullable ElementHolder oldStaticElementHolder) {
         return oldStaticElementHolder != null ? oldStaticElementHolder : createElementHolder(world, blockPos, blockState);
     }
 
     @Nullable
-    default ElementHolder createStaticElementHolder(ServerWorld world, BlockPos blockPos, BlockState blockState, @Nullable ElementHolder oldMovingElementHolder) {
+    default ElementHolder createStaticElementHolder(ServerLevel world, BlockPos blockPos, BlockState blockState, @Nullable ElementHolder oldMovingElementHolder) {
         return oldMovingElementHolder != null ? oldMovingElementHolder : createElementHolder(world, blockPos, blockState);
     }
 

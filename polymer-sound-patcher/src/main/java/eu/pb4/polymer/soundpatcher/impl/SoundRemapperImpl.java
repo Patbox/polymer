@@ -1,8 +1,8 @@
 package eu.pb4.polymer.soundpatcher.impl;
 
 import eu.pb4.polymer.common.api.ScopedOverride;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Unit;
 
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class SoundRemapperImpl {
             return event;
         }
 
-        var id = REMAPPED_SOUND_IDS.get(event.id());
+        var id = REMAPPED_SOUND_IDS.get(event.location());
         if (id == null) {
             return event;
         }
@@ -62,6 +62,6 @@ public class SoundRemapperImpl {
             return true;
         }
 
-        return SOUND_EXCEPTION_IGNORER.contains(value.id());
+        return SOUND_EXCEPTION_IGNORER.contains(value.location());
     }
 }

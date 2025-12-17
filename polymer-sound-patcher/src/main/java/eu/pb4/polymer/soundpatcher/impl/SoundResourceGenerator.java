@@ -4,9 +4,8 @@ import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundEntry;
 import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
-import net.minecraft.util.Identifier;
-
 import java.util.List;
+import net.minecraft.resources.Identifier;
 
 public class SoundResourceGenerator {
     public static final String NAMESPACE = "polymer-sp";

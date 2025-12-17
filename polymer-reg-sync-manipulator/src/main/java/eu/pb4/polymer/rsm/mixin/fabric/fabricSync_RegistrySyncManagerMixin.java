@@ -8,8 +8,8 @@ import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +28,7 @@ public class fabricSync_RegistrySyncManagerMixin {
         return original.call(instance, registryAttribute);
     }
 
-    @WrapOperation(method = "createAndPopulateRegistryMap", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"), require = 0)
+    @WrapOperation(method = "createAndPopulateRegistryMap", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;getKey(Ljava/lang/Object;)Lnet/minecraft/resources/Identifier;"), require = 0)
     private static Identifier polymer_registry_sync$skipServerEntries(Registry instance, Object t, Operation<Identifier> original) {
         if (RegistrySyncUtils.isServerEntry(instance, t)) {
             return null;

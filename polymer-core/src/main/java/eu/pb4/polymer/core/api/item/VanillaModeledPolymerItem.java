@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.api.item;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public interface VanillaModeledPolymerItem extends PolymerItem {

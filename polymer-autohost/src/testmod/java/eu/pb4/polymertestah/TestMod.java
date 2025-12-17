@@ -6,8 +6,7 @@ import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.Identifier;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -19,7 +18,7 @@ public class TestMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        var id = Identifier.of("testmod", "packtest");
+        var id = Identifier.fromNamespaceAndPath("testmod", "packtest");
         var path = FabricLoader.getInstance().getModContainer("apolymertestautohost")
                 .get().findPath("testpack.zip").orElseThrow();
         AutoHostUtils.registerHostedFile(id, path);

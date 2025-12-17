@@ -2,7 +2,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.item.special;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public record BedSpecialModel(Identifier texture) implements SpecialModel {

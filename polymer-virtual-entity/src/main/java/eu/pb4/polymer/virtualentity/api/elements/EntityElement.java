@@ -1,22 +1,24 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.mixin.LivingEntityAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.EntityTrackerEntryAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.ServerEntityAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
-import net.minecraft.server.network.EntityTrackerEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -26,39 +28,39 @@ import java.util.function.Predicate;
 
 public class EntityElement<T extends Entity> extends AbstractElement {
     private final T entity;
-    private final EntityTrackerEntry entry;
+    private final ServerEntity entry;
 
-    public EntityElement(T entity, ServerWorld world) {
+    public EntityElement(T entity, ServerLevel world) {
         this(entity, world, InteractionHandler.EMPTY);
     }
 
-    public EntityElement(T entity, ServerWorld world, InteractionHandler handler) {
+    public EntityElement(T entity, ServerLevel world, InteractionHandler handler) {
         this.entity = entity;
-        this.entry = new EntityTrackerEntry(world, this.entity, 1, false, new EntityTrackerEntry.TrackerPacketSender() {
+        this.entry = new ServerEntity(world, this.entity, 1, false, new ServerEntity.Synchronizer() {
             @Override
-            public void sendToListeners(Packet<? super ClientPlayPacketListener> packet) {
-                sendPacket((Packet<ClientPlayPacketListener>) packet);
+            public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {
+                sendPacket((Packet<ClientGamePacketListener>) packet);
             }
 
             @Override
-            public void sendToSelfAndListeners(Packet<? super ClientPlayPacketListener> packet) {
-                sendToListeners(packet);
+            public void sendToTrackingPlayersAndSelf(Packet<? super ClientGamePacketListener> packet) {
+                sendToTrackingPlayers(packet);
             }
 
             @Override
-            public void sendToListenersIf(Packet<? super ClientPlayPacketListener> packet, Predicate<ServerPlayerEntity> predicate) {
-                sendPacket((Packet<ClientPlayPacketListener>) packet, predicate);
+            public void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate) {
+                sendPacket((Packet<ClientGamePacketListener>) packet, predicate);
             }
         });
         this.setInteractionHandler(handler);
     }
 
-    public EntityElement(EntityType<T> entityType, ServerWorld world) {
-        this(entityType.create(world, SpawnReason.LOAD), world);
+    public EntityElement(EntityType<T> entityType, ServerLevel world) {
+        this(entityType.create(world, EntitySpawnReason.LOAD), world);
     }
 
-    public EntityElement(EntityType<T> entityType, ServerWorld world, InteractionHandler handler) {
-        this(entityType.create(world, SpawnReason.LOAD), world);
+    public EntityElement(EntityType<T> entityType, ServerLevel world, InteractionHandler handler) {
+        this(entityType.create(world, EntitySpawnReason.LOAD), world);
     }
 
     public T entity() {
@@ -75,70 +77,70 @@ public class EntityElement<T extends Entity> extends AbstractElement {
         super.setHolder(holder);
         if (holder != null) {
             var pos = this.getCurrentPos();
-            this.entity.setPos(pos.x, pos.y, pos.z);
+            this.entity.setPosRaw(pos.x, pos.y, pos.z);
         }
     }
 
     @Override
-    public void setOffset(Vec3d vec3d) {
+    public void setOffset(Vec3 vec3d) {
         super.setOffset(vec3d);
         if (this.getOverridePos() == null && this.getHolder() != null) {
             var pos = this.getHolder().getPos().add(vec3d);
-            this.entity.setPos(pos.x, pos.y, pos.z);
+            this.entity.setPosRaw(pos.x, pos.y, pos.z);
         }
     }
 
     @Override
-    public void setOverridePos(Vec3d vec3d) {
+    public void setOverridePos(Vec3 vec3d) {
         super.setOverridePos(vec3d);
         if (this.getHolder() != null) {
-            this.entity.setPos(vec3d.x, vec3d.y, vec3d.z);
+            this.entity.setPosRaw(vec3d.x, vec3d.y, vec3d.z);
         }
     }
 
     @Override
-    public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+    public void startWatching(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {
         if (!this.elementVisiblityPredicate.test(player)) {
             return;
         }
-        this.entry.sendPackets(player, packetConsumer);
+        this.entry.sendPairingData(player, packetConsumer);
     }
 
     @Override
-    public void stopWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+    public void stopWatching(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {
         if (!this.elementVisiblityPredicate.test(player)) {
             return;
         }
-       packetConsumer.accept(new EntitiesDestroyS2CPacket(this.entity.getId()));
+       packetConsumer.accept(new ClientboundRemoveEntitiesPacket(this.entity.getId()));
     }
 
     @Override
-    public void notifyMove(Vec3d oldPos, Vec3d currentPos, Vec3d delta) {
+    public void notifyMove(Vec3 oldPos, Vec3 currentPos, Vec3 delta) {
         if (this.getOverridePos() == null && this.getHolder() != null) {
             var pos = currentPos.add(this.getOffset());
-            this.entity.setPos(pos.x, pos.y, pos.z);
+            this.entity.setPosRaw(pos.x, pos.y, pos.z);
         }
     }
 
     @Override
-    public void setInitialPosition(Vec3d pos) {
+    public void setInitialPosition(Vec3 pos) {
         if (this.getOverridePos() == null) {
             pos = pos.add(this.getOffset());
-            this.entity.setPosition(pos);
-            ((EntityTrackerEntryAccessor) this.entry).getTrackedPos().setPos(pos);
+            this.entity.setPos(pos);
+            ((ServerEntityAccessor) this.entry).getPositionCodec().setBase(pos);
         } else {
-            ((EntityTrackerEntryAccessor) this.entry).getTrackedPos().setPos(this.getOverridePos());
+            ((ServerEntityAccessor) this.entry).getPositionCodec().setBase(this.getOverridePos());
         }
     }
 
     @Override
-    public Vec3d getLastSyncedPos() {
-        return this.entry.getPos();
+    public Vec3 getLastSyncedPos() {
+        return this.entry.getPositionBase();
     }
 
     @Override
     public void tick() {
-        this.entry.tick();
+        this.entry.sendChanges();
         if (this.entity instanceof LivingEntity livingEntity) {
             this.sendEquipmentChanges(livingEntity);
         }
@@ -146,7 +148,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     private void sendEquipmentChanges(LivingEntity livingEntity) {
         var ac = ((LivingEntityAccessor) livingEntity);
-        var equipmentChanges = ac.callGetEquipmentChanges();
+        var equipmentChanges = ac.callCollectEquipmentChanges();
         if (equipmentChanges != null && !equipmentChanges.isEmpty()) {
             List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(equipmentChanges.size());
             equipmentChanges.forEach((slot, stack) -> {
@@ -156,7 +158,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
             });
 
             if (this.getHolder() != null) {
-                sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));
+                sendPacket(new ClientboundSetEquipmentPacket(livingEntity.getId(), list));
             }
         }
     }

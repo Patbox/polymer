@@ -1,17 +1,17 @@
 package eu.pb4.polymer.core.api.item;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -22,15 +22,15 @@ public class PolymerBlockItem extends BlockItem implements PolymerItem {
     private final Item polymerItem;
     private final boolean polymerUseModel;
 
-    public PolymerBlockItem(Block block, Settings settings) {
+    public PolymerBlockItem(Block block, Properties settings) {
         this(block, settings, Items.TRIAL_KEY, true);
     }
 
-    public PolymerBlockItem(Block block, Settings settings, Item polymerItem) {
+    public PolymerBlockItem(Block block, Properties settings, Item polymerItem) {
         this(block, settings, polymerItem, false);
     }
 
-    public PolymerBlockItem(Block block, Settings settings, Item polymerItem, boolean useModel) {
+    public PolymerBlockItem(Block block, Properties settings, Item polymerItem, boolean useModel) {
         super(block, settings);
         this.polymerItem = polymerItem;
         this.polymerUseModel = useModel;
@@ -47,12 +47,12 @@ public class PolymerBlockItem extends BlockItem implements PolymerItem {
     }
 
     @Override
-    public boolean isPolymerBlockInteraction(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult, ActionResult actionResult) {
+    public boolean isPolymerBlockInteraction(BlockState state, ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, BlockHitResult blockHitResult, InteractionResult actionResult) {
         return true;
     }
 
     @Override
-    public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayerEntity player, Hand hand, ItemStack stack, ServerWorld world, BlockHitResult blockHitResult) {
+    public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state, ServerPlayer player, InteractionHand hand, ItemStack stack, ServerLevel world, BlockHitResult blockHitResult) {
         return true;
     }
 }

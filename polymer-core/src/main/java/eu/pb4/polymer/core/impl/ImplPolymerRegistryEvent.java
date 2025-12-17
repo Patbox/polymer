@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.impl;
 
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
-import net.minecraft.registry.Registry;
+import net.minecraft.core.Registry;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 

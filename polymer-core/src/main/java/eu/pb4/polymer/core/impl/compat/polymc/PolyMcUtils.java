@@ -7,15 +7,15 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import io.github.theepicblock.polymc.api.item.ItemLocation;
 import io.github.theepicblock.polymc.api.misc.PolyMapProvider;
 import io.github.theepicblock.polymc.impl.Util;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registry;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public class PolyMcUtils {
 
-    public static BlockState toVanilla(BlockState state, @Nullable ServerPlayerEntity player) {
+    public static BlockState toVanilla(BlockState state, @Nullable ServerPlayer player) {
         if (CompatStatus.POLYMC) {
             return Util.tryGetPolyMap(player).getClientState(state, player);
         }
@@ -23,7 +23,7 @@ public class PolyMcUtils {
         return state;
     }
 
-    public static ItemStack toVanilla(ItemStack stack, @Nullable ServerPlayerEntity player) {
+    public static ItemStack toVanilla(ItemStack stack, @Nullable ServerPlayer player) {
         if (CompatStatus.POLYMC && !stack.isEmpty()) {
             return Util.tryGetPolyMap(player).getClientItem(stack, player, ItemLocation.INVENTORY);
         }
@@ -32,7 +32,7 @@ public class PolyMcUtils {
     }
 
     public static boolean isServerSide(Registry reg, Object obj) {
-        return !reg.getId(obj).getNamespace().equals("minecraft");
+        return !reg.getKey(obj).getNamespace().equals("minecraft");
     }
 
     public static void register() {

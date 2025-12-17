@@ -5,15 +5,15 @@ import eu.pb4.polymer.common.impl.client.ClientUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.Hash;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.permission.Permission;
-import net.minecraft.command.permission.PermissionLevel;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -35,18 +35,18 @@ public class CommonImplUtils {
             return a == b;
         }
     };
-    public static final Text[] ICON;
+    public static final Component[] ICON;
     public static boolean disableResourcePackCheck;
 
     static {
         final String chr = "█";
-        Text[] iconArray;
+        Component[] iconArray;
         try {
             var source = ImageIO.read(CommonImpl.getJarPath("assets/icon_ingame.png").toUri().toURL());
-            var icon = new ArrayList<MutableText>();
+            var icon = new ArrayList<MutableComponent>();
 
             for (int y = 0; y < source.getHeight(); y++) {
-                var base = Text.empty();
+                var base = Component.empty();
                 int line = 0;
                 int color = source.getRGB(0, y) & 0xFFFFFF;
                 for (int x = 0; x < source.getWidth(); x++) {
@@ -55,53 +55,53 @@ public class CommonImplUtils {
                     if (color == colorPixel) {
                         line++;
                     } else {
-                        base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color).withShadowColor(color | 0xFF000000)));
+                        base.append(Component.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color).withShadowColor(color | 0xFF000000)));
                         color = colorPixel;
                         line = 1;
                     }
                 }
 
-                base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color).withShadowColor(color | 0xFF000000)));
+                base.append(Component.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color).withShadowColor(color | 0xFF000000)));
                 icon.add(base);
             }
 
-            iconArray = icon.toArray(new Text[0]);
+            iconArray = icon.toArray(new Component[0]);
         } catch (Throwable e) {
             e.printStackTrace();
-            iconArray = new Text[0];
+            iconArray = new Component[0];
         }
         ICON = iconArray;
     }
 
-    public static void registerCommands(Consumer<LiteralArgumentBuilder<ServerCommandSource>> consumer) {
+    public static void registerCommands(Consumer<LiteralArgumentBuilder<CommandSourceStack>> consumer) {
         CommonCommands.COMMANDS.add((a, b) -> consumer.accept(a));
     }
 
-    public static void registerCommands(BiConsumer<LiteralArgumentBuilder<ServerCommandSource>, CommandRegistryAccess> consumer) {
+    public static void registerCommands(BiConsumer<LiteralArgumentBuilder<CommandSourceStack>, CommandBuildContext> consumer) {
         CommonCommands.COMMANDS.add(consumer);
     }
 
-    public static void registerDevCommands(Consumer<LiteralArgumentBuilder<ServerCommandSource>> consumer) {
+    public static void registerDevCommands(Consumer<LiteralArgumentBuilder<CommandSourceStack>> consumer) {
         CommonCommands.COMMANDS_DEV.add((a, b) -> consumer.accept(a));
     }
 
-    public static void registerDevCommands(BiConsumer<LiteralArgumentBuilder<ServerCommandSource>, CommandRegistryAccess> consumer) {
+    public static void registerDevCommands(BiConsumer<LiteralArgumentBuilder<CommandSourceStack>, CommandBuildContext> consumer) {
         CommonCommands.COMMANDS_DEV.add(consumer);
     }
 
-    public static Predicate<ServerCommandSource> permission(String path, int operatorLevel) {
+    public static Predicate<CommandSourceStack> permission(String path, int operatorLevel) {
         if (CompatStatus.FABRIC_PERMISSION_API_V0) {
             return Permissions.require("polymer." + path, operatorLevel);
         } else {
-            return source -> source.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(operatorLevel)));
+            return source -> source.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(operatorLevel)));
         }
     }
 
-    public static boolean permissionCheck(ServerPlayerEntity player, String path, int operatorLevel) {
+    public static boolean permissionCheck(ServerPlayer player, String path, int operatorLevel) {
         if (CompatStatus.FABRIC_PERMISSION_API_V0) {
             return Permissions.check(player, "polymer." + path, operatorLevel);
         } else {
-            return player.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(operatorLevel)));
+            return player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(operatorLevel)));
         }
     }
 
@@ -119,10 +119,10 @@ public class CommonImplUtils {
     }
 
     public static Identifier id(String s) {
-        return Identifier.of("polymer", s);
+        return Identifier.fromNamespaceAndPath("polymer", s);
     }
 
-    public static boolean isMainPlayer(ServerPlayerEntity player) {
+    public static boolean isMainPlayer(ServerPlayer player) {
         if (CommonImpl.IS_CLIENT) {
             if (ClientUtils.isSingleplayer()) {
                 return player == ClientUtils.getPlayer();

@@ -1,15 +1,14 @@
 package eu.pb4.polymer.virtualentity.mixin;
 
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.network.packet.s2c.play.PositionFlag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.TeleportTarget;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Relative;
+import net.minecraft.world.level.portal.TeleportTransition;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,57 +20,57 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
 import java.util.Set;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public class ServerPlayerEntityMixin {
     @Shadow
     @Final
     public MinecraftServer server;
     @Shadow
-    public ServerPlayNetworkHandler networkHandler;
+    public ServerGamePacketListenerImpl connection;
 
-    @Inject(method = "onDisconnect", at = @At("HEAD"))
+    @Inject(method = "disconnect", at = @At("HEAD"))
     private void polymerVE$removeFromHologramsOnDisconnect(CallbackInfo ci) {
-        for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
-            holder.stopWatching(this.networkHandler);
+        for (var holder : new ArrayList<>(((HolderHolder) this.connection).polymer$getHolders())) {
+            holder.stopWatching(this.connection);
         }
     }
 
-    @Inject(method = "onDeath", at = @At("TAIL"))
+    @Inject(method = "die", at = @At("TAIL"))
     private void polymerVE$removeOnDeath(DamageSource source, CallbackInfo ci) {
-        for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
+        for (var holder : new ArrayList<>(((HolderHolder) this.connection).polymer$getHolders())) {
             var att = holder.getAttachment();
             if (att != null) {
-                att.updateTracking(this.networkHandler);
+                att.updateTracking(this.connection);
             }
         }
     }
 
-    @Inject(method = "teleport(Lnet/minecraft/server/world/ServerWorld;DDDLjava/util/Set;FFZ)Z", at = @At(value = "RETURN"))
-    private void polymerVE$removeOnWorldChange(ServerWorld serverWorld, double destX, double destY, double destZ, Set<PositionFlag> flags, float yaw, float pitch, boolean bl, CallbackInfoReturnable<Boolean> cir) {
-        for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
+    @Inject(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FFZ)Z", at = @At(value = "RETURN"))
+    private void polymerVE$removeOnWorldChange(ServerLevel serverWorld, double destX, double destY, double destZ, Set<Relative> flags, float yaw, float pitch, boolean bl, CallbackInfoReturnable<Boolean> cir) {
+        for (var holder : new ArrayList<>(((HolderHolder) this.connection).polymer$getHolders())) {
             var att = holder.getAttachment();
             if (att != null) {
-                att.updateTracking(this.networkHandler);
+                att.updateTracking(this.connection);
             }
         }
     }
 
-    @Inject(method = "teleportTo(Lnet/minecraft/world/TeleportTarget;)Lnet/minecraft/server/network/ServerPlayerEntity;", at = @At(value = "RETURN"))
-    private void polymerVE$removeOnWorldChange3(TeleportTarget teleportTarget, CallbackInfoReturnable<Entity> cir) {
-        for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
+    @Inject(method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;", at = @At(value = "RETURN"))
+    private void polymerVE$removeOnWorldChange3(TeleportTransition teleportTarget, CallbackInfoReturnable<Entity> cir) {
+        for (var holder : new ArrayList<>(((HolderHolder) this.connection).polymer$getHolders())) {
             var att = holder.getAttachment();
             if (att != null) {
-                att.updateTracking(this.networkHandler);
+                att.updateTracking(this.connection);
             }
         }
     }
 
-    @Inject(method = "refreshPositionAfterTeleport", at = @At(value = "RETURN"))
+    @Inject(method = "snapTo", at = @At(value = "RETURN"))
     private void polymerVE$removeOnWorldChange2(double x, double y, double z, CallbackInfo ci) {
-        for (var holder : new ArrayList<>(((HolderHolder) this.networkHandler).polymer$getHolders())) {
+        for (var holder : new ArrayList<>(((HolderHolder) this.connection).polymer$getHolders())) {
             var att = holder.getAttachment();
             if (att != null) {
-                att.updateTracking(this.networkHandler);
+                att.updateTracking(this.connection);
             }
         }
     }

@@ -1,11 +1,10 @@
-accessWidener v1 named
-
-accessible class net/minecraft/server/world/ServerChunkManager$MainThreadExecutor
-accessible class net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker
-accessible class net/minecraft/server/network/ServerLoginNetworkHandler$State
-accessible class net/minecraft/world/chunk/PalettedContainer$Data
-accessible class net/minecraft/item/ItemGroup$Entries
-accessible class net/minecraft/item/ItemGroup$StackVisibility
-accessible class net/minecraft/component/type/ProfileComponent$Data
-accessible method net/minecraft/item/ItemGroup <init> (Lnet/minecraft/item/ItemGroup$Row;ILnet/minecraft/item/ItemGroup$Type;Lnet/minecraft/text/Text;Ljava/util/function/Supplier;Lnet/minecraft/item/ItemGroup$EntryCollector;)V
-accessible method net/minecraft/client/gui/hud/debug/DebugHudEntries register (Lnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/hud/debug/DebugHudEntry;)Lnet/minecraft/util/Identifier;
+accessWidener	v1	named
+accessible	class	net/minecraft/server/level/ServerChunkCache$MainThreadExecutor
+accessible	class	net/minecraft/server/level/ChunkMap$TrackedEntity
+accessible	class	net/minecraft/server/network/ServerLoginPacketListenerImpl$State
+accessible	class	net/minecraft/world/level/chunk/PalettedContainer$Data
+accessible	class	net/minecraft/world/item/CreativeModeTab$Output
+accessible	class	net/minecraft/world/item/CreativeModeTab$TabVisibility
+accessible	class	net/minecraft/world/item/component/ResolvableProfile$Partial
+accessible	method	net/minecraft/world/item/CreativeModeTab	<init>	(Lnet/minecraft/world/item/CreativeModeTab$Row;ILnet/minecraft/world/item/CreativeModeTab$Type;Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;Lnet/minecraft/world/item/CreativeModeTab$DisplayItemsGenerator;)V
+accessible	method	net/minecraft/client/gui/components/debug/DebugScreenEntries	register	(Lnet/minecraft/resources/Identifier;Lnet/minecraft/client/gui/components/debug/DebugScreenEntry;)Lnet/minecraft/resources/Identifier;

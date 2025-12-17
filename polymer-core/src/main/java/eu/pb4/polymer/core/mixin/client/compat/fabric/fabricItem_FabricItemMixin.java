@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.mixin.client.compat.fabric;
 
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import net.fabricmc.fabric.api.item.v1.FabricItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;

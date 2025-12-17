@@ -1,13 +1,12 @@
 package eu.pb4.polymer.blocks.api;
 
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.block.enums.StairShape;
-import net.minecraft.util.math.Direction;
-
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.StairsShape;
 
 public enum BlockModelType {
     FULL_BLOCK,
@@ -371,7 +370,7 @@ public enum BlockModelType {
             if (dir.getAxis().isVertical()) {
                 throw new IllegalArgumentException("Only horizontal directions are supported!");
             }
-            id |= 1 << (dir.getIndex() - 1);
+            id |= 1 << (dir.get3DDataValue() - 1);
         }
 
         return BlockModelType.values()[BARS_CENTER.ordinal() + id];
@@ -386,7 +385,7 @@ public enum BlockModelType {
         return getBars(waterlogged, set);
     }
 
-    public static BlockModelType getStairs(Direction direction, BlockHalf blockHalf, StairShape shape, boolean waterlogged) {
+    public static BlockModelType getStairs(Direction direction, Half blockHalf, StairsShape shape, boolean waterlogged) {
         if (direction.getAxis().isVertical()) {
             throw new IllegalArgumentException("Only horizontal directions are supported!");
         }

@@ -2,8 +2,8 @@ package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.tracker.DataTrackerLike;
 import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 
 public class SimpleEntityElement extends GenericEntityElement {
     private static final ThreadLocal<EntityType<?>> LOCAL_TYPE = new ThreadLocal<>();

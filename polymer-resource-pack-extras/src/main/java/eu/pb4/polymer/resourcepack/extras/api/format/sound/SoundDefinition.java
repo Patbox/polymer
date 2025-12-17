@@ -2,12 +2,12 @@ package eu.pb4.polymer.resourcepack.extras.api.format.sound;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringRepresentable;
 
 public record SoundDefinition(Type type, Identifier name, float volume, float pitch, int weight, boolean stream, int attenuationDistance, boolean preload) {
     public static final Codec<SoundDefinition> FULL_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            StringIdentifiable.createCodec(Type::values).optionalFieldOf("type", Type.FILE).forGetter(SoundDefinition::type),
+            StringRepresentable.fromEnum(Type::values).optionalFieldOf("type", Type.FILE).forGetter(SoundDefinition::type),
             Identifier.CODEC.fieldOf("name").forGetter(SoundDefinition::name),
             Codec.FLOAT.optionalFieldOf("volume", 1f).forGetter(SoundDefinition::volume),
             Codec.FLOAT.optionalFieldOf("pitch", 1f).forGetter(SoundDefinition::pitch),
@@ -126,7 +126,7 @@ public record SoundDefinition(Type type, Identifier name, float volume, float pi
     }
 
 
-    public enum Type implements StringIdentifiable {
+    public enum Type implements StringRepresentable {
         FILE("file"),
         EVENT("event");
 
@@ -137,7 +137,7 @@ public record SoundDefinition(Type type, Identifier name, float volume, float pi
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return this.name;
         }
     }

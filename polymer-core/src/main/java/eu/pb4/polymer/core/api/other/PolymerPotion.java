@@ -1,9 +1,9 @@
 package eu.pb4.polymer.core.api.other;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import net.minecraft.potion.Potion;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.alchemy.Potion;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -14,11 +14,11 @@ public interface PolymerPotion extends PolymerSyncedObject<Potion> {
         return null;
     }
 
-    static void registerOverlay(RegistryEntry<Potion> entry, PolymerPotion overlay) {
-        PolymerSyncedObject.setSyncedObject(Registries.POTION, entry.value(), overlay);
+    static void registerOverlay(Holder<Potion> entry, PolymerPotion overlay) {
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.POTION, entry.value(), overlay);
     }
 
     static void registerOverlay(Potion entry, PolymerPotion overlay) {
-        PolymerSyncedObject.setSyncedObject(Registries.POTION, entry, overlay);
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.POTION, entry, overlay);
     }
 }

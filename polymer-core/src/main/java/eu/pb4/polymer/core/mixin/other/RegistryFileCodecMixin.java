@@ -1,0 +1,61 @@
+package eu.pb4.polymer.core.mixin.other;
+
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.serialization.DynamicOps;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import xyz.nucleoid.packettweaker.PacketContext;
+
+import java.util.Optional;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.ResourceKey;
+
+@Mixin(RegistryFileCodec.class)
+public class RegistryFileCodecMixin {
+
+    @Shadow @Final private ResourceKey<Registry> registryKey;
+
+    @ModifyVariable(
+            method = "encode(Lnet/minecraft/core/Holder;Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;",
+            at = @At("HEAD")
+    )
+    private Holder<?> polymerCore$swapEntry(Holder<?> entry, @Local(argsOnly = true) DynamicOps<?> ops) {
+        if (PolymerCommonUtils.isServerNetworkingThread()) {
+            var player = PacketContext.get();
+            try {
+                //noinspection unchecked,rawtypes
+                var registry = ((Registry<Registry>) (Object) BuiltInRegistries.REGISTRY).getValue(this.registryKey);
+                //noinspection unchecked
+
+                if (PolymerSyncedObject.getSyncedObject(registry, entry.value()) instanceof PolymerSyncedObject<?> polymerSyncedObject) {
+                    var obj = ((PolymerSyncedObject<Object>) polymerSyncedObject).getPolymerReplacement(entry.value(), player);
+                    if (obj == null) {
+                        obj = entry.value();
+                    }
+
+                    //noinspection unchecked,DataFlowIssue
+                    var x = registry.wrapAsHolder(obj);
+                    //noinspection unchecked,DataFlowIssue
+                    var key = (Optional<ResourceKey<?>>) x.unwrapKey();
+                    if (key.isPresent() && !key.get().identifier().getNamespace().equals("minecraft")) {
+                        return Holder.direct(obj);
+                    }
+
+                    return x;
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+
+        return entry;
+    }
+}

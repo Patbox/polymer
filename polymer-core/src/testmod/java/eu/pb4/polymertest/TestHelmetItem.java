@@ -1,27 +1,25 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
-import net.minecraft.item.equipment.ArmorMaterials;
-import net.minecraft.item.equipment.EquipmentType;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Rarity;
-import net.minecraft.world.World;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.equipment.ArmorMaterials;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TestHelmetItem extends Item implements VanillaModeledPolymerItem {
-    public TestHelmetItem(Settings settings) {
-        super(settings.armor(ArmorMaterials.IRON, EquipmentType.HELMET));
+    public TestHelmetItem(Properties settings) {
+        super(settings.humanoidArmor(ArmorMaterials.IRON, ArmorType.HELMET));
     }
 
     @Override
@@ -30,15 +28,15 @@ public class TestHelmetItem extends Item implements VanillaModeledPolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
         var x = VanillaModeledPolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
-        x.set(DataComponentTypes.RARITY, Rarity.EPIC);
+        x.set(DataComponents.RARITY, Rarity.EPIC);
         return x;
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        user.sendMessage(Text.literal("Use!" + hand), false);
+    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+        user.displayClientMessage(Component.literal("Use!" + hand), false);
         return super.use(world, user, hand);
     }
 }

@@ -5,14 +5,14 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "eu.pb4.polymer.soundpatcher.mixin.PolymerSoundPatcherMixinConfigPlugin",
   "mixins": [
-    "PacketCodecsRegistryEntryMixin",
-    "ServerWorldMixin",
+    "ByteBufCodecsHolderMixin",
+    "ServerLevelMixin",
     "block.BlockItemMixin",
     "block.BlockMixin",
     "block.EntityMixin",
     "block.LivingEntityMixin",
-    "block.RegistriesMixin",
-    "block.ServerPlayerInteractionManagerMixin"
+    "block.BuiltInRegistriesMixin",
+    "block.ServerPlayerGameModeMixin"
   ],
   "client": [
   ],

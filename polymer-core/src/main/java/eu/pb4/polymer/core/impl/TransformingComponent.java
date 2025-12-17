@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.impl;
 
-import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public interface TransformingComponent {

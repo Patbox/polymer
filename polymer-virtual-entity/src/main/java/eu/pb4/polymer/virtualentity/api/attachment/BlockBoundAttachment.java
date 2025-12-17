@@ -3,12 +3,12 @@ package eu.pb4.polymer.virtualentity.api.attachment;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public final class BlockBoundAttachment extends ChunkAttachment implements Block
     private BlockState blockState;
 
     @ApiStatus.Internal
-    public BlockBoundAttachment(ElementHolder holder, WorldChunk chunk, BlockState state, BlockPos blockPos, Vec3d position, boolean autoTick) {
+    public BlockBoundAttachment(ElementHolder holder, LevelChunk chunk, BlockState state, BlockPos blockPos, Vec3 position, boolean autoTick) {
         super(holder, chunk, position, autoTick);
         this.blockPos = blockPos;
         this.blockState = state;
@@ -28,16 +28,16 @@ public final class BlockBoundAttachment extends ChunkAttachment implements Block
 
     @ApiStatus.Experimental
     @Nullable
-    public static BlockBoundAttachment of(ElementHolder holder, ServerWorld serverWorld, BlockPos blockPos, BlockState state) {
-        return of(holder, serverWorld, serverWorld.getWorldChunk(blockPos), blockPos, state);
+    public static BlockBoundAttachment of(ElementHolder holder, ServerLevel serverWorld, BlockPos blockPos, BlockState state) {
+        return of(holder, serverWorld, serverWorld.getChunkAt(blockPos), blockPos, state);
     }
     @ApiStatus.Experimental
     @Nullable
-    public static BlockBoundAttachment of(ElementHolder holder, ServerWorld serverWorld, WorldChunk worldChunk, BlockPos blockPos, BlockState state) {
+    public static BlockBoundAttachment of(ElementHolder holder, ServerLevel serverWorld, LevelChunk worldChunk, BlockPos blockPos, BlockState state) {
         var blockWithElementHolder = BlockWithElementHolder.get(state);
         if (blockWithElementHolder != null) {
             return new BlockBoundAttachment(holder, worldChunk, state, blockPos,
-                    Vec3d.ofCenter(blockPos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, blockPos, state)),
+                    Vec3.atCenterOf(blockPos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, blockPos, state)),
                     blockWithElementHolder.tickElementHolder(serverWorld, blockPos, state)
             );
         }
@@ -46,7 +46,7 @@ public final class BlockBoundAttachment extends ChunkAttachment implements Block
 
     @ApiStatus.Experimental
     @Nullable
-    public static BlockBoundAttachment fromMoving(ElementHolder movingHolder, ServerWorld world, BlockPos pos, BlockState state) {
+    public static BlockBoundAttachment fromMoving(ElementHolder movingHolder, ServerLevel world, BlockPos pos, BlockState state) {
         var withElementHolder = BlockWithElementHolder.get(state);
         if (withElementHolder != null) {
             var x = withElementHolder.createStaticElementHolder(world, pos, state, movingHolder);
@@ -94,13 +94,13 @@ public final class BlockBoundAttachment extends ChunkAttachment implements Block
     }
 
     @Nullable
-    public static BlockBoundAttachment get(World world, BlockPos pos) {
+    public static BlockBoundAttachment get(Level world, BlockPos pos) {
         var chunk = world.getChunk(pos);
-        return chunk instanceof WorldChunk worldChunk ? get(worldChunk, pos) : null;
+        return chunk instanceof LevelChunk worldChunk ? get(worldChunk, pos) : null;
     }
 
     @Nullable
-    public static BlockBoundAttachment get(WorldChunk chunk, BlockPos pos) {
+    public static BlockBoundAttachment get(LevelChunk chunk, BlockPos pos) {
         return ((HolderAttachmentHolder) chunk).polymerVE$getPosHolder(pos);
     }
 

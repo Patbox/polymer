@@ -2,24 +2,17 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymertest.mixin.VillagerEntityAccessor;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.village.VillagerData;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.village.VillagerType;
-import net.minecraft.world.World;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.level.Level;
 
-public class TestEntity extends CreeperEntity implements PolymerEntity {
-    public TestEntity(EntityType<TestEntity> entityEntityType, World world) {
+public class TestEntity extends Creeper implements PolymerEntity {
+    public TestEntity(EntityType<TestEntity> entityEntityType, Level world) {
         super(entityEntityType, world);
     }
 
@@ -29,7 +22,7 @@ public class TestEntity extends CreeperEntity implements PolymerEntity {
     }
 
     @Override
-    public void modifyRawTrackedData(List<DataTracker.SerializedEntry<?>> data, ServerPlayerEntity player, boolean initial) {
+    public void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data, ServerPlayer player, boolean initial) {
         if (initial) {
             //data.add(new DataTracker.SerializedEntry(VillagerEntityAccessor.get().id(), VillagerEntityAccessor.get().dataType(), new VillagerData(VillagerType.SWAMP, VillagerProfession.CARTOGRAPHER, 1)));
         }

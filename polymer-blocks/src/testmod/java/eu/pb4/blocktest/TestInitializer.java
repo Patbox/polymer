@@ -5,19 +5,16 @@ import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.block.enums.StairShape;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Locale;
@@ -43,13 +40,13 @@ public class TestInitializer implements ModInitializer {
         registerCustom("block/oak_fence", (s, id) -> new TestBarsBlock(s));
 
         registerMulti(BlockModelType.CAMPFIRE,"multi_variants_base", MultiPolymerBlockModel.of()
-                .with(Identifier.ofVanilla("block/redstone_torch"))
-                .with(Identifier.ofVanilla("block/polished_tuff_slab"))
+                .with(Identifier.withDefaultNamespace("block/redstone_torch"))
+                .with(Identifier.withDefaultNamespace("block/polished_tuff_slab"))
         );
 
         registerMulti(BlockModelType.WEST_SHELF,"multi_multi_base", MultiPolymerBlockModel.of()
-                .with(Identifier.ofVanilla("block/torch"))
-                .with(Identifier.ofVanilla("block/polished_tuff_slab"))
+                .with(Identifier.withDefaultNamespace("block/torch"))
+                .with(Identifier.withDefaultNamespace("block/polished_tuff_slab"))
         );
 
 
@@ -107,44 +104,44 @@ public class TestInitializer implements ModInitializer {
     }
 
     public static void register(BlockModelType type, String modelId) {
-        var id = Identifier.of("blocktest", modelId);
-        var block = Registry.register(Registries.BLOCK, id,
-                new TestBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, modelId));
+        var id = Identifier.fromNamespaceAndPath("blocktest", modelId);
+        var block = Registry.register(BuiltInRegistries.BLOCK, id,
+                new TestBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK).setId(ResourceKey.create(Registries.BLOCK, id)), type, modelId));
 
-        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
-                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),
+        Registry.register(BuiltInRegistries.ITEM, id, new TestItem(new Item.Properties()
+                .setId(ResourceKey.create(Registries.ITEM, id)),
                 block, modelId));
     }
 
-    public static void registerCustom(String baseId, BiFunction<AbstractBlock.Settings, String, Block> func) {
-        var id = Identifier.of("blocktest", baseId);
-        var block = Registry.register(Registries.BLOCK, id,
-               func.apply(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), baseId));
+    public static void registerCustom(String baseId, BiFunction<BlockBehaviour.Properties, String, Block> func) {
+        var id = Identifier.fromNamespaceAndPath("blocktest", baseId);
+        var block = Registry.register(BuiltInRegistries.BLOCK, id,
+               func.apply(BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK).setId(ResourceKey.create(Registries.BLOCK, id)), baseId));
 
-        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
-                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),
+        Registry.register(BuiltInRegistries.ITEM, id, new TestItem(new Item.Properties()
+                .setId(ResourceKey.create(Registries.ITEM, id)),
                 block, baseId));
     }
 
     public static void registerMulti(BlockModelType type, String modelId, MultiPolymerBlockModel model) {
-        var id = Identifier.of("blocktest", modelId);
-        var block = Registry.register(Registries.BLOCK, id,
-                new TestMultiBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type, model));
+        var id = Identifier.fromNamespaceAndPath("blocktest", modelId);
+        var block = Registry.register(BuiltInRegistries.BLOCK, id,
+                new TestMultiBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK).setId(ResourceKey.create(Registries.BLOCK, id)), type, model));
 
-        Registry.register(Registries.ITEM, id, new TestItem(new Item.Settings()
-                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id)),
+        Registry.register(BuiltInRegistries.ITEM, id, new TestItem(new Item.Properties()
+                .setId(ResourceKey.create(Registries.ITEM, id)),
                 block, modelId));
     }
 
     public static void registerEmpty(BlockModelType type) {
-        var id = Identifier.of("blocktest", "empty/" + type.name().toLowerCase(Locale.ROOT));
-        var block = Registry.register(Registries.BLOCK, id,
-                new EmptyBlock(Block.Settings.copy(Blocks.DIAMOND_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, id)), type));
+        var id = Identifier.fromNamespaceAndPath("blocktest", "empty/" + type.name().toLowerCase(Locale.ROOT));
+        var block = Registry.register(BuiltInRegistries.BLOCK, id,
+                new EmptyBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK).setId(ResourceKey.create(Registries.BLOCK, id)), type));
 
-        Registry.register(Registries.ITEM, id, new PolymerBlockItem(block, new Item.Settings()
-                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
+        Registry.register(BuiltInRegistries.ITEM, id, new PolymerBlockItem(block, new Item.Properties()
+                .setId(ResourceKey.create(Registries.ITEM, id))
                         //.modelId(block.getPolymerBlockState(block.getDefaultState(), PacketContext.create()).getBlock().getRegistryEntry().registryKey().getValue())
-                        .component(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true),
-                block.getPolymerBlockState(block.getDefaultState(), PacketContext.create()).getBlock().asItem()));
+                        .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true),
+                block.getPolymerBlockState(block.defaultBlockState(), PacketContext.create()).getBlock().asItem()));
     }
 }

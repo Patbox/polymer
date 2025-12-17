@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.api.utils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import net.minecraft.registry.Registry;
+import net.minecraft.core.Registry;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 

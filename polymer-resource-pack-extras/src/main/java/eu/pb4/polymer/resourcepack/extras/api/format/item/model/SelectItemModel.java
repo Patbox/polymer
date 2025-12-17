@@ -4,11 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.property.select.SelectProperty;
-import net.minecraft.util.dynamic.Codecs;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.util.ExtraCodecs;
 
 public record SelectItemModel<T extends SelectProperty<V>, V>(Switch<T, V> switchValue,
                                                               Optional<ItemModel> fallback) implements ItemModel {
@@ -32,7 +31,7 @@ public record SelectItemModel<T extends SelectProperty<V>, V>(Switch<T, V> switc
     public record Case<T>(List<T> values, ItemModel model) {
         public static <T> Codec<Case<T>> createCodec(Codec<T> valueCodec) {
             return RecordCodecBuilder.create(instance -> instance.group(
-                            Codecs.nonEmptyList(Codecs.listOrSingle(valueCodec)).fieldOf("when").forGetter(Case::values),
+                            ExtraCodecs.nonEmptyList(ExtraCodecs.compactListCodec(valueCodec)).fieldOf("when").forGetter(Case::values),
                             ItemModel.CODEC.fieldOf("model").forGetter(Case::model)
                     ).apply(instance, Case::new)
             );

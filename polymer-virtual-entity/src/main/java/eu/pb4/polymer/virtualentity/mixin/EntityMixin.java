@@ -6,12 +6,12 @@ import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.*;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements HolderAttachmentHolder, EntityExt {

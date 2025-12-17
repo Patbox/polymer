@@ -4,25 +4,23 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import eu.pb4.polymer.resourcepack.mixin.accessors.PackOverlaysMetadataAccessor;
-import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterAccessor;
+import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterSectionAccessor;
 import net.minecraft.SharedConstants;
-import net.minecraft.resource.PackVersion;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.metadata.BlockEntry;
-import net.minecraft.resource.metadata.PackOverlaysMetadata;
-import net.minecraft.resource.metadata.PackResourceMetadata;
-import net.minecraft.resource.metadata.ResourceFilter;
-import net.minecraft.text.Text;
-import net.minecraft.util.dynamic.Range;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.OverlayMetadataSection;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackFormat;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.resources.ResourceFilterSection;
+import net.minecraft.util.IdentifierPattern;
+import net.minecraft.util.InclusiveRange;
 import java.util.*;
 
-public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> filter, Optional<PackOverlaysMetadata> overlays, Optional<LanguageResourceMetadata> language) {
+public record PackMcMeta(PackMetadataSection pack, Optional<ResourceFilterSection> filter, Optional<OverlayMetadataSection> overlays, Optional<LanguageResourceMetadata> language) {
     public static final Codec<PackMcMeta> CODEC = RecordCodecBuilder.create(instaince -> instaince.group(
-            PackResourceMetadata.CLIENT_RESOURCES_SERIALIZER.codec().fieldOf("pack").forGetter(PackMcMeta::pack),
-            ResourceFilterAccessor.getCODEC().optionalFieldOf("filter").forGetter(PackMcMeta::filter),
-            PackOverlaysMetadata.CLIENT_RESOURCES_SERIALIZER.codec().optionalFieldOf("overlays").forGetter(PackMcMeta::overlays),
+            PackMetadataSection.CLIENT_TYPE.codec().fieldOf("pack").forGetter(PackMcMeta::pack),
+            ResourceFilterSectionAccessor.getCODEC().optionalFieldOf("filter").forGetter(PackMcMeta::filter),
+            OverlayMetadataSection.CLIENT_TYPE.codec().optionalFieldOf("overlays").forGetter(PackMcMeta::overlays),
             LanguageResourceMetadata.CODEC.optionalFieldOf("language").forGetter(PackMcMeta::language)
     ).apply(instaince, PackMcMeta::new));
 
@@ -35,35 +33,35 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
     }
 
     public static class Builder {
-        private PackResourceMetadata metadata = new PackResourceMetadata(
-                Text.literal("Server Resource Pack"),
-                new Range<>(SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES))
+        private PackMetadataSection metadata = new PackMetadataSection(
+                Component.literal("Server Resource Pack"),
+                new InclusiveRange<>(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES))
         );
-        private final List<BlockEntry> filter = new ArrayList<>();
-        private final List<PackOverlaysMetadata.Entry> overlay = new ArrayList<>();
+        private final List<IdentifierPattern> filter = new ArrayList<>();
+        private final List<OverlayMetadataSection.OverlayEntry> overlay = new ArrayList<>();
         private final Map<String, LanguageDefinition> language = new HashMap<>();
 
-        public Builder metadata(PackResourceMetadata metadata) {
+        public Builder metadata(PackMetadataSection metadata) {
             this.metadata = metadata;
             return this;
         }
 
-        public Builder description(Text description) {
-            this.metadata = new PackResourceMetadata(description, this.metadata.supportedFormats());
+        public Builder description(Component description) {
+            this.metadata = new PackMetadataSection(description, this.metadata.supportedFormats());
             return this;
         }
 
-        public Builder addFilter(BlockEntry entry) {
+        public Builder addFilter(IdentifierPattern entry) {
             this.filter.add(entry);
             return this;
         }
 
-        public Builder addOverlay(Range<PackVersion> format, String overlay) {
-            this.overlay.add(new PackOverlaysMetadata.Entry(format, overlay));
+        public Builder addOverlay(InclusiveRange<PackFormat> format, String overlay) {
+            this.overlay.add(new OverlayMetadataSection.OverlayEntry(format, overlay));
             return this;
         }
 
-        public Builder addOverlay(PackOverlaysMetadata.Entry entry) {
+        public Builder addOverlay(OverlayMetadataSection.OverlayEntry entry) {
             this.overlay.add(entry);
             return this;
         }
@@ -75,17 +73,17 @@ public record PackMcMeta(PackResourceMetadata pack, Optional<ResourceFilter> fil
 
         public PackMcMeta build() {
             return new PackMcMeta(this.metadata,
-                    this.filter.isEmpty() ? Optional.empty() : Optional.of(new ResourceFilter(this.filter)),
-                    this.overlay.isEmpty() ? Optional.empty() : Optional.of(new PackOverlaysMetadata(this.overlay)),
+                    this.filter.isEmpty() ? Optional.empty() : Optional.of(new ResourceFilterSection(this.filter)),
+                    this.overlay.isEmpty() ? Optional.empty() : Optional.of(new OverlayMetadataSection(this.overlay)),
                     this.language.isEmpty() ? Optional.empty() : Optional.of(new LanguageResourceMetadata(this.language))
             );
         }
 
-        public PackResourceMetadata metadata() {
+        public PackMetadataSection metadata() {
             return this.metadata;
         }
 
-        public List<PackOverlaysMetadata.Entry> overlays() {
+        public List<OverlayMetadataSection.OverlayEntry> overlays() {
             return this.overlay;
         }
     }

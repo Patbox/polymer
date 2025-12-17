@@ -3,16 +3,15 @@ package eu.pb4.polymer.resourcepack.extras.api.format.atlas;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.dynamic.Codecs;
-
 import java.util.List;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ExtraCodecs;
 
 public record UnstitchAtlasSource(Identifier resource, List<Region> regions, double divisorX,
                                   double divisorY) implements AtlasSource {
     public static final MapCodec<UnstitchAtlasSource> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Identifier.CODEC.fieldOf("resource").forGetter(UnstitchAtlasSource::resource),
-            Codecs.nonEmptyList(Region.CODEC.listOf()).fieldOf("regions").forGetter(UnstitchAtlasSource::regions),
+            ExtraCodecs.nonEmptyList(Region.CODEC.listOf()).fieldOf("regions").forGetter(UnstitchAtlasSource::regions),
             Codec.DOUBLE.optionalFieldOf("divisor_x", 1.0).forGetter(UnstitchAtlasSource::divisorX),
             Codec.DOUBLE.optionalFieldOf("divisor_y", 1.0).forGetter(UnstitchAtlasSource::divisorY)
     ).apply(instance, UnstitchAtlasSource::new));

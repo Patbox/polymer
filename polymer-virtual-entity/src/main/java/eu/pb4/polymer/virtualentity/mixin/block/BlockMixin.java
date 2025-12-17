@@ -2,8 +2,8 @@ package eu.pb4.polymer.virtualentity.mixin.block;
 
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.impl.BlockExt;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -17,7 +17,7 @@ public class BlockMixin implements BlockExt {
     private BlockWithElementHolder blockWithElementHolder;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void setupInitialCreator(AbstractBlock.Settings settings, CallbackInfo ci) {
+    private void setupInitialCreator(BlockBehaviour.Properties settings, CallbackInfo ci) {
         this.blockWithElementHolder = this instanceof BlockWithElementHolder holder ? holder : null;
     }
 

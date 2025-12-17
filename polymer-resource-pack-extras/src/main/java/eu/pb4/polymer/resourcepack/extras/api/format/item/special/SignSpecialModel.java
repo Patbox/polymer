@@ -2,10 +2,9 @@ package eu.pb4.polymer.resourcepack.extras.api.format.item.special;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.WoodType;
-import net.minecraft.util.Identifier;
-
 import java.util.Optional;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.properties.WoodType;
 
 public record SignSpecialModel(WoodType woodType, Optional<Identifier> texture) implements SpecialModel {
     public static final MapCodec<SignSpecialModel> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

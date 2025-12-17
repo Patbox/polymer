@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.api.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 /**
@@ -10,13 +10,13 @@ import xyz.nucleoid.packettweaker.PacketContext;
 public class SimplePolymerBlock extends Block implements PolymerBlock {
     private final Block polymerBlock;
 
-    public SimplePolymerBlock(Settings settings, Block polymerBlock) {
+    public SimplePolymerBlock(Properties settings, Block polymerBlock) {
         super(settings);
         this.polymerBlock = polymerBlock;
     }
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return this.polymerBlock.getDefaultState();
+        return this.polymerBlock.defaultBlockState();
     }
 }

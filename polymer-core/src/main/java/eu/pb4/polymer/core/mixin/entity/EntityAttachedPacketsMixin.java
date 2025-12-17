@@ -1,21 +1,28 @@
 package eu.pb4.polymer.core.mixin.entity;
 
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin({
-        EntityS2CPacket.class,
-        EntitySpawnS2CPacket.class,
-        EntityTrackerUpdateS2CPacket.class,
-        EntityAnimationS2CPacket.class,
-        EntityPositionS2CPacket.class,
-        EntitySetHeadYawS2CPacket.class,
-        EntityEquipmentUpdateS2CPacket.class,
-        EntityAttributesS2CPacket.class
+        ClientboundMoveEntityPacket.class,
+        ClientboundAddEntityPacket.class,
+        ClientboundSetEntityDataPacket.class,
+        ClientboundAnimatePacket.class,
+        ClientboundTeleportEntityPacket.class,
+        ClientboundRotateHeadPacket.class,
+        ClientboundSetEquipmentPacket.class,
+        ClientboundUpdateAttributesPacket.class
 })
 public class EntityAttachedPacketsMixin implements EntityAttachedPacket {
     @Unique

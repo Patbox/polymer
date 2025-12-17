@@ -4,17 +4,16 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.client.ClientPolymerItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.type.LoreComponent;
-import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.TooltipDisplay;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,17 +33,17 @@ public class VirtualClientItem extends Item {
     }
 
     @Override
-    public RegistryEntry.Reference<Item> getRegistryEntry() {
-        return this.polymerItem.visualStack().getItem().getRegistryEntry();
+    public Holder.Reference<Item> builtInRegistryHolder() {
+        return this.polymerItem.visualStack().getItem().builtInRegistryHolder();
     }
 
     @Override
-    public ItemStack getDefaultStack() {
+    public ItemStack getDefaultInstance() {
         return this.polymerItem.visualStack().copy();
     }
     @Override
-    public Text getName(ItemStack stack) {
-        return this.polymerItem.visualStack().getName();
+    public Component getName(ItemStack stack) {
+        return this.polymerItem.visualStack().getHoverName();
     }
 
     public ClientPolymerItem getPolymerEntry() {
@@ -52,25 +51,25 @@ public class VirtualClientItem extends Item {
     }
 
     @Override
-    public ComponentMap getComponents() {
+    public DataComponentMap components() {
         return this.polymerItem.visualStack().getComponents();
     }
 
     @Override
-    public int getMaxCount() {
-        return this.polymerItem.visualStack().getMaxCount();
+    public int getDefaultMaxStackSize() {
+        return this.polymerItem.visualStack().getMaxStackSize();
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, TooltipDisplayComponent displayComponent, Consumer<Text> textConsumer, TooltipType type) {
-        if (this.polymerItem.visualStack().contains(DataComponentTypes.LORE)) {
-            this.polymerItem.visualStack().getOrDefault(DataComponentTypes.LORE, LoreComponent.DEFAULT).appendTooltip(context, textConsumer, type, stack.getComponents());
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> textConsumer, TooltipFlag type) {
+        if (this.polymerItem.visualStack().has(DataComponents.LORE)) {
+            this.polymerItem.visualStack().getOrDefault(DataComponents.LORE, ItemLore.EMPTY).addToTooltip(context, textConsumer, type, stack.getComponents());
         }
     }
 
     @Override
-    public FeatureSet getRequiredFeatures() {
-        return FeatureSet.empty();
+    public FeatureFlagSet requiredFeatures() {
+        return FeatureFlagSet.of();
     }
 
     private VirtualClientItem() {

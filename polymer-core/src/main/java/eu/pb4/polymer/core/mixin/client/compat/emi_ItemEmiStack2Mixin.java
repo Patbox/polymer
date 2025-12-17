@@ -4,11 +4,10 @@ import dev.emi.emi.api.stack.ItemEmiStack;
 import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -26,11 +25,11 @@ public abstract class emi_ItemEmiStack2Mixin {
     @Shadow
     public abstract ItemStack getItemStack();
 
-    @Shadow public abstract <T> @Nullable T get(ComponentType<? extends T> type);
+    @Shadow public abstract <T> @Nullable T get(DataComponentType<? extends T> type);
 
     @Inject(method = "getKey", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer$getKey(CallbackInfoReturnable<Object> cir) {
-        var nbt = this.get(DataComponentTypes.CUSTOM_DATA);
+        var nbt = this.get(DataComponents.CUSTOM_DATA);
         if (CompatUtils.isServerSide(nbt)) {
             cir.setReturnValue(CompatUtils.getKey(nbt));
         }
@@ -38,7 +37,7 @@ public abstract class emi_ItemEmiStack2Mixin {
 
     @Inject(method = "getId", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void polymer$getId(CallbackInfoReturnable<Identifier> cir) {
-        var id = CompatUtils.getId(this.get(DataComponentTypes.CUSTOM_DATA));
+        var id = CompatUtils.getId(this.get(DataComponents.CUSTOM_DATA));
         if (id != null) {
             cir.setReturnValue(id);
         }

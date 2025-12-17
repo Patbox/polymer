@@ -1,12 +1,12 @@
 package eu.pb4.polymer.common.mixin;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(RegistryEntry.Reference.class)
+@Mixin(Holder.Reference.class)
 public interface ReferenceAccessor {
     @Invoker
-    void callSetRegistryKey(RegistryKey<?> registryKey);
+    void callBindKey(ResourceKey<?> registryKey);
 }

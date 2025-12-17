@@ -2,8 +2,8 @@ package eu.pb4.polymer.virtualentity.api.attachment;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 public class IdentifiedUniqueEntityAttachment extends EntityAttachment implements UniqueIdentifiableAttachment {

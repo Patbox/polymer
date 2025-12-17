@@ -8,8 +8,6 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -17,12 +15,14 @@ import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 
 
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
-    @ModifyExpressionValue(method = "appendTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/tooltip/TooltipType;isAdvanced()Z"))
-    private boolean removeAdvanced(boolean original, @Local(ordinal = 0, argsOnly = true) TooltipType type) {
+    @ModifyExpressionValue(method = "addDetailsToTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/TooltipFlag;isAdvanced()Z"))
+    private boolean removeAdvanced(boolean original, @Local(ordinal = 0, argsOnly = true) TooltipFlag type) {
         return original && !(type instanceof PolymerTooltipType);
     }
 

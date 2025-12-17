@@ -2,50 +2,49 @@ package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.SafeBundler;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractElement implements VirtualElement {
-    private static final Predicate<ServerPlayerEntity> DEFAULT_VISIBILITY = p -> true;
+    private static final Predicate<ServerPlayer> DEFAULT_VISIBILITY = p -> true;
     private ElementHolder holder;
-    private Vec3d offset = Vec3d.ZERO;
+    private Vec3 offset = Vec3.ZERO;
     @Nullable
-    private Vec3d overridePos;
+    private Vec3 overridePos;
     @Nullable
-    protected Vec3d lastSyncedPos;
+    protected Vec3 lastSyncedPos;
     private InteractionHandler handler = InteractionHandler.EMPTY;
 
-    protected Predicate<ServerPlayerEntity> elementVisiblityPredicate = DEFAULT_VISIBILITY;
+    protected Predicate<ServerPlayer> elementVisiblityPredicate = DEFAULT_VISIBILITY;
 
     @Override
-    public Vec3d getOffset() {
+    public Vec3 getOffset() {
         return this.offset;
     }
 
     @Override
-    public void setOffset(Vec3d offset) {
+    public void setOffset(Vec3 offset) {
         this.offset = offset;
     }
 
     @Nullable
-    public Vec3d getOverridePos() {
+    public Vec3 getOverridePos() {
         return this.overridePos;
     }
 
     @Nullable
-    public void setOverridePos(Vec3d vec3d) {
+    public void setOverridePos(Vec3 vec3d) {
         this.overridePos = vec3d;
     }
 
     @Override
-    public Vec3d getLastSyncedPos() {
+    public Vec3 getLastSyncedPos() {
         return this.lastSyncedPos;
     }
     public void updateLastSyncedPos() {
@@ -63,7 +62,7 @@ public abstract class AbstractElement implements VirtualElement {
     }
 
     @Override
-    public InteractionHandler getInteractionHandler(ServerPlayerEntity player) {
+    public InteractionHandler getInteractionHandler(ServerPlayer player) {
         return this.handler;
     }
 
@@ -71,7 +70,7 @@ public abstract class AbstractElement implements VirtualElement {
         this.handler = handler;
     }
 
-    public final void setVisibilityPredicate(Predicate<ServerPlayerEntity> predicate) {
+    public final void setVisibilityPredicate(Predicate<ServerPlayer> predicate) {
         if (this.elementVisiblityPredicate == predicate) {
             return;
         }
@@ -79,7 +78,7 @@ public abstract class AbstractElement implements VirtualElement {
         if (this.holder != null) {
             for (var player : this.holder.getWatchingPlayers()) {
                 if (oldPredicate.test(player.getPlayer()) && !predicate.test(player.getPlayer())) {
-                    var x = new SafeBundler(player::sendPacket);
+                    var x = new SafeBundler(player::send);
                     this.stopWatching(player.getPlayer(), x);
                     x.finish();
                 }
@@ -89,7 +88,7 @@ public abstract class AbstractElement implements VirtualElement {
         if (this.holder != null) {
             for (var player : this.holder.getWatchingPlayers()) {
                 if (!oldPredicate.test(player.getPlayer()) && predicate.test(player.getPlayer())) {
-                    var x = new SafeBundler(player::sendPacket);
+                    var x = new SafeBundler(player::send);
                     this.startWatching(player.getPlayer(), x);
                     x.finish();
                 }
@@ -97,17 +96,17 @@ public abstract class AbstractElement implements VirtualElement {
         }
     }
 
-    public final Predicate<ServerPlayerEntity> getVisibilityPredicate() {
+    public final Predicate<ServerPlayer> getVisibilityPredicate() {
         return this.elementVisiblityPredicate;
     }
 
-    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet) {
+    public void sendPacket(Packet<? extends ClientGamePacketListener> packet) {
         if (this.holder != null) {
             this.holder.sendPacket(packet, DEFAULT_VISIBILITY);
         }
     }
 
-    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet, Predicate<ServerPlayerEntity> predicate) {
+    public void sendPacket(Packet<? extends ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate) {
         if (this.holder != null) {
             this.holder.sendPacket(packet, predicate.and(DEFAULT_VISIBILITY));
         }

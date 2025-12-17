@@ -7,28 +7,27 @@ import eu.pb4.polymer.virtualentity.impl.SafeBundler;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
 
 public class ElementHolder {
-    private final Consumer<Packet<ClientPlayPacketListener>> EMPTY_PACKET_CONSUMER = (p) -> {};
+    private final Consumer<Packet<ClientGamePacketListener>> EMPTY_PACKET_CONSUMER = (p) -> {};
 
     private HolderAttachment attachment;
     private final List<VirtualElement> elements = new ObjectArrayList<>();
-    private final List<ServerPlayNetworkHandler> players = new ArrayList<>();
-    protected Vec3d currentPos = Vec3d.ZERO;
+    private final List<ServerGamePacketListenerImpl> players = new ArrayList<>();
+    protected Vec3 currentPos = Vec3.ZERO;
     private ChunkPos currentChunkPos = null;
 
     private final IntList entityIds = new IntArrayList();
@@ -45,7 +44,7 @@ public class ElementHolder {
     public <T extends VirtualElement> T addElement(T element) {
         if (this.addElementWithoutUpdates(element)) {
             for (var player : this.players) {
-                var x = new SafeBundler(player::sendPacket);
+                var x = new SafeBundler(player::send);
                 element.startWatching(player.getPlayer(), x);
                 x.finish();
             }
@@ -65,12 +64,12 @@ public class ElementHolder {
 
     public void removeElement(VirtualElement element) {
         if (this.removeElementWithoutUpdates(element)) {
-            var packet = new EntitiesDestroyS2CPacket(element.getEntityIds());
+            var packet = new ClientboundRemoveEntitiesPacket(element.getEntityIds());
             for (var player : this.players) {
                 for (var e : this.elements) {
-                    e.stopWatching(player.getPlayer(), player::sendPacket);
+                    e.stopWatching(player.getPlayer(), player::send);
                 }
-                player.sendPacket(packet);
+                player.send(packet);
             }
         }
     }
@@ -89,13 +88,13 @@ public class ElementHolder {
         return Collections.unmodifiableList(this.elements);
     }
 
-    public boolean startWatching(ServerPlayNetworkHandler player) {
+    public boolean startWatching(ServerGamePacketListenerImpl player) {
         if (this.players.contains(player)) {
             return false;
         }
         this.players.add(player);
         ((HolderHolder) player).polymer$addHolder(this);
-        var packets = new SafeBundler(player::sendPacket);
+        var packets = new SafeBundler(player::send);
 
         for (var e : this.elements) {
             e.startWatching(player.getPlayer(), packets);
@@ -112,32 +111,32 @@ public class ElementHolder {
         return true;
     }
 
-    protected void startWatchingExtraPackets(ServerPlayNetworkHandler player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
+    protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {
     }
 
-    public final boolean startWatching(ServerPlayerEntity player) {
-        return startWatching(player.networkHandler);
+    public final boolean startWatching(ServerPlayer player) {
+        return startWatching(player.connection);
     }
 
-    public boolean stopWatching(ServerPlayNetworkHandler player) {
+    public boolean stopWatching(ServerGamePacketListenerImpl player) {
         if (!this.players.contains(player)) {
             return false;
         }
         this.players.remove(player);
         ((HolderHolder) player).polymer$removeHolder(this);
 
-        Consumer<Packet<ClientPlayPacketListener>> packetConsumer = player.isConnectionOpen() ? player::sendPacket : EMPTY_PACKET_CONSUMER;
+        Consumer<Packet<ClientGamePacketListener>> packetConsumer = player.isAcceptingMessages() ? player::send : EMPTY_PACKET_CONSUMER;
 
         for (var e : this.elements) {
             e.stopWatching(player.getPlayer(), packetConsumer);
         }
-        packetConsumer.accept(new EntitiesDestroyS2CPacket(this.entityIds));
+        packetConsumer.accept(new ClientboundRemoveEntitiesPacket(this.entityIds));
 
         return true;
     }
 
-    public final boolean stopWatching(ServerPlayerEntity player) {
-        return stopWatching(player.networkHandler);
+    public final boolean stopWatching(ServerPlayer player) {
+        return stopWatching(player.connection);
     }
 
     public void tick() {
@@ -189,27 +188,27 @@ public class ElementHolder {
 
     public ChunkPos getChunkPos() {
         if (this.currentChunkPos == null) {
-            this.currentChunkPos = new ChunkPos(BlockPos.ofFloored(this.currentPos));
+            this.currentChunkPos = new ChunkPos(BlockPos.containing(this.currentPos));
         }
         return this.currentChunkPos;
     }
 
-    protected void notifyElementsOfPositionUpdate(Vec3d newPos, Vec3d delta) {
+    protected void notifyElementsOfPositionUpdate(Vec3 newPos, Vec3 delta) {
         for (var e : this.elements) {
             e.notifyMove(this.currentPos, newPos, delta);
         }
     }
 
-    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet) {
+    public void sendPacket(Packet<? extends ClientGamePacketListener> packet) {
         for (var player : players) {
-            player.sendPacket(packet);
+            player.send(packet);
         }
     }
 
-    public void sendPacket(Packet<? extends ClientPlayPacketListener> packet, Predicate<ServerPlayerEntity> predicate) {
+    public void sendPacket(Packet<? extends ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate) {
         for (var player : players) {
             if (predicate.test(player.getPlayer())) {
-                player.sendPacket(packet);
+                player.send(packet);
             }
         }
     }
@@ -223,7 +222,7 @@ public class ElementHolder {
         var oldAttachment = this.attachment;
         this.attachment = attachment;
         if (attachment != null) {
-            if (this.currentPos == Vec3d.ZERO && attachment.canUpdatePosition()) {
+            if (this.currentPos == Vec3.ZERO && attachment.canUpdatePosition()) {
                 this.updateInitialPosition();
             }
             attachment.updateCurrentlyTracking(new ArrayList<>(this.players));
@@ -239,15 +238,15 @@ public class ElementHolder {
     protected void onAttachmentRemoved(HolderAttachment oldAttachment) {
     }
 
-    public Vec3d getPos() {
-        if (this.currentPos == Vec3d.ZERO && attachment != null && attachment.canUpdatePosition()) {
+    public Vec3 getPos() {
+        if (this.currentPos == Vec3.ZERO && attachment != null && attachment.canUpdatePosition()) {
             this.currentPos = attachment.getPos();
         }
 
         return this.currentPos;
     }
 
-    public VirtualElement.InteractionHandler getInteraction(int id, ServerPlayerEntity player) {
+    public VirtualElement.InteractionHandler getInteraction(int id, ServerPlayer player) {
         for (var x : this.elements) {
             if (x.getEntityIds().contains(id)) {
                 return x.getInteractionHandler(player);
@@ -266,7 +265,7 @@ public class ElementHolder {
         }
     }
 
-    public Collection<ServerPlayNetworkHandler> getWatchingPlayers() {
+    public Collection<ServerGamePacketListenerImpl> getWatchingPlayers() {
         return this.players;
     }
 

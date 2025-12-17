@@ -7,14 +7,13 @@ import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
 import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.network.ClientCommonNetworkHandler;
-import net.minecraft.client.network.ClientConfigurationNetworkHandler;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtType;
-
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
+import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagType;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -33,15 +32,15 @@ public final class PolymerClientNetworking {
     private PolymerClientNetworking() {
     }
 
-    public static <T extends CustomPayload> void registerCommonHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientCommonNetworkHandler, T> handler) {
+    public static <T extends CustomPacketPayload> void registerCommonHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientCommonPacketListenerImpl, T> handler) {
         ClientPacketRegistry.COMMON_PACKET_LISTENERS.computeIfAbsent(payloadClass, (x) -> new ArrayList<>()).add(handler);
     }
 
-    public static <T extends CustomPayload> void registerPlayHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientPlayNetworkHandler, T> handler) {
+    public static <T extends CustomPacketPayload> void registerPlayHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientPacketListener, T> handler) {
         ClientPacketRegistry.PLAY_PACKET_LISTENERS.computeIfAbsent(payloadClass, (x) -> new ArrayList<>()).add(handler);
     }
 
-    public static <T extends CustomPayload> void registerConfigurationHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientConfigurationNetworkHandler, T> handler) {
+    public static <T extends CustomPacketPayload> void registerConfigurationHandler(Class<T> payloadClass, PolymerClientPacketHandler<ClientConfigurationPacketListenerImpl, T> handler) {
         ClientPacketRegistry.CONFIG_PACKET_LISTENERS.computeIfAbsent(payloadClass, (x) -> new ArrayList<>()).add(handler);
     }
 
@@ -50,16 +49,16 @@ public final class PolymerClientNetworking {
     }
 
     @Nullable
-    public static <T extends NbtElement> T getMetadata(Identifier identifier, NbtType<T> type) {
+    public static <T extends Tag> T getMetadata(Identifier identifier, TagType<T> type) {
         var x = ClientPacketRegistry.SERVER_METADATA.get(identifier);
-        if (x != null && x.getNbtType() == type) {
+        if (x != null && x.getType() == type) {
             //noinspection unchecked
             return (T) x;
         }
         return null;
     }
 
-    public static void setClientMetadata(Identifier identifier, @Nullable NbtElement nbtElement) {
+    public static void setClientMetadata(Identifier identifier, @Nullable Tag nbtElement) {
         if (nbtElement == null) {
             ClientPacketRegistry.METADATA.remove(identifier);
         } else {

@@ -4,23 +4,23 @@
   "package": "eu.pb4.polymer.networking.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ClientConnectionAccessor",
-    "ClientConnectionMixin",
-    "CustomPayloadC2SPacketMixin",
+    "ConnectionAccessor",
+    "ConnectionMixin",
+    "ServerboundCustomPayloadPacketMixin",
     "CustomPayloadCodecMixin",
-    "CustomPayloadS2CPacketMixin",
-    "PlayerManagerMixin",
-    "ServerCommonNetworkHandlerMixin",
-    "ServerConfigurationNetworkHandlerMixin",
-    "ServerLoginNetworkHandlerMixin",
-    "ServerPlayerEntityMixin",
-    "ServerPlayNetworkHandlerMixin"
+    "ClientboundCustomPayloadPacketMixin",
+    "PlayerListMixin",
+    "ServerCommonPacketListenerImplMixin",
+    "ServerConfigurationPacketListenerImplMixin",
+    "ServerLoginPacketListenerImplMixin",
+    "ServerPlayerMixin",
+    "ServerGamePacketListenerImplMixin"
   ],
   "client": [
-    "client.ClientCommonNetworkHandlerMixin",
-    "client.ClientConfigurationNetworkHandlerMixin",
-    "client.ClientPlayNetworkHandlerMixin",
-    "client.MinecraftClientMixin"
+    "client.ClientCommonPacketListenerImplMixin",
+    "client.ClientConfigurationPacketListenerImplMixin",
+    "client.ClientPacketListenerMixin",
+    "client.MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

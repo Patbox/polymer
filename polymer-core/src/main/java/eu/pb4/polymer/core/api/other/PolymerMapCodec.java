@@ -2,15 +2,15 @@ package eu.pb4.polymer.core.api.other;
 
 import com.mojang.serialization.*;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
-import net.minecraft.dialog.body.DialogBody;
-import net.minecraft.dialog.input.InputControl;
-import net.minecraft.dialog.type.Dialog;
-import net.minecraft.enchantment.EnchantmentLevelBasedValue;
-import net.minecraft.enchantment.effect.AllOfEnchantmentEffects;
-import net.minecraft.enchantment.effect.EnchantmentEntityEffect;
-import net.minecraft.enchantment.effect.EnchantmentLocationBasedEffect;
-import net.minecraft.enchantment.effect.EnchantmentValueEffect;
+import net.minecraft.server.dialog.Dialog;
+import net.minecraft.server.dialog.body.DialogBody;
+import net.minecraft.server.dialog.input.InputControl;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
+import net.minecraft.world.item.enchantment.effects.AllOf;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentLocationBasedEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import org.jetbrains.annotations.ApiStatus;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -53,19 +53,19 @@ public class PolymerMapCodec<T> extends MapCodec<T> implements PolymerObject {
     }
 
     public static <T extends EnchantmentValueEffect> MapCodec<T> ofEnchantmentValueEffect(MapCodec<T> codec) {
-        return ofStatic(codec, new AllOfEnchantmentEffects.ValueEffects(List.of()));
+        return ofStatic(codec, new AllOf.ValueEffects(List.of()));
     }
 
     public static <T extends EnchantmentLocationBasedEffect> MapCodec<T> ofEnchantmentLocationBasedEffect(MapCodec<T> codec) {
-        return ofStatic(codec, new AllOfEnchantmentEffects.LocationBasedEffects(List.of()));
+        return ofStatic(codec, new AllOf.LocationBasedEffects(List.of()));
     }
 
     public static <T extends EnchantmentEntityEffect> MapCodec<T> ofEnchantmentEntityEffect(MapCodec<T> codec) {
-        return ofStatic(codec, new AllOfEnchantmentEffects.EntityEffects(List.of()));
+        return ofStatic(codec, new AllOf.EntityEffects(List.of()));
     }
 
-    public static <T extends EnchantmentLevelBasedValue> MapCodec<T> ofEnchantmentLevelBasedValue(MapCodec<T> codec) {
-        return ofStatic(codec, new EnchantmentLevelBasedValue.Constant(0));
+    public static <T extends LevelBasedValue> MapCodec<T> ofEnchantmentLevelBasedValue(MapCodec<T> codec) {
+        return ofStatic(codec, new LevelBasedValue.Constant(0));
     }
 
     @ApiStatus.Internal

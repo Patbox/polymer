@@ -10,16 +10,15 @@ import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import eu.pb4.polymer.networking.impl.packets.HelloS2CPayload;
 import eu.pb4.polymer.networking.impl.packets.MetadataPayload;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.nbt.NbtElement;
-
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerConfigurationNetworkHandler;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
@@ -27,16 +26,16 @@ import java.util.List;
 
 @ApiStatus.Internal
 public class ServerPacketRegistry {
-    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerCommonNetworkHandler, ?>>> COMMON_PACKET_LISTENERS = new HashMap<>();
-    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerPlayNetworkHandler, ?>>> PLAY_PACKET_LISTENERS = new HashMap<>();
-    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerConfigurationNetworkHandler, ?>>> CONFIG_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerCommonPacketListenerImpl, ?>>> COMMON_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerGamePacketListenerImpl, ?>>> PLAY_PACKET_LISTENERS = new HashMap<>();
+    public static final HashMap<Class<?>, List<PolymerServerPacketHandler<ServerConfigurationPacketListenerImpl, ?>>> CONFIG_PACKET_LISTENERS = new HashMap<>();
 
-    public static final HashMap<Identifier, NbtElement> METADATA = new HashMap<>();
+    public static final HashMap<Identifier, Tag> METADATA = new HashMap<>();
     public static void register() {
         PolymerNetworking.registerCommonVersioned(HandshakePayload.ID, 2, HandshakePayload.CODEC);
         PolymerNetworking.registerCommonVersioned(MetadataPayload.ID, 2, MetadataPayload.CODEC);
-        PolymerNetworking.registerS2CVersioned(DisableS2CPayload.ID, 2, PacketCodec.unit(new DisableS2CPayload()));
-        PolymerNetworking.registerS2CVersioned(HelloS2CPayload.ID, 2, PacketCodec.unit(new HelloS2CPayload()));
+        PolymerNetworking.registerS2CVersioned(DisableS2CPayload.ID, 2, StreamCodec.unit(new DisableS2CPayload()));
+        PolymerNetworking.registerS2CVersioned(HelloS2CPayload.ID, 2, StreamCodec.unit(new HelloS2CPayload()));
 
         PolymerServerNetworking.registerCommonHandler(HandshakePayload.class,
                 (server, handler, packet) -> handleHandshake(PolymerHandshakeHandler.of(server, handler), packet));
@@ -45,7 +44,7 @@ public class ServerPacketRegistry {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static boolean handle(MinecraftServer server, ServerCommonNetworkHandler handler, CustomPayload packet) {
+    public static boolean handle(MinecraftServer server, ServerCommonPacketListenerImpl handler, CustomPacketPayload packet) {
         var packetHandlers = COMMON_PACKET_LISTENERS.get(packet.getClass());
         boolean handled = false;
         if (packetHandlers != null) {
@@ -55,7 +54,7 @@ public class ServerPacketRegistry {
             handled = !packetHandlers.isEmpty();
         }
 
-        if (handler instanceof ServerPlayNetworkHandler playNetworkHandler) {
+        if (handler instanceof ServerGamePacketListenerImpl playNetworkHandler) {
             var packetHandlers2 = PLAY_PACKET_LISTENERS.get(packet.getClass());
             if (packetHandlers2 != null) {
                 for (var pHandler : packetHandlers2) {
@@ -63,7 +62,7 @@ public class ServerPacketRegistry {
                 }
                 handled = handled || !packetHandlers2.isEmpty();
             }
-        } else if (handler instanceof ServerConfigurationNetworkHandler networkHandler) {
+        } else if (handler instanceof ServerConfigurationPacketListenerImpl networkHandler) {
             var packetHandlers2 = CONFIG_PACKET_LISTENERS.get(packet.getClass());
             if (packetHandlers2 != null) {
                 for (var pHandler : packetHandlers2) {
@@ -76,11 +75,11 @@ public class ServerPacketRegistry {
         return handled;
     }
     public static void sendHandshake(PolymerHandshakeHandler handler) {
-        handler.sendPacket(new CustomPayloadS2CPacket(new HandshakePayload(CommonImpl.VERSION, ClientPackets.VERSION_REGISTRY)));
+        handler.sendPacket(new ClientboundCustomPayloadPacket(new HandshakePayload(CommonImpl.VERSION, ClientPackets.VERSION_REGISTRY)));
     }
 
     private static void sendMetadata(PolymerHandshakeHandler handler) {
-        handler.sendPacket(new CustomPayloadS2CPacket(new MetadataPayload(METADATA)));
+        handler.sendPacket(new ClientboundCustomPayloadPacket(new MetadataPayload(METADATA)));
     }
 
     public static void handleHandshake(PolymerHandshakeHandler handler, HandshakePayload payload) {

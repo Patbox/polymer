@@ -3,9 +3,9 @@ package eu.pb4.polymer.autohost.api;
 import com.google.gson.JsonElement;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -29,7 +29,7 @@ public interface ResourcePackDataProvider {
         AutoHost.TYPES.put(identifier, providerCreator);
     }
 
-    Collection<MinecraftServer.ServerResourcePackProperties> getProperties(ClientConnection connection);
+    Collection<MinecraftServer.ServerResourcePackInfo> getProperties(Connection connection);
 
     String getMainFilePath(PacketContext context);
     String getFilePath(PacketContext context, Identifier identifier);
@@ -38,28 +38,28 @@ public interface ResourcePackDataProvider {
         return this.getFilePath(context, identifier);
     }
 
-    default MinecraftServer.ServerResourcePackProperties createProperties(PacketContext context, Identifier address) {
+    default MinecraftServer.ServerResourcePackInfo createProperties(PacketContext context, Identifier address) {
         return this.createProperties(context,null, address, null);
     }
 
-    default MinecraftServer.ServerResourcePackProperties createProperties(PacketContext context, Identifier address, @Nullable String hash) {
+    default MinecraftServer.ServerResourcePackInfo createProperties(PacketContext context, Identifier address, @Nullable String hash) {
         return this.createProperties(context,null, address, hash);
     }
 
-    default MinecraftServer.ServerResourcePackProperties createProperties(PacketContext context, @Nullable UUID uuid, Identifier address, @Nullable String hash) {
+    default MinecraftServer.ServerResourcePackInfo createProperties(PacketContext context, @Nullable UUID uuid, Identifier address, @Nullable String hash) {
         return createProperties(uuid, this.getFilePath(context, address), hash);
     }
 
-    static MinecraftServer.ServerResourcePackProperties createProperties(String address) {
+    static MinecraftServer.ServerResourcePackInfo createProperties(String address) {
         return createProperties(null, address, null);
     }
 
-    static MinecraftServer.ServerResourcePackProperties createProperties(String address, @Nullable String hash) {
+    static MinecraftServer.ServerResourcePackInfo createProperties(String address, @Nullable String hash) {
         return createProperties(null, address, hash);
     }
 
-    static MinecraftServer.ServerResourcePackProperties createProperties(@Nullable UUID uuid, String address, @Nullable String hash) {
-        return new MinecraftServer.ServerResourcePackProperties(
+    static MinecraftServer.ServerResourcePackInfo createProperties(@Nullable UUID uuid, String address, @Nullable String hash) {
+        return new MinecraftServer.ServerResourcePackInfo(
                 uuid != null ? uuid : UUID.nameUUIDFromBytes(address.getBytes(StandardCharsets.UTF_8)),
                 address,
                 hash != null ? hash : "",

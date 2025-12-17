@@ -9,11 +9,6 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentType;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -23,16 +18,18 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
 
-@Mixin(ComponentMap.class)
+@Mixin(DataComponentMap.class)
 public interface ComponentMapMixin {
-    @ModifyVariable(method = "createCodecFromValueMap", at = @At("HEAD"), argsOnly = true)
-    private static Codec<Map<ComponentType<?>, Object>> patchCodec(Codec<Map<ComponentType<?>, Object>> codec) {
+    @ModifyVariable(method = "makeCodecFromMap", at = @At("HEAD"), argsOnly = true)
+    private static Codec<Map<DataComponentType<?>, Object>> patchCodec(Codec<Map<DataComponentType<?>, Object>> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var player = PacketContext.get();
 
-                var map = new IdentityHashMap<ComponentType<?>, Object>();
+                var map = new IdentityHashMap<DataComponentType<?>, Object>();
                 for (var key : content.keySet()) {
                     var entry = content.get(key);
                     if (entry instanceof TransformingComponent t) {

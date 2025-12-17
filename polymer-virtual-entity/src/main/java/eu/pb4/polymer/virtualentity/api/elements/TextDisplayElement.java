@@ -1,23 +1,23 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
 
 public class TextDisplayElement extends DisplayElement {
-    public TextDisplayElement(Text text) {
+    public TextDisplayElement(Component text) {
         this.setText(text);
     }
 
     public TextDisplayElement() {
     }
 
-    public Text getText() {
+    public Component getText() {
         return this.dataTracker.get(DisplayTrackedData.Text.TEXT);
     }
 
-    public void setText(Text text) {
+    public void setText(Component text) {
         this.dataTracker.set(DisplayTrackedData.Text.TEXT, text);
     }
 
@@ -61,7 +61,7 @@ public class TextDisplayElement extends DisplayElement {
         this.dataTracker.set(DisplayTrackedData.Text.TEXT_DISPLAY_FLAGS, flag(getDisplayFlags(), flag, value));
     }
 
-    public void setTextAlignment(DisplayEntity.TextDisplayEntity.TextAlignment alignment) {
+    public void setTextAlignment(Display.TextDisplay.Align alignment) {
         setDisplayFlags(switch (alignment) {
             case CENTER -> flag(getDisplayFlags(), DisplayTrackedData.Text.LEFT_ALIGNMENT_FLAG | DisplayTrackedData.Text.RIGHT_ALIGNMENT_FLAG, false);
             case LEFT -> flag(flag(getDisplayFlags(), DisplayTrackedData.Text.LEFT_ALIGNMENT_FLAG, true), DisplayTrackedData.Text.RIGHT_ALIGNMENT_FLAG, false);
@@ -69,8 +69,8 @@ public class TextDisplayElement extends DisplayElement {
         });
     }
 
-    public DisplayEntity.TextDisplayEntity.TextAlignment getTextAlignment() {
-        return DisplayEntity.TextDisplayEntity.getAlignment(this.getDisplayFlags());
+    public Display.TextDisplay.Align getTextAlignment() {
+        return Display.TextDisplay.getAlign(this.getDisplayFlags());
     }
 
     public void setShadow(boolean value) {
@@ -102,7 +102,7 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     @Override
-    protected final EntityType<? extends DisplayEntity> getEntityType() {
+    protected final EntityType<? extends Display> getEntityType() {
         return EntityType.TEXT_DISPLAY;
     }
 }

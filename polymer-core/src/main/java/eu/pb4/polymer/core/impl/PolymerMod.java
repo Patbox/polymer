@@ -14,11 +14,8 @@ import eu.pb4.polymer.core.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.core.impl.networking.entry.PolymerBlockEntry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.jetbrains.annotations.ApiStatus;
 
 
@@ -31,11 +28,11 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 
 		PolymerServerProtocolHandler.register();
 		PolymerCommonUtils.ON_RESOURCE_PACK_STATUS_CHANGE.register(((handler, uuid, oldStatus, newStatus) -> {
-			if (oldStatus != newStatus && handler instanceof ServerPlayNetworkHandler handler1) {
+			if (oldStatus != newStatus && handler instanceof ServerGamePacketListenerImpl handler1) {
 				PolymerUtils.reloadWorld(handler1.player);
 			}
 		}));
-		ImplPolymerRegistryEvent.iterateAndRegister(Registries.BLOCK, PolymerBlockEntry::cacheCalcDeltaOverride);
+		ImplPolymerRegistryEvent.iterateAndRegister(BuiltInRegistries.BLOCK, PolymerBlockEntry::cacheCalcDeltaOverride);
 
 
 		PolyMcUtils.register();

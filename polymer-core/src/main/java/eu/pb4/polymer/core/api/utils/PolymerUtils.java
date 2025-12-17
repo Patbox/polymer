@@ -1,7 +1,6 @@
 package eu.pb4.polymer.core.api.utils;
 
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.MultimapBuilder;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -9,43 +8,41 @@ import com.mojang.datafixers.util.Either;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.ScopedOverride;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerPlayNetworkHandlerExtension;
+import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.StaticAccessor;
-import eu.pb4.polymer.core.mixin.block.packet.ServerChunkLoadingManagerAccessor;
-import eu.pb4.polymer.core.mixin.entity.ServerWorldAccessor;
+import eu.pb4.polymer.core.mixin.block.packet.ServerMapAccessor;
+import eu.pb4.polymer.core.mixin.entity.ServerLevelAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.player.SkinTextures;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.resource.featuretoggle.FeatureFlag;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.world.flag.FeatureFlag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -58,7 +55,7 @@ public final class PolymerUtils {
     public static final String ID = "polymer";
     public static final String NO_TEXTURE_HEAD_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGUyY2UzMzcyYTNhYzk3ZmRkYTU2MzhiZWYyNGIzYmM0OWY0ZmFjZjc1MWZlOWNhZDY0NWYxNWE3ZmI4Mzk3YyJ9fX0=";
     private static final Set<FeatureFlag> ENABLED_FEATURE_FLAGS = new HashSet<>();
-    private static final Set<RegistryKey<? extends Registry<?>>> SERVER_ONLY_REGISTRIES = new HashSet<>();
+    private static final Set<ResourceKey<? extends Registry<?>>> SERVER_ONLY_REGISTRIES = new HashSet<>();
 
     private PolymerUtils() {
     }
@@ -90,34 +87,34 @@ public final class PolymerUtils {
      * @param packet   sent packet
      * @param duration time (in ticks) waited before packet is send
      */
-    public static void schedulePacket(ServerPlayNetworkHandler handler, Packet<?> packet, int duration) {
-        ((PolymerPlayNetworkHandlerExtension) handler).polymer$schedulePacket(packet, duration);
+    public static void schedulePacket(ServerGamePacketListenerImpl handler, Packet<?> packet, int duration) {
+        ((PolymerGamePacketListenerExtension) handler).polymer$schedulePacket(packet, duration);
     }
 
     /**
      * Resends world to player. It's useful to run this after player changes resource packs
      */
-    public static void reloadWorld(ServerPlayerEntity player) {
-        player.getEntityWorld().getServer().execute(() -> {
+    public static void reloadWorld(ServerPlayer player) {
+        player.level().getServer().execute(() -> {
             PolymerImplUtils.IS_RELOADING_WORLD.set(Unit.INSTANCE);
             try {
-                player.currentScreenHandler.syncState();
+                player.containerMenu.sendAllDataToRemote();
 
-                var world = player.getEntityWorld();
-                var tacsAccess = ((ServerChunkLoadingManagerAccessor) world.getChunkManager().chunkLoadingManager);
+                var world = player.level();
+                var tacsAccess = ((ServerMapAccessor) world.getChunkSource().chunkMap);
 
-                for (var e : ((ServerWorldAccessor) world).polymer_getEntityManager().getLookup().iterate()) {
+                for (var e : ((ServerLevelAccessor) world).polymer_getEntityManager().getEntityGetter().getAll()) {
                     var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
                     if (tracker != null) {
-                        tracker.stopTracking(player);
+                        tracker.removePlayer(player);
                     }
                 }
 
 
-                player.getChunkFilter().forEach((chunkPos) -> {
+                player.getChunkTrackingView().forEach((chunkPos) -> {
                     var chunk = world.getChunk(chunkPos.x, chunkPos.z);
-                    player.networkHandler.chunkDataSender.unload(player, chunk.getPos());
-                    player.networkHandler.chunkDataSender.add(chunk);
+                    player.connection.chunkSender.dropChunk(player, chunk.getPos());
+                    player.connection.chunkSender.markChunkPendingToSend(chunk);
                 });
             } catch (Throwable e) {
                 PolymerImpl.LOGGER.warn("Failed to reload player's world view!", e);
@@ -130,35 +127,35 @@ public final class PolymerUtils {
     /**
      * Resends inventory to player
      */
-    public static void reloadInventory(ServerPlayerEntity player) {
-        player.currentScreenHandler.syncState();
+    public static void reloadInventory(ServerPlayer player) {
+        player.containerMenu.sendAllDataToRemote();
     }
 
     /**
      * Returns current TooltipContext of player,
      */
-    public static TooltipType getTooltipType(@Nullable ServerPlayerEntity player) {
+    public static TooltipFlag getTooltipType(@Nullable ServerPlayer player) {
         return PolymerImplUtils.getTooltipContext(player);
     }
 
     /**
      * Returns current TooltipContext of player,
      */
-    public static TooltipType getCreativeTooltipType(@Nullable ServerPlayerEntity player) {
+    public static TooltipFlag getCreativeTooltipType(@Nullable ServerPlayer player) {
         return PolymerImplUtils.getTooltipContext(player).withCreative();
     }
 
 
-    public static ProfileComponent createProfileComponent(String value) {
+    public static ResolvableProfile createProfileComponent(String value) {
         return createProfileComponent(value, null);
     }
-    public static ProfileComponent createProfileComponent(String value, @Nullable String signature) {
+    public static ResolvableProfile createProfileComponent(String value, @Nullable String signature) {
         var profile = new PropertyMap(ImmutableMultimap.of("textures", new Property("textures", value, signature)));
-        return ProfileComponent.ofStatic(new GameProfile(Util.NIL_UUID, "", profile));
+        return ResolvableProfile.createResolved(new GameProfile(Util.NIL_UUID, "", profile));
     }
 
-    public static ProfileComponent createProfileComponent(SkinTextures.SkinOverride override) {
-        return StaticAccessor.createStatic(Either.right(ProfileComponent.Data.EMPTY), override);
+    public static ResolvableProfile createProfileComponent(PlayerSkin.Patch override) {
+        return StaticAccessor.createStatic(Either.right(ResolvableProfile.Partial.EMPTY), override);
     }
 
 
@@ -168,11 +165,11 @@ public final class PolymerUtils {
 
     public static ItemStack createPlayerHead(String value, String signature) {
         var stack = new ItemStack(Items.PLAYER_HEAD);
-        stack.set(DataComponentTypes.PROFILE, createProfileComponent(value, signature));
+        stack.set(DataComponents.PROFILE, createProfileComponent(value, signature));
         return stack;
     }
 
-    public static World getFakeWorld() {
+    public static Level getFakeWorld() {
         return PolymerCommonUtils.getFakeWorld();
     }
 
@@ -188,33 +185,33 @@ public final class PolymerUtils {
                 || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack))
                 || (obj instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type))
                 || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE))
-                || (obj instanceof RegistryEntry<?> entry && (
-                        (entry.value() instanceof EntityAttribute && PolymerEntityUtils.isPolymerEntityAttribute((RegistryEntry<EntityAttribute>) entry))))
-                || (obj instanceof ComponentType<?> componentType && PolymerComponent.isPolymerComponent(componentType))
+                || (obj instanceof Holder<?> entry && (
+                        (entry.value() instanceof Attribute && PolymerEntityUtils.isPolymerEntityAttribute((Holder<Attribute>) entry))))
+                || (obj instanceof DataComponentType<?> componentType && PolymerComponent.isPolymerComponent(componentType))
                 || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
     }
     public static <T> boolean isServerOnly(Registry<T> registry, T obj) {
         return RegistrySyncUtils.isServerEntry(registry, obj) || isServerOnly(obj);
     }
 
-    public static boolean hasResourcePack(@Nullable ServerPlayerEntity player, UUID uuid) {
+    public static boolean hasResourcePack(@Nullable ServerPlayer player, UUID uuid) {
         return PolymerCommonUtils.hasResourcePack(player, uuid);
     }
 
-    public static Packet<?> replacePacket(ServerCommonNetworkHandler handler, Packet<?> packet) {
+    public static Packet<?> replacePacket(ServerCommonPacketListenerImpl handler, Packet<?> packet) {
         return PacketPatcher.replace(handler, packet);
     }
 
-    public static boolean shouldPreventPacket(ServerCommonNetworkHandler handler, Packet<?> packet) {
+    public static boolean shouldPreventPacket(ServerCommonPacketListenerImpl handler, Packet<?> packet) {
         return PacketPatcher.prevent(handler, packet);
     }
 
-    public static boolean isServerOnlyRegistry(RegistryKey<? extends Registry<?>> key) {
+    public static boolean isServerOnlyRegistry(ResourceKey<? extends Registry<?>> key) {
         return SERVER_ONLY_REGISTRIES.contains(key);
     }
 
-    public static void markAsServerOnlyRegistry(RegistryKey<? extends Registry<?>> key) {
-        if (key.getValue().getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
+    public static void markAsServerOnlyRegistry(ResourceKey<? extends Registry<?>> key) {
+        if (key.identifier().getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
             return;
         }
         SERVER_ONLY_REGISTRIES.add(key);

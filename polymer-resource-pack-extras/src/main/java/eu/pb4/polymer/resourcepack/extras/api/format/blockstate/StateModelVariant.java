@@ -3,10 +3,9 @@ package eu.pb4.polymer.resourcepack.extras.api.format.blockstate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.common.impl.SortedMapCodec;
-import net.minecraft.util.Identifier;
-
 import java.util.List;
 import java.util.Map;
+import net.minecraft.resources.Identifier;
 
 public record StateModelVariant(Identifier model, int x, int y, boolean uvlock, int weigth) {
     private static final Codec<StateModelVariant> BASE = RecordCodecBuilder.create(instance -> instance.group(

@@ -3,10 +3,9 @@ package eu.pb4.polymer.virtualentity.impl;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.UniqueIdentifiableAttachment;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-
 import java.util.Collection;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 
 public interface HolderAttachmentHolder {
     void polymerVE$addHolder(HolderAttachment holderAttachment);

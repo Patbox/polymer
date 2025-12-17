@@ -1,10 +1,10 @@
 package eu.pb4.polymer.networking.impl;
 
 import eu.pb4.polymer.networking.api.server.PolymerHandshakeHandler;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 
 @ApiStatus.Internal
 public interface TempPlayerLoginAttachments {
@@ -13,8 +13,8 @@ public interface TempPlayerLoginAttachments {
 
     PolymerHandshakeHandler polymerNet$getAndRemoveHandshakeHandler();
     PolymerHandshakeHandler polymerNet$getHandshakeHandler();
-    void polymerNet$setLatePackets(List<CustomPayloadC2SPacket> packets);
-    List<CustomPayloadC2SPacket> polymerNet$getLatePackets();
+    void polymerNet$setLatePackets(List<ServerboundCustomPayloadPacket> packets);
+    List<ServerboundCustomPayloadPacket> polymerNet$getLatePackets();
 
     void polymerNet$setHandshakeHandler(PolymerHandshakeHandler handler);
 

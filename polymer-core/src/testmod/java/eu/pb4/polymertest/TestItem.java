@@ -1,42 +1,41 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
-import net.minecraft.component.type.ConsumableComponent;
-import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.item.consume.UseAction;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 
 public class TestItem extends SimplePolymerItem {
-    private Random random = Random.create();
-    public TestItem(Item.Settings settings, Item virtualItem) {
+    private RandomSource random = RandomSource.create();
+    public TestItem(Item.Properties settings, Item virtualItem) {
         super(settings, virtualItem);
     }
 
+
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        context.getWorld().setBlockState(context.getBlockPos(), Registries.BLOCK.getRandom(this.random).get().value().getDefaultState());
-        return super.useOnBlock(context);
+    public InteractionResult useOn(UseOnContext context) {
+        context.getLevel().setBlockAndUpdate(context.getClickedPos(), BuiltInRegistries.BLOCK.getRandom(this.random).get().value().defaultBlockState());
+        return super.useOn(context);
     }
 
     @Override
@@ -45,32 +44,32 @@ public class TestItem extends SimplePolymerItem {
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        user.sendMessage(Text.literal("Use!" + hand), false);
+    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+        user.displayClientMessage(Component.literal("Use!" + hand), false);
         return super.use(world, user, hand);
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, TooltipDisplayComponent displayComponent, Consumer<Text> textConsumer, TooltipType type) {
-        super.appendTooltip(stack, context, displayComponent, textConsumer, type);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltipAdder, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
         var builder = new StringBuilder();
         for (int i = 0; i < 255; i++) {
             builder.append("I");
         }
-        textConsumer.accept(Text.literal(builder.toString()));
+        tooltipAdder.accept(Component.literal(builder.toString()));
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
         var x = super.getPolymerItemStack(itemStack, tooltipType, context);
-        x.set(DataComponentTypes.RARITY, Rarity.EPIC);
-        x.set(DataComponentTypes.CONSUMABLE, new ConsumableComponent(context.getPlayer() != null && context.getPlayer().isCreative() ? Float.MAX_VALUE : 3, UseAction.BOW,
-                Registries.SOUND_EVENT.getEntry(SoundEvents.INTENTIONALLY_EMPTY), false, List.of()));
+        x.set(DataComponents.RARITY, Rarity.EPIC);
+        x.set(DataComponents.CONSUMABLE, new Consumable(context.getPlayer() != null && context.getPlayer().isCreative() ? Float.MAX_VALUE : 3, ItemUseAnimation.BOW,
+                BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.EMPTY), false, List.of()));
         return x;
     }
 
     @Override
-    public boolean hasGlint(ItemStack stack) {
+    public boolean isFoil(ItemStack stack) {
         return true;
     }
 }
