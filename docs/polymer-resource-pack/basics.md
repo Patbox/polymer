@@ -42,3 +42,12 @@ I also recommend you to keep it optional if it's possible.
 ## Building resource pack
 To create resource pack you only need to execute `/polymer generate-pack` command.
 Resource pack will be located in your server folder as `polymer/resourcepack.zip`.
+
+## Auto-host
+If you'd like Polymer to automatically serve the resource pack to players, make sure to call `PolymerResourcePackUtils.addModAssets` or add your assets manually as shown before, and make sure to add the following as a dependency:
+```groovy
+modImplementation include("eu.pb4:polymer-autohost:[TAG]")
+```
+For `[TAG]`/autohost version I recommend you checking [this maven](https://maven.nucleoid.xyz/eu/pb4/polymer-autohost/).
+
+Latest version: ![version](https://img.shields.io/maven-metadata/v?color=%23579B67&label=&metadataUrl=https://maven.nucleoid.xyz/eu/pb4/polymer-autohost/maven-metadata.xml)
