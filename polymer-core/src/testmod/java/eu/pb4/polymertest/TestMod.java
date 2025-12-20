@@ -326,7 +326,7 @@ public class TestMod implements ModInitializer {
     }
 
     public void onInitialize() {
-        MixinEnvironment.getCurrentEnvironment().audit();
+        //MixinEnvironment.getCurrentEnvironment().audit();
         //ITEM_GROUP.setIcon();
         PolymerResourcePackUtils.addModAssets("apolymertest");
         ResourcePackExtras.forDefault().addBridgedModelsFolder(Identifier.fromNamespaceAndPath("polymertest", "testificate"));
@@ -341,7 +341,8 @@ public class TestMod implements ModInitializer {
         PolymerItemUtils.enableStonecutterFix();
 
         register(BuiltInRegistries.DIALOG_TYPE, Identifier.fromNamespaceAndPath("test", "dialog"), TestDialog.CODEC);
-
+        register(BuiltInRegistries.DIALOG_BODY_TYPE, Identifier.fromNamespaceAndPath("test", "image"), TestDialogImageBody.CODEC);
+        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register(TestDialogImageBody::generateResources);
 
         SoundPatcher.convertIntoServerSound(Blocks.TNT.defaultBlockState().getSoundType());
         SoundPatcher.convertIntoServerSound(Blocks.NOTE_BLOCK.defaultBlockState().getSoundType());

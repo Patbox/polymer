@@ -156,8 +156,7 @@ public final class ResourcePackCreator {
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {
-            builder.getPackMcMetaBuilder().metadata(new PackMetadataSection(this.packDescription,
-                    new InclusiveRange<>(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES))));
+            builder.getPackMcMetaBuilder().metadata(new PackMetadataSection(this.packDescription, builder.getPackMcMetaBuilder().metadata().supportedFormats()));
         }
 
 

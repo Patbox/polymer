@@ -72,8 +72,9 @@ public interface ResourcePackBuilder {
                             }
                         }
                     }
-
-                } catch (Throwable ignored) {}
+                } catch (Throwable err) {
+                    this.logError("Failed to parse pack.mcmeta!", err);
+                }
             }
 
             try (var str = Files.list(root)) {
@@ -85,7 +86,7 @@ public interface ResourcePackBuilder {
                             this.addData("licenses/"
                                     + sourceName.replace("/", "_").replace("\\", "_") + "/" + name, PackResource.of(file));
                         }
-                    } catch (Throwable ignored) {
+                    } catch (Throwable err) {
                     }
                 });
             }
@@ -138,6 +139,9 @@ public interface ResourcePackBuilder {
     default boolean addModToCredits(String modId) {
         return false;
     }
+
+    default void logError(String s, @Nullable Throwable er) {}
+
 
     interface ResourceConverter {
         ResourceConverter NO_OP = (a, b) -> b;

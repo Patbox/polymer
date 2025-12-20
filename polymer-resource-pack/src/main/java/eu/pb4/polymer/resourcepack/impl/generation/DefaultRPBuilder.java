@@ -59,11 +59,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     @Override
     public boolean addData(String path, PackResource data) {
         try {
-            if (path.endsWith(".json")) {
-                if (path.equals("pack.mcmeta")) {
-                    return this.addPackMcMeta(path, data.readAllBytes(), (x) -> {});
-                }
+            if (path.equals("pack.mcmeta")) {
+                return this.addPackMcMeta(path, data.readAllBytes(), (x) -> {});
+            }
 
+            if (path.endsWith(".json")) {
                 var split = path.split("/");
 
                 if (split.length >= 3 && split[0].equals("assets")) {
@@ -537,5 +537,16 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         }
         status.accept("action:write_zip_end");
         return true;
+    }
+
+    @Override
+    public void logError(String info, @Nullable Throwable err) {
+        if (PolymerResourcePackImpl.LOG_ERRORS) {
+            if (err != null) {
+                LOGGER.warn(info, err);
+            } else {
+                LOGGER.warn(info);
+            }
+        }
     }
 }

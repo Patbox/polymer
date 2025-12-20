@@ -35,7 +35,10 @@ public record PackMcMeta(PackMetadataSection pack, Optional<ResourceFilterSectio
     public static class Builder {
         private PackMetadataSection metadata = new PackMetadataSection(
                 Component.literal("Server Resource Pack"),
-                new InclusiveRange<>(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES))
+                new InclusiveRange<>(
+                        SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES),
+                        new PackFormat(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES).major(), Integer.MAX_VALUE)
+                )
         );
         private final List<IdentifierPattern> filter = new ArrayList<>();
         private final List<OverlayMetadataSection.OverlayEntry> overlay = new ArrayList<>();

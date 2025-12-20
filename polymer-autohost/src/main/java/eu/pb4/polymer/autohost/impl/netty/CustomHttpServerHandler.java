@@ -45,7 +45,7 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
 
         var file = AutoHost.getPath(path);
 
-        if (file == null || !Files.isRegularFile(file) || !ResourcePackDataProvider.getActive().isReady()) {
+        if (file == null || !Files.isRegularFile(file)) {
             sendError(ctx, FORBIDDEN);
             return;
         }

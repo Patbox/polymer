@@ -232,7 +232,8 @@ public final class PolymerResourcePackUtils {
                     } else if (PolymerResourcePackImpl.IGNORE_PACK_VERSION) {
                         var og = builder.getPackMcMetaBuilder().metadata();
                         builder.getPackMcMetaBuilder().metadata(new PackMetadataSection(og.description(), new InclusiveRange<>(
-                                SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES), new PackFormat(Integer.MAX_VALUE, Integer.MAX_VALUE)
+                                SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES),
+                                new PackFormat(Integer.MAX_VALUE, Integer.MAX_VALUE)
                         )));
                     }
                 } catch (Throwable ignored) {}
