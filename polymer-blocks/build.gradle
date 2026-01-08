@@ -1,4 +1,4 @@
-archivesBaseName = "polymer-blocks"
+base.archivesName = "polymer-blocks"
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 
 

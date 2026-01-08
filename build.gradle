@@ -1,17 +1,17 @@
 plugins {
-    id 'fabric-loom' version '1.13.+'
+    id 'fabric-loom' version '1.14.+'
     id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
 apply plugin: 'fabric-loom'
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_21
+java.targetCompatibility = JavaVersion.VERSION_21
 
 var isStable = project.is_stable == "true"
 
-archivesBaseName = "polymer-bundled"
+base.archivesName = "polymer-bundled"
 version = project.mod_version + "+" + project.minecraft_version
 group = project.maven_group
 
@@ -243,7 +243,7 @@ allprojects {
                 publications {
                     mavenJava(MavenPublication) {
                         groupId = rootProject.maven_group
-                        artifactId = project.archivesBaseName
+                        artifactId = project.base.archivesName.get()
                         version = project.version
 
                         from components.java

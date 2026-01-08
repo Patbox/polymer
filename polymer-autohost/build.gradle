@@ -1,4 +1,4 @@
-archivesBaseName = "polymer-autohost"
+base.archivesName = "polymer-autohost"
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 
 

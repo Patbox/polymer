@@ -1,4 +1,4 @@
-archivesBaseName = "polymer-core"
+base.archivesName = "polymer-core"
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
@@ -44,7 +44,7 @@ dependencies {
 
     //modRuntime "supercoder79:databreaker:0.2.7"
 
-    modCompileOnly('maven.modrinth:lithium:mc1.21.9-0.19.0-fabric')
+    modCompileOnly('maven.modrinth:lithium:mc1.21.11-0.21.2-fabric')
 
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
     modCompileOnly('com.github.TheEpicBlock:PolyMc:5.6.1') {

@@ -1,4 +1,4 @@
-archivesBaseName = "polymer-resource-pack"
+base.archivesName = "polymer-resource-pack"
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 

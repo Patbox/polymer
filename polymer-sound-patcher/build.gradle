@@ -1,4 +1,4 @@
-archivesBaseName = "polymer-sound-patcher"
+base.archivesName = "polymer-sound-patcher"
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 
 
