@@ -179,14 +179,17 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         return false;
     }
     @Override
-    public boolean copyFromPath(Path basePath, String targetPrefix, boolean override) {
+    public boolean copyFromPath(Path basePath, String targetPrefix, boolean override, @Nullable String sourceName) {
+        if (sourceName == null) {
+            sourceName = "__unknown_source__";
+        }
         try {
             if (Files.isSymbolicLink(basePath)) {
                 basePath = Files.readSymbolicLink(basePath);
             }
 
             if (Files.isDirectory(basePath)) {
-                status.accept("action:copy_path_start/" + basePath);
+                status.accept("action:copy_path_start/" + sourceName);
                 Path finalBasePath = basePath;
                 try (var str = Files.walk(basePath)) {
                     str.forEach((file) -> {
@@ -204,7 +207,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                         }
                     });
                 }
-                status.accept("action:copy_path_end/" + basePath);
+                status.accept("action:copy_path_end/" + sourceName);
                 return true;
             } else if (Files.isRegularFile(basePath)) {
                 try (var fs = FileSystems.newFileSystem(basePath, Collections.emptyMap())) {
@@ -212,11 +215,11 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 }
                 return true;
             }
-            status.accept("action:copy_path_failed/" + basePath);
+            status.accept("action:copy_path_failed/" + sourceName);
             return false;
         } catch (Exception e) {
             LOGGER.error("Something went wrong while copying data from: " + basePath, e);
-            status.accept("action:copy_path_failed/" + basePath);
+            status.accept("action:copy_path_failed/" + sourceName);
             return false;
         }
     }

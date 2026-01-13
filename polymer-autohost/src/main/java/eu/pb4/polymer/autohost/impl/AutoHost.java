@@ -60,7 +60,7 @@ public class AutoHost implements ModInitializer {
         try {
             AutoHost.disconnectMessage = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.disconnectMessage).getOrThrow().getFirst();
         } catch (Exception e) {
-            AutoHost.disconnectMessage = Component.literal("This server requires resource pack enabled to play!");
+            AutoHost.disconnectMessage = Component.translatable("multiplayer.requiredTexturePrompt.disconnect");
         }
 
         try {

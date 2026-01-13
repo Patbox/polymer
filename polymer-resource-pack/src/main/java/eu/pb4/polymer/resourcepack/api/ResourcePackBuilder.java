@@ -30,7 +30,10 @@ public interface ResourcePackBuilder {
 
     boolean copyAssets(String modId);
 
-    boolean copyFromPath(Path path, String targetPrefix, boolean override);
+    default boolean copyFromPath(Path path, String targetPrefix, boolean override) {
+        return copyFromPath(path, targetPrefix, override, path.toString());
+    }
+    boolean copyFromPath(Path path, String targetPrefix, boolean override, String source);
 
     default boolean copyFromPath(Path path, String targetPrefix) {
         return this.copyFromPath(path, targetPrefix, true);
@@ -45,15 +48,18 @@ public interface ResourcePackBuilder {
     }
 
     default boolean copyResourcePackFromPath(Path root) {
-        return copyResourcePackFromPath(root, "__undefined__");
+        return copyResourcePackFromPath(root, null);
     }
 
-    default boolean copyResourcePackFromPath(Path root, String sourceName) {
+    default boolean copyResourcePackFromPath(Path root, @Nullable String sourceName) {
+        if (sourceName == null) {
+            sourceName = root.getFileName().toString();
+        }
         try {
             {
                 var assets = root.resolve("assets");
                 if (Files.exists(assets)) {
-                    copyFromPath(assets, "assets/");
+                    copyFromPath(assets, "assets/", true, sourceName);
                 }
             }
 
@@ -68,7 +74,7 @@ public interface ResourcePackBuilder {
                         for (var ov : pack.overlays().get().overlays()) {
                             var assets = root.resolve(ov.overlay());
                             if (Files.exists(assets)) {
-                                copyFromPath(assets, ov.overlay() + "/");
+                                copyFromPath(assets, ov.overlay() + "/", true, sourceName + "/" + ov.overlay());
                             }
                         }
                     }
@@ -78,13 +84,14 @@ public interface ResourcePackBuilder {
             }
 
             try (var str = Files.list(root)) {
+                String finalSourceName = sourceName;
                 str.forEach(file -> {
                     try {
                         var name = file.getFileName().toString();
                         if (name.toLowerCase(Locale.ROOT).contains("license")
                                 || name.toLowerCase(Locale.ROOT).contains("licence")) {
                             this.addData("licenses/"
-                                    + sourceName.replace("/", "_").replace("\\", "_") + "/" + name, PackResource.of(file));
+                                    + finalSourceName.replace("/", "_").replace("\\", "_") + "/" + name, PackResource.of(file));
                         }
                     } catch (Throwable err) {
                     }

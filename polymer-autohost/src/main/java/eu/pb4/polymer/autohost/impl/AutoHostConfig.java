@@ -30,7 +30,10 @@ public class AutoHostConfig {
     public JsonElement message = new JsonPrimitive("This server uses resource pack to enhance gameplay with custom textures and models. It might be unplayable without them.");
     public String _c6 = "Disconnect message in case of failure";
     @SerializedName("disconnect_message")
-    public JsonElement disconnectMessage = new JsonPrimitive("Couldn't apply server resourcepack!");
+    public JsonElement disconnectMessage = new JsonPrimitive("{\"translate\":\"multiplayer.requiredTexturePrompt.disconnect\"}");
+    public String _c20 = "Show more information when disconnecting the player";
+    @SerializedName("informative_disconnect")
+    public boolean informativeDisconnect = true;
     public String _c8 = "Allows to define more external resource packs. It's an object with 'id' for uuid, 'url' for the pack url and 'hash' for the SHA1 hash.";
     @SerializedName("external_resource_packs")
     public List<ExternalResourcePack> externalResourcePacks = new ArrayList<>();

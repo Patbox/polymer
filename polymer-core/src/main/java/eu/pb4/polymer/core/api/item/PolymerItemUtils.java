@@ -16,6 +16,7 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
+import eu.pb4.polymer.core.impl.other.PacketTooltipContext;
 import eu.pb4.polymer.core.mixin.CustomDataAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
@@ -522,7 +523,7 @@ public final class PolymerItemUtils {
         out.set(DataComponents.TOOLTIP_DISPLAY, display);
 
         try {
-            var tooltip = itemStack.getTooltipLines(context.getPlayer() != null ? Item.TooltipContext.of(context.getPlayer().registryAccess()) : Item.TooltipContext.EMPTY, context.getPlayer(), tooltipContext);
+            var tooltip = itemStack.getTooltipLines(new PacketTooltipContext(context), context.getPlayer(), tooltipContext);
             if (!tooltip.isEmpty()) {
                 tooltip.removeFirst();
 

@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
@@ -32,18 +33,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.TextComponentTagVisitor;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.*;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.dialog.ActionButton;
-import net.minecraft.server.dialog.CommonButtonData;
-import net.minecraft.server.dialog.CommonDialogData;
-import net.minecraft.server.dialog.DialogAction;
-import net.minecraft.server.dialog.MultiActionDialog;
-import net.minecraft.server.dialog.NoticeDialog;
+import net.minecraft.server.dialog.*;
 import net.minecraft.server.dialog.action.StaticAction;
 import net.minecraft.server.dialog.body.DialogBody;
 import net.minecraft.server.dialog.body.ItemBody;
@@ -155,21 +147,41 @@ public class Commands {
                         })
                 )
                 .then(literal("set-pack-status")
-                        .then(argument("status", BoolArgumentType.bool())
-                                .then(argument("uuid", UuidArgument.uuid())
-                                        .executes((ctx) -> {
-                                            var status = ctx.getArgument("status", Boolean.class);
-                                            PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrException(), UuidArgument.getUuid(ctx, "uuid"), status);
-                                            ctx.getSource().sendSuccess(() -> Component.literal("New resource pack status: " + status), false);
-                                            return 0;
-                                        }))
+                        .then(Util.make(argument("status", BoolArgumentType.bool()), x -> {
+                                            if (CompatStatus.POLYMER_RESOURCE_PACK) {
+                                                x = x.executes((ctx) -> {
+                                                    var status = ctx.getArgument("status", Boolean.class);
+                                                    PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrException(), PolymerResourcePackUtils.getMainUuid(), status);
+                                                    ctx.getSource().sendSuccess(() -> Component.literal("New resource pack status: " + status), false);
+                                                    return 0;
+                                                });
+                                            }
+
+                                            x.then(argument("uuid", UuidArgument.uuid())
+                                                    .executes((ctx) -> {
+                                                        var status = ctx.getArgument("status", Boolean.class);
+                                                        PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrException(), UuidArgument.getUuid(ctx, "uuid"), status);
+                                                        ctx.getSource().sendSuccess(() -> Component.literal("New resource pack status: " + status), false);
+                                                        return 0;
+                                                    }));
+                                        }
+                                )
                         )
                 )
-                .then(literal("get-pack-status")
-                        .executes((ctx) -> {
-                            var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer(), PolymerResourcePackUtils.getMainUuid());
-                            ctx.getSource().sendSuccess(() -> Component.literal("Resource pack status: " + status), false);
-                            return 0;
+                .then(Util.make(literal("get-pack-status"), x -> {
+                            if (CompatStatus.POLYMER_RESOURCE_PACK) {
+                                x = x.executes((ctx) -> {
+                                    var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer(), PolymerResourcePackUtils.getMainUuid());
+                                    ctx.getSource().sendSuccess(() -> Component.literal("Resource pack status: " + status), false);
+                                    return 0;
+                                });
+                            }
+                            x.then(argument("uuid", UuidArgument.uuid())
+                                    .executes((ctx) -> {
+                                        var status = PolymerCommonUtils.hasResourcePack(ctx.getSource().getPlayerOrException(), UuidArgument.getUuid(ctx, "uuid"));
+                                        ctx.getSource().sendSuccess(() -> Component.literal("Resource pack status: " + status), false);
+                                        return 0;
+                                    }));
                         })
                 )
                 .then(literal("chunk_section_info")
@@ -224,7 +236,8 @@ public class Commands {
         context.getSource().sendSuccess(() -> Component.literal(id.toString())
                 .setStyle(Style.EMPTY
                         .withHoverEvent(new HoverEvent.ShowText(Component.translatable("chat.copy.click")))
-                        .withClickEvent(new ClickEvent.CopyToClipboard(id.toString()))), false);        return 0;
+                        .withClickEvent(new ClickEvent.CopyToClipboard(id.toString()))), false);
+        return 0;
     }
 
     private static int dumpRegistries(CommandContext<CommandSourceStack> context) {

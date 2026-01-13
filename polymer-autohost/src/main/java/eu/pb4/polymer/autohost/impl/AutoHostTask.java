@@ -1,27 +1,21 @@
 package eu.pb4.polymer.autohost.impl;
 
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ClientboundClearDialogPacket;
-import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket;
-import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
-import net.minecraft.network.protocol.common.ClientboundShowDialogPacket;
-import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
+import net.minecraft.network.protocol.common.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dialog.ActionButton;
-import net.minecraft.server.dialog.CommonButtonData;
-import net.minecraft.server.dialog.CommonDialogData;
-import net.minecraft.server.dialog.DialogAction;
-import net.minecraft.server.dialog.NoticeDialog;
+import net.minecraft.server.dialog.*;
 import net.minecraft.server.dialog.action.CustomAll;
 import net.minecraft.server.dialog.body.DialogBody;
 import net.minecraft.server.dialog.body.PlainMessage;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -36,8 +30,8 @@ public class AutoHostTask implements ConfigurationTask {
     private final Set<UUID> waitingFor = new HashSet<>();
     private final Supplier<Collection<MinecraftServer.ServerResourcePackInfo>> delayed;
     private final BooleanSupplier isReady;
+    private final Map<UUID, MinecraftServer.ServerResourcePackInfo> map = new HashMap<>();
     private boolean hasDelayed;
-    private int statusCount = -1;
     private int tick = 0;
 
     public AutoHostTask(Collection<MinecraftServer.ServerResourcePackInfo> properties, boolean hasDelayed,
@@ -65,6 +59,7 @@ public class AutoHostTask implements ConfigurationTask {
             return;
         }
         for (var pack : packs) {
+            this.map.put(pack.id(), pack);
             sender.accept(new ClientboundResourcePackPushPacket(pack.id(), pack.url(), pack.hash(), pack.isRequired(), Optional.ofNullable(pack.prompt())));
         }
     }
@@ -110,9 +105,8 @@ public class AutoHostTask implements ConfigurationTask {
                 Component.literal(String.join("\n", PolymerResourcePackMod.STATUS
                         .subList(Math.max(PolymerResourcePackMod.STATUS.size() - 6, 0), PolymerResourcePackMod.STATUS.size()))), 300));
 
-        this.statusCount = PolymerResourcePackMod.STATUS.size();
         sender.accept(new ClientboundShowDialogPacket(Holder.direct(new NoticeDialog(
-                new CommonDialogData(AutoHost.dialogTitle, Optional.empty(),false, false, DialogAction.CLOSE,
+                new CommonDialogData(AutoHost.dialogTitle, Optional.empty(), false, false, DialogAction.CLOSE,
                         list, List.of()),
                 new ActionButton(new CommonButtonData(
                         Component.translatable("menu.disconnect"), 150),
@@ -127,6 +121,7 @@ public class AutoHostTask implements ConfigurationTask {
             }
             var delayed = this.delayed.get();
             for (var pack : delayed) {
+                this.map.put(pack.id(), pack);
                 if (pack.isRequired()) {
                     requiredPacks.add(pack.id());
                 }
@@ -153,7 +148,17 @@ public class AutoHostTask implements ConfigurationTask {
         switch (status) {
             case DECLINED, FAILED_RELOAD, FAILED_DOWNLOAD, INVALID_URL -> {
                 if (this.requiredPacks.contains(id)) {
-                    handler.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
+                    var text = Component.translatable("multiplayer.requiredTexturePrompt.disconnect");
+                    if (AutoHost.config.informativeDisconnect) {
+                        var pack = this.map.get(id);
+                        var packInfo = pack == null ? "<Invalid pack?>" : pack.hash() + "\n"  + pack.url();
+                        var main = PolymerResourcePackUtils.getMainUuid().equals(id) ? " (Main)" : "";
+                        text = Component.empty().append(text)
+                                .append("\n\n")
+                                .append(Component.literal(status.name() + " | " + id + main + "\n" + packInfo))
+                        ;
+                    }
+                    handler.disconnect(text);
                 }
             }
         }
