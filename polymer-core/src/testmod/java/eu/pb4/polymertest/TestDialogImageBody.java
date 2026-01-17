@@ -64,7 +64,7 @@ public record TestDialogImageBody(String image, boolean dither) implements Dialo
 
                 if (line != 8 && !isLast) {
                     var w = image.getWidth();
-                    while (w > 256) {
+                    while (w > 255) {
                         b.append((char) 0xFFFF);
                         w -= 255;
                     }
@@ -100,7 +100,7 @@ public record TestDialogImageBody(String image, boolean dither) implements Dialo
             for (var y = 0; y < 128; y++) {
                 var b = new StringBuffer();
                 for (var x = 0; x < 256; x++) {
-                    b.append((char) (y * 256 + x + 1));
+                    b.append((char) (y * 256 + x + 0x100));
                 }
                 chars.add(b.toString());
             }
@@ -124,17 +124,17 @@ public record TestDialogImageBody(String image, boolean dither) implements Dialo
 
 
         for (int color = 0; color < 32 * 32 * 32; color++) {
-            texture.setRGB(color % 256, color / 256, from15BitColor(color + 1));
+            texture.setRGB(color % 256, color / 256, from15BitColor(color + 0x100));
         }
         builder.addData("assets/test/textures/colormap.png", PackResource.fromImage(texture));
     }
 
     static int to15BitColor(int rgb) {
-        return (((ARGB.red(rgb) >>> 3) << 10) | ((ARGB.green(rgb) >>> 3) << 5) | ((ARGB.blue(rgb) >> 3))) + 1;
+        return (((ARGB.red(rgb) >>> 3) << 10) | ((ARGB.green(rgb) >>> 3) << 5) | ((ARGB.blue(rgb) >> 3))) + 0x100;
     }
 
     static int from15BitColor(int rgb) {
-        rgb -= 1;
+        rgb -= 0x100;
         return (((rgb >> 10) & 0b11111) << (16 + 3)) | (((rgb >> 5) & 0b11111) << (8 + 3)) | ((rgb & 0b11111) << 3);
     }
 

@@ -484,7 +484,6 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 //Thread.sleep(100000);
 
                 bool &= this.outputGenerator.generateFile(sorted, this.converters.isEmpty() ? ResourceConverter.NO_OP : this::convertResource, status);
-
                 return bool;
             } catch (Exception e) {
                 LOGGER.error("Something went wrong while creating resource pack!", e);
@@ -513,7 +512,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     public static boolean writeSingleZip(Path out, Collection<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status) {
         status.accept("action:write_zip_start");
 
-        try (var outputStream = new ZipOutputStream(Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
+        try (var outputStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), 65536))) {
             for (var entry : resources) {
                 var path = entry.getKey();
                 var resource = entry.getValue();

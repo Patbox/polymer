@@ -60,7 +60,7 @@ public class AutoHost implements ModInitializer {
         try {
             AutoHost.disconnectMessage = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, AutoHost.config.disconnectMessage).getOrThrow().getFirst();
         } catch (Exception e) {
-            AutoHost.disconnectMessage = Component.translatable("multiplayer.requiredTexturePrompt.disconnect");
+            AutoHost.disconnectMessage = Component.translatable("multiplayer.texturePrompt.failure.line1");
         }
 
         try {

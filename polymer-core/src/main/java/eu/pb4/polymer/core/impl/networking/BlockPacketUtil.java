@@ -87,7 +87,6 @@ public class BlockPacketUtil {
             var blockPos = new BlockPos.MutableBlockPos();
             var ctx = PacketContext.create(handler);
 
-
             for (int i = 0; i < localPos.length; i++) {
                 BlockState blockState = blockStates[i];
                 blockPos.set(chunkPos.relativeToBlockX(localPos[i]), chunkPos.relativeToBlockY(localPos[i]), chunkPos.relativeToBlockZ(localPos[i]));

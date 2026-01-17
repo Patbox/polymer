@@ -190,6 +190,7 @@ public final class PolymerUtils {
                 || (obj instanceof DataComponentType<?> componentType && PolymerComponent.isPolymerComponent(componentType))
                 || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
     }
+
     public static <T> boolean isServerOnly(Registry<T> registry, T obj) {
         return RegistrySyncUtils.isServerEntry(registry, obj) || isServerOnly(obj);
     }

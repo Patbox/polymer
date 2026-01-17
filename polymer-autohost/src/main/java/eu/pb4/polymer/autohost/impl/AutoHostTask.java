@@ -148,14 +148,14 @@ public class AutoHostTask implements ConfigurationTask {
         switch (status) {
             case DECLINED, FAILED_RELOAD, FAILED_DOWNLOAD, INVALID_URL -> {
                 if (this.requiredPacks.contains(id)) {
-                    var text = Component.translatable("multiplayer.requiredTexturePrompt.disconnect");
+                    var text = AutoHost.disconnectMessage;
                     if (AutoHost.config.informativeDisconnect) {
                         var pack = this.map.get(id);
-                        var packInfo = pack == null ? "<Invalid pack?>" : pack.hash() + "\n"  + pack.url();
+                        var packInfo = pack == null ? "<Invalid pack?>" : (pack.hash().isEmpty() ? "<NO HASH>" : pack.hash()) + "\n" + pack.url();
                         var main = PolymerResourcePackUtils.getMainUuid().equals(id) ? " (Main)" : "";
                         text = Component.empty().append(text)
                                 .append("\n\n")
-                                .append(Component.literal(status.name() + " | " + id + main + "\n" + packInfo))
+                                .append(Component.literal(status.name() + " > " + id + main + "\n" + packInfo).withStyle(ChatFormatting.GRAY))
                         ;
                     }
                     handler.disconnect(text);

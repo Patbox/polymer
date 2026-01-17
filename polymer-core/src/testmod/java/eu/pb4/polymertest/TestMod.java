@@ -32,6 +32,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
@@ -103,12 +104,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TntBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.MixinEnvironment;
 import xyz.nucleoid.packettweaker.PacketContext;
 import xyz.nucleoid.server.translations.api.LocalizationTarget;
 
@@ -321,6 +322,13 @@ public class TestMod implements ModInitializer {
     public static Block ANIMATED_BLOCK = registerBlock(Identifier.fromNamespaceAndPath("test", "animated"), s -> new AnimatedBlock(s.lightLevel((state) -> 15).strength(2f)));
     public static BlockItem ANIMATED_BLOCK_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "animated"), (s) -> new PolymerBlockItem(ANIMATED_BLOCK, s, Items.BEACON));
 
+    public static Block END_GATEWAY = registerBlock(Identifier.fromNamespaceAndPath("test", "end_gateway"), s -> new FakeEndGatewayBlock(s.lightLevel((state) -> 15).strength(2f)));
+    public static BlockEntityType END_GATEWAY_BE = register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Identifier.fromNamespaceAndPath("test", "end_gateway"),
+            FabricBlockEntityTypeBuilder.create(FakeEndGatewayBlockEntity::new, END_GATEWAY).build());
+    public static BlockItem END_GATEWAY_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "end_gateway"), (s) -> new PolymerBlockItem(END_GATEWAY, s, Items.BLACK_CONCRETE_POWDER));
+
+
+
     private static void regArmor(EquipmentSlot slot, String main, String id) {
         registerItem(Identifier.fromNamespaceAndPath("test", main + "_" + id), (s) -> new TestArmor(slot, Identifier.fromNamespaceAndPath("polymertest", "item/" + main + "_" + id), s));
     }
@@ -349,6 +357,7 @@ public class TestMod implements ModInitializer {
         SoundPatcher.convertIntoServerSound(Blocks.DISPENSER.defaultBlockState().getSoundType());
         SoundPatcher.convertIntoServerSound(Blocks.EMERALD_BLOCK.defaultBlockState().getSoundType());
 
+        PolymerBlockUtils.registerBlockEntity(END_GATEWAY_BE);
 
         registerItem(Identifier.fromNamespaceAndPath("test", "hoe"), MelonHoe::new);
 

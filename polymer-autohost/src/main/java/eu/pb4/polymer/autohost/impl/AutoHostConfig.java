@@ -30,7 +30,7 @@ public class AutoHostConfig {
     public JsonElement message = new JsonPrimitive("This server uses resource pack to enhance gameplay with custom textures and models. It might be unplayable without them.");
     public String _c6 = "Disconnect message in case of failure";
     @SerializedName("disconnect_message")
-    public JsonElement disconnectMessage = new JsonPrimitive("{\"translate\":\"multiplayer.requiredTexturePrompt.disconnect\"}");
+    public JsonElement disconnectMessage = translatable("multiplayer.texturePrompt.failure.line1");
     public String _c20 = "Show more information when disconnecting the player";
     @SerializedName("informative_disconnect")
     public boolean informativeDisconnect = true;
@@ -76,5 +76,11 @@ public class AutoHostConfig {
         public UUID id;
         public String url;
         public String hash;
+    }
+
+    private static JsonElement translatable(String s) {
+        var obj = new JsonObject();
+        obj.addProperty("translate",s);
+        return obj;
     }
 }
