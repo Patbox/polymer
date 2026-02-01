@@ -10,6 +10,7 @@
     "StaticAccessor",
     "block.BlockBehaviourMixin",
     "block.BlockMixin",
+    "block.BlockStateBaseMixin",
     "block.BlockStateMixin",
     "block.ClientboundBlockEntityDataPacketAccessor",
     "block.PalettedContainerAccessor",

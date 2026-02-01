@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -75,6 +76,10 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
 
     default boolean playSoundToSelf(BlockState state, ServerPlayer player, ServerLevel world, BlockPos pos) {
         return false;
+    }
+
+    default boolean overridePlayerCollisionsWithPolymer(BlockGetter level, BlockPos pos, BlockState blockState, ServerPlayer player) {
+        return true;
     }
 
     static void registerOverlay(Block block, PolymerBlock polymerBlock) {

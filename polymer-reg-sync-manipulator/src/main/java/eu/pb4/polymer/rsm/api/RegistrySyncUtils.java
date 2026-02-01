@@ -21,7 +21,7 @@ public final class RegistrySyncUtils {
     }
 
     public static <T> boolean isServerEntry(Registry<T> registry, Identifier identifier) {
-        return registry.containsKey(identifier) ? isServerEntry(registry, registry.getValue(identifier)) : false;
+        return registry.containsKey(identifier) && isServerEntry(registry, registry.getValue(identifier));
     }
 
     public static <T> void setServerEntry(Registry<T> registry, T entry) {
