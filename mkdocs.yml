@@ -26,7 +26,6 @@ nav:
       - polymer-virtual-entity/basics.md
   - Polymer Networking:
       - polymer-networking/getting-started.md
-      - polymer-networking/basics.md
   - Other:
       - other/updating-0.2.x-to-0.3.md
       - Server Translation API: https://github.com/NucleoidMC/Server-Translations
