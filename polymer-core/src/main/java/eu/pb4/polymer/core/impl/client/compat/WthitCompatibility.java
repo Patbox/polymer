@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.impl.client.compat;
-
+/*
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
@@ -21,7 +21,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @ApiStatus.Internal
 public class WthitCompatibility implements IWailaClientPlugin {
@@ -213,3 +213,4 @@ public class WthitCompatibility implements IWailaClientPlugin {
         }
     }
 }
+*/

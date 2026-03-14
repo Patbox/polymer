@@ -32,7 +32,7 @@ public class TestRecipe implements Recipe<RecipeInput> {
     }
 
     @Override
-    public ItemStack assemble(RecipeInput inventory, HolderLookup.Provider lookup) {
+    public ItemStack assemble(RecipeInput input) {
         return this.output.copy();
     }
 
@@ -66,19 +66,17 @@ public class TestRecipe implements Recipe<RecipeInput> {
         return true;
     }
 
-    public static class Serializer implements RecipeSerializer<TestRecipe>, PolymerObject {
-        @Override
-        public MapCodec<TestRecipe> codec() {
-            return ItemStack.CODEC.xmap(TestRecipe::new, TestRecipe::stack).fieldOf("item");
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, TestRecipe> streamCodec() {
-            return null;
-        }
+    @Override
+    public boolean showNotification() {
+        return false;
     }
 
-    private ItemStack stack() {
+    @Override
+    public String group() {
+        return "";
+    }
+
+    public ItemStack stack() {
         return this.output;
     }
 }

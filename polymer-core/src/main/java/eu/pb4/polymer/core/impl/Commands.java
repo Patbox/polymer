@@ -45,12 +45,13 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.ApiStatus;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -296,8 +297,8 @@ public class Commands {
                 if (statObj instanceof Identifier stat1) {
                     title = PolymerStat.getName(stat1);
                 } else if (statObj instanceof Item item) {
-                    title = item.getName();
                     stack = item.getDefaultInstance();
+                    title = item.getName(stack);
                 } else if (statObj instanceof Block item) {
                     title = item.getName();
                     stack = item.asItem().getDefaultInstance();
@@ -312,7 +313,7 @@ public class Commands {
                 if (stack.isEmpty()) {
                     list.add(new PlainMessage(text, 200));
                 } else {
-                    list.add(new ItemBody(stack, Optional.of(new PlainMessage(text, 200)), true, true, 16, 16));
+                    list.add(new ItemBody(new ItemStackTemplate(stack.typeHolder(), stack.count(), stack.getComponentsPatch()), Optional.of(new PlainMessage(text, 200)), true, true, 16, 16));
                 }
             }
         }
@@ -352,7 +353,7 @@ public class Commands {
 
     private static int displayClientItem(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayerOrException();
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandItem(), PacketContext.create(player)).copy();
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandItem(), player.connection.getPacketContext(), player.level().registryAccess()).copy();
         stack.remove(DataComponents.CUSTOM_DATA);
 
         context.getSource().sendSuccess(() -> (new TextComponentTagVisitor("")).visit(
@@ -365,7 +366,7 @@ public class Commands {
     private static int getClientItem(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayerOrException();
 
-        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandItem(), PacketContext.create(player));
+        var stack = PolymerItemUtils.getPolymerItemStack(player.getMainHandItem(), player.connection.getPacketContext(), player.level().registryAccess());
         stack.remove(DataComponents.CUSTOM_DATA);
         player.addItem(stack);
         context.getSource().sendSuccess(() -> Component.literal("Given client representation to player"), true);

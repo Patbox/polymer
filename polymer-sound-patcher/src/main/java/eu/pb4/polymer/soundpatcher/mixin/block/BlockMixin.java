@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(Block.class)
 public class BlockMixin {
@@ -22,9 +22,8 @@ public class BlockMixin {
         if (world.isClientSide()) {
             return;
         }
-        SoundType group;
-        group = CoreBridge.getClientSideSoundGroupBreaking(blockState, PacketContext.create(world.registryAccess()));
-        if (group.getBreakSound() != null && SoundRemapperImpl.ignoreExceptions(group.getBreakSound())) {
+        SoundType group = blockState.getSoundType();
+        if (SoundRemapperImpl.ignoreExceptions(group.getBreakSound())) {
             group = blockState.getSoundType();
             world.playSound(null, blockPos, group.getBreakSound(), SoundSource.BLOCKS, (group.getVolume() + 1.0f) / 2.0f, group.getPitch() * 0.8f);
         }

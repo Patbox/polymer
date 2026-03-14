@@ -2,8 +2,9 @@ package eu.pb4.polymer.core.api.item;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.core.HolderLookup;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -41,36 +42,39 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
      * Method used for creation of client-side ItemStack
      *
      * @param itemStack Server-side ItemStack
-     * @param context    Player for which it's send
+     * @param context   Player for which it's send
+     * @param lookup
      * @return Client-side ItemStack
      */
-    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
-        return PolymerItemUtils.createItemStack(itemStack, tooltipType, context);
+    default ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context, HolderLookup.Provider lookup) {
+        return PolymerItemUtils.createItemStack(itemStack, tooltipType, context, lookup);
     }
 
     /**
      * Method used for selecting model to use. Invoked within PolymerItemUtils#createItemStack / default stack creation
      * before polymer-specific modifications
      *
-     * @param stack Server-side ItemStack, used as reference
-     * @param context    Player for which it's send
+     * @param stack   Server-side ItemStack, used as reference
+     * @param context Player for which it's send
+     * @param lookup
      * @return Identifier targetting item model or null to fallback to base item one
      */
     @Nullable
-    default Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    default Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
         return stack.get(DataComponents.ITEM_MODEL);
     }
 
     /**
      * Method used for creation of client-side ItemStack.
      * Invoked within PolymerItemUtils#createItemStack / default stack creation before polymer-specific modifications.
-     * For modifying after polymer, you should override {@link PolymerItem#getPolymerItemStack(ItemStack, TooltipFlag, PacketContext)}.
+     * For modifying after polymer, you should override {@link PolymerItem#getPolymerItemStack(ItemStack, TooltipFlag, PacketContext, HolderLookup.Provider)}.
      *
-     * @param out Client-side ItemStack, sent to the player (and one that should be modified)
-     * @param stack Server-side ItemStack, used as reference
-     * @param context    Player for which it's send
+     * @param out     Client-side ItemStack, sent to the player (and one that should be modified)
+     * @param stack   Server-side ItemStack, used as reference
+     * @param context Player for which it's send
+     * @param lookup
      */
-    default void modifyBasePolymerItemStack(ItemStack out, ItemStack stack, PacketContext context) {
+    default void modifyBasePolymerItemStack(ItemStack out, ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
     }
 
 

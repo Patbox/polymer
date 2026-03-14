@@ -5,7 +5,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -87,15 +87,15 @@ public class CreativeTabUi extends MicroUi {
         this.slot(ITEMS_PER_PAGE + 8, MicroUiElements.EMPTY, MicroUiElements.EMPTY_ACTION);
     }
 
-    protected void onMouseClick(ItemStack itemStack, int slotId, int button, ClickType actionType, ServerPlayer player) {
-        boolean bl = actionType == ClickType.QUICK_MOVE;
-        actionType = slotId == -999 && actionType == ClickType.PICKUP ? ClickType.THROW : actionType;
+    protected void onMouseClick(ItemStack itemStack, int slotId, int button, ContainerInput actionType, ServerPlayer player) {
+        boolean bl = actionType == ContainerInput.QUICK_MOVE;
+        actionType = slotId == -999 && actionType == ContainerInput.PICKUP ? ContainerInput.THROW : actionType;
 
         var handler = player.containerMenu;
 
-        if (actionType != ClickType.QUICK_CRAFT) {
+        if (actionType != ContainerInput.QUICK_CRAFT) {
             ItemStack i = handler.getCarried();
-            if (actionType == ClickType.SWAP) {
+            if (actionType == ContainerInput.SWAP) {
                 if (!itemStack.isEmpty()) {
                     ItemStack itemStack2 = itemStack.copy();
                     itemStack2.setCount(itemStack2.getMaxStackSize());
@@ -106,7 +106,7 @@ public class CreativeTabUi extends MicroUi {
                 return;
             }
 
-            if (actionType == ClickType.CLONE) {
+            if (actionType == ContainerInput.CLONE) {
                 if (handler.getCarried().isEmpty() && !itemStack.isEmpty()) {
                     ItemStack itemStack2 = itemStack.copy();
                     itemStack2.setCount(itemStack2.getMaxStackSize());
@@ -116,7 +116,7 @@ public class CreativeTabUi extends MicroUi {
                 return;
             }
 
-            if (actionType == ClickType.THROW) {
+            if (actionType == ContainerInput.THROW) {
                 if (!itemStack.isEmpty()) {
                     ItemStack itemStack2 = itemStack.copy();
                     itemStack2.setCount(button == 0 ? 1 : itemStack2.getMaxStackSize());

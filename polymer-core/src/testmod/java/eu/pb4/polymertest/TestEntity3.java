@@ -14,7 +14,7 @@ import eu.pb4.polymertest.mixin.EntityAccessor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.joml.Matrix4x3fStack;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.function.Consumer;

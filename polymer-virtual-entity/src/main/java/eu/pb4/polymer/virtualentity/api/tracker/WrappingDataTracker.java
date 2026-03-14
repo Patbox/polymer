@@ -1,6 +1,6 @@
 package eu.pb4.polymer.virtualentity.api.tracker;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import net.minecraft.network.syncher.EntityDataAccessor;

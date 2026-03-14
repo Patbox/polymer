@@ -44,15 +44,13 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -119,7 +117,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         }
 
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, itemStack.getItem()) instanceof PolymerItem polymerItem) {
-            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, PacketContext.create(this.player));
+            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player.connection.getPacketContext());
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packet.getHand() == InteractionHand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, itemStack));
             }
@@ -192,6 +190,16 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         }
     }
 
+    @ModifyExpressionValue(method = "handleInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;interactOn(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/InteractionResult;"))
+    private InteractionResult handlePolymerInteraction(InteractionResult original, @Local InteractionHand hand, @Local ServerLevel level, @Local Entity target) {
+        if (PolymerEntityUtils.isPolymerEntityInteraction(this.player, hand, this.player.getItemInHand(hand), level, target, original)) {
+            this.polymer$setLastActionResult(original);
+            this.polymer$setLastActionSource(ActionSource.ENTITY);
+        }
+
+        return original;
+    }
+
     @Inject(method = "handleClientTickEnd", at = @At("TAIL"))
     private void onClientTickEndedPolymer(ServerboundClientTickEndPacket packet, CallbackInfo ci) {
         if (this.lastActionSource != ActionSource.ITEM && this.lastActionResult == InteractionResult.PASS) {
@@ -231,26 +239,6 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
             }
         }
     }
-
-    @Mixin(targets = "net/minecraft/server/network/ServerGamePacketListenerImpl$1")
-    public static class EntityHandlerMixin {
-        @Shadow
-        @Final
-        ServerGamePacketListenerImpl field_28963;
-        @Shadow
-        @Final
-        Entity val$target;
-
-        @ModifyExpressionValue(method = "performInteraction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl$EntityInteraction;run(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;"))
-        private InteractionResult captureIEntityInteraction(InteractionResult original, @Local(argsOnly = true) InteractionHand hand) {
-            if (PolymerEntityUtils.isPolymerEntityInteraction(this.field_28963.player, hand, this.field_28963.player.getItemInHand(hand), (ServerLevel) this.val$target.level(), this.val$target, original)) {
-                ((LastActionResultStorer) this.field_28963).polymer$setLastActionResult(original);
-                ((LastActionResultStorer) this.field_28963).polymer$setLastActionSource(ActionSource.ENTITY);
-            }
-            return original;
-        }
-    }
-
 
     public void polymer$setLastActionResult(InteractionResult lastActionResult) {
         this.lastActionResult = lastActionResult;

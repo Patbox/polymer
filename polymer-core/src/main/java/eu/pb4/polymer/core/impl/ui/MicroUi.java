@@ -13,11 +13,11 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -97,7 +97,7 @@ public class MicroUi {
     @FunctionalInterface
     public interface PlayerClickAction {
         PlayerClickAction NOOP = (a, b, c, d) -> {};
-        void onClick(ServerPlayer player, int slotIndex, int button, ClickType actionType);
+        void onClick(ServerPlayer player, int slotIndex, int button, ContainerInput actionType);
     }
 
     private record UiElement(ItemStack stack, PlayerClickAction action) {
@@ -129,7 +129,7 @@ public class MicroUi {
         }
 
         @Override
-        public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
+        public void clicked(int slotIndex, int button, ContainerInput actionType, Player player) {
             if (slotIndex > -1 && slotIndex < MicroUi.this.size) {
                 var slot = MicroUi.this.elements[slotIndex];
                 if (slot != null) {
@@ -137,7 +137,7 @@ public class MicroUi {
                 }
                 ((ServerPlayer) player).connection.send(new ClientboundContainerSetSlotPacket(this.containerId, 0, slotIndex, this.getSlot(slotIndex).getItem()));
                 ((ServerPlayer) player).connection.send(new ClientboundContainerSetSlotPacket(-1, 0, 0, this.getCarried()));
-            } else if (actionType != ClickType.QUICK_MOVE) {
+            } else if (actionType != ContainerInput.QUICK_MOVE) {
                 super.clicked(slotIndex, button, actionType, player);
             }
         }

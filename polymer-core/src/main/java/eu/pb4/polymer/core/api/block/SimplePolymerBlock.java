@@ -2,7 +2,8 @@ package eu.pb4.polymer.core.api.block;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Minimalistic implementation of PolymerBlock
@@ -16,7 +17,7 @@ public class SimplePolymerBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         return this.polymerBlock.defaultBlockState();
     }
 }

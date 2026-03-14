@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.item;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,8 +13,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * Basic implementation of PolymerItem for blocks
@@ -42,8 +43,8 @@ public class PolymerBlockItem extends BlockItem implements PolymerItem {
     }
 
     @Override
-    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
-        return this.polymerUseModel ? PolymerItem.super.getPolymerItemModel(stack, context) : null;
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
+        return this.polymerUseModel ? PolymerItem.super.getPolymerItemModel(stack, context, lookup) : null;
     }
 
     @Override

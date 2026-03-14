@@ -2,7 +2,6 @@ package eu.pb4.polymer.common.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -218,8 +217,8 @@ public final class CommonImpl {
 
             return switch (type) {
                 case "fabricSync" -> CompatStatus.FABRIC_SYNC;
-                case "fabricSH" -> CompatStatus.FABRIC_SCREEN_HANDLER;
-                case "fabricItemGroup" -> CompatStatus.FABRIC_ITEM_GROUP;
+                case "fabricSH" -> CompatStatus.FABRIC_MENU;
+                case "fabricItemGroup" -> CompatStatus.FABRIC_CREATIVE_TAB_API;
                 case "fabricNetworking" -> CompatStatus.FABRIC_NETWORKING;
                 case "fabricItem" -> CompatStatus.FABRIC_ITEM;
                 case "polymc" -> CompatStatus.POLYMC;

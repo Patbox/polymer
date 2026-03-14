@@ -6,6 +6,7 @@ import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import eu.pb4.polymer.common.impl.compat.ViaVersionUtils;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.Connection;
@@ -14,10 +15,10 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
-import xyz.nucleoid.packettweaker.impl.MutableContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -31,7 +32,7 @@ import java.util.function.Supplier;
 public final class PolymerCommonUtils {
     public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
     private static final ThreadLocal<LogicOverride> FORCE_NETWORKING = ThreadLocal.withInitial(() -> LogicOverride.DEFAULT);
-    private final static String SAFE_CLIENT_SHA1 = "70ab73433d42e46d3838462e724cdb3c0116b0c4";
+    private final static String SAFE_CLIENT_SHA1 = "93079d0d5608af9e10283be6be89b67a772d0c8f";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientPath;
     private static Path cachedClientJarRoot;
@@ -128,7 +129,9 @@ public final class PolymerCommonUtils {
         var val = FORCE_NETWORKING.get();
         try {
             FORCE_NETWORKING.set(LogicOverride.TRUE);
-            PacketContext.runWithContext(listener, runnable);
+            if (listener instanceof PacketContextProvider provider) {
+                PacketContext.runWithContext(provider, runnable);
+            }
         } finally {
             FORCE_NETWORKING.set(val);
         }
@@ -138,7 +141,15 @@ public final class PolymerCommonUtils {
         var val = FORCE_NETWORKING.get();
         try {
             FORCE_NETWORKING.set(LogicOverride.FALSE);
-            PacketContext.runWithContext(null, runnable);
+            // Todo: PR something to fabric api for this!
+            //noinspection NonExtendableApiUsage,NullableProblems
+            PacketContext.runWithContext(new PacketContextProvider() {
+                @Override
+                public PacketContext getPacketContext() {
+                    //noinspection DataFlowIssue
+                    return null;
+                }
+            }, runnable);
         } finally {
             FORCE_NETWORKING.set(val);
         }
@@ -158,7 +169,7 @@ public final class PolymerCommonUtils {
         var val = FORCE_NETWORKING.get();
         try {
             FORCE_NETWORKING.set(LogicOverride.TRUE);
-            return PacketContext.supplyWithContext(listener, supplier);
+            return PacketContext.supplyWithContext((PacketContextProvider) listener, supplier);
         } finally {
             FORCE_NETWORKING.set(val);
         }
@@ -168,45 +179,15 @@ public final class PolymerCommonUtils {
         var val = FORCE_NETWORKING.get();
         try {
             FORCE_NETWORKING.set(LogicOverride.FALSE);
-            return PacketContext.supplyWithContext(null, supplier);
+            return PacketContext.supplyWithContext(new PacketContextProvider() {
+                @Override
+                public PacketContext getPacketContext() {
+                    return null;
+                }
+            }, supplier);
         } finally {
             FORCE_NETWORKING.set(val);
         }
-    }
-
-    @Deprecated(forRemoval = true)
-    public static ScopedOverride executeWithNetworkingLogic() {
-        var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.TRUE);
-
-        return () -> FORCE_NETWORKING.set(val);
-    }
-    @Deprecated(forRemoval = true)
-    public static ScopedOverride executeWithNetworkingLogic(PacketListener listener) {
-        var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.TRUE);
-        var connection = MutableContext.get().getClientConnection();
-        var packet = MutableContext.get().getEncodedPacket();
-        MutableContext.get().set(listener, null);
-
-        return () -> {
-            MutableContext.get().set(connection, packet);
-            FORCE_NETWORKING.set(val);
-        };
-    }
-
-    @Deprecated(forRemoval = true)
-    public static ScopedOverride executeWithoutNetworkingLogic() {
-        var val = FORCE_NETWORKING.get();
-        FORCE_NETWORKING.set(LogicOverride.FALSE);
-        var connection = MutableContext.get().getClientConnection();
-        var packet = MutableContext.get().getEncodedPacket();
-        MutableContext.get().clear();
-
-        return () -> {
-            MutableContext.get().set(connection, packet);
-            FORCE_NETWORKING.set(val);
-        };
     }
 
 
@@ -215,18 +196,18 @@ public final class PolymerCommonUtils {
     }
 
     public static boolean isNetworkingThread() {
-        return FORCE_NETWORKING.get().value(PacketContext.get().getBackingPacketListener() != null);
+        return FORCE_NETWORKING.get().value(PacketContext.get() != null);
     }
 
     public static boolean isServerNetworkingThread() {
         return FORCE_NETWORKING.get().value(
-                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.flow() == PacketFlow.SERVERBOUND
+                PacketContext.get() instanceof PacketContext context && context.orElseThrow(PacketContext.CONNECTION).getReceiving() == PacketFlow.SERVERBOUND
         );
     }
 
     public static boolean isClientNetworkingThread() {
         return CommonImpl.IS_CLIENT && FORCE_NETWORKING.get().value(
-                PacketContext.get().getBackingPacketListener() instanceof PacketListener packetListener && packetListener.flow() == PacketFlow.CLIENTBOUND
+                PacketContext.get() instanceof PacketContext context && context.orElseThrow(PacketContext.CONNECTION).getReceiving() == PacketFlow.CLIENTBOUND
         );
     }
 
@@ -274,9 +255,9 @@ public final class PolymerCommonUtils {
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
-    public static boolean hasResourcePack(PacketContext context, UUID uuid) {
+    public static boolean hasResourcePack(@Nullable PacketContext context, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || context.getClientConnection() != null && hasResourcePack(context.getClientConnection(), uuid);
+                || context != null && hasResourcePack(context.orElseThrow(PacketContext.CONNECTION), uuid);
     }
 
     public static boolean isServerBound() {
@@ -309,9 +290,8 @@ public final class PolymerCommonUtils {
         return CommonImplUtils.createUnsafe(clazz);
     }
 
-    @Deprecated(forRemoval = true)
-    public static boolean isServerNetworkingThreadWithContext() {
-        return isServerNetworkingThread();
+    public static @Nullable ServerPlayer getPlayer(PacketContext context) {
+        return context.orElseThrow(PacketContext.CONNECTION).getPacketListener() instanceof ServerPlayerConnection connection ? connection.getPlayer() : null;
     }
 
     public interface ResourcePackChangeCallback {

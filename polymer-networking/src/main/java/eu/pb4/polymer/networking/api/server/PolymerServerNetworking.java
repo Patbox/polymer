@@ -3,7 +3,7 @@ package eu.pb4.polymer.networking.api.server;
 
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.networking.impl.*;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;

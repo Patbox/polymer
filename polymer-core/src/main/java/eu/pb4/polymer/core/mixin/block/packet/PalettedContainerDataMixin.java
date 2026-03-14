@@ -18,7 +18,7 @@ import net.minecraft.world.level.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(PalettedContainer.Data.class)
 public abstract class PalettedContainerDataMixin<T> {
@@ -31,7 +31,7 @@ public abstract class PalettedContainerDataMixin<T> {
         var palette = this.palette();
         if (palette instanceof GlobalPalette<T> && palette.valueFor(0) instanceof BlockState) {
             var player = PacketContext.get();
-            if (player.getClientConnection() == null) {
+            if (player == null) {
                 return value;
             }
 
@@ -39,7 +39,7 @@ public abstract class PalettedContainerDataMixin<T> {
             value -= storage.getRaw().length * 8;
             int bits;
 
-            var playerBitCount = PolymerServerNetworking.getMetadata(player.getClientConnection(), ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.TYPE);
+            var playerBitCount = PolymerServerNetworking.getMetadata(player.orElseThrow(PacketContext.CONNECTION), ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.TYPE);
             if (playerBitCount == null) {
                 bits = PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC
                         ? ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getVanillaBitCount()
@@ -59,12 +59,12 @@ public abstract class PalettedContainerDataMixin<T> {
         var palette = this.palette();
         if (palette instanceof GlobalPalette<T> && palette.valueFor(0) instanceof BlockState) {
             var player = PacketContext.get();
-            if (player.getClientConnection() == null) {
+            if (player == null) {
                 return storage;
             }
             int bits;
 
-            var playerBitCount = PolymerServerNetworking.getMetadata(player.getClientConnection(), ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.TYPE);
+            var playerBitCount = PolymerServerNetworking.getMetadata(player.orElseThrow(PacketContext.CONNECTION), ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.TYPE);
             if (playerBitCount == null) {
                 bits = PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC
                         ? ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getVanillaBitCount()

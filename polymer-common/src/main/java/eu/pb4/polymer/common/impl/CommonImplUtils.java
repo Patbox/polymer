@@ -4,7 +4,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.Hash;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -14,11 +13,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
-import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -90,19 +87,20 @@ public class CommonImplUtils {
     }
 
     public static Predicate<CommandSourceStack> permission(String path, int operatorLevel) {
-        if (CompatStatus.FABRIC_PERMISSION_API_V0) {
-            return Permissions.require("polymer." + path, operatorLevel);
-        } else {
+        // Todo: fix the check once Fabric permission api is merged
+        //if (CompatStatus.FABRIC_PERMISSION_API_V0) {
+        //    return Permissions.require("polymer." + path, operatorLevel);
+        //} else {
             return source -> source.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(operatorLevel)));
-        }
+        //}
     }
 
     public static boolean permissionCheck(ServerPlayer player, String path, int operatorLevel) {
-        if (CompatStatus.FABRIC_PERMISSION_API_V0) {
-            return Permissions.check(player, "polymer." + path, operatorLevel);
-        } else {
+        //if (CompatStatus.FABRIC_PERMISSION_API_V0) {
+        //    return Permissions.check(player, "polymer." + path, operatorLevel);
+        //} else {
             return player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(operatorLevel)));
-        }
+        //}
     }
 
     public static <T> T createUnsafe(Class<T> tClass) {

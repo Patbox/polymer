@@ -6,7 +6,8 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FlowingFluid;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 public class TestFluidBlock extends LiquidBlock implements PolymerBlock {
 
@@ -14,7 +15,7 @@ public class TestFluidBlock extends LiquidBlock implements PolymerBlock {
         super(fluid, settings);
     }
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         var id = state.getValue(BlockStateProperties.LEVEL);
 
 

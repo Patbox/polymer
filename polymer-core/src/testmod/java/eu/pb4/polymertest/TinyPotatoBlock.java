@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 public class TinyPotatoBlock extends Block implements PolymerHeadBlock {
     public TinyPotatoBlock(Properties settings) {
@@ -18,7 +19,7 @@ public class TinyPotatoBlock extends Block implements PolymerHeadBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         return Blocks.PLAYER_HEAD.defaultBlockState();
     }
 

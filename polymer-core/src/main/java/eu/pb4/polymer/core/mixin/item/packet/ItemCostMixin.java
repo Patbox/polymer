@@ -11,7 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.trading.ItemCost;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(ItemCost.class)
 public class ItemCostMixin {
@@ -19,13 +19,13 @@ public class ItemCostMixin {
     private static StreamCodec<RegistryFriendlyByteBuf, ItemCost> polymerifyTheStack(StreamCodec<RegistryFriendlyByteBuf, ItemCost> original) {
         return new TransformingPacketCodec<>(original, (buf, tradedItem) -> {
             var input = tradedItem.itemStack();
-            var stack = PolymerItemUtils.getPolymerItemStack(input, PacketContext.get());
-            return stack != input ? new ItemCost(stack.getItem().builtInRegistryHolder(), stack.getCount(), DataComponentExactPredicate.allOf(new ComponentChangesMap(stack.getComponentsPatch()))) : tradedItem;
+            var stack = PolymerItemUtils.getPolymerItemStack(input, PacketContext.get(), buf.registryAccess());
+            return stack != input ? new ItemCost(stack.typeHolder(), stack.getCount(), DataComponentExactPredicate.allOf(new ComponentChangesMap(stack.getComponentsPatch()))) : tradedItem;
         }, (buf, tradedItem) -> {
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var input = tradedItem.itemStack();
                 var stack = PolymerItemUtils.getRealItemStack(input, buf.registryAccess());
-                return stack != input ? new ItemCost(stack.getItem().builtInRegistryHolder(), stack.getCount(), DataComponentExactPredicate.allOf(new ComponentChangesMap(stack.getComponentsPatch()))) : tradedItem;
+                return stack != input ? new ItemCost(stack.typeHolder(), stack.getCount(), DataComponentExactPredicate.allOf(new ComponentChangesMap(stack.getComponentsPatch()))) : tradedItem;
             }
             return tradedItem;
         });

@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.impl.client;
 
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.client.ClientPolymerItem;
+import eu.pb4.polymer.core.mixin.item.ItemAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Holder;
@@ -15,7 +16,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.TooltipDisplay;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -29,6 +30,7 @@ public class VirtualClientItem extends Item {
     public static VirtualClientItem of(ClientPolymerItem item) {
         var obj = CommonImplUtils.createUnsafe(VirtualClientItem.class);
         obj.polymerItem = item;
+        ((ItemAccessor) obj).setRequiredFeatures(FeatureFlagSet.of());
         return obj;
     }
 
@@ -65,11 +67,6 @@ public class VirtualClientItem extends Item {
         if (this.polymerItem.visualStack().has(DataComponents.LORE)) {
             this.polymerItem.visualStack().getOrDefault(DataComponents.LORE, ItemLore.EMPTY).addToTooltip(context, textConsumer, type, stack.getComponents());
         }
-    }
-
-    @Override
-    public FeatureFlagSet requiredFeatures() {
-        return FeatureFlagSet.of();
     }
 
     private VirtualClientItem() {

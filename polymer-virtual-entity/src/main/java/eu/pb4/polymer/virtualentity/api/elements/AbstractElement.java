@@ -2,7 +2,7 @@ package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.SafeBundler;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.function.Predicate;
@@ -38,7 +38,6 @@ public abstract class AbstractElement implements VirtualElement {
         return this.overridePos;
     }
 
-    @Nullable
     public void setOverridePos(Vec3 vec3d) {
         this.overridePos = vec3d;
     }

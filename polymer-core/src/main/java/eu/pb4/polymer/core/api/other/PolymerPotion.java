@@ -4,8 +4,8 @@ import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.alchemy.Potion;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public interface PolymerPotion extends PolymerSyncedObject<Potion> {
     @Override

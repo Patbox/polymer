@@ -3,7 +3,7 @@ package eu.pb4.polymertest;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.core.api.other.PolymerMapCodec;
 import net.minecraft.server.dialog.*;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,9 +18,9 @@ public record TestDialog() implements Dialog {
 
     @Override
     public CommonDialogData common() {
-        PacketContext.get().getGameProfile();
+        var profile = PacketContext.get() instanceof PacketContext context ? context.get(PacketContext.GAME_PROFILE) : null;
         return new CommonDialogData(Component.literal("Test Dialog"), Optional.empty(), true, true, DialogAction.CLOSE,
-                List.of(new PlainMessage(Component.nullToEmpty(PacketContext.get().getGameProfile() != null ? PacketContext.get().getGameProfile().name() : "<NULL>"), 500)), List.of());
+                List.of(new PlainMessage(Component.nullToEmpty(profile != null ? profile.name() : "<NULL>"), 500)), List.of());
     }
 
     @Override

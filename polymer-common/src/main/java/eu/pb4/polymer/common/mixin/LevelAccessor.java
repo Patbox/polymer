@@ -47,7 +47,7 @@ public interface LevelAccessor {
     void polymer$setRandom(RandomSource random);
 
     @Mutable
-    @Accessor("threadSafeRandom")
+    @Accessor("random")
     void polymer$setAsyncRandom(RandomSource random);
 
     @Mutable

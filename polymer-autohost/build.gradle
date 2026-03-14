@@ -1,4 +1,6 @@
-archivesBaseName = "polymer-autohost"
+base {
+    archivesName = "polymer-autohost"
+}
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 
 
@@ -21,28 +23,24 @@ loom {
 }
 
 dependencies {
-    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-    //modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-    //modCompileOnly "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
-
-    api (project(path: ':polymer-common', configuration: 'namedElements'))
-    api (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
+    api (project(path: ':polymer-common'))
+    api (project(path: ':polymer-resource-pack'))
 
 
     testmodImplementation sourceSets.main.output
-    testmodImplementation (project(path: ':polymer-core', configuration: 'namedElements'))
-    testmodImplementation (project(path: ':polymer-blocks', configuration: 'namedElements'))
-    testmodImplementation (project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
-    testmodImplementation (project(path: ':polymer-networking', configuration: 'namedElements'))
-    testmodImplementation (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
-    testmodImplementation (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
+    testmodImplementation (project(path: ':polymer-core'))
+    testmodImplementation (project(path: ':polymer-blocks'))
+    testmodImplementation (project(path: ':polymer-reg-sync-manipulator'))
+    testmodImplementation (project(path: ':polymer-networking'))
+    testmodImplementation (project(path: ':polymer-resource-pack-extras'))
+    testmodImplementation (project(path: ':polymer-sound-patcher'))
 
-    compileOnly (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
-    localRuntime (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
-    compileOnly (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
-    localRuntime (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
-    compileOnly (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
-    localRuntime (project(path: ':polymer-sound-patcher', configuration: 'namedElements'))
+    compileOnly (project(path: ':polymer-virtual-entity'))
+    localRuntime (project(path: ':polymer-virtual-entity'))
+    compileOnly (project(path: ':polymer-resource-pack-extras'))
+    localRuntime (project(path: ':polymer-resource-pack-extras'))
+    compileOnly (project(path: ':polymer-sound-patcher'))
+    localRuntime (project(path: ':polymer-sound-patcher'))
     //modLocalRuntime("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1") {
     //    exclude(group: "net.fabricmc.fabric-api")
     //}

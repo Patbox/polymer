@@ -1,7 +1,7 @@
 package eu.pb4.polymer.virtualentity.api.tracker;
 
 import eu.pb4.polymer.common.mixin.SyncedEntityDataAccessor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -11,8 +11,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 public interface DataTrackerLike {
     @Nullable
     <T> T get(EntityDataAccessor<T> data);
-
-    @Nullable
 
     default <T> void set(EntityDataAccessor<T> key, T value) {
         set(key, value, false);

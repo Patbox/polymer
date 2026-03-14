@@ -5,7 +5,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +32,7 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
             entryMain = List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, List.copyOf(contents.main())));
             entrySearch = List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, List.copyOf(contents.search())));
         } else if (version == 9) {
-            var ctx = PacketContext.create(handler);
+            var ctx = handler.getPacketContext();
             var stackMain = new ArrayList<ItemStack>();
             var stackSearch = new ArrayList<ItemStack>();
 
@@ -51,7 +51,7 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
                 }
             }
         } else {
-            var ctx = PacketContext.create(handler);
+            var ctx = handler.getPacketContext();
             entryMain = new ArrayList<>();
             entrySearch = new ArrayList<>();
 
@@ -62,7 +62,7 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
         return new PolymerItemGroupContentAddS2CPayload(PolymerItemGroupUtils.getId(group), entryMain, entrySearch);
     }
 
-    private static void groupEntries(List<Entry> entry, Collection<ItemStack> main, PacketContext.NotNullWithPlayer ctx) {
+    private static void groupEntries(List<Entry> entry, Collection<ItemStack> main, PacketContext ctx) {
         var stacks = new ArrayList<ItemStack>();
 
         ItemStack previous = ItemStack.EMPTY;

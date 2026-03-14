@@ -1,6 +1,7 @@
 package eu.pb4.polymer.networking.api;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.polymer.common.impl.CommonImplPacketKeys;
 import eu.pb4.polymer.networking.impl.PacketListenerImplExtension;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.RegistryAccess;
@@ -13,9 +14,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.ContextProvidingPacketListener;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class ContextByteBuf extends RegistryFriendlyByteBuf {
     private final PacketContext context;
@@ -26,8 +26,8 @@ public class ContextByteBuf extends RegistryFriendlyByteBuf {
 
         if (buf instanceof RegistryFriendlyByteBuf reg) {
             registryManager = reg.registryAccess();
-        } else if (context.getBackingPacketListener() instanceof PacketListenerImplExtension ext) {
-            registryManager = ext.polymer$getDynamicRegistryManager();
+        } else {
+            registryManager = context.get(CommonImplPacketKeys.HOLDER_LOOKUP);
         }
         if (registryManager == null) {
             registryManager = RegistryAccess.EMPTY;
@@ -53,7 +53,7 @@ public class ContextByteBuf extends RegistryFriendlyByteBuf {
                 (x, y) -> {
                     try {
                         var ctx = PacketContext.get();
-                        var version = PolymerNetworking.getSupportedVersion(ctx.getClientConnection(), identifier);
+                        var version = PolymerNetworking.getSupportedVersion(ctx != null ? ctx.get(PacketContext.CONNECTION) : null, identifier);
                         VarInt.write(x, version);
                         codec.encode(of(ctx, version, x), y);
                     } catch (Throwable e) {
@@ -68,30 +68,7 @@ public class ContextByteBuf extends RegistryFriendlyByteBuf {
     }
 
     @Nullable
-    public ServerPlayer player() {
-        return context.getPlayer();
-    }
-    @Nullable
-    public ClientInformation clientOptions() {
-        return context.getClientOptions();
-    }
-    @Nullable
-    public GameProfile gameProfile() {
-        return context.getGameProfile();
-    }
-
-
-    public ContextProvidingPacketListener packetListener() {
-        return context.getPacketListener();
-    }
-
-    @Nullable
     public Connection clientConnection() {
-        return context.getClientConnection();
-    }
-
-    @Nullable
-    public Packet<?> encodedPacket() {
-        return context.getEncodedPacket();
+        return context.orElseThrow(PacketContext.CONNECTION);
     }
 }

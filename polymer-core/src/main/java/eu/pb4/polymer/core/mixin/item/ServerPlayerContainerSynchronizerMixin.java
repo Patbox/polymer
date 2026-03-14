@@ -11,12 +11,14 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(targets = "net/minecraft/server/level/ServerPlayer$1")
 public class ServerPlayerContainerSynchronizerMixin {
-    @Shadow @Final private ServerPlayer field_58075;
+    @Shadow
+    @Final
+    private ServerPlayer this$0;
 
     @ModifyReturnValue(method = "createSlot", at = @At("TAIL"))
     private RemoteSlot setContextForSlot(RemoteSlot slot) {
         if (slot instanceof GenericPlayerContext context) {
-            context.polymer$setPlayer(this.field_58075);
+            context.polymer$setPlayer(this.this$0);
         }
         return slot;
     }

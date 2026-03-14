@@ -1,4 +1,6 @@
-archivesBaseName = "polymer-blocks"
+base {
+    archivesName = "polymer-blocks"
+}
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 
 
@@ -27,26 +29,16 @@ loom {
 }
 
 dependencies {
-    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-
-    implementation(project(path: ':polymer-core', configuration: 'namedElements'))
-    implementation(project(path: ':polymer-common', configuration: 'namedElements'))
-    implementation(project(path: ':polymer-resource-pack', configuration: 'namedElements'))
-    compileOnly project(path: ":polymer-resource-pack-extras", configuration: "namedElements")
-
-    modCompileOnly ("me.lucko:fabric-permissions-api:0.1-SNAPSHOT") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+    implementation(project(path: ':polymer-core'))
+    implementation(project(path: ':polymer-common'))
+    implementation(project(path: ':polymer-resource-pack'))
+    compileOnly project(path: ":polymer-resource-pack-extras")
 
     //modLocalRuntime "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
     //modCompileOnly "fr.catcore:server-translations-api:1.4.9+1.18.2-rc1"
 
     //modCompileOnly 'nl.theepicblock:PolyMc:PolyMc:5.1.0+1.19'
-    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.4.0') {
-        exclude(group: "org.quiltmc", module: "quilt-loader")
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+
     testmodImplementation sourceSets.main.output
     //testmodImplementation project(":polymer-core").sourceSets.testmod.output
 }

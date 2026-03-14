@@ -39,12 +39,12 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
 
     @Inject(method = "handleUseItem", at = @At("TAIL"))
     private void polymtest_itemUse(ServerboundUseItemPacket packet, CallbackInfo ci) {
-        this.player.displayClientMessage(Component.nullToEmpty("ItemUse: " + " Hand|" + packet.getHand() + " Pitch|" + + packet.getXRot() + " Yaw|" + packet.getYRot() + " Seq|" + packet.getSequence()), false);
+        this.player.sendSystemMessage(Component.nullToEmpty("ItemUse: " + " Hand|" + packet.getHand() + " Pitch|" + + packet.getXRot() + " Yaw|" + packet.getYRot() + " Seq|" + packet.getSequence()), false);
     }
 
     @Inject(method = "handleUseItemOn", at = @At("TAIL"))
     private void polymtest_blockUse(ServerboundUseItemOnPacket packet, CallbackInfo ci) {
-        this.player.displayClientMessage(Component.nullToEmpty("BlockUse: " + " Hand|" + packet.getHand() + " Pos|" + packet.getHitResult().getBlockPos() + " Seq|" + packet.getSequence()), false);
+        this.player.sendSystemMessage(Component.nullToEmpty("BlockUse: " + " Hand|" + packet.getHand() + " Pos|" + packet.getHitResult().getBlockPos() + " Seq|" + packet.getSequence()), false);
     }
 
     @Inject(method = "handlePlayerInput", at = @At("TAIL"))
@@ -58,7 +58,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
             text.append(Component.literal("-").withStyle(packet.input().jump() ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY));
             text.append(Component.literal("_").withStyle(packet.input().shift() ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY));
             text.append(Component.literal("$").withStyle(packet.input().sprint() ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY));
-            this.player.displayClientMessage(text, true);
+            this.player.sendSystemMessage(text, true);
         }
     }
 

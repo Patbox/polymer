@@ -4,17 +4,19 @@
   "package": "eu.pb4.polymer.common.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ConnectionMixin",
     "CommandsMixin",
-    "SyncedEntityDataAccessor",
+    "ConnectionMixin",
+    "LevelAccessor",
     "ReferenceAccessor",
     "ServerCommonPacketListenerImplMixin",
-    "LevelAccessor"
+    "ServerLoginPacketListenerImplMixin",
+    "SyncedEntityDataAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "client.ClientCommonPacketListenerImplMixin"
+    "client.ClientCommonPacketListenerImplMixin",
+    "client.ClientConfigurationPacketListenerImplMixin"
   ]
 }

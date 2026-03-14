@@ -14,7 +14,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagType;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 

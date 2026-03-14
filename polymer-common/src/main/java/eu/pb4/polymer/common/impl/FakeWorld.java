@@ -1,18 +1,11 @@
 package eu.pb4.polymer.common.impl;
 
 
-import eu.pb4.polymer.common.mixin.ReferenceAccessor;
 import eu.pb4.polymer.common.mixin.LevelAccessor;
+import eu.pb4.polymer.common.mixin.ReferenceAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.ObjectIterators;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.ClientAsset;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderOwner;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.*;
 import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,12 +16,16 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.*;
+import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.*;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
+import net.minecraft.world.clock.ClockManager;
+import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
@@ -52,13 +49,10 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeAccess;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeGenerationSettings;
-import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.BiomeSpecialEffects;
-import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.FuelValues;
@@ -86,7 +80,7 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.ScheduledTick;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -105,6 +99,77 @@ public final class FakeWorld extends Level implements LightChunk {
 
     static final RegistryAccess FALLBACK_REGISTRY_MANAGER = new RegistryAccess.Frozen() {
         private static final Map<ResourceKey<?>, Registry<?>> REGISTRIES = new HashMap<>();
+
+        static {
+            addRegistry(new FakeRegistry<>(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath("polymer", "fake_damage"),
+                    new DamageType("", DamageScaling.NEVER, 0)));
+            addRegistry(new FakeRegistry<>(Registries.BANNER_PATTERN,
+                    Identifier.fromNamespaceAndPath("polymer", "fake_pattern"),
+                    new BannerPattern(Identifier.fromNamespaceAndPath("polymer", "fake_pattern"), "")));
+            addRegistry(new FakeRegistry<>(Registries.PAINTING_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "painting"),
+                    new PaintingVariant(1, 1, Identifier.fromNamespaceAndPath("polymer", "painting"), Optional.empty(), Optional.empty())));
+            addRegistry(new FakeRegistry<>(Registries.WOLF_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "wolf"),
+                    new WolfVariant(new WolfVariant.AssetInfo(
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
+                            new WolfVariant.AssetInfo(
+                                    new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
+                                    new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
+                                    new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))), SpawnPrioritySelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(Registries.COW_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "cow"),
+                    new CowVariant(
+                            new ModelAndTexture<>(CowVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
+                            SpawnPrioritySelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(Registries.PIG_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "pig"),
+                    new PigVariant(
+                            new ModelAndTexture<>(PigVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
+                            SpawnPrioritySelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(Registries.CHICKEN_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "chicken"),
+                    new ChickenVariant(
+                            new ModelAndTexture<>(ChickenVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
+                            SpawnPrioritySelectors.EMPTY)));
+
+            addRegistry(new FakeRegistry<>(Registries.CAT_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "cat"),
+                    new CatVariant(
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "cat")),
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "cat")),
+                            SpawnPrioritySelectors.EMPTY)));
+            addRegistry(new FakeRegistry<>(Registries.FROG_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "frog"),
+                    new FrogVariant(
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "frog")
+                            ), SpawnPrioritySelectors.EMPTY)));
+            addRegistry(new FakeRegistry<>(Registries.WOLF_SOUND_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "wolf"),
+                    SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.SoundSet.CLASSIC)));
+
+            addRegistry(new FakeRegistry<>(Registries.BIOME, Identifier.fromNamespaceAndPath("polymer", "fake_biome"),
+                    new Biome.BiomeBuilder()
+                            .temperature(0)
+                            .downfall(0)
+                            .specialEffects(new BiomeSpecialEffects.Builder().waterColor(0).build())
+                            .mobSpawnSettings(new MobSpawnSettings.Builder().build())
+                            .generationSettings(BiomeGenerationSettings.EMPTY)
+                            .build()));
+        }
+
+        public static void addRegistry(FakeRegistry<?> registry) {
+            REGISTRIES.put(registry.key(), registry);
+        }
+
         @Override
         public Optional<Registry> lookup(ResourceKey key) {
             var x = BuiltInRegistries.REGISTRY.getValue(key);
@@ -125,121 +190,10 @@ public final class FakeWorld extends Level implements LightChunk {
         public Stream<RegistryEntry<?>> registries() {
             return Stream.empty();
         }
-
-        public static void addRegistry(FakeRegistry<?> registry) {
-            REGISTRIES.put(registry.key(), registry);
-        }
-
-        static {
-            addRegistry(new FakeRegistry<>(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath("polymer","fake_damage"),
-                    new DamageType("", DamageScaling.NEVER, 0)));
-            addRegistry(new FakeRegistry<>(Registries.BANNER_PATTERN,
-                    Identifier.fromNamespaceAndPath("polymer","fake_pattern"),
-                    new BannerPattern(Identifier.fromNamespaceAndPath("polymer","fake_pattern"), "")));
-            addRegistry(new FakeRegistry<>(Registries.PAINTING_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","painting"),
-                    new PaintingVariant(1, 1, Identifier.fromNamespaceAndPath("polymer","painting"), Optional.empty(), Optional.empty())));
-            addRegistry(new FakeRegistry<>(Registries.WOLF_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","wolf"),
-                    new WolfVariant(new WolfVariant.AssetInfo(
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer","wolf")),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer","wolf")),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer","wolf"))), SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.COW_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","cow"),
-                    new CowVariant(
-                            new ModelAndTexture<>(CowVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))
-                            ), SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.PIG_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","pig"),
-                    new PigVariant(
-                            new ModelAndTexture<>(PigVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))
-                            ), SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.CHICKEN_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","chicken"),
-                    new ChickenVariant(
-                            new ModelAndTexture<>(ChickenVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))
-                            ), SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.CAT_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","cat"),
-                    new CatVariant(
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "cat")
-                            ), SpawnPrioritySelectors.EMPTY)));
-            addRegistry(new FakeRegistry<>(Registries.FROG_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","frog"),
-                    new FrogVariant(
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "frog")
-                            ), SpawnPrioritySelectors.EMPTY)));
-            addRegistry(new FakeRegistry<>(Registries.WOLF_SOUND_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer","wolf"),
-                    SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.SoundSet.CLASSIC)));
-
-            addRegistry(new FakeRegistry<>(Registries.BIOME, Identifier.fromNamespaceAndPath("polymer","fake_biome"),
-                    new Biome.BiomeBuilder()
-                            .temperature(0)
-                            .downfall(0)
-                            .specialEffects(new BiomeSpecialEffects.Builder().waterColor(0).build())
-                            .mobSpawnSettings(new MobSpawnSettings.Builder().build())
-                            .generationSettings(BiomeGenerationSettings.EMPTY)
-                            .build()));
-        }
     };
     static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
     private static final FeatureFlagSet FEATURES = FeatureFlags.REGISTRY.allFlags();
     private static final FuelValues FUEL_REGISTRY = new FuelValues.Builder(FALLBACK_REGISTRY_MANAGER, FeatureFlagSet.of()).build();
-    final ChunkSource chunkManager = new ChunkSource() {
-        private LevelLightEngine lightingProvider = null;
-
-        @Nullable
-        @Override
-        public ChunkAccess getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
-            return null;
-        }
-
-        @Override
-        public void tick(BooleanSupplier shouldKeepTicking, boolean tickChunks) {
-
-        }
-
-        @Override
-        public String gatherStats() {
-            return "Potato";
-        }
-
-        @Override
-        public int getLoadedChunksCount() {
-            return 0;
-        }
-
-        @Override
-        public LevelLightEngine getLightEngine() {
-            if (this.lightingProvider == null) {
-                this.lightingProvider = new LevelLightEngine(new LightChunkGetter() {
-                    @Nullable
-                    @Override
-                    public LightChunk getChunkForLighting(int chunkX, int chunkZ) {
-                        return FakeWorld.this;
-                    }
-
-                    @Override
-                    public BlockGetter getLevel() {
-                        return FakeWorld.this;
-                    }
-                }, false, false);
-            }
-
-            return this.lightingProvider;
-        }
-
-        @Override
-        public BlockGetter getLevel() {
-            return FakeWorld.this;
-        }
-    };
     private static final LevelEntityGetter<Entity> ENTITY_LOOKUP = new LevelEntityGetter<>() {
         @Nullable
         @Override
@@ -299,20 +253,21 @@ public final class FakeWorld extends Level implements LightChunk {
     static {
         Level worldUnsafe, worldDefault;
 
-        var dimType = Holder.Reference.createIntrusive(new HolderOwner<>() {},
-                new DimensionType(true, false, false, 1.0D,
-                        -64, 256, 256, BlockTags.INFINIBURN_OVERWORLD,  1,
+        var dimType = Holder.Reference.createIntrusive(new HolderOwner<>() {
+                                                       },
+                new DimensionType(true, false, false, false,1.0D,
+                        -64, 256, 256, BlockTags.INFINIBURN_OVERWORLD, 1,
                         new DimensionType.MonsterSettings(UniformInt.of(0, 7), 0),
-                        DimensionType.Skybox.NONE, DimensionType.CardinalLightType.DEFAULT, EnvironmentAttributeMap.builder().build(),
-                        HolderSet.direct()));
+                        DimensionType.Skybox.NONE, CardinalLighting.Type.DEFAULT, EnvironmentAttributeMap.builder().build(), HolderSet.empty(),
+                        Optional.empty()));
         ((ReferenceAccessor) dimType).callBindKey(ResourceKey.create(Registries.DIMENSION_TYPE, Identifier.parse("overworld")));
         try {
             worldUnsafe = (FakeWorld) UnsafeAccess.UNSAFE.allocateInstance(FakeWorld.class);
             var accessor = (LevelAccessor) worldUnsafe;
-            accessor.polymer$setBiomeAccess(new BiomeManager(worldUnsafe, 1l));
+            accessor.polymer$setBiomeAccess(new BiomeManager(worldUnsafe, 1L));
             accessor.polymer$setDebugWorld(true);
             accessor.polymer$setProperties(new FakeWorldProperties());
-            accessor.polymer$setRegistryKey(ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("polymer","fake_world")));
+            accessor.polymer$setRegistryKey(ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("polymer", "fake_world")));
             //accessor.polymer$setDimensionKey(DimensionTypes.OVERWORLD);
             accessor.polymer$setDimensionEntry(dimType);
             accessor.polymer$setThread(Thread.currentThread());
@@ -352,10 +307,65 @@ public final class FakeWorld extends Level implements LightChunk {
         INSTANCE = worldUnsafe != null ? worldUnsafe : worldDefault;
     }
 
+    final ChunkSource chunkManager = new ChunkSource() {
+        private LevelLightEngine lightingProvider = null;
+
+        @Nullable
+        @Override
+        public ChunkAccess getChunk(int x, int z, ChunkStatus leastStatus, boolean create) {
+            return null;
+        }
+
+        @Override
+        public void tick(BooleanSupplier shouldKeepTicking, boolean tickChunks) {
+
+        }
+
+        @Override
+        public String gatherStats() {
+            return "Potato";
+        }
+
+        @Override
+        public int getLoadedChunksCount() {
+            return 0;
+        }
+
+        @Override
+        public LevelLightEngine getLightEngine() {
+            if (this.lightingProvider == null) {
+                this.lightingProvider = new LevelLightEngine(new LightChunkGetter() {
+                    @Nullable
+                    @Override
+                    public LightChunk getChunkForLighting(int chunkX, int chunkZ) {
+                        return FakeWorld.this;
+                    }
+
+                    @Override
+                    public BlockGetter getLevel() {
+                        return FakeWorld.this;
+                    }
+                }, false, false);
+            }
+
+            return this.lightingProvider;
+        }
+
+        @Override
+        public BlockGetter getLevel() {
+            return FakeWorld.this;
+        }
+    };
     private final TickRateManager tickManager = new TickRateManager();
     private final WorldBorder worldBorder = new WorldBorder();
+    private final ClockManager clockManager = new ClockManager() {
+        @Override
+        public long getTotalTicks(Holder<WorldClock> definition) {
+            return 0;
+        }
+    };
 
-    protected FakeWorld(WritableLevelData properties, ResourceKey<Level> registryRef, Holder<DimensionType> dimensionType, boolean isClient, boolean debugWorld, long seed) {
+    private FakeWorld(WritableLevelData properties, ResourceKey<Level> registryRef, Holder<DimensionType> dimensionType, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, FALLBACK_REGISTRY_MANAGER, dimensionType, isClient, debugWorld, seed, 0);
     }
 
@@ -385,13 +395,13 @@ public final class FakeWorld extends Level implements LightChunk {
     }
 
     @Override
-    public void setRespawnData(LevelData.RespawnData spawnPoint) {
-
+    public LevelData.RespawnData getRespawnData() {
+        return null;
     }
 
     @Override
-    public LevelData.RespawnData getRespawnData() {
-        return null;
+    public void setRespawnData(LevelData.RespawnData spawnPoint) {
+
     }
 
     @Nullable
@@ -461,9 +471,15 @@ public final class FakeWorld extends Level implements LightChunk {
     public void gameEvent(Holder<GameEvent> event, Vec3 emitterPos, GameEvent.Context emitter) {
 
     }
+
     @Override
     public RegistryAccess registryAccess() {
         return FALLBACK_REGISTRY_MANAGER;
+    }
+
+    @Override
+    public ClockManager clockManager() {
+        return this.clockManager;
     }
 
     @Override
@@ -485,11 +501,6 @@ public final class FakeWorld extends Level implements LightChunk {
     @Override
     public FeatureFlagSet enabledFeatures() {
         return FEATURES;
-    }
-
-    @Override
-    public float getShade(Direction direction, boolean shaded) {
-        return 0;
     }
 
     @Override
@@ -534,26 +545,6 @@ public final class FakeWorld extends Level implements LightChunk {
         @Override
         public long getGameTime() {
             return 0;
-        }
-
-        @Override
-        public long getDayTime() {
-            return 0;
-        }
-
-        @Override
-        public boolean isThundering() {
-            return false;
-        }
-
-        @Override
-        public boolean isRaining() {
-            return false;
-        }
-
-        @Override
-        public void setRaining(boolean raining) {
-
         }
 
         @Override

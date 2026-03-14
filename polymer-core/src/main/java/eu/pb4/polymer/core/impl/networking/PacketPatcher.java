@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.impl.networking;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
@@ -42,8 +43,8 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,7 +53,7 @@ import java.util.List;
 public class PacketPatcher {
 
     private static final Codec<ItemStack> ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder),
+            BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::typeHolder),
             DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(ItemStack::getComponentsPatch)
     ).apply(instance, (item, components) -> new ItemStack(item, 1, components)));
 
@@ -118,24 +119,25 @@ public class PacketPatcher {
 
     public static boolean prevent(ServerCommonPacketListenerImpl handler, Packet<?> packet) {
         if (handler.getClass() == ServerGamePacketListenerImpl.class) {
-            var player = PacketContext.create(handler);
+            var context = handler.getPacketContext();
+            var player = ((ServerGamePacketListenerImpl) handler).player;
             //noinspection DataFlowIssue
             if ((
                     packet instanceof StatusEffectPacketExtension packet2
                             && ((PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, packet2.polymer$getStatusEffect()) != null
-                            && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, packet2.polymer$getStatusEffect()).getPolymerReplacement(packet2.polymer$getStatusEffect(), player) == null))
-            ) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())
+                            && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, packet2.polymer$getStatusEffect()).getPolymerReplacement(packet2.polymer$getStatusEffect(), context) == null))
+            ) || !EntityAttachedPacket.shouldSend(packet, player)
             ) {
                 return true;
-            } else if ((packet instanceof ClientboundSetEquipmentPacket original && original.getSlots().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player.getPlayer())) {
+            } else if ((packet instanceof ClientboundSetEquipmentPacket original && original.getSlots().isEmpty()) || !EntityAttachedPacket.shouldSend(packet, player)) {
                 return true;
             } else if ((packet instanceof ClientboundUpdateAttributesPacket original
                     && PolymerEntity.get(EntityAttachedPacket.get(packet, original.getEntityId())) instanceof PolymerEntity entity
-                    && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(player)))) {
+                    && !InternalEntityHelpers.isLivingEntity(entity.getPolymerEntityType(context)))) {
                 return true;
             } else if (packet instanceof ClientboundBlockEntityDataPacket be) {
                 return PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK_ENTITY_TYPE, be.getType()) instanceof PolymerSyncedObject<BlockEntityType<?>> obj
-                        && obj.getPolymerReplacement(be.getType(), player) == null;
+                        && obj.getPolymerReplacement(be.getType(), context) == null;
             } else if (packet instanceof ClientboundRecipeBookAddPacket recipeBook && PolymerImpl.SPLIT_RECIPE_PACKETS > 0 && recipeBook.entries().size() > PolymerImpl.SPLIT_RECIPE_PACKETS) {
                 var list = new ArrayList<ClientboundRecipeBookAddPacket.Entry>();
                 if (recipeBook.replace()) {
@@ -154,7 +156,7 @@ public class PacketPatcher {
 
                 return true;
             } else if (packet instanceof ClientboundAnimatePacket animationS2CPacket && PolymerEntity.get(EntityAttachedPacket.get(packet, animationS2CPacket.getId())) instanceof PolymerEntity polymerEntity
-                    && !InternalEntityHelpers.isLivingEntity(polymerEntity.getPolymerEntityType(PacketContext.create(handler)))) {
+                    && !InternalEntityHelpers.isLivingEntity(polymerEntity.getPolymerEntityType(handler.getPacketContext()))) {
                 return true;
             }
         }
@@ -189,13 +191,12 @@ public class PacketPatcher {
         return null;
     }
 
-    public static CompoundTag transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, CompoundTag original) {
+    public static CompoundTag transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, CompoundTag original, HolderLookup.Provider lookup) {
         if (original.isEmpty()) {
             return original;
         }
         CompoundTag override = null;
 
-        var lookup = context.getRegistryWrapperLookup() != null ? context.getRegistryWrapperLookup() : PolymerImplUtils.FALLBACK_LOOKUP;
         var ops = lookup.createSerializationContext(NbtOps.INSTANCE);
         if (original.get("shared_data") instanceof CompoundTag shared) {
             if (shared.get("display_item") instanceof CompoundTag itemNbt) {
@@ -208,7 +209,7 @@ public class PacketPatcher {
 
                     try {
                         override.getCompoundOrEmpty("shared_data").store("display_item",
-                                ItemStack.OPTIONAL_CODEC, ops, PolymerItemUtils.getPolymerItemStack(stack, context));
+                                ItemStack.OPTIONAL_CODEC, ops, PolymerItemUtils.getPolymerItemStack(stack, context, lookup));
                     } catch (Throwable e) {
                         e.printStackTrace();
                     }
@@ -229,7 +230,7 @@ public class PacketPatcher {
                     nbt.remove("id");
                     nbt.remove("components");
                     nbt.remove("count");
-                    stack = PolymerItemUtils.getPolymerItemStack(stack, context);
+                    stack = PolymerItemUtils.getPolymerItemStack(stack, context, lookup);
                     override.getListOrEmpty("Items").set(i, ItemStack.OPTIONAL_CODEC.encode(stack, ops, nbt).getOrThrow());
                 }
             }
@@ -247,7 +248,7 @@ public class PacketPatcher {
                 if (override == null) {
                     override = original.copy();
                 }
-                stack = PolymerItemUtils.getPolymerItemStack(stack, context);
+                stack = PolymerItemUtils.getPolymerItemStack(stack, context, lookup);
                 override.put("item", variant
                         ? ITEM_VARIANT_FORMATTED_ITEM_STACK_CODEC.encodeStart(lookup.createSerializationContext(NbtOps.INSTANCE), stack).getOrThrow()
                         : ItemStack.OPTIONAL_CODEC.encodeStart(ops, stack).getOrThrow());

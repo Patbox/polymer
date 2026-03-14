@@ -6,8 +6,8 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;

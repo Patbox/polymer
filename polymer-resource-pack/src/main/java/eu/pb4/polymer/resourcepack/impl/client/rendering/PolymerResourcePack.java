@@ -13,7 +13,7 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,8 +26,7 @@ public class PolymerResourcePack {
     @Nullable
     private volatile static Path path = null;
 
-    @Nullable
-    public synchronized static Pack.ResourcesSupplier setup() {
+    public synchronized static Pack.@Nullable ResourcesSupplier setup() {
         if (path != null && Files.exists(path)) {
             return new FilePackResources.FileResourcesSupplier(path);
         }

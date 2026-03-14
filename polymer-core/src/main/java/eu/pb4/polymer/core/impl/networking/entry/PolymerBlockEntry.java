@@ -27,7 +27,6 @@ public record PolymerBlockEntry(Identifier identifier, int numId, float hardness
                                 Component text, BlockState visual, ItemStack visualStack) {
     private static final StreamCodec<ByteBuf, BlockState> STATE = ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY);
     public static final StreamCodec<ContextByteBuf, PolymerBlockEntry> CODEC = StreamCodec.ofMember(PolymerBlockEntry::write, PolymerBlockEntry::read);
-    private static final String REMAPPED_calcBlockBreakingDelta = FabricLoader.getInstance().isDevelopmentEnvironment() ? FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_4970", "method_9594", "(Lnet/minecraft/class_2680;Lnet/minecraft/class_1657;Lnet/minecraft/class_1922;Lnet/minecraft/class_2338;)F") : "method_9594";
 
     private static final Map<Class<?>, Boolean> HAS_OVERRIDDEN_DELTA = new IdentityHashMap<>();
 
@@ -51,7 +50,7 @@ public record PolymerBlockEntry(Identifier identifier, int numId, float hardness
 
         while (clazz != BlockBehaviour.class) {
             try {
-                clazz.getDeclaredMethod(REMAPPED_calcBlockBreakingDelta, BlockState.class, Player.class, BlockGetter.class, BlockPos.class);
+                clazz.getDeclaredMethod("getDestroyProgress", BlockState.class, Player.class, BlockGetter.class, BlockPos.class);
                 HAS_OVERRIDDEN_DELTA.put(block.getClass(), true);
                 return;
             } catch (Throwable e) {

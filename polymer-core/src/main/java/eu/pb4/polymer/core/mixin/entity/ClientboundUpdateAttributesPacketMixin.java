@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
@@ -15,7 +16,7 @@ import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public abstract class ClientboundUpdateAttributesPacketMixin implements Possibly
                 //noinspection unchecked
                 var vanillaContainer = DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) type);
                 var data = new ArrayList<>(packet.getValues());
-                entity.modifyRawEntityAttributeData(data, context.getPlayer(), ((PossiblyInitialPacket) packet).polymer$getInitial());
+                entity.modifyRawEntityAttributeData(data, PolymerCommonUtils.getPlayer(context), ((PossiblyInitialPacket) packet).polymer$getInitial());
                 for (var entry : data) {
                     if (vanillaContainer.hasAttribute(entry.attribute()) && !PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
                         list.add(entry);

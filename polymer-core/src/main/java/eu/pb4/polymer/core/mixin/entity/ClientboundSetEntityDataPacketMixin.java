@@ -1,18 +1,19 @@
 package eu.pb4.polymer.core.mixin.entity;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +43,9 @@ public class ClientboundSetEntityDataPacketMixin implements PossiblyInitialPacke
         var player = PacketContext.get();
 
         var polymerEntity = PolymerEntity.get(entity);
-        if (polymerEntity != null && InternalEntityHelpers.canPatchTrackedData(player.getPlayer(), entity)) {
+        if (polymerEntity != null && InternalEntityHelpers.canPatchTrackedData(PolymerCommonUtils.getPlayer(player), entity)) {
             var mod = trackedValues != null ? new ArrayList<>(trackedValues) : new ArrayList<SynchedEntityData.DataValue<?>>();
-            polymerEntity.modifyRawTrackedData(mod, player.getPlayer(), this.isInitial);
+            polymerEntity.modifyRawTrackedData(mod, PolymerCommonUtils.getPlayer(player), this.isInitial);
 
             var legalTrackedData = InternalEntityHelpers.getExampleTrackedDataOfEntityType((polymerEntity.getPolymerEntityType(player)));
 

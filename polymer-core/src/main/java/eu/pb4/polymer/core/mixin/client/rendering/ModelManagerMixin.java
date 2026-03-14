@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ModelManager.class)
 public class ModelManagerMixin {
-    @WrapWithCondition(method = "method_65752", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;)V"))
+    @WrapWithCondition(method = "lambda$createBlockStateToModelDispatch$0", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;)V"))
     private static boolean preventWarningForPolymerBlocks(Logger instance, String s, Object object, @Local(argsOnly = true) BlockState state) {
         return !(PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock);
     }

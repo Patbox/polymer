@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record ChestSpecialModel(Identifier texture, float openness) implements SpecialModel {
     public static final MapCodec<ChestSpecialModel> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

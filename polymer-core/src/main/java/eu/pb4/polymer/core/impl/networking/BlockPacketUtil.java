@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class BlockPacketUtil {
     public static void sendFromPacket(Packet<?> packet, ServerGamePacketListenerImpl handler) {
@@ -34,13 +34,12 @@ public class BlockPacketUtil {
             PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;
             if (wc != null && wci.polymer$hasAny()) {
                 PolymerServerProtocol.sendSectionUpdate(handler, wc);
-                var ctx = PacketContext.create(handler);
                 var iterator = wci.polymer$iterator();
                 while (iterator.hasNext()) {
                     var pos = iterator.next();
                     var blockState = wc.getBlockState(pos);
                     if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, blockState.getBlock()) instanceof PolymerBlock polymerBlock) {
-                        polymerBlock.onPolymerBlockSend(blockState, pos, ctx);
+                        polymerBlock.onPolymerBlockSend(blockState, pos, handler.getPlayer());
                     }
                 }
             }
@@ -73,7 +72,7 @@ public class BlockPacketUtil {
         public void run() {
             PolymerServerProtocol.sendBlockUpdate(handler, pos, blockState);
             if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, blockState.getBlock()) instanceof PolymerBlock polymerBlock) {
-                polymerBlock.onPolymerBlockSend(blockState, pos.mutable(), PacketContext.create(handler));
+                polymerBlock.onPolymerBlockSend(blockState, pos.mutable(), handler.getPlayer());
             }
         }
     }
@@ -85,7 +84,7 @@ public class BlockPacketUtil {
             PolymerServerProtocol.sendMultiBlockUpdate(handler, chunkPos, localPos, blockStates);
 
             var blockPos = new BlockPos.MutableBlockPos();
-            var ctx = PacketContext.create(handler);
+            var ctx = handler.getPlayer();
 
             for (int i = 0; i < localPos.length; i++) {
                 BlockState blockState = blockStates[i];

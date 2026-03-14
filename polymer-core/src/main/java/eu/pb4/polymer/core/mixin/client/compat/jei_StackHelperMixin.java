@@ -1,7 +1,7 @@
 package eu.pb4.polymer.core.mixin.client.compat;
 
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import mezz.jei.common.util.StackHelper;
+//import mezz.jei.common.util.StackHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.item.ItemStack;
@@ -11,7 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Pseudo
+// Todo Wait for jei
+/*@Pseudo
 @Environment(EnvType.CLIENT)
 @Mixin(StackHelper.class)
 public class jei_StackHelperMixin {
@@ -22,4 +23,4 @@ public class jei_StackHelperMixin {
             cir.setReturnValue(id.toString());
         }
     }
-}
+}*/

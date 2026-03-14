@@ -2,7 +2,7 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymertest.mixin.VillagerEntityAccessor;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import net.minecraft.network.syncher.SynchedEntityData;

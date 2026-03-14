@@ -11,23 +11,26 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(targets = "net/minecraft/world/inventory/RemoteSlot$Synchronized")
 public class RemoteSlotSynchronizedMixin implements GenericPlayerContext {
     @Unique
-    private PacketContext context = PacketContext.create();
+    private PacketContext context;
+    @Unique
+    private ServerPlayer player;
 
     @Override
     public void polymer$setPlayer(ServerPlayer player) {
-        this.context = PacketContext.create(player);
+        this.context = player.connection.getPacketContext();
+        this.player = player;
     }
 
     @ModifyArg(method = "matches", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/HashedStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/network/HashedPatchMap$HashGenerator;)Z"))
     private ItemStack polymerifyCheckedStack(ItemStack stack) {
-        if (PolymerItemUtils.isServerItem(stack, this.context) && this.context.getPlayer() != null) {
-            var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), this.context.getPlayer().registryAccess());
-            PolymerCommonUtils.executeWithNetworkingLogic(context.getBackingPacketListener(), () -> ItemStack.STREAM_CODEC.encode(buf, stack));
+        if (PolymerItemUtils.isServerItem(stack, this.context) && player != null) {
+            var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), this.player.registryAccess());
+            PolymerCommonUtils.executeWithNetworkingLogic(player.connection, () -> ItemStack.STREAM_CODEC.encode(buf, stack));
             return ItemStack.STREAM_CODEC.decode(buf);
         }
         return stack;

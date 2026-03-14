@@ -28,8 +28,8 @@ public record DebugBlockStateEntry(Map<String, String> states, int numId, Identi
     public static DebugBlockStateEntry of(BlockState state, ServerGamePacketListenerImpl player, int version) {
         var list = new HashMap<String, String>();
 
-        for (var entry : state.getValues().entrySet()) {
-            list.put(entry.getKey().getName(), ((Property) entry.getKey()).getName(entry.getValue()));
+        for (var entry : state.getValues().toList()) {
+            list.put(entry.property().getName(), entry.valueName());
         }
 
         return new DebugBlockStateEntry(list,

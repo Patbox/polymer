@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl;
 
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public interface TransformingComponent {
     Object polymer$getTransformed(PacketContext context);

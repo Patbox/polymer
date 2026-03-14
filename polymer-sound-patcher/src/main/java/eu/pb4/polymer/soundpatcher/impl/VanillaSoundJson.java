@@ -2,7 +2,7 @@ package eu.pb4.polymer.soundpatcher.impl;
 
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.net.URL;

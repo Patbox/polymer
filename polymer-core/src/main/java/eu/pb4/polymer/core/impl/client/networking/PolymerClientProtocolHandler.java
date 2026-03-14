@@ -44,7 +44,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -175,12 +175,12 @@ public class PolymerClientProtocolHandler {
             var state = Block.BLOCK_STATE_REGISTRY.byId(entry.numId());
 
             if (state == null) {
-                chat.addMessage(Component.literal("Missing BlockState! | " + entry.numId() + " | Server: " + entry.asString()));
+                chat.addClientSystemMessage(Component.literal("Missing BlockState! | " + entry.numId() + " | Server: " + entry.asString()));
             } else {
                 var debug = DebugBlockStateEntry.of(state, null, 0);
 
                 if (!debug.equals(entry)) {
-                    chat.addMessage(Component.literal("Mismatched BlockState! | " + entry.numId() + " | Server: " + entry.asString() + " | Client: " + debug.asString()));
+                    chat.addClientSystemMessage(Component.literal("Mismatched BlockState! | " + entry.numId() + " | Server: " + entry.asString() + " | Client: " + debug.asString()));
                 }
             }
         }

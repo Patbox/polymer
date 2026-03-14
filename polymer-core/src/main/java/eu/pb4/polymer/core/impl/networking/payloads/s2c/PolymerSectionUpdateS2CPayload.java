@@ -6,7 +6,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public record PolymerSectionUpdateS2CPayload(SectionPos chunkPos, short[] pos, int[] blocks)  implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<PolymerSectionUpdateS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.WORLD_CHUNK_SECTION_UPDATE);

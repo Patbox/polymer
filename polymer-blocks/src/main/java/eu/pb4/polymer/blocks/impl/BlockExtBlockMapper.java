@@ -3,7 +3,7 @@ package eu.pb4.polymer.blocks.impl;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.IdentityHashMap;
 import java.util.Map;

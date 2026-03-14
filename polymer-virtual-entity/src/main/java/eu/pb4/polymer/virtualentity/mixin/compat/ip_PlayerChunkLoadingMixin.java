@@ -1,4 +1,4 @@
-package eu.pb4.polymer.virtualentity.mixin.compat;
+/*package eu.pb4.polymer.virtualentity.mixin.compat;
 
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import net.minecraft.server.level.ServerLevel;
@@ -27,3 +27,4 @@ public class ip_PlayerChunkLoadingMixin {
         }
     }
 }
+*/

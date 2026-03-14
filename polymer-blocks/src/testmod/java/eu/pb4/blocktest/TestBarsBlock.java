@@ -1,8 +1,7 @@
 package eu.pb4.blocktest;
 
 import eu.pb4.polymer.blocks.api.*;
-import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -10,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 public class TestBarsBlock extends IronBarsBlock implements PolymerTexturedBlock {
     private final IdentityHashMap<BlockState, BlockState> map = new IdentityHashMap<>();
@@ -43,7 +43,7 @@ public class TestBarsBlock extends IronBarsBlock implements PolymerTexturedBlock
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         return this.map.get(state);
     }
 }

@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.mixin.block.storage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

@@ -8,7 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -33,7 +33,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Leashabl
     }
 
     @Override
-    public void setLeashData(@Nullable Leashable.LeashData leashData) {
+    public void setLeashData(Leashable.@Nullable LeashData leashData) {
         this.leashData = leashData;
     }
 }

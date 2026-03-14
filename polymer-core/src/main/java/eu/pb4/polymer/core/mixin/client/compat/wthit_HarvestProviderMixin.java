@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.mixin.client.compat;
-
+/*
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import mcp.mobius.waila.api.IBlockAccessor;
@@ -20,3 +20,4 @@ public class wthit_HarvestProviderMixin {
     }
 
 }
+*/

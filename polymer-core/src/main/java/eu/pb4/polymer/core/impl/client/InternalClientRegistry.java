@@ -4,7 +4,6 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
-import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
@@ -27,6 +26,7 @@ import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.impl.creativetab.FabricCreativeModeTabImpl;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
@@ -55,8 +55,7 @@ import net.minecraft.world.level.chunk.Strategy;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -167,9 +166,9 @@ public class InternalClientRegistry {
         if (state != null && state.blockState() != null) {
             if (PolymerClientDecoded.checkDecode(state.blockState().getBlock())) {
                 return state.blockState();
-            } else {
-                return PolymerBlockUtils.getPolymerBlockState(state.blockState(), PacketContext.create());
-            }
+            }/* else {
+                return PolymerBlockUtils.getPolymerBlockState(state.blockState(), Minecraft.getInstance().getConnection().getPacketContext());
+            }*/
         }
 
         return null;
@@ -300,7 +299,7 @@ public class InternalClientRegistry {
             ITEM_GROUPS.removeIf(removePredicate);
             CreativeModeInventoryScreenAccessor.setSelectedTab(CreativeModeTabs.getDefaultTab());
 
-            if (CompatStatus.FABRIC_ITEM_GROUP || CompatStatus.QUILT_ITEM_GROUP) {
+            if (CompatStatus.FABRIC_CREATIVE_TAB_API || CompatStatus.QUILT_ITEM_GROUP) {
                 try {
                     for (var f1 : CreativeModeInventoryScreen.class.getDeclaredFields()) {
                         if (f1.getName().contains("currentPage")) {
@@ -333,9 +332,9 @@ public class InternalClientRegistry {
 
     private static void setItemGroupPage(CreativeModeTab group, int page) {
         ((ClientCreativeModeTabExtension) group).polymerCore$setPage(page);
-        if (CompatStatus.FABRIC_ITEM_GROUP) {
+        if (CompatStatus.FABRIC_CREATIVE_TAB_API) {
             try {
-                ((net.fabricmc.fabric.impl.itemgroup.FabricItemGroupImpl) group).fabric_setPage(page);
+                ((FabricCreativeModeTabImpl) group).fabric_setPage(page);
             } catch (Throwable e) {
                 PolymerImpl.LOGGER.warn("Couldn't set page of ItemGroup (FABRIC)", e);
             }

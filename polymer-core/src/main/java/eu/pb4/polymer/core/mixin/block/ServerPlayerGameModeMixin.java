@@ -16,7 +16,7 @@ import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.Objects;
@@ -110,7 +110,7 @@ public abstract class ServerPlayerGameModeMixin {
                 var serverDelta = serverState.getDestroyProgress(this.player, this.level, pos);
                 var clientState = serverState;
                 if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, serverState.getBlock()) instanceof PolymerBlock virtualBlock) {
-                    clientState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, serverState, PacketContext.create(this.player));
+                    clientState = PolymerBlockUtils.getBlockStateSafely(virtualBlock, serverState, this.player.connection.getPacketContext());
                 }
 
                 float clientDelta = clientState.getDestroyProgress(this.player, this.level, pos);

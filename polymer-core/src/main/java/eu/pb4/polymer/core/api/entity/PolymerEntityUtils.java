@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.entity;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
@@ -16,7 +17,7 @@ import eu.pb4.polymer.core.mixin.entity.ClientboundPlayerInfoUpdatePacketAccesso
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;

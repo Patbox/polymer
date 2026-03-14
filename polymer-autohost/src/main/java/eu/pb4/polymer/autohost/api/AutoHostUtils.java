@@ -4,7 +4,7 @@ import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;

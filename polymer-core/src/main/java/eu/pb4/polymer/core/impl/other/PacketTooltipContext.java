@@ -1,23 +1,24 @@
 package eu.pb4.polymer.core.impl.other;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jspecify.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-public record PacketTooltipContext(PacketContext context) implements Item.TooltipContext {
+public record PacketTooltipContext(PacketContext context, HolderLookup.Provider provider) implements Item.TooltipContext {
     @Override
     public HolderLookup.Provider registries() {
-        return context.getRegistryWrapperLookup();
+        return provider;
     }
 
     @Override
     public float tickRate() {
-        if (context.getPlayer() != null) {
-            return context.getPlayer().level().tickRateManager().tickrate();
+        if (PolymerCommonUtils.getPlayer(context) != null) {
+            return PolymerCommonUtils.getPlayer(context).level().tickRateManager().tickrate();
         }
 
         return 20;
@@ -26,8 +27,8 @@ public record PacketTooltipContext(PacketContext context) implements Item.Toolti
     @Override
     public @Nullable MapItemSavedData mapData(MapId mapId) {
         try {
-            if (context.getPlayer() != null) {
-                return context.getPlayer().level().getMapData(mapId);
+            if (PolymerCommonUtils.getPlayer(context) != null) {
+                return PolymerCommonUtils.getPlayer(context).level().getMapData(mapId);
             }
         } catch (Throwable e) {
             // Failed to get data.
@@ -38,8 +39,8 @@ public record PacketTooltipContext(PacketContext context) implements Item.Toolti
 
     @Override
     public boolean isPeaceful() {
-        if (context.getPlayer() != null) {
-            return context.getPlayer().level().getDifficulty() == Difficulty.PEACEFUL;
+        if (PolymerCommonUtils.getPlayer(context) != null) {
+            return PolymerCommonUtils.getPlayer(context).level().getDifficulty() == Difficulty.PEACEFUL;
         }
 
 

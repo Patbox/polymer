@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class BlockBoundAttachment extends ChunkAttachment implements BlockAwareAttachment {
     public static final UpdateType BLOCK_STATE_UPDATE = BlockAwareAttachment.BLOCK_STATE_UPDATE;

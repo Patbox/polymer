@@ -7,7 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public record ClientPolymerEntityType(Identifier identifier, Component name, @Nullable EntityType<?> registryEntry) implements ClientPolymerEntry<EntityType<?>> {

@@ -3,7 +3,7 @@ package eu.pb4.polymer.virtualentity.api.tracker;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

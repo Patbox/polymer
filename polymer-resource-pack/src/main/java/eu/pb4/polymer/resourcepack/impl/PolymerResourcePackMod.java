@@ -6,7 +6,6 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
-import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -39,11 +38,6 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
 
     @Override
 	public void onInitialize() {
-		if (CompatStatus.POLYMC) {
-			PolymerResourcePackUtils.markAsRequired();
-			ServerLifecycleEvents.SERVER_STARTED.register(PolyMcHelpers::overrideCommand);
-		}
-
 		CommonImplUtils.registerCommands((x) -> x.then(literal("generate-pack")
 				.requires(CommonImplUtils.permission("command.generate", 3))
 				.executes(PolymerResourcePackMod::generateResources)));

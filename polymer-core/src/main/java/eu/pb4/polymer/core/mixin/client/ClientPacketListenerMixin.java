@@ -35,7 +35,7 @@ public abstract class ClientPacketListenerMixin {
         InternalClientRegistry.setBlockAt(packet.getPos(), ClientPolymerBlock.NONE_STATE);
     }
 
-    @Inject(method = "method_34007", at = @At("TAIL"))
+    @Inject(method = "lambda$handleChunkBlocksUpdate$0", at = @At("TAIL"))
     private void polymer$removeOldBlock2(BlockPos pos, BlockState state, CallbackInfo ci) {
         InternalClientRegistry.setBlockAt(pos, ClientPolymerBlock.NONE_STATE);
     }

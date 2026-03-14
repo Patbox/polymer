@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.mixin.compat;
-
+/*
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import net.caffeinemc.mods.lithium.common.world.chunk.LithiumHashPalette;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Pseudo
 @Mixin(value = LithiumHashPalette.class, priority = 500)
@@ -31,3 +31,4 @@ public class lithium_BlockPaletteMixin {
         return InternalClientRegistry.decodeRegistry(instance, index);
     }
 }
+*/

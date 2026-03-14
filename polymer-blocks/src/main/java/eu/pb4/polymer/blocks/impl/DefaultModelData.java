@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.ChainBlock;
 import net.minecraft.world.level.block.CreakingHeartBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.LanternBlock;
@@ -129,13 +129,13 @@ public class DefaultModelData {
 
         {
             var farmland = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse("minecraft:block/farmland"))};
-            MODELS.put(Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, 1), Either.left(farmland));
-            MODELS.put(Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, 7), Either.left(new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse("minecraft:block/farmland_moist"))}));
+            MODELS.put(Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 1), Either.left(farmland));
+            MODELS.put(Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 7), Either.left(new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse("minecraft:block/farmland_moist"))}));
 
 
             var list = new ReferenceArrayList<BlockState>();
             for (int i = 2; i < 7; i++) {
-                var state = Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, i);
+                var state = Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, i);
                 list.add(state);
                 MODELS.put(state, Either.left(farmland));
             }

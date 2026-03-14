@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.impl.client.debug;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

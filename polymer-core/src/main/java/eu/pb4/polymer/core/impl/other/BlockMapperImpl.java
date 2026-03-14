@@ -4,7 +4,7 @@ import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;

@@ -2,8 +2,9 @@ package eu.pb4.polymer.common.impl;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
+import net.minecraft.core.component.DataComponentLookup;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -152,6 +153,11 @@ public record FakeRegistry<T>(ResourceKey<? extends Registry<T>> registryKey, Id
     @Override
     public PendingTags<T> prepareTagReload(TagLoader.LoadResult<T> tags) {
         return null;
+    }
+
+    @Override
+    public DataComponentLookup<T> componentLookup() {
+        return new DataComponentLookup<>(List.of());
     }
 
     @NotNull

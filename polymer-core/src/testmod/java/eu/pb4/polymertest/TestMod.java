@@ -28,23 +28,22 @@ import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
@@ -78,7 +77,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
@@ -95,8 +93,6 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.trading.ItemCost;
-import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -109,9 +105,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
-import xyz.nucleoid.server.translations.api.LocalizationTarget;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -236,7 +232,7 @@ public class TestMod implements ModInitializer {
     public static Identifier CUSTOM_STAT;
 
     public static final RecipeType<TestRecipe> TEST_RECIPE_TYPE = RecipeType.register("test");
-    public static final RecipeSerializer<TestRecipe> TEST_RECIPE_SERIALIZER = new TestRecipe.Serializer();
+    public static final RecipeSerializer<TestRecipe> TEST_RECIPE_SERIALIZER = new RecipeSerializer<>(ItemStack.CODEC.xmap(TestRecipe::new, TestRecipe::stack).fieldOf("item"), null);
 
     public static final MobEffect STATUS_EFFECT = new TestStatusEffect();
     public static final MobEffect STATUS_EFFECT_2 = new Test2StatusEffect();
@@ -279,17 +275,6 @@ public class TestMod implements ModInitializer {
         attributes.add(tmp);
 
         player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(), attributes));
-
-        TranslatableContents.
-        MAP_CODEC.xmap(Function.identity(), (content) -> {
-            if (content.getFallback() != null) {
-                var target = LocalizationTarget.forPacket();
-                if (target != null) {
-                    return new TranslatableContents(content.getKey(), target.getLanguage().serverTranslations().get(content.getKey()), content.getArgs());
-                }
-            }
-            return content;
-        });
     }));
 
     public static SimplePolymerItem SPEC_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "spec"), (s) -> new ClickItem(s, Items.ENDER_EYE, (player, hand) -> {
@@ -334,7 +319,7 @@ public class TestMod implements ModInitializer {
     }
 
     public void onInitialize() {
-        //MixinEnvironment.getCurrentEnvironment().audit();
+        MixinEnvironment.getCurrentEnvironment().audit();
         //ITEM_GROUP.setIcon();
         PolymerResourcePackUtils.addModAssets("apolymertest");
         ResourcePackExtras.forDefault().addBridgedModelsFolder(Identifier.fromNamespaceAndPath("polymertest", "testificate"));
@@ -368,7 +353,7 @@ public class TestMod implements ModInitializer {
             }
 
             @Override
-            public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+            public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
                 return null;
             }
         });
@@ -380,7 +365,7 @@ public class TestMod implements ModInitializer {
             }
 
             @Override
-            public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+            public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
                 return null;
             }
 
@@ -391,7 +376,7 @@ public class TestMod implements ModInitializer {
         });
         PolymerBlockUtils.registerOverlay(OVERLAY_BLOCK, new PolymerBlock() {
             @Override
-            public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+            public BlockState getPolymerBlockState(BlockState state, @org.jspecify.annotations.Nullable PacketContext context) {
                 return Blocks.EMERALD_BLOCK.defaultBlockState();
             }
 
@@ -435,7 +420,7 @@ public class TestMod implements ModInitializer {
         registerItem(Identifier.fromNamespaceAndPath("test", "insta_mine"), s -> new PolymerBlockItem(instaMine, s));
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
             if (state.is(instaMine)) {
-                player.displayClientMessage(Component.literal("Broke instabrek"), false);
+                player.sendSystemMessage(Component.literal("Broke instabrek"));
                 return false;
             }
             return true;
@@ -584,11 +569,6 @@ public class TestMod implements ModInitializer {
             }
         });
 
-        TradeOfferHelper.registerVillagerOffers(VillagerProfession.FARMER, 1, (factories, rebalanced) -> {
-            factories.add((w, e, r) -> (new MerchantOffer(new ItemCost(TEST_FOOD, 2), Optional.of(new ItemCost(TEST_FOOD, 1)),
-                    TEST_FOOD.getDefaultInstance(), 67, 0, 1)));
-        });
-
         //var id = Block.STATE_IDS.getRawId(BLOCK.getDefaultState());
         //System.out.println(id);
         //System.out.println(Block.STATE_IDS.get(id));
@@ -615,15 +595,15 @@ public class TestMod implements ModInitializer {
             }
         }
 
-        ItemGroupEvents.modifyEntriesEvent(ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.parse("op_blocks"))).register(entries -> {
+        CreativeModeTabEvents.modifyOutputEvent(ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.parse("op_blocks"))).register(entries -> {
             entries.accept(MARKER_TEST);
             entries.prepend(CAMERA_ITEM);
-            entries.addAfter(Items.DEBUG_STICK, TEST_ENTITY_EGG);
+            entries.insertAfter(Items.DEBUG_STICK, TEST_ENTITY_EGG);
         });
 
 
-        ItemGroupEvents.modifyEntriesEvent(PolymerItemGroupUtils.getKey(ITEM_GROUP)).register(entries -> {
-            entries.addAfter(TEST_FOOD, Items.LAVA_BUCKET);
+        CreativeModeTabEvents.modifyOutputEvent(PolymerItemGroupUtils.getKey(ITEM_GROUP)).register(entries -> {
+            entries.insertAfter(TEST_FOOD, Items.LAVA_BUCKET);
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register((s) -> {

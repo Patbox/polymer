@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerGameModeMixin {
@@ -29,7 +29,7 @@ public class ServerPlayerGameModeMixin {
     @Inject(method = "incrementDestroyProgress", at = @At("HEAD"))
     private void polymer$soundMine(BlockState blockState, BlockPos blockPos, int startTime, CallbackInfoReturnable<Float> cir) {
         var destroyTicks = (this.gameTicks - startTime) - 1;
-        var group = CoreBridge.getClientSideSoundGroup(blockState, PacketContext.create(this.player));
+        var group = CoreBridge.getClientSideSoundGroup(blockState, this.player);
         if (SoundRemapperImpl.ignoreExceptions(group.getHitSound()) && destroyTicks % 4 == 0) {
             group = blockState.getSoundType();
             player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(group.getHitSound()),

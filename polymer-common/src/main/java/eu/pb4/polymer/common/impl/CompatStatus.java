@@ -15,15 +15,13 @@ public final class CompatStatus {
     public static final boolean POLYMER_RESOURCE_PACK = LOADER.isModLoaded("polymer-resource-pack");
     public static final boolean POLYMER_RESOURCE_PACK_EXTRAS = LOADER.isModLoaded("polymer-resource-pack-extras");
 
-    @Deprecated
-    public static final boolean POLYMER_RESOURCE_PACKS = POLYMER_RESOURCE_PACK;
 
     public static final boolean FABRIC_SYNC = LOADER.isModLoaded("fabric-registry-sync-v0");
     public static final boolean FABRIC_NETWORKING = LOADER.isModLoaded("fabric-networking-api-v1");
     public static final boolean FABRIC_FLUID_RENDERING = LOADER.isModLoaded("fabric-rendering-fluids-v1");
-    public static final boolean FABRIC_ITEM_GROUP = LOADER.isModLoaded("fabric-item-group-api-v1");
+    public static final boolean FABRIC_CREATIVE_TAB_API = LOADER.isModLoaded("fabric-creative-tab-api-v1");
     public static final boolean FABRIC_ITEM = LOADER.isModLoaded("fabric-item-api-v1");
-    public static final boolean FABRIC_SCREEN_HANDLER = LOADER.isModLoaded("fabric-screen-handler-api-v1");
+    public static final boolean FABRIC_MENU = LOADER.isModLoaded("fabric-menu-api-v1");
     public static final boolean FABRIC_RECIPE_API = LOADER.isModLoaded("fabric-recipe-api-v1");
     public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
 

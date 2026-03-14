@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,7 +17,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 @Mixin(BlockBehaviour.class)
 public class BlockBehaviourMixin {
@@ -26,8 +24,7 @@ public class BlockBehaviourMixin {
     private void polymer$replaceOutlineShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
         //noinspection ConstantValue
         if (((Object) this) instanceof Block block1 && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, block1) instanceof PolymerBlock block) {
-            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state,
-                    world instanceof Level realWorld ? PacketContext.create(realWorld.registryAccess()) : PacketContext.create());
+            var clientState = PolymerBlockUtils.getBlockStateSafely(block, state, null);
             if (!(PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, clientState.getBlock()) instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getShape(world, pos, context));
             }
@@ -40,8 +37,8 @@ public class BlockBehaviourMixin {
         if (((Object) this) instanceof Block block1 && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, block1) instanceof PolymerBlock block) {
             var clientState = context instanceof EntityCollisionContext entityShapeContext
                     && entityShapeContext.getEntity() instanceof ServerPlayer player && player.connection != null
-                    ? PolymerBlockUtils.getBlockStateSafely(block, state, PacketContext.create(player))
-                    : PolymerBlockUtils.getBlockStateSafely(block, state, world instanceof Level realWorld ? PacketContext.create(realWorld.registryAccess()) : PacketContext.create());
+                    ? PolymerBlockUtils.getBlockStateSafely(block, state, player.connection.getPacketContext())
+                    : PolymerBlockUtils.getBlockStateSafely(block, state, null);
             if (!(PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, clientState.getBlock()) instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getCollisionShape(world, pos, context));
             }

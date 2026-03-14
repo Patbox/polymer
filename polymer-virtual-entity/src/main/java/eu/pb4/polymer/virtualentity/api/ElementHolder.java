@@ -1,5 +1,6 @@
 package eu.pb4.polymer.virtualentity.api;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
@@ -7,7 +8,7 @@ import eu.pb4.polymer.virtualentity.impl.SafeBundler;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -188,7 +189,7 @@ public class ElementHolder {
 
     public ChunkPos getChunkPos() {
         if (this.currentChunkPos == null) {
-            this.currentChunkPos = new ChunkPos(BlockPos.containing(this.currentPos));
+            this.currentChunkPos =  ChunkPos.containing(BlockPos.containing(this.currentPos));
         }
         return this.currentChunkPos;
     }

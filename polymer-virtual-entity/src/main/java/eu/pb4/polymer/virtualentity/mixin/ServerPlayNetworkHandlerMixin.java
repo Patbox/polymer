@@ -3,7 +3,7 @@ package eu.pb4.polymer.virtualentity.mixin;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
-import eu.pb4.polymer.virtualentity.impl.PacketInterHandler;
+import net.minecraft.network.protocol.game.ServerboundAttackPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -73,12 +73,29 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
     @ModifyVariable(method = "handleInteract", at = @At(value = "STORE", ordinal = 0))
     private Entity polymerVE$onInteract(Entity entity, ServerboundInteractPacket packet) {
         if (entity == null && !this.polymerVE$holders.isEmpty()) {
-            var id = ((PlayerInteractEntityC2SPacketAccessor) packet).getEntityId();
+            var id = packet.entityId();
             for (var x : this.polymerVE$holders) {
                 if (x.isPartOf(id)) {
                     var i = x.getInteraction(id, this.player);
                     if (i != null) {
-                        packet.dispatch(new PacketInterHandler(this.player, i));
+                        i.interact(this.player, packet.hand(), packet.location(), packet.usingSecondaryAction());
+                        break;
+                    }
+                }
+            }
+        }
+        return entity;
+    }
+
+    @ModifyVariable(method = "handleAttack", at = @At(value = "STORE", ordinal = 0))
+    private Entity polymerVE$onAttack(Entity entity, ServerboundAttackPacket packet) {
+        if (entity == null && !this.polymerVE$holders.isEmpty()) {
+            var id = packet.entityId();
+            for (var x : this.polymerVE$holders) {
+                if (x.isPartOf(id)) {
+                    var i = x.getInteraction(id, this.player);
+                    if (i != null) {
+                        i.attack(this.player);
                         break;
                     }
                 }

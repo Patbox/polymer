@@ -6,16 +6,15 @@ import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.compat.ServerTranslationUtils;
-import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
 import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.impl.other.PolymerTooltipType;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
@@ -32,9 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -47,7 +44,7 @@ public class PolymerImplUtils {
     public static final ThreadLocal<Unit> IS_RELOADING_WORLD = new ThreadLocal<>();
     public static final ThreadLocal<Unit> IGNORE_PLAY_SOUND_EXCLUSION = new ThreadLocal<>();
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdMapper<BlockState>) Block.BLOCK_STATE_REGISTRY).polymer$getPolymerEntries();
-    public static final HolderLookup.Provider FALLBACK_LOOKUP = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+    public static final RegistryAccess FALLBACK_LOOKUP = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(PolymerUtils.ID, path);
@@ -58,15 +55,15 @@ public class PolymerImplUtils {
 
         builder.append(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
 
-        if (!state.getValues().isEmpty()) {
+        if (state.getValues().findAny().isPresent()) {
             builder.append("[");
-            var iterator = state.getValues().entrySet().iterator();
+            var iterator = state.getValues().iterator();
 
             while (iterator.hasNext()) {
                 var entry = iterator.next();
-                builder.append(entry.getKey().getName());
+                builder.append(entry.property().getName());
                 builder.append("=");
-                builder.append(((Property) entry.getKey()).getName(entry.getValue()));
+                builder.append(entry.valueName());
 
                 if (iterator.hasNext()) {
                     builder.append(",");
@@ -214,7 +211,7 @@ public class PolymerImplUtils {
     }
 
     public static boolean isServerSideSyncableEntry(@SuppressWarnings("rawtypes") Registry reg, Object obj) {
-        return PolymerUtils.isServerOnly(reg, obj) || (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC && PolyMcUtils.isServerSide(reg, obj));
+        return PolymerUtils.isServerOnly(reg, obj);
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayer player) {
@@ -222,15 +219,15 @@ public class PolymerImplUtils {
     }
 
     public static ItemStack convertStack(ItemStack representation, ServerPlayer player, TooltipFlag context) {
-        return ServerTranslationUtils.parseFor(player.connection, PolyMcUtils.toVanilla(PolymerItemUtils.getPolymerItemStack(representation, context, PacketContext.create(player)), player));
+        return ServerTranslationUtils.parseFor(player.connection, PolymerItemUtils.getPolymerItemStack(representation, context, player.connection.getPacketContext(), player.level().registryAccess()));
     }
 
     public static void callItemGroupEvents(Identifier id, CreativeModeTab itemGroup, List<ItemStack> parentTabStacks, List<ItemStack> searchTabStacks, CreativeModeTab.ItemDisplayParameters context) {
-        if (CompatStatus.FABRIC_ITEM_GROUP) {
+        if (CompatStatus.FABRIC_CREATIVE_TAB_API) {
             try {
-                var fabricCollector = new FabricItemGroupEntries(context, parentTabStacks, searchTabStacks);
-                ItemGroupEvents.modifyEntriesEvent(ResourceKey.create(Registries.CREATIVE_MODE_TAB, id)).invoker().modifyEntries(fabricCollector);
-                ItemGroupEvents.MODIFY_ENTRIES_ALL.invoker().modifyEntries(itemGroup, fabricCollector);
+                var fabricCollector = new FabricCreativeModeTabOutput(context, parentTabStacks, searchTabStacks);
+                CreativeModeTabEvents.modifyOutputEvent(ResourceKey.create(Registries.CREATIVE_MODE_TAB, id)).invoker().modifyOutput(fabricCollector);
+                CreativeModeTabEvents.MODIFY_OUTPUT_ALL.invoker().modifyOutput(itemGroup, fabricCollector);
             } catch (Throwable e) {
                 if (PolymerImpl.LOG_MORE_ERRORS) {
                     PolymerImpl.LOGGER.warn("Failed to execute Fabric Item Group event!", e);

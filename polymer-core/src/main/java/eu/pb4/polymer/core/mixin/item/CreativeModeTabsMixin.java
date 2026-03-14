@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.mixin.item;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,8 +30,8 @@ public class CreativeModeTabsMixin {
     }
 
     @Environment(EnvType.SERVER)
-    @Inject(method = "method_51316", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/CreativeModeTab$Output;acceptAll(Ljava/util/Collection;)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT, require = 0)
-    private static void polymerCore$injectServerSearch(Registry<CreativeModeTab> registry, CreativeModeTab.ItemDisplayParameters displayContext, CreativeModeTab.Output entries, CallbackInfo ci, Set<ItemStack> set) {
+    @Inject(method = "lambda$bootstrap$14", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/CreativeModeTab$Output;acceptAll(Ljava/util/Collection;)V", shift = At.Shift.BEFORE), require = 0)
+    private static void polymerCore$injectServerSearch(Registry<CreativeModeTab> registry, CreativeModeTab.ItemDisplayParameters displayContext, CreativeModeTab.Output entries, CallbackInfo ci, @Local Set<ItemStack> set) {
         for (var group : PolymerItemGroupUtils.REGISTRY) {
             set.addAll(group.getSearchTabDisplayItems());
         }

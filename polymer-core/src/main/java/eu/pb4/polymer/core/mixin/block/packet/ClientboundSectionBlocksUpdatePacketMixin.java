@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(value = ClientboundSectionBlocksUpdatePacket.class, priority = 500)
 public abstract class ClientboundSectionBlocksUpdatePacketMixin {

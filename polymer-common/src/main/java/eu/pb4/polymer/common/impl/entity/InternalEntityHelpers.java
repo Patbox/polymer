@@ -19,8 +19,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.disguiselib.api.EntityDisguise;
+import org.jspecify.annotations.Nullable;
+//import xyz.nucleoid.disguiselib.api.EntityDisguise;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -111,9 +111,10 @@ public class InternalEntityHelpers {
     }
 
     public static boolean canPatchTrackedData(ServerPlayer player, Entity entity) {
-        if (CompatStatus.DISGUISELIB) {
-            return !((EntityDisguise) entity).isDisguised() || ((EntityDisguise) player).hasTrueSight();
-        }
+        // Todo: Fix once (if?) that lib is ported
+        //if (CompatStatus.DISGUISELIB) {
+        //    return !((EntityDisguise) entity).isDisguised() || ((EntityDisguise) player).hasTrueSight();
+        //}
 
         return true;
     }

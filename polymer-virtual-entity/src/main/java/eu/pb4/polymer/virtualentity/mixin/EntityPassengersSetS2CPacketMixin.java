@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,14 +58,16 @@ public class EntityPassengersSetS2CPacketMixin {
             return a;
         }
         var player = PacketContext.get();
-        if (player.getPlayer() == null) {
+        if (player == null) {
             return a;
         }
 
         var arr = new IntArrayList(a);
 
+        var conn = player.orElseThrow(PacketContext.CONNECTION).getPacketListener();
+
         for (var x : this.virtualPassengers) {
-            if (x.getA().contains(player.getPlayer().connection)) {
+            if (x.getA().contains(conn)) {
                 arr.addAll(x.getB());
             }
         }

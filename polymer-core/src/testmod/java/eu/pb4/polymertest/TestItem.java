@@ -1,8 +1,9 @@
 package eu.pb4.polymertest;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.core.HolderLookup;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -39,13 +40,13 @@ public class TestItem extends SimplePolymerItem {
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
         return null;
     }
 
     @Override
     public InteractionResult use(Level world, Player user, InteractionHand hand) {
-        user.displayClientMessage(Component.literal("Use!" + hand), false);
+        user.sendSystemMessage(Component.literal("Use!" + hand));
         return super.use(world, user, hand);
     }
 
@@ -60,10 +61,10 @@ public class TestItem extends SimplePolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
-        var x = super.getPolymerItemStack(itemStack, tooltipType, context);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context, HolderLookup.Provider lookup) {
+        var x = super.getPolymerItemStack(itemStack, tooltipType, context, lookup);
         x.set(DataComponents.RARITY, Rarity.EPIC);
-        x.set(DataComponents.CONSUMABLE, new Consumable(context.getPlayer() != null && context.getPlayer().isCreative() ? Float.MAX_VALUE : 3, ItemUseAnimation.BOW,
+        x.set(DataComponents.CONSUMABLE, new Consumable(PolymerCommonUtils.getPlayer(context) != null && PolymerCommonUtils.getPlayer(context).isCreative() ? Float.MAX_VALUE : 3, ItemUseAnimation.BOW,
                 BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.EMPTY), false, List.of()));
         return x;
     }

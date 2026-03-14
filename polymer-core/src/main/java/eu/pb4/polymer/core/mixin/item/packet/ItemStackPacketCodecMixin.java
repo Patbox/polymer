@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.Optional;
 import net.minecraft.core.component.DataComponentType;
@@ -23,11 +23,7 @@ public abstract class ItemStackPacketCodecMixin {
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryFriendlyByteBuf;Lnet/minecraft/world/item/ItemStack;)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private ItemStack polymer$replaceWithVanillaItem(ItemStack itemStack, @Local(argsOnly = true) RegistryFriendlyByteBuf buf) {
         var player = PacketContext.get();
-        if (player.getRegistryWrapperLookup() == null) {
-            player = PacketContext.create(buf.registryAccess());
-        }
-
-        return PolymerItemUtils.getPolymerItemStack(itemStack, player);
+        return PolymerItemUtils.getPolymerItemStack(itemStack, player, buf.registryAccess());
     }
 
     @ModifyArg(method = "encode(Lnet/minecraft/network/RegistryFriendlyByteBuf;Lnet/minecraft/world/item/ItemStack;)V",

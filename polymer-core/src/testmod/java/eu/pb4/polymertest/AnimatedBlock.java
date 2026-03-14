@@ -31,9 +31,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.joml.Matrix4x3f;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWithElementHolder {
     public static final BooleanProperty CAN_FALL = BooleanProperty.create("can_fall");
@@ -74,7 +74,7 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @org.jspecify.annotations.Nullable PacketContext context) {
         return Blocks.BARRIER.defaultBlockState();
     }
 

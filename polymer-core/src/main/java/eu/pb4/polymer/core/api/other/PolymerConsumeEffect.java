@@ -5,8 +5,8 @@ import eu.pb4.polymer.core.impl.other.PolymerComponentImpl;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public interface PolymerConsumeEffect extends PolymerObject {
     static void registerConsumeEffect(ConsumeEffect.Type<?>... types) {

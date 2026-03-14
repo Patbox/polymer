@@ -4,7 +4,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface EntityAttachedPacket {
     @Nullable

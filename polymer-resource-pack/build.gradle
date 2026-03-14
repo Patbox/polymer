@@ -1,4 +1,6 @@
-archivesBaseName = "polymer-resource-pack"
+base {
+    archivesName = "polymer-resource-pack"
+}
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
@@ -14,20 +16,8 @@ loom {
 }
 
 dependencies {
-    //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
-    modCompileOnly ('com.github.TheEpicBlock:PolyMc:5.4.0') {
-        exclude(group: "org.quiltmc", module: "quilt-loader")
-    }
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-
-    api (project(path: ':polymer-common', configuration: 'namedElements'))
+    api (project(path: ':polymer-common'))
     include(project(path: ':polymer-common'))
-}
-
-afterEvaluate {
-    // Disable the gen sources task on sub projects
-    genSourcesWithFernFlower.enabled = true
-    genSourcesWithCfr.enabled = false
 }
 
 processResources {

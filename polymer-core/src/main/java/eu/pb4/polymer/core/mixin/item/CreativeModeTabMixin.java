@@ -44,10 +44,10 @@ public abstract class CreativeModeTabMixin implements CreativeModeTabExtra {
         return new PolymerItemGroupUtils.Contents(parent, search);
     }
 
-    @ModifyArg(method = "buildContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;getResourceKey(Ljava/lang/Object;)Ljava/util/Optional;"))
+    /*@ModifyArg(method = "buildContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;getResourceKey(Ljava/lang/Object;)Ljava/util/Optional;"))
     private Object polymerCore$bypassServerSide(Object entry) {
         return PolymerItemGroupUtils.isPolymerItemGroup((CreativeModeTab) entry) ? CreativeModeTabs.getDefaultTab() : entry;
-    }
+    }*/
 
     @Inject(method = "buildContents", at = @At(value = "TAIL"), cancellable = true)
     private void polymerCore$bypassFabricApiBS(CreativeModeTab.ItemDisplayParameters displayContext, CallbackInfo ci) {

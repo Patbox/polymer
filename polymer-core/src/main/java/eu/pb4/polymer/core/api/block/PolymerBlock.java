@@ -13,7 +13,8 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface used for creation of server side blocks
@@ -24,22 +25,22 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
      * Keep in mind you should ideally use blocks with the same hitbox as generic/non-player ones!
      *
      * @param state Server side BlocksState
-     * @param context PacketContext this method is called with, might be empty!
+     * @param context PacketContext this method is called with, might be null!
      * @return Client side BlockState
      */
-    BlockState getPolymerBlockState(BlockState state, PacketContext context);
+    BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context);
 
     /**
      * This method is called when block gets send to player
      * Allows to add client-only BlockEntities (for signs, heads, etc)
      *
      * @param blockState Real BlockState of block
-     * @param pos Position of block. Keep in mind it's mutable,
- *            so make sure to use {@link BlockPos.MutableBlockPos#immutable()}
- *            in case of using in packets, as it's reused for other positions!
-     * @param contexts Context packet is sent to. Should always contain a player
+     * @param pos        Position of block. Keep in mind it's mutable,
+     *                   so make sure to use {@link BlockPos.MutableBlockPos#immutable()}
+     *                   in case of using in packets, as it's reused for other positions!
+     * @param player     Context packet is sent to. Should always contain a player
      */
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, PacketContext.NotNullWithPlayer contexts) { }
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, ServerPlayer player) { }
 
     /**
      * You can override this method in case of issues with light updates of this block. In most cases it's not needed.

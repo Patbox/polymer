@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 public class WeakGlassBlock extends HalfTransparentBlock implements PolymerBlock {
     public static final int DAMAGE_STATES = 4;
@@ -27,7 +28,7 @@ public class WeakGlassBlock extends HalfTransparentBlock implements PolymerBlock
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
     return switch (state.getValue(DAMAGE)) {
             case 0 -> Blocks.GLASS.defaultBlockState();
             case 1 -> Blocks.WHITE_STAINED_GLASS.defaultBlockState();

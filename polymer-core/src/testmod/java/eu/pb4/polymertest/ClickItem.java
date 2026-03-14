@@ -1,8 +1,8 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.core.HolderLookup;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.function.BiConsumer;
 import net.minecraft.resources.Identifier;
@@ -24,7 +24,7 @@ public class ClickItem extends SimplePolymerItem {
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
         return null;
     }
 

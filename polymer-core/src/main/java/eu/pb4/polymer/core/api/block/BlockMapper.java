@@ -1,11 +1,12 @@
 package eu.pb4.polymer.core.api.block;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
 import eu.pb4.polymer.core.impl.other.BlockMapperImpl;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -53,7 +54,7 @@ public interface BlockMapper {
     }
 
     static BlockMapper getFrom(PacketContext context) {
-        return getFrom(context.getPlayer());
+        return getFrom(PolymerCommonUtils.getPlayer(context));
     }
     static BlockMapper getFrom(@Nullable ServerPlayer player) {
         return player != null ? PolymerGamePacketListenerExtension.of(player).polymer$getBlockMapper() : BlockMapper.createDefault();
@@ -61,7 +62,7 @@ public interface BlockMapper {
 
     static void resetMapper(@Nullable ServerPlayer player) {
         if (player != null) {
-            PolymerGamePacketListenerExtension.of(player).polymer$setBlockMapper(getDefault(PacketContext.create(player)));
+            PolymerGamePacketListenerExtension.of(player).polymer$setBlockMapper(getDefault(player.connection.getPacketContext()));
         }
     }
 

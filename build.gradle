@@ -1,17 +1,17 @@
 plugins {
-    id 'fabric-loom' version '1.13.+'
+    id 'net.fabricmc.fabric-loom' version '1.15.+'
     id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
-apply plugin: 'fabric-loom'
+apply plugin: 'net.fabricmc.fabric-loom'
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
 
 var isStable = project.is_stable == "true"
 
-archivesBaseName = "polymer-bundled"
+base {
+    archivesName = "polymer-bundled"
+}
 version = project.mod_version + "+" + project.minecraft_version
 group = project.maven_group
 
@@ -33,10 +33,10 @@ allprojects {
 }
 
 allprojects {
-    apply plugin: 'fabric-loom'
+    apply plugin: 'net.fabricmc.fabric-loom'
 
     tasks.withType(JavaCompile).configureEach {
-        it.options.release = 21
+        it.options.release = 25
     }
 
     javadoc {
@@ -78,19 +78,11 @@ allprojects {
     dependencies {
         // To change the versions see the gradle.properties file
         minecraft "com.mojang:minecraft:${project.minecraft_version}"
-        mappings loom.layered {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-1.21.10:2025.10.12@zip")
-        }
-        modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
-        modLocalRuntime "net.fabricmc:fabric-loader:${project.loader_version}"
-    }
+        compileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
+        localRuntime "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    loom {
-        enableTransitiveAccessWideners = false
-        interfaceInjection {
-            enableDependencyInterfaceInjection = false
-        }
+        compileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+        localRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -104,7 +96,7 @@ allprojects {
         // JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
         // We'll use that if it's available, but otherwise we'll use the older option.
 
-        it.options.release = 21
+        it.options.release = 25
     }
 
     java {
@@ -117,20 +109,18 @@ allprojects {
 
 subprojects {
     afterEvaluate {
-        // Disable the gen sources task on sub projects
-        genSourcesWithFernFlower.enabled = false
-        genSourcesWithCfr.enabled = false
+
     }
 }
 
 dependencies {
-    api project(path: ":polymer-autohost", configuration: "namedElements")
-    api project(path: ":polymer-core", configuration: "namedElements")
-    api project(path: ":polymer-common", configuration: "namedElements")
-    api project(path: ":polymer-resource-pack", configuration: "namedElements")
-    api project(path: ":polymer-resource-pack-extras", configuration: "namedElements")
-    api project(path: ":polymer-blocks", configuration: "namedElements")
-    api project(path: ":polymer-virtual-entity", configuration: "namedElements")
+    api project(path: ":polymer-autohost")
+    api project(path: ":polymer-core")
+    api project(path: ":polymer-common")
+    api project(path: ":polymer-resource-pack")
+    api project(path: ":polymer-resource-pack-extras")
+    api project(path: ":polymer-blocks")
+    api project(path: ":polymer-virtual-entity")
 
     include(project(path: ":polymer-autohost"))
     include(project(path: ":polymer-core"))
@@ -176,7 +166,7 @@ curseforge {
             mainArtifact(remapJar)
 
             afterEvaluate {
-                uploadTask.dependsOn("remapJar")
+                uploadTask.dependsOn("jar")
             }
         }
     }
@@ -184,7 +174,7 @@ curseforge {
     options {
         forgeGradleIntegration = false
     }
-    remapJar {
+    jar {
         finalizedBy project.tasks.curseforge
     }
 }
@@ -195,13 +185,13 @@ if (System.getenv("MODRINTH")) {
         projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
         versionNumber = "" + version // The version of the mod to upload.
         versionType = isStable ? "release" : "beta"
-        uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
+        uploadFile = jar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
         gameVersions = [((String) project.minecraft_version)]
         changelog = System.getenv("CHANGELOG")
         loaders = ["fabric", "quilt"]
     }
 
-    remapJar {
+    jar {
         finalizedBy project.tasks.modrinth
     }
 }
@@ -229,7 +219,7 @@ allprojects {
         }
     }
 
-    remapJar {
+    jar {
         doLast {
             fileTree(dir: outputs.files.asPath, include: "**/*.json").each {
                 File file -> file.text = com.google.gson.JsonParser.parseString(file.text).toString()
@@ -243,7 +233,7 @@ allprojects {
                 publications {
                     mavenJava(MavenPublication) {
                         groupId = rootProject.maven_group
-                        artifactId = project.archivesBaseName
+                        artifactId = project.base.archivesName
                         version = project.version
 
                         from components.java

@@ -1,11 +1,12 @@
 package eu.pb4.polymer.core.api.item;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class PolymerSpawnEggItem extends SpawnEggItem implements PolymerItem {
 
@@ -28,7 +29,7 @@ public class PolymerSpawnEggItem extends SpawnEggItem implements PolymerItem {
     }
 
     @Override
-    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
-        return this.polymerUseModel ? PolymerItem.super.getPolymerItemModel(stack, context) : null;
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
+        return this.polymerUseModel ? PolymerItem.super.getPolymerItemModel(stack, context, lookup) : null;
     }
 }

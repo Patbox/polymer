@@ -2,14 +2,16 @@ package eu.pb4.polymer.core.mixin.item;
 
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.mixin.other.AbstractContainerMenuAccessor;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
@@ -28,6 +30,9 @@ import net.minecraft.world.item.crafting.StonecutterRecipe;
 public abstract class StonecutterMenuMixin extends AbstractContainerMenu {
 
     @Shadow private SelectableRecipe.SingleInputSet<StonecutterRecipe> recipesForInput;
+    @Shadow
+    @Final
+    private Level level;
     @Unique
     @Nullable
     private ServerPlayer player;
@@ -55,7 +60,7 @@ public abstract class StonecutterMenuMixin extends AbstractContainerMenu {
         } else {
             var list = new ArrayList<SelectableRecipe.SingleInputEntry<StonecutterRecipe>>();
 
-            var clientItem = Ingredient.of(PolymerItemUtils.getClientItemStack(stack, PacketContext.create(this.player)).getItem());
+            var clientItem = Ingredient.of(PolymerItemUtils.getPolymerItemStack(stack, this.player.connection.getPacketContext(), this.level.registryAccess()).getItem());
 
             for (var x : this.recipesForInput.entries()) {
                 list.add(new SelectableRecipe.SingleInputEntry<>(clientItem, x.recipe()));

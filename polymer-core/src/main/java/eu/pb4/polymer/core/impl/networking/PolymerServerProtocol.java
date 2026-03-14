@@ -15,7 +15,7 @@ import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 import org.jetbrains.annotations.ApiStatus;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -279,7 +279,7 @@ public class PolymerServerProtocol {
 
         if (version != -1) {
             var entries = new ArrayList<A>();
-            var ctx = PacketContext.create(handler);
+            var ctx = handler.getPacketContext();
             for (var entry : iterable) {
                 if (!bypassPolymerCheck || PolymerSyncedObject.canSynchronizeToPolymerClient(registry, entry, ctx)) {
                     var val = writableFunction.serialize(entry, handler, version);

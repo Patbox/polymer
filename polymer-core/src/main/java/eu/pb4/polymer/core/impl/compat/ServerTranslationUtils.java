@@ -10,17 +10,18 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import org.jetbrains.annotations.ApiStatus;
-import xyz.nucleoid.server.translations.api.Localization;
+//import xyz.nucleoid.server.translations.api.Localization;
 
+// Todo update once stp updates
 @ApiStatus.Internal
 public class ServerTranslationUtils {
     public static final boolean IS_PRESENT;
     public static Component parseFor(ServerGamePacketListenerImpl handler, Component text) {
-        if (IS_PRESENT && !CommonImplUtils.isMainPlayer(handler.player)) {
-            return Localization.text(text, handler.player);
-        } else {
+        //if (IS_PRESENT && !CommonImplUtils.isMainPlayer(handler.player)) {
+        //    return Localization.text(text, handler.player);
+        //} else {
             return text;
-        }
+        //}
     }
 
     public static ItemStack parseFor(ServerGamePacketListenerImpl handler, ItemStack stack) {

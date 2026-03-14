@@ -5,7 +5,7 @@ import eu.pb4.polymer.networking.api.ContextByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public record PolymerItemGroupRemoveS2CPayload(Identifier groupId) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<PolymerItemGroupRemoveS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_ITEM_GROUP_REMOVE);

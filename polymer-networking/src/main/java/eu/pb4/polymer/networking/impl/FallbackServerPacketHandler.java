@@ -135,7 +135,17 @@ public record FallbackServerPacketHandler(ConnectionProtocol phase,
     }
 
     @Override
+    public void handleAttack(ServerboundAttackPacket packet) {
+
+    }
+
+    @Override
     public void handleInteract(ServerboundInteractPacket packet) {
+
+    }
+
+    @Override
+    public void handleSpectateEntity(ServerboundSpectateEntityPacket packet) {
 
     }
 
@@ -266,6 +276,11 @@ public record FallbackServerPacketHandler(ConnectionProtocol phase,
 
     @Override
     public void handleSetBeaconPacket(ServerboundSetBeaconPacket packet) {
+
+    }
+
+    @Override
+    public void handleSetGameRule(ServerboundSetGameRulePacket packet) {
 
     }
 

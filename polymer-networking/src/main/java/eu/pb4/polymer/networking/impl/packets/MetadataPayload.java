@@ -3,7 +3,7 @@ package eu.pb4.polymer.networking.impl.packets;
 import com.mojang.serialization.Codec;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.Map;
 import net.minecraft.nbt.NbtAccounter;

@@ -7,7 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public record PolymerEntityS2CPayload(int entityId, Identifier typeId) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<PolymerEntityS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.WORLD_ENTITY);

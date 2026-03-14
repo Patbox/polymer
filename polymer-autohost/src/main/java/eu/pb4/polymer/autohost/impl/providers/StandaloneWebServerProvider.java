@@ -10,7 +10,7 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -22,7 +22,6 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
     private HttpServer server;
     public String baseAddress = "";
 
-    @Nullable
     public void serverStarted(MinecraftServer minecraftServer) {
         try {
             var address = createBindAddress(minecraftServer, config);
@@ -47,7 +46,6 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
         }
     }
 
-    @Nullable
     public void serverStopped(MinecraftServer minecraftServer) {
         if (server != null) {
             server.stop(0);

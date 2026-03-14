@@ -3,8 +3,8 @@ package eu.pb4.polymer.core.api.entity;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.impl.interfaces.PolymerEntityProvider;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;

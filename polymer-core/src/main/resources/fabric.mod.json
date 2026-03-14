@@ -27,20 +27,17 @@
     "client": [
       "eu.pb4.polymer.core.impl.PolymerMod"
     ],
-    "rei_client": [
+    "__rei_client": [
       "eu.pb4.polymer.core.impl.client.compat.ReiCompatibility"
     ],
-    "jade": [
+    "__jade": [
       "eu.pb4.polymer.core.impl.client.compat.JadeCompatibility"
     ],
-    "jei_mod_plugin": [
+    "__jei_mod_plugin": [
       "eu.pb4.polymer.core.impl.client.compat.JeiCompatibility"
     ],
-    "emi": [
+    "__emi": [
       "eu.pb4.polymer.core.impl.client.compat.EmiCompatibility"
-    ],
-    "polymc": [
-      "eu.pb4.polymer.core.impl.compat.polymc.PolyMcEntrypoint"
     ]
   },
   "mixins": [

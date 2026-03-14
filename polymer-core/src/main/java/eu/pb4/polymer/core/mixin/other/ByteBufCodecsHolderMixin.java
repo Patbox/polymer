@@ -11,7 +11,7 @@ import net.minecraft.sounds.SoundEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(targets = "net/minecraft/network/codec/ByteBufCodecs$30", priority = 500)
 public abstract class ByteBufCodecsHolderMixin {

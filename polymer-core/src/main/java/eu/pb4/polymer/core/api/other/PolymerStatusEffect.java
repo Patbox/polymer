@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.api.other;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.Optional;

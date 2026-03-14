@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(BlockBehaviour.BlockStateBase.class)
 public abstract class BlockStateBaseMixin {
@@ -32,7 +32,7 @@ public abstract class BlockStateBaseMixin {
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, this.getBlock()) instanceof PolymerBlock block
                 && context instanceof EntityCollisionContext entityShapeContext
                 && entityShapeContext.getEntity() instanceof ServerPlayer player && block.overridePlayerCollisionsWithPolymer(level, pos, (BlockState) (Object) this, player)) {
-            var clientState =  PolymerBlockUtils.getBlockStateSafely(block, (BlockState) (Object) this, PacketContext.create(player));
+            var clientState =  PolymerBlockUtils.getBlockStateSafely(block, (BlockState) (Object) this, player.connection.getPacketContext());
             if (!(PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, clientState.getBlock()) instanceof PolymerBlock)) {
                 cir.setReturnValue(clientState.getCollisionShape(level, pos, context));
             }

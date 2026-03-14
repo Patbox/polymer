@@ -16,7 +16,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;

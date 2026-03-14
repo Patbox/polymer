@@ -34,9 +34,7 @@
     "block.ServerChunkLoadingManagerMixin",
     "block.ServerWorldMixin",
     "block.WorldChunkAccessor",
-    "block.WorldChunkMixin",
-    "compat.ip_ImmPtlChunkTracking",
-    "compat.ip_PlayerChunkLoadingMixin"
+    "block.WorldChunkMixin"
   ],
   "client": [
   ],

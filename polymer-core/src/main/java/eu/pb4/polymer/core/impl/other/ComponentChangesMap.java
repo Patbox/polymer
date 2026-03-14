@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.other;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,9 +12,9 @@ public record ComponentChangesMap(DataComponentPatch changes) implements DataCom
     @Nullable
     @Override
     public <T> T get(DataComponentType<? extends T> type) {
-        var x = this.changes.get(type);
+        var x = this.changes.get(DataComponentMap.EMPTY, type);
         //noinspection OptionalAssignedToNull
-        return x != null ? x.orElse(null) : null;
+        return x;
     }
 
     @Override

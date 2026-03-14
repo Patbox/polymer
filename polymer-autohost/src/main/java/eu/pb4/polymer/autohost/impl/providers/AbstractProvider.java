@@ -11,8 +11,8 @@ import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.network.Connection;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     @Override
     public final Collection<MinecraftServer.ServerResourcePackInfo> getProperties(Connection connection) {
         var list = new ArrayList<MinecraftServer.ServerResourcePackInfo>();
-        var context = PacketContext.create(connection);
+        var context = connection.getPacketContext();
 
         list.add(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.getMainFilePath(context), this.hash));
         AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.invoke(x -> x.collectSendResourcePacks(this, context, list::add));
@@ -88,12 +88,12 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
             return getFilePath(context, identifier);
         }
 
-        return getAddress(context.getClientConnection(), AutoHostUtils.getPathFromId(identifier) + "+" + hash + ".zip");
+        return getAddress(context.orElseThrow(PacketContext.CONNECTION), AutoHostUtils.getPathFromId(identifier) + "+" + hash + ".zip");
     }
 
     @Override
     public String getFilePath(PacketContext context, Identifier identifier) {
-        return getAddress(context.getClientConnection(), AutoHostUtils.getPathFromId(identifier) + "+pack.zip");
+        return getAddress(context.orElseThrow(PacketContext.CONNECTION), AutoHostUtils.getPathFromId(identifier) + "+pack.zip");
     }
 
     @Override

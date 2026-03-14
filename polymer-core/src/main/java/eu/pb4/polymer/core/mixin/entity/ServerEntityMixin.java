@@ -7,7 +7,7 @@ import eu.pb4.polymer.core.api.entity.PolymerTrackerPacketSender;
 import eu.pb4.polymer.core.api.other.PlayerBoundConsumer;
 import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

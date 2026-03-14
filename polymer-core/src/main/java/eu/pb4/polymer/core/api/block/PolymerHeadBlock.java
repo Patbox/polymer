@@ -5,11 +5,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 public interface PolymerHeadBlock extends PolymerBlock {
     /**
@@ -27,7 +29,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
     };
 
     @Override
-    default BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    default BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         return Blocks.PLAYER_HEAD.defaultBlockState();
     }
 
@@ -51,7 +53,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
     }
 
     @Override
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, PacketContext.NotNullWithPlayer context) {
-        context.getPlayer().connection.send(this.getPolymerHeadPacket(blockState, pos.immutable(), context));
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, ServerPlayer context) {
+        context.connection.send(this.getPolymerHeadPacket(blockState, pos.immutable(), context.connection.getPacketContext()));
     }
 }

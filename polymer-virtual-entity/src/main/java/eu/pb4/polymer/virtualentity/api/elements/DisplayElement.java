@@ -7,7 +7,7 @@ import net.minecraft.util.Brightness;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.joml.*;
 
 
@@ -17,13 +17,13 @@ public abstract class DisplayElement extends GenericEntityElement {
     protected abstract EntityType<? extends Display> getEntityType();
 
     public void setTransformation(Transformation transformation) {
-        this.dataTracker.set(DisplayTrackedData.TRANSLATION, transformation.getTranslation());
-        this.dataTracker.set(DisplayTrackedData.LEFT_ROTATION, transformation.getLeftRotation());
-        this.dataTracker.set(DisplayTrackedData.SCALE, transformation.getScale());
-        this.dataTracker.set(DisplayTrackedData.RIGHT_ROTATION, transformation.getRightRotation());
+        this.dataTracker.set(DisplayTrackedData.TRANSLATION, transformation.translation());
+        this.dataTracker.set(DisplayTrackedData.LEFT_ROTATION, transformation.leftRotation());
+        this.dataTracker.set(DisplayTrackedData.SCALE, transformation.scale());
+        this.dataTracker.set(DisplayTrackedData.RIGHT_ROTATION, transformation.rightRotation());
     }
 
-    public void setTransformation(Matrix4f matrix) {
+    public void setTransformation(Matrix4fc matrix) {
         float f = 1.0F / matrix.m33();
         var triple = MatrixUtil.svdDecompose(new Matrix3f(matrix).scale(f));
         this.dataTracker.set(DisplayTrackedData.TRANSLATION, matrix.getTranslation(new Vector3f()));
@@ -32,7 +32,7 @@ public abstract class DisplayElement extends GenericEntityElement {
         this.dataTracker.set(DisplayTrackedData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
     }
 
-    public void setTransformation(Matrix4x3f matrix) {
+    public void setTransformation(Matrix4x3fc matrix) {
         var triple = MatrixUtil.svdDecompose(new Matrix3f().set(matrix));
         this.dataTracker.set(DisplayTrackedData.TRANSLATION, matrix.getTranslation(new Vector3f()));
         this.dataTracker.set(DisplayTrackedData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));

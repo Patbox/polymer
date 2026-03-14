@@ -1,7 +1,7 @@
 package eu.pb4.polymer.blocks.impl;
 
 import com.google.common.base.Splitter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Iterator;

@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.mixin.client.compat;
-
+/*
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.screen.EmiScreenManager;
@@ -53,3 +53,4 @@ public class emi_EmiScreenManager {
         }
     }
 }
+*/

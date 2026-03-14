@@ -5,8 +5,8 @@ import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 
 public class BuggedItem extends Item implements VanillaModeledPolymerItem {

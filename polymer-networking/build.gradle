@@ -1,20 +1,13 @@
-archivesBaseName = "polymer-networking"
+base {
+    archivesName = "polymer-networking"
+}
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
-loom {
-    enableTransitiveAccessWideners = false
-}
 
 dependencies {
-    api project(path: ':polymer-common', configuration: 'namedElements')
+    api project(path: ':polymer-common')
     include(project(path: ':polymer-common'))
-}
-
-afterEvaluate {
-    // Disable the gen sources task on sub projects
-    genSourcesWithFernFlower.enabled = true
-    genSourcesWithCfr.enabled = false
 }
 
 processResources {

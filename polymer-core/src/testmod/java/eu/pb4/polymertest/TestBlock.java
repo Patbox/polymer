@@ -24,8 +24,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class TestBlock extends Block implements PolymerBlock {
 
@@ -56,7 +56,7 @@ public class TestBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @org.jspecify.annotations.Nullable PacketContext context) {
         return state.getValue(TEST) % 2 == 0 ? Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, Direction.UP) : Blocks.NOTE_BLOCK.defaultBlockState();
     }
 

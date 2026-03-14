@@ -2,7 +2,7 @@ package eu.pb4.polymer.core.impl.other;
 
 
 import net.minecraft.world.item.TooltipFlag;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record PolymerTooltipType(boolean advanced, boolean creative) implements TooltipFlag {
     public static final PolymerTooltipType BASIC = new PolymerTooltipType(false, false);

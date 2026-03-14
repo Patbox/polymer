@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.mixin.client.compat;
-
+/*
 import dev.emi.emi.api.stack.ItemEmiStack;
 import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import net.fabricmc.api.EnvType;
@@ -8,7 +8,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,4 +42,4 @@ public abstract class emi_ItemEmiStack2Mixin {
             cir.setReturnValue(id);
         }
     }
-}
+}*/

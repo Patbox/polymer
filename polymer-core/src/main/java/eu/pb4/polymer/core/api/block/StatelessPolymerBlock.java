@@ -2,7 +2,8 @@ package eu.pb4.polymer.core.api.block;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 public interface StatelessPolymerBlock extends PolymerBlock {
     /**
@@ -13,7 +14,7 @@ public interface StatelessPolymerBlock extends PolymerBlock {
     Block getPolymerBlock(BlockState state, PacketContext context);
 
     @Override
-    default BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    default BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         return this.getPolymerBlock(state, context).defaultBlockState();
     }
 }

@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.impl.client.compat;
-
+/*
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import mezz.jei.api.IModPlugin;
@@ -44,3 +44,4 @@ public class JeiCompatibility implements IModPlugin {
         return ID;
     }
 }
+*/

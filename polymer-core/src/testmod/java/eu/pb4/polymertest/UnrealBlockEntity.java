@@ -10,7 +10,7 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.Set;
@@ -176,10 +176,10 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
     }
 
     public void applyAffineTransformation(Transformation affineTransformation) {
-        translation = affineTransformation.getTranslation();
-        rotationRight =  affineTransformation.getLeftRotation();
-        scale = affineTransformation.getScale();
-        rotationLeft = affineTransformation.getRightRotation();
+        translation = affineTransformation.translation();
+        rotationRight =  affineTransformation.leftRotation();
+        scale = affineTransformation.scale();
+        rotationLeft = affineTransformation.rightRotation();
         this.entityData.set(DIRTY_MARKER, this.entityData.get(DIRTY_MARKER) + 1);
     }
 }

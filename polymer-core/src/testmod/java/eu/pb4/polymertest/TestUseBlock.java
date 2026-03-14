@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class TestUseBlock extends Block implements PolymerBlock {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
@@ -44,7 +44,7 @@ public class TestUseBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @org.jspecify.annotations.Nullable PacketContext context) {
         return Blocks.REDSTONE_LAMP.defaultBlockState().setValue(LIT, state.getValue(LIT));
     }
 }

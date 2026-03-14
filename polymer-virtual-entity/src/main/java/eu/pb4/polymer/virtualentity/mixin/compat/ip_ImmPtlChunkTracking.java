@@ -1,4 +1,4 @@
-package eu.pb4.polymer.virtualentity.mixin.compat;
+/*package eu.pb4.polymer.virtualentity.mixin.compat;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
@@ -39,3 +39,4 @@ public class ip_ImmPtlChunkTracking {
         }
     }
 }
+*/

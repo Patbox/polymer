@@ -7,7 +7,7 @@ import eu.pb4.polymer.core.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

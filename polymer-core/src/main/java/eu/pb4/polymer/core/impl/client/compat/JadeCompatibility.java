@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.impl.client.compat;
-
+/*
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import snownee.jade.addon.core.ModNameProvider;
 import snownee.jade.addon.debug.RegistryNameProvider;
 import snownee.jade.api.*;
@@ -217,4 +217,4 @@ public class JadeCompatibility implements IWailaPlugin {
             return true;
         }
     }
-}
+}*/

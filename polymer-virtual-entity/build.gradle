@@ -1,4 +1,6 @@
-archivesBaseName = "polymer-virtual-entity"
+base {
+    archivesName = "polymer-virtual-entity"
+}
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
@@ -15,19 +17,12 @@ loom {
 
 dependencies {
     //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
-    api project(path: ':polymer-common', configuration: 'namedElements')
+    api project(path: ':polymer-common')
     include(project(path: ':polymer-common'))
 
-    modCompileOnly ('com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4') {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-
-}
-
-afterEvaluate {
-    // Disable the gen sources task on sub projects
-    genSourcesWithFernFlower.enabled = true
-    genSourcesWithCfr.enabled = false
+    //modCompileOnly ('com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4') {
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
 }
 
 processResources {

@@ -43,7 +43,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -112,7 +112,7 @@ public final class PolymerUtils {
 
 
                 player.getChunkTrackingView().forEach((chunkPos) -> {
-                    var chunk = world.getChunk(chunkPos.x, chunkPos.z);
+                    var chunk = world.getChunk(chunkPos.x(), chunkPos.z());
                     player.connection.chunkSender.dropChunk(player, chunk.getPos());
                     player.connection.chunkSender.markChunkPendingToSend(chunk);
                 });
@@ -198,6 +198,7 @@ public final class PolymerUtils {
     public static boolean hasResourcePack(@Nullable ServerPlayer player, UUID uuid) {
         return PolymerCommonUtils.hasResourcePack(player, uuid);
     }
+
 
     public static Packet<?> replacePacket(ServerCommonPacketListenerImpl handler, Packet<?> packet) {
         return PacketPatcher.replace(handler, packet);

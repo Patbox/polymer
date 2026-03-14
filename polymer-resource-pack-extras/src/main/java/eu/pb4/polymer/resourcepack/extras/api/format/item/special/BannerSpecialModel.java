@@ -3,7 +3,7 @@ package eu.pb4.polymer.resourcepack.extras.api.format.item.special;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.item.DyeColor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record BannerSpecialModel(DyeColor color) implements SpecialModel {
     public static final MapCodec<BannerSpecialModel> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

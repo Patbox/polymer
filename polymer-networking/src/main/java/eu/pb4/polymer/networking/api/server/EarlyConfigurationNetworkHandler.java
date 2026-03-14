@@ -4,6 +4,8 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.networking.impl.EarlyConfigurationConnectionMagic;
 import eu.pb4.polymer.networking.mixin.ConnectionAccessor;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.network.Connection;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.TickablePacketListener;
@@ -22,8 +24,7 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.ContextProvidingPacketListener;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -34,7 +35,7 @@ import java.util.function.Function;
  * Use this only if you know what you are doing and you need to do sync/packets before player joins a world.
  */
 
-public class EarlyConfigurationNetworkHandler implements ServerConfigurationPacketListener, TickablePacketListener, ContextProvidingPacketListener {
+public class EarlyConfigurationNetworkHandler implements ServerConfigurationPacketListener, TickablePacketListener, PacketContextProvider {
 
     private final EarlyConfigurationConnectionMagic.ContextImpl context;
     private final Identifier identifier;
@@ -220,23 +221,13 @@ public class EarlyConfigurationNetworkHandler implements ServerConfigurationPack
 
     }
 
-    @Override
-    public final @Nullable ServerPlayer getPlayerForPacketTweaker() {
-        return null;
-    }
-
     public final GameProfile getGameProfile() {
         return this.context.profile();
     }
 
     @Override
-    public GameProfile getGameProfileForPacketTweaker() {
-        return this.context.profile();
-    }
-
-    @Override
-    public ClientInformation getClientOptionsForPacketTweaker() {
-        return this.context.options().get();
+    public PacketContext getPacketContext() {
+        return this.context.connection().getPacketContext();
     }
 
     protected final ServerLoginPacketListenerImpl getLoginNetworkHandler() {

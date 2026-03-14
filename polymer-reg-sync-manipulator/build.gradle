@@ -1,4 +1,6 @@
-archivesBaseName = "polymer-reg-sync-manipulator"
+base {
+    archivesName = "polymer-reg-sync-manipulator"
+}
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
@@ -25,16 +27,5 @@ processResources {
 
 dependencies {
 
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-
 }
-
-afterEvaluate {
-    // Disable the gen sources task on sub projects
-    genSourcesWithFernFlower.enabled = true
-    genSourcesWithCfr.enabled = false
-}
-
 

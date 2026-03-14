@@ -7,7 +7,8 @@ import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 public class TestBlock extends Block implements PolymerTexturedBlock {
     private final BlockState polymerBlockState;
@@ -22,7 +23,7 @@ public class TestBlock extends Block implements PolymerTexturedBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+    public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         return this.polymerBlockState;
     }
 }

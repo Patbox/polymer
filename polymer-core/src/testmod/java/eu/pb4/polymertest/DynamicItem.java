@@ -1,10 +1,9 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import eu.pb4.polymer.core.api.item.SimplePolymerItem;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-import java.util.List;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
@@ -21,13 +20,13 @@ public class DynamicItem extends Item implements PolymerItem {
     }
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
         return null;
     }
 
     @Override
     public InteractionResult use(Level world, Player user, InteractionHand hand) {
-        user.displayClientMessage(Component.literal("Used!" + hand), false);
+        user.sendSystemMessage(Component.literal("Used!" + hand));
         return super.use(world, user, hand);
     }
 

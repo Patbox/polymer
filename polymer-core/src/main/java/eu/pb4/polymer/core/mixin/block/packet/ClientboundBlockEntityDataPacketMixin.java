@@ -9,7 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Mixin(ClientboundBlockEntityDataPacket.class)
 public class ClientboundBlockEntityDataPacketMixin {
@@ -19,7 +19,7 @@ public class ClientboundBlockEntityDataPacketMixin {
             if (packet.getTag() == null) {
                 return packet;
             }
-            var nbt = PolymerBlockUtils.transformBlockEntityNbt(PacketContext.get(), packet.getType(), packet.getTag());
+            var nbt = PolymerBlockUtils.transformBlockEntityNbt(PacketContext.get(), packet.getType(), packet.getTag(), buf.registryAccess());
             if (packet.getTag() == nbt) {
                 return packet;
             }

@@ -9,7 +9,6 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.compat.FabricFluids;
 import eu.pb4.polymer.core.impl.client.networking.PolymerClientProtocolHandler;
-import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocolHandler;
 import eu.pb4.polymer.core.impl.networking.entry.PolymerBlockEntry;
 import net.fabricmc.api.ClientModInitializer;
@@ -33,9 +32,6 @@ public class PolymerMod implements ModInitializer, ClientModInitializer {
 			}
 		}));
 		ImplPolymerRegistryEvent.iterateAndRegister(BuiltInRegistries.BLOCK, PolymerBlockEntry::cacheCalcDeltaOverride);
-
-
-		PolyMcUtils.register();
 	}
 	@Override
 	public void onInitializeClient() {

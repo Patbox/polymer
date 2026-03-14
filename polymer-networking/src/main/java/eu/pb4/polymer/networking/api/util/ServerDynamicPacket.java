@@ -1,6 +1,6 @@
 package eu.pb4.polymer.networking.api.util;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiFunction;
 import net.minecraft.network.protocol.Packet;

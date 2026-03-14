@@ -4,8 +4,8 @@ import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.core.Registry;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /**
  * Used to mark client-synchronized polymer objects like BlockEntities, Enchantments, Recipes, etc
@@ -62,7 +62,7 @@ public interface PolymerSyncedObject<T> extends PolymerObject {
         return registry instanceof RegistryExtension<?> extension ? ((RegistryExtension<T>) extension).polymer$getOverlay(obj) : null;
     }
 
-    static <T> boolean canSynchronizeToPolymerClient(Registry<T> registry, T entry, PacketContext.NotNullWithPlayer ctx) {
+    static <T> boolean canSynchronizeToPolymerClient(Registry<T> registry, T entry, PacketContext ctx) {
         var obj = getSyncedObject(registry, entry);
         return obj == null || obj.canSynchronizeToPolymerClient(ctx);
     }

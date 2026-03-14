@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.mixin.compat.immersive_portals;
-
+/*
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -23,3 +23,4 @@ public class ip_PlayerChunkLoadingMixin {
     private static void polymer_resetPlayer(ServerGamePacketListenerImpl serverGamePacketListenerImpl, ServerLevel serverLevel, LevelChunk levelChunk, CallbackInfo ci) {
     }
 }
+*/

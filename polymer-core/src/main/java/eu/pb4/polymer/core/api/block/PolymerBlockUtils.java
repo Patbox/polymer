@@ -1,15 +1,16 @@
 package eu.pb4.polymer.core.api.block;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import eu.pb4.polymer.core.impl.compat.polymc.PolyMcUtils;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.ClientboundBlockEntityDataPacketAccessor;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.minecraft.core.HolderLookup;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -95,11 +96,11 @@ public final class PolymerBlockUtils {
      * @return Client side BlockState
      */
     public static BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return BlockMapper.getFrom(context.getPlayer()).toClientSideState(state, context);
+        return BlockMapper.getFrom(PolymerCommonUtils.getPlayer(context)).toClientSideState(state, context);
     }
 
     public static Block getPolymerBlock(Block block, PacketContext context) {
-        return BlockMapper.getFrom(context.getPlayer()).toClientSideState(block.defaultBlockState(), context).getBlock();
+        return BlockMapper.getFrom(PolymerCommonUtils.getPlayer(context)).toClientSideState(block.defaultBlockState(), context).getBlock();
     }
 
     public static void registerOverlay(Block block, PolymerBlock polymerBlock) {
@@ -116,7 +117,7 @@ public final class PolymerBlockUtils {
      * @param context Packet context
      * @return Client side BlockState
      */
-    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, PacketContext context) {
+    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, int maxDistance, @Nullable PacketContext context) {
         BlockState out = block.getPolymerBlockState(blockState, context);
 
         int req = 0;
@@ -147,7 +148,7 @@ public final class PolymerBlockUtils {
      * @param context      Possible target player
      * @return Client side BlockState
      */
-    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, PacketContext context) {
+    public static BlockState getBlockStateSafely(PolymerBlock block, BlockState blockState, @Nullable PacketContext context) {
         return getBlockStateSafely(block, blockState, NESTED_DEFAULT_DISTANCE, context);
     }
 
@@ -161,12 +162,8 @@ public final class PolymerBlockUtils {
                 || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, player));
     }
 
-    public static BlockState getServerSideBlockState(BlockState state, PacketContext context) {
-        return PolyMcUtils.toVanilla(getPolymerBlockState(state, context), context.getPlayer());
-    }
-
-    public static CompoundTag transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, CompoundTag original) {
-        return PacketPatcher.transformBlockEntityNbt(context, type, original);
+    public static CompoundTag transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, CompoundTag original, HolderLookup.Provider lookup) {
+        return PacketPatcher.transformBlockEntityNbt(context, type, original, lookup);
     }
 
     public static boolean isPolymerBlockInteraction(ServerPlayer player, ItemStack stack, InteractionHand hand, BlockState preInteractionState, BlockHitResult blockHitResult, ServerLevel world, InteractionResult actionResult) {

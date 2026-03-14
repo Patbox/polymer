@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.impl.client.compat;
-
+/*
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
@@ -48,3 +48,4 @@ public class ReiCompatibility implements REIClientPlugin {
         }
     }
 }
+*/

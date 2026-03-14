@@ -28,7 +28,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 
 public final class VirtualEntityUtils {
@@ -134,7 +134,7 @@ public final class VirtualEntityUtils {
             return false;
         }
 
-        return player.getChunkTrackingView().contains(chunk.getPos().x, chunk.getPos().z);
+        return player.getChunkTrackingView().contains(chunk.getPos().x(), chunk.getPos().z());
     }
 
     /**

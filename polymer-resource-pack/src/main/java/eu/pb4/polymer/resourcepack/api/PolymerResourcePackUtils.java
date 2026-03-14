@@ -4,7 +4,6 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
-import eu.pb4.polymer.resourcepack.impl.compat.polymc.PolyMcHelpers;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import net.fabricmc.loader.api.FabricLoader;
@@ -15,8 +14,8 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackFormat;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.util.InclusiveRange;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -275,15 +274,6 @@ public final class PolymerResourcePackUtils {
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
-            }
-
-            if (CompatStatus.POLYMC) {
-                try {
-                    Files.createDirectories(path);
-                    PolyMcHelpers.importPolyMcResources(builder);
-                } catch(Exception e){
-                    e.printStackTrace();
-                }
             }
         });
 

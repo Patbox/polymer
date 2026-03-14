@@ -16,7 +16,7 @@ import net.minecraft.world.item.enchantment.effects.EnchantmentLocationBasedEffe
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.IdentityHashMap;
 import java.util.List;

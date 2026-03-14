@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
@@ -8,7 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ToolMaterial;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class TestPickaxeItem extends Item implements VanillaModeledPolymerItem {
 
 
     @Override
-    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
         return Identifier.fromNamespaceAndPath("polymertest", "pickaxe");
     }
 

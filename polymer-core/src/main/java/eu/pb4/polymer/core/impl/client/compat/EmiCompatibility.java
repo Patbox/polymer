@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.impl.client.compat;
-
+/*
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.EmiStack;
@@ -35,3 +35,4 @@ public class EmiCompatibility implements EmiPlugin {
         }
     }
 }
+*/

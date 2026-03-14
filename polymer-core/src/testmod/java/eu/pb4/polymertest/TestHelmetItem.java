@@ -1,6 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.item.VanillaModeledPolymerItem;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -14,8 +15,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class TestHelmetItem extends Item implements VanillaModeledPolymerItem {
     public TestHelmetItem(Properties settings) {
@@ -28,15 +28,15 @@ public class TestHelmetItem extends Item implements VanillaModeledPolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
-        var x = VanillaModeledPolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context, HolderLookup.Provider lookup) {
+        var x = VanillaModeledPolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context, lookup);
         x.set(DataComponents.RARITY, Rarity.EPIC);
         return x;
     }
 
     @Override
     public InteractionResult use(Level world, Player user, InteractionHand hand) {
-        user.displayClientMessage(Component.literal("Use!" + hand), false);
+        user.sendSystemMessage(Component.literal("Use!" + hand));
         return super.use(world, user, hand);
     }
 }

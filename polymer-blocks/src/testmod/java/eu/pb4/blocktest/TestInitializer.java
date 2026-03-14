@@ -15,7 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.Locale;
 import java.util.function.BiFunction;
@@ -142,6 +142,6 @@ public class TestInitializer implements ModInitializer {
                 .setId(ResourceKey.create(Registries.ITEM, id))
                         //.modelId(block.getPolymerBlockState(block.getDefaultState(), PacketContext.create()).getBlock().getRegistryEntry().registryKey().getValue())
                         .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true),
-                block.getPolymerBlockState(block.defaultBlockState(), PacketContext.create()).getBlock().asItem()));
+                block.getPolymerBlockState(block.defaultBlockState(), null).getBlock().asItem()));
     }
 }

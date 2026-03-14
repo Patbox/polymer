@@ -1,11 +1,12 @@
 package eu.pb4.polymer.core.api.other;
 
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.UUID;
 import net.minecraft.core.Holder;
@@ -58,6 +59,6 @@ public class PolymerSoundEvent implements PolymerSyncedObject<SoundEvent> {
 
     @Override
     public SoundEvent getPolymerReplacement(SoundEvent event, PacketContext context) {
-        return this.source == null || this.polymerSound == null || PolymerUtils.hasResourcePack(context.getPlayer(), this.source) ? event : this.polymerSound;
+        return this.source == null || this.polymerSound == null || PolymerCommonUtils.hasResourcePack(context, this.source) ? event : this.polymerSound;
     }
 }

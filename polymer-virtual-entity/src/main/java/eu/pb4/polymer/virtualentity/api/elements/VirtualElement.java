@@ -2,14 +2,15 @@ package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.network.protocol.game.ServerboundAttackPacket;
+import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundPickItemFromEntityPacket;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
-import net.minecraft.network.protocol.game.ServerboundPickItemFromEntityPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -31,7 +32,6 @@ public interface VirtualElement {
         return null;
     }
 
-    @Nullable
     default void setOverridePos(Vec3 vec3d) {};
 
     default Vec3 getCurrentPos() {
@@ -61,18 +61,13 @@ public interface VirtualElement {
         static InteractionHandler redirect(Entity redirectedEntity) {
             return new InteractionHandler() {
                 @Override
-                public void interact(ServerPlayer player, InteractionHand hand) {
-                    player.connection.handleInteract(ServerboundInteractPacket.createInteractionPacket(redirectedEntity, player.isShiftKeyDown(), hand));
-                }
-
-                @Override
-                public void interactAt(ServerPlayer player, InteractionHand hand, Vec3 pos) {
-                    player.connection.handleInteract(ServerboundInteractPacket.createInteractionPacket(redirectedEntity, player.isShiftKeyDown(), hand, pos));
+                public void interact(ServerPlayer player, InteractionHand hand, Vec3 pos, boolean usingSecondaryAction) {
+                    player.connection.handleInteract(new ServerboundInteractPacket(redirectedEntity.getId(), hand, pos, usingSecondaryAction));
                 }
 
                 @Override
                 public void attack(ServerPlayer player) {
-                    player.connection.handleInteract(ServerboundInteractPacket.createAttackPacket(redirectedEntity, player.isShiftKeyDown()));
+                    player.connection.handleAttack(new ServerboundAttackPacket(redirectedEntity.getId()));
                 }
 
                 @Override
@@ -82,8 +77,7 @@ public interface VirtualElement {
             };
         }
 
-        default void interact(ServerPlayer player, InteractionHand hand) {};
-        default void interactAt(ServerPlayer player, InteractionHand hand, Vec3 pos) {};
+        default void interact(ServerPlayer player, InteractionHand hand, Vec3 pos, boolean usingSecondaryAction) {};
         default void attack(ServerPlayer player) {};
         default void pickItem(ServerPlayer player, boolean includeData) {};
     }

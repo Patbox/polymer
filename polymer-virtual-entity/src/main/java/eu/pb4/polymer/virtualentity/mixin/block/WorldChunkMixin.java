@@ -20,7 +20,7 @@ import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelChunkTicks;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -84,7 +84,7 @@ public abstract class WorldChunkMixin extends ChunkAccess implements HolderAttac
         }
     }
 
-    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/world/level/block/Block;)Z", ordinal = 0))
+    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Ljava/lang/Object;)Z", ordinal = 0))
     private void polymerVE$removeOld(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         var x = this.polymerVE$posHolders.get(pos);
         if (x != null) {

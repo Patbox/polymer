@@ -30,8 +30,8 @@ public record PolymerBlockStateEntry(Map<String, String> properties, int numId, 
         if (value == null) {
             var list = new HashMap<String, String>();
 
-            for (var entry : state.getValues().entrySet()) {
-                list.put(entry.getKey().getName(), ((Property) (Object) entry.getKey()).getName(entry.getValue()));
+            for (var entry : state.getValues().toList()) {
+                list.put(entry.property().getName(), entry.valueName());
             }
             value = new PolymerBlockStateEntry(list, Block.BLOCK_STATE_REGISTRY.getId(state), BuiltInRegistries.BLOCK.getId(state.getBlock()));
             CACHE.put(state, value);

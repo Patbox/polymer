@@ -1,4 +1,6 @@
-archivesBaseName = "polymer-core"
+base {
+    archivesName = "polymer-core"
+}
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
@@ -24,8 +26,6 @@ loom {
     }
 
     accessWidenerPath = file("src/main/resources/polymer-core.accesswidener")
-
-    enableTransitiveAccessWideners = false
 }
 
 processResources {
@@ -37,55 +37,42 @@ processResources {
 }
 
 dependencies {
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-
     //modRuntime "supercoder79:databreaker:0.2.7"
 
-    modCompileOnly('maven.modrinth:lithium:mc1.21.9-0.19.0-fabric')
-
-    //modCompileOnly ('nl.theepicblock:PolyMc:5.1.0+1.19')
-    modCompileOnly('com.github.TheEpicBlock:PolyMc:5.6.1') {
-        exclude(group: "org.quiltmc", module: "quilt-loader")
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+    //modCompileOnly('maven.modrinth:lithium:mc1.21.9-0.19.0-fabric')
 
 
-    modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:19.3.0+fabric") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-16.0.1"){
-        exclude(group: "net.fabricmc.fabric-api")
-    }
 
-    modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:20.0.811"){
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    modCompileOnly /*modLocalRuntime*/("dev.emi:emi-fabric:1.1.6+1.20.6"){
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    //modCompileOnly "maven.modrinth:eiv:3.0.3+1.21.8"
+    //modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:19.3.0+fabric") {
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
+    //modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-16.0.1"){
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
 
-    //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-common:11.0.0.206")
-    //modCompileOnlyApi modLocalRuntime("mezz.jei:jei-1.19-fabric:11.0.0.206")
-    modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:19.0.0.1"){
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+    //modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:20.0.811"){
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
+    //modCompileOnly /*modLocalRuntime*/("dev.emi:emi-fabric:1.1.6+1.20.6"){
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
+
+    //modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:19.0.0.1"){
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
 
-    modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
+    //modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
 
-    modCompileOnly("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+    //modCompileOnly("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1") {
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
 
-    modCompileOnly ('com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4') {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+    //modCompileOnly ('com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4') {
+    //    exclude(group: "net.fabricmc.fabric-api")
+    //}
 
     //modLocalRuntime 'maven.modrinth:immersiveportals:v3.0.2-mc1.20'
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
@@ -93,27 +80,20 @@ dependencies {
 
     testmodImplementation sourceSets.main.output
 
-    api (project(path: ':polymer-reg-sync-manipulator', configuration: 'namedElements'))
+    api (project(path: ':polymer-reg-sync-manipulator'))
     include(project(path: ':polymer-reg-sync-manipulator'))
-    api project(path: ':polymer-common', configuration: 'namedElements')
-    api (project(path: ':polymer-networking', configuration: 'namedElements'))
+    api project(path: ':polymer-common')
+    api (project(path: ':polymer-networking'))
     include(project(path: ':polymer-networking'))
 
-    compileOnly (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
-    localRuntime (project(path: ':polymer-resource-pack', configuration: 'namedElements'))
-    compileOnly (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
-    localRuntime (project(path: ':polymer-resource-pack-extras', configuration: 'namedElements'))
-    compileOnly (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
-    localRuntime (project(path: ':polymer-virtual-entity', configuration: 'namedElements'))
+    compileOnly (project(path: ':polymer-resource-pack'))
+    localRuntime (project(path: ':polymer-resource-pack'))
+    compileOnly (project(path: ':polymer-resource-pack-extras'))
+    localRuntime (project(path: ':polymer-resource-pack-extras'))
+    compileOnly (project(path: ':polymer-virtual-entity'))
+    localRuntime (project(path: ':polymer-virtual-entity'))
 
     project(":polymer-sound-patcher").afterEvaluate {
         testmodImplementation project(":polymer-sound-patcher")
     }
-}
-
-
-afterEvaluate {
-    // Disable the gen sources task on sub projects
-    genSourcesWithFernFlower.enabled = true
-    genSourcesWithCfr.enabled = false
 }

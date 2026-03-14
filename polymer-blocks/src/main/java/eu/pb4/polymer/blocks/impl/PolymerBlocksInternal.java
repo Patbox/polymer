@@ -52,13 +52,13 @@ public class PolymerBlocksInternal implements ModInitializer {
     public static String generateStateName(BlockState state) {
         var stringBuilder = new StringBuilder();
 
-        var entries = new ArrayList<>(state.getValues().entrySet());
-        entries.sort(Map.Entry.comparingByKey(Comparator.comparing(Property::getName)));
+        var entries = new ArrayList<>(state.getValues().toList());
+        entries.sort(Comparator.comparing(x -> x.property().getName()));
         var iterator = entries.iterator();
 
         while (iterator.hasNext()) {
             var entry = iterator.next();
-            stringBuilder.append((entry.getKey()).getName()).append("=").append(((Property) entry.getKey()).getName(entry.getValue()));
+            stringBuilder.append(entry.property().getName()).append("=").append(entry.valueName());
 
             if (iterator.hasNext()) {
                 stringBuilder.append(",");

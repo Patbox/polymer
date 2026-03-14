@@ -6,8 +6,8 @@ import eu.pb4.polymer.core.impl.other.PolymerComponentImpl;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
+import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public interface PolymerComponent extends PolymerObject {
     static void registerDataComponent(DataComponentType<?>... types) {

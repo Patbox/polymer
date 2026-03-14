@@ -3,7 +3,7 @@ package eu.pb4.polymer.resourcepack.api;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

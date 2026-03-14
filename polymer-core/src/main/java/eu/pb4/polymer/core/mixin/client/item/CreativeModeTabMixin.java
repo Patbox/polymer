@@ -41,10 +41,10 @@ public abstract class CreativeModeTabMixin implements ClientCreativeModeTabExten
     @Unique
     private int polymerCore$page;
 
-    @ModifyArg(method = "buildContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;getResourceKey(Ljava/lang/Object;)Ljava/util/Optional;"))
+    /*@ModifyArg(method = "buildContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;getResourceKey(Ljava/lang/Object;)Ljava/util/Optional;"))
     private Object polymerCore$bypassServerSide(Object entry) {
         return entry instanceof InternalClientItemGroup ? CreativeModeTabs.getDefaultTab() : entry;
-    }
+    }*/
 
     @Inject(method = "buildContents", at = @At("HEAD"), cancellable = true)
     private void polymer$injectEntriesCustom(CreativeModeTab.ItemDisplayParameters arg, CallbackInfo ci) {
