@@ -1,6 +1,6 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
-import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
+import eu.pb4.polymer.virtualentity.api.data.DisplayEntityData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
@@ -14,43 +14,43 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public Component getText() {
-        return this.dataTracker.get(DisplayTrackedData.Text.TEXT);
+        return this.dataTracker.get(DisplayEntityData.Text.TEXT);
     }
 
     public void setText(Component text) {
-        this.dataTracker.set(DisplayTrackedData.Text.TEXT, text);
+        this.dataTracker.set(DisplayEntityData.Text.TEXT, text);
     }
 
     public int getLineWidth() {
-        return this.dataTracker.get(DisplayTrackedData.Text.LINE_WIDTH);
+        return this.dataTracker.get(DisplayEntityData.Text.LINE_WIDTH);
     }
 
     public void setLineWidth(int lineWidth) {
-        this.dataTracker.set(DisplayTrackedData.Text.LINE_WIDTH, lineWidth);
+        this.dataTracker.set(DisplayEntityData.Text.LINE_WIDTH, lineWidth);
     }
 
     public byte getTextOpacity() {
-        return this.dataTracker.get(DisplayTrackedData.Text.TEXT_OPACITY);
+        return this.dataTracker.get(DisplayEntityData.Text.TEXT_OPACITY);
     }
 
     public void setTextOpacity(byte textOpacity) {
-        this.dataTracker.set(DisplayTrackedData.Text.TEXT_OPACITY, textOpacity);
+        this.dataTracker.set(DisplayEntityData.Text.TEXT_OPACITY, textOpacity);
     }
 
     public int getBackground() {
-        return this.dataTracker.get(DisplayTrackedData.Text.BACKGROUND);
+        return this.dataTracker.get(DisplayEntityData.Text.BACKGROUND);
     }
 
     public void setBackground(int background) {
-        this.dataTracker.set(DisplayTrackedData.Text.BACKGROUND, background);
+        this.dataTracker.set(DisplayEntityData.Text.BACKGROUND, background);
     }
 
     public byte getDisplayFlags() {
-        return this.dataTracker.get(DisplayTrackedData.Text.TEXT_DISPLAY_FLAGS);
+        return this.dataTracker.get(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS);
     }
 
     public void setDisplayFlags(byte flags) {
-        this.dataTracker.set(DisplayTrackedData.Text.TEXT_DISPLAY_FLAGS, flags);
+        this.dataTracker.set(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS, flags);
     }
 
     public boolean getDisplayFlag(byte flag) {
@@ -58,14 +58,14 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public void setDisplayFlag(byte flag, boolean value) {
-        this.dataTracker.set(DisplayTrackedData.Text.TEXT_DISPLAY_FLAGS, flag(getDisplayFlags(), flag, value));
+        this.dataTracker.set(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS, flag(getDisplayFlags(), flag, value));
     }
 
     public void setTextAlignment(Display.TextDisplay.Align alignment) {
         setDisplayFlags(switch (alignment) {
-            case CENTER -> flag(getDisplayFlags(), DisplayTrackedData.Text.LEFT_ALIGNMENT_FLAG | DisplayTrackedData.Text.RIGHT_ALIGNMENT_FLAG, false);
-            case LEFT -> flag(flag(getDisplayFlags(), DisplayTrackedData.Text.LEFT_ALIGNMENT_FLAG, true), DisplayTrackedData.Text.RIGHT_ALIGNMENT_FLAG, false);
-            case RIGHT -> flag(flag(getDisplayFlags(), DisplayTrackedData.Text.LEFT_ALIGNMENT_FLAG, false), DisplayTrackedData.Text.RIGHT_ALIGNMENT_FLAG, true);
+            case CENTER -> flag(getDisplayFlags(), DisplayEntityData.Text.LEFT_ALIGNMENT_FLAG | DisplayEntityData.Text.RIGHT_ALIGNMENT_FLAG, false);
+            case LEFT -> flag(flag(getDisplayFlags(), DisplayEntityData.Text.LEFT_ALIGNMENT_FLAG, true), DisplayEntityData.Text.RIGHT_ALIGNMENT_FLAG, false);
+            case RIGHT -> flag(flag(getDisplayFlags(), DisplayEntityData.Text.LEFT_ALIGNMENT_FLAG, false), DisplayEntityData.Text.RIGHT_ALIGNMENT_FLAG, true);
         });
     }
 
@@ -74,27 +74,27 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public void setShadow(boolean value) {
-        setDisplayFlag(DisplayTrackedData.Text.SHADOW_FLAG, value);
+        setDisplayFlag(DisplayEntityData.Text.SHADOW_FLAG, value);
     }
 
     public boolean getShadow() {
-        return getDisplayFlag(DisplayTrackedData.Text.SHADOW_FLAG);
+        return getDisplayFlag(DisplayEntityData.Text.SHADOW_FLAG);
     }
 
     public void setSeeThrough(boolean value) {
-        setDisplayFlag(DisplayTrackedData.Text.SEE_THROUGH_FLAG, value);
+        setDisplayFlag(DisplayEntityData.Text.SEE_THROUGH_FLAG, value);
     }
 
     public boolean getSeeThrough() {
-        return getDisplayFlag(DisplayTrackedData.Text.SEE_THROUGH_FLAG);
+        return getDisplayFlag(DisplayEntityData.Text.SEE_THROUGH_FLAG);
     }
 
     public void setDefaultBackground(boolean value) {
-        setDisplayFlag(DisplayTrackedData.Text.DEFAULT_BACKGROUND_FLAG, value);
+        setDisplayFlag(DisplayEntityData.Text.DEFAULT_BACKGROUND_FLAG, value);
     }
 
     public boolean getDefaultBackground() {
-        return getDisplayFlag(DisplayTrackedData.Text.DEFAULT_BACKGROUND_FLAG);
+        return getDisplayFlag(DisplayEntityData.Text.DEFAULT_BACKGROUND_FLAG);
     }
 
     private static byte flag(int base, int flag, boolean value) {

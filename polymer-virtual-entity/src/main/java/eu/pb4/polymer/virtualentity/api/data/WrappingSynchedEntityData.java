@@ -1,4 +1,4 @@
-package eu.pb4.polymer.virtualentity.api.tracker;
+package eu.pb4.polymer.virtualentity.api.data;
 
 import org.jspecify.annotations.Nullable;
 
@@ -6,10 +6,10 @@ import java.util.List;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 
-public class WrappingDataTracker implements DataTrackerLike {
-    private final DataTrackerLike dataTracker;
+public class WrappingSynchedEntityData implements SynchedEntityDataLike {
+    private final SynchedEntityDataLike dataTracker;
 
-    public WrappingDataTracker(DataTrackerLike tracker) {
+    public WrappingSynchedEntityData(SynchedEntityDataLike tracker) {
         this.dataTracker = tracker;
     }
     

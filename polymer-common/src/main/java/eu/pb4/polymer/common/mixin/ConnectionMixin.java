@@ -29,7 +29,7 @@ public abstract class ConnectionMixin implements CommonConnectionExt {
         var old = value ? !this.polymerCommon$hasResourcePack.add(uuid) : this.polymerCommon$hasResourcePack.remove(uuid);
 
         if (this.getPacketListener() instanceof ServerCommonPacketListenerImpl handler && old != value) {
-            PolymerCommonUtils.ON_RESOURCE_PACK_STATUS_CHANGE.invoke(x -> x.onResourcePackChange(handler, uuid, old, value));
+            PolymerCommonUtils.ON_RESOURCE_PACK_STATUS_CHANGE.invoker().onResourcePackChange(handler, uuid, old, value);
         }
     }
 

@@ -68,7 +68,7 @@ public class PolymerClientProtocolHandler {
 
         registerCommonHandler(PolymerSyncStartedS2CPayload.class, (handler, version, buf) -> {
             syncStarted = System.currentTimeMillis();
-            PolymerClientUtils.ON_SYNC_STARTED.invoke(EventRunners.RUN);
+            PolymerClientUtils.ON_SYNC_STARTED.invoker().run();
         });
         registerCommonHandler(PolymerSyncFinishedS2CPayload.class, (handler, version, buf) -> {
             if (PolymerImpl.LOG_SYNC_TIME_CLIENT) {
@@ -76,7 +76,7 @@ public class PolymerClientProtocolHandler {
             }
             InternalClientRegistry.updateBlockStatesPaletteProvider();
 
-            PolymerClientUtils.ON_SYNC_FINISHED.invoke(EventRunners.RUN);
+            PolymerClientUtils.ON_SYNC_FINISHED.invoker().run();
         });
 
         registerCommonHandler(PolymerItemGroupDefineS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupDefine);
@@ -222,7 +222,7 @@ public class PolymerClientProtocolHandler {
                 if (CreativeModeTabsAccessor.getCACHED_PARAMETERS() != null) {
                     CreativeModeTabsAccessor.callBuildAllTabContents(CreativeModeTabsAccessor.getCACHED_PARAMETERS());
                 }
-                PolymerClientUtils.ON_SEARCH_REBUILD.invoke(EventRunners.RUN);
+                PolymerClientUtils.ON_SEARCH_REBUILD.invoker().run();
             });
         }
     }
@@ -299,7 +299,7 @@ public class PolymerClientProtocolHandler {
 
                     if (chunk != null) {
                         ((ClientBlockStorageInterface) chunk).polymer$setClientBlock(pos.getX(), pos.getY(), pos.getZ(), block);
-                        PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(pos, block));
+                        PolymerClientUtils.ON_BLOCK_UPDATE.invoker().accept(pos, block);
 
                         if (block.blockState() != null && PolymerClientDecoded.checkDecode(block.blockState().getBlock())) {
                             chunk.setBlockState(pos, block.blockState());
@@ -336,7 +336,7 @@ public class PolymerClientProtocolHandler {
                                 var y = SectionPos.sectionRelativeY(pos);
                                 var z = SectionPos.sectionRelativeZ(pos);
                                 mutableBlockPos.set(sectionPos.minBlockX() + x, sectionPos.minBlockX() + y, sectionPos.minBlockX() + z);
-                                PolymerClientUtils.ON_BLOCK_UPDATE.invoke(c -> c.accept(mutableBlockPos, block));
+                                PolymerClientUtils.ON_BLOCK_UPDATE.invoker().accept(mutableBlockPos, block);
                                 storage.polymer$setClientBlock(x, y, z, block);
 
                                 if (block.blockState() != null && PolymerClientDecoded.checkDecode(block.blockState().getBlock())) {

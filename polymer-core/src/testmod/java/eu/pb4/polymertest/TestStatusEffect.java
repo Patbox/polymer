@@ -1,6 +1,6 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
+import eu.pb4.polymer.core.api.other.PolymerMobEffect;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -9,7 +9,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-public class TestStatusEffect extends MobEffect implements PolymerStatusEffect {
+public class TestStatusEffect extends MobEffect implements PolymerMobEffect {
     protected TestStatusEffect() {
         super(MobEffectCategory.BENEFICIAL, 110011);
     }

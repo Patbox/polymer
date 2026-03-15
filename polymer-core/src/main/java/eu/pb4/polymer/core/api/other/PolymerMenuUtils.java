@@ -4,14 +4,13 @@ import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.util.Util;
 import net.minecraft.world.inventory.MenuType;
 import java.util.Set;
 
-public final class PolymerScreenHandlerUtils {
+public final class PolymerMenuUtils {
     private static final Set<MenuType<?>> POLYMER_TYPES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
-    private PolymerScreenHandlerUtils() {}
+    private PolymerMenuUtils() {}
 
     public static void registerType(MenuType<?>... types) {
         for (var type : types) {

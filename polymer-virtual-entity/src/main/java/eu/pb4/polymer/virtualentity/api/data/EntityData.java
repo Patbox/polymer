@@ -1,4 +1,4 @@
-package eu.pb4.polymer.virtualentity.api.tracker;
+package eu.pb4.polymer.virtualentity.api.data;
 
 import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Pose;
 
-public class EntityTrackedData {
+public class EntityData {
     public static final EntityDataAccessor<Byte> FLAGS = EntityAccessor.getDATA_SHARED_FLAGS_ID();
     public static final EntityDataAccessor<Integer> FROZEN_TICKS = EntityAccessor.getDATA_TICKS_FROZEN();
     public static final EntityDataAccessor<Boolean> NO_GRAVITY = EntityAccessor.getDATA_NO_GRAVITY();

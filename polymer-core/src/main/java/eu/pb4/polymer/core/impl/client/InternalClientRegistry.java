@@ -1,9 +1,9 @@
 package eu.pb4.polymer.core.impl.client;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.api.client.*;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
@@ -26,6 +26,7 @@ import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.impl.creativetab.FabricCreativeModeTabImpl;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -66,7 +67,7 @@ import java.util.stream.Collectors;
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public class InternalClientRegistry {
-    public static final SimpleEvent<Runnable> TICK = new SimpleEvent<>();
+    public static final Event<Runnable> TICK = EventImplUtils.createRunnableEvent();
     public static final Object2IntMap<String> CLIENT_PROTOCOL = new Object2IntOpenHashMap<>();
     public static final ImplPolymerRegistry<ClientPolymerBlock> BLOCKS = new ImplPolymerRegistry<>("block", "B", ClientPolymerBlock.NONE.identifier(), ClientPolymerBlock.NONE);
     public static final FixedIdList<ClientPolymerBlock.State> BLOCK_STATES = new FixedIdList<>();
@@ -157,7 +158,7 @@ public class InternalClientRegistry {
         CLIENT_PROTOCOL.clear();
         syncRequests = 0;
         syncRequestsPostGameJoin = 0;
-        PolymerClientUtils.ON_DISABLE.invoke(Runnable::run);
+        PolymerClientUtils.ON_DISABLE.invoker().run();
     }
 
     @Nullable
@@ -236,7 +237,7 @@ public class InternalClientRegistry {
         }
 
         DELAYED_ACTIONS.object2ObjectEntrySet().removeIf(stringDelayedActionEntry -> stringDelayedActionEntry.getValue().tryDoing());
-        TICK.invoke(Runnable::run);
+        TICK.invoker().run();
 
         debugServerInfo = "[Polymer] C: " + CommonImpl.VERSION + ", S: " + InternalClientRegistry.serverVersion;
         if (limitedF3) {
@@ -289,7 +290,7 @@ public class InternalClientRegistry {
                 PolymerImpl.LOGGER.warn("Can't update entries of ItemGroups!", e);
             }
         });
-        PolymerClientUtils.ON_CLEAR.invoke(EventRunners.RUN);
+        PolymerClientUtils.ON_CLEAR.invoker().run();
     }
 
     private static final int TABS_PER_PAGE = 10;

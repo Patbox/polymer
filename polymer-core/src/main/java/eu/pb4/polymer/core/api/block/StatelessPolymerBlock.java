@@ -11,7 +11,7 @@ public interface StatelessPolymerBlock extends PolymerBlock {
      *
      * @return Vanilla (or other) Block instance
      */
-    Block getPolymerBlock(BlockState state, PacketContext context);
+    Block getPolymerBlock(BlockState state, @Nullable PacketContext context);
 
     @Override
     default BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {

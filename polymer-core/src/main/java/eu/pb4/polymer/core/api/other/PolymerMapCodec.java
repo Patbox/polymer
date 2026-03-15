@@ -28,11 +28,6 @@ public class PolymerMapCodec<T> extends MapCodec<T> implements PolymerObject {
     private final MapCodec<T> selfCodec;
     private final Transform<T, Object> fallbackValue;
 
-    @Deprecated(forRemoval = true)
-    public <K> PolymerMapCodec(MapCodec<T> selfCodec, MapCodec<K> fallbackCodec, K fallbackValue) {
-        this(selfCodec,  (x, ctx) -> fallbackValue);
-    }
-
     private PolymerMapCodec(MapCodec<T> selfCodec, Transform<T, Object> fallbackValue) {
         this.selfCodec = selfCodec;
         this.fallbackValue = fallbackValue;
@@ -90,18 +85,6 @@ public class PolymerMapCodec<T> extends MapCodec<T> implements PolymerObject {
     @ApiStatus.Internal
     public Object getPolymerReplacement(T data, PacketContext context) {
         return this.fallbackValue.transform(data, context);
-    }
-
-    @ApiStatus.Internal
-    @Deprecated(forRemoval = true)
-    public Object fallbackValue() {
-        return fallbackValue;
-    }
-
-    @ApiStatus.Internal
-    @Deprecated(forRemoval = true)
-    public MapCodec<Object> fallbackCodec() {
-        return MapCodec.unit(Unit.INSTANCE);
     }
 
     @Override

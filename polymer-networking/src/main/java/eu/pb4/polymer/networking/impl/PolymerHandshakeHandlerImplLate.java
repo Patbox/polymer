@@ -87,7 +87,7 @@ public class PolymerHandshakeHandlerImplLate implements PolymerHandshakeHandler 
     @Override
     public void apply(ServerGamePacketListenerImpl handler) {
         // No need to apply, as it applies by default!
-        PolymerServerNetworking.ON_PLAY_SYNC.invoke(x -> x.accept(handler, this));
+        PolymerServerNetworking.ON_PLAY_SYNC.invoker().accept(handler, this);
     }
 
     @Override

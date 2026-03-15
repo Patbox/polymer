@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.mixin.client.compat;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientItemGroup;
 import me.shedaniel.rei.impl.client.fabric.CreativeModeTabCollectorImpl;
 import net.minecraft.world.item.CreativeModeTab;

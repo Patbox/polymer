@@ -25,7 +25,7 @@ public class PlayerListMixin {
             handshake.apply(player.connection);
 
         }
-        PolymerServerNetworking.ON_PLAY_SYNC.invoke(x -> x.accept(player.connection, handshake));
+        PolymerServerNetworking.ON_PLAY_SYNC.invoker().accept(player.connection, handshake);
 
         if (((TempPlayerLoginAttachments) player).polymerNet$getForceRespawnPacket()) {
             var world = player.level();

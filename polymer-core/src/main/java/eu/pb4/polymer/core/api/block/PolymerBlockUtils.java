@@ -1,20 +1,17 @@
 package eu.pb4.polymer.core.api.block;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.api.events.BooleanEvent;
-import eu.pb4.polymer.common.api.events.SimpleEvent;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.ClientboundBlockEntityDataPacketAccessor;
-import net.minecraft.core.HolderLookup;
-import org.jspecify.annotations.Nullable;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
-
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +25,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.Nullable;
+
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public final class PolymerBlockUtils {
     public static final int NESTED_DEFAULT_DISTANCE = 32;
@@ -35,15 +36,47 @@ public final class PolymerBlockUtils {
     /**
      * This event allows you to force server side mining for any block/item
      */
-    public static final BooleanEvent<MineEventListener> SERVER_SIDE_MINING_CHECK = new BooleanEvent<>();
-    public static final SimpleEvent<BreakingProgressListener> BREAKING_PROGRESS_UPDATE = new SimpleEvent<>();
-    public static final BooleanEvent<PolymerBlockInteractionListener> POLYMER_BLOCK_INTERACTION_CHECK = new BooleanEvent<>();
-    public static final BooleanEvent<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = new BooleanEvent<>();
+    public static final Event<MineEventListener> SERVER_SIDE_MINING_CHECK = EventFactory.createArrayBacked(MineEventListener.class, arr ->
+            (state, pos, player) -> {
+                for (var a : arr) {
+                    if (a.onBlockMine(state, pos, player)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+    public static final Event<BreakingProgressListener> BREAKING_PROGRESS_UPDATE = EventFactory.createArrayBacked(BreakingProgressListener.class, arr ->
+            (player, pos, finalState, i) -> {
+                for (var a : arr) {
+                    a.onBreakingProgressUpdate(player, pos, finalState, i);
+                }
+            });
+    public static final Event<PolymerBlockInteractionListener> POLYMER_BLOCK_INTERACTION_CHECK = EventFactory.createArrayBacked(PolymerBlockInteractionListener.class, arr ->
+            (state, player, hand, stack, world, blockHitResult, actionResult) -> {
+                for (var a : arr) {
+                    if (a.isPolymerBlockInteraction(state, player, hand, stack, world, blockHitResult, actionResult)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+    );
+    public static final Event<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = EventFactory.createArrayBacked(PolymerIgnoreSoundExceptionListener.class, arr ->
+            (state, player, hand, stack, world, blockHitResult) -> {
+                for (var a : arr) {
+                    if (a.isIgnoringBlockInteractionPlaySoundExceptedEntity(state, player, hand, stack, world, blockHitResult)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
     /**
      * This event allows you to force syncing of light updates between server and clinet
      */
-    public static final BooleanEvent<BiPredicate<ServerLevel, SectionPos>> SEND_LIGHT_UPDATE_PACKET = new BooleanEvent<>();
+    public static final Event<BiPredicate<ServerLevel, SectionPos>> SEND_LIGHT_UPDATE_PACKET = EventImplUtils.createBiPredicateEvent();
     private static final CompoundTag STATIC_COMPOUND = new CompoundTag();
+
     private PolymerBlockUtils() {
     }
 
@@ -159,7 +192,7 @@ public final class PolymerBlockUtils {
     public static boolean shouldMineServerSide(ServerPlayer player, BlockPos pos, BlockState state) {
         return (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock block && block.handleMiningOnServer(player.getMainHandItem(), state, pos, player))
                 || (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, player.getMainHandItem().getItem()) instanceof PolymerItem item && item.handleMiningOnServer(player.getMainHandItem(), state, pos, player))
-                || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoke((x) -> x.onBlockMine(state, pos, player));
+                || PolymerBlockUtils.SERVER_SIDE_MINING_CHECK.invoker().onBlockMine(state, pos, player);
     }
 
     public static CompoundTag transformBlockEntityNbt(PacketContext context, BlockEntityType<?> type, CompoundTag original, HolderLookup.Provider lookup) {
@@ -176,7 +209,7 @@ public final class PolymerBlockUtils {
             return true;
         }
 
-        return POLYMER_BLOCK_INTERACTION_CHECK.invoke(x -> x.isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult));
+        return POLYMER_BLOCK_INTERACTION_CHECK.invoker().isPolymerBlockInteraction(blockState, player, hand, stack, world, blockHitResult, actionResult);
     }
 
     public static boolean isIgnoringPlaySoundExceptedEntity(ServerPlayer player, ItemStack stack, InteractionHand hand, BlockState state, BlockHitResult blockHitResult, ServerLevel world) {
@@ -186,7 +219,7 @@ public final class PolymerBlockUtils {
             return true;
         }
 
-        return POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY.invoke(x -> x.isIgnoringBlockInteractionPlaySoundExceptedEntity(state, player, hand, stack, world, blockHitResult));
+        return POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY.invoker().isIgnoringBlockInteractionPlaySoundExceptedEntity(state, player, hand, stack, world, blockHitResult);
     }
 
     @FunctionalInterface

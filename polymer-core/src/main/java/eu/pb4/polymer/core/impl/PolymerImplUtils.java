@@ -16,7 +16,6 @@ import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -47,7 +46,7 @@ public class PolymerImplUtils {
     public static final RegistryAccess FALLBACK_LOOKUP = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
     public static Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(PolymerUtils.ID, path);
+        return Identifier.fromNamespaceAndPath("polymer", path);
     }
 
     public static String getAsString(BlockState state) {
@@ -203,7 +202,7 @@ public class PolymerImplUtils {
         return isPolymerControlled(stack);
     }
     public static boolean isPolymerControlled(ItemStack stack) {
-        return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getServerIdentifier(stack) != null;
+        return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null;
     }
 
     public static PolymerTooltipType getTooltipContext(ServerPlayer player) {
@@ -238,7 +237,7 @@ public class PolymerImplUtils {
 
     @Nullable
     public static String getModName(ItemStack stack) {
-        var id = PolymerItemUtils.getServerIdentifier(stack);
+        var id = PolymerItemUtils.getPolymerIdentifier(stack);
         if (id != null) {
             return getModName(id);
         }

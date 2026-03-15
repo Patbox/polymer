@@ -30,7 +30,7 @@ public class RemoteSlotSynchronizedMixin implements GenericPlayerContext {
     private ItemStack polymerifyCheckedStack(ItemStack stack) {
         if (PolymerItemUtils.isServerItem(stack, this.context) && player != null) {
             var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), this.player.registryAccess());
-            PolymerCommonUtils.executeWithNetworkingLogic(player.connection, () -> ItemStack.STREAM_CODEC.encode(buf, stack));
+            PacketContext.runWithContext(player.connection, () -> ItemStack.STREAM_CODEC.encode(buf, stack));
             return ItemStack.STREAM_CODEC.decode(buf);
         }
         return stack;

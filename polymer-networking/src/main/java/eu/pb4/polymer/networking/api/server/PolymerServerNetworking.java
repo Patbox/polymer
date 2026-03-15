@@ -1,8 +1,9 @@
 package eu.pb4.polymer.networking.api.server;
 
 
-import eu.pb4.polymer.common.api.events.SimpleEvent;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.networking.impl.*;
+import net.fabricmc.fabric.api.event.Event;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public final class PolymerServerNetworking {
     private PolymerServerNetworking() {
     }
 
-    public static final SimpleEvent<BiConsumer<ServerGamePacketListenerImpl, PolymerHandshakeHandler>> ON_PLAY_SYNC = new SimpleEvent<>();
+    public static final Event<BiConsumer<ServerGamePacketListenerImpl, PolymerHandshakeHandler>> ON_PLAY_SYNC = EventImplUtils.createBiConsumerEvent();
     public static boolean send(ServerGamePacketListenerImpl handler, CustomPacketPayload payload) {
         handler.send(new ClientboundCustomPayloadPacket(payload));
         return true;

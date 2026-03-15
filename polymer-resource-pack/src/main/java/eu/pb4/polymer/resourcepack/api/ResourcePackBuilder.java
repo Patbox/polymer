@@ -119,23 +119,11 @@ public interface ResourcePackBuilder {
         return data != null ? new String(data, StandardCharsets.UTF_8) : null;
     }
 
-    @Deprecated(forRemoval = true)
-    default void forEachFile(BiConsumer<String, byte[]> consumer) {
-        forEachResource((a, b) -> consumer.accept(a, b.readAllBytes()));
-    }
     void forEachResource(BiConsumer<String, PackResource> consumer);
 
     boolean addAssetsSource(String modId);
 
     void addResourceConverter(ResourceConverter converter);
-
-    @Deprecated(forRemoval = true)
-    default void addWriteConverter(BiFunction<String, byte[], byte @Nullable []> converter) {
-        this.addResourceConverter((path, data) -> {
-            var t = converter.apply(path, data.readAllBytes());
-            return t != null ? PackResource.of(t) : null;
-        });
-    }
 
     void addPreFinishTask(Consumer<ResourcePackBuilder> consumer);
 

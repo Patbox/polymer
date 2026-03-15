@@ -2,7 +2,6 @@ package eu.pb4.polymertest;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
-import eu.pb4.polymer.core.api.utils.PolymerKeepModel;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 

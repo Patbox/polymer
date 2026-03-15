@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.other;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
@@ -25,7 +26,7 @@ public abstract class ServerConfigurationPacketListenerImplMixin extends ServerC
 
     @WrapOperation(method = "handleSelectKnownPacks", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/config/SynchronizeRegistriesTask;handleResponse(Ljava/util/List;Ljava/util/function/Consumer;)V"))
     private void wrapWithContext(SynchronizeRegistriesTask instance, List<KnownPack> clientKnownPacks, Consumer<Packet<?>> sender, Operation<Void> original) {
-        PolymerCommonUtils.executeWithNetworkingLogic(this, () -> {
+        PacketContext.runWithContext(this, () -> {
             original.call(instance, clientKnownPacks, sender);
         });
     }

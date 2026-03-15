@@ -2,14 +2,15 @@ package eu.pb4.polymer.resourcepack.impl.generation;
 
 import com.google.gson.*;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.api.PackResource;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterSectionAccessor;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import org.jetbrains.annotations.ApiStatus;
@@ -35,7 +36,7 @@ import java.util.zip.ZipOutputStream;
 public class DefaultRPBuilder implements InternalRPBuilder {
     public static final Logger LOGGER = LoggerFactory.getLogger(DefaultRPBuilder.class);
     public static final Gson GSON = CommonImpl.GSON;
-    public final SimpleEvent<Consumer<List<String>>> buildEvent = new SimpleEvent<>();
+    public final Event<Consumer<List<String>>> buildEvent = EventImplUtils.createConsumerEvent();
     private final HashMap<String, PackResource> fileMap = new HashMap<>();
     private final OutputGenerator outputGenerator;
     private final Set<ModContainer> modsList = new HashSet<>();
@@ -429,7 +430,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 credits.add("See licenses folder for more information!");
                 credits.add("");
 
-                this.buildEvent.invoke((c) -> c.accept(credits));
+                this.buildEvent.invoker().accept(credits);
                 status.accept("action:update_credits_end");
 
                 boolean bool = true;

@@ -4,6 +4,7 @@
   "package": "eu.pb4.polymer.common.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ArrayBackedEventAccessor",
     "CommandsMixin",
     "ConnectionMixin",
     "LevelAccessor",

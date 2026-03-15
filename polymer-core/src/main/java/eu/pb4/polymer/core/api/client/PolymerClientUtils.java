@@ -1,10 +1,11 @@
 package eu.pb4.polymer.core.api.client;
 
-import eu.pb4.polymer.common.api.events.SimpleEvent;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientEntityExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import org.jspecify.annotations.Nullable;
@@ -22,35 +23,35 @@ public final class PolymerClientUtils {
     /**
      * This event is run after receiving server handshake packet
      */
-    public static final SimpleEvent<Runnable> ON_HANDSHAKE = new SimpleEvent<>();
+    public static final Event<Runnable> ON_HANDSHAKE = EventImplUtils.createRunnableEvent();
     /**
      * This event is run after clearing registries
      */
-    public static final SimpleEvent<Runnable> ON_CLEAR = new SimpleEvent<>();
+    public static final Event<Runnable> ON_CLEAR = EventImplUtils.createRunnableEvent();
     /**
      * This event ir run before Polymer registry sync
      */
-    public static final SimpleEvent<Runnable> ON_SYNC_STARTED = new SimpleEvent<>();
+    public static final Event<Runnable> ON_SYNC_STARTED = EventImplUtils.createRunnableEvent();
     /**
      * This event ir run after Polymer registry sync
      */
-    public static final SimpleEvent<Runnable> ON_SYNC_FINISHED = new SimpleEvent<>();
+    public static final Event<Runnable> ON_SYNC_FINISHED = EventImplUtils.createRunnableEvent();
     /**
      * This event ir run on rebuild of creative search
      */
-    public static final SimpleEvent<Runnable> ON_SEARCH_REBUILD = new SimpleEvent<>();
+    public static final Event<Runnable> ON_SEARCH_REBUILD = EventImplUtils.createRunnableEvent();
     /**
      * This event is before client asks for sync request
      */
-    public static final SimpleEvent<Runnable> ON_SYNC_REQUEST = new SimpleEvent<>();
+    public static final Event<Runnable> ON_SYNC_REQUEST = EventImplUtils.createRunnableEvent();
     /**
      * This event is run after receiving an Polymer block update
      */
-    public static final SimpleEvent<BiConsumer<BlockPos, ClientPolymerBlock.State>> ON_BLOCK_UPDATE = new SimpleEvent<>();
+    public static final Event<BiConsumer<BlockPos, ClientPolymerBlock.State>> ON_BLOCK_UPDATE = EventImplUtils.createBiConsumerEvent();
     /**
      * This event is run when Polymer functionality is disabled (good for clearing)
     */
-    public static final SimpleEvent<Runnable> ON_DISABLE = new SimpleEvent<>();
+    public static final Event<Runnable> ON_DISABLE = EventImplUtils.createRunnableEvent();
 
 
     public static ClientPolymerBlock.State getPolymerStateAt(BlockPos pos) {

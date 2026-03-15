@@ -1,10 +1,9 @@
 package eu.pb4.polymer.core.impl.ui;
 
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -26,12 +25,12 @@ public class CreativeTabUi extends MicroUi {
         if (itemGroup == CreativeModeTabs.searchTab()) {
             var set = ItemStackLinkedSet.createTypeAndComponentsSet();
 
-            for (var group : PolymerItemGroupUtils.getItemGroups(player)) {
-                set.addAll(PolymerItemGroupUtils.getContentsFor(player, group).search());
+            for (var group : PolymerCreativeModeTabUtils.getCreativeModeTabs(player)) {
+                set.addAll(PolymerCreativeModeTabUtils.getContentsFor(player, group).search());
             }
             this.items.addAll(set);
         } else {
-            this.items.addAll(PolymerItemGroupUtils.getContentsFor(player, itemGroup).main());
+            this.items.addAll(PolymerCreativeModeTabUtils.getContentsFor(player, itemGroup).main());
         }
         this.page = 0;
         this.drawUi();

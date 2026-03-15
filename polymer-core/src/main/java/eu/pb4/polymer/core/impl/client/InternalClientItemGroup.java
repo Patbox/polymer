@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.client;
 
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import eu.pb4.polymer.core.api.utils.PolymerObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.CreativeModeTabExtra;
@@ -36,7 +36,7 @@ public class InternalClientItemGroup extends CreativeModeTab implements PolymerO
 
 
     @Override
-    public PolymerItemGroupUtils.Contents polymer$getContentsWith(Identifier id, FeatureFlagSet enabledFeatures, boolean operatorEnabled, HolderLookup.Provider lookup) {
+    public PolymerCreativeModeTabUtils.Contents polymer$getContentsWith(Identifier id, FeatureFlagSet enabledFeatures, boolean operatorEnabled, HolderLookup.Provider lookup) {
         return null;
     }
 

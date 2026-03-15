@@ -1,11 +1,11 @@
 package eu.pb4.polymer.resourcepack.api;
 
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,9 +33,9 @@ public final class PolymerResourcePackUtils {
 
     private static final ResourcePackCreator INSTANCE = new ResourcePackCreator();
 
-    public static final SimpleEvent<Consumer<ResourcePackBuilder>> RESOURCE_PACK_CREATION_EVENT = INSTANCE.creationEvent;
-    public static final SimpleEvent<Consumer<ResourcePackBuilder>> RESOURCE_PACK_AFTER_INITIAL_CREATION_EVENT = INSTANCE.afterInitialCreationEvent;
-    public static final SimpleEvent<Runnable> RESOURCE_PACK_FINISHED_EVENT = INSTANCE.finishedEvent;
+    public static final Event<Consumer<ResourcePackBuilder>> RESOURCE_PACK_CREATION_EVENT = INSTANCE.creationEvent;
+    public static final Event<Consumer<ResourcePackBuilder>> RESOURCE_PACK_AFTER_INITIAL_CREATION_EVENT = INSTANCE.afterInitialCreationEvent;
+    public static final Event<Runnable> RESOURCE_PACK_FINISHED_EVENT = INSTANCE.finishedEvent;
     private static boolean REQUIRED = PolymerResourcePackImpl.FORCE_REQUIRE;
     private static boolean DEFAULT_CHECK = true;
 

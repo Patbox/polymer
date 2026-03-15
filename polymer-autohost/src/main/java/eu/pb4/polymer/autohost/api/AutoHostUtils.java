@@ -1,20 +1,26 @@
 package eu.pb4.polymer.autohost.api;
 
 import eu.pb4.polymer.autohost.impl.AutoHost;
-import eu.pb4.polymer.common.api.events.SimpleEvent;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
 public class AutoHostUtils {
-    private AutoHostUtils() {}
-
     public static Identifier DEFAULT_PACK_ID = Identifier.fromNamespaceAndPath("polymer", "resources");
+    public static Event<SendResourcePackCollector> SEND_RESOURCE_PACK_COLLECTOR = EventFactory.createArrayBacked(SendResourcePackCollector.class, arr ->
+            (provider, context, consumer) -> {
+                for (var a : arr) {
+                    a.collectSendResourcePacks(provider, context, consumer);
+                }
+            });
 
-    public static SimpleEvent<SendResourcePackCollector> SEND_RESOURCE_PACK_COLLECTOR = new SimpleEvent<>();
+    private AutoHostUtils() {
+    }
 
     public static String registerHostedFile(Identifier identifier, Path path) {
         var string = getPathFromId(identifier);

@@ -8,10 +8,6 @@ import com.mojang.datafixers.util.Either;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.api.ScopedOverride;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.core.api.item.PolymerItemUtils;
-import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
@@ -20,9 +16,7 @@ import eu.pb4.polymer.core.mixin.StaticAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ServerMapAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerLevelAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.Identifier;
@@ -32,9 +26,6 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +33,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -52,7 +42,6 @@ import java.util.*;
  * General use case utils that can be useful in multiple situations
  */
 public final class PolymerUtils {
-    public static final String ID = "polymer";
     public static final String NO_TEXTURE_HEAD_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGUyY2UzMzcyYTNhYzk3ZmRkYTU2MzhiZWYyNGIzYmM0OWY0ZmFjZjc1MWZlOWNhZDY0NWYxNWE3ZmI4Mzk3YyJ9fX0=";
     private static final Set<FeatureFlag> ENABLED_FEATURE_FLAGS = new HashSet<>();
     private static final Set<ResourceKey<? extends Registry<?>>> SERVER_ONLY_REGISTRIES = new HashSet<>();
@@ -149,6 +138,7 @@ public final class PolymerUtils {
     public static ResolvableProfile createProfileComponent(String value) {
         return createProfileComponent(value, null);
     }
+
     public static ResolvableProfile createProfileComponent(String value, @Nullable String signature) {
         var profile = new PropertyMap(ImmutableMultimap.of("textures", new Property("textures", value, signature)));
         return ResolvableProfile.createResolved(new GameProfile(Util.NIL_UUID, "", profile));
@@ -178,21 +168,8 @@ public final class PolymerUtils {
         return PolymerCommonUtils.getClientJar();
     }
 
-    @SuppressWarnings("unchecked")
-    @Deprecated(forRemoval = true)
-    public static boolean isServerOnly(Object obj) {
-        return obj instanceof PolymerObject
-                || (obj instanceof ItemStack stack && PolymerItemUtils.isPolymerServerItem(stack))
-                || (obj instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type))
-                || (obj instanceof BlockEntityType<?> typeBE && PolymerBlockUtils.isPolymerBlockEntityType(typeBE))
-                || (obj instanceof Holder<?> entry && (
-                        (entry.value() instanceof Attribute && PolymerEntityUtils.isPolymerEntityAttribute((Holder<Attribute>) entry))))
-                || (obj instanceof DataComponentType<?> componentType && PolymerComponent.isPolymerComponent(componentType))
-                || (obj instanceof VillagerProfession villagerProfession && PolymerEntityUtils.getPolymerProfession(villagerProfession) != null);
-    }
-
     public static <T> boolean isServerOnly(Registry<T> registry, T obj) {
-        return RegistrySyncUtils.isServerEntry(registry, obj) || isServerOnly(obj);
+        return RegistrySyncUtils.isServerEntry(registry, obj);
     }
 
     public static boolean hasResourcePack(@Nullable ServerPlayer player, UUID uuid) {

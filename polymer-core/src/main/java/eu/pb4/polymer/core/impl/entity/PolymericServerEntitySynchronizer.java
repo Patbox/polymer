@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl.entity;
 
-import eu.pb4.polymer.core.api.entity.PolymerTrackerPacketSender;
+import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import eu.pb4.polymer.core.api.entity.PolymerServerEntitySynchronizer;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 
 import java.util.Set;
@@ -13,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
 
-public record DirectTrackerPacketSender(ServerEntity.Synchronizer tracker, Supplier<Set<ServerPlayerConnection>> listenerSupplier, Entity entity) implements PolymerTrackerPacketSender {
+public record PolymericServerEntitySynchronizer(ServerEntity.Synchronizer tracker, Supplier<Set<ServerPlayerConnection>> listenerSupplier, Entity entity, PolymerEntity polymerEntity) implements PolymerServerEntitySynchronizer {
     @Override
     public Set<ServerPlayerConnection> listeners() {
         return listenerSupplier.get();
@@ -21,16 +22,19 @@ public record DirectTrackerPacketSender(ServerEntity.Synchronizer tracker, Suppl
 
     @Override
     public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {
-        this.tracker.sendToTrackingPlayers(EntityAttachedPacket.setIfEmpty(packet, entity));
+        //noinspection unchecked
+        polymerEntity.onEntityPacketSent(x -> this.tracker.sendToTrackingPlayers((Packet<? super ClientGamePacketListener>) EntityAttachedPacket.setIfEmpty(x, entity)), packet);
     }
 
     @Override
     public void sendToTrackingPlayersAndSelf(Packet<? super ClientGamePacketListener> packet) {
-        this.tracker.sendToTrackingPlayersAndSelf(EntityAttachedPacket.setIfEmpty(packet, entity));
+        //noinspection unchecked
+        polymerEntity.onEntityPacketSent(x -> this.tracker.sendToTrackingPlayersAndSelf((Packet<? super ClientGamePacketListener>) EntityAttachedPacket.setIfEmpty(x, entity)), packet);
     }
 
     @Override
     public void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate) {
-        this.tracker.sendToTrackingPlayersFiltered(EntityAttachedPacket.setIfEmpty(packet, entity), predicate);
+        //noinspection unchecked
+        polymerEntity.onEntityPacketSent(x -> this.tracker.sendToTrackingPlayersFiltered((Packet<? super ClientGamePacketListener>) EntityAttachedPacket.setIfEmpty(x, entity), predicate), packet);
     }
 }

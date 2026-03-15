@@ -1,12 +1,12 @@
 package eu.pb4.polymer.core.api.item;
 
-import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.core.api.utils.PolymerRegistry;
 import eu.pb4.polymer.core.impl.InternalServerRegistry;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.CreativeModeTabExtra;
-import java.util.*;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -18,20 +18,27 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.*;
+
 
 /**
  * A server side item group that can be synchronized with polymer clients
  * It also has its own server side functionality
  */
-public final class PolymerItemGroupUtils {
+public final class PolymerCreativeModeTabUtils {
     public static final PolymerRegistry<CreativeModeTab> REGISTRY = InternalServerRegistry.ITEM_GROUPS;
     /**
      * Even called on synchronization of ItemGroups
      */
-    public static final SimpleEvent<ItemGroupEventListener> LIST_EVENT = new SimpleEvent<>();
-    private static final Map<ItemGroupKey, Contents> CONTENT_CACHE = new HashMap<>();
+    public static final Event<CreativeModeTabEventListener> LIST_EVENT = EventFactory.createArrayBacked(CreativeModeTabEventListener.class, arr ->
+            (player, builder) -> {
+                for (var a : arr) {
+                    a.onCreativeModeTabGet(player, builder);
+                }
+            });
+    private static final Map<CreativeModeTabKey, Contents> CONTENT_CACHE = new HashMap<>();
 
-    private PolymerItemGroupUtils() {
+    private PolymerCreativeModeTabUtils() {
     }
 
     public static Contents getContentsFor(ServerPlayer player, CreativeModeTab group) {
@@ -39,11 +46,11 @@ public final class PolymerItemGroupUtils {
     }
 
     public static Contents getContentsFor(CreativeModeTab group, HolderLookup.Provider lookup, FeatureFlagSet featureSet, boolean operator) {
-        var key = new ItemGroupKey(getId(group), operator);
+        var key = new CreativeModeTabKey(getId(group), operator);
         var value = CONTENT_CACHE.get(key);
         if (value == null) {
             try {
-                 value = ((CreativeModeTabExtra) group).polymer$getContentsWith(getId(group), featureSet, operator, lookup);
+                value = ((CreativeModeTabExtra) group).polymer$getContentsWith(getId(group), featureSet, operator, lookup);
             } catch (Throwable t) {
                 // Some mods use client classes in their item groups because vanilla doesn't call them on the server anymore
                 // Catch instead of letting the game crash, even though it's their fault...
@@ -58,7 +65,7 @@ public final class PolymerItemGroupUtils {
     /**
      * Returns list of ItemGroups accessible by player
      */
-    public static List<CreativeModeTab> getItemGroups(ServerPlayer player) {
+    public static List<CreativeModeTab> getCreativeModeTabs(ServerPlayer player) {
         var list = new LinkedHashSet<CreativeModeTab>();
 
         for (var g : CreativeModeTabs.allTabs()) {
@@ -81,7 +88,7 @@ public final class PolymerItemGroupUtils {
             }
         }
 
-        var sync = new PolymerItemGroupUtils.ItemGroupListBuilder() {
+        var sync = new CreativeModeTabListBuilder() {
             @Override
             public void add(CreativeModeTab group) {
                 list.add(group);
@@ -93,12 +100,12 @@ public final class PolymerItemGroupUtils {
             }
         };
 
-        PolymerItemGroupUtils.LIST_EVENT.invoke((x) -> x.onItemGroupGet(player, sync));
+        PolymerCreativeModeTabUtils.LIST_EVENT.invoker().onCreativeModeTabGet(player, sync);
 
         return new ArrayList<>(list);
     }
 
-    public static boolean isPolymerItemGroup(CreativeModeTab group) {
+    public static boolean isPolymerCreativeModeTab(CreativeModeTab group) {
         return InternalServerRegistry.ITEM_GROUPS.containsEntry(group);
     }
 
@@ -106,22 +113,24 @@ public final class PolymerItemGroupUtils {
         return new CreativeModeTab.Builder(CreativeModeTab.Row.BOTTOM, -1);
     }
 
-    public static void registerPolymerItemGroup(Identifier identifier, CreativeModeTab group) {
+    public static void registerPolymerCreativeModeTab(Identifier identifier, CreativeModeTab group) {
         if (BuiltInRegistries.CREATIVE_MODE_TAB.containsKey(identifier)) {
-            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered in vanilla registry!", identifier);
+            PolymerImpl.LOGGER.warn("Creative Mode Tab '{}' is already registered in vanilla registry!", identifier);
         } else if (contains(identifier)) {
-            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered under the same id!", identifier);
-        } else if (isPolymerItemGroup(group)) {
-            PolymerImpl.LOGGER.warn("ItemGroup '{}' is already registered as '{}'! ", identifier, REGISTRY.getId(group));
+            PolymerImpl.LOGGER.warn("Creative Mode Tab  '{}' is already registered under the same id!", identifier);
+        } else if (isPolymerCreativeModeTab(group)) {
+            PolymerImpl.LOGGER.warn("Creative Mode Tab  '{}' is already registered as '{}'! ", identifier, REGISTRY.getId(group));
         } else {
             InternalServerRegistry.ITEM_GROUPS.set(identifier, group);
         }
     }
 
-    public static Boolean contains(Identifier identifier) { return InternalServerRegistry.ITEM_GROUPS.contains(identifier); }
+    public static Boolean contains(Identifier identifier) {
+        return InternalServerRegistry.ITEM_GROUPS.contains(identifier);
+    }
 
-    public static void registerPolymerItemGroup(ResourceKey<CreativeModeTab> identifier, CreativeModeTab group) {
-        registerPolymerItemGroup(identifier.identifier(), group);
+    public static void registerPolymerCreativeModeTab(ResourceKey<CreativeModeTab> identifier, CreativeModeTab group) {
+        registerPolymerCreativeModeTab(identifier.identifier(), group);
     }
 
     public static Identifier getId(CreativeModeTab group) {
@@ -142,16 +151,16 @@ public final class PolymerItemGroupUtils {
         return ResourceKey.create(Registries.CREATIVE_MODE_TAB, x);
     }
 
-    public static void invalidateItemGroupCache() {
+    public static void invalidateCache() {
         CONTENT_CACHE.clear();
     }
 
     @FunctionalInterface
-    public interface ItemGroupEventListener {
-        void onItemGroupGet(ServerPlayer player, ItemGroupListBuilder builder);
+    public interface CreativeModeTabEventListener {
+        void onCreativeModeTabGet(ServerPlayer player, CreativeModeTabListBuilder builder);
     }
 
-    public interface ItemGroupListBuilder {
+    public interface CreativeModeTabListBuilder {
         void add(CreativeModeTab group);
 
         void remove(CreativeModeTab group);
@@ -160,5 +169,6 @@ public final class PolymerItemGroupUtils {
     public record Contents(Collection<ItemStack> main, Collection<ItemStack> search) {
     }
 
-    private record ItemGroupKey(Identifier identifier, boolean operator) {}
+    private record CreativeModeTabKey(Identifier identifier, boolean operator) {
+    }
 }

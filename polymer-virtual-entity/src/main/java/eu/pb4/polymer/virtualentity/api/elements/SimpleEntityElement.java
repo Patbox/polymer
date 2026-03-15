@@ -1,7 +1,7 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
-import eu.pb4.polymer.virtualentity.api.tracker.DataTrackerLike;
-import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker;
+import eu.pb4.polymer.virtualentity.api.data.SynchedEntityDataLike;
+import eu.pb4.polymer.virtualentity.api.data.SimpleSynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
@@ -25,11 +25,11 @@ public class SimpleEntityElement extends GenericEntityElement {
     }
 
     @Override
-    protected DataTrackerLike createDataTracker() {
+    protected SynchedEntityDataLike createDataTracker() {
         if (this.type != null) {
             return super.createDataTracker();
         } else {
-            return new SimpleDataTracker(LOCAL_TYPE.get());
+            return new SimpleSynchedEntityData(LOCAL_TYPE.get());
         }
     }
 

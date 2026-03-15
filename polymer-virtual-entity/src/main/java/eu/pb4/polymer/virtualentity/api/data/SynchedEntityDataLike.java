@@ -1,4 +1,4 @@
-package eu.pb4.polymer.virtualentity.api.tracker;
+package eu.pb4.polymer.virtualentity.api.data;
 
 import eu.pb4.polymer.common.mixin.SyncedEntityDataAccessor;
 import org.jspecify.annotations.Nullable;
@@ -8,7 +8,7 @@ import java.util.List;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 
-public interface DataTrackerLike {
+public interface SynchedEntityDataLike {
     @Nullable
     <T> T get(EntityDataAccessor<T> data);
 
@@ -30,8 +30,8 @@ public interface DataTrackerLike {
     @Nullable
     List<SynchedEntityData.DataValue<?>> getChangedEntries();
 
-    static DataTrackerLike wrap(SynchedEntityData dataTracker) {
-        return new DataTrackerLike() {
+    static SynchedEntityDataLike wrap(SynchedEntityData dataTracker) {
+        return new SynchedEntityDataLike() {
             @Override
             public <T> @Nullable T get(EntityDataAccessor<T> data) {
                 return dataTracker.get(data);

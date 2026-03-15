@@ -5,6 +5,7 @@ import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.ProxyEvent;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
@@ -34,14 +35,16 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
 
         this.isPackReady = false;
 
-        this.eventA = PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.registerRet((x) -> {
-            isPackReady = false;
-        });
+        // Todo
+        //this.eventA = ProxyEvent.of(PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT).registerRet((x) -> {
+        //    isPackReady = false;
+        //});
 
-        this.eventB = PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.registerRet(() -> {
-            updateHash();
-            isPackReady = true;
-        });
+        // Todo
+        //this.eventB = PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.registerRet(() -> {
+        //    updateHash();
+        //    isPackReady = true;
+        //});
 
         try {
             PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendSystemMessage, () -> {});
@@ -52,8 +55,9 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
 
     @Override
     public void serverStopped(MinecraftServer server) {
-        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.unregister(this.eventA);
-        PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.unregister(this.eventB);
+        // Todo
+        //PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.unregister(this.eventA);
+        //PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.unregister(this.eventB);
     }
 
     protected boolean updateHash() {
@@ -78,7 +82,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
         var context = connection.getPacketContext();
 
         list.add(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.getMainFilePath(context), this.hash));
-        AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.invoke(x -> x.collectSendResourcePacks(this, context, list::add));
+        AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.invoker().collectSendResourcePacks(this, context, list::add);
         return list;
     }
 

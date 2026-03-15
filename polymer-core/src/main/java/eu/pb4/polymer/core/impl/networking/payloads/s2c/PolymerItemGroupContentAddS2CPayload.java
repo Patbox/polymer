@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.networking.payloads.s2c;
 
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
@@ -26,9 +26,9 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
         List<Entry> entryMain;
         List<Entry> entrySearch;
 
-        var contents = PolymerItemGroupUtils.getContentsFor(handler.player, group);
+        var contents = PolymerCreativeModeTabUtils.getContentsFor(handler.player, group);
 
-        if (PolymerItemGroupUtils.isPolymerItemGroup(group)) {
+        if (PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group)) {
             entryMain = List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, List.copyOf(contents.main())));
             entrySearch = List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, List.copyOf(contents.search())));
         } else if (version == 9) {
@@ -59,7 +59,7 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
             groupEntries(entrySearch, contents.search(), ctx);
         }
 
-        return new PolymerItemGroupContentAddS2CPayload(PolymerItemGroupUtils.getId(group), entryMain, entrySearch);
+        return new PolymerItemGroupContentAddS2CPayload(PolymerCreativeModeTabUtils.getId(group), entryMain, entrySearch);
     }
 
     private static void groupEntries(List<Entry> entry, Collection<ItemStack> main, PacketContext ctx) {

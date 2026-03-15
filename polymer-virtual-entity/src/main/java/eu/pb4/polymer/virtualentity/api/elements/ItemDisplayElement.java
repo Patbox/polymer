@@ -1,6 +1,6 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
-import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
+import eu.pb4.polymer.virtualentity.api.data.DisplayEntityData;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -19,28 +19,19 @@ public class ItemDisplayElement extends DisplayElement {
     }
 
     public void setItem(ItemStack stack) {
-        this.dataTracker.set(DisplayTrackedData.Item.ITEM, stack);
+        this.dataTracker.set(DisplayEntityData.Item.ITEM, stack);
     }
 
     public ItemStack getItem() {
-        return this.dataTracker.get(DisplayTrackedData.Item.ITEM);
+        return this.dataTracker.get(DisplayEntityData.Item.ITEM);
     }
 
     public void setItemDisplayContext(ItemDisplayContext mode) {
-        this.dataTracker.set(DisplayTrackedData.Item.ITEM_DISPLAY, mode.getId());
+        this.dataTracker.set(DisplayEntityData.Item.ITEM_DISPLAY, mode.getId());
     }
     public ItemDisplayContext getItemDisplayContext() {
         //noinspection DataFlowIssue
-        return ItemDisplayContext.BY_ID.apply(this.dataTracker.get(DisplayTrackedData.Item.ITEM_DISPLAY));
-    }
-
-    @Deprecated(forRemoval = true)
-    public void setModelTransformation(ItemDisplayContext mode) {
-        setItemDisplayContext(mode);
-    }
-    @Deprecated(forRemoval = true)
-    public ItemDisplayContext getModelTransformation() {
-        return getItemDisplayContext();
+        return ItemDisplayContext.BY_ID.apply(this.dataTracker.get(DisplayEntityData.Item.ITEM_DISPLAY));
     }
 
     @Override

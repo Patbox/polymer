@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.function.BiFunction;
 
 public class TestInitializer implements ModInitializer {
-    //public static final PolymerItemGroupUtils ITEM_GROUP = PolymerItemGroupUtils.create(Identifier.of("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
+    //public static final PolymerCreativeModeTabUtils ITEM_GROUP = PolymerCreativeModeTabUtils.create(Identifier.of("test/textured_blocks"), Text.literal("Textured blocks"), () -> new ItemStack(Items.BAMBOO));
 
     @Override
     public void onInitialize() {

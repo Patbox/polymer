@@ -1,7 +1,7 @@
 package eu.pb4.polymertest;
 
 import eu.pb4.polymer.virtualentity.api.elements.GenericEntityElement;
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
+import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import org.apache.commons.lang3.function.Consumers;
 
 import java.util.List;
@@ -23,9 +23,9 @@ public class LeadAttachmentElement extends GenericEntityElement {
     private final float scale;
 
     public LeadAttachmentElement(float v) {
-        this.dataTracker.set(EntityTrackedData.SILENT, true);
-        this.dataTracker.set(EntityTrackedData.NO_GRAVITY, true);
-        this.dataTracker.set(EntityTrackedData.FLAGS, (byte) ((1 << EntityTrackedData.INVISIBLE_FLAG_INDEX)));
+        this.dataTracker.set(EntityData.SILENT, true);
+        this.dataTracker.set(EntityData.NO_GRAVITY, true);
+        this.dataTracker.set(EntityData.FLAGS, (byte) ((1 << EntityData.INVISIBLE_FLAG_INDEX)));
         this.scale = v;
     }
 

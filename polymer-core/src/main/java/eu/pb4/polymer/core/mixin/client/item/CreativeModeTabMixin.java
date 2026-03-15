@@ -9,12 +9,10 @@ import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerItemGroupContentA
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
@@ -91,7 +89,7 @@ public abstract class CreativeModeTabMixin implements ClientCreativeModeTabExten
                     boolean found = false;
                     for (int i = 0; i < set.size() - 1; i++) {
                         var stack = set.get(i);
-                        if (PolymerItemUtils.getServerIdentifier(stack) == null && ItemStack.isSameItemSameComponents(stack, entry.relative())) {
+                        if (PolymerItemUtils.getPolymerIdentifier(stack) == null && ItemStack.isSameItemSameComponents(stack, entry.relative())) {
                             found = true;
                             set.addAll(i + 1, entry.stacks());
                             break;
@@ -99,12 +97,12 @@ public abstract class CreativeModeTabMixin implements ClientCreativeModeTabExten
                     }
 
                     if (!found) {
-                        if (PolymerItemUtils.getServerIdentifier(set.getLast()) == null && ItemStack.isSameItemSameComponents(set.getLast(), entry.relative())) {
+                        if (PolymerItemUtils.getPolymerIdentifier(set.getLast()) == null && ItemStack.isSameItemSameComponents(set.getLast(), entry.relative())) {
                             set.addAll(entry.stacks());
                         } else {
                             for (int i = 0; i < set.size() - 1; i++) {
                                 var stack = set.get(i);
-                                if (PolymerItemUtils.getServerIdentifier(stack) == null && ItemStack.isSameItem(stack, entry.relative())) {
+                                if (PolymerItemUtils.getPolymerIdentifier(stack) == null && ItemStack.isSameItem(stack, entry.relative())) {
                                     found = true;
                                     set.addAll(i + 1, entry.stacks());
                                     break;

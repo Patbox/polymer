@@ -91,7 +91,7 @@ public class ClientPacketRegistry {
             ext.polymerNet$setVersion("");
         }
 
-        PolymerClientNetworking.AFTER_DISABLE.invoke(Runnable::run);
+        PolymerClientNetworking.AFTER_DISABLE.invoker().run();
     }
 
     public static void handleMetadata(Minecraft client, ClientCommonPacketListenerImpl handler, MetadataPayload payload) {
@@ -104,7 +104,7 @@ public class ClientPacketRegistry {
         ext.polymerNet$getMetadataMap().clear();
         ext.polymerNet$getMetadataMap().putAll(payload.map());
 
-        PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoke(Runnable::run);
+        PolymerClientNetworking.AFTER_METADATA_RECEIVED.invoker().run();
     }
 
     public static void handleHandshake(Minecraft client, ClientCommonPacketListenerImpl handler, HandshakePayload payload) {
@@ -119,13 +119,13 @@ public class ClientPacketRegistry {
         ext.polymerNet$getSupportMap().putAll(CLIENT_PROTOCOL);
         ext.polymerNet$setVersion(lastVersion);
 
-        PolymerClientNetworking.AFTER_HANDSHAKE_RECEIVED.invoke(Runnable::run);
+        PolymerClientNetworking.AFTER_HANDSHAKE_RECEIVED.invoker().run();
         sendMetadata(handler);
     }
 
     private static void sendMetadata(ClientCommonPacketListenerImpl handler) {
         try {
-            PolymerClientNetworking.BEFORE_METADATA_SYNC.invoke(Runnable::run);
+            PolymerClientNetworking.BEFORE_METADATA_SYNC.invoker().run();
             handler.send(new ServerboundCustomPayloadPacket(new MetadataPayload(METADATA)));
         } catch (Throwable e) {
             e.printStackTrace();

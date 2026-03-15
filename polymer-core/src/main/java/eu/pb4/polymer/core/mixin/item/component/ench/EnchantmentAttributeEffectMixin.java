@@ -15,6 +15,6 @@ public class EnchantmentAttributeEffectMixin implements PolymericObject {
 
     @Override
     public boolean polymer$isPolymeric() {
-        return PolymerEntityUtils.isPolymerEntityAttribute(this.attribute);
+        return PolymerEntityUtils.isPolymerAttribute(this.attribute);
     }
 }

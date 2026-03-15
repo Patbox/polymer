@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.ui;
 
-import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
+import eu.pb4.polymer.core.api.other.PolymerMobEffect;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -8,7 +8,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -40,7 +39,7 @@ public class PotionUi extends MicroUi {
                 return;
             }
             ItemStack icon;
-            if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, effectInstance.getEffect().value()) instanceof PolymerStatusEffect polymerStatusEffect) {
+            if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.MOB_EFFECT, effectInstance.getEffect().value()) instanceof PolymerMobEffect polymerStatusEffect) {
                 icon = polymerStatusEffect.getPolymerIcon(effectInstance.getEffect().value(), this.player);
                 if (icon == null) {
                     continue;

@@ -41,15 +41,15 @@ public class CompatUtils {
 
     @Nullable
     public static Map<Identifier, Tag> getBackingComponents(ItemStack stack) {
-        return PolymerItemUtils.getServerComponents(stack);
+        return PolymerItemUtils.getPolymerComponents(stack);
     }
 
     public static boolean isServerSide(ItemStack stack) {
-        return PolymerItemUtils.getServerIdentifier(stack) != null;
+        return PolymerItemUtils.getPolymerIdentifier(stack) != null;
     }
 
     public static boolean isServerSide(@Nullable CustomData component) {
-        return PolymerItemUtils.getServerIdentifier(component) != null;
+        return PolymerItemUtils.getPolymerIdentifier(component) != null;
     }
 
     @Nullable
@@ -57,7 +57,7 @@ public class CompatUtils {
         return getKey(stack.get(DataComponents.CUSTOM_DATA));
     }
     public static Object getKey(@Nullable CustomData component) {
-        var id = PolymerItemUtils.getServerIdentifier(component);
+        var id = PolymerItemUtils.getPolymerIdentifier(component);
         if (id == null) {
             return null;
         }
@@ -70,7 +70,7 @@ public class CompatUtils {
     }
 
     private static Identifier getItemId(Object item, @Nullable CustomData nbtComponent) {
-        var id = PolymerItemUtils.getServerIdentifier(nbtComponent);
+        var id = PolymerItemUtils.getPolymerIdentifier(nbtComponent);
 
         if (id == null && item instanceof Item item1) {
             return item1.builtInRegistryHolder().key().identifier();
@@ -97,7 +97,7 @@ public class CompatUtils {
     }
 
     public static Identifier getId(@Nullable CustomData nbt) {
-        return PolymerItemUtils.getServerIdentifier(nbt);
+        return PolymerItemUtils.getPolymerIdentifier(nbt);
     }
 }
 

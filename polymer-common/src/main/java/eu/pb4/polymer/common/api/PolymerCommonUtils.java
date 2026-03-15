@@ -1,11 +1,12 @@
 package eu.pb4.polymer.common.api;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.common.impl.client.ClientUtils;
 import eu.pb4.polymer.common.impl.compat.FloodGateUtils;
 import eu.pb4.polymer.common.impl.compat.ViaVersionUtils;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
@@ -30,7 +31,11 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public final class PolymerCommonUtils {
-    public static final SimpleEvent<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = new SimpleEvent<>();
+    public static final Event<ResourcePackChangeCallback> ON_RESOURCE_PACK_STATUS_CHANGE = EventFactory.createArrayBacked(ResourcePackChangeCallback.class, arr -> (handler, uuid, oldStatus, newStatus) -> {
+        for (var c : arr) {
+            c.onResourcePackChange(handler, uuid, oldStatus, newStatus);
+        }
+    });
     private static final ThreadLocal<LogicOverride> FORCE_NETWORKING = ThreadLocal.withInitial(() -> LogicOverride.DEFAULT);
     private final static String SAFE_CLIENT_SHA1 = "93079d0d5608af9e10283be6be89b67a772d0c8f";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
@@ -115,46 +120,7 @@ public final class PolymerCommonUtils {
         }
     }
 
-    public static void executeWithNetworkingLogic(Runnable runnable) {
-        var val = FORCE_NETWORKING.get();
-        try {
-            FORCE_NETWORKING.set(LogicOverride.TRUE);
-            runnable.run();
-        } finally {
-            FORCE_NETWORKING.set(val);
-        }
-    }
-
-    public static void executeWithNetworkingLogic(PacketListener listener, Runnable runnable) {
-        var val = FORCE_NETWORKING.get();
-        try {
-            FORCE_NETWORKING.set(LogicOverride.TRUE);
-            if (listener instanceof PacketContextProvider provider) {
-                PacketContext.runWithContext(provider, runnable);
-            }
-        } finally {
-            FORCE_NETWORKING.set(val);
-        }
-    }
-
-    public static void executeWithoutNetworkingLogic(Runnable runnable) {
-        var val = FORCE_NETWORKING.get();
-        try {
-            FORCE_NETWORKING.set(LogicOverride.FALSE);
-            // Todo: PR something to fabric api for this!
-            //noinspection NonExtendableApiUsage,NullableProblems
-            PacketContext.runWithContext(new PacketContextProvider() {
-                @Override
-                public PacketContext getPacketContext() {
-                    //noinspection DataFlowIssue
-                    return null;
-                }
-            }, runnable);
-        } finally {
-            FORCE_NETWORKING.set(val);
-        }
-    }
-
+    @Deprecated(forRemoval = true)
     public static <T> T executeWithNetworkingLogic(Supplier<T> supplier) {
         var val = FORCE_NETWORKING.get();
         try {
@@ -165,16 +131,7 @@ public final class PolymerCommonUtils {
         }
     }
 
-    public static <T> T executeWithNetworkingLogic(PacketListener listener, Supplier<T> supplier) {
-        var val = FORCE_NETWORKING.get();
-        try {
-            FORCE_NETWORKING.set(LogicOverride.TRUE);
-            return PacketContext.supplyWithContext((PacketContextProvider) listener, supplier);
-        } finally {
-            FORCE_NETWORKING.set(val);
-        }
-    }
-
+    @Deprecated(forRemoval = true)
     public static <T> T executeWithoutNetworkingLogic(Supplier<T> supplier) {
         var val = FORCE_NETWORKING.get();
         try {

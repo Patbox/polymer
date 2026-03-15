@@ -17,7 +17,7 @@ public abstract class AttributeMixin {
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Registry;holderByNameCodec()Lcom/mojang/serialization/Codec;"))
     private static Codec<Holder<Attribute>> patchCodec(Codec<Holder<Attribute>> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThread() && PolymerEntityUtils.isPolymerEntityAttribute(content)) {
+            if (PolymerCommonUtils.isServerNetworkingThread() && PolymerEntityUtils.isPolymerAttribute(content)) {
                 return Attributes.SPAWN_REINFORCEMENTS_CHANCE;
             }
             return content;

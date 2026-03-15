@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.ui;
 
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class CreativeTabListUi extends MicroUi {
         super(6);
         this.title(Component.literal("Creative Item Groups"));
         this.items = new ArrayList<>();
-        this.items.addAll(PolymerItemGroupUtils.getItemGroups(player));
+        this.items.addAll(PolymerCreativeModeTabUtils.getCreativeModeTabs(player));
         this.page = 0;
         this.drawUi();
 

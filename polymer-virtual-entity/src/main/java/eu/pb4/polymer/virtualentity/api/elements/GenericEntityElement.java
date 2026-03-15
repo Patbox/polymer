@@ -1,9 +1,9 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
-import eu.pb4.polymer.virtualentity.api.tracker.DataTrackerLike;
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker;
+import eu.pb4.polymer.virtualentity.api.data.SynchedEntityDataLike;
+import eu.pb4.polymer.virtualentity.api.data.EntityData;
+import eu.pb4.polymer.virtualentity.api.data.SimpleSynchedEntityData;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.jspecify.annotations.Nullable;
 
@@ -27,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
 
 @SuppressWarnings("ConstantConditions")
 public abstract class GenericEntityElement extends AbstractElement {
-    protected final DataTrackerLike dataTracker = this.createDataTracker();
+    protected final SynchedEntityDataLike dataTracker = this.createDataTracker();
     private final int id = VirtualEntityUtils.requestEntityId();
     private final UUID uuid = UUID.randomUUID();
     private float pitch;
@@ -39,8 +39,8 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     private int updatesSinceLastAbsolutePositionSync = 0;
 
-    protected DataTrackerLike createDataTracker() {
-        return new SimpleDataTracker(this.getEntityType());
+    protected SynchedEntityDataLike createDataTracker() {
+        return new SimpleSynchedEntityData(this.getEntityType());
     }
 
     public boolean isDirty() {
@@ -207,115 +207,115 @@ public abstract class GenericEntityElement extends AbstractElement {
         }
     }
 
-    public DataTrackerLike getDataTracker() {
+    public SynchedEntityDataLike getDataTracker() {
         return this.dataTracker;
     }
 
     public Pose getPose() {
-        return this.dataTracker.get(EntityTrackedData.POSE);
+        return this.dataTracker.get(EntityData.POSE);
     }
 
     public void setPose(Pose pose) {
-        this.dataTracker.set(EntityTrackedData.POSE, pose);
+        this.dataTracker.set(EntityData.POSE, pose);
     }
 
     public void setOnFire(boolean onFire) {
-        this.setFlag(EntityTrackedData.ON_FIRE_FLAG_INDEX, onFire);
+        this.setFlag(EntityData.ON_FIRE_FLAG_INDEX, onFire);
     }
 
     protected boolean getFlag(int index) {
-        return (this.dataTracker.get(EntityTrackedData.FLAGS) & 1 << index) != 0;
+        return (this.dataTracker.get(EntityData.FLAGS) & 1 << index) != 0;
     }
 
     protected void setFlag(int index, boolean value) {
-        byte b = this.dataTracker.get(EntityTrackedData.FLAGS);
+        byte b = this.dataTracker.get(EntityData.FLAGS);
         if (value) {
-            this.dataTracker.set(EntityTrackedData.FLAGS, (byte) (b | 1 << index));
+            this.dataTracker.set(EntityData.FLAGS, (byte) (b | 1 << index));
         } else {
-            this.dataTracker.set(EntityTrackedData.FLAGS, (byte) (b & ~(1 << index)));
+            this.dataTracker.set(EntityData.FLAGS, (byte) (b & ~(1 << index)));
         }
 
     }
 
     public boolean isSneaking() {
-        return this.getFlag(EntityTrackedData.SNEAKING_FLAG_INDEX);
+        return this.getFlag(EntityData.SNEAKING_FLAG_INDEX);
     }
 
     public void setSneaking(boolean sneaking) {
-        this.setFlag(EntityTrackedData.SNEAKING_FLAG_INDEX, sneaking);
+        this.setFlag(EntityData.SNEAKING_FLAG_INDEX, sneaking);
     }
 
     public boolean isSprinting() {
-        return this.getFlag(EntityTrackedData.SPRINTING_FLAG_INDEX);
+        return this.getFlag(EntityData.SPRINTING_FLAG_INDEX);
     }
 
     public void setSprinting(boolean sprinting) {
-        this.setFlag(EntityTrackedData.SPRINTING_FLAG_INDEX, sprinting);
+        this.setFlag(EntityData.SPRINTING_FLAG_INDEX, sprinting);
     }
 
     public boolean isGlowing() {
-        return this.getFlag(EntityTrackedData.GLOWING_FLAG_INDEX);
+        return this.getFlag(EntityData.GLOWING_FLAG_INDEX);
     }
 
     public final void setGlowing(boolean glowing) {
-        this.setFlag(EntityTrackedData.GLOWING_FLAG_INDEX, glowing);
+        this.setFlag(EntityData.GLOWING_FLAG_INDEX, glowing);
     }
 
     public boolean isInvisible() {
-        return this.getFlag(EntityTrackedData.INVISIBLE_FLAG_INDEX);
+        return this.getFlag(EntityData.INVISIBLE_FLAG_INDEX);
     }
 
     public void setInvisible(boolean invisible) {
-        this.setFlag(EntityTrackedData.INVISIBLE_FLAG_INDEX, invisible);
+        this.setFlag(EntityData.INVISIBLE_FLAG_INDEX, invisible);
     }
 
     public int getAir() {
-        return this.dataTracker.get(EntityTrackedData.AIR);
+        return this.dataTracker.get(EntityData.AIR);
     }
 
     public void setAir(int air) {
-        this.dataTracker.set(EntityTrackedData.AIR, air);
+        this.dataTracker.set(EntityData.AIR, air);
     }
 
     public int getFrozenTicks() {
-        return this.dataTracker.get(EntityTrackedData.FROZEN_TICKS);
+        return this.dataTracker.get(EntityData.FROZEN_TICKS);
     }
 
     public void setFrozenTicks(int frozenTicks) {
-        this.dataTracker.set(EntityTrackedData.FROZEN_TICKS, frozenTicks);
+        this.dataTracker.set(EntityData.FROZEN_TICKS, frozenTicks);
     }
 
     @Nullable
     public Component getCustomName() {
-        return this.dataTracker.get(EntityTrackedData.CUSTOM_NAME).orElse(null);
+        return this.dataTracker.get(EntityData.CUSTOM_NAME).orElse(null);
     }
 
     public void setCustomName(@Nullable Component name) {
-        this.dataTracker.set(EntityTrackedData.CUSTOM_NAME, Optional.ofNullable(name));
+        this.dataTracker.set(EntityData.CUSTOM_NAME, Optional.ofNullable(name));
     }
 
     public boolean isCustomNameVisible() {
-        return Boolean.TRUE == this.dataTracker.get(EntityTrackedData.NAME_VISIBLE);
+        return Boolean.TRUE == this.dataTracker.get(EntityData.NAME_VISIBLE);
     }
 
     public void setCustomNameVisible(boolean visible) {
-        this.dataTracker.set(EntityTrackedData.NAME_VISIBLE, visible);
+        this.dataTracker.set(EntityData.NAME_VISIBLE, visible);
     }
 
     public boolean isSilent() {
-        return Boolean.TRUE == this.dataTracker.get(EntityTrackedData.SILENT);
+        return Boolean.TRUE == this.dataTracker.get(EntityData.SILENT);
     }
 
     public void setSilent(boolean silent) {
-        this.dataTracker.set(EntityTrackedData.SILENT, silent);
+        this.dataTracker.set(EntityData.SILENT, silent);
     }
 
     public boolean hasNoGravity() {
-        return Boolean.TRUE == this.dataTracker.get(EntityTrackedData.NO_GRAVITY);
+        return Boolean.TRUE == this.dataTracker.get(EntityData.NO_GRAVITY);
     }
 
     public void setNoGravity(boolean noGravity) {
-        this.dataTracker.set(EntityTrackedData.NO_GRAVITY, noGravity);
+        this.dataTracker.set(EntityData.NO_GRAVITY, noGravity);
     }
 
     public void setRotation(float pitch, float yaw) {

@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.networking;
 
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImpl;
@@ -15,7 +15,6 @@ import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 import org.jetbrains.annotations.ApiStatus;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -109,37 +108,37 @@ public class PolymerServerProtocol {
         int version;
 
         handler.send(new ClientboundCustomPayloadPacket(new PolymerSyncStartedS2CPayload()));
-        PolymerSyncUtils.ON_SYNC_STARTED.invoke((c) -> c.accept(handler));
+        PolymerSyncUtils.ON_SYNC_STARTED.invoker().accept(handler);
 
         version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_CLEAR);
         if (version != -1) {
             handler.send(new ClientboundCustomPayloadPacket(new PolymerSyncClearS2CPayload()));
         }
 
-        PolymerSyncUtils.BEFORE_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.BEFORE_ITEM_SYNC.invoker().accept(handler, fullSync);
         sendSync(handler, S2CPackets.SYNC_ITEM_ID, getServerSideEntries(BuiltInRegistries.ITEM), false, PolymerItemEntry::of);
-        PolymerSyncUtils.AFTER_ITEM_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.AFTER_ITEM_SYNC.invoker().accept(handler, fullSync);
 
         if (fullSync) {
-            PolymerSyncUtils.BEFORE_ITEM_GROUP_SYNC.invoke((listener) -> listener.accept(handler, true));
+            PolymerSyncUtils.BEFORE_ITEM_GROUP_SYNC.invoker().accept(handler, true);
 
             sendCreativeSyncPackets(handler);
 
-            PolymerSyncUtils.AFTER_ITEM_GROUP_SYNC.invoke((listener) -> listener.accept(handler, true));
+            PolymerSyncUtils.AFTER_ITEM_GROUP_SYNC.invoker().accept(handler, true);
         }
 
-        PolymerSyncUtils.BEFORE_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.BEFORE_BLOCK_SYNC.invoker().accept(handler, fullSync);
         sendSync(handler, S2CPackets.SYNC_BLOCK_ID, getServerSideEntries(BuiltInRegistries.BLOCK), false, PolymerBlockEntry::of);
-        PolymerSyncUtils.AFTER_BLOCK_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.AFTER_BLOCK_SYNC.invoker().accept(handler, fullSync);
 
-        PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.BEFORE_BLOCK_STATE_SYNC.invoker().accept(handler, fullSync);
         sendSync(handler, S2CPackets.SYNC_BLOCKSTATE_ID, getServerSideEntries(Block.BLOCK_STATE_REGISTRY), false, PolymerBlockStateEntry::of);
-        PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.AFTER_BLOCK_STATE_SYNC.invoker().accept(handler, fullSync);
 
 
-        PolymerSyncUtils.BEFORE_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.BEFORE_ENTITY_SYNC.invoker().accept(handler, fullSync);
         sendSync(handler, S2CPackets.SYNC_ENTITY_ID, getServerSideEntries(BuiltInRegistries.ENTITY_TYPE), false, PolymerEntityEntry::of);
-        PolymerSyncUtils.AFTER_ENTITY_SYNC.invoke((listener) -> listener.accept(handler, fullSync));
+        PolymerSyncUtils.AFTER_ENTITY_SYNC.invoker().accept(handler, fullSync);
 
 
         sendSync(handler, S2CPackets.SYNC_VILLAGER_PROFESSION_ID, BuiltInRegistries.VILLAGER_PROFESSION);
@@ -153,9 +152,9 @@ public class PolymerServerProtocol {
             sendSync(handler, S2CPackets.SYNC_TAGS_ID, (Registry<Registry<Object>>) BuiltInRegistries.REGISTRY, true, PolymerTagEntry::of);
         }
 
-        PolymerSyncUtils.ON_SYNC_CUSTOM.invoke((c) -> c.accept(handler, fullSync));
+        PolymerSyncUtils.ON_SYNC_CUSTOM.invoker().accept(handler, fullSync);
 
-        PolymerSyncUtils.ON_SYNC_FINISHED.invoke((c) -> c.accept(handler));
+        PolymerSyncUtils.ON_SYNC_FINISHED.invoker().accept(handler);
 
         handler.send(new ClientboundCustomPayloadPacket(new PolymerSyncFinishedS2CPayload()));
 
@@ -184,7 +183,7 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_DEFINE);
 
         if (version != -1) {
-            for (var group : PolymerItemGroupUtils.getItemGroups(handler.getPlayer())) {
+            for (var group : PolymerCreativeModeTabUtils.getCreativeModeTabs(handler.getPlayer())) {
                 syncItemGroup(group, handler);
             }
 
@@ -193,7 +192,7 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroup(CreativeModeTab group, ServerGamePacketListenerImpl handler) {
-        if (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerItemGroupUtils.isPolymerItemGroup(group)) {
+        if (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group)) {
             removeItemGroup(group, handler);
             syncItemGroupDefinition(group, handler);
         }
@@ -205,7 +204,7 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
 
         if (version != -1) {
-            var id = PolymerItemGroupUtils.getId(group);
+            var id = PolymerCreativeModeTabUtils.getId(group);
             if (id == null) {
                 return;
             }
@@ -226,8 +225,8 @@ public class PolymerServerProtocol {
     public static void syncItemGroupDefinition(CreativeModeTab group, ServerGamePacketListenerImpl handler) {
         var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_DEFINE);
 
-        if (version > -1 && (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerItemGroupUtils.isPolymerItemGroup(group))) {
-            var id = PolymerItemGroupUtils.getId(group);
+        if (version > -1 && (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group))) {
+            var id = PolymerCreativeModeTabUtils.getId(group);
             if (id != null) {
                 handler.send(new ClientboundCustomPayloadPacket(new PolymerItemGroupDefineS2CPayload(id, group.getDisplayName(), group.getIconItem())));
             }
@@ -237,8 +236,8 @@ public class PolymerServerProtocol {
     public static void removeItemGroup(CreativeModeTab group, ServerGamePacketListenerImpl player) {
         var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.SYNC_ITEM_GROUP_REMOVE);
 
-        if (version > -1 && PolymerItemGroupUtils.isPolymerItemGroup(group)) {
-            var x = PolymerItemGroupUtils.REGISTRY.getEntryId(group);
+        if (version > -1 && PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group)) {
+            var x = PolymerCreativeModeTabUtils.REGISTRY.getEntryId(group);
             if (x != null) {
                 player.send(new ClientboundCustomPayloadPacket(new PolymerItemGroupRemoveS2CPayload(x)));
             }

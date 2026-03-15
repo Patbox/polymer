@@ -67,7 +67,7 @@ public abstract class ServerPlayerGameModeMixin {
     private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
         if (this.polymer$shouldMineServerSide(pos, state)) {
             if (!pos.equals(this.polymer$currentlyMinedPos) && this.polymer$currentlyMinedPos != null) {
-                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, this.polymer$currentlyMinedPos, this.polymer$currentlyMinedState, -1));
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, this.polymer$currentlyMinedPos, this.polymer$currentlyMinedState, -1);
             }
 
             this.polymer$currentlyMinedState = state;
@@ -84,14 +84,14 @@ public abstract class ServerPlayerGameModeMixin {
                 this.player.connection.send(new ClientboundBlockDestructionPacket(-1, pos, -1));
                 this.destroyAndAck(pos, this.polymer$sequence, "destroyed");
                 this.player.connection.send(new ClientboundBlockUpdatePacket(this.level, pos));
-                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, -1));
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, pos, state, -1);
                 this.polymer$currentlyMinedState = null;
                 this.polymer$currentlyMinedPos = null;
             } else {
                 var k = this.polymer$currentBreakingProgress > 0.0F ? (int)(this.polymer$currentBreakingProgress * 10) : -1;
                 this.player.connection.send(new ClientboundBlockDestructionPacket(-1, pos, k));
                 polymer$sendMiningFatigue();
-                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, state, k));
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, pos, state, k);
             }
         } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();
@@ -118,7 +118,7 @@ public abstract class ServerPlayerGameModeMixin {
                 if (clientDelta >= 1.0f && serverDelta < 1.0f) {
                     this.player.connection.send(new ClientboundBlockUpdatePacket(pos, serverState));
                 }
-                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, pos, serverState, 0));
+                PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, pos, serverState, 0);
 
                 if (serverDelta < 1.0f) {
                     polymer$sendMiningFatigue();
@@ -180,7 +180,7 @@ public abstract class ServerPlayerGameModeMixin {
                 List.of(Objects.requireNonNull(this.player.getAttribute(Attributes.BLOCK_BREAK_SPEED)))));
 
         if (this.polymer$currentlyMinedPos != null) {
-            PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoke(x -> x.onBreakingProgressUpdate(player, this.polymer$currentlyMinedPos, this.polymer$currentlyMinedState, -1));
+            PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, this.polymer$currentlyMinedPos, this.polymer$currentlyMinedState, -1);
             this.polymer$currentlyMinedPos = null;
             this.polymer$currentlyMinedState = null;
         }

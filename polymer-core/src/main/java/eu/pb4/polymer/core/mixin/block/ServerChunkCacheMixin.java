@@ -113,7 +113,7 @@ public abstract class ServerChunkCacheMixin {
     private void polymer$scheduleChunkUpdates(LightLayer type, SectionPos pos, CallbackInfo ci) {
         if (type == LightLayer.BLOCK) {
             this.level.getServer().execute(() -> {
-                if (polymer$hasPendingLightUpdateAround(pos) || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoke((c) -> c.test(this.level, pos))) {
+                if (polymer$hasPendingLightUpdateAround(pos) || PolymerBlockUtils.SEND_LIGHT_UPDATE_PACKET.invoker().test(this.level, pos)) {
                     var sendAfterTime = this.level.getServer().getTickCount() + PolymerImpl.LIGHT_UPDATE_TICK_DELAY;
                     this.polymer$scheduledLightUpdates.put(pos, sendAfterTime);
                 }

@@ -50,7 +50,7 @@ public abstract class ClientboundUpdateAttributesPacketMixin implements Possibly
                 var data = new ArrayList<>(packet.getValues());
                 entity.modifyRawEntityAttributeData(data, PolymerCommonUtils.getPlayer(context), ((PossiblyInitialPacket) packet).polymer$getInitial());
                 for (var entry : data) {
-                    if (vanillaContainer.hasAttribute(entry.attribute()) && !PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
+                    if (vanillaContainer.hasAttribute(entry.attribute()) && !PolymerEntityUtils.isPolymerAttribute(entry.attribute())) {
                         list.add(entry);
                     }
                 }
@@ -59,7 +59,7 @@ public abstract class ClientboundUpdateAttributesPacketMixin implements Possibly
                 var p = new ClientboundUpdateAttributesPacket(packet.getEntityId(), List.of());
                 var list = ((ClientboundUpdateAttributesPacketAccessor) p).getAttributes();
                 for (var entry : packet.getValues()) {
-                    if (!PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
+                    if (!PolymerEntityUtils.isPolymerAttribute(entry.attribute())) {
                         list.add(entry);
                     }
                 }

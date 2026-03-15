@@ -1,6 +1,5 @@
 package eu.pb4.polymer.rsm.api;
 
-import eu.pb4.polymer.rsm.impl.QuiltRegistryUtils;
 import eu.pb4.polymer.rsm.impl.RegistrySyncExtension;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
@@ -9,10 +8,6 @@ public final class RegistrySyncUtils {
     private RegistrySyncUtils() {}
 
     public static <T> boolean isServerEntry(Registry<T> registry, T entry) {
-        if (QuiltRegistryUtils.isOptional(registry, entry)) {
-            return true;
-        }
-
         if (registry instanceof RegistrySyncExtension<?>) {
             return ((RegistrySyncExtension<T>) registry).polymer_registry_sync$isServerEntry(entry);
         } else {
@@ -27,7 +22,6 @@ public final class RegistrySyncUtils {
     public static <T> void setServerEntry(Registry<T> registry, T entry) {
         if (registry instanceof RegistrySyncExtension<?>) {
             ((RegistrySyncExtension<T>) registry).polymer_registry_sync$setServerEntry(entry, true);
-            QuiltRegistryUtils.markAsOptional(registry, entry);
         }
     }
 

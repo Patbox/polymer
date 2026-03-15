@@ -1,8 +1,9 @@
 package eu.pb4.polymer.resourcepack.api;
 
-import eu.pb4.polymer.common.api.events.SimpleEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
+import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
@@ -21,9 +22,9 @@ import java.util.function.Consumer;
  * Utilities allowing simple creation of resource pack
  */
 public final class ResourcePackCreator {
-    public final SimpleEvent<Consumer<ResourcePackBuilder>> creationEvent = new SimpleEvent<>();
-    public final SimpleEvent<Runnable> finishedEvent = new SimpleEvent<>();
-    public final SimpleEvent<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = new SimpleEvent<>();
+    public final Event<Consumer<ResourcePackBuilder>> creationEvent = EventImplUtils.createConsumerEvent();
+    public final Event<Runnable> finishedEvent = EventImplUtils.createRunnableEvent();
+    public final Event<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = EventImplUtils.createConsumerEvent();
 
     private final Set<String> modIds = new HashSet<>();
     private final Set<String> modIdsNoCopy = new HashSet<>();
@@ -45,9 +46,9 @@ public final class ResourcePackCreator {
     public static ResourcePackCreator createCopy(ResourcePackCreator source, boolean copyEvents) {
         var creator = new ResourcePackCreator();
         if (copyEvents) {
-            source.creationEvent.invokers().forEach(creator.creationEvent::register);
-            source.afterInitialCreationEvent.invokers().forEach(creator.afterInitialCreationEvent::register);
-            source.finishedEvent.invokers().forEach(creator.finishedEvent::register);
+            EventImplUtils.copyEvent(source.creationEvent, creator.creationEvent);
+            EventImplUtils.copyEvent(source.afterInitialCreationEvent, creator.afterInitialCreationEvent);
+            EventImplUtils.copyEvent(source.finishedEvent, creator.finishedEvent);
         }
         creator.modIds.addAll(source.modIds);
         creator.modIdsNoCopy.addAll(source.modIdsNoCopy);
@@ -127,7 +128,7 @@ public final class ResourcePackCreator {
     }
 
     public boolean isEmpty() {
-        return this.modIds.isEmpty() && this.creationEvent.isEmpty();
+        return this.modIds.isEmpty() && EventImplUtils.isEmpty(this.creationEvent) && EventImplUtils.isEmpty(this.afterInitialCreationEvent);
     }
 
     public boolean build(Path output) throws ExecutionException, InterruptedException {
@@ -165,7 +166,7 @@ public final class ResourcePackCreator {
         }
 
         status.accept("action:creation_event_start");
-        this.creationEvent.invoke((x) -> x.accept(builder));
+        this.creationEvent.invoker().accept(builder);
         status.accept("action:creation_event_finish");
 
         for (var path : this.sourcePaths) {
@@ -181,14 +182,14 @@ public final class ResourcePackCreator {
         }
 
         status.accept("action:late_creation_event_start");
-        this.afterInitialCreationEvent.invoke((x) -> x.accept(builder));
+        this.afterInitialCreationEvent.invoker().accept(builder);
         status.accept("action:late_creation_event_finish");
 
         status.accept("action:build");
         successful = builder.buildResourcePack().get() && successful;
 
         status.accept("action:done");
-        this.finishedEvent.invoke(Runnable::run);
+        this.finishedEvent.invoker().run();
         return successful;
     }
 }

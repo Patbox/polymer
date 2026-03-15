@@ -22,7 +22,7 @@ public class ItemAttributeModifiersMixin implements TransformingComponent {
         }
         var list = new ArrayList<ItemAttributeModifiers.Entry>();
         for (var entry : this.modifiers) {
-            if (!PolymerEntityUtils.isPolymerEntityAttribute(entry.attribute())) {
+            if (!PolymerEntityUtils.isPolymerAttribute(entry.attribute())) {
                 list.add(entry);
             }
         }
@@ -33,7 +33,7 @@ public class ItemAttributeModifiersMixin implements TransformingComponent {
     @Override
     public boolean polymer$requireModification(PacketContext context) {
         for (var x : this.modifiers) {
-            if (PolymerEntityUtils.isPolymerEntityAttribute(x.attribute())) {
+            if (PolymerEntityUtils.isPolymerAttribute(x.attribute())) {
                 return true;
             }
         }

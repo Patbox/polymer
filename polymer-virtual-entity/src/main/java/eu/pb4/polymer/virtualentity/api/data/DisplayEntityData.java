@@ -1,4 +1,4 @@
-package eu.pb4.polymer.virtualentity.api.tracker;
+package eu.pb4.polymer.virtualentity.api.data;
 
 import eu.pb4.polymer.virtualentity.mixin.accessors.BlockDisplayAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.DisplayAccessor;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
 
-public final class DisplayTrackedData {
+public final class DisplayEntityData {
     public final static EntityDataAccessor<Vector3fc> TRANSLATION = DisplayAccessor.getDATA_TRANSLATION_ID();
     public final static EntityDataAccessor<Vector3fc> SCALE = DisplayAccessor.getDATA_SCALE_ID();
     public final static EntityDataAccessor<Quaternionfc> LEFT_ROTATION = DisplayAccessor.getDATA_LEFT_ROTATION_ID();
@@ -27,7 +27,7 @@ public final class DisplayTrackedData {
     public final static EntityDataAccessor<Integer> GLOW_COLOR_OVERRIDE = DisplayAccessor.getDATA_GLOW_COLOR_OVERRIDE_ID();
     public final static EntityDataAccessor<Byte> BILLBOARD = DisplayAccessor.getDATA_BILLBOARD_RENDER_CONSTRAINTS_ID();
 
-    private DisplayTrackedData() {
+    private DisplayEntityData() {
     }
 
     public static final class Item {

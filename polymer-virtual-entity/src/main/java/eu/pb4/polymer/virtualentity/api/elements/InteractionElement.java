@@ -1,6 +1,6 @@
 package eu.pb4.polymer.virtualentity.api.elements;
 
-import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
+import eu.pb4.polymer.virtualentity.api.data.InteractionEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -11,16 +11,11 @@ public class InteractionElement extends GenericEntityElement {
     }
 
     public InteractionElement(InteractionHandler handler) {
-        this.setHandler(handler);
+        this.setInteractionHandler(handler);
     }
 
     public static InteractionElement redirect(Entity redirectedEntity) {
         return new InteractionElement(InteractionHandler.redirect(redirectedEntity));
-    }
-
-    @Deprecated
-    public void setHandler(InteractionHandler handler) {
-        this.setInteractionHandler(handler);
     }
 
     @Override
@@ -29,23 +24,23 @@ public class InteractionElement extends GenericEntityElement {
     }
 
     public float getWidth() {
-        return this.dataTracker.get(InteractionTrackedData.WIDTH);
+        return this.dataTracker.get(InteractionEntityData.WIDTH);
     }
 
     public void setWidth(float width) {
-        this.dataTracker.set(InteractionTrackedData.WIDTH, width);
+        this.dataTracker.set(InteractionEntityData.WIDTH, width);
     }
 
     public float getHeight() {
-        return this.dataTracker.get(InteractionTrackedData.HEIGHT);
+        return this.dataTracker.get(InteractionEntityData.HEIGHT);
     }
 
     public void setHeight(float height) {
-        this.dataTracker.set(InteractionTrackedData.HEIGHT, height);
+        this.dataTracker.set(InteractionEntityData.HEIGHT, height);
     }
 
     public void setResponse(boolean response) {
-        this.dataTracker.set(InteractionTrackedData.RESPONSE, response);
+        this.dataTracker.set(InteractionEntityData.RESPONSE, response);
     }
 
     public void setSize(float width, float height) {
@@ -59,6 +54,6 @@ public class InteractionElement extends GenericEntityElement {
     }
 
     public boolean shouldRespond() {
-        return this.dataTracker.get(InteractionTrackedData.RESPONSE);
+        return this.dataTracker.get(InteractionEntityData.RESPONSE);
     }
 }

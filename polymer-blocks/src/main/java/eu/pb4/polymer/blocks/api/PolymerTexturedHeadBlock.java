@@ -23,7 +23,7 @@ public interface PolymerTexturedHeadBlock extends PolymerTexturedBlock {
             new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "block/empty"))), Optional.empty(), Optional.empty(), Optional.empty()));
 
     @Override
-    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, @UnknownNullability ServerPlayer context) {
+    default void onPolymerBlockSend(BlockState blockState, BlockPos.MutableBlockPos pos, ServerPlayer context) {
         CompoundTag main = new CompoundTag();
         main.putString("id", "minecraft:skull");
         main.put("profile", ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, EMPTY_TEXTURE).result().get());

@@ -1,7 +1,6 @@
-package eu.pb4.polymer.virtualentity.api.tracker;
+package eu.pb4.polymer.virtualentity.api.data;
 
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -11,12 +10,12 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 
-public class SimpleDataTracker implements DataTrackerLike {
+public class SimpleSynchedEntityData implements SynchedEntityDataLike {
     private final Entry<?>[] entries;
     private boolean dirty;
 
     @SuppressWarnings("rawtypes")
-    public SimpleDataTracker(EntityType<?> baseEntity) {
+    public SimpleSynchedEntityData(EntityType<?> baseEntity) {
         var entries = InternalEntityHelpers.getExampleTrackedDataOfEntityType(baseEntity);
         this.entries = new Entry[entries.length];
 

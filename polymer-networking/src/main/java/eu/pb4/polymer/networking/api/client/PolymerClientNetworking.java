@@ -1,12 +1,10 @@
 package eu.pb4.polymer.networking.api.client;
 
-import eu.pb4.polymer.common.api.events.SimpleEvent;
-import eu.pb4.polymer.networking.impl.ClientPackets;
-import eu.pb4.polymer.networking.impl.ServerPackets;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.networking.impl.client.ClientPacketRegistry;
-import eu.pb4.polymer.networking.impl.packets.HandshakePayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -24,10 +22,10 @@ import java.util.ArrayList;
  */
 @Environment(EnvType.CLIENT)
 public final class PolymerClientNetworking {
-    public static final SimpleEvent<Runnable> AFTER_HANDSHAKE_RECEIVED = new SimpleEvent<>();
-    public static final SimpleEvent<Runnable> AFTER_METADATA_RECEIVED = new SimpleEvent<>();
-    public static final SimpleEvent<Runnable> AFTER_DISABLE = new SimpleEvent<>();
-    public static final SimpleEvent<Runnable> BEFORE_METADATA_SYNC = new SimpleEvent<>();
+    public static final Event<Runnable> AFTER_HANDSHAKE_RECEIVED = EventImplUtils.createRunnableEvent();
+    public static final Event<Runnable> AFTER_METADATA_RECEIVED = EventImplUtils.createRunnableEvent();
+    public static final Event<Runnable> AFTER_DISABLE = EventImplUtils.createRunnableEvent();
+    public static final Event<Runnable> BEFORE_METADATA_SYNC = EventImplUtils.createRunnableEvent();
 
     private PolymerClientNetworking() {
     }

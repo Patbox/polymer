@@ -4,10 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.api.events.BooleanEvent;
-import eu.pb4.polymer.common.api.events.FunctionEvent;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplPacketKeys;
+import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
@@ -20,6 +19,9 @@ import eu.pb4.polymer.core.mixin.CustomDataAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -39,16 +41,11 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.item.component.TooltipDisplay;
-import net.minecraft.world.item.component.TooltipProvider;
-import net.minecraft.world.item.component.UseCooldown;
+import net.minecraft.world.item.component.*;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -59,45 +56,70 @@ import java.util.function.BiPredicate;
 public final class PolymerItemUtils {
     public static final String POLYMER_STACK = "$polymer:stack";
     public static final String POLYMER_COUNTED = "$polymer:counted";
-    private static final String POLYMC_STACK = "PolyMcOriginal";
-    private static final Codec<Identifier> STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").codec();
-
-    private static final Codec<Map<Identifier, Tag>> COMPONENTS_CODEC = Codec.unboundedMap(Identifier.CODEC,
-            Codec.PASSTHROUGH.comapFlatMap((dynamic) -> {
-                var nbt = dynamic.convert(NbtOps.INSTANCE).getValue();
-                return DataResult.success(nbt == dynamic.getValue() ? nbt.copy() : nbt);
-            }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy()))).optionalFieldOf("components", Map.of()).codec();
     public static final Style CLEAN_STYLE = Style.EMPTY.withItalic(false).withColor(ChatFormatting.WHITE);
     /**
      * Allows to force rendering of some items as polymer one (for example vanilla ones)
      */
-    public static final BooleanEvent<BiPredicate<ItemInstance, PacketContext>> CONTEXT_ITEM_CHECK = new BooleanEvent<>();
-
+    public static final Event<BiPredicate<ItemInstance, PacketContext>> CONTEXT_ITEM_CHECK = EventImplUtils.createBiPredicateEvent();
     /**
      * Allows to modify how virtual items looks before being sent to client (only if using build in methods!)
      * It can modify virtual version directly, as long as it's returned at the end.
      * You can also return new ItemStack, however please keep previous nbt so other modifications aren't removed if not needed!
      */
-    public static final FunctionEvent<ItemModificationEventHandler, ItemStack> ITEM_MODIFICATION_EVENT = new FunctionEvent<>();
-
+    public static final Event<ItemModificationEventHandler> ITEM_MODIFICATION_EVENT = EventFactory.createArrayBacked(ItemModificationEventHandler.class, arr ->
+            (original, client, context) -> {
+                for (var a : arr) {
+                    client = a.modifyItem(original, client, context);
+                }
+                return client;
+            });
     /**
      * Allows to run additional logic, making interactions work correctly server side,
      * emulating or preventing otherwise client dictated behaviour.
      *
      * See {@link PolymerItem#isPolymerItemInteraction(ServerPlayer, InteractionHand, ItemStack, ServerLevel, InteractionResult)}
      */
-    public static final BooleanEvent<PolymerItemInteractionListener> POLYMER_ITEM_INTERACTION_CHECK = new BooleanEvent<>();
+    public static final Event<PolymerItemInteractionListener> POLYMER_ITEM_INTERACTION_CHECK = EventFactory.createArrayBacked(PolymerItemInteractionListener.class, arr ->
+            (player, hand, stack, world, actionResult) -> {
+                for (var a : arr) {
+                    if (a.isPolymerItemInteraction(player, hand, stack, world, actionResult)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
     /**
      * Changes sound logic within the item use interaction code to always play sounds to the client.
      *
      * See {@link PolymerItem#isIgnoringItemInteractionPlaySoundExceptedEntity(ServerPlayer, InteractionHand, ItemStack, ServerLevel)}
      */
-    public static final BooleanEvent<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = new BooleanEvent<>();
+    public static final Event<PolymerIgnoreSoundExceptionListener> POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY = EventFactory.createArrayBacked(PolymerIgnoreSoundExceptionListener.class, arr ->
+            (player, hand, stack, world) -> {
+                for (var a : arr) {
+                    if (a.isIgnoringItemInteractionPlaySoundExceptedEntity(player, hand, stack, world)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
     /**
      * Event for extending which items should be considered to be server items (have different data on the client).
      */
-    public static final BooleanEvent<ServerItemPredicate> IS_SERVER_ITEM_EVENT = new BooleanEvent<>();
-
+    public static final Event<ServerItemPredicate> IS_SERVER_ITEM_EVENT = EventFactory.createArrayBacked(ServerItemPredicate.class, arr ->
+            (instance, context) -> {
+                for (var a : arr) {
+                    if (a.isServerItem(instance, context)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+    private static final Codec<Identifier> STACK_ID_CODEC = Identifier.CODEC.fieldOf("id").codec();
+    private static final Codec<Map<Identifier, Tag>> COMPONENTS_CODEC = Codec.unboundedMap(Identifier.CODEC,
+            Codec.PASSTHROUGH.comapFlatMap((dynamic) -> {
+                var nbt = dynamic.convert(NbtOps.INSTANCE).getValue();
+                return DataResult.success(nbt == dynamic.getValue() ? nbt.copy() : nbt);
+            }, (nbt) -> new Dynamic<>(NbtOps.INSTANCE, nbt.copy()))).optionalFieldOf("components", Map.of()).codec();
     private static final IdentityHashMap<Item, List<DataComponentType<?>>> FORCE_SYNCED_COMPONENTS = new IdentityHashMap<>();
 
 
@@ -158,8 +180,6 @@ public final class PolymerItemUtils {
             DataComponents.SWING_ANIMATION,
             DataComponents.USE_EFFECTS
     };
-
-    private static boolean stonecutterFix = PolymerImpl.FIX_STONECUTER;
     private static final ReferenceSet<DataComponentType<?>> FORCE_HIDE_TOOLTIP = ReferenceSet.of(
             DataComponents.UNBREAKABLE,
             DataComponents.ATTRIBUTE_MODIFIERS,
@@ -167,10 +187,10 @@ public final class PolymerItemUtils {
             DataComponents.CAN_BREAK,
             DataComponents.CAN_PLACE_ON
     );
-
     private static final ReferenceSet<DataComponentType<?>> IGNORE_TOOLTIP_HIDING = ReferenceSet.of(
-        DataComponents.LORE
+            DataComponents.LORE
     );
+    private static boolean stonecutterFix = PolymerImpl.FIX_STONECUTER;
 
 
     private PolymerItemUtils() {
@@ -205,7 +225,7 @@ public final class PolymerItemUtils {
             return createItemStack(itemStack, tooltipContext, context, lookup);
         }
 
-        if (CONTEXT_ITEM_CHECK.invoke((x) -> x.test(itemStack, context))) {
+        if (CONTEXT_ITEM_CHECK.invoker().test(itemStack, context)) {
             return createItemStack(itemStack, tooltipContext, context, lookup);
         }
 
@@ -273,63 +293,9 @@ public final class PolymerItemUtils {
         return null;
     }
 
-    /**
-     * Returns stored identifier of Polymer/other supported server mod ItemStack. If it's invalid, null is returned instead.
-     */
-    @Nullable
-    public static Identifier getServerIdentifier(ItemStack itemStack) {
-        return getServerIdentifier(itemStack.get(DataComponents.CUSTOM_DATA));
-    }
-
-    @Nullable
-    public static Identifier getServerIdentifier(@Nullable CustomData nbtData) {
-        if (nbtData == null) {
-            return null;
-        }
-        var x = getPolymerIdentifier(nbtData);
-        if (x != null) {
-            return x;
-        }
-
-        try {
-            //noinspection DataFlowIssue
-            var nbt = ((CustomDataAccessor) (Object) nbtData).polymer$getNbtUnsafe();
-            if (nbt.contains(POLYMC_STACK)) {
-                return nbt.read(POLYMC_STACK, STACK_ID_CODEC).orElse(null);
-            }
-        } catch (Throwable ignored) {
-        }
-
-        return null;
-    }
-
-    @Nullable
-    public static Map<Identifier, Tag> getServerComponents(ItemStack stack) {
-        return getServerComponents(stack.get(DataComponents.CUSTOM_DATA));
-    }
-
     @Nullable
     public static Map<Identifier, Tag> getPolymerComponents(ItemStack stack) {
         return getPolymerComponents(stack.get(DataComponents.CUSTOM_DATA));
-    }
-
-    @Nullable
-    public static Map<Identifier, Tag> getServerComponents(@Nullable CustomData nbtData) {
-        if (nbtData == null) {
-            return null;
-        }
-        var x = getPolymerComponents(nbtData);
-        if (x != null) {
-            return x;
-        }
-
-
-        var nbt = ((CustomDataAccessor) (Object) nbtData).polymer$getNbtUnsafe();
-        if (nbt.contains(POLYMC_STACK)) {
-            return nbt.read(POLYMC_STACK, COMPONENTS_CODEC).orElse(Map.of());
-        }
-
-        return null;
     }
 
     @Nullable
@@ -344,6 +310,7 @@ public final class PolymerItemUtils {
 
         return nbt.read(POLYMER_STACK, COMPONENTS_CODEC).orElse(Map.of());
     }
+
     public static void registerOverlay(Item item, PolymerItem polymerItem) {
         PolymerItem.registerOverlay(item, polymerItem);
     }
@@ -382,7 +349,7 @@ public final class PolymerItemUtils {
                 var attributes = ench.value().getEffects(EnchantmentEffectComponents.ATTRIBUTES);
                 if (attributes != null) {
                     for (var attr : attributes) {
-                        if (PolymerEntityUtils.isPolymerEntityAttribute(attr.attribute())
+                        if (PolymerEntityUtils.isPolymerAttribute(attr.attribute())
                                 && DefaultAttributes.getSupplier(EntityType.PLAYER).hasAttribute(attr.attribute())) {
                             return true;
                         }
@@ -391,7 +358,7 @@ public final class PolymerItemUtils {
             }
         }
 
-        return CONTEXT_ITEM_CHECK.invoke((x) -> x.test(itemInstance, context));
+        return CONTEXT_ITEM_CHECK.invoker().test(itemInstance, context);
     }
 
     /**
@@ -544,15 +511,7 @@ public final class PolymerItemUtils {
                 PolymerImpl.LOGGER.error("Failed to get tooltip of " + itemStack, e);
             }
         }
-        return ITEM_MODIFICATION_EVENT.invoke((col) -> {
-            var custom = out;
-
-            for (var in : col) {
-                custom = in.modifyItem(itemStack, custom, context);
-            }
-
-            return custom;
-        });
+        return ITEM_MODIFICATION_EVENT.invoker().modifyItem(itemStack, out, context);
     }
 
     /**
@@ -593,14 +552,14 @@ public final class PolymerItemUtils {
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isPolymerItemInteraction(player, hand, stack, world, actionResult)) {
             return true;
         }
-        return POLYMER_ITEM_INTERACTION_CHECK.invoke((x) -> x.isPolymerItemInteraction(player, hand, stack, world, actionResult));
+        return POLYMER_ITEM_INTERACTION_CHECK.invoker().isPolymerItemInteraction(player, hand, stack, world, actionResult);
     }
 
     public static boolean isIgnoringPlaySoundExceptedEntity(ServerPlayer player, ItemStack stack, InteractionHand hand, ServerLevel world) {
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, stack.getItem()) instanceof PolymerItem polymerItem && polymerItem.isIgnoringItemInteractionPlaySoundExceptedEntity(player, hand, stack, world)) {
             return true;
         }
-        return POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY.invoke((x) -> x.isIgnoringItemInteractionPlaySoundExceptedEntity(player, hand, stack, world));
+        return POLYMER_IGNORE_SOUND_EXCEPTED_ENTITY.invoker().isIgnoringItemInteractionPlaySoundExceptedEntity(player, hand, stack, world);
     }
 
     /**
@@ -673,7 +632,7 @@ public final class PolymerItemUtils {
             }
         }
 
-        return IS_SERVER_ITEM_EVENT.invoke(x -> x.isServerItem(stack, context));
+        return IS_SERVER_ITEM_EVENT.invoker().isServerItem(stack, context);
     }
 
     @FunctionalInterface

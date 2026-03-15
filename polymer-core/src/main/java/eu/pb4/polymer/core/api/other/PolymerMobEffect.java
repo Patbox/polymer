@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 
-public interface PolymerStatusEffect extends PolymerSyncedObject<MobEffect> {
+public interface PolymerMobEffect extends PolymerSyncedObject<MobEffect> {
     static void registerOverlay(MobEffect effect) {
         registerOverlay(effect, (e, c) -> null);
     }

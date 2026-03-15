@@ -24,7 +24,7 @@ import eu.pb4.polymer.resourcepack.extras.api.format.model.ModelAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
 import eu.pb4.polymer.soundpatcher.api.SoundPatcher;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
+import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -328,7 +328,7 @@ public class TestMod implements ModInitializer {
         //PolymerResourcePackUtils.markAsRequired();
         //PolymerResourcePackUtils.addModAsAssetsSource("promenade");
         //register(Registries.ITEM_GROUP, Identifier.of("polymer", "test"), ITEM_GROUP);
-        PolymerItemGroupUtils.registerPolymerItemGroup(Identifier.parse("test:group"), ITEM_GROUP);
+        PolymerCreativeModeTabUtils.registerPolymerCreativeModeTab(Identifier.parse("test:group"), ITEM_GROUP);
         registerItem(Identifier.fromNamespaceAndPath("bugged", "wooden_sword"), BuggedItem::new);
 
         PolymerItemUtils.enableStonecutterFix();
@@ -518,7 +518,7 @@ public class TestMod implements ModInitializer {
                 } else {
                     //PolymerSyncUtils.removeCreativeTab(ITEM_GROUP_2, player.networkHandler);
                 }
-                PolymerSyncUtils.rebuildItemGroups(player.connection);
+                PolymerSyncUtils.rebuildCreativeModeTabs(player.connection);
                 atomicBoolean.set(!atomicBoolean.get());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -563,7 +563,7 @@ public class TestMod implements ModInitializer {
             return 0;
         })));
 
-        PolymerItemGroupUtils.LIST_EVENT.register((p, s) -> {
+        PolymerCreativeModeTabUtils.LIST_EVENT.register((p, s) -> {
             if (atomicBoolean.get()) {
                 //s.add(ITEM_GROUP_2);
             }
@@ -602,7 +602,7 @@ public class TestMod implements ModInitializer {
         });
 
 
-        CreativeModeTabEvents.modifyOutputEvent(PolymerItemGroupUtils.getKey(ITEM_GROUP)).register(entries -> {
+        CreativeModeTabEvents.modifyOutputEvent(PolymerCreativeModeTabUtils.getKey(ITEM_GROUP)).register(entries -> {
             entries.insertAfter(TEST_FOOD, Items.LAVA_BUCKET);
         });
 
@@ -615,7 +615,7 @@ public class TestMod implements ModInitializer {
                             var i = x.getMainHandItem();
                             if (i.is(Items.EGG)) {
                                 x.setPose(Pose.SLEEPING);
-                                x.connection.send(new ClientboundSetEntityDataPacket(x.getId(), List.of(SynchedEntityData.DataValue.create(EntityTrackedData.POSE, Pose.SLEEPING))));
+                                x.connection.send(new ClientboundSetEntityDataPacket(x.getId(), List.of(SynchedEntityData.DataValue.create(EntityData.POSE, Pose.SLEEPING))));
                             } else if (i.is(Items.CREEPER_HEAD)) {
                                 /*var l = new ArrayList<Packet<? super ClientPlayPacketListener>>();
                                 creep.setPos(x.getX(), x.getY() - 255, x.getZ());

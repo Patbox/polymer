@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.mixin.item;
 
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,7 +18,7 @@ public abstract class PlayerListMixin {
 
     @Inject(method = "reloadResources", at = @At("HEAD"))
     private void polymerCore$invalidateItemGroups(CallbackInfo ci) {
-        PolymerItemGroupUtils.invalidateItemGroupCache();
+        PolymerCreativeModeTabUtils.invalidateCache();
         for (var player : this.getPlayers()) {
             PolymerSyncUtils.synchronizeCreativeTabs(player.connection);
         }

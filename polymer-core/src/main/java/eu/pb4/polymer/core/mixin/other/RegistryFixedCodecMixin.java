@@ -5,7 +5,6 @@ import com.mojang.serialization.DynamicOps;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -40,7 +38,7 @@ public class RegistryFixedCodecMixin {
                 //noinspection unchecked
                 if (entry.value() instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type)) {
                     return EntityType.MARKER.builtInRegistryHolder();
-                } else if (entry.value() instanceof Attribute && PolymerEntityUtils.isPolymerEntityAttribute((Holder<Attribute>) entry)) {
+                } else if (entry.value() instanceof Attribute && PolymerEntityUtils.isPolymerAttribute((Holder<Attribute>) entry)) {
                     return Attributes.SPAWN_REINFORCEMENTS_CHANCE;
                 } else if (PolymerSyncedObject.getSyncedObject(registry, entry.value()) instanceof PolymerSyncedObject<?> polymerSyncedObject) {
                     //noinspection unchecked,DataFlowIssue

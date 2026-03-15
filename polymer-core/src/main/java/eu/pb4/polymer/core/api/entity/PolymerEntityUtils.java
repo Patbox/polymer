@@ -1,7 +1,5 @@
 package eu.pb4.polymer.core.api.entity;
 
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
-import eu.pb4.polymer.common.api.events.BooleanEvent;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.item.PolymerItem;
@@ -16,6 +14,8 @@ import eu.pb4.polymer.core.mixin.entity.TrackedEntityAccessor;
 import eu.pb4.polymer.core.mixin.entity.ClientboundPlayerInfoUpdatePacketAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -40,7 +40,16 @@ import net.minecraft.world.item.ItemStack;
 public final class PolymerEntityUtils {
     private PolymerEntityUtils() {
     }
-    public static final BooleanEvent<PolymerEntityInteractionListener> POLYMER_ENTITY_INTERACTION_CHECK = new BooleanEvent<>();
+    public static final Event<PolymerEntityInteractionListener> POLYMER_ENTITY_INTERACTION_CHECK = EventFactory.createArrayBacked(PolymerEntityInteractionListener.class,
+            arr -> (player, hand, stack, world, entity, actionResult) -> {
+                for (var c : arr) {
+                    if (c.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
 
     private static final Map<EntityType<?>, Function<Entity, PolymerEntity>> POLYMER_ENTITY_CONSTRUCTORS = new IdentityHashMap<>();
     private static final Set<Attribute> ENTITY_ATTRIBUTES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
@@ -137,7 +146,7 @@ public final class PolymerEntityUtils {
         return PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ENTITY_TYPE, type) != null;
     }
 
-    public static boolean isPolymerEntityAttribute(Holder<Attribute> type) {
+    public static boolean isPolymerAttribute(Holder<Attribute> type) {
         return ENTITY_ATTRIBUTES.contains(type.value());
     }
 
@@ -145,7 +154,7 @@ public final class PolymerEntityUtils {
      * @param type EntityType
      * @return Array of default DataTracker entries for entity type
      */
-    public static SynchedEntityData.DataItem<?>[] getDefaultTrackedData(EntityType<?> type) {
+    public static SynchedEntityData.DataItem<?>[] getDefaultSynchedEntityData(EntityType<?> type) {
         return InternalEntityHelpers.getExampleTrackedDataOfEntityType(type);
     }
 
@@ -176,7 +185,7 @@ public final class PolymerEntityUtils {
     /**
      * @return Creates PlayerEntity spawn packet, that can be used by VirtualEntities
      */
-    public static ClientboundPlayerInfoUpdatePacket createMutablePlayerListPacket(EnumSet<ClientboundPlayerInfoUpdatePacket.Action> actions) {
+    public static ClientboundPlayerInfoUpdatePacket createMutablePlayerInfoUpdatePacket(EnumSet<ClientboundPlayerInfoUpdatePacket.Action> actions) {
         var packet = new ClientboundPlayerInfoUpdatePacket(actions, List.of());
         ((ClientboundPlayerInfoUpdatePacketAccessor) packet).setEntries(new ArrayList<>());
         return packet;
@@ -242,7 +251,7 @@ public final class PolymerEntityUtils {
             return true;
         }
 
-        return POLYMER_ENTITY_INTERACTION_CHECK.invoke(x -> x.isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult));
+        return POLYMER_ENTITY_INTERACTION_CHECK.invoker().isPolymerEntityInteraction(player, hand, stack, world, entity, actionResult);
     }
 
 

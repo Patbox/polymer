@@ -8,7 +8,7 @@ import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.BlockMapper;
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.other.PolymerStat;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
@@ -51,7 +51,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.ApiStatus;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,9 +96,9 @@ public class Commands {
                                 .suggests((context, builder) -> {
                                     var remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
 
-                                    var groups = PolymerItemGroupUtils.getItemGroups(context.getSource().getPlayerOrException());
+                                    var groups = PolymerCreativeModeTabUtils.getCreativeModeTabs(context.getSource().getPlayerOrException());
 
-                                    SharedSuggestionProvider.filterResources(groups, remaining, PolymerItemGroupUtils::getId, group -> builder.suggest(PolymerItemGroupUtils.getId(group).toString(), group.getDisplayName()));
+                                    SharedSuggestionProvider.filterResources(groups, remaining, PolymerCreativeModeTabUtils::getId, group -> builder.suggest(PolymerCreativeModeTabUtils.getId(group).toString(), group.getDisplayName()));
                                     return builder.buildFuture();
                                 })
                                 .executes(Commands::creativeTab)

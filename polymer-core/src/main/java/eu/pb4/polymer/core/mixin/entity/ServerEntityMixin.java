@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.mixin.entity;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
-import eu.pb4.polymer.core.api.entity.PolymerTrackerPacketSender;
+import eu.pb4.polymer.core.api.entity.PolymerServerEntitySynchronizer;
 import eu.pb4.polymer.core.api.other.PlayerBoundConsumer;
 import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
@@ -82,7 +82,7 @@ public abstract class ServerEntityMixin {
     @Inject(method = "sendChanges", at = @At("HEAD"))
     private void polymer$tickHead(CallbackInfo ci) {
         var polymerEntity = PolymerEntity.get(this.entity);
-        if (polymerEntity != null && this.synchronizer instanceof PolymerTrackerPacketSender accessor) {
+        if (polymerEntity != null && this.synchronizer instanceof PolymerServerEntitySynchronizer accessor) {
             polymerEntity.beforeEntityTrackerTick(Collections.unmodifiableSet(accessor.listeners()));
         }
     }
@@ -90,7 +90,7 @@ public abstract class ServerEntityMixin {
     @Inject(method = "sendChanges", at = @At("TAIL"))
     private void polymer$tick(CallbackInfo ci) {
         var polymerEntity = PolymerEntity.get(this.entity);
-        if (polymerEntity != null && this.synchronizer instanceof PolymerTrackerPacketSender accessor) {
+        if (polymerEntity != null && this.synchronizer instanceof PolymerServerEntitySynchronizer accessor) {
             polymerEntity.onEntityTrackerTick(Collections.unmodifiableSet(accessor.listeners()));
         }
     }

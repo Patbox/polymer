@@ -1,6 +1,6 @@
 package eu.pb4.polymertest;
 
-import eu.pb4.polymer.core.api.other.PolymerStatusEffect;
+import eu.pb4.polymer.core.api.other.PolymerMobEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.server.level.ServerLevel;
@@ -10,7 +10,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 
-public class Test2StatusEffect extends MobEffect implements PolymerStatusEffect {
+public class Test2StatusEffect extends MobEffect implements PolymerMobEffect {
     protected Test2StatusEffect() {
         super(MobEffectCategory.BENEFICIAL, 0x000000, new VibrationParticleOption(new BlockPositionSource(BlockPos.ZERO), 1000));
     }
