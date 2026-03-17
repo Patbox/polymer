@@ -19,7 +19,7 @@ public class ServerHandshakePacketListenerImplMixin {
 
     @ModifyExpressionValue(method = "handleIntention", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;repliesToStatus()Z"))
     private boolean delayOnlineStatusForAutohost(boolean original) {
-        if (AutoHost.config.delayPlayerListMotd && AutoHost.config.enabled && !AutoHost.provider.isReady()) {
+        if (AutoHost.config.delayPlayerListMotd && AutoHost.config.enabled && !AutoHost.provider.isReady(this.connection.getPacketContext())) {
             return false;
         }
         return original;

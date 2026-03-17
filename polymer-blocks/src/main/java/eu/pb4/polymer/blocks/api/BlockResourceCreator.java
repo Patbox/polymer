@@ -67,8 +67,8 @@ public final class BlockResourceCreator {
     private void registerEvent() {
         if (!this.registered) {
             creator.creationEvent.register((b) -> {
-                if (b instanceof DefaultRPBuilder defaultRPBuilder) {
-                    defaultRPBuilder.buildEvent.register((c) -> this.generateResources(defaultRPBuilder, c));
+                if (b instanceof DefaultRPBuilder<?> defaultRPBuilder) {
+                    defaultRPBuilder.buildEvent.register(c -> this.generateResources(defaultRPBuilder, c));
                 }
             });
             this.onRegister.run();

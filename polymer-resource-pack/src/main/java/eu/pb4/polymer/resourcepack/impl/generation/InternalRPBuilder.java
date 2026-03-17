@@ -6,6 +6,6 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.concurrent.CompletableFuture;
 
 @ApiStatus.Internal
-public interface InternalRPBuilder extends ResourcePackBuilder {
-    CompletableFuture<Boolean> buildResourcePack();
+public interface InternalRPBuilder<T> extends ResourcePackBuilder {
+    CompletableFuture<T> buildResourcePack();
 }

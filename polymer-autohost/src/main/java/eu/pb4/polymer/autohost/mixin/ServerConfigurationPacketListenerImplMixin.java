@@ -42,13 +42,13 @@ public abstract class ServerConfigurationPacketListenerImplMixin extends ServerC
     private void polymerAutoHost$addTask(CallbackInfo ci) {
         if (AutoHost.config.enabled && !this.server.isSingleplayerOwner(new NameAndId(this.playerProfile()))) {
             var x = new ArrayList<MinecraftServer.ServerResourcePackInfo>();
-            var ready = AutoHost.provider.isReady();
+            var ready = AutoHost.provider.isReady(this.connection.getPacketContext());
             if (ready) {
-                x.addAll(AutoHost.provider.getProperties(this.connection));
+                x.addAll(AutoHost.provider.getProperties(this.connection.getPacketContext()));
             }
             x.addAll(AutoHost.GLOBAL_RESOURCE_PACKS);
 
-            this.configurationTasks.add(new AutoHostTask(x, !ready, () -> AutoHost.provider.getProperties(this.connection), AutoHost.provider::isReady));
+            this.configurationTasks.add(new AutoHostTask(x, !ready, () -> AutoHost.provider.getProperties(this.connection.getPacketContext()), () -> AutoHost.provider.isReady(this.connection.getPacketContext())));
         }
     }
 

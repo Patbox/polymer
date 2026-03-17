@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface ResourcePackDataProvider {
-    boolean isReady();
+    boolean isReady(PacketContext context);
     JsonElement saveSettings();
     void loadSettings(JsonElement settings);
     void serverStarted(MinecraftServer server);
@@ -29,7 +29,7 @@ public interface ResourcePackDataProvider {
         AutoHost.TYPES.put(identifier, providerCreator);
     }
 
-    Collection<MinecraftServer.ServerResourcePackInfo> getProperties(Connection connection);
+    Collection<MinecraftServer.ServerResourcePackInfo> getProperties(PacketContext connection);
 
     String getMainFilePath(PacketContext context);
     String getFilePath(PacketContext context, Identifier identifier);

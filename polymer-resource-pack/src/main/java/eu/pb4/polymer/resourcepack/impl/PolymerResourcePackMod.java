@@ -4,7 +4,9 @@ import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.resourcepack.api.OutputGenerator;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.resourcepack.api.ResourcePackStatusConsumer;
 import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
@@ -62,16 +64,16 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
 	}
 
 	public static int generateResources(CommandContext<CommandSourceStack> context) {
-        generateAndCall(context.getSource().getServer(), false, x -> context.getSource().sendSuccess(() -> x, true), () -> {});
+        generateAndCall(context.getSource().getServer(), false, x -> context.getSource().sendSuccess(() -> x, true), (_) -> {});
         return 1;
     }
 
-    public static int generateResources(CommandContext<CommandSourceStack> context, Runnable runnable) {
+    public static int generateResources(CommandContext<CommandSourceStack> context, Consumer<OutputGenerator.Result> runnable) {
         generateAndCall(context.getSource().getServer(), false, x -> context.getSource().sendSuccess(() -> x, true), runnable);
         return 1;
     }
 
-    public static void generateAndCall(MinecraftServer server, boolean ignoreLock, Consumer<Component> messageConsumer, Runnable runnable) {
+    public static void generateAndCall(MinecraftServer server, boolean ignoreLock, Consumer<Component> messageConsumer, Consumer<OutputGenerator.Result> runnable) {
         if (alreadyGeneration && !ignoreLock) {
             messageConsumer.accept(Component.literal("[Polymer] Pack is already generating! Wait for it to finish..."));
             return;
@@ -79,6 +81,8 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
         alreadyGeneration = true;
 
         Util.ioPool().execute(() -> {
+            boolean success = false;
+            OutputGenerator.Result result = null;
             try {
                 messageConsumer.accept(Component.literal("[Polymer] Starting resource pack generation..."));
                 STATUS.clear();
@@ -98,21 +102,24 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                             // I hate windows
                         }
                     }
+                    result = PolymerResourcePackUtils.getInstance().build(outputPath, ResourcePackStatusConsumer.simple(STATUS::add));
+                    success = result != null;
                 }
 
-                boolean success = PolymerResourcePackUtils.buildMain(outputPath, STATUS::add);
                 STATUS.clear();
                 final var finalOutputPath = outputPath;
+                boolean finalSuccess = success;
+                OutputGenerator.Result finalResult = result;
                 server.execute(() -> {
                     alreadyGeneration = false;
-                    if (success) {
+                    if (finalSuccess) {
                         messageConsumer.accept(Component.literal("[Polymer] Resource pack created successfully! You can find it in game folder as ")
                                 .append(Component.literal(PolymerResourcePackImpl.FILE_NAME)
                                         .setStyle(Style.EMPTY.withUnderlined(true)
                                                 .withHoverEvent(new HoverEvent.ShowText(
                                                         Component.literal(finalOutputPath.toAbsolutePath().toString())))))
                         );
-                        runnable.run();
+                        runnable.accept(finalResult);
                     } else {
                         messageConsumer.accept(Component.literal("[Polymer] Found issues while creating resource pack! See logs above for more detail!").withStyle(ChatFormatting.RED));
                     }

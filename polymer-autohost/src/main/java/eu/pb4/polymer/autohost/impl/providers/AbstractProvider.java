@@ -26,62 +26,20 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     public long lastUpdate = 0;
 
     public boolean enabled;
-    public boolean isPackReady = false;
-    private Consumer<ResourcePackBuilder> eventA;
-    private Runnable eventB;
 
     public void serverStarted(MinecraftServer minecraftServer) {
         this.enabled = true;
-
-        this.isPackReady = false;
-
-        // Todo
-        //this.eventA = ProxyEvent.of(PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT).registerRet((x) -> {
-        //    isPackReady = false;
-        //});
-
-        // Todo
-        //this.eventB = PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.registerRet(() -> {
-        //    updateHash();
-        //    isPackReady = true;
-        //});
-
-        try {
-            PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendSystemMessage, () -> {});
-        } catch (Throwable e) {
-            CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
-        }
     }
 
     @Override
     public void serverStopped(MinecraftServer server) {
-        // Todo
-        //PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.unregister(this.eventA);
-        //PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.unregister(this.eventB);
-    }
 
-    protected boolean updateHash() {
-        try {
-            if (Files.exists(PolymerResourcePackUtils.getMainPath())) {
-                hash = com.google.common.io.Files.asByteSource(PolymerResourcePackUtils.getMainPath().toFile()).hash(Hashing.sha1()).toString();
-                size = Files.size(PolymerResourcePackUtils.getMainPath());
-                lastUpdate = Files.getLastModifiedTime(PolymerResourcePackUtils.getMainPath()).toMillis();
-                return true;
-            }
-        } catch (Exception e) {
-
-        }
-        hash = "";
-        size = 0;
-        return false;
     }
 
     @Override
-    public final Collection<MinecraftServer.ServerResourcePackInfo> getProperties(Connection connection) {
+    public final Collection<MinecraftServer.ServerResourcePackInfo> getProperties(PacketContext context) {
         var list = new ArrayList<MinecraftServer.ServerResourcePackInfo>();
-        var context = connection.getPacketContext();
 
-        list.add(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), this.getMainFilePath(context), this.hash));
         AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.invoker().collectSendResourcePacks(this, context, list::add);
         return list;
     }
@@ -108,7 +66,7 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     protected abstract String getAddress(Connection connection, String path);
 
     @Override
-    public boolean isReady() {
-        return this.isPackReady;
+    public boolean isReady(PacketContext context) {
+        return AutoHostUtils.RESOURCE_PACKS_READY.invoker().areResourcePacksReady(this, context);
     }
 }

@@ -10,12 +10,15 @@ import java.util.function.Function;
 
 public interface SpecialModel {
     ExtraCodecs.LateBoundIdMapper<Identifier, MapCodec<? extends SpecialModel>> TYPES = new LazyIdMapper<>(m -> {
+        m.put(Identifier.withDefaultNamespace("bell"), BellSpecialModel.CODEC);
+        m.put(Identifier.withDefaultNamespace("book"), BookSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("bed"), BedSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("banner"), BannerSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("conduit"), ConduitSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("copper_golem_statue"), CopperGolemStatueSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("chest"), ChestSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("head"), HeadSpecialModel.CODEC);
+        m.put(Identifier.withDefaultNamespace("end_cube"), EndCubeSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("player_head"), PlayerHeadSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("shulker_box"), ShulkerBoxSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("shield"), ShieldSpecialModel.CODEC);

@@ -3,7 +3,6 @@ package eu.pb4.polymer.resourcepack.api;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
-import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.loader.api.FabricLoader;
@@ -33,9 +32,11 @@ public final class PolymerResourcePackUtils {
 
     private static final ResourcePackCreator INSTANCE = new ResourcePackCreator();
 
+    public static final Event<Runnable> RESOURCE_PACK_INITIALIZED_EVENT = INSTANCE.initializedEvent;
     public static final Event<Consumer<ResourcePackBuilder>> RESOURCE_PACK_CREATION_EVENT = INSTANCE.creationEvent;
     public static final Event<Consumer<ResourcePackBuilder>> RESOURCE_PACK_AFTER_INITIAL_CREATION_EVENT = INSTANCE.afterInitialCreationEvent;
-    public static final Event<Runnable> RESOURCE_PACK_FINISHED_EVENT = INSTANCE.finishedEvent;
+    public static final Event<Consumer<Object>> RESOURCE_PACK_FINISHED_EVENT = INSTANCE.finishedEvent;
+
     private static boolean REQUIRED = PolymerResourcePackImpl.FORCE_REQUIRE;
     private static boolean DEFAULT_CHECK = true;
 
@@ -177,32 +178,6 @@ public final class PolymerResourcePackUtils {
 
     public static void ignoreNextDefaultCheck(ServerPlayer player) {
         ((CommonPacketListenerImplExt) player.connection).polymerCommon$setIgnoreNextResourcePack();
-    }
-
-    public static ResourcePackBuilder createBuilder(Path output) {
-        return new DefaultRPBuilder(ResourcePackBuilder.OutputGenerator.zipGenerator(output), (s) -> {});
-    }
-
-    public static ResourcePackBuilder createBuilder(ResourcePackBuilder.OutputGenerator generator   ) {
-        return new DefaultRPBuilder(generator, (s) -> {});
-    }
-
-    public static boolean buildMain() {
-        return buildMain(PolymerResourcePackUtils.getMainPath());
-    }
-
-    public static boolean buildMain(Path output) {
-        return buildMain(output, (s) -> {});
-    }
-
-    public static boolean buildMain(Path output, Consumer<String> status) {
-        try {
-            return INSTANCE.build(output, status);
-        } catch (Exception e) {
-            CommonImpl.LOGGER.error("Couldn't create resource pack!");
-            e.printStackTrace();
-            return false;
-        }
     }
 
     static {

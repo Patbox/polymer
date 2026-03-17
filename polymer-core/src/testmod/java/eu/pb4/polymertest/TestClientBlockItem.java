@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 
-public class TestClientBlockItem extends BlockItem implements PolymerItem, PolymerClientDecoded, PolymerKeepModel {
+public class TestClientBlockItem extends BlockItem implements PolymerItem, PolymerClientDecoded {
     public TestClientBlockItem(Block block, Properties settings) {
         super(block, settings);
     }

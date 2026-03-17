@@ -4,14 +4,10 @@ import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import net.fabricmc.fabric.api.event.Event;
-import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
-import net.minecraft.util.InclusiveRange;
 import org.jspecify.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -22,8 +18,9 @@ import java.util.function.Consumer;
  * Utilities allowing simple creation of resource pack
  */
 public final class ResourcePackCreator {
+    public final Event<Runnable> initializedEvent = EventImplUtils.createRunnableEvent();
     public final Event<Consumer<ResourcePackBuilder>> creationEvent = EventImplUtils.createConsumerEvent();
-    public final Event<Runnable> finishedEvent = EventImplUtils.createRunnableEvent();
+    public final Event<Consumer<Object>> finishedEvent = EventImplUtils.createConsumerEvent();
     public final Event<Consumer<ResourcePackBuilder>> afterInitialCreationEvent = EventImplUtils.createConsumerEvent();
 
     private final Set<String> modIds = new HashSet<>();
@@ -41,21 +38,6 @@ public final class ResourcePackCreator {
 
     public static ResourcePackCreator create() {
         return new ResourcePackCreator();
-    }
-
-    public static ResourcePackCreator createCopy(ResourcePackCreator source, boolean copyEvents) {
-        var creator = new ResourcePackCreator();
-        if (copyEvents) {
-            EventImplUtils.copyEvent(source.creationEvent, creator.creationEvent);
-            EventImplUtils.copyEvent(source.afterInitialCreationEvent, creator.afterInitialCreationEvent);
-            EventImplUtils.copyEvent(source.finishedEvent, creator.finishedEvent);
-        }
-        creator.modIds.addAll(source.modIds);
-        creator.modIdsNoCopy.addAll(source.modIdsNoCopy);
-        creator.packDescription = source.packDescription;
-        creator.packIcon = source.packIcon;
-        creator.sourcePaths.addAll(source.sourcePaths);
-        return creator;
     }
 
     /**
@@ -131,14 +113,11 @@ public final class ResourcePackCreator {
         return this.modIds.isEmpty() && EventImplUtils.isEmpty(this.creationEvent) && EventImplUtils.isEmpty(this.afterInitialCreationEvent);
     }
 
-    public boolean build(Path output) throws ExecutionException, InterruptedException {
-        return build(output, (s) -> {
-        });
+    public OutputGenerator.Result build(Path output) throws ExecutionException, InterruptedException {
+        return build(output, ResourcePackStatusConsumer.nonLogging());
     }
 
-    public boolean build(Path output, Consumer<String> status) throws ExecutionException, InterruptedException {
-        boolean successful = true;
-
+    public OutputGenerator.Result build(Path output, ResourcePackStatusConsumer status) throws ExecutionException, InterruptedException {
         try {
             Files.createDirectories(output.getParent());
         } catch (Throwable e) {
@@ -147,13 +126,18 @@ public final class ResourcePackCreator {
 
         try {
             if (output.toFile().exists()) {
-                Files.deleteIfExists(output );
+                Files.deleteIfExists(output);
             }
         } catch (Exception e) {
-            CommonImpl.LOGGER.error("Couldn't remove " + output  + " file!", e);
+            CommonImpl.LOGGER.error("Couldn't remove " + output + " file!", e);
         }
 
-        var builder = new DefaultRPBuilder(ResourcePackBuilder.OutputGenerator.zipGenerator(output), status);
+        return build(OutputGenerator.zipGenerator(output), status);
+    }
+    public <T> T build(OutputGenerator<T> output, ResourcePackStatusConsumer status) throws ExecutionException, InterruptedException {
+        this.initializedEvent.invoker().run();
+
+        var builder = new DefaultRPBuilder<>(output, status);
         status.accept("action:created_builder");
 
         if (this.packDescription != null) {
@@ -168,6 +152,8 @@ public final class ResourcePackCreator {
         status.accept("action:creation_event_start");
         this.creationEvent.invoker().accept(builder);
         status.accept("action:creation_event_finish");
+
+        var successful = true;
 
         for (var path : this.sourcePaths) {
             successful = builder.copyFromPath(path) && successful;
@@ -186,10 +172,10 @@ public final class ResourcePackCreator {
         status.accept("action:late_creation_event_finish");
 
         status.accept("action:build");
-        successful = builder.buildResourcePack().get() && successful;
+        var result = builder.buildResourcePack().get();
 
         status.accept("action:done");
-        this.finishedEvent.invoker().run();
-        return successful;
+        this.finishedEvent.invoker().accept(result);
+        return result;
     }
 }

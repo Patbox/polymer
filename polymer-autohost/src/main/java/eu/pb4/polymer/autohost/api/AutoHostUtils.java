@@ -19,6 +19,15 @@ public class AutoHostUtils {
                 }
             });
 
+    public static Event<ResourcePacksReadyCheck> RESOURCE_PACKS_READY = EventFactory.createArrayBacked(ResourcePacksReadyCheck.class, arr ->
+            (provider, context) -> {
+                var res = true;
+                for (var a : arr) {
+                    res &= a.areResourcePacksReady(provider, context);
+                }
+                return res;
+            });
+
     private AutoHostUtils() {
     }
 
@@ -39,5 +48,9 @@ public class AutoHostUtils {
     public interface SendResourcePackCollector {
         void collectSendResourcePacks(ResourcePackDataProvider provider, PacketContext context,
                                       Consumer<MinecraftServer.ServerResourcePackInfo> consumer);
+    }
+
+    public interface ResourcePacksReadyCheck {
+        boolean areResourcePacksReady(ResourcePackDataProvider provider, PacketContext context);
     }
 }

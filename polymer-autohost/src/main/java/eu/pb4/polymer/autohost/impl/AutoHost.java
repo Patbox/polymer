@@ -1,6 +1,5 @@
 package eu.pb4.polymer.autohost.impl;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
@@ -8,8 +7,10 @@ import eu.pb4.polymer.autohost.impl.providers.*;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CommonPacketListenerImplExt;
+import eu.pb4.polymer.resourcepack.api.OutputGenerator;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
+import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -22,7 +23,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 public class AutoHost implements ModInitializer {
@@ -39,6 +39,7 @@ public class AutoHost implements ModInitializer {
 
     public static final String DEFAULT_PATH = AutoHostUtils.getPathFromId(AutoHostUtils.DEFAULT_PACK_ID);
     public static boolean generateWhenDisabled = false;
+    public static OutputGenerator.Result mainPackResult;
 
     public static void init(MinecraftServer server) {
         var config = CommonImpl.loadConfig("auto-host", AutoHostConfig.class);
@@ -46,7 +47,7 @@ public class AutoHost implements ModInitializer {
 
         if (!config.enabled) {
             if (generateWhenDisabled) {
-                EmptyProvider.INSTANCE.serverStarted(server);
+                startResourcePackGeneration(server);
             }
             return;
         }
@@ -108,6 +109,15 @@ public class AutoHost implements ModInitializer {
         CommonImpl.saveConfig("auto-host", config);
 
         provider.serverStarted(server);
+        startResourcePackGeneration(server);
+    }
+
+    public static void startResourcePackGeneration(MinecraftServer minecraftServer) {
+        try {
+            PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendSystemMessage, (_) -> {});
+        } catch (Throwable e) {
+            CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
+        }
     }
 
     public static void end(MinecraftServer server) {
@@ -150,14 +160,12 @@ public class AutoHost implements ModInitializer {
         CommonImplUtils.registerCommands((c) -> c.then(literal("generate-pack")
                         .requires(CommonImplUtils.permission("command.generate", 3))
                         .then(literal("reload").executes((ctx -> {
-                            return PolymerResourcePackMod.generateResources(ctx, () -> {
-                                if (!provider.isReady()) {
-                                    ctx.getSource().sendSystemMessage(Component.literal("[Polymer] AutoHost module isn't configured/loaded correctly so resource pack won't be synced!"));
-                                    return;
-                                }
+                            return PolymerResourcePackMod.generateResources(ctx, (_) -> {
                                 for (var player : ctx.getSource().getServer().getPlayerList().getPlayers()) {
-                                    for (var x : provider.getProperties(((CommonPacketListenerImplExt) player.connection).polymerCommon$getConnection())) {
-                                        player.connection.send(new ClientboundResourcePackPushPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
+                                    if (provider.isReady(player.connection.getPacketContext())) {
+                                        for (var x : provider.getProperties(player.connection.getPacketContext())) {
+                                            player.connection.send(new ClientboundResourcePackPushPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
+                                        }
                                     }
                                 }
                             });
@@ -167,20 +175,30 @@ public class AutoHost implements ModInitializer {
 
         CommonImplUtils.registerDevCommands((c) -> {
             c.then(literal("reload_resourcepack").executes(context -> {
-                if (provider.isReady()) {
-                    for (var x : provider.getProperties(((CommonPacketListenerImplExt) context.getSource().getPlayerOrException().connection).polymerCommon$getConnection())) {
+                if (provider.isReady(context.getSource().getPlayerOrException().connection.getPacketContext())) {
+                    for (var x : provider.getProperties(context.getSource().getPlayerOrException().connection.getPacketContext())) {
                         context.getSource().getPlayerOrException().connection.send(new ClientboundResourcePackPushPacket(x.id(), x.url(), x.hash(), AutoHost.config.require || PolymerResourcePackUtils.isRequired(), Optional.ofNullable(AutoHost.message)));
                     }
                 }
                 return 0;
             }));
+        });
 
-            c.then(literal("force_ready").then(argument("value", BoolArgumentType.bool()).executes((ctx) -> {
-                if (provider instanceof AbstractProvider abs) {
-                    abs.isPackReady = BoolArgumentType.getBool(ctx, "value");
-                }
-                return 0;
-            })));
+        AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.register(((provider1, context, consumer) -> {
+            if (mainPackResult == null) return;
+            consumer.accept(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), provider1.getMainFilePath(context), mainPackResult.hash()));
+        }));
+
+        AutoHostUtils.RESOURCE_PACKS_READY.register(((_, _) -> mainPackResult != null));
+
+        PolymerResourcePackUtils.RESOURCE_PACK_INITIALIZED_EVENT.register(() -> {
+            mainPackResult = null;
+        });
+
+        PolymerResourcePackUtils.RESOURCE_PACK_FINISHED_EVENT.register(v -> {
+            if (v instanceof OutputGenerator.Result result) {
+                mainPackResult = result;
+            }
         });
     }
 }

@@ -1,5 +1,6 @@
 package eu.pb4.polymer.resourcepack.extras.api.format.item.model;
 
+import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,14 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.util.ExtraCodecs;
+import org.joml.Matrix4f;
 
 public record SelectItemModel<T extends SelectProperty<V>, V>(Switch<T, V> switchValue,
-                                                              Optional<ItemModel> fallback) implements ItemModel {
+                                                              Optional<ItemModel> fallback,
+                                                              Optional<Transformation> transformation) implements ItemModel {
     public static final MapCodec<SelectItemModel<?, ?>> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     Switch.CODEC.forGetter(SelectItemModel::switchValue),
-                    ItemModel.CODEC.optionalFieldOf("fallback").forGetter(SelectItemModel::fallback)
-            ).apply(instance, SelectItemModel::new)
+                    ItemModel.CODEC.optionalFieldOf("fallback").forGetter(SelectItemModel::fallback),
+                    Transformation.EXTENDED_CODEC.optionalFieldOf("transformation").forGetter(SelectItemModel::transformation)
+                    ).apply(instance, SelectItemModel::new)
     );
 
     @Override
@@ -50,7 +54,7 @@ public record SelectItemModel<T extends SelectProperty<V>, V>(Switch<T, V> switc
             }
         }
 
-        return new SelectItemModel<>(new Switch<>(this.switchValue.property, list), fallback.map(model -> replacer.modifyDeep(this, model)));
+        return new SelectItemModel<>(new Switch<>(this.switchValue.property, list), fallback.map(model -> replacer.modifyDeep(this, model)), this.transformation);
     }
 
     public static <T extends SelectProperty<V>, V> Builder<T, V> builder(T property) {
@@ -62,6 +66,7 @@ public record SelectItemModel<T extends SelectProperty<V>, V>(Switch<T, V> switc
         private final List<Case<V>> cases = new ArrayList<>();
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         private Optional<ItemModel> fallbackModel = Optional.empty();
+        private Optional<Transformation> transformation = Optional.empty();
         private Builder(T property) {
             this.property = property;
         }
@@ -81,8 +86,18 @@ public record SelectItemModel<T extends SelectProperty<V>, V>(Switch<T, V> switc
             return this;
         }
 
+        public Builder<T, V> transformation(Transformation transformation) {
+            this.transformation = Optional.ofNullable(transformation);
+            return this;
+        }
+
+        public Builder<T, V> transformation(Matrix4f matrix4f) {
+            this.transformation = Optional.ofNullable(matrix4f).map(Transformation::new);
+            return this;
+        }
+
         public SelectItemModel<T, V> build() {
-            return new SelectItemModel<>(new Switch<>(this.property, new ArrayList<>(this.cases)), this.fallbackModel);
+            return new SelectItemModel<>(new Switch<>(this.property, new ArrayList<>(this.cases)), this.fallbackModel, this.transformation);
         }
     }
 }

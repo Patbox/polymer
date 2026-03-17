@@ -21,7 +21,7 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     public static ResourcePackDataProvider INSTANCE = new EmptyProvider();
 
     @Override
-    public boolean isReady() {
+    public boolean isReady(PacketContext context) {
         return true;
     }
 
@@ -37,11 +37,7 @@ public record EmptyProvider() implements ResourcePackDataProvider {
 
     @Override
     public void serverStarted(MinecraftServer server) {
-        try {
-            PolymerResourcePackMod.generateAndCall(server, true, server::sendSystemMessage, () -> {});
-        } catch (Throwable e) {
-            CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
-        }
+
     }
 
     @Override
@@ -50,7 +46,7 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     }
 
     @Override
-    public Collection<MinecraftServer.ServerResourcePackInfo> getProperties(Connection connection) {
+    public Collection<MinecraftServer.ServerResourcePackInfo> getProperties(PacketContext connection) {
         return List.of();
     }
 

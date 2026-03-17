@@ -18,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 @ApiStatus.Internal
@@ -49,12 +50,16 @@ public class PolymerResourcePack {
             }
         }
 
-        if (PolymerResourcePackUtils.buildMain(outputPath)) {
-            path = outputPath;
-            return new FilePackResources.FileResourcesSupplier(outputPath);
-        } else {
-            return null;
+        try {
+            if (PolymerResourcePackUtils.getInstance().build(outputPath) != null) {
+                path = outputPath;
+                return new FilePackResources.FileResourcesSupplier(outputPath);
+            }
+        } catch (Throwable e) {
+
         }
+
+        return null;
     }
 
     public static class Provider implements RepositorySource {

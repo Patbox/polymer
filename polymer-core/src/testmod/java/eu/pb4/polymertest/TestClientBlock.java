@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import org.jspecify.annotations.Nullable;
 
-public class TestClientBlock extends Block implements PolymerBlock, PolymerKeepModel, PolymerClientDecoded {
+public class TestClientBlock extends Block implements PolymerBlock, PolymerClientDecoded {
     public TestClientBlock(Properties settings) {
         super(settings);
     }

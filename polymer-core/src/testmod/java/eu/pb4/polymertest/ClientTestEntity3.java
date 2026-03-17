@@ -12,7 +12,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.Level;
 
-public class ClientTestEntity3 extends Creeper implements PolymerEntity, PolymerClientDecoded, PolymerKeepModel {
+public class ClientTestEntity3 extends Creeper implements PolymerEntity, PolymerClientDecoded {
     public ClientTestEntity3(EntityType<ClientTestEntity3> entityEntityType, Level world) {
         super(entityEntityType, world);
     }

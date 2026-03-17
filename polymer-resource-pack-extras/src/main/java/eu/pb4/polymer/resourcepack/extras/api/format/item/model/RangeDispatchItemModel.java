@@ -1,21 +1,24 @@
 package eu.pb4.polymer.resourcepack.extras.api.format.item.model;
 
+import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.property.numeric.NumericProperty;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record RangeDispatchItemModel(NumericProperty property, float scale, List<Entry> entries, Optional<ItemModel> fallback) implements ItemModel {
+public record RangeDispatchItemModel(NumericProperty property, float scale, List<Entry> entries, Optional<ItemModel> fallback, Optional<Transformation> transformation) implements ItemModel {
     public static final MapCodec<RangeDispatchItemModel> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             NumericProperty.CODEC.forGetter(RangeDispatchItemModel::property),
             Codec.FLOAT.optionalFieldOf("scale", 1f).forGetter(RangeDispatchItemModel::scale),
             Entry.CODEC.listOf().fieldOf("entries").forGetter(RangeDispatchItemModel::entries),
-            ItemModel.CODEC.optionalFieldOf("fallback").forGetter(RangeDispatchItemModel::fallback)
-    ).apply(instance, RangeDispatchItemModel::new));
+            ItemModel.CODEC.optionalFieldOf("fallback").forGetter(RangeDispatchItemModel::fallback),
+            Transformation.EXTENDED_CODEC.optionalFieldOf("transformation").forGetter(RangeDispatchItemModel::transformation)
+            ).apply(instance, RangeDispatchItemModel::new));
 
     @Override
     public MapCodec<? extends ItemModel> codec() {
@@ -45,7 +48,7 @@ public record RangeDispatchItemModel(NumericProperty property, float scale, List
             }
         }
 
-        return new RangeDispatchItemModel(this.property, scale, list, fallback.map(model -> replacer.modifyDeep(this, model)));
+        return new RangeDispatchItemModel(this.property, scale, list, fallback.map(model -> replacer.modifyDeep(this, model)), this.transformation);
     }
 
     public static class Builder {
@@ -55,6 +58,8 @@ public record RangeDispatchItemModel(NumericProperty property, float scale, List
 
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         private Optional<ItemModel> fallbackModel = Optional.empty();
+        private Optional<Transformation> transformation = Optional.empty();
+
         private Builder(NumericProperty property) {
             this.property = property;
         }
@@ -74,8 +79,18 @@ public record RangeDispatchItemModel(NumericProperty property, float scale, List
             return this;
         }
 
+        public Builder transformation(Transformation transformation) {
+            this.transformation = Optional.ofNullable(transformation);
+            return this;
+        }
+
+        public Builder transformation(Matrix4f matrix4f) {
+            this.transformation = Optional.ofNullable(matrix4f).map(Transformation::new);
+            return this;
+        }
+
         public RangeDispatchItemModel build() {
-            return new RangeDispatchItemModel(this.property, this.scale, new ArrayList<>(this.entries), this.fallbackModel);
+            return new RangeDispatchItemModel(this.property, this.scale, new ArrayList<>(this.entries), this.fallbackModel, this.transformation);
         }
     }
 }

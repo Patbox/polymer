@@ -1,18 +1,19 @@
 package eu.pb4.polymer.resourcepack.impl.generation;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 import com.google.gson.*;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.EventImplUtils;
-import eu.pb4.polymer.resourcepack.api.AssetPaths;
-import eu.pb4.polymer.resourcepack.api.PackResource;
-import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
+import eu.pb4.polymer.resourcepack.api.*;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterSectionAccessor;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -33,22 +34,22 @@ import java.util.zip.ZipOutputStream;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
-public class DefaultRPBuilder implements InternalRPBuilder {
+public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
     public static final Logger LOGGER = LoggerFactory.getLogger(DefaultRPBuilder.class);
     public static final Gson GSON = CommonImpl.GSON;
     public final Event<Consumer<List<String>>> buildEvent = EventImplUtils.createConsumerEvent();
     private final HashMap<String, PackResource> fileMap = new HashMap<>();
-    private final OutputGenerator outputGenerator;
+    private final OutputGenerator<T> outputGenerator;
     private final Set<ModContainer> modsList = new HashSet<>();
     private final Map<String, JsonArray> atlasDefinitions = new HashMap<>();
     private final Map<String, JsonObject> objectMergeDefinitions = new HashMap<>();
     private final List<Path> rootPaths = new ArrayList<>();
     private final List<ResourceConverter> converters = new ArrayList<>();
-    private final Consumer<String> status;
+    private final ResourcePackStatusConsumer status;
     private boolean hasVanilla;
     private final PackMcMeta.Builder packMetadata = new PackMcMeta.Builder();
     private final List<Consumer<ResourcePackBuilder>> preFinishTask = new ArrayList<>();
-    public DefaultRPBuilder(OutputGenerator generator, Consumer<String> status) {
+    public DefaultRPBuilder(OutputGenerator<T> generator, ResourcePackStatusConsumer status) {
         this.status = status;
         this.outputGenerator = generator;
     }
@@ -384,7 +385,7 @@ public class DefaultRPBuilder implements InternalRPBuilder {
     }
 
     @Override
-    public CompletableFuture<Boolean> buildResourcePack() {
+    public CompletableFuture<T> buildResourcePack() {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var credits = new ArrayList<String>();
@@ -484,11 +485,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
                 status.accept("action:sort_files_end");
                 //Thread.sleep(100000);
 
-                bool &= this.outputGenerator.generateFile(sorted, this.converters.isEmpty() ? ResourceConverter.NO_OP : this::convertResource, status);
-                return bool;
+                return this.outputGenerator.generateFile(sorted, this.converters.isEmpty() ? ResourceConverter.NO_OP : this::convertResource, status);
             } catch (Exception e) {
                 LOGGER.error("Something went wrong while creating resource pack!", e);
-                return false;
+                return null;
             }
         });
     }
@@ -510,10 +510,15 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         return resource;
     }
 
-    public static boolean writeSingleZip(Path out, Collection<Map.Entry<String, PackResource>> resources, ResourceConverter converter, Consumer<String> status) {
+    public static OutputGenerator.Result writeSingleZip(Path out, Collection<Map.Entry<String, PackResource>> resources, ResourceConverter converter, ResourcePackStatusConsumer status) {
+        //noinspection deprecation
         status.accept("action:write_zip_start");
 
-        try (var outputStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), 65536))) {
+        var hashCode = new MutableObject<HashCode>();
+
+        try (var outputStream = new ZipOutputStream(new BufferedOutputStream(
+                new HashingStream(Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), Hashing.sha1(), hashCode::setValue), 65536)
+        )) {
             for (var entry : resources) {
                 var path = entry.getKey();
                 var resource = entry.getValue();
@@ -536,10 +541,10 @@ public class DefaultRPBuilder implements InternalRPBuilder {
         } catch (Throwable e) {
             status.accept("action:write_zip_fail");
             LOGGER.warn("Failed to write the zip file!", e);
-            return false;
+            return null;
         }
         status.accept("action:write_zip_end");
-        return true;
+        return new OutputGenerator.Result(out, hashCode.toString(), status.hadIssues());
     }
 
     @Override

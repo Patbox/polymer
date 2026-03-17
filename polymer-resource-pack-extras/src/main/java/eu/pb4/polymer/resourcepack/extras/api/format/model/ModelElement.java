@@ -1,17 +1,23 @@
 package eu.pb4.polymer.resourcepack.extras.api.format.model;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.math.Quadrant;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.common.impl.SortedMapCodec;
 import it.unimi.dsi.fastutil.floats.FloatList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import net.minecraft.core.Direction;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optional<Rotation> rotation,
                            boolean shade, int lightEmission) {
@@ -28,6 +34,7 @@ public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optio
                         boolean shade) {
         this(from, to, faces, rotation, shade, 0);
     }
+
     public ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optional<Rotation> rotation) {
         this(from, to, faces, rotation, true, 0);
     }
@@ -36,29 +43,56 @@ public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optio
         this(from, to, faces, Optional.empty(), true, 0);
     }
 
-    public record Rotation(Vec3 origin, Direction.Axis axis, float angle, boolean rescale) {
+    public static Builder builder(Vec3 from, Vec3 to) {
+        return new Builder(from, to);
+    }
+
+    public record Rotation(Vector3fc origin, RotationValue value, boolean rescale) {
         public static final Codec<Rotation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Vec3.CODEC.optionalFieldOf("origin", Vec3.ZERO).forGetter(Rotation::origin),
-                Direction.Axis.CODEC.fieldOf("axis").forGetter(Rotation::axis),
-                Codec.FLOAT.fieldOf("angle").forGetter(Rotation::angle),
+                ExtraCodecs.VECTOR3F.optionalFieldOf("origin", new Vector3f()).forGetter(Rotation::origin),
+                Codec.mapEither(
+                                RecordCodecBuilder.<SingleAxis>mapCodec(instance1 -> instance1.group(
+                                                Direction.Axis.CODEC.fieldOf("axis").forGetter(SingleAxis::axis),
+                                                Codec.FLOAT.fieldOf("angle").forGetter(SingleAxis::angle)
+                                        ).apply(instance1, SingleAxis::new)
+                                ),
+                                RecordCodecBuilder.<Euler>mapCodec(instance1 -> instance1.group(
+                                                Codec.FLOAT.optionalFieldOf("x", 0f).forGetter(Euler::x),
+                                                Codec.FLOAT.optionalFieldOf("y", 0f).forGetter(Euler::y),
+                                                Codec.FLOAT.optionalFieldOf("z", 0f).forGetter(Euler::z)
+                                        ).apply(instance1, Euler::new)
+                                )
+                        ).xmap(x -> x.map(Function.<RotationValue>identity(), Function.identity()),
+                                x -> x instanceof Euler euler ? Either.right(euler) : Either.left((SingleAxis) x))
+                        .forGetter(Rotation::value),
                 Codec.BOOL.optionalFieldOf("rescale", false).forGetter(Rotation::rescale)
         ).apply(instance, Rotation::new));
 
-        public Rotation(Vec3 origin, Direction.Axis axis, float angle) {
-            this(origin, axis, angle, false);
+        public Rotation(Vector3fc origin, Vector3fc euler, boolean rescale) {
+            this(origin, new Euler(euler.x(), euler.y(), euler.z()), rescale);
         }
 
-        public Rotation(Direction.Axis axis, float angle) {
-            this(Vec3.ZERO, axis, angle, false);
+        public Rotation(Vector3fc origin, Direction.Axis axis, float angle, boolean rescale) {
+            this(origin, new SingleAxis(axis, angle), rescale);
+        }
+
+        public sealed interface RotationValue permits Euler, SingleAxis {
+        }
+
+        public record Euler(float x, float y, float z) implements RotationValue {
+            public static Euler ZERO = new Euler(0, 0, 0);
+        }
+
+        public record SingleAxis(Direction.Axis axis, float angle) implements RotationValue {
         }
     }
 
-    public record Face(List<Float> uv, String texture, Optional<Direction> cullface, int rotation, int tintIndex) {
+    public record Face(List<Float> uv, String texture, Optional<Direction> cullface, Quadrant rotation, int tintIndex) {
         public static final Codec<Face> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.list(Codec.FLOAT, 4, 4).optionalFieldOf("uv", List.of()).forGetter(Face::uv),
                 Codec.STRING.optionalFieldOf("texture", "").forGetter(Face::texture),
                 Direction.CODEC.optionalFieldOf("cullface").forGetter(Face::cullface),
-                Codec.INT.optionalFieldOf("rotation", 0).forGetter(Face::rotation),
+                Quadrant.CODEC.optionalFieldOf("rotation", Quadrant.R0).forGetter(Face::rotation),
                 Codec.INT.optionalFieldOf("tintindex", -1).forGetter(Face::tintIndex)
         ).apply(instance, Face::new));
 
@@ -68,25 +102,21 @@ public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optio
             }
         }
 
-        public Face(List<Float> uv, String texture, Optional<Direction> cullface, int rotation) {
+        public Face(List<Float> uv, String texture, Optional<Direction> cullface, Quadrant rotation) {
             this(uv, texture, cullface, rotation, -1);
         }
 
         public Face(List<Float> uv, String texture, Optional<Direction> cullface) {
-            this(uv, texture, cullface, 0, -1);
+            this(uv, texture, cullface, Quadrant.R0, -1);
         }
 
         public Face(List<Float> uv, String texture) {
-            this(uv, texture, Optional.empty(), 0, -1);
+            this(uv, texture, Optional.empty(), Quadrant.R0, -1);
         }
 
         public Face(String texture) {
-            this(List.of(), texture, Optional.empty(), 0, -1);
+            this(List.of(), texture, Optional.empty(), Quadrant.R0, -1);
         }
-    }
-
-    public static Builder builder(Vec3 from, Vec3 to) {
-        return new Builder(from, to);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -103,16 +133,28 @@ public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optio
             this.to = to;
         }
 
-        public Builder rotation(Vec3 origin, Direction.Axis axis, float angle, boolean rescale) {
+        public Builder rotation(Vector3fc origin, Direction.Axis axis, float angle, boolean rescale) {
             return this.rotation(new Rotation(origin, axis, angle, rescale));
         }
 
-        public Builder rotation(Vec3 origin, Direction.Axis axis, float angle) {
-            return this.rotation(new Rotation(origin, axis, angle));
+        public Builder rotation(Vector3fc origin, Direction.Axis axis, float angle) {
+            return this.rotation(new Rotation(origin, axis, angle, false));
         }
 
         public Builder rotation(Direction.Axis axis, float angle) {
-            return this.rotation(new Rotation(axis, angle));
+            return this.rotation(new Rotation(new Vector3f(), axis, angle, false));
+        }
+
+        public Builder rotation(Vector3fc origin, Vector3fc rotation, boolean rescale) {
+            return this.rotation(new Rotation(origin, rotation, rescale));
+        }
+
+        public Builder rotation(Vector3fc origin, Vector3fc rotation) {
+            return this.rotation(new Rotation(origin, rotation, false));
+        }
+
+        public Builder rotation(Vector3fc rotation) {
+            return this.rotation(new Rotation(new Vector3f(), rotation, false));
         }
 
         public Builder face(Direction direction, Face face) {
@@ -120,11 +162,11 @@ public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optio
             return this;
         }
 
-        public Builder face(Direction direction, float u1, float v1, float u2, float v2, String texture, Direction cullFace, int rotation, int tint) {
+        public Builder face(Direction direction, float u1, float v1, float u2, float v2, String texture, Direction cullFace, Quadrant rotation, int tint) {
             return this.face(direction, new Face(FloatList.of(u1, v1, u2, v2), texture, Optional.ofNullable(cullFace), rotation, tint));
         }
 
-        public Builder face(Direction direction, float u1, float v1, float u2, float v2, String texture, Direction cullFace, int rotation) {
+        public Builder face(Direction direction, float u1, float v1, float u2, float v2, String texture, Direction cullFace, Quadrant rotation) {
             return this.face(direction, new Face(FloatList.of(u1, v1, u2, v2), texture, Optional.ofNullable(cullFace), rotation));
         }
 
@@ -136,15 +178,15 @@ public record ModelElement(Vec3 from, Vec3 to, Map<Direction, Face> faces, Optio
             return this.face(direction, new Face(FloatList.of(u1, v1, u2, v2), texture));
         }
 
-        public Builder face(Direction direction, String texture, Direction cullFace, int rotation, int tint) {
+        public Builder face(Direction direction, String texture, Direction cullFace, Quadrant rotation, int tint) {
             return this.face(direction, new Face(List.of(), texture, Optional.ofNullable(cullFace), rotation, tint));
         }
 
-        public Builder face(Direction direction, String texture, int rotation, int tint) {
+        public Builder face(Direction direction, String texture, Quadrant rotation, int tint) {
             return this.face(direction, new Face(List.of(), texture, Optional.empty(), rotation, tint));
         }
 
-        public Builder face(Direction direction, String texture, int rotation) {
+        public Builder face(Direction direction, String texture, Quadrant rotation) {
             return this.face(direction, new Face(List.of(), texture, Optional.empty(), rotation));
         }
 

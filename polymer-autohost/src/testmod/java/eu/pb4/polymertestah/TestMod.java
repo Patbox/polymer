@@ -1,16 +1,13 @@
 package eu.pb4.polymertestah;
 
-import com.google.common.hash.Hashing;
 import eu.pb4.polymer.autohost.api.AutoHostUtils;
-import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
-import java.io.IOException;
+
 import java.nio.file.Files;
 import java.security.MessageDigest;
-import java.time.Duration;
 import java.util.HexFormat;
 
 

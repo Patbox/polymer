@@ -1,5 +1,6 @@
 package eu.pb4.polymer.resourcepack.extras.api.format.item.model;
 
+import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.common.impl.LazyIdMapper;
@@ -8,6 +9,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 public interface ItemModel {
