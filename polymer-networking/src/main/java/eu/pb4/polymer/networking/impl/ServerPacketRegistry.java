@@ -34,8 +34,8 @@ public class ServerPacketRegistry {
     public static void register() {
         PolymerNetworking.registerCommonVersioned(HandshakePayload.ID, 2, HandshakePayload.CODEC);
         PolymerNetworking.registerCommonVersioned(MetadataPayload.ID, 2, MetadataPayload.CODEC);
-        PolymerNetworking.registerS2CVersioned(DisableS2CPayload.ID, 2, StreamCodec.unit(new DisableS2CPayload()));
-        PolymerNetworking.registerS2CVersioned(HelloS2CPayload.ID, 2, StreamCodec.unit(new HelloS2CPayload()));
+        PolymerNetworking.registerClientboundVersioned(DisableS2CPayload.ID, 2, StreamCodec.unit(new DisableS2CPayload()));
+        PolymerNetworking.registerClientboundVersioned(HelloS2CPayload.ID, 2, StreamCodec.unit(new HelloS2CPayload()));
 
         PolymerServerNetworking.registerCommonHandler(HandshakePayload.class,
                 (server, handler, packet) -> handleHandshake(PolymerHandshakeHandler.of(server, handler), packet));

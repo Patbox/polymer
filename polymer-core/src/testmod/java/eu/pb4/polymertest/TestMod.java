@@ -488,7 +488,7 @@ public class TestMod implements ModInitializer {
             d.register(literal("test")
                     .executes((ctx) -> {
                         try {
-                            ctx.getSource().sendSuccess(() -> Component.literal("" + PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer(), PolymerResourcePackUtils.getMainUuid())), false);
+                            ctx.getSource().sendSuccess(() -> Component.literal("" + PolymerResourcePackUtils.hasPack(ctx.getSource().getPlayer().connection, PolymerResourcePackUtils.getMainUuid())), false);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

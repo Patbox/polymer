@@ -168,47 +168,31 @@ public final class PolymerCommonUtils {
         );
     }
 
-    public static boolean isBedrockPlayer(ServerPlayer player) {
-        if (CompatStatus.FLOODGATE) {
-            return FloodGateUtils.isPlayerBroken(player);
-        }
-        return false;
+    public static boolean isBedrockPlayer(PacketContextProvider contextProvider) {
+        return isBedrockPlayer(contextProvider.getPacketContext().get(PacketContext.GAME_PROFILE));
     }
 
     public static boolean isBedrockPlayer(GameProfile profile) {
-        if (CompatStatus.FLOODGATE) {
+        if (CompatStatus.FLOODGATE && profile != null) {
             return FloodGateUtils.isPlayerBroken(profile.id());
         }
         return false;
     }
 
-    public static int getPlayerGameProtocol(ServerPlayer player) {
-        return getPlayerGameProtocol(player.getGameProfile());
+    public static int getPlayerGameProtocol(PacketContextProvider contextProvider) {
+        return getPlayerGameProtocol(contextProvider.getPacketContext().get(PacketContext.GAME_PROFILE));
     }
 
     public static int getPlayerGameProtocol(GameProfile profile) {
-        if (CompatStatus.VIAVERSION) {
+        if (CompatStatus.VIAVERSION && profile != null) {
             return ViaVersionUtils.getProtocol(profile.id());
         }
         return SharedConstants.getCurrentVersion().protocolVersion();
     }
 
-    public static boolean hasResourcePack(@Nullable ServerPlayer player, UUID uuid) {
+    public static boolean hasResourcePack(@Nullable PacketContextProvider provider, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || (player != null && player.connection != null && ((CommonConnectionExt) ((CommonPacketListenerImplExt) player.connection)
-                .polymerCommon$getConnection()).polymerCommon$hasResourcePack(uuid))
-                || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
-    }
-
-    public static boolean hasResourcePack(ServerCommonPacketListenerImpl handler, UUID uuid) {
-        return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || (((CommonConnectionExt) ((CommonPacketListenerImplExt) handler).polymerCommon$getConnection()).polymerCommon$hasResourcePack(uuid))
-                || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
-    }
-
-    public static boolean hasResourcePack(Connection connection, UUID uuid) {
-        return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || ((CommonConnectionExt) connection).polymerCommon$hasResourcePack(uuid)
+                || provider != null && hasResourcePack(provider.getPacketContext(), uuid)
                 || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
@@ -225,12 +209,12 @@ public final class PolymerCommonUtils {
         return true;
     }
 
-    public static void setHasResourcePack(ServerPlayer player, UUID uuid, boolean status) {
-        ((CommonConnectionExt) ((CommonPacketListenerImplExt) player.connection).polymerCommon$getConnection()).polymerCommon$setResourcePack(uuid, status);
+    public static void setHasResourcePack(PacketContextProvider provider, UUID uuid, boolean status) {
+        setHasResourcePack(provider.getPacketContext(), uuid, status);
     }
 
-    public static void setHasResourcePack(Connection player, UUID uuid, boolean status) {
-        ((CommonConnectionExt) player).polymerCommon$setResourcePack(uuid, status);
+    public static void setHasResourcePack(PacketContext context, UUID uuid, boolean status) {
+        ((CommonConnectionExt) context.orElseThrow(PacketContext.CONNECTION)).polymerCommon$setResourcePack(uuid, status);
     }
 
     /**

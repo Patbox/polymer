@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.impl.*;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerPlayer;
@@ -86,8 +87,8 @@ public final class PolymerResourcePackUtils {
      * @param player Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasPack(@Nullable ServerPlayer player, UUID uuid) {
-        return PolymerCommonUtils.hasResourcePack(player, uuid);
+    public static boolean hasPack(@Nullable PacketContextProvider provider, UUID uuid) {
+        return PolymerCommonUtils.hasResourcePack(provider, uuid);
     }
 
     /**
@@ -101,19 +102,6 @@ public final class PolymerResourcePackUtils {
         return PolymerCommonUtils.hasResourcePack(context, uuid);
     }
 
-
-    /**
-     * Allows to check if player has selected server side resoucepack installed
-     * However it's impossible to check if it's polymer one or not
-     *
-     * @param handler Player to check
-     * @return True if player has a server resourcepack
-     */
-    public static boolean hasPack(ServerCommonPacketListenerImpl handler, UUID uuid) {
-        return PolymerCommonUtils.hasResourcePack(handler, uuid);
-    }
-
-
     /**
      * Allows to check if player has selected server side resoucepack installed
      * However it's impossible to check if it's polymer one or not
@@ -121,7 +109,7 @@ public final class PolymerResourcePackUtils {
      * @param player Player to check
      * @return True if player has a server resourcepack
      */
-    public static boolean hasMainPack(@Nullable ServerPlayer player) {
+    public static boolean hasMainPack(@Nullable PacketContextProvider player) {
         return hasPack(player, getMainUuid());
     }
 

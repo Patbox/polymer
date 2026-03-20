@@ -14,7 +14,7 @@ public class C2SPackets {
     public static final Identifier CHANGE_TOOLTIP = id("other/change_tooltip");
 
     public static <T extends CustomPacketPayload> void register(Identifier id, StreamCodec<ContextByteBuf, T> codec, int... ver) {
-        PolymerNetworking.registerC2SVersioned(id, IntList.of(ver), codec);
+        PolymerNetworking.registerServerboundVersioned(id, IntList.of(ver), codec);
     }
 
     static {

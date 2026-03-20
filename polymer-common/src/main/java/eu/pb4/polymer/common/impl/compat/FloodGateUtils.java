@@ -7,10 +7,6 @@ import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
 
 public class FloodGateUtils {
-    public static boolean isPlayerBroken(ServerPlayer player) {
-        return FloodgateApi.getInstance().isFloodgatePlayer(player.getUUID());
-    }
-
     public static boolean isPlayerBroken(UUID uuid) {
         return FloodgateApi.getInstance().isFloodgatePlayer(uuid);
     }

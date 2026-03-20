@@ -151,7 +151,7 @@ public class Commands {
                                             if (CompatStatus.POLYMER_RESOURCE_PACK) {
                                                 x = x.executes((ctx) -> {
                                                     var status = ctx.getArgument("status", Boolean.class);
-                                                    PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrException(), PolymerResourcePackUtils.getMainUuid(), status);
+                                                    PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrException().connection, PolymerResourcePackUtils.getMainUuid(), status);
                                                     ctx.getSource().sendSuccess(() -> Component.literal("New resource pack status: " + status), false);
                                                     return 0;
                                                 });
@@ -160,7 +160,7 @@ public class Commands {
                                             x.then(argument("uuid", UuidArgument.uuid())
                                                     .executes((ctx) -> {
                                                         var status = ctx.getArgument("status", Boolean.class);
-                                                        PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrException(), UuidArgument.getUuid(ctx, "uuid"), status);
+                                                        PolymerCommonUtils.setHasResourcePack(ctx.getSource().getPlayerOrException().connection, UuidArgument.getUuid(ctx, "uuid"), status);
                                                         ctx.getSource().sendSuccess(() -> Component.literal("New resource pack status: " + status), false);
                                                         return 0;
                                                     }));
@@ -171,14 +171,14 @@ public class Commands {
                 .then(Util.make(literal("get-pack-status"), x -> {
                             if (CompatStatus.POLYMER_RESOURCE_PACK) {
                                 x = x.executes((ctx) -> {
-                                    var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer(), PolymerResourcePackUtils.getMainUuid());
+                                    var status = PolymerUtils.hasResourcePack(ctx.getSource().getPlayer().connection, PolymerResourcePackUtils.getMainUuid());
                                     ctx.getSource().sendSuccess(() -> Component.literal("Resource pack status: " + status), false);
                                     return 0;
                                 });
                             }
                             x.then(argument("uuid", UuidArgument.uuid())
                                     .executes((ctx) -> {
-                                        var status = PolymerCommonUtils.hasResourcePack(ctx.getSource().getPlayerOrException(), UuidArgument.getUuid(ctx, "uuid"));
+                                        var status = PolymerCommonUtils.hasResourcePack(ctx.getSource().getPlayerOrException().connection, UuidArgument.getUuid(ctx, "uuid"));
                                         ctx.getSource().sendSuccess(() -> Component.literal("Resource pack status: " + status), false);
                                         return 0;
                                     }));

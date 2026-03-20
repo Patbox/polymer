@@ -3,7 +3,6 @@ package eu.pb4.polymer.autohost.api;
 import com.google.gson.JsonElement;
 import eu.pb4.polymer.autohost.impl.AutoHost;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import net.minecraft.network.Connection;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import org.jspecify.annotations.Nullable;

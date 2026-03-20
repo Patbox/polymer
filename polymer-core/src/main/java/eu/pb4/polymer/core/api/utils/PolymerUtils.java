@@ -16,6 +16,7 @@ import eu.pb4.polymer.core.mixin.StaticAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ServerMapAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerLevelAccessor;
 import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
@@ -172,8 +173,8 @@ public final class PolymerUtils {
         return RegistrySyncUtils.isServerEntry(registry, obj);
     }
 
-    public static boolean hasResourcePack(@Nullable ServerPlayer player, UUID uuid) {
-        return PolymerCommonUtils.hasResourcePack(player, uuid);
+    public static boolean hasResourcePack(@Nullable PacketContextProvider provider, UUID uuid) {
+        return PolymerCommonUtils.hasResourcePack(provider, uuid);
     }
 
 

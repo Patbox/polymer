@@ -140,7 +140,7 @@ public class CommonCommands {
             }
 
             dev.then(literal("is_bedrock").executes((ctx) -> {
-                ctx.getSource().sendSuccess(() -> Component.literal("Bedrock: " + PolymerCommonUtils.isBedrockPlayer(ctx.getSource().getPlayer())), false);
+                ctx.getSource().sendSuccess(() -> Component.literal("Bedrock: " + PolymerCommonUtils.isBedrockPlayer(ctx.getSource().getPlayer().connection)), false);
                 return 0;
             }));
 
