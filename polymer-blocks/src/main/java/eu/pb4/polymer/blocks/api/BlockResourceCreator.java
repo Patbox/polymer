@@ -44,10 +44,6 @@ public final class BlockResourceCreator {
     private boolean registeredEmpty = false;
 
     public static BlockResourceCreator of(ResourcePackCreator creator) {
-        if (CompatStatus.POLYMC) {
-            PolymerImpl.LOGGER.warn("Polymer Blocks non-global module might not work correctly with PolyMC! Be warned!");
-        }
-
         return new BlockResourceCreator(creator, new BlockExtBlockMapper(BlockMapper.createDefault()), () -> {});
     }
 
@@ -87,7 +83,7 @@ public final class BlockResourceCreator {
             predicate = b -> b.is(Blocks.IRON_TRAPDOOR);
         } else if (type.name().contains("DOOR")) {
             predicate = b -> b.is(Blocks.IRON_DOOR);
-        }  else if (type == BlockModelType.VINES_BLOCK) {
+        }  else if (type == BlockModelType.VINES) {
             predicate = b -> b.is(Blocks.TWISTING_VINES);
         }
 
@@ -174,11 +170,6 @@ public final class BlockResourceCreator {
     }
 
     private void generateResources(DefaultRPBuilder builder, List<String> credits) {
-        if (CompatStatus.POLYMC && this == PolymerBlockResourceUtils.CREATOR) {
-            // PolyMC's generation is better, so just leave it for now...
-            return;
-        }
-
         var keys = new HashSet<Map.Entry<String, Block>>();
 
         var variants = new HashMap<String, HashMap<String, JsonArray>>();

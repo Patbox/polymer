@@ -21,7 +21,6 @@ public final class PolymerImpl {
     public static final boolean LOG_INVALID_SERVER_IDS_CLIENT;
     public static final boolean CHANGING_QOL_CLIENT;
     public static final boolean USE_UNSAFE_ITEMS_CLIENT;
-    public static final boolean SYNC_MODDED_ENTRIES_POLYMC;
     public static final boolean USE_FULL_REI_COMPAT_CLIENT = true;
     public static final boolean LOG_MORE_ERRORS;
     public static final int LIGHT_UPDATE_TICK_DELAY;
@@ -38,7 +37,6 @@ public final class PolymerImpl {
         LOG_SYNC_TIME = CommonImpl.DEVELOPER_MODE || serverConfig.logHandshakeTime;
         LOG_BLOCKSTATE_REBUILDS = serverConfig.logBlockStateRebuilds;
         LOG_MORE_ERRORS = CommonImpl.LOG_MORE_ERRORS;
-        SYNC_MODDED_ENTRIES_POLYMC = serverConfig.polyMcSyncModdedEntries && CompatStatus.POLYMC;
         LIGHT_UPDATE_TICK_DELAY = serverConfig.lightUpdateTickDelay;
         OVERRIDE_POLYMC_MINING = serverConfig.overridePolyMcMining;
         SPLIT_RECIPE_PACKETS = serverConfig.splitRecipeBookPacket;

@@ -10,11 +10,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-public record PolymerItemGroupDefineS2CPayload(Identifier groupId, Component name, ItemStack icon) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<PolymerItemGroupDefineS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_ITEM_GROUP_DEFINE);
-    public static final StreamCodec<ContextByteBuf, PolymerItemGroupDefineS2CPayload> CODEC = StreamCodec.ofMember(PolymerItemGroupDefineS2CPayload::write, PolymerItemGroupDefineS2CPayload::read);
+public record PolymerCreativeTabDefineS2CPayload(Identifier groupId, Component name, ItemStack icon) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<PolymerCreativeTabDefineS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_CREATIVE_TAB_DEFINE);
+    public static final StreamCodec<ContextByteBuf, PolymerCreativeTabDefineS2CPayload> CODEC = StreamCodec.ofMember(PolymerCreativeTabDefineS2CPayload::write, PolymerCreativeTabDefineS2CPayload::read);
 
     public void write(FriendlyByteBuf buf) {
         buf.writeIdentifier(this.groupId);
@@ -23,8 +22,8 @@ public record PolymerItemGroupDefineS2CPayload(Identifier groupId, Component nam
         ItemStack.STREAM_CODEC.encode((RegistryFriendlyByteBuf) buf, icon);
     }
 
-    public static PolymerItemGroupDefineS2CPayload read(FriendlyByteBuf buf) {
-        return new PolymerItemGroupDefineS2CPayload(buf.readIdentifier(), ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.decode(buf), ItemStack.STREAM_CODEC.decode((RegistryFriendlyByteBuf) buf));
+    public static PolymerCreativeTabDefineS2CPayload read(FriendlyByteBuf buf) {
+        return new PolymerCreativeTabDefineS2CPayload(buf.readIdentifier(), ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.decode(buf), ItemStack.STREAM_CODEC.decode((RegistryFriendlyByteBuf) buf));
     }
 
     @Override

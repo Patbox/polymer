@@ -3,7 +3,7 @@ package eu.pb4.polymer.core.api.utils;
 import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.networking.S2CPackets;
-import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerItemGroupApplyUpdateS2CPayload;
+import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerCreativeTabApplyUpdateS2CPayload;
 import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -73,9 +73,9 @@ public final class PolymerSyncUtils {
      * Rebuild creative search index
      */
     public static void rebuildCreativeModeTabs(ServerGamePacketListenerImpl handler) {
-        var ver = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_APPLY_UPDATE);
+        var ver = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_CREATIVE_TAB_APPLY_UPDATE);
         if (ver > -1) {
-            handler.send(new ClientboundCustomPayloadPacket(new PolymerItemGroupApplyUpdateS2CPayload()));
+            handler.send(new ClientboundCustomPayloadPacket(new PolymerCreativeTabApplyUpdateS2CPayload()));
         }
     }
 

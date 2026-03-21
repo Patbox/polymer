@@ -41,9 +41,7 @@ public abstract class PalettedContainerDataMixin<T> {
 
             var playerBitCount = PolymerServerNetworking.getMetadata(player.orElseThrow(PacketContext.CONNECTION), ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.TYPE);
             if (playerBitCount == null) {
-                bits = PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC
-                        ? ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getVanillaBitCount()
-                        : ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getNonPolymerBitCount();
+                bits = ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getNonPolymerBitCount();
             } else {
                 bits = playerBitCount.intValue();
             }
@@ -66,9 +64,7 @@ public abstract class PalettedContainerDataMixin<T> {
 
             var playerBitCount = PolymerServerNetworking.getMetadata(player.orElseThrow(PacketContext.CONNECTION), ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.TYPE);
             if (playerBitCount == null) {
-                bits = PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC
-                        ? ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getVanillaBitCount()
-                        : ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getNonPolymerBitCount();
+                bits = ((PolymerIdMapper<?>) Block.BLOCK_STATE_REGISTRY).polymer$getNonPolymerBitCount();
             } else {
                 bits = playerBitCount.intValue();
             }

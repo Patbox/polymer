@@ -11,7 +11,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
 
 import javax.imageio.ImageIO;
@@ -87,20 +86,11 @@ public class CommonImplUtils {
     }
 
     public static Predicate<CommandSourceStack> permission(String path, int operatorLevel) {
-        // Todo: fix the check once Fabric permission api is merged
-        //if (CompatStatus.FABRIC_PERMISSION_API_V0) {
-        //    return Permissions.require("polymer." + path, operatorLevel);
-        //} else {
-            return source -> source.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(operatorLevel)));
-        //}
+        return FabricPermissionBridge.require(id(path), PermissionLevel.byId(operatorLevel));
     }
 
     public static boolean permissionCheck(ServerPlayer player, String path, int operatorLevel) {
-        //if (CompatStatus.FABRIC_PERMISSION_API_V0) {
-        //    return Permissions.check(player, "polymer." + path, operatorLevel);
-        //} else {
-            return player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(operatorLevel)));
-        //}
+        return FabricPermissionBridge.checkPermission(player, id(path), PermissionLevel.byId(operatorLevel));
     }
 
     public static <T> T createUnsafe(Class<T> tClass) {

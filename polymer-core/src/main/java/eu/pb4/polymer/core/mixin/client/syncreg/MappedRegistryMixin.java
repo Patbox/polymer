@@ -17,7 +17,7 @@ import net.minecraft.core.Registry;
 @Mixin(MappedRegistry.class)
 public abstract class MappedRegistryMixin<T> implements IndexedNetwork<T>, Registry<T> {
     @Unique
-    private IntFunction<T> polymer$decoder;
+    private IntFunction<T> polymer$decoder = _ -> null;
     @Unique
     private boolean hasDecoder;
 
@@ -47,5 +47,10 @@ public abstract class MappedRegistryMixin<T> implements IndexedNetwork<T>, Regis
     public void polymer$setDecoder(IntFunction<T> decoder) {
         this.polymer$decoder = decoder;
         this.hasDecoder = true;
+    }
+
+    @Override
+    public IntFunction<T> polymer$getDecoder() {
+        return this.polymer$decoder;
     }
 }

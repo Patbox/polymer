@@ -5,7 +5,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientItemGroup;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientCreativeModeTabExtension;
-import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerItemGroupContentAddS2CPayload;
+import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerCreativeTabContentAddS2CPayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.item.CreativeModeTab;
@@ -34,8 +34,8 @@ public abstract class CreativeModeTabMixin implements ClientCreativeModeTabExten
     @Unique private final List<ItemStack> polymer$itemsGroup = new ArrayList<>();
     @Unique private final List<ItemStack> polymer$itemsSearch = new ArrayList<>();
 
-    @Unique private final List<PolymerItemGroupContentAddS2CPayload.Entry> polymer$entriesMain = new ArrayList<>();
-    @Unique private final List<PolymerItemGroupContentAddS2CPayload.Entry> polymer$entriesSearch = new ArrayList<>();
+    @Unique private final List<PolymerCreativeTabContentAddS2CPayload.Entry> polymer$entriesMain = new ArrayList<>();
+    @Unique private final List<PolymerCreativeTabContentAddS2CPayload.Entry> polymer$entriesSearch = new ArrayList<>();
     @Unique
     private int polymerCore$page;
 
@@ -72,7 +72,7 @@ public abstract class CreativeModeTabMixin implements ClientCreativeModeTabExten
     }
 
     @Unique
-    private static void applyPolymerGroups(Collection<ItemStack> stacks, List<PolymerItemGroupContentAddS2CPayload.Entry> entries) {
+    private static void applyPolymerGroups(Collection<ItemStack> stacks, List<PolymerCreativeTabContentAddS2CPayload.Entry> entries) {
         if (stacks.isEmpty()) {
             for (var entry : entries) {
                 stacks.addAll(entry.stacks());
@@ -122,7 +122,7 @@ public abstract class CreativeModeTabMixin implements ClientCreativeModeTabExten
     }
 
     @Override
-    public void polymer$handleEntries(List<PolymerItemGroupContentAddS2CPayload.Entry> main, List<PolymerItemGroupContentAddS2CPayload.Entry> search) {
+    public void polymer$handleEntries(List<PolymerCreativeTabContentAddS2CPayload.Entry> main, List<PolymerCreativeTabContentAddS2CPayload.Entry> search) {
         this.polymer$entriesMain.addAll(main);
         this.polymer$entriesSearch.addAll(search);
         for (var entry : main) {

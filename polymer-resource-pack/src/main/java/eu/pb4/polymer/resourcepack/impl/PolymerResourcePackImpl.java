@@ -28,7 +28,7 @@ public class PolymerResourcePackImpl {
         MAIN_UUID = config.mainUuid;
         IGNORE_PACK_VERSION = config.ignorePackVersion;
 
-        FORCE_REQUIRE = config.markResourcePackAsRequiredByDefault || CompatStatus.POLYMC;
+        FORCE_REQUIRE = config.markResourcePackAsRequiredByDefault;
         LOG_ERRORS = config.logErrors || FabricLoader.getInstance().isDevelopmentEnvironment();
     }
 

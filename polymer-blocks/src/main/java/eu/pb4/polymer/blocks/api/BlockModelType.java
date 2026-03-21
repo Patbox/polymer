@@ -10,46 +10,46 @@ import net.minecraft.world.level.block.state.properties.StairsShape;
 
 public enum BlockModelType {
     FULL_BLOCK,
-    TRANSPARENT_BLOCK,
-    TRANSPARENT_BLOCK_WATERLOGGED,
-    BIOME_TRANSPARENT_BLOCK,
-    BIOME_TRANSPARENT_BLOCK_WATERLOGGED,
-    FARMLAND_BLOCK,
-    VINES_BLOCK,
-    PLANT_BLOCK,
-    BIOME_PLANT_BLOCK,
-    KELP_BLOCK,
-    CACTUS_BLOCK,
-    TRIPWIRE_BLOCK,
-    TRIPWIRE_BLOCK_FLAT,
-    ACTIVE_PRESSURE_PLATE,
+    LEAVES,
+    LEAVES_WATERLOGGED,
+    BIOME_COLORED_LEAVES,
+    BIOME_COLORED_LEAVES_WATERLOGGED,
+    FARMLAND,
+    VINES,
+    PLANT,
+    BIOME_PLANT,
+    KELP,
+    CACTUS,
+    TRIPWIRE,
+    TRIPWIRE_FLAT,
+    PRESSURE_PLATE_ACTIVE,
     HEAD,
     // Sculk
-    SCULK_SENSOR_BLOCK,
-    SCULK_SENSOR_BLOCK_WATERLOGGED,
-    ACTIVE_SCULK_SENSOR_BLOCK,
-    ACTIVE_SCULK_SENSOR_BLOCK_WATERLOGGED,
+    SCULK_SENSOR,
+    SCULK_SENSOR_WATERLOGGED,
+    SCULK_SENSOR_ACTIVE,
+    SCULK_SENSOR_ACTIVE_WATERLOGGED,
     // Slab
-    TOP_SLAB,
-    TOP_SLAB_WATERLOGGED,
-    BOTTOM_SLAB,
-    BOTTOM_SLAB_WATERLOGGED,
+    STAB_TOP,
+    SLAB_TOP_WATERLOGGED,
+    SLAB_BOTTOM,
+    SLAB_BOTTOM_WATERLOGGED,
     // Campfire
     CAMPFIRE,
     CAMPFIRE_WATERLOGGED,
     // Trapdoor
-    TOP_TRAPDOOR,
-    BOTTOM_TRAPDOOR,
-    NORTH_TRAPDOOR,
-    EAST_TRAPDOOR,
-    SOUTH_TRAPDOOR,
-    WEST_TRAPDOOR,
-    TOP_TRAPDOOR_WATERLOGGED,
-    BOTTOM_TRAPDOOR_WATERLOGGED,
-    NORTH_TRAPDOOR_WATERLOGGED,
-    EAST_TRAPDOOR_WATERLOGGED,
-    SOUTH_TRAPDOOR_WATERLOGGED,
-    WEST_TRAPDOOR_WATERLOGGED,
+    TRAPDOOR_TOP,
+    TRAPDOOR_BOTTOM,
+    TRAPDOOR_NORTH,
+    TRAPDOOR_EAST,
+    TRAPDOOR_SOUTH,
+    TRAPDOOR_WEST,
+    TRAPDOOR_TOP_WATERLOGGED,
+    TRAPDOOR_BOTTOM_WATERLOGGED,
+    TRAPDOOR_NORTH_WATERLOGGED,
+    TRAPDOOR_EAST_WATERLOGGED,
+    TRAPDOOR_SOUTH_WATERLOGGED,
+    TRAPDOOR_WEST_WATERLOGGED,
     // Lightning rod
     LIGHTNING_ROD_X,
     LIGHTNING_ROD_Y,
@@ -70,33 +70,33 @@ public enum BlockModelType {
     LANTERN_WATERLOGGED,
     LANTERN_HANGING_WATERLOGGED,
     // Door
-    NORTH_DOOR,
-    EAST_DOOR,
-    SOUTH_DOOR,
-    WEST_DOOR,
+    DOOR_NORTH,
+    DOOR_EAST,
+    DOOR_SOUTH,
+    DOOR_WEST,
     // Shelf
-    NORTH_SHELF,
-    EAST_SHELF,
-    SOUTH_SHELF,
-    WEST_SHELF,
-    NORTH_SHELF_WATERLOGGED,
-    EAST_SHELF_WATERLOGGED,
-    SOUTH_SHELF_WATERLOGGED,
-    WEST_SHELF_WATERLOGGED,
+    SHELF_NORTH,
+    SHELF_EAST,
+    SHELF_SOUTH,
+    SHELF_WEST,
+    SHELF_NORTH_WATERLOGGED,
+    SHELF_EAST_WATERLOGGED,
+    SHELF_SOUTH_WATERLOGGED,
+    SHELF_WEST_WATERLOGGED,
     // Scaffolding
-    TOP_SCAFFOLDING,
-    BOTTOM_SCAFFOLDING,
-    TOP_SCAFFOLDING_WATERLOGGED,
-    BOTTOM_SCAFFOLDING_WATERLOGGED,
+    SCAFFOLDING_TOP,
+    SCAFFOLDING_TOP_WATERLOGGED,
+    SCAFFOLDING_BOTTOM,
+    SCAFFOLDING_BOTTOM_WATERLOGGED,
     // Gate
-    NORTH_SOUTH_INWALL_GATE,
-    NORTH_SOUTH_INWALL_OPEN_GATE,
-    NORTH_SOUTH_GATE,
-    NORTH_SOUTH_OPEN_GATE,
-    EAST_WEST_INWALL_GATE,
-    EAST_WEST_INWALL_OPEN_GATE,
-    EAST_WEST_GATE,
-    EAST_WEST_OPEN_GATE,
+    GATE_NORTH_SOUTH_INWALL,
+    GATE_NORTH_SOUTH_INWALL_OPEN,
+    GATE_NORTH_SOUTH,
+    GATE_NORTH_SOUTH_OPEN,
+    GATE_EAST_WEST_INWALL,
+    GATE_EAST_WEST_INWALL_OPEN,
+    GATE_EAST_WEST,
+    GATE_EAST_WEST_OPEN,
     // Bars
     BARS_CENTER,
     BARS_CENTER_WATERLOGGED,
@@ -216,8 +216,8 @@ public enum BlockModelType {
 
     public static BlockModelType getSculkSensor(boolean active, boolean waterlogged) {
         return active
-                ? (waterlogged ? SCULK_SENSOR_BLOCK_WATERLOGGED : SCULK_SENSOR_BLOCK)
-                : (waterlogged ? ACTIVE_SCULK_SENSOR_BLOCK_WATERLOGGED : ACTIVE_SCULK_SENSOR_BLOCK);
+                ? (waterlogged ? SCULK_SENSOR_WATERLOGGED : SCULK_SENSOR)
+                : (waterlogged ? SCULK_SENSOR_ACTIVE_WATERLOGGED : SCULK_SENSOR_ACTIVE);
     }
 
     public static BlockModelType getSlab(SlabType type, boolean waterlogged) {
@@ -229,38 +229,38 @@ public enum BlockModelType {
 
     public static BlockModelType getSlab(boolean bottom, boolean waterlogged) {
         return bottom
-                ? (waterlogged ? BOTTOM_SLAB_WATERLOGGED : BOTTOM_SLAB)
-                : (waterlogged ? TOP_SLAB_WATERLOGGED : TOP_SLAB);
+                ? (waterlogged ? SLAB_BOTTOM_WATERLOGGED : SLAB_BOTTOM)
+                : (waterlogged ? SLAB_TOP_WATERLOGGED : STAB_TOP);
     }
 
     public static BlockModelType getTrapdoor(Direction direction, boolean waterlogged) {
         if (waterlogged) {
             return switch (direction) {
-                case NORTH -> NORTH_TRAPDOOR_WATERLOGGED;
-                case SOUTH -> SOUTH_TRAPDOOR_WATERLOGGED;
-                case WEST -> WEST_TRAPDOOR_WATERLOGGED;
-                case EAST -> EAST_TRAPDOOR_WATERLOGGED;
-                case UP -> BOTTOM_TRAPDOOR_WATERLOGGED;
-                case DOWN -> TOP_TRAPDOOR_WATERLOGGED;
+                case NORTH -> TRAPDOOR_NORTH_WATERLOGGED;
+                case SOUTH -> TRAPDOOR_SOUTH_WATERLOGGED;
+                case WEST -> TRAPDOOR_WEST_WATERLOGGED;
+                case EAST -> TRAPDOOR_EAST_WATERLOGGED;
+                case UP -> TRAPDOOR_BOTTOM_WATERLOGGED;
+                case DOWN -> TRAPDOOR_TOP_WATERLOGGED;
             };
         }
 
         return switch (direction) {
-            case NORTH -> NORTH_TRAPDOOR;
-            case SOUTH -> SOUTH_TRAPDOOR;
-            case WEST -> WEST_TRAPDOOR;
-            case EAST -> EAST_TRAPDOOR;
-            case UP -> BOTTOM_TRAPDOOR;
-            case DOWN -> TOP_TRAPDOOR;
+            case NORTH -> TRAPDOOR_NORTH;
+            case SOUTH -> TRAPDOOR_SOUTH;
+            case WEST -> TRAPDOOR_WEST;
+            case EAST -> TRAPDOOR_EAST;
+            case UP -> TRAPDOOR_BOTTOM;
+            case DOWN -> TRAPDOOR_TOP;
         };
     }
 
     public static BlockModelType getDoor(Direction direction) {
         return switch (direction) {
-            case NORTH -> NORTH_DOOR;
-            case SOUTH -> SOUTH_DOOR;
-            case WEST -> WEST_DOOR;
-            case EAST -> EAST_DOOR;
+            case NORTH -> DOOR_NORTH;
+            case SOUTH -> DOOR_SOUTH;
+            case WEST -> DOOR_WEST;
+            case EAST -> DOOR_EAST;
             default -> throw new IllegalArgumentException("Only horizontal directions are supported!");
         };
     }
@@ -306,54 +306,54 @@ public enum BlockModelType {
     public static BlockModelType getShelf(Direction direction, boolean waterlogged) {
         if (waterlogged) {
             return switch (direction) {
-                case NORTH -> NORTH_SHELF_WATERLOGGED;
-                case SOUTH -> SOUTH_SHELF_WATERLOGGED;
-                case WEST -> WEST_SHELF_WATERLOGGED;
-                case EAST -> EAST_SHELF_WATERLOGGED;
+                case NORTH -> SHELF_NORTH_WATERLOGGED;
+                case SOUTH -> SHELF_SOUTH_WATERLOGGED;
+                case WEST -> SHELF_WEST_WATERLOGGED;
+                case EAST -> SHELF_EAST_WATERLOGGED;
                 default -> throw new IllegalArgumentException("Only horizontal directions are supported!");
             };
         }
         return switch (direction) {
-            case NORTH -> NORTH_SHELF;
-            case SOUTH -> SOUTH_SHELF;
-            case WEST -> WEST_SHELF;
-            case EAST -> EAST_SHELF;
+            case NORTH -> SHELF_NORTH;
+            case SOUTH -> SHELF_SOUTH;
+            case WEST -> SHELF_WEST;
+            case EAST -> SHELF_EAST;
             default -> throw new IllegalArgumentException("Only horizontal directions are supported!");
         };
     }
 
     public static BlockModelType getScaffolding(boolean bottom, boolean waterlogged) {
         return bottom
-                ? (waterlogged ? BOTTOM_SCAFFOLDING_WATERLOGGED : BOTTOM_SCAFFOLDING)
-                : (waterlogged ? TOP_SCAFFOLDING_WATERLOGGED : TOP_SCAFFOLDING);
+                ? (waterlogged ? SCAFFOLDING_BOTTOM_WATERLOGGED : SCAFFOLDING_BOTTOM)
+                : (waterlogged ? SCAFFOLDING_TOP_WATERLOGGED : SCAFFOLDING_TOP);
     }
 
     public static BlockModelType getGate(Direction.Axis axis, boolean inwall, boolean open) {
         if (open) {
             if (inwall) {
                 return switch (axis) {
-                    case X -> NORTH_SOUTH_INWALL_OPEN_GATE;
-                    case Z -> EAST_WEST_INWALL_OPEN_GATE;
+                    case X -> GATE_NORTH_SOUTH_INWALL_OPEN;
+                    case Z -> GATE_EAST_WEST_INWALL_OPEN;
                     default -> throw new IllegalArgumentException("Only horizontal axis are supported!");
                 };
             }
             return switch (axis) {
-                case X -> NORTH_SOUTH_OPEN_GATE;
-                case Z -> EAST_WEST_OPEN_GATE;
+                case X -> GATE_NORTH_SOUTH_OPEN;
+                case Z -> GATE_EAST_WEST_OPEN;
                 default -> throw new IllegalArgumentException("Only horizontal axis are supported!");
             };
         }
 
         if (inwall) {
             return switch (axis) {
-                case X -> NORTH_SOUTH_INWALL_GATE;
-                case Z -> EAST_WEST_INWALL_GATE;
+                case X -> GATE_NORTH_SOUTH_INWALL;
+                case Z -> GATE_EAST_WEST_INWALL;
                 default -> throw new IllegalArgumentException("Only horizontal axis are supported!");
             };
         }
         return switch (axis) {
-            case X -> NORTH_SOUTH_GATE;
-            case Z -> EAST_WEST_GATE;
+            case X -> GATE_NORTH_SOUTH;
+            case Z -> GATE_EAST_WEST;
             default -> throw new IllegalArgumentException("Only horizontal axis are supported!");
         };
     }

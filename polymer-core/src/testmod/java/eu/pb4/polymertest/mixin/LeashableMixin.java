@@ -76,12 +76,12 @@ public interface LeashableMixin {
 
                     IdentifiedUniqueEntityAttachment.ofTicking(LeadAttachmentElement.LEAD_SELF, holder, player).startWatching(player);
 
-                    player.connection.send(VirtualEntityUtils.createRidePacket(positioner.getEntityId(), IntList.of(attach.getEntityId())));
-                    player.connection.send(VirtualEntityUtils.createEntityAttachPacket(attach.getEntityId(), holdingEntity.getId()));
+                    player.connection.send(VirtualEntityUtils.createClientboundSetPassengersPacket(positioner.getEntityId(), IntList.of(attach.getEntityId())));
+                    player.connection.send(VirtualEntityUtils.createClientboundSetEntityLinkPacket(attach.getEntityId(), holdingEntity.getId()));
                 }
             }
 
-            packet = VirtualEntityUtils.createEntityAttachPacket(element.holder().getEntityIds().getInt(0), holdingEntity.getId());
+            packet = VirtualEntityUtils.createClientboundSetEntityLinkPacket(element.holder().getEntityIds().getInt(0), holdingEntity.getId());
         }
 
         return packet;

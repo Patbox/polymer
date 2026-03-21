@@ -61,21 +61,21 @@ public final class VirtualEntityUtils {
         ((EntityExt) entity).polymerVE$markVirtualRiddenDirty();
     }
 
-    public static ClientboundSetEntityLinkPacket createEntityAttachPacket(int attachedId, int holdingId) {
+    public static ClientboundSetEntityLinkPacket createClientboundSetEntityLinkPacket(int attachedId, int holdingId) {
         var packet = PolymerCommonUtils.createUnsafe(ClientboundSetEntityLinkPacket.class);
         var ac = (ClientboundSetEntityLinkPacketAccessor) packet;
         ac.setSourceId(attachedId);
         ac.setDestId(holdingId);
         return packet;
     }
-    public static ClientboundSetCameraPacket createSetCameraEntityPacket(int entityId) {
+    public static ClientboundSetCameraPacket createClientboundSetCameraPacket(int entityId) {
         var packet = PolymerCommonUtils.createUnsafe(ClientboundSetCameraPacket.class);
         var ac = (SetCameraEntityS2CPacketAccessor) packet;
         ac.setCameraId(entityId);
         return packet;
     }
 
-    public static ClientboundSoundEntityPacket createPlaySoundFromEntityPacket(int entityId, Holder<SoundEvent> sound, SoundSource category, float volume, float pitch, long seed) {
+    public static ClientboundSoundEntityPacket createClientboundSoundEntityPacket(int entityId, Holder<SoundEvent> sound, SoundSource category, float volume, float pitch, long seed) {
         var packet = PolymerCommonUtils.createUnsafe(ClientboundSoundEntityPacket.class);
         var ac = (ClientboundSoundEntityPacketAccessor) packet;
         ac.setId(entityId);
@@ -114,11 +114,11 @@ public final class VirtualEntityUtils {
         }
     }
 
-    public static ClientboundSetPassengersPacket createRidePacket(int id, IntList list) {
-        return createRidePacket(id, list.toIntArray());
+    public static ClientboundSetPassengersPacket createClientboundSetPassengersPacket(int id, IntList list) {
+        return createClientboundSetPassengersPacket(id, list.toIntArray());
     }
 
-    public static ClientboundSetPassengersPacket createRidePacket(int id, int[] list) {
+    public static ClientboundSetPassengersPacket createClientboundSetPassengersPacket(int id, int[] list) {
         var packet = PolymerCommonUtils.createUnsafe(ClientboundSetPassengersPacket.class);
         ((EntityPassengersSetS2CPacketAccessor) packet).setVehicle(id);
         ((EntityPassengersSetS2CPacketAccessor) packet).setPassengers(list);

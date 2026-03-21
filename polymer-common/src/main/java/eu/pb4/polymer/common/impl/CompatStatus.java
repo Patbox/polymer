@@ -23,7 +23,7 @@ public final class CompatStatus {
     public static final boolean FABRIC_ITEM = LOADER.isModLoaded("fabric-item-api-v1");
     public static final boolean FABRIC_MENU = LOADER.isModLoaded("fabric-menu-api-v1");
     public static final boolean FABRIC_RECIPE_API = LOADER.isModLoaded("fabric-recipe-api-v1");
-    public static final boolean FABRIC_PERMISSION_API_V0 = LOADER.isModLoaded("fabric-permissions-api-v0");
+    public static final boolean FABRIC_PERMISSION_API_V1 = LOADER.isModLoaded("fabric-permission-api-v1");
 
     public static final boolean QUILT_ITEM_GROUP = LOADER.isModLoaded("quilt_item_group");
     public static final boolean QUILT_REGISTRY = LOADER.isModLoaded("quilt_registry");

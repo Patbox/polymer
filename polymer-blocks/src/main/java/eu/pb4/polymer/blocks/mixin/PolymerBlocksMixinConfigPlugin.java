@@ -23,11 +23,6 @@ public class PolymerBlocksMixinConfigPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         var name = mixinClassName.substring(PACKAGE_ROOT.length()).replace("client.", "");
-
-        if (name.startsWith("polymc")) {
-            return CompatStatus.POLYMC;
-        }
-
         return true;
     }
 

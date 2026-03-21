@@ -19,10 +19,10 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
-public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entry> stacksMain, List<Entry> stacksSearch) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<PolymerItemGroupContentAddS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
-    public static final StreamCodec<ContextByteBuf, PolymerItemGroupContentAddS2CPayload> CODEC = StreamCodec.ofMember(PolymerItemGroupContentAddS2CPayload::write, PolymerItemGroupContentAddS2CPayload::read);
-    public static PolymerItemGroupContentAddS2CPayload of(int version, CreativeModeTab group, ServerGamePacketListenerImpl handler) {
+public record PolymerCreativeTabContentAddS2CPayload(Identifier groupId, List<Entry> stacksMain, List<Entry> stacksSearch) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<PolymerCreativeTabContentAddS2CPayload> ID = new CustomPacketPayload.Type<>(S2CPackets.SYNC_CREATIVE_TAB_CONTENTS_ADD);
+    public static final StreamCodec<ContextByteBuf, PolymerCreativeTabContentAddS2CPayload> CODEC = StreamCodec.ofMember(PolymerCreativeTabContentAddS2CPayload::write, PolymerCreativeTabContentAddS2CPayload::read);
+    public static PolymerCreativeTabContentAddS2CPayload of(int version, CreativeModeTab group, ServerGamePacketListenerImpl handler) {
         List<Entry> entryMain;
         List<Entry> entrySearch;
 
@@ -59,7 +59,7 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
             groupEntries(entrySearch, contents.search(), ctx);
         }
 
-        return new PolymerItemGroupContentAddS2CPayload(PolymerCreativeModeTabUtils.getId(group), entryMain, entrySearch);
+        return new PolymerCreativeTabContentAddS2CPayload(PolymerCreativeModeTabUtils.getId(group), entryMain, entrySearch);
     }
 
     private static void groupEntries(List<Entry> entry, Collection<ItemStack> main, PacketContext ctx) {
@@ -102,14 +102,14 @@ public record PolymerItemGroupContentAddS2CPayload(Identifier groupId, List<Entr
         return !this.stacksMain.isEmpty() || !this.stacksSearch.isEmpty();
     }
 
-    public static PolymerItemGroupContentAddS2CPayload read(ContextByteBuf buf) {
+    public static PolymerCreativeTabContentAddS2CPayload read(ContextByteBuf buf) {
         if (buf.version() == 9) {
-            return new PolymerItemGroupContentAddS2CPayload(buf.readIdentifier(),
+            return new PolymerCreativeTabContentAddS2CPayload(buf.readIdentifier(),
                     List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, ItemStack.OPTIONAL_LIST_STREAM_CODEC.decode(buf))),
                     List.of(new Entry(Mode.INSERT_END, ItemStack.EMPTY, ItemStack.OPTIONAL_LIST_STREAM_CODEC.decode(buf)))
             );
         }
-        return new PolymerItemGroupContentAddS2CPayload(buf.readIdentifier(),
+        return new PolymerCreativeTabContentAddS2CPayload(buf.readIdentifier(),
                 Entry.LIST_PACKET_CODEC.decode(buf),
                 Entry.LIST_PACKET_CODEC.decode(buf)
         );

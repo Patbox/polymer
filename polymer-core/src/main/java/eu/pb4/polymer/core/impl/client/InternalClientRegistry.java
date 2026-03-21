@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.impl.client;
 
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.common.impl.EventImplUtils;
@@ -16,7 +15,6 @@ import eu.pb4.polymer.core.impl.client.interfaces.ClientCreativeModeTabExtension
 import eu.pb4.polymer.core.impl.interfaces.IndexedNetwork;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
-import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.FixedIdList;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.mixin.client.CreativeModeInventoryScreenAccessor;
@@ -81,8 +79,8 @@ public class InternalClientRegistry {
     public static final ImplPolymerRegistry<ClientPolymerEntry<MenuType<?>>> SCREEN_HANDLER = new ImplPolymerRegistry<>("screen_handler", "SH");
     public static final ImplPolymerRegistry<ClientPolymerEntry<DataComponentType<?>>> DATA_COMPONENT_TYPE = new ImplPolymerRegistry<>("data_component_type", "DC");
     public static final ImplPolymerRegistry<ClientPolymerEntry<DataComponentType<?>>> ENCHANTMENT_COMPONENT_TYPE = new ImplPolymerRegistry<>("enchantment_component_type", "EC");
-    public static final ImplPolymerRegistry<InternalClientItemGroup> ITEM_GROUPS = new ImplPolymerRegistry<>("item_groups", "IG");
-    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, FLUID, SCREEN_HANDLER, ITEM_GROUPS, DATA_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
+    public static final ImplPolymerRegistry<InternalClientItemGroup> CREATIVE_TAB = new ImplPolymerRegistry<>("creative_tabs", "CT");
+    public static final List<ImplPolymerRegistry<?>> REGISTRIES = List.of(ITEMS, BLOCKS, BLOCK_ENTITY, ENTITY_TYPES, STATUS_EFFECT, VILLAGER_PROFESSIONS, FLUID, SCREEN_HANDLER, CREATIVE_TAB, DATA_COMPONENT_TYPE, ENCHANTMENT_COMPONENT_TYPE);
     public static final Map<Registry<?>, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA = createRegMap();
     public static final Map<Identifier, ImplPolymerRegistry<ClientPolymerEntry<?>>> BY_VANILLA_ID = createRegMapId(BY_VANILLA);
     private static final Object2ObjectMap<String, DelayedAction> DELAYED_ACTIONS = new Object2ObjectArrayMap<>();
@@ -193,8 +191,11 @@ public class InternalClientRegistry {
 
 
     public static Object decodeRegistry(IdMap<?> instance, int i) {
-        if (serverHasPolymer) {
-            return PolymerCommonUtils.executeWithNetworkingLogic(() -> instance.byIdOrThrow(i));
+        if (serverHasPolymer && instance instanceof IndexedNetwork indexedNetwork) {
+            var val = indexedNetwork.polymer$getDecoder().apply(i);
+            if (val != null) {
+                return val;
+            }
         }
 
         return instance.byIdOrThrow(i);
@@ -297,7 +298,7 @@ public class InternalClientRegistry {
 
     public static void clearTabs(Predicate<InternalClientItemGroup> removePredicate) {
         try {
-            ITEM_GROUPS.removeIf(removePredicate);
+            CREATIVE_TAB.removeIf(removePredicate);
             CreativeModeInventoryScreenAccessor.setSelectedTab(CreativeModeTabs.getDefaultTab());
 
             if (CompatStatus.FABRIC_CREATIVE_TAB_API || CompatStatus.QUILT_ITEM_GROUP) {
@@ -317,7 +318,7 @@ public class InternalClientRegistry {
             }
 
             int count = BuiltInRegistries.CREATIVE_MODE_TAB.size() - 4;
-            for (var x : ITEM_GROUPS) {
+            for (var x : CREATIVE_TAB) {
                 var page = (count / TABS_PER_PAGE);
                 int pageIndex = count % TABS_PER_PAGE;
                 CreativeModeTab.Row row = pageIndex < (TABS_PER_PAGE / 2) ? CreativeModeTab.Row.TOP : CreativeModeTab.Row.BOTTOM;
@@ -348,7 +349,7 @@ public class InternalClientRegistry {
             if (existing != null) {
                 return;
             }
-            int count = (BuiltInRegistries.CREATIVE_MODE_TAB.size() - 4) + ITEM_GROUPS.size();
+            int count = (BuiltInRegistries.CREATIVE_MODE_TAB.size() - 4) + CREATIVE_TAB.size();
 
             var page = (count / TABS_PER_PAGE);
             int pageIndex = count % TABS_PER_PAGE;
@@ -356,7 +357,7 @@ public class InternalClientRegistry {
             var c = row == CreativeModeTab.Row.TOP ? pageIndex % TABS_PER_PAGE : (pageIndex - TABS_PER_PAGE / 2) % (TABS_PER_PAGE);
 
             var group = new InternalClientItemGroup(row, c, id, name, icon);
-            ITEM_GROUPS.set(id, group);
+            CREATIVE_TAB.set(id, group);
 
             setItemGroupPage(group, page);
         } catch(Throwable e) {
@@ -365,7 +366,7 @@ public class InternalClientRegistry {
     }
 
     public static CreativeModeTab getItemGroup(Identifier id) {
-        var x = ITEM_GROUPS.get(id);
+        var x = CREATIVE_TAB.get(id);
         if (x != null) {
             return x;
         }

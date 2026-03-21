@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class VanillaSoundJson {
-    private static final String HASH = "123370fbb15bf1e85cf5038b3e8ca719ad391dfb";
+    private static final String HASH = "d4bdfba22b31906e9aded146b5e71ac4e16740b1";
     private final static String SOUNDS_URL = "https://resources.download.minecraft.net/" + HASH.substring(0, 2) + "/" + HASH;
 
     private final static Path CHECKED_PATH = CommonImpl.getGameDir().resolve("polymer/cached_client_jars/" + HASH + "_sounds.json");

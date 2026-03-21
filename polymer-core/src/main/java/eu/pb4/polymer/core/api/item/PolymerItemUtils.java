@@ -13,6 +13,7 @@ import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.other.PacketTooltipContext;
 import eu.pb4.polymer.core.mixin.CustomDataAccessor;
@@ -22,6 +23,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -455,7 +457,8 @@ public final class PolymerItemUtils {
 
 
         try {
-            out.set(DataComponents.CUSTOM_DATA, PolymerCommonUtils.executeWithoutNetworkingLogic(() -> {
+            // Todo: Replace this once https://github.com/FabricMC/fabric-api/pull/5256 is merged!
+            out.set(DataComponents.CUSTOM_DATA, PacketContext.supplyWithContext(PolymerImplUtils.NULL_CONTEXT_PROVIDER, () -> {
                 var nbt = new CompoundTag();
 
                 nbt.store(POLYMER_STACK, ItemStack.CODEC, lookup.createSerializationContext(NbtOps.INSTANCE), itemStack);

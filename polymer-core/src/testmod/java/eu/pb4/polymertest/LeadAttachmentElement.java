@@ -23,9 +23,9 @@ public class LeadAttachmentElement extends GenericEntityElement {
     private final float scale;
 
     public LeadAttachmentElement(float v) {
-        this.dataTracker.set(EntityData.SILENT, true);
-        this.dataTracker.set(EntityData.NO_GRAVITY, true);
-        this.dataTracker.set(EntityData.FLAGS, (byte) ((1 << EntityData.INVISIBLE_FLAG_INDEX)));
+        this.syncedData.set(EntityData.SILENT, true);
+        this.syncedData.set(EntityData.NO_GRAVITY, true);
+        this.syncedData.set(EntityData.FLAGS, (byte) ((1 << EntityData.INVISIBLE_FLAG_INDEX)));
         this.scale = v;
     }
 

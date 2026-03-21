@@ -36,8 +36,7 @@ public final class PolymerCommonUtils {
             c.onResourcePackChange(handler, uuid, oldStatus, newStatus);
         }
     });
-    private static final ThreadLocal<LogicOverride> FORCE_NETWORKING = ThreadLocal.withInitial(() -> LogicOverride.DEFAULT);
-    private final static String SAFE_CLIENT_SHA1 = "93079d0d5608af9e10283be6be89b67a772d0c8f";
+    private final static String SAFE_CLIENT_SHA1 = "5de44d76eb2823cdc79d9c3185d80e6162ec0199";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientPath;
     private static Path cachedClientJarRoot;
@@ -120,52 +119,20 @@ public final class PolymerCommonUtils {
         }
     }
 
-    @Deprecated(forRemoval = true)
-    public static <T> T executeWithNetworkingLogic(Supplier<T> supplier) {
-        var val = FORCE_NETWORKING.get();
-        try {
-            FORCE_NETWORKING.set(LogicOverride.TRUE);
-            return supplier.get();
-        } finally {
-            FORCE_NETWORKING.set(val);
-        }
-    }
-
-    @Deprecated(forRemoval = true)
-    public static <T> T executeWithoutNetworkingLogic(Supplier<T> supplier) {
-        var val = FORCE_NETWORKING.get();
-        try {
-            FORCE_NETWORKING.set(LogicOverride.FALSE);
-            return PacketContext.supplyWithContext(new PacketContextProvider() {
-                @Override
-                public PacketContext getPacketContext() {
-                    return null;
-                }
-            }, supplier);
-        } finally {
-            FORCE_NETWORKING.set(val);
-        }
-    }
-
-
     public static Level getFakeWorld() {
         return FakeWorld.INSTANCE;
     }
 
     public static boolean isNetworkingThread() {
-        return FORCE_NETWORKING.get().value(PacketContext.get() != null);
+        return PacketContext.get() != null;
     }
 
     public static boolean isServerNetworkingThread() {
-        return FORCE_NETWORKING.get().value(
-                PacketContext.get() instanceof PacketContext context && context.orElseThrow(PacketContext.CONNECTION).getReceiving() == PacketFlow.SERVERBOUND
-        );
+        return PacketContext.get() instanceof PacketContext context && context.orElseThrow(PacketContext.CONNECTION).getReceiving() == PacketFlow.SERVERBOUND;
     }
 
     public static boolean isClientNetworkingThread() {
-        return CommonImpl.IS_CLIENT && FORCE_NETWORKING.get().value(
-                PacketContext.get() instanceof PacketContext context && context.orElseThrow(PacketContext.CONNECTION).getReceiving() == PacketFlow.CLIENTBOUND
-        );
+        return CommonImpl.IS_CLIENT && PacketContext.get() instanceof PacketContext context && context.orElseThrow(PacketContext.CONNECTION).getReceiving() == PacketFlow.CLIENTBOUND;
     }
 
     public static boolean isBedrockPlayer(PacketContextProvider contextProvider) {

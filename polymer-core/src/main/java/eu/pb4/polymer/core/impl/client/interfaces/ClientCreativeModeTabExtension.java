@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.client.interfaces;
 
-import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerItemGroupContentAddS2CPayload;
+import eu.pb4.polymer.core.impl.networking.payloads.s2c.PolymerCreativeTabContentAddS2CPayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.item.CreativeModeTab;
@@ -14,7 +14,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 @SuppressWarnings({"unused"})
 public interface ClientCreativeModeTabExtension {
-    void polymer$handleEntries(List<PolymerItemGroupContentAddS2CPayload.Entry> main, List<PolymerItemGroupContentAddS2CPayload.Entry> search);
+    void polymer$handleEntries(List<PolymerCreativeTabContentAddS2CPayload.Entry> main, List<PolymerCreativeTabContentAddS2CPayload.Entry> search);
     void polymer$clearStacks();
     Collection<ItemStack> polymer$getStacksGroup();
     Collection<ItemStack> polymer$getStacksSearch();

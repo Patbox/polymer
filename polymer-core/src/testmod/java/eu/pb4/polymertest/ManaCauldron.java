@@ -106,9 +106,10 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
                     world.sendParticles(ParticleTypes.UNDERWATER, false, true, blockPos.getX() + 0.5, blockPos.getY() + 0.75 + offset, blockPos.getZ() + 0.5, 10, 0.15, 0.15, 0.15, 1);
                 }
                 if (manaBubbles.size() < manaLevel * 10) {
-                    Vec3 velocity = new Vec3((random.nextFloat() - 0.5) * 0.2, 0.05f * manaLevel, (random.nextFloat() - 0.5) * 0.2);
+                    Vec3 velocity = new Vec3((random.nextFloat() - 0.5) * 0.2, 0.02f * manaLevel, (random.nextFloat() - 0.5) * 0.2);
                     var blockDisplayEntity = new BlockDisplayElementWithVelocity(MANA_BUBBLE_STATE, velocity);
-                    blockDisplayEntity.setScale(new Vector3f(0.1f));
+                    blockDisplayEntity.setScale(new Vector3f(0.2f));
+                    blockDisplayEntity.setTeleportDuration(1);
                     this.addElement(blockDisplayEntity);
                     manaBubbles.add(blockDisplayEntity);
                 }

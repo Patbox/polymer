@@ -7,6 +7,8 @@ public interface IndexedNetwork<T> extends IdMap<T> {
 
     void polymer$setDecoder(IntFunction<T> decoder);
 
+    IntFunction<T> polymer$getDecoder();
+
     static <T> void set(IdMap<T> i, IntFunction<T> decoder) {
         ((IndexedNetwork<T>) i).polymer$setDecoder(decoder);
     }

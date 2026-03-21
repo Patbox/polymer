@@ -13,11 +13,11 @@ public class BlockDisplayElement extends DisplayElement {
     public BlockDisplayElement() {}
 
     public void setBlockState(BlockState state) {
-        this.dataTracker.set(DisplayEntityData.Block.BLOCK_STATE, state);
+        this.syncedData.set(DisplayEntityData.Block.BLOCK_STATE, state);
     }
 
     public BlockState getBlockState() {
-        return this.dataTracker.get(DisplayEntityData.Block.BLOCK_STATE);
+        return this.syncedData.get(DisplayEntityData.Block.BLOCK_STATE);
     }
 
     @Override

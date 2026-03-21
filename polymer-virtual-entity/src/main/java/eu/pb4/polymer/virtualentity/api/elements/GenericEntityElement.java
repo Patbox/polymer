@@ -27,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
 
 @SuppressWarnings("ConstantConditions")
 public abstract class GenericEntityElement extends AbstractElement {
-    protected final SynchedEntityDataLike dataTracker = this.createDataTracker();
+    protected final SynchedEntityDataLike syncedData = this.createSynchedEntityData();
     private final int id = VirtualEntityUtils.requestEntityId();
     private final UUID uuid = UUID.randomUUID();
     private float pitch;
@@ -39,12 +39,12 @@ public abstract class GenericEntityElement extends AbstractElement {
 
     private int updatesSinceLastAbsolutePositionSync = 0;
 
-    protected SynchedEntityDataLike createDataTracker() {
+    protected SynchedEntityDataLike createSynchedEntityData() {
         return new SimpleSynchedEntityData(this.getEntityType());
     }
 
     public boolean isDirty() {
-        return this.isRotationDirty || this.dataTracker.isDirty();
+        return this.isRotationDirty || this.syncedData.isDirty();
     }
 
     public boolean isRotationDirty() {
@@ -134,7 +134,7 @@ public abstract class GenericEntityElement extends AbstractElement {
     }
 
     protected void sendChangedTrackerEntries(ServerPlayer player, Consumer<Packet<ClientGamePacketListener>> packetConsumer) {
-        var changed = this.dataTracker.getChangedEntries();
+        var changed = this.syncedData.getChangedEntries();
 
         if (changed != null) {
             packetConsumer.accept(new ClientboundSetEntityDataPacket(this.id, changed));
@@ -190,8 +190,8 @@ public abstract class GenericEntityElement extends AbstractElement {
     }
 
     protected void sendTrackerUpdates() {
-        if (this.dataTracker.isDirty()) {
-            var dirty = this.dataTracker.getDirtyEntries();
+        if (this.syncedData.isDirty()) {
+            var dirty = this.syncedData.getDirtyEntries();
             if (dirty != null) {
                 this.sendPacket(new ClientboundSetEntityDataPacket(this.id, dirty));
             }
@@ -207,16 +207,16 @@ public abstract class GenericEntityElement extends AbstractElement {
         }
     }
 
-    public SynchedEntityDataLike getDataTracker() {
-        return this.dataTracker;
+    public SynchedEntityDataLike getSyncedData() {
+        return this.syncedData;
     }
 
     public Pose getPose() {
-        return this.dataTracker.get(EntityData.POSE);
+        return this.syncedData.get(EntityData.POSE);
     }
 
     public void setPose(Pose pose) {
-        this.dataTracker.set(EntityData.POSE, pose);
+        this.syncedData.set(EntityData.POSE, pose);
     }
 
     public void setOnFire(boolean onFire) {
@@ -224,15 +224,15 @@ public abstract class GenericEntityElement extends AbstractElement {
     }
 
     protected boolean getFlag(int index) {
-        return (this.dataTracker.get(EntityData.FLAGS) & 1 << index) != 0;
+        return (this.syncedData.get(EntityData.FLAGS) & 1 << index) != 0;
     }
 
     protected void setFlag(int index, boolean value) {
-        byte b = this.dataTracker.get(EntityData.FLAGS);
+        byte b = this.syncedData.get(EntityData.FLAGS);
         if (value) {
-            this.dataTracker.set(EntityData.FLAGS, (byte) (b | 1 << index));
+            this.syncedData.set(EntityData.FLAGS, (byte) (b | 1 << index));
         } else {
-            this.dataTracker.set(EntityData.FLAGS, (byte) (b & ~(1 << index)));
+            this.syncedData.set(EntityData.FLAGS, (byte) (b & ~(1 << index)));
         }
 
     }
@@ -270,52 +270,52 @@ public abstract class GenericEntityElement extends AbstractElement {
     }
 
     public int getAir() {
-        return this.dataTracker.get(EntityData.AIR);
+        return this.syncedData.get(EntityData.AIR);
     }
 
     public void setAir(int air) {
-        this.dataTracker.set(EntityData.AIR, air);
+        this.syncedData.set(EntityData.AIR, air);
     }
 
     public int getFrozenTicks() {
-        return this.dataTracker.get(EntityData.FROZEN_TICKS);
+        return this.syncedData.get(EntityData.FROZEN_TICKS);
     }
 
     public void setFrozenTicks(int frozenTicks) {
-        this.dataTracker.set(EntityData.FROZEN_TICKS, frozenTicks);
+        this.syncedData.set(EntityData.FROZEN_TICKS, frozenTicks);
     }
 
     @Nullable
     public Component getCustomName() {
-        return this.dataTracker.get(EntityData.CUSTOM_NAME).orElse(null);
+        return this.syncedData.get(EntityData.CUSTOM_NAME).orElse(null);
     }
 
     public void setCustomName(@Nullable Component name) {
-        this.dataTracker.set(EntityData.CUSTOM_NAME, Optional.ofNullable(name));
+        this.syncedData.set(EntityData.CUSTOM_NAME, Optional.ofNullable(name));
     }
 
     public boolean isCustomNameVisible() {
-        return Boolean.TRUE == this.dataTracker.get(EntityData.NAME_VISIBLE);
+        return Boolean.TRUE == this.syncedData.get(EntityData.NAME_VISIBLE);
     }
 
     public void setCustomNameVisible(boolean visible) {
-        this.dataTracker.set(EntityData.NAME_VISIBLE, visible);
+        this.syncedData.set(EntityData.NAME_VISIBLE, visible);
     }
 
     public boolean isSilent() {
-        return Boolean.TRUE == this.dataTracker.get(EntityData.SILENT);
+        return Boolean.TRUE == this.syncedData.get(EntityData.SILENT);
     }
 
     public void setSilent(boolean silent) {
-        this.dataTracker.set(EntityData.SILENT, silent);
+        this.syncedData.set(EntityData.SILENT, silent);
     }
 
     public boolean hasNoGravity() {
-        return Boolean.TRUE == this.dataTracker.get(EntityData.NO_GRAVITY);
+        return Boolean.TRUE == this.syncedData.get(EntityData.NO_GRAVITY);
     }
 
     public void setNoGravity(boolean noGravity) {
-        this.dataTracker.set(EntityData.NO_GRAVITY, noGravity);
+        this.syncedData.set(EntityData.NO_GRAVITY, noGravity);
     }
 
     public void setRotation(float pitch, float yaw) {

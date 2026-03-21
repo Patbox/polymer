@@ -19,19 +19,19 @@ public class ItemDisplayElement extends DisplayElement {
     }
 
     public void setItem(ItemStack stack) {
-        this.dataTracker.set(DisplayEntityData.Item.ITEM, stack);
+        this.syncedData.set(DisplayEntityData.Item.ITEM, stack);
     }
 
     public ItemStack getItem() {
-        return this.dataTracker.get(DisplayEntityData.Item.ITEM);
+        return this.syncedData.get(DisplayEntityData.Item.ITEM);
     }
 
     public void setItemDisplayContext(ItemDisplayContext mode) {
-        this.dataTracker.set(DisplayEntityData.Item.ITEM_DISPLAY, mode.getId());
+        this.syncedData.set(DisplayEntityData.Item.ITEM_DISPLAY, mode.getId());
     }
     public ItemDisplayContext getItemDisplayContext() {
         //noinspection DataFlowIssue
-        return ItemDisplayContext.BY_ID.apply(this.dataTracker.get(DisplayEntityData.Item.ITEM_DISPLAY));
+        return ItemDisplayContext.BY_ID.apply(this.syncedData.get(DisplayEntityData.Item.ITEM_DISPLAY));
     }
 
     @Override

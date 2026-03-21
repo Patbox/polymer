@@ -221,7 +221,6 @@ public final class CommonImpl {
                 case "fabricItemGroup" -> CompatStatus.FABRIC_CREATIVE_TAB_API;
                 case "fabricNetworking" -> CompatStatus.FABRIC_NETWORKING;
                 case "fabricItem" -> CompatStatus.FABRIC_ITEM;
-                case "polymc" -> CompatStatus.POLYMC;
                 case "wthit" -> CompatStatus.WTHIT;
                 case "rei" -> CompatStatus.REI;
                 case "emi" -> CompatStatus.EMI;

@@ -7,10 +7,10 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 
 public class MarkerElement extends GenericEntityElement {
     public MarkerElement() {
-        this.dataTracker.set(ArmorStand.DATA_CLIENT_FLAGS, (byte) (ArmorStand.CLIENT_FLAG_MARKER | ArmorStand.CLIENT_FLAG_SMALL));
-        this.dataTracker.set(EntityData.SILENT, true);
-        this.dataTracker.set(EntityData.NO_GRAVITY, true);
-        this.dataTracker.set(EntityData.FLAGS, (byte) ((1 << EntityData.INVISIBLE_FLAG_INDEX)));
+        this.syncedData.set(ArmorStand.DATA_CLIENT_FLAGS, (byte) (ArmorStand.CLIENT_FLAG_MARKER | ArmorStand.CLIENT_FLAG_SMALL));
+        this.syncedData.set(EntityData.SILENT, true);
+        this.syncedData.set(EntityData.NO_GRAVITY, true);
+        this.syncedData.set(EntityData.FLAGS, (byte) ((1 << EntityData.INVISIBLE_FLAG_INDEX)));
     }
 
     @Override

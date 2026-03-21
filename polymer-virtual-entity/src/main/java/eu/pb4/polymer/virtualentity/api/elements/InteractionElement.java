@@ -24,23 +24,23 @@ public class InteractionElement extends GenericEntityElement {
     }
 
     public float getWidth() {
-        return this.dataTracker.get(InteractionEntityData.WIDTH);
+        return this.syncedData.get(InteractionEntityData.WIDTH);
     }
 
     public void setWidth(float width) {
-        this.dataTracker.set(InteractionEntityData.WIDTH, width);
+        this.syncedData.set(InteractionEntityData.WIDTH, width);
     }
 
     public float getHeight() {
-        return this.dataTracker.get(InteractionEntityData.HEIGHT);
+        return this.syncedData.get(InteractionEntityData.HEIGHT);
     }
 
     public void setHeight(float height) {
-        this.dataTracker.set(InteractionEntityData.HEIGHT, height);
+        this.syncedData.set(InteractionEntityData.HEIGHT, height);
     }
 
     public void setResponse(boolean response) {
-        this.dataTracker.set(InteractionEntityData.RESPONSE, response);
+        this.syncedData.set(InteractionEntityData.RESPONSE, response);
     }
 
     public void setSize(float width, float height) {
@@ -54,6 +54,6 @@ public class InteractionElement extends GenericEntityElement {
     }
 
     public boolean shouldRespond() {
-        return this.dataTracker.get(InteractionEntityData.RESPONSE);
+        return this.syncedData.get(InteractionEntityData.RESPONSE);
     }
 }

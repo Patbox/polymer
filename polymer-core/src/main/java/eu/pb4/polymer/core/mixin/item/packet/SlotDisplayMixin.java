@@ -48,12 +48,6 @@ public interface SlotDisplayMixin {
                     var out = new SlotDisplay.TagSlotDisplay(tagSlot.tag());
                     ((SkipCheck) (Object) out).polymer$setSkipped();
 
-                    if (CompatStatus.POLYMC) {
-                        if (((SkipCheck) (Object) tagSlot).polymc$skipped()) {
-                            ((SkipCheck) (Object) out).polymc$setSkipped();
-                        }
-                    }
-
                     array.addFirst(out);
                     yield new SlotDisplay.Composite(array);
                 }

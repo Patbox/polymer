@@ -14,43 +14,43 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public Component getText() {
-        return this.dataTracker.get(DisplayEntityData.Text.TEXT);
+        return this.syncedData.get(DisplayEntityData.Text.TEXT);
     }
 
     public void setText(Component text) {
-        this.dataTracker.set(DisplayEntityData.Text.TEXT, text);
+        this.syncedData.set(DisplayEntityData.Text.TEXT, text);
     }
 
     public int getLineWidth() {
-        return this.dataTracker.get(DisplayEntityData.Text.LINE_WIDTH);
+        return this.syncedData.get(DisplayEntityData.Text.LINE_WIDTH);
     }
 
     public void setLineWidth(int lineWidth) {
-        this.dataTracker.set(DisplayEntityData.Text.LINE_WIDTH, lineWidth);
+        this.syncedData.set(DisplayEntityData.Text.LINE_WIDTH, lineWidth);
     }
 
     public byte getTextOpacity() {
-        return this.dataTracker.get(DisplayEntityData.Text.TEXT_OPACITY);
+        return this.syncedData.get(DisplayEntityData.Text.TEXT_OPACITY);
     }
 
     public void setTextOpacity(byte textOpacity) {
-        this.dataTracker.set(DisplayEntityData.Text.TEXT_OPACITY, textOpacity);
+        this.syncedData.set(DisplayEntityData.Text.TEXT_OPACITY, textOpacity);
     }
 
     public int getBackground() {
-        return this.dataTracker.get(DisplayEntityData.Text.BACKGROUND);
+        return this.syncedData.get(DisplayEntityData.Text.BACKGROUND);
     }
 
     public void setBackground(int background) {
-        this.dataTracker.set(DisplayEntityData.Text.BACKGROUND, background);
+        this.syncedData.set(DisplayEntityData.Text.BACKGROUND, background);
     }
 
     public byte getDisplayFlags() {
-        return this.dataTracker.get(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS);
+        return this.syncedData.get(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS);
     }
 
     public void setDisplayFlags(byte flags) {
-        this.dataTracker.set(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS, flags);
+        this.syncedData.set(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS, flags);
     }
 
     public boolean getDisplayFlag(byte flag) {
@@ -58,7 +58,7 @@ public class TextDisplayElement extends DisplayElement {
     }
 
     public void setDisplayFlag(byte flag, boolean value) {
-        this.dataTracker.set(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS, flag(getDisplayFlags(), flag, value));
+        this.syncedData.set(DisplayEntityData.Text.TEXT_DISPLAY_FLAGS, flag(getDisplayFlags(), flag, value));
     }
 
     public void setTextAlignment(Display.TextDisplay.Align alignment) {

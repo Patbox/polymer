@@ -25,9 +25,9 @@ public class SimpleEntityElement extends GenericEntityElement {
     }
 
     @Override
-    protected SynchedEntityDataLike createDataTracker() {
+    protected SynchedEntityDataLike createSynchedEntityData() {
         if (this.type != null) {
-            return super.createDataTracker();
+            return super.createSynchedEntityData();
         } else {
             return new SimpleSynchedEntityData(LOCAL_TYPE.get());
         }

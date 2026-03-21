@@ -277,7 +277,7 @@ public class ElementHolder {
 
     @Override
     public int hashCode() {
-        return 31;
+        return System.identityHashCode(this);
     }
 
     public void notifyUpdate(HolderAttachment.UpdateType updateType) {

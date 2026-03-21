@@ -120,12 +120,12 @@ public class DefaultModelData {
                 }
             }
         }
-        generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK, NOT_WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
-        generateDefault(BlockModelType.BIOME_TRANSPARENT_BLOCK_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
-        generateDefault(BlockModelType.TRANSPARENT_BLOCK, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
-        generateDefault(BlockModelType.TRANSPARENT_BLOCK_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
-        generateDefault(BlockModelType.KELP_BLOCK, Blocks.KELP);
-        generateDefault(BlockModelType.CACTUS_BLOCK, Blocks.CACTUS);
+        generateDefault(BlockModelType.BIOME_COLORED_LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
+        generateDefault(BlockModelType.BIOME_COLORED_LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
+        generateDefault(BlockModelType.LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
+        generateDefault(BlockModelType.LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
+        generateDefault(BlockModelType.KELP, Blocks.KELP);
+        generateDefault(BlockModelType.CACTUS, Blocks.CACTUS);
 
         {
             var farmland = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse("minecraft:block/farmland"))};
@@ -140,7 +140,7 @@ public class DefaultModelData {
                 MODELS.put(state, Either.left(farmland));
             }
 
-            USABLE_STATES.put(BlockModelType.FARMLAND_BLOCK, list);
+            USABLE_STATES.put(BlockModelType.FARMLAND, list);
         }
 
         {
@@ -172,7 +172,7 @@ public class DefaultModelData {
                 vines.remove(Blocks.CAVE_VINES.defaultBlockState().setValue(CaveVines.BERRIES, true));
             }
 
-            USABLE_STATES.put(BlockModelType.VINES_BLOCK, vines);
+            USABLE_STATES.put(BlockModelType.VINES, vines);
         }
 
 
@@ -189,7 +189,7 @@ public class DefaultModelData {
                 plant.addAll(Blocks.SUGAR_CANE.getStateDefinition().getPossibleStates());
                 plant.remove(Blocks.SUGAR_CANE.defaultBlockState());
 
-                USABLE_STATES.put(BlockModelType.BIOME_PLANT_BLOCK, plant);
+                USABLE_STATES.put(BlockModelType.BIOME_PLANT, plant);
             }
         }
 
@@ -208,7 +208,7 @@ public class DefaultModelData {
                 plant.remove(block.defaultBlockState());
             }
 
-            USABLE_STATES.put(BlockModelType.PLANT_BLOCK, plant);
+            USABLE_STATES.put(BlockModelType.PLANT, plant);
         }
 
         {
@@ -226,7 +226,7 @@ public class DefaultModelData {
                 states.remove(firstState);
             }
 
-            USABLE_STATES.put(BlockModelType.ACTIVE_PRESSURE_PLATE, states);
+            USABLE_STATES.put(BlockModelType.PRESSURE_PLATE_ACTIVE, states);
         }
 
         {
@@ -495,13 +495,13 @@ public class DefaultModelData {
         }
 
         {
-            addDisarmedTripwire(false, BlockModelType.TRIPWIRE_BLOCK);
-            addDisarmedTripwire(true, BlockModelType.TRIPWIRE_BLOCK_FLAT);
+            addDisarmedTripwire(false, BlockModelType.TRIPWIRE);
+            addDisarmedTripwire(true, BlockModelType.TRIPWIRE_FLAT);
 
-            addSlabs(SlabType.TOP, false, BlockModelType.TOP_SLAB);
-            addSlabs(SlabType.TOP, true, BlockModelType.TOP_SLAB_WATERLOGGED);
-            addSlabs(SlabType.BOTTOM, false, BlockModelType.BOTTOM_SLAB);
-            addSlabs(SlabType.BOTTOM, true, BlockModelType.BOTTOM_SLAB_WATERLOGGED);
+            addSlabs(SlabType.TOP, false, BlockModelType.STAB_TOP);
+            addSlabs(SlabType.TOP, true, BlockModelType.SLAB_TOP_WATERLOGGED);
+            addSlabs(SlabType.BOTTOM, false, BlockModelType.SLAB_BOTTOM);
+            addSlabs(SlabType.BOTTOM, true, BlockModelType.SLAB_BOTTOM_WATERLOGGED);
 
             var fullSlabs = List.<Tuple<Block, Block>>of(
                     new Tuple<>(Blocks.RESIN_BRICK_SLAB, Blocks.RESIN_BRICKS),
@@ -578,45 +578,45 @@ public class DefaultModelData {
         }
 
         {
-            addTrapdoorDirection(Direction.NORTH, Half.TOP, false, BlockModelType.NORTH_TRAPDOOR);
-            addTrapdoorDirection(Direction.EAST, Half.TOP, false, BlockModelType.EAST_TRAPDOOR);
-            addTrapdoorDirection(Direction.SOUTH, Half.TOP, false, BlockModelType.SOUTH_TRAPDOOR);
-            addTrapdoorDirection(Direction.WEST, Half.TOP, false, BlockModelType.WEST_TRAPDOOR);
+            addTrapdoorDirection(Direction.NORTH, Half.TOP, false, BlockModelType.TRAPDOOR_NORTH);
+            addTrapdoorDirection(Direction.EAST, Half.TOP, false, BlockModelType.TRAPDOOR_EAST);
+            addTrapdoorDirection(Direction.SOUTH, Half.TOP, false, BlockModelType.TRAPDOOR_SOUTH);
+            addTrapdoorDirection(Direction.WEST, Half.TOP, false, BlockModelType.TRAPDOOR_WEST);
 
-            addTrapdoorDirection(Direction.NORTH, Half.TOP, true, BlockModelType.NORTH_TRAPDOOR_WATERLOGGED);
-            addTrapdoorDirection(Direction.EAST, Half.TOP, true, BlockModelType.EAST_TRAPDOOR_WATERLOGGED);
-            addTrapdoorDirection(Direction.SOUTH, Half.TOP, true, BlockModelType.SOUTH_TRAPDOOR_WATERLOGGED);
-            addTrapdoorDirection(Direction.WEST, Half.TOP, true, BlockModelType.WEST_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.NORTH, Half.TOP, true, BlockModelType.TRAPDOOR_NORTH_WATERLOGGED);
+            addTrapdoorDirection(Direction.EAST, Half.TOP, true, BlockModelType.TRAPDOOR_EAST_WATERLOGGED);
+            addTrapdoorDirection(Direction.SOUTH, Half.TOP, true, BlockModelType.TRAPDOOR_SOUTH_WATERLOGGED);
+            addTrapdoorDirection(Direction.WEST, Half.TOP, true, BlockModelType.TRAPDOOR_WEST_WATERLOGGED);
 
-            addTrapdoorDirection(Direction.NORTH, Half.BOTTOM, false, BlockModelType.NORTH_TRAPDOOR);
-            addTrapdoorDirection(Direction.EAST, Half.BOTTOM, false, BlockModelType.EAST_TRAPDOOR);
-            addTrapdoorDirection(Direction.SOUTH, Half.BOTTOM, false, BlockModelType.SOUTH_TRAPDOOR);
-            addTrapdoorDirection(Direction.WEST, Half.BOTTOM, false, BlockModelType.WEST_TRAPDOOR);
+            addTrapdoorDirection(Direction.NORTH, Half.BOTTOM, false, BlockModelType.TRAPDOOR_NORTH);
+            addTrapdoorDirection(Direction.EAST, Half.BOTTOM, false, BlockModelType.TRAPDOOR_EAST);
+            addTrapdoorDirection(Direction.SOUTH, Half.BOTTOM, false, BlockModelType.TRAPDOOR_SOUTH);
+            addTrapdoorDirection(Direction.WEST, Half.BOTTOM, false, BlockModelType.TRAPDOOR_WEST);
 
-            addTrapdoorDirection(Direction.NORTH, Half.BOTTOM, true, BlockModelType.NORTH_TRAPDOOR_WATERLOGGED);
-            addTrapdoorDirection(Direction.EAST, Half.BOTTOM, true, BlockModelType.EAST_TRAPDOOR_WATERLOGGED);
-            addTrapdoorDirection(Direction.SOUTH, Half.BOTTOM, true, BlockModelType.SOUTH_TRAPDOOR_WATERLOGGED);
-            addTrapdoorDirection(Direction.WEST, Half.BOTTOM, true, BlockModelType.WEST_TRAPDOOR_WATERLOGGED);
+            addTrapdoorDirection(Direction.NORTH, Half.BOTTOM, true, BlockModelType.TRAPDOOR_NORTH_WATERLOGGED);
+            addTrapdoorDirection(Direction.EAST, Half.BOTTOM, true, BlockModelType.TRAPDOOR_EAST_WATERLOGGED);
+            addTrapdoorDirection(Direction.SOUTH, Half.BOTTOM, true, BlockModelType.TRAPDOOR_SOUTH_WATERLOGGED);
+            addTrapdoorDirection(Direction.WEST, Half.BOTTOM, true, BlockModelType.TRAPDOOR_WEST_WATERLOGGED);
 
-            addTrapdoorHalf(Direction.NORTH, Half.TOP, false, BlockModelType.TOP_TRAPDOOR);
-            addTrapdoorHalf(Direction.EAST, Half.TOP, false, BlockModelType.TOP_TRAPDOOR);
-            addTrapdoorHalf(Direction.SOUTH, Half.TOP, false, BlockModelType.TOP_TRAPDOOR);
-            addTrapdoorHalf(Direction.WEST, Half.TOP, false, BlockModelType.TOP_TRAPDOOR);
+            addTrapdoorHalf(Direction.NORTH, Half.TOP, false, BlockModelType.TRAPDOOR_TOP);
+            addTrapdoorHalf(Direction.EAST, Half.TOP, false, BlockModelType.TRAPDOOR_TOP);
+            addTrapdoorHalf(Direction.SOUTH, Half.TOP, false, BlockModelType.TRAPDOOR_TOP);
+            addTrapdoorHalf(Direction.WEST, Half.TOP, false, BlockModelType.TRAPDOOR_TOP);
 
-            addTrapdoorHalf(Direction.NORTH, Half.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
-            addTrapdoorHalf(Direction.EAST, Half.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
-            addTrapdoorHalf(Direction.SOUTH, Half.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
-            addTrapdoorHalf(Direction.WEST, Half.TOP, true, BlockModelType.TOP_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.NORTH, Half.TOP, true, BlockModelType.TRAPDOOR_TOP_WATERLOGGED);
+            addTrapdoorHalf(Direction.EAST, Half.TOP, true, BlockModelType.TRAPDOOR_TOP_WATERLOGGED);
+            addTrapdoorHalf(Direction.SOUTH, Half.TOP, true, BlockModelType.TRAPDOOR_TOP_WATERLOGGED);
+            addTrapdoorHalf(Direction.WEST, Half.TOP, true, BlockModelType.TRAPDOOR_TOP_WATERLOGGED);
 
-            addTrapdoorHalf(Direction.NORTH, Half.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
-            addTrapdoorHalf(Direction.EAST, Half.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
-            addTrapdoorHalf(Direction.SOUTH, Half.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
-            addTrapdoorHalf(Direction.WEST, Half.BOTTOM, false, BlockModelType.BOTTOM_TRAPDOOR);
+            addTrapdoorHalf(Direction.NORTH, Half.BOTTOM, false, BlockModelType.TRAPDOOR_BOTTOM);
+            addTrapdoorHalf(Direction.EAST, Half.BOTTOM, false, BlockModelType.TRAPDOOR_BOTTOM);
+            addTrapdoorHalf(Direction.SOUTH, Half.BOTTOM, false, BlockModelType.TRAPDOOR_BOTTOM);
+            addTrapdoorHalf(Direction.WEST, Half.BOTTOM, false, BlockModelType.TRAPDOOR_BOTTOM);
 
-            addTrapdoorHalf(Direction.NORTH, Half.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
-            addTrapdoorHalf(Direction.EAST, Half.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
-            addTrapdoorHalf(Direction.SOUTH, Half.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
-            addTrapdoorHalf(Direction.WEST, Half.BOTTOM, true, BlockModelType.BOTTOM_TRAPDOOR_WATERLOGGED);
+            addTrapdoorHalf(Direction.NORTH, Half.BOTTOM, true, BlockModelType.TRAPDOOR_BOTTOM_WATERLOGGED);
+            addTrapdoorHalf(Direction.EAST, Half.BOTTOM, true, BlockModelType.TRAPDOOR_BOTTOM_WATERLOGGED);
+            addTrapdoorHalf(Direction.SOUTH, Half.BOTTOM, true, BlockModelType.TRAPDOOR_BOTTOM_WATERLOGGED);
+            addTrapdoorHalf(Direction.WEST, Half.BOTTOM, true, BlockModelType.TRAPDOOR_BOTTOM_WATERLOGGED);
         }
 
         {
@@ -630,7 +630,7 @@ public class DefaultModelData {
                 addDoor(Direction.WEST, DoorHingeSide.LEFT, DoubleBlockHalf.LOWER, true, list);
                 addDoor(Direction.EAST, DoorHingeSide.RIGHT, DoubleBlockHalf.UPPER, true, list);
                 addDoor(Direction.EAST, DoorHingeSide.RIGHT, DoubleBlockHalf.LOWER, true, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.NORTH_DOOR, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.DOOR_NORTH, list);
             }
             {
                 List<BlockState> list = new ReferenceArrayList<>();
@@ -642,7 +642,7 @@ public class DefaultModelData {
                 addDoor(Direction.NORTH, DoorHingeSide.LEFT, DoubleBlockHalf.LOWER, true, list);
                 addDoor(Direction.SOUTH, DoorHingeSide.RIGHT, DoubleBlockHalf.UPPER, true, list);
                 addDoor(Direction.SOUTH, DoorHingeSide.RIGHT, DoubleBlockHalf.LOWER, true, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.EAST_DOOR, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.DOOR_EAST, list);
             }
             {
                 List<BlockState> list = new ReferenceArrayList<>();
@@ -654,7 +654,7 @@ public class DefaultModelData {
                 addDoor(Direction.EAST, DoorHingeSide.LEFT, DoubleBlockHalf.LOWER, true, list);
                 addDoor(Direction.WEST, DoorHingeSide.RIGHT, DoubleBlockHalf.UPPER, true, list);
                 addDoor(Direction.WEST, DoorHingeSide.RIGHT, DoubleBlockHalf.LOWER, true, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.SOUTH_DOOR, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.DOOR_SOUTH, list);
             }
             {
                 List<BlockState> list = new ReferenceArrayList<>();
@@ -666,7 +666,7 @@ public class DefaultModelData {
                 addDoor(Direction.SOUTH, DoorHingeSide.LEFT, DoubleBlockHalf.LOWER, true, list);
                 addDoor(Direction.NORTH, DoorHingeSide.RIGHT, DoubleBlockHalf.UPPER, true, list);
                 addDoor(Direction.NORTH, DoorHingeSide.RIGHT, DoubleBlockHalf.LOWER, true, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.WEST_DOOR, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.DOOR_WEST, list);
             }
         }
 
@@ -674,30 +674,30 @@ public class DefaultModelData {
             {
                 List<BlockState> list = new ReferenceArrayList<>();
                 addSculkBlocks(false, false, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR, list);
             }
             {
                 List<BlockState> list = new ReferenceArrayList<>();
                 addSculkBlocks(true, false, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_BLOCK_WATERLOGGED, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_WATERLOGGED, list);
             }
             {
                 List<BlockState> list = new ReferenceArrayList<>();
                 addSculkBlocks(false, true, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.ACTIVE_SCULK_SENSOR_BLOCK, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_ACTIVE, list);
             }
             {
                 List<BlockState> list = new ReferenceArrayList<>();
                 addSculkBlocks(true, true, list);
-                DefaultModelData.USABLE_STATES.put(BlockModelType.ACTIVE_SCULK_SENSOR_BLOCK_WATERLOGGED, list);
+                DefaultModelData.USABLE_STATES.put(BlockModelType.SCULK_SENSOR_ACTIVE_WATERLOGGED, list);
             }
         }
 
         {
-            addScaffolding(false, false, BlockModelType.TOP_SCAFFOLDING);
-            addScaffolding(true, false, BlockModelType.BOTTOM_SCAFFOLDING);
-            addScaffolding(false, true, BlockModelType.TOP_SCAFFOLDING_WATERLOGGED);
-            addScaffolding(true, true, BlockModelType.BOTTOM_SCAFFOLDING_WATERLOGGED);
+            addScaffolding(false, false, BlockModelType.SCAFFOLDING_TOP);
+            addScaffolding(true, false, BlockModelType.SCAFFOLDING_BOTTOM);
+            addScaffolding(false, true, BlockModelType.SCAFFOLDING_TOP_WATERLOGGED);
+            addScaffolding(true, true, BlockModelType.SCAFFOLDING_BOTTOM_WATERLOGGED);
         }
         {
             addFenceGates(Blocks.ACACIA_FENCE_GATE, Blocks.BAMBOO_FENCE_GATE, Blocks.BIRCH_FENCE_GATE,
@@ -939,14 +939,14 @@ public class DefaultModelData {
 
     private static void addFenceGates(Block... blocks) {
         for (Block base : blocks) {
-            addFenceGates(base, true, true, true, BlockModelType.NORTH_SOUTH_INWALL_OPEN_GATE);
-            addFenceGates(base, true, true, false, BlockModelType.NORTH_SOUTH_INWALL_GATE);
-            addFenceGates(base, true, false, true, BlockModelType.NORTH_SOUTH_OPEN_GATE);
-            addFenceGates(base, true, false, false, BlockModelType.NORTH_SOUTH_GATE);
-            addFenceGates(base, false, true, true, BlockModelType.EAST_WEST_INWALL_OPEN_GATE);
-            addFenceGates(base, false, true, false, BlockModelType.EAST_WEST_INWALL_GATE);
-            addFenceGates(base, false, false, true, BlockModelType.EAST_WEST_OPEN_GATE);
-            addFenceGates(base, false, false, false, BlockModelType.EAST_WEST_GATE);
+            addFenceGates(base, true, true, true, BlockModelType.GATE_NORTH_SOUTH_INWALL_OPEN);
+            addFenceGates(base, true, true, false, BlockModelType.GATE_NORTH_SOUTH_INWALL);
+            addFenceGates(base, true, false, true, BlockModelType.GATE_NORTH_SOUTH_OPEN);
+            addFenceGates(base, true, false, false, BlockModelType.GATE_NORTH_SOUTH);
+            addFenceGates(base, false, true, true, BlockModelType.GATE_EAST_WEST_INWALL_OPEN);
+            addFenceGates(base, false, true, false, BlockModelType.GATE_EAST_WEST_INWALL);
+            addFenceGates(base, false, false, true, BlockModelType.GATE_EAST_WEST_OPEN);
+            addFenceGates(base, false, false, false, BlockModelType.GATE_EAST_WEST);
         }
     }
 

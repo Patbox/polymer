@@ -15,7 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.Locale;
 import java.util.function.BiFunction;
@@ -29,13 +28,13 @@ public class TestInitializer implements ModInitializer {
         PolymerResourcePackUtils.addModAssets("apolymertestblocks");
 
         register(BlockModelType.FULL_BLOCK, "block/chlorophyte_block");
-        register(BlockModelType.TRANSPARENT_BLOCK, "block/chair");
-        register(BlockModelType.FARMLAND_BLOCK, "block/copper_block");
-        register(BlockModelType.TOP_SLAB, "block/chlorophyte_ore");
-        register(BlockModelType.TRIPWIRE_BLOCK, "block/titan_block");
-        register(BlockModelType.VINES_BLOCK, "block/table");
-        register(BlockModelType.BIOME_PLANT_BLOCK, "block/steel_block");
-        register(BlockModelType.KELP_BLOCK, "block/titan_ore_nether");
+        register(BlockModelType.LEAVES, "block/chair");
+        register(BlockModelType.FARMLAND, "block/copper_block");
+        register(BlockModelType.STAB_TOP, "block/chlorophyte_ore");
+        register(BlockModelType.TRIPWIRE, "block/titan_block");
+        register(BlockModelType.VINES, "block/table");
+        register(BlockModelType.BIOME_PLANT, "block/steel_block");
+        register(BlockModelType.KELP, "block/titan_ore_nether");
         registerCustom("block/table2", (s, id) -> new TestHeadBlock(s, BlockModelType.HEAD, id));
         registerCustom("block/oak_fence", (s, id) -> new TestBarsBlock(s));
 
@@ -44,7 +43,7 @@ public class TestInitializer implements ModInitializer {
                 .with(Identifier.withDefaultNamespace("block/polished_tuff_slab"))
         );
 
-        registerMulti(BlockModelType.WEST_SHELF,"multi_multi_base", MultiPolymerBlockModel.of()
+        registerMulti(BlockModelType.SHELF_WEST,"multi_multi_base", MultiPolymerBlockModel.of()
                 .with(Identifier.withDefaultNamespace("block/torch"))
                 .with(Identifier.withDefaultNamespace("block/polished_tuff_slab"))
         );

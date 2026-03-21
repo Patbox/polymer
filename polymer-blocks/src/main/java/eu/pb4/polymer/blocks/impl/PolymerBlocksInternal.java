@@ -73,9 +73,6 @@ public class PolymerBlocksInternal implements ModInitializer {
         CommonImplUtils.registerCommands(c -> c.then(literal("blocks_module_state_report")
                 .requires(CommonImplUtils.permission("blocks_module_state_report", 3))
                 .executes(ctx -> {
-                    if (CompatStatus.POLYMC) {
-                        ctx.getSource().sendSystemMessage(Component.literal("PolyMc is present! Values provided here won't reflect it's state here! Use /polymc command instead!").withStyle(ChatFormatting.RED));
-                    }
                     if (ctx.getSource().getPlayer() != null) {
                         var text = Component.empty();
                         for (var type : BlockModelType.values()) {

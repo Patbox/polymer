@@ -54,10 +54,4 @@ public final class PolymerBlockResourceUtils {
 
         return Math.max(CREATOR.getBlocksLeft(type) - 1, 0);
     }
-
-    static {
-        if (CompatStatus.POLYMC) {
-            PolymerBlocksInternal.modelMap = CREATOR.models;
-        }
-    }
 }

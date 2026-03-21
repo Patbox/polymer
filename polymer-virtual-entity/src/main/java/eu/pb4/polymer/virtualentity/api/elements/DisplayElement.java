@@ -17,94 +17,94 @@ public abstract class DisplayElement extends GenericEntityElement {
     protected abstract EntityType<? extends Display> getEntityType();
 
     public void setTransformation(Transformation transformation) {
-        this.dataTracker.set(DisplayEntityData.TRANSLATION, transformation.translation());
-        this.dataTracker.set(DisplayEntityData.LEFT_ROTATION, transformation.leftRotation());
-        this.dataTracker.set(DisplayEntityData.SCALE, transformation.scale());
-        this.dataTracker.set(DisplayEntityData.RIGHT_ROTATION, transformation.rightRotation());
+        this.syncedData.set(DisplayEntityData.TRANSLATION, transformation.translation());
+        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, transformation.leftRotation());
+        this.syncedData.set(DisplayEntityData.SCALE, transformation.scale());
+        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, transformation.rightRotation());
     }
 
     public void setTransformation(Matrix4fc matrix) {
         float f = 1.0F / matrix.m33();
         var triple = MatrixUtil.svdDecompose(new Matrix3f(matrix).scale(f));
-        this.dataTracker.set(DisplayEntityData.TRANSLATION, matrix.getTranslation(new Vector3f()));
-        this.dataTracker.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));
-        this.dataTracker.set(DisplayEntityData.SCALE, new Vector3f(triple.getMiddle()));
-        this.dataTracker.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
+        this.syncedData.set(DisplayEntityData.TRANSLATION, matrix.getTranslation(new Vector3f()));
+        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));
+        this.syncedData.set(DisplayEntityData.SCALE, new Vector3f(triple.getMiddle()));
+        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
     }
 
     public void setTransformation(Matrix4x3fc matrix) {
         var triple = MatrixUtil.svdDecompose(new Matrix3f().set(matrix));
-        this.dataTracker.set(DisplayEntityData.TRANSLATION, matrix.getTranslation(new Vector3f()));
-        this.dataTracker.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));
-        this.dataTracker.set(DisplayEntityData.SCALE, new Vector3f(triple.getMiddle()));
-        this.dataTracker.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
+        this.syncedData.set(DisplayEntityData.TRANSLATION, matrix.getTranslation(new Vector3f()));
+        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));
+        this.syncedData.set(DisplayEntityData.SCALE, new Vector3f(triple.getMiddle()));
+        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
     }
 
     public boolean isTransformationDirty() {
-        return this.dataTracker.isDirty(DisplayEntityData.TRANSLATION)
-                || this.dataTracker.isDirty(DisplayEntityData.LEFT_ROTATION)
-                || this.dataTracker.isDirty(DisplayEntityData.SCALE)
-                || this.dataTracker.isDirty(DisplayEntityData.RIGHT_ROTATION);
+        return this.syncedData.isDirty(DisplayEntityData.TRANSLATION)
+                || this.syncedData.isDirty(DisplayEntityData.LEFT_ROTATION)
+                || this.syncedData.isDirty(DisplayEntityData.SCALE)
+                || this.syncedData.isDirty(DisplayEntityData.RIGHT_ROTATION);
     }
 
     public void setTranslation(Vector3fc vector3f) {
-        this.dataTracker.set(DisplayEntityData.TRANSLATION, new Vector3f(vector3f));
+        this.syncedData.set(DisplayEntityData.TRANSLATION, new Vector3f(vector3f));
     }
 
     public Vector3fc getTranslation() {
-        return this.dataTracker.get(DisplayEntityData.TRANSLATION);
+        return this.syncedData.get(DisplayEntityData.TRANSLATION);
     }
 
     public void setScale(Vector3fc vector3f) {
-        this.dataTracker.set(DisplayEntityData.SCALE, new Vector3f(vector3f));
+        this.syncedData.set(DisplayEntityData.SCALE, new Vector3f(vector3f));
     }
 
     public Vector3fc getScale() {
-        return this.dataTracker.get(DisplayEntityData.SCALE);
+        return this.syncedData.get(DisplayEntityData.SCALE);
     }
 
     public void setLeftRotation(Quaternionfc quaternion) {
-        this.dataTracker.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(quaternion));
+        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(quaternion));
     }
 
     public Quaternionfc getLeftRotation() {
-        return this.dataTracker.get(DisplayEntityData.LEFT_ROTATION);
+        return this.syncedData.get(DisplayEntityData.LEFT_ROTATION);
     }
 
     public void setRightRotation(Quaternionfc quaternion) {
-        this.dataTracker.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(quaternion));
+        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(quaternion));
     }
 
     public Quaternionfc getRightRotation() {
-        return this.dataTracker.get(DisplayEntityData.RIGHT_ROTATION);
+        return this.syncedData.get(DisplayEntityData.RIGHT_ROTATION);
     }
 
     public int getInterpolationDuration() {
-        return this.dataTracker.get(DisplayEntityData.INTERPOLATION_DURATION);
+        return this.syncedData.get(DisplayEntityData.INTERPOLATION_DURATION);
     }
 
     public void setInterpolationDuration(int interpolationDuration) {
-        this.dataTracker.set(DisplayEntityData.INTERPOLATION_DURATION, interpolationDuration);
+        this.syncedData.set(DisplayEntityData.INTERPOLATION_DURATION, interpolationDuration);
     }
 
     public int getTeleportDuration() {
-        return this.dataTracker.get(DisplayEntityData.TELEPORTATION_DURATION);
+        return this.syncedData.get(DisplayEntityData.TELEPORTATION_DURATION);
     }
 
     public void setTeleportDuration(int interpolationDuration) {
-        this.dataTracker.set(DisplayEntityData.TELEPORTATION_DURATION, interpolationDuration);
+        this.syncedData.set(DisplayEntityData.TELEPORTATION_DURATION, interpolationDuration);
     }
 
     public int getStartInterpolation() {
-        return this.dataTracker.get(DisplayEntityData.START_INTERPOLATION);
+        return this.syncedData.get(DisplayEntityData.START_INTERPOLATION);
     }
 
     public void startInterpolation() {
-        this.dataTracker.setDirty(DisplayEntityData.START_INTERPOLATION, true);
+        this.syncedData.setDirty(DisplayEntityData.START_INTERPOLATION, true);
     }
 
     public void setStartInterpolation(int startInterpolation) {
-        this.dataTracker.set(DisplayEntityData.START_INTERPOLATION, startInterpolation, true);
+        this.syncedData.set(DisplayEntityData.START_INTERPOLATION, startInterpolation, true);
     }
 
     public void startInterpolationIfDirty() {
@@ -114,61 +114,61 @@ public abstract class DisplayElement extends GenericEntityElement {
     }
 
     public Display.BillboardConstraints getBillboardMode() {
-        return Display.BillboardConstraints.BY_ID.apply(this.dataTracker.get(DisplayEntityData.BILLBOARD));
+        return Display.BillboardConstraints.BY_ID.apply(this.syncedData.get(DisplayEntityData.BILLBOARD));
     }
 
     public void setBillboardMode(Display.BillboardConstraints billboardMode) {
-        this.dataTracker.set(DisplayEntityData.BILLBOARD, (byte) billboardMode.ordinal());
+        this.syncedData.set(DisplayEntityData.BILLBOARD, (byte) billboardMode.ordinal());
     }
 
     @Nullable
     public Brightness getBrightness() {
-        int i = this.dataTracker.get(DisplayEntityData.BRIGHTNESS);
+        int i = this.syncedData.get(DisplayEntityData.BRIGHTNESS);
         return i != -1 ? Brightness.unpack(i) : null;
     }
 
     public void setBrightness(@Nullable Brightness brightness) {
-        this.dataTracker.set(DisplayEntityData.BRIGHTNESS, brightness != null ? brightness.pack() : -1);
+        this.syncedData.set(DisplayEntityData.BRIGHTNESS, brightness != null ? brightness.pack() : -1);
     }
 
     public float getViewRange() {
-        return this.dataTracker.get(DisplayEntityData.VIEW_RANGE);
+        return this.syncedData.get(DisplayEntityData.VIEW_RANGE);
     }
 
     public void setViewRange(float viewRange) {
-        this.dataTracker.set(DisplayEntityData.VIEW_RANGE, viewRange);
+        this.syncedData.set(DisplayEntityData.VIEW_RANGE, viewRange);
     }
 
     public float getShadowRadius() {
-        return this.dataTracker.get(DisplayEntityData.SHADOW_RADIUS);
+        return this.syncedData.get(DisplayEntityData.SHADOW_RADIUS);
     }
 
     public void setShadowRadius(float shadowRadius) {
-        this.dataTracker.set(DisplayEntityData.SHADOW_RADIUS, shadowRadius);
+        this.syncedData.set(DisplayEntityData.SHADOW_RADIUS, shadowRadius);
     }
 
     public float getShadowStrength() {
-        return this.dataTracker.get(DisplayEntityData.SHADOW_STRENGTH);
+        return this.syncedData.get(DisplayEntityData.SHADOW_STRENGTH);
     }
 
     public void setShadowStrength(float shadowStrength) {
-        this.dataTracker.set(DisplayEntityData.SHADOW_STRENGTH, shadowStrength);
+        this.syncedData.set(DisplayEntityData.SHADOW_STRENGTH, shadowStrength);
     }
 
     public float getDisplayWidth() {
-        return this.dataTracker.get(DisplayEntityData.WIDTH);
+        return this.syncedData.get(DisplayEntityData.WIDTH);
     }
 
     public float getDisplayHeight() {
-        return this.dataTracker.get(DisplayEntityData.HEIGHT);
+        return this.syncedData.get(DisplayEntityData.HEIGHT);
     }
 
     public void setDisplayWidth(float width) {
-        this.dataTracker.set(DisplayEntityData.WIDTH, width);
+        this.syncedData.set(DisplayEntityData.WIDTH, width);
     }
 
     public void setDisplayHeight(float height) {
-        this.dataTracker.set(DisplayEntityData.HEIGHT, height);
+        this.syncedData.set(DisplayEntityData.HEIGHT, height);
     }
 
     public void setDisplaySize(float width, float height) {
@@ -182,10 +182,10 @@ public abstract class DisplayElement extends GenericEntityElement {
     }
 
     public int getGlowColorOverride() {
-        return this.dataTracker.get(DisplayEntityData.GLOW_COLOR_OVERRIDE);
+        return this.syncedData.get(DisplayEntityData.GLOW_COLOR_OVERRIDE);
     }
 
     public void setGlowColorOverride(int glowColorOverride) {
-        this.dataTracker.set(DisplayEntityData.GLOW_COLOR_OVERRIDE, glowColorOverride);
+        this.syncedData.set(DisplayEntityData.GLOW_COLOR_OVERRIDE, glowColorOverride);
     }
 }

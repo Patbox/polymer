@@ -15,7 +15,7 @@ import net.minecraft.core.IdMapper;
 @Mixin(IdMapper.class)
 public abstract class IdMapperMixin<T> implements IndexedNetwork<T> {
     @Unique
-    private IntFunction<T> polymer$decoder;
+    private IntFunction<T> polymer$decoder = _ -> null;
     @Unique
     private boolean hasDecoder;
 
@@ -34,5 +34,10 @@ public abstract class IdMapperMixin<T> implements IndexedNetwork<T> {
     public void polymer$setDecoder(IntFunction<T> decoder) {
         this.polymer$decoder = decoder;
         this.hasDecoder = true;
+    }
+
+    @Override
+    public IntFunction<T> polymer$getDecoder() {
+        return this.polymer$decoder;
     }
 }

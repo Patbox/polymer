@@ -180,19 +180,19 @@ public class PolymerServerProtocol {
     }
 
     public static void sendCreativeSyncPackets(ServerGamePacketListenerImpl handler) {
-        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_DEFINE);
+        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_CREATIVE_TAB_DEFINE);
 
         if (version != -1) {
             for (var group : PolymerCreativeModeTabUtils.getCreativeModeTabs(handler.getPlayer())) {
                 syncItemGroup(group, handler);
             }
 
-            handler.send(new ClientboundCustomPayloadPacket(new PolymerItemGroupApplyUpdateS2CPayload()));
+            handler.send(new ClientboundCustomPayloadPacket(new PolymerCreativeTabApplyUpdateS2CPayload()));
         }
     }
 
     public static void syncItemGroup(CreativeModeTab group, ServerGamePacketListenerImpl handler) {
-        if (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group)) {
+        if (PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group)) {
             removeItemGroup(group, handler);
             syncItemGroupDefinition(group, handler);
         }
@@ -201,17 +201,17 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroupContents(CreativeModeTab group, ServerGamePacketListenerImpl handler) {
-        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_CONTENTS_ADD);
+        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_CREATIVE_TAB_CONTENTS_ADD);
 
         if (version != -1) {
             var id = PolymerCreativeModeTabUtils.getId(group);
             if (id == null) {
                 return;
             }
-            handler.send(new ClientboundCustomPayloadPacket(new PolymerItemGroupContentClearS2CPayload(id)));
+            handler.send(new ClientboundCustomPayloadPacket(new PolymerCreativeTabContentClearS2CPayload(id)));
 
             try {
-                var entry = PolymerItemGroupContentAddS2CPayload.of(version, group, handler);
+                var entry = PolymerCreativeTabContentAddS2CPayload.of(version, group, handler);
                 if (entry.isNonEmpty()) {
                     handler.send(new ClientboundCustomPayloadPacket(entry));
                 }
@@ -223,23 +223,23 @@ public class PolymerServerProtocol {
     }
 
     public static void syncItemGroupDefinition(CreativeModeTab group, ServerGamePacketListenerImpl handler) {
-        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_ITEM_GROUP_DEFINE);
+        var version = PolymerServerNetworking.getSupportedVersion(handler, S2CPackets.SYNC_CREATIVE_TAB_DEFINE);
 
-        if (version > -1 && (PolymerImpl.SYNC_MODDED_ENTRIES_POLYMC || PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group))) {
+        if (version > -1 && PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group)) {
             var id = PolymerCreativeModeTabUtils.getId(group);
             if (id != null) {
-                handler.send(new ClientboundCustomPayloadPacket(new PolymerItemGroupDefineS2CPayload(id, group.getDisplayName(), group.getIconItem())));
+                handler.send(new ClientboundCustomPayloadPacket(new PolymerCreativeTabDefineS2CPayload(id, group.getDisplayName(), group.getIconItem())));
             }
         }
     }
 
     public static void removeItemGroup(CreativeModeTab group, ServerGamePacketListenerImpl player) {
-        var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.SYNC_ITEM_GROUP_REMOVE);
+        var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.SYNC_CREATIVE_TAB_REMOVE);
 
         if (version > -1 && PolymerCreativeModeTabUtils.isPolymerCreativeModeTab(group)) {
             var x = PolymerCreativeModeTabUtils.REGISTRY.getEntryId(group);
             if (x != null) {
-                player.send(new ClientboundCustomPayloadPacket(new PolymerItemGroupRemoveS2CPayload(x)));
+                player.send(new ClientboundCustomPayloadPacket(new PolymerCreativeTabRemoveS2CPayload(x)));
             }
         }
     }

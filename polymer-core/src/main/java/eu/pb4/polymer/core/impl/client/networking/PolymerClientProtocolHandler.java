@@ -16,7 +16,6 @@ import eu.pb4.polymer.core.impl.networking.entry.*;
 import eu.pb4.polymer.core.impl.networking.payloads.PolymerGenericListPayload;
 import eu.pb4.polymer.core.impl.networking.payloads.PolymerNoOpPayload;
 import eu.pb4.polymer.core.impl.networking.payloads.s2c.*;
-import eu.pb4.polymer.core.impl.other.EventRunners;
 import eu.pb4.polymer.core.impl.other.ImplPolymerRegistry;
 import eu.pb4.polymer.core.mixin.other.CreativeModeTabsAccessor;
 import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
@@ -79,11 +78,11 @@ public class PolymerClientProtocolHandler {
             PolymerClientUtils.ON_SYNC_FINISHED.invoker().run();
         });
 
-        registerCommonHandler(PolymerItemGroupDefineS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupDefine);
-        registerCommonHandler(PolymerItemGroupContentAddS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupContentsAdd);
-        registerCommonHandler(PolymerItemGroupContentClearS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupContentsClear);
-        registerCommonHandler(PolymerItemGroupRemoveS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupRemove);
-        registerCommonHandler(PolymerItemGroupApplyUpdateS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupApplyUpdates);
+        registerCommonHandler(PolymerCreativeTabDefineS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupDefine);
+        registerCommonHandler(PolymerCreativeTabContentAddS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupContentsAdd);
+        registerCommonHandler(PolymerCreativeTabContentClearS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupContentsClear);
+        registerCommonHandler(PolymerCreativeTabRemoveS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupRemove);
+        registerCommonHandler(PolymerCreativeTabApplyUpdateS2CPayload.class, PolymerClientProtocolHandler::handleItemGroupApplyUpdates);
         registerCommonHandler(PolymerSyncClearS2CPayload.class, (client, handler, payload) -> {
             InternalClientRegistry.clear();
         });
@@ -216,7 +215,7 @@ public class PolymerClientProtocolHandler {
         return null;
     }
 
-    private static void handleItemGroupApplyUpdates(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupApplyUpdateS2CPayload payload) {
+    private static void handleItemGroupApplyUpdates(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerCreativeTabApplyUpdateS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
             Minecraft.getInstance().execute(() -> {
                 if (CreativeModeTabsAccessor.getCACHED_PARAMETERS() != null) {
@@ -227,7 +226,7 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleItemGroupDefine(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupDefineS2CPayload payload) {
+    private static void handleItemGroupDefine(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerCreativeTabDefineS2CPayload payload) {
         if ( InternalClientRegistry.enabled) {
             Minecraft.getInstance().execute(() -> {
                 InternalClientRegistry.clearTabs((t) -> t.getIdentifier().equals(payload.groupId()));
@@ -237,7 +236,7 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleItemGroupRemove(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupRemoveS2CPayload payload) {
+    private static void handleItemGroupRemove(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerCreativeTabRemoveS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
             Minecraft.getInstance().execute(() -> {
                 InternalClientRegistry.clearTabs((x) -> x.getIdentifier().equals(payload.groupId()));
@@ -246,7 +245,7 @@ public class PolymerClientProtocolHandler {
 
     }
 
-    private static void handleItemGroupContentsAdd(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupContentAddS2CPayload payload) {
+    private static void handleItemGroupContentsAdd(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerCreativeTabContentAddS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
             Minecraft.getInstance().execute(() -> {
                 CreativeModeTab group = InternalClientRegistry.getItemGroup(payload.groupId());
@@ -260,7 +259,7 @@ public class PolymerClientProtocolHandler {
         }
     }
 
-    private static void handleItemGroupContentsClear(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerItemGroupContentClearS2CPayload payload) {
+    private static void handleItemGroupContentsClear(Minecraft client, ClientCommonPacketListenerImpl handler, PolymerCreativeTabContentClearS2CPayload payload) {
         if (InternalClientRegistry.enabled) {
             Minecraft.getInstance().execute(() -> {
                 CreativeModeTab group = InternalClientRegistry.getItemGroup(payload.groupId());
