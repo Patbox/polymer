@@ -66,9 +66,9 @@ dependencies {
 
     //modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
 
-    //modCompileOnly("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1") {
-    //    exclude(group: "net.fabricmc.fabric-api")
-    //}
+    compileOnly("xyz.nucleoid:server-translations-api:3.0.0+26.1-pre-3"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     //modCompileOnly ('com.github.iPortalTeam:ImmersivePortalsMod:v5.1.0-mc1.20.4') {
     //    exclude(group: "net.fabricmc.fabric-api")

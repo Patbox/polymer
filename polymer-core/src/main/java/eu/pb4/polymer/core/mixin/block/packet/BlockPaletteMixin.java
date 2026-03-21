@@ -18,7 +18,7 @@ import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 @Mixin(value = {LinearPalette.class, SingleValuePalette.class, HashMapPalette.class}, priority = 500)
 public abstract class BlockPaletteMixin {
 
-    @ModifyArg(method = {"write", "getSerializedSize"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/core/IdMap;getId(Ljava/lang/Object;)I"))
+    @ModifyArg(method = { "write", "getSerializedSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/core/IdMap;getId(Ljava/lang/Object;)I"))
     public Object polymer_getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
             return PolymerBlockUtils.getPolymerBlockState(blockState, PacketContext.get());

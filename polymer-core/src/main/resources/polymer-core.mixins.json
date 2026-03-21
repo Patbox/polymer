@@ -34,6 +34,7 @@
     "block.storage.LevelChunkSectionMixin",
     "command.ArgumentNodeStubMixin",
     "command.CommandsMixin",
+    "compat.lithium_BlockPaletteMixin",
     "compat.fabric.fabricSync_StateIdTrackerMixin",
     "entity.AttributeMixin",
     "entity.ClientboundAddEntityPacketMixin",

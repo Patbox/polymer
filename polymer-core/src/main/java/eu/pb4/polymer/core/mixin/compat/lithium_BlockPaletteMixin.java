@@ -1,8 +1,7 @@
 package eu.pb4.polymer.core.mixin.compat;
-/*
+
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
-import net.caffeinemc.mods.lithium.common.world.chunk.LithiumHashPalette;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.IdMap;
@@ -15,9 +14,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 @Pseudo
-@Mixin(value = LithiumHashPalette.class, priority = 500)
+@Mixin(targets = "net/caffeinemc/mods/lithium/common/world/chunk/LithiumHashPalette", priority = 500)
 public class lithium_BlockPaletteMixin {
-    @ModifyArg(method = {"write", "getSerializedSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/core/IdMap;getId(Ljava/lang/Object;)I"))
+    @ModifyArg(method = {"write", "getSerializedSize" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/core/IdMap;getId(Ljava/lang/Object;)I"), require = 0)
     public Object polymer$getIdRedirect(Object object) {
         if (object instanceof BlockState blockState) {
             return PolymerBlockUtils.getPolymerBlockState(blockState, PacketContext.get());
@@ -31,4 +30,3 @@ public class lithium_BlockPaletteMixin {
         return InternalClientRegistry.decodeRegistry(instance, index);
     }
 }
-*/
