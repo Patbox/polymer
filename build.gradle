@@ -232,7 +232,7 @@ allprojects {
                 publications {
                     mavenJava(MavenPublication) {
                         groupId = rootProject.maven_group
-                        artifactId = project.base.archivesName
+                        artifactId = project.base.archivesName.get()
                         version = project.version
 
                         from components.java
