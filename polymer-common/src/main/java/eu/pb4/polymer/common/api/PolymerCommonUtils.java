@@ -165,7 +165,8 @@ public final class PolymerCommonUtils {
 
     public static boolean hasResourcePack(@Nullable PacketContext context, UUID uuid) {
         return CommonImpl.FORCE_RESOURCEPACK_ENABLED_STATE
-                || context != null && hasResourcePack(context.orElseThrow(PacketContext.CONNECTION), uuid);
+                || context != null && ((CommonConnectionExt) context.orElseThrow(PacketContext.CONNECTION)).polymerCommon$hasResourcePack(uuid)
+                || (CommonImpl.IS_CLIENT && ClientUtils.isResourcePackLoaded());
     }
 
     public static boolean isServerBound() {
