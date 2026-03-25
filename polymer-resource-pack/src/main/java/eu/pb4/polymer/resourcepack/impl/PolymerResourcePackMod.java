@@ -197,9 +197,9 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                             // I hate windows
                         }
                     }
-                    result = PolymerResourcePackUtils.getInstance().build(outputPath, ResourcePackStatusConsumer.simple(STATUS::add));
-                    success = result != null;
                 }
+                result = PolymerResourcePackUtils.getInstance().build(outputPath, ResourcePackStatusConsumer.simple(STATUS::add));
+                success = result != null;
 
                 STATUS.clear();
                 final var finalOutputPath = outputPath;
