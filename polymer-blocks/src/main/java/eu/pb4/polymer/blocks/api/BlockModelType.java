@@ -30,7 +30,7 @@ public enum BlockModelType {
     SCULK_SENSOR_ACTIVE,
     SCULK_SENSOR_ACTIVE_WATERLOGGED,
     // Slab
-    STAB_TOP,
+    SLAB_TOP,
     SLAB_TOP_WATERLOGGED,
     SLAB_BOTTOM,
     SLAB_BOTTOM_WATERLOGGED,
@@ -230,7 +230,7 @@ public enum BlockModelType {
     public static BlockModelType getSlab(boolean bottom, boolean waterlogged) {
         return bottom
                 ? (waterlogged ? SLAB_BOTTOM_WATERLOGGED : SLAB_BOTTOM)
-                : (waterlogged ? SLAB_TOP_WATERLOGGED : STAB_TOP);
+                : (waterlogged ? SLAB_TOP_WATERLOGGED : SLAB_TOP);
     }
 
     public static BlockModelType getTrapdoor(Direction direction, boolean waterlogged) {

@@ -457,8 +457,7 @@ public final class PolymerItemUtils {
 
 
         try {
-            // Todo: Replace this once https://github.com/FabricMC/fabric-api/pull/5256 is merged!
-            out.set(DataComponents.CUSTOM_DATA, PacketContext.supplyWithContext(PolymerImplUtils.NULL_CONTEXT_PROVIDER, () -> {
+            out.set(DataComponents.CUSTOM_DATA, PacketContext.supplyWithoutContext(() -> {
                 var nbt = new CompoundTag();
 
                 nbt.store(POLYMER_STACK, ItemStack.CODEC, lookup.createSerializationContext(NbtOps.INSTANCE), itemStack);

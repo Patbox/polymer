@@ -47,15 +47,6 @@ public class PolymerImplUtils {
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdMapper<BlockState>) Block.BLOCK_STATE_REGISTRY).polymer$getPolymerEntries();
     public static final RegistryAccess FALLBACK_LOOKUP = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
-    // Todo: Replace this once https://github.com/FabricMC/fabric-api/pull/5256 is merged!
-    @Deprecated(forRemoval = true)
-    public static final PacketContextProvider NULL_CONTEXT_PROVIDER = new PacketContextProvider() {
-        @Override
-        public PacketContext getPacketContext() {
-            return null;
-        }
-    };
-
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath("polymer", path);
     }

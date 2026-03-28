@@ -1,24 +1,16 @@
 package eu.pb4.polymer.autohost.impl.providers;
 
-import com.google.common.hash.Hashing;
 import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
 import eu.pb4.polymer.autohost.impl.AutoHost;
-import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.ProxyEvent;
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
-import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.network.Connection;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import org.jspecify.annotations.Nullable;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Consumer;
 
 public abstract class AbstractProvider implements ResourcePackDataProvider {
     public long size = 0;

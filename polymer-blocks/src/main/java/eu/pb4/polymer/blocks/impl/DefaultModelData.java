@@ -498,7 +498,7 @@ public class DefaultModelData {
             addDisarmedTripwire(false, BlockModelType.TRIPWIRE);
             addDisarmedTripwire(true, BlockModelType.TRIPWIRE_FLAT);
 
-            addSlabs(SlabType.TOP, false, BlockModelType.STAB_TOP);
+            addSlabs(SlabType.TOP, false, BlockModelType.SLAB_TOP);
             addSlabs(SlabType.TOP, true, BlockModelType.SLAB_TOP_WATERLOGGED);
             addSlabs(SlabType.BOTTOM, false, BlockModelType.SLAB_BOTTOM);
             addSlabs(SlabType.BOTTOM, true, BlockModelType.SLAB_BOTTOM_WATERLOGGED);

@@ -1,5 +1,6 @@
 package eu.pb4.polymer.common.impl;
 
+import eu.pb4.polymer.common.mixin.ArrayBackedEventAccessor;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
@@ -49,16 +50,7 @@ public interface EventImplUtils {
         });
     }
 
-    static <T> void copyEvent(Event<T> from, Event<T> to) {
-        try {
-            // Todo
-        } catch (Throwable e) {
-            CommonImpl.LOGGER.error("Failed to copy an event!", e);
-        }
-    }
-
     static boolean isEmpty(Event<?> event) {
-        // Todo
-        return false;
+        return event instanceof ArrayBackedEventAccessor accessor && accessor.getHandlers().length == 0;
     }
 }

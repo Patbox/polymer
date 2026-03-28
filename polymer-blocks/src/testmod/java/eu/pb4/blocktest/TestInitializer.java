@@ -30,7 +30,7 @@ public class TestInitializer implements ModInitializer {
         register(BlockModelType.FULL_BLOCK, "block/chlorophyte_block");
         register(BlockModelType.LEAVES, "block/chair");
         register(BlockModelType.FARMLAND, "block/copper_block");
-        register(BlockModelType.STAB_TOP, "block/chlorophyte_ore");
+        register(BlockModelType.SLAB_TOP, "block/chlorophyte_ore");
         register(BlockModelType.TRIPWIRE, "block/titan_block");
         register(BlockModelType.VINES, "block/table");
         register(BlockModelType.BIOME_PLANT, "block/steel_block");
