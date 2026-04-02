@@ -164,7 +164,7 @@ curseforge {
             addGameVersion "Fabric"
 
             for (String a : project.mc_extra_supported.split(",")) {
-                if (!a.stript().isEmpty()) {
+                if (!a.strip().isEmpty()) {
                     addGameVersion(a.strip())
                 }
             }
@@ -197,7 +197,7 @@ if (System.getenv("MODRINTH")) {
         List<String> supportedVersions = new ArrayList<>();
         supportedVersions.add(project.minecraft_version);
         for (String a : project.mc_extra_supported.split(",")) {
-            if (!a.stript().isEmpty()) {
+            if (!a.strip().isEmpty()) {
                 supportedVersions.add(a.strip())
             }
         }
