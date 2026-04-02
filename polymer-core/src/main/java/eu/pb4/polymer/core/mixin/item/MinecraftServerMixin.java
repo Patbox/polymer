@@ -21,7 +21,7 @@ public class MinecraftServerMixin {
         PolymerCreativeModeTabUtils.invalidateCache();
     }
 
-    @Inject(method = "stopServer", at = @At("TAIL"))
+    @Inject(method = "stopServer", at = @At("RETURN"))
     private void polymerCore$shutdown(CallbackInfo info) {
         PolymerBlockStateEntry.CACHE.clear();
         PolymerCreativeModeTabUtils.invalidateCache();

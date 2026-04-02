@@ -129,6 +129,7 @@ public class TestMod implements ModInitializer {
                 @Override
                 public void accept(CreativeModeTab.ItemDisplayParameters arg, CreativeModeTab.Output entries) {
                     entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
+                    entries.accept(Items.MUSIC_DISC_5.getDefaultInstance());
                     var items = REG_CACHE.get(BuiltInRegistries.ITEM);
 
                     for (var pair : items) {
@@ -169,7 +170,7 @@ public class TestMod implements ModInitializer {
     public static BlockItem BLOCK_ITEM_2 = registerItem(Identifier.fromNamespaceAndPath("test", "block_2"), (s) -> new PolymerBlockItem(BLOCK_2, s, Items.TNT));
     public static BlockItem BLOCK_ITEM_3 = registerItem(Identifier.fromNamespaceAndPath("test", "block_3"), (s) -> new PolymerBlockItem(BLOCK_3, s, Items.COBWEB));
     public static TinyPotatoBlock TATER_BLOCK = registerBlock(Identifier.fromNamespaceAndPath("test", "tater"), (s) -> new TinyPotatoBlock(s.strength(10f)));
-    public static BlockItem TATER_BLOCK_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "tater"), (s) -> new PolymerHeadBlockItem(TATER_BLOCK, s.stacksTo(99)));
+    public static BlockItem TATER_BLOCK_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "tater"), (s) -> new PolymerHeadBlockItem(TATER_BLOCK, s.stacksTo(99).jukeboxPlayable(ResourceKey.create(Registries.JUKEBOX_SONG, Identifier.fromNamespaceAndPath("polymertest", "test")))));
     public static TestPickaxeItem PICKAXE = registerItem(Identifier.fromNamespaceAndPath("test", "pickaxe"), (s) -> new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterial.NETHERITE, 10, -3.9f, s));
     public static TestPickaxeItem PICKAXE2 = registerItem(Identifier.fromNamespaceAndPath("test", "pickaxe2"), (s) -> new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterial.WOOD, 10, -5f, s));
     public static TestHelmetItem HELMET = registerItem(Identifier.fromNamespaceAndPath("test", "helmet"), TestHelmetItem::new);

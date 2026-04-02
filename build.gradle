@@ -162,6 +162,13 @@ curseforge {
             changelogType = "markdown"
             addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
             addGameVersion "Fabric"
+
+            for (String a : project.mc_extra_supported.split(",")) {
+                if (!a.stript().isEmpty()) {
+                    addGameVersion(a.strip())
+                }
+            }
+
             mainArtifact(jar.archiveFile)
 
             afterEvaluate {
@@ -185,7 +192,17 @@ if (System.getenv("MODRINTH")) {
         versionNumber = "" + version // The version of the mod to upload.
         versionType = isStable ? "release" : "beta"
         uploadFile = jar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
-        gameVersions = [((String) project.minecraft_version)]
+
+
+        List<String> supportedVersions = new ArrayList<>();
+        supportedVersions.add(project.minecraft_version);
+        for (String a : project.mc_extra_supported.split(",")) {
+            if (!a.stript().isEmpty()) {
+                supportedVersions.add(a.strip())
+            }
+        }
+
+        gameVersions = supportedVersions
         changelog = System.getenv("CHANGELOG")
         loaders = ["fabric"]
     }

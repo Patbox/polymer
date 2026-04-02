@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "eu.pb4.polymer.core.mixin.PolymerMixinConfigPlugin",
   "mixins": [
+    "CreativeModeTabAccessor",
     "CustomDataAccessor",
     "NetworkPayloadAccessor",
     "StaticAccessor",

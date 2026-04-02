@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.item;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
@@ -34,5 +35,19 @@ public class CreativeModeTabsMixin {
         for (var group : PolymerCreativeModeTabUtils.REGISTRY) {
             set.addAll(group.getSearchTabDisplayItems());
         }
+    }
+
+    @Environment(EnvType.CLIENT)
+    @ModifyExpressionValue(method = "buildAllTabContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/CreativeModeTabs;streamAllTabs()Ljava/util/stream/Stream;"))
+    private static Stream<CreativeModeTab> polymerCore$injectServerItemGroupsForReset(Stream<CreativeModeTab> original) {
+        if (PolymerCreativeModeTabUtils.REGISTRY.size() > 0) {
+            return Stream.concat(original, PolymerCreativeModeTabUtils.REGISTRY.stream());
+        }
+        return original;
+    }
+
+    @Inject(method = "buildAllTabContents", at = @At("HEAD"))
+    private static void polymerCore$clearCache(CreativeModeTab.ItemDisplayParameters parameters, CallbackInfo ci) {
+        PolymerCreativeModeTabUtils.invalidateCache();
     }
 }

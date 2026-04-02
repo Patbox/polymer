@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.utils.PolymerRegistry;
 import eu.pb4.polymer.core.impl.InternalServerRegistry;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.interfaces.CreativeModeTabExtra;
+import eu.pb4.polymer.core.mixin.CreativeModeTabAccessor;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.HolderLookup;
@@ -153,6 +154,11 @@ public final class PolymerCreativeModeTabUtils {
 
     public static void invalidateCache() {
         CONTENT_CACHE.clear();
+
+        // Vanilla bugfix, causes crash on client/singleplayer
+        for (var x : REGISTRY) {
+            ((CreativeModeTabAccessor) x).setIconItemStack(null);
+        }
     }
 
     @FunctionalInterface
