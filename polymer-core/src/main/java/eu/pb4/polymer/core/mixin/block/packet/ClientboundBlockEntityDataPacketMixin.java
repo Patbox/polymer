@@ -19,7 +19,7 @@ public class ClientboundBlockEntityDataPacketMixin {
             if (packet.getTag() == null) {
                 return packet;
             }
-            var nbt = PolymerBlockUtils.transformBlockEntityNbt(PacketContext.get(), packet.getType(), packet.getTag(), buf.registryAccess());
+            var nbt = PolymerBlockUtils.transformBlockEntityNbt(PacketContext.orElseThrow(), packet.getType(), packet.getTag(), buf.registryAccess());
             if (packet.getTag() == nbt) {
                 return packet;
             }

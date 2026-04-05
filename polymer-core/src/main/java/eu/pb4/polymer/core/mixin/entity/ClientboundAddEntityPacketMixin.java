@@ -26,7 +26,7 @@ public class ClientboundAddEntityPacketMixin {
         var entity = EntityAttachedPacket.get(this, this.id);
         var polymerEntity = PolymerEntity.get(entity);
         if (polymerEntity != null && value == entity.getType()) {
-            return polymerEntity.getPolymerEntityType(PacketContext.get());
+            return polymerEntity.getPolymerEntityType(PacketContext.orElseThrow());
         } else {
             return value;
         }
@@ -35,7 +35,7 @@ public class ClientboundAddEntityPacketMixin {
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/RegistryFriendlyByteBuf;writeVarInt(I)Lnet/minecraft/network/FriendlyByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
         if (this.type == EntityType.FALLING_BLOCK) {
-            return Block.getId(PolymerBlockUtils.getPolymerBlockState(Block.stateById(data), PacketContext.get()));
+            return Block.getId(PolymerBlockUtils.getPolymerBlockState(Block.stateById(data), PacketContext.orElseThrow()));
         }
 
         return data;

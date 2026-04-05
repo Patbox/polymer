@@ -44,7 +44,7 @@ public abstract class BlockStateMixin implements BlockStateExtra {
     private static Codec<BlockState> patchCodec(Codec<BlockState> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThread() && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, content.getBlock()) != null) {
-                return PolymerBlockUtils.getPolymerBlockState(content, PacketContext.get());
+                return PolymerBlockUtils.getPolymerBlockState(content, PacketContext.orElseThrow());
             }
             return content;
         });

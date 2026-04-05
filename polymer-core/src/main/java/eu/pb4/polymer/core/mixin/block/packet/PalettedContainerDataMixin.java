@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
 import eu.pb4.polymer.networking.api.server.PolymerServerNetworking;
 import net.minecraft.nbt.IntTag;
@@ -32,6 +33,7 @@ public abstract class PalettedContainerDataMixin<T> {
         if (palette instanceof GlobalPalette<T> && palette.valueFor(0) instanceof BlockState) {
             var player = PacketContext.get();
             if (player == null) {
+                PolymerImplUtils.warnMissingContextChunkPacket();
                 return value;
             }
 
@@ -58,6 +60,7 @@ public abstract class PalettedContainerDataMixin<T> {
         if (palette instanceof GlobalPalette<T> && palette.valueFor(0) instanceof BlockState) {
             var player = PacketContext.get();
             if (player == null) {
+                PolymerImplUtils.warnMissingContextChunkPacket();
                 return storage;
             }
             int bits;

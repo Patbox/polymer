@@ -40,7 +40,7 @@ public class ClientboundSetEntityDataPacketMixin implements PossiblyInitialPacke
         }
 
         var entries = new ArrayList<SynchedEntityData.DataValue<?>>();
-        var player = PacketContext.get();
+        var player = PacketContext.orElseThrow();
 
         var polymerEntity = PolymerEntity.get(entity);
         if (polymerEntity != null && InternalEntityHelpers.canPatchTrackedData(PolymerCommonUtils.getPlayer(player), entity)) {

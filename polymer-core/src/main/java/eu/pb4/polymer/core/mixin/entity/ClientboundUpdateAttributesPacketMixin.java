@@ -41,7 +41,7 @@ public abstract class ClientboundUpdateAttributesPacketMixin implements Possibly
     private static StreamCodec<RegistryFriendlyByteBuf, ClientboundUpdateAttributesPacket> patchCodec(StreamCodec<RegistryFriendlyByteBuf, ClientboundUpdateAttributesPacket> original) {
         return TransformingPacketCodec.encodeOnly(original, (buf, packet) -> {
             if (PolymerEntity.get(EntityAttachedPacket.get(packet, packet.getEntityId())) instanceof PolymerEntity entity) {
-                var context = PacketContext.get();
+                var context = PacketContext.orElseThrow();
                 var type = entity.getPolymerEntityType(context);
                 var p = new ClientboundUpdateAttributesPacket(packet.getEntityId(), List.of());
                 var list = ((ClientboundUpdateAttributesPacketAccessor) p).getAttributes();

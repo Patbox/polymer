@@ -128,12 +128,12 @@ public final class PolymerBlockUtils {
      * @param context context
      * @return Client side BlockState
      */
-    public static BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-        return BlockMapper.getFrom(PolymerCommonUtils.getPlayer(context)).toClientSideState(state, context);
+    public static BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
+        return BlockMapper.getFrom(context).toClientSideState(state, context);
     }
 
     public static Block getPolymerBlock(Block block, PacketContext context) {
-        return BlockMapper.getFrom(PolymerCommonUtils.getPlayer(context)).toClientSideState(block.defaultBlockState(), context).getBlock();
+        return BlockMapper.getFrom(context).toClientSideState(block.defaultBlockState(), context).getBlock();
     }
 
     public static void registerOverlay(Block block, PolymerBlock polymerBlock) {

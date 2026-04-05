@@ -51,7 +51,7 @@ public interface BlockMapper {
         return BlockMapperImpl.createStack(overlay, base);
     }
 
-    static BlockMapper getFrom(PacketContext context) {
+    static BlockMapper getFrom(@Nullable PacketContext context) {
         return getFrom(PolymerCommonUtils.getPlayer(context));
     }
 
@@ -73,7 +73,7 @@ public interface BlockMapper {
         return PolymerGamePacketListenerExtension.of(handler).polymer$getBlockMapper();
     }
 
-    BlockState toClientSideState(BlockState state, PacketContext context);
+    BlockState toClientSideState(BlockState state, @Nullable PacketContext context);
 
     String getMapperName();
 }

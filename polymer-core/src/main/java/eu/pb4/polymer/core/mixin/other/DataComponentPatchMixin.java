@@ -48,9 +48,7 @@ public class DataComponentPatchMixin {
             } else if (entry.getValue().isPresent() && entry.getValue().get() instanceof TransformingComponent t) {
                 //noinspection unchecked
                 builder.set((DataComponentType<Object>) entry.getKey(), t.polymer$getTransformed(player));
-            }
-
-            if (entry.getValue().isPresent()) {
+            } else if (entry.getValue().isPresent()) {
                 //noinspection unchecked
                 builder.set((DataComponentType<Object>) entry.getKey(), entry.getValue().get());
             } else {

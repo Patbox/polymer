@@ -28,10 +28,10 @@ public interface PolymerComponent extends PolymerObject {
         return PolymerComponentImpl.UNSYNCED_COMPONENTS.contains(type) || type instanceof PolymerObject;
     }
 
-    static boolean canSync(DataComponentType<?> key, @Nullable Object entry, PacketContext context) {
+    static boolean canSync(DataComponentType<?> key, @Nullable Object entry, @Nullable PacketContext context) {
         if (entry instanceof PolymerComponent component && component.canSyncRawToClient(context)) {
             return true;
-        } else if (key instanceof PolymerSyncedObject<?> syncedObject && syncedObject.canSyncRawToClient(context)) {
+        } else if (key instanceof PolymerSyncedObject<?> syncedObject && (context == null || syncedObject.canSyncRawToClient(context))) {
             return true;
         }
 

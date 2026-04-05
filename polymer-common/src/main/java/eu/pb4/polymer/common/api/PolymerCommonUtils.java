@@ -199,8 +199,8 @@ public final class PolymerCommonUtils {
         return CommonImplUtils.createUnsafe(clazz);
     }
 
-    public static @Nullable ServerPlayer getPlayer(PacketContext context) {
-        return context.orElseThrow(PacketContext.CONNECTION).getPacketListener() instanceof ServerPlayerConnection connection ? connection.getPlayer() : null;
+    public static @Nullable ServerPlayer getPlayer(@Nullable PacketContext context) {
+        return context != null && context.orElseThrow(PacketContext.CONNECTION).getPacketListener() instanceof ServerPlayerConnection connection ? connection.getPlayer() : null;
     }
 
     public interface ResourcePackChangeCallback {

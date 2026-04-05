@@ -46,6 +46,7 @@ public class PolymerImplUtils {
     public static final ThreadLocal<Unit> IGNORE_PLAY_SOUND_EXCLUSION = new ThreadLocal<>();
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdMapper<BlockState>) Block.BLOCK_STATE_REGISTRY).polymer$getPolymerEntries();
     public static final RegistryAccess FALLBACK_LOOKUP = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+    private static boolean alreadySentMissingChunkPacketContextWarning = false;
 
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath("polymer", path);
@@ -249,5 +250,14 @@ public class PolymerImplUtils {
     public static String getModName(Identifier id) {
         var container = FabricLoader.getInstance().getModContainer(id.getNamespace());
         return container.isPresent() ? container.get().getMetadata().getName() : (id.getNamespace() + "*");
+    }
+
+    public static void warnMissingContextChunkPacket() {
+        if (alreadySentMissingChunkPacketContextWarning) {
+            return;
+        }
+        alreadySentMissingChunkPacketContextWarning = true;
+        PolymerImpl.LOGGER.error("Some mod tried to create a chunk update packet, without the packet context present! This will cause issues!");
+        PolymerImpl.LOGGER.error("Please report this to mods in the stack-trace below!", new IllegalStateException());
     }
 }

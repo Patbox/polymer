@@ -321,7 +321,7 @@ public final class PolymerItemUtils {
         return isPolymerServerItem(itemStack, PacketContext.get());
     }
 
-    public static boolean isPolymerServerItem(ItemInstance itemInstance, PacketContext context) {
+    public static boolean isPolymerServerItem(ItemInstance itemInstance, @Nullable PacketContext context) {
         if (getPolymerIdentifier(itemInstance) != null) {
             return false;
         }

@@ -2,6 +2,7 @@ package eu.pb4.polymer.core.mixin.block.packet;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
@@ -16,6 +17,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 public class ClientboundLevelChunkPacketDataMixin {
     @WrapWithCondition(method = "<init>(Lnet/minecraft/world/level/chunk/LevelChunk;)V", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"))
     private boolean skipPolymerEntries(List<?> instance, Object e) {
+        var be = PacketContext.get();
+        if (be == null) {
+            PolymerImplUtils.warnMissingContextChunkPacket();
+            return true;
+        }
         return !(PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK_ENTITY_TYPE, ((BlockEntityInfoAccessor) e).getType()) instanceof PolymerSyncedObject<BlockEntityType<?>> obj
                 && obj.getPolymerReplacement(((BlockEntityInfoAccessor) e).getType(), PacketContext.get()) == null);
     }
