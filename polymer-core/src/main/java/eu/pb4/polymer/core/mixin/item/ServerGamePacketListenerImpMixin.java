@@ -59,6 +59,8 @@ import java.util.List;
 public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacketListenerImpl implements LastActionResultStorer {
     @Shadow
     public ServerPlayer player;
+    @Unique
+    private boolean forcePolymerInteraction;
 
     @Shadow
     public abstract void handleUseItem(ServerboundUseItemPacket packet);
@@ -70,6 +72,9 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
 
     @Shadow protected abstract boolean updateAwaitingTeleport();
 
+    @Shadow
+    public abstract void handleUseItemOn(ServerboundUseItemOnPacket packet);
+
     @Unique
     private String polymerCore$language;
     @Unique
@@ -78,6 +83,10 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
     @Unique
     @Nullable
     private ActionSource lastActionSource = null;
+    @Unique
+    @Nullable
+    private BlockHitResult lastActionPos = null;
+
 
     @Unique
     private final EnumSet<InteractionHand> itemActionUsedHands = EnumSet.noneOf(InteractionHand.class);
@@ -113,6 +122,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         if (this.lastActionResult != null && this.lastActionResult != InteractionResult.PASS) {
             ci.cancel();
             this.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packet.getHand() == InteractionHand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, itemStack));
+            this.ackBlockChangesUpTo(packet.getSequence());
             return;
         }
 
@@ -138,13 +148,14 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         var original = operation.call(instance, player, world, stack, hand, hitResult);
         soundOverride.close();
 
-        if (PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
+        if (this.forcePolymerInteraction || PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
             if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
                 original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER, success.itemContext());
             }
 
             this.lastActionResult = original;
             this.lastActionSource = ActionSource.BLOCK;
+            this.lastActionPos = hitResult;
         }
         return original;
     }
@@ -153,7 +164,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
     private void preventItemUse(ServerboundUseItemPacket packet, CallbackInfo ci) {
         if (this.lastActionResult != null && this.lastActionResult != InteractionResult.PASS) {
             this.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packet.getHand() == InteractionHand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, this.player.getItemInHand(packet.getHand())));
-            this.server.execute(() -> this.ackBlockChangesUpTo(packet.getSequence()));
+            this.ackBlockChangesUpTo(packet.getSequence());
             ci.cancel();
         }
     }
@@ -171,7 +182,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         var original = operation.call(instance, player, world, stack, hand);
         soundOverride.close();
 
-        if (PolymerItemUtils.isPolymerItemInteraction(this.player, stack, hand, serverWorld, original)) {
+        if (this.forcePolymerInteraction || PolymerItemUtils.isPolymerItemInteraction(this.player, stack, hand, serverWorld, original)) {
             if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
                 original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER, success.itemContext());
             }
@@ -202,14 +213,26 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
 
     @Inject(method = "handleClientTickEnd", at = @At("TAIL"))
     private void onClientTickEndedPolymer(ServerboundClientTickEndPacket packet, CallbackInfo ci) {
-        if (this.lastActionSource != ActionSource.ITEM && this.lastActionResult == InteractionResult.PASS) {
+        if (this.lastActionSource != null && this.lastActionResult == InteractionResult.PASS) {
             try {
                 var seq = this.ackBlockChangesUpTo != -1 ? this.ackBlockChangesUpTo : Integer.MAX_VALUE;
-                for (var hand : InteractionHand.values()) {
-                    if (!this.itemActionUsedHands.contains(hand)) {
-                        this.handleUseItem(new ServerboundUseItemPacket(hand, seq, this.player.getYRot(), this.player.getXRot()));
+                this.forcePolymerInteraction = true;
+                try (var _ = PolymerUtils.ignorePlaySoundExclusion()) {
+                    for (var hand : InteractionHand.values()) {
+                        if (!this.itemActionUsedHands.contains(hand)) {
+                            if (this.lastActionPos != null) {
+                                this.handleUseItemOn(new ServerboundUseItemOnPacket(hand, this.lastActionPos, seq));
+                                if (this.lastActionResult == InteractionResult.PASS) {
+                                    break;
+                                }
+                            }
+
+                            this.handleUseItem(new ServerboundUseItemPacket(hand, seq, this.player.getYRot(), this.player.getXRot()));
+                        }
                     }
                 }
+                this.forcePolymerInteraction = false;
+
                 this.itemActionUsedHands.clear();
             } catch (Throwable e) {
                 //noinspection CallToPrintStackTrace
@@ -227,6 +250,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         }
 
         this.lastActionResult = null;
+        this.lastActionPos = null;
     }
 
 
