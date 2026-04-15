@@ -24,4 +24,7 @@ public class ServerConfig {
     public String _c13 = "Replaces PolyMc's block and item interaction handling with Polymer ones";
     @SerializedName("override_polymc_mining_check")
     public boolean overridePolyMcMining = false;
+    public String _c16 = "Extend data synced for recipe ingredients, allowing for better usability and compatibility with recipe viewers and recipe book.";
+    @SerializedName("extended_recipe_ingredients")
+    public boolean extendedRecipeIngredients = true;
 }
