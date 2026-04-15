@@ -71,7 +71,7 @@ public interface IngredientExtension {
 
         @Override
         public void encode(RegistryFriendlyByteBuf buf, Ingredient value) {
-            var context = PacketContext.get().getClientConnection();
+            var context = PacketContext.get().get(PacketContext.CONNECTION);
             if (context == null || !(PacketContext.get().getEncodedPacket() instanceof ClientboundCustomPayloadPacket packet)) {
                 original.encode(buf, value);
                 return;
@@ -175,7 +175,7 @@ public interface IngredientExtension {
                 return;
             }
 
-            var context = PacketContext.get().getClientConnection();
+            var context = PacketContext.get().get(PacketContext.CONNECTION);
             if (context == null || !(PacketContext.get().getEncodedPacket() instanceof ClientboundCustomPayloadPacket packet)) {
                 original.encode(buf, value);
                 return;
