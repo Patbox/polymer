@@ -81,20 +81,26 @@ public final class PolymerUtils {
         ((PolymerGamePacketListenerExtension) handler).polymer$schedulePacket(packet, duration);
     }
 
+
+    @Deprecated
+    public static void reloadWorld(ServerPlayer player) {
+        reloadLevel(player);
+    }
+
     /**
      * Resends world to player. It's useful to run this after player changes resource packs
      */
-    public static void reloadWorld(ServerPlayer player) {
+    public static void reloadLevel(ServerPlayer player) {
         player.level().getServer().execute(() -> {
-            PolymerImplUtils.IS_RELOADING_WORLD.set(Unit.INSTANCE);
+            PolymerImplUtils.IS_RELOADING_LEVEL.set(Unit.INSTANCE);
             try {
                 player.containerMenu.sendAllDataToRemote();
 
-                var world = player.level();
-                var tacsAccess = ((ServerMapAccessor) world.getChunkSource().chunkMap);
+                var level = player.level();
+                var chunkMapAccessor = ((ServerMapAccessor) level.getChunkSource().chunkMap);
 
-                for (var e : ((ServerLevelAccessor) world).polymer_getEntityManager().getEntityGetter().getAll()) {
-                    var tracker = tacsAccess.polymer$getEntityTrackers().get(e.getId());
+                for (var e : ((ServerLevelAccessor) level).polymer_getEntityManager().getEntityGetter().getAll()) {
+                    var tracker = chunkMapAccessor.polymer$getEntityTrackers().get(e.getId());
                     if (tracker != null) {
                         tracker.removePlayer(player);
                     }
@@ -102,15 +108,15 @@ public final class PolymerUtils {
 
 
                 player.getChunkTrackingView().forEach((chunkPos) -> {
-                    var chunk = world.getChunk(chunkPos.x(), chunkPos.z());
+                    var chunk = level.getChunk(chunkPos.x(), chunkPos.z());
                     player.connection.chunkSender.dropChunk(player, chunk.getPos());
                     player.connection.chunkSender.markChunkPendingToSend(chunk);
                 });
             } catch (Throwable e) {
-                PolymerImpl.LOGGER.warn("Failed to reload player's world view!", e);
+                PolymerImpl.LOGGER.warn("Failed to reload player's level view!", e);
             }
 
-            PolymerImplUtils.IS_RELOADING_WORLD.remove();
+            PolymerImplUtils.IS_RELOADING_LEVEL.remove();
         });
     }
 
@@ -160,8 +166,9 @@ public final class PolymerUtils {
         return stack;
     }
 
+    @Deprecated
     public static Level getFakeWorld() {
-        return PolymerCommonUtils.getFakeWorld();
+        return PolymerCommonUtils.getFakeLevel();
     }
 
     @Nullable

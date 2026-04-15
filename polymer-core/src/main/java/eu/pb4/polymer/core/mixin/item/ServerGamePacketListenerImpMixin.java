@@ -39,6 +39,7 @@ import net.minecraft.tags.TagNetworkSerialization;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
@@ -117,21 +118,31 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
 
     @Inject(method = "handleUseItemOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V", shift = At.Shift.AFTER), cancellable = true)
     private void polymer$resendHandOnPlace(ServerboundUseItemOnPacket packet, CallbackInfo ci) {
-        ItemStack itemStack = this.player.getItemInHand(packet.getHand());
 
         if (this.lastActionResult != null && this.lastActionResult != InteractionResult.PASS) {
             ci.cancel();
-            this.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packet.getHand() == InteractionHand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, itemStack));
+            this.resentActiveHand(packet.getHand(), this.player.getItemInHand(packet.getHand()));
             this.ackBlockChangesUpTo(packet.getSequence());
             return;
         }
+        ItemStack itemStack = this.player.getItemInHand(packet.getHand());
 
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, itemStack.getItem()) instanceof PolymerItem polymerItem) {
             var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player.connection.getPacketContext());
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
-                this.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packet.getHand() == InteractionHand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, itemStack));
+                this.resentActiveHand(packet.getHand(), itemStack);
             }
         }
+    }
+
+    @Unique
+    private void resentActiveHand(InteractionHand hand, ItemStack stack) {
+        this.send(new ClientboundContainerSetSlotPacket(
+                this.player.inventoryMenu.containerId,
+                this.player.inventoryMenu.incrementStateId(),
+                hand == InteractionHand.MAIN_HAND ? InventoryMenu.USE_ROW_SLOT_START + this.player.getInventory().getSelectedSlot() : InventoryMenu.SHIELD_SLOT,
+                stack
+        ));
     }
 
     @WrapOperation(method = "handleUseItemOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayerGameMode;useItemOn(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;"))
@@ -163,7 +174,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
     @Inject(method = "handleUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V", shift = At.Shift.AFTER), cancellable = true)
     private void preventItemUse(ServerboundUseItemPacket packet, CallbackInfo ci) {
         if (this.lastActionResult != null && this.lastActionResult != InteractionResult.PASS) {
-            this.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packet.getHand() == InteractionHand.MAIN_HAND ? 36 + this.player.getInventory().getSelectedSlot() : 45, this.player.getItemInHand(packet.getHand())));
+            this.resentActiveHand(packet.getHand(), this.player.getItemInHand(packet.getHand()));
             this.ackBlockChangesUpTo(packet.getSequence());
             ci.cancel();
         }
@@ -196,7 +207,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
     @Inject(method = "handleInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V", shift = At.Shift.AFTER), cancellable = true)
     private void preventEntityUse(ServerboundInteractPacket packet, CallbackInfo ci) {
         if (this.lastActionResult != null && this.lastActionResult != InteractionResult.PASS) {
-            this.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), this.player.getInventory().getSelectedSlot(), this.player.getItemInHand(InteractionHand.MAIN_HAND)));
+            this.resentActiveHand(packet.hand(), this.player.getItemInHand(packet.hand()));
             ci.cancel();
         }
     }

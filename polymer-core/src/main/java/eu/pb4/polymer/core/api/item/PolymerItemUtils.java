@@ -465,7 +465,7 @@ public final class PolymerItemUtils {
                 if (storeCount) {
                     nbt.putBoolean(POLYMER_COUNTED, true);
                 } else {
-                    nbt.remove("count");
+                    nbt.getCompoundOrEmpty(POLYMER_STACK).remove("count");
                 }
 
                 return CustomData.of(nbt);
@@ -535,7 +535,7 @@ public final class PolymerItemUtils {
             lastVirtual = newItem;
             req++;
         }
-        return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context, context.orElseThrow(CommonImplPacketKeys.HOLDER_LOOKUP)));
+        return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context, context.orElseThrow(PacketContext.REGISTRY_ACCESS)));
     }
 
     /**

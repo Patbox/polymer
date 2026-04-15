@@ -119,7 +119,12 @@ public final class PolymerCommonUtils {
         }
     }
 
+    @Deprecated
     public static Level getFakeWorld() {
+        return FakeWorld.INSTANCE;
+    }
+
+    public static Level getFakeLevel() {
         return FakeWorld.INSTANCE;
     }
 

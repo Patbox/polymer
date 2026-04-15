@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import org.jspecify.annotations.Nullable;
@@ -29,6 +28,6 @@ public class PlayerChunkSenderMixin {
 
     @WrapWithCondition(method = "dropChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"), require = 0)
     private boolean skipChunkClearing(ServerGamePacketListenerImpl instance, Packet packet) {
-        return PolymerImplUtils.IS_RELOADING_WORLD.get() == null;
+        return PolymerImplUtils.IS_RELOADING_LEVEL.get() == null;
     }
 }

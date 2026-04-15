@@ -27,7 +27,7 @@ public class ContextByteBuf extends RegistryFriendlyByteBuf {
         if (buf instanceof RegistryFriendlyByteBuf reg) {
             registryManager = reg.registryAccess();
         } else {
-            registryManager = context.get(CommonImplPacketKeys.HOLDER_LOOKUP);
+            registryManager = context.get(PacketContext.REGISTRY_ACCESS);
         }
         if (registryManager == null) {
             registryManager = RegistryAccess.EMPTY;

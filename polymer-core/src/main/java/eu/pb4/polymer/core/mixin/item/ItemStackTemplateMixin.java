@@ -22,14 +22,14 @@ public class ItemStackTemplateMixin {
         return mapCodec.xmap(content -> { // Decode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var context = PacketContext.orElseThrow();
-                var lookup = context.orElse(CommonImplPacketKeys.HOLDER_LOOKUP, PolymerImplUtils.FALLBACK_LOOKUP);
+                var lookup = context.orElse(PacketContext.REGISTRY_ACCESS, PolymerImplUtils.FALLBACK_LOOKUP);
                 return ItemStackTemplate.fromNonEmptyStack(PolymerItemUtils.getRealItemStack(content.create(), lookup));
             }
             return content;
         }, content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var ctx = PacketContext.orElseThrow();
-                return ItemStackTemplate.fromNonEmptyStack(PolymerItemUtils.getPolymerItemStack(content.create(), ctx, ctx.orElse(CommonImplPacketKeys.HOLDER_LOOKUP, PolymerImplUtils.FALLBACK_LOOKUP)));
+                return ItemStackTemplate.fromNonEmptyStack(PolymerItemUtils.getPolymerItemStack(content.create(), ctx, ctx.orElse(PacketContext.REGISTRY_ACCESS, PolymerImplUtils.FALLBACK_LOOKUP)));
             }
             return content;
         });

@@ -21,6 +21,6 @@ public class BlockEntityInfoMixin {
             return original;
         }
 
-        return PolymerBlockUtils.transformBlockEntityNbt(x, blockEntity.getType(), original, x.orElseThrow(CommonImplPacketKeys.HOLDER_LOOKUP));
+        return PolymerBlockUtils.transformBlockEntityNbt(x, blockEntity.getType(), original, x.orElseThrow(PacketContext.REGISTRY_ACCESS));
     }
 }

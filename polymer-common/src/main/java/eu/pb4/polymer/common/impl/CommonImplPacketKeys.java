@@ -6,5 +6,6 @@ import net.minecraft.core.RegistryAccess;
 
 
 public interface CommonImplPacketKeys {
-    static PacketContext.Key<RegistryAccess> HOLDER_LOOKUP = PacketContext.key(CommonImplUtils.id("holder_lookup"));
+    @Deprecated(forRemoval = true)
+    static PacketContext.Key<RegistryAccess> HOLDER_LOOKUP = (PacketContext.Key<RegistryAccess>) PacketContext.REGISTRY_ACCESS;
 }

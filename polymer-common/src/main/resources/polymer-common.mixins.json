@@ -10,14 +10,12 @@
     "LevelAccessor",
     "ReferenceAccessor",
     "ServerCommonPacketListenerImplMixin",
-    "ServerLoginPacketListenerImplMixin",
     "SyncedEntityDataAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "client.ClientCommonPacketListenerImplMixin",
-    "client.ClientConfigurationPacketListenerImplMixin"
+    "client.ClientCommonPacketListenerImplMixin"
   ]
 }
