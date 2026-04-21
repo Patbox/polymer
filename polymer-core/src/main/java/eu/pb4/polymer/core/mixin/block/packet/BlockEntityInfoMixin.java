@@ -21,6 +21,11 @@ public class BlockEntityInfoMixin {
             return original;
         }
 
-        return PolymerBlockUtils.transformBlockEntityNbt(x, blockEntity.getType(), original, x.orElseThrow(PacketContext.REGISTRY_ACCESS));
+        var registryAccess = x.get(PacketContext.REGISTRY_ACCESS);
+        if (registryAccess == null) {
+            PolymerImplUtils.warnMissingContextChunkPacket();
+            return original;
+        }
+        return PolymerBlockUtils.transformBlockEntityNbt(x, blockEntity.getType(), original, registryAccess);
     }
 }
