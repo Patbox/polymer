@@ -16,12 +16,15 @@ import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 @ApiStatus.Internal
 public class CompatUtils {
+    public static final Object POLYMER_TYPE = new Object();
+
     public static boolean areSamePolymerType(ItemStack a, ItemStack b) {
         return Objects.equals(getItemId(a.getItem(), a.get(DataComponents.CUSTOM_DATA)), getItemId(b.getItem(), b.get(DataComponents.CUSTOM_DATA)));
     }
@@ -54,19 +57,18 @@ public class CompatUtils {
 
     @Nullable
     public static Object getKey(ItemStack stack) {
-        return getKey(stack.get(DataComponents.CUSTOM_DATA));
-    }
-    public static Object getKey(@Nullable CustomData component) {
-        var id = PolymerItemUtils.getPolymerIdentifier(component);
+        var custom = stack.get(DataComponents.CUSTOM_DATA);
+
+        var id = PolymerItemUtils.getPolymerIdentifier(custom);
         if (id == null) {
             return null;
         }
 
         if (InternalClientRegistry.ITEMS.contains(id)) {
-            return InternalClientRegistry.ITEMS.getKey(id);
+            return List.of(POLYMER_TYPE, InternalClientRegistry.ITEMS.getKey(id));
         }
 
-        return BuiltInRegistries.ITEM.getValue(id);
+        return stack.getItem();
     }
 
     private static Identifier getItemId(Object item, @Nullable CustomData nbtComponent) {

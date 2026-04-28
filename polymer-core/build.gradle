@@ -4,6 +4,7 @@ base {
 version = rootProject.mod_version + "+" + rootProject.minecraft_version
 group = rootProject.maven_group
 
+
 sourceSets {
     testmod {
         compileClasspath += main.compileClasspath
@@ -43,12 +44,12 @@ dependencies {
 
 
 
-    //modCompileOnly /*modLocalRuntime*/("maven.modrinth:jade:19.3.0+fabric") {
-    //    exclude(group: "net.fabricmc.fabric-api")
-    //}
-    //modCompileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-16.0.1"){
-    //    exclude(group: "net.fabricmc.fabric-api")
-    //}
+    compileOnly /*modLocalRuntime*/("maven.modrinth:jade:26.0.8+fabric") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    compileOnly /*modLocalRuntime*/("mcp.mobius.waila:wthit:fabric-19.0.1"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     //modCompileOnly /*modLocalRuntime*/ ("me.shedaniel:RoughlyEnoughItems-fabric:20.0.811"){
     //    exclude(group: "net.fabricmc.fabric-api")
@@ -57,9 +58,9 @@ dependencies {
     //    exclude(group: "net.fabricmc.fabric-api")
     //}
 
-    //modCompileOnly /*modRuntimeOnly*/("maven.modrinth:jei:19.0.0.1"){
-    //    exclude(group: "net.fabricmc.fabric-api")
-    //}
+    compileOnly /*modRuntimeOnly*/("maven.modrinth:jei:29.5.0.26"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")

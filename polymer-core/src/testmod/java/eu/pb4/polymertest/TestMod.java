@@ -35,7 +35,6 @@ import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
@@ -341,16 +340,15 @@ public class TestMod implements ModInitializer {
         register(BuiltInRegistries.DIALOG_TYPE, Identifier.fromNamespaceAndPath("test", "dialog"), TestDialog.CODEC);
         register(BuiltInRegistries.DIALOG_BODY_TYPE, Identifier.fromNamespaceAndPath("test", "image"), TestDialogImageBody.CODEC);
         PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register(TestDialogImageBody::generateResources);
-        RegistryEntryAddedCallback.allEntries(Registries.RECIPE_SERIALIZER, new Consumer<RegistryEntry.Reference<RecipeSerializer<?>>>() {
+        RegistryEntryAddedCallback.allEntries(BuiltInRegistries.RECIPE_SERIALIZER, new Consumer<Holder.Reference<RecipeSerializer<?>>>() {
             @Override
-            public void accept(RegistryEntry.Reference<RecipeSerializer<?>> ref) {
-                if (ref.getKey().orElseThrow().getValue().getNamespace().equals("minecraft")) {
+            public void accept(Holder.Reference<RecipeSerializer<?>> ref) {
+                if (ref.key().identifier().getNamespace().equals("minecraft")) {
                     RecipeSynchronization.synchronizeRecipeSerializer(ref.value());
                 }
             }
         });
 
-        register(Registries.DIALOG_TYPE, Identifier.of("test", "dialog"), TestDialog.CODEC);
 
         SoundPatcher.convertIntoServerSound(Blocks.TNT.defaultBlockState().getSoundType());
         SoundPatcher.convertIntoServerSound(Blocks.NOTE_BLOCK.defaultBlockState().getSoundType());

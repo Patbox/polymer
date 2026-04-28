@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.impl.interfaces;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.mixin.item.IngredientAccessor;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -72,7 +73,7 @@ public interface IngredientExtension {
         @Override
         public void encode(RegistryFriendlyByteBuf buf, Ingredient value) {
             var context = PacketContext.get().get(PacketContext.CONNECTION);
-            if (context == null || !(PacketContext.get().getEncodedPacket() instanceof ClientboundCustomPayloadPacket packet)) {
+            if (context == null || !(PolymerImplUtils.WRITTEN_PACKET.isBound() && PolymerImplUtils.WRITTEN_PACKET.get() instanceof ClientboundCustomPayloadPacket packet)) {
                 original.encode(buf, value);
                 return;
             }
@@ -176,7 +177,7 @@ public interface IngredientExtension {
             }
 
             var context = PacketContext.get().get(PacketContext.CONNECTION);
-            if (context == null || !(PacketContext.get().getEncodedPacket() instanceof ClientboundCustomPayloadPacket packet)) {
+            if (context == null || !(PolymerImplUtils.WRITTEN_PACKET.isBound() && PolymerImplUtils.WRITTEN_PACKET.get()  instanceof ClientboundCustomPayloadPacket packet)) {
                 original.encode(buf, value);
                 return;
             }

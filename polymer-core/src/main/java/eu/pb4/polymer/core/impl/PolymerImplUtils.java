@@ -20,6 +20,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,6 +43,7 @@ import java.util.function.Consumer;
 public class PolymerImplUtils {
     public static final ThreadLocal<Unit> IS_RELOADING_LEVEL = new ThreadLocal<>();
     public static final ThreadLocal<Unit> IGNORE_PLAY_SOUND_EXCLUSION = new ThreadLocal<>();
+    public static final ScopedValue<Packet<?>> WRITTEN_PACKET = ScopedValue.newInstance();
     public static final Collection<BlockState> POLYMER_STATES = ((PolymerIdMapper<BlockState>) Block.BLOCK_STATE_REGISTRY).polymer$getPolymerEntries();
     public static final RegistryAccess FALLBACK_LOOKUP = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     private static long alreadySentMissingChunkPacketContextWarning = 0;

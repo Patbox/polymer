@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Mixin(value = Ingredient.class, priority = 1200)
 public class IngredientMixin {
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;xmap(Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;", ordinal = 0))
+    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/StreamCodec;map(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;", ordinal = 0))
     private static StreamCodec<RegistryFriendlyByteBuf, Ingredient> modifyRegularCodec(StreamCodec<RegistryFriendlyByteBuf, Ingredient> original) {
         if (!PolymerImpl.EXTENDED_RECIPE_INGREDIENTS) {
             return original;
@@ -22,7 +22,7 @@ public class IngredientMixin {
         return new IngredientExtension.BaseStreamCodec(original);
     }
 
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;xmap(Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;", ordinal = 1))
+    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/StreamCodec;map(Ljava/util/function/Function;Ljava/util/function/Function;)Lnet/minecraft/network/codec/StreamCodec;", ordinal = 1))
     private static StreamCodec<RegistryFriendlyByteBuf, Optional<Ingredient>> modifyOptionalCodec(StreamCodec<RegistryFriendlyByteBuf, Optional<Ingredient>> original) {
         if (!PolymerImpl.EXTENDED_RECIPE_INGREDIENTS) {
             return original;

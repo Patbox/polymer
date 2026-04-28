@@ -37,7 +37,7 @@ public class IngredientMixin implements IngredientExtension {
             var item = InternalClientRegistry.ITEMS.byId(numId);
             if (item != null) {
                 set.add(item.identifier());
-                    list.add(new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(item.visualStack())));
+                list.add(new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(item.visualStack())));
             }
         }
         this.polymerItemIds = set;

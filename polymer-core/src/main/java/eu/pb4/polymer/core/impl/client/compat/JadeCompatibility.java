@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.impl.client.compat;
-/*
+
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
@@ -217,4 +217,4 @@ public class JadeCompatibility implements IWailaPlugin {
             return true;
         }
     }
-}*/
+}

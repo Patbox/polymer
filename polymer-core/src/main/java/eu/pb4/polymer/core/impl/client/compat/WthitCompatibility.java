@@ -1,5 +1,5 @@
 package eu.pb4.polymer.core.impl.client.compat;
-/*
+
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.client.ClientPolymerBlock;
 import eu.pb4.polymer.core.api.client.PolymerClientUtils;
@@ -57,7 +57,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
         public static final BlockOverride INSTANCE = new BlockOverride();
 
         @Override
-        public @Nullable ITargetRedirector.Result redirect(ITargetRedirector redirect, IBlockAccessor accessor, IPluginConfig config) {
+        public ITargetRedirector.@Nullable Result redirect(ITargetRedirector redirect, IBlockAccessor accessor, IPluginConfig config) {
             if (InternalClientRegistry.getBlockAt(accessor.getPosition()) != ClientPolymerBlock.NONE_STATE)
                 return redirect.toSelf();
             return null;
@@ -137,7 +137,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_REGISTRY)) {
 
                 var stack = accessor.<ItemEntity>getEntity().getItem();
-                var id = PolymerItemUtils.getServerIdentifier(stack);
+                var id = PolymerItemUtils.getPolymerIdentifier(stack);
 
                 if (id != null) {
                     var formatting = IWailaConfig.get().getFormatter();
@@ -151,7 +151,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
         public void appendTail(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
             if (config.getBoolean(WailaConstants.CONFIG_SHOW_MOD_NAME)) {
                 var stack = accessor.<ItemEntity>getEntity().getItem();
-                var id = PolymerItemUtils.getServerIdentifier(stack);
+                var id = PolymerItemUtils.getPolymerIdentifier(stack);
                 if (id != null) {
                     String modName = null;
                     var regBlock = BuiltInRegistries.ITEM.getValue(id);
@@ -174,7 +174,7 @@ public class WthitCompatibility implements IWailaClientPlugin {
         public static final EntityOverride INSTANCE = new EntityOverride();
 
         @Override
-        public @Nullable ITargetRedirector.Result redirect(ITargetRedirector redirect, IEntityAccessor accessor, IPluginConfig config) {
+        public ITargetRedirector.@Nullable Result redirect(ITargetRedirector redirect, IEntityAccessor accessor, IPluginConfig config) {
             if (PolymerClientUtils.getEntityType(accessor.getEntity()) != null) return redirect.toSelf();
             return null;
         }
@@ -213,4 +213,3 @@ public class WthitCompatibility implements IWailaClientPlugin {
         }
     }
 }
-*/
