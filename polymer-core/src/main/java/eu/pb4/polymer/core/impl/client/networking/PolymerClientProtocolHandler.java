@@ -143,6 +143,7 @@ public class PolymerClientProtocolHandler {
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.ADVANCED_TOOLTIP, ByteTag.valueOf(Minecraft.getInstance().options.advancedItemTooltips));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.BLOCKSTATE_BITS, IntTag.valueOf(Mth.ceillog2(Block.BLOCK_STATE_REGISTRY.size())));
             PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.MINECRAFT_PROTOCOL, IntTag.valueOf(SharedConstants.getProtocolVersion()));
+            PolymerClientNetworking.setClientMetadata(ClientMetadataKeys.EXTENDED_RECIPE_INGREDIENTS, ByteTag.valueOf(PolymerImpl.EXTENDED_RECIPE_INGREDIENTS));
         });
     }
 

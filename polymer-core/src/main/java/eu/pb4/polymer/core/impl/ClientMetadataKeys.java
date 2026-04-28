@@ -11,4 +11,5 @@ public class ClientMetadataKeys {
     public static final Identifier MINECRAFT_PROTOCOL = ServerMetadataKeys.MINECRAFT_PROTOCOL;
     public static final Identifier BLOCKSTATE_BITS = id("core/blockstate_bits");
     public static final Identifier ADVANCED_TOOLTIP = id("core/advanced_tooltip");
+    public static final Identifier EXTENDED_RECIPE_INGREDIENTS = id("core/extended_recipe_ingredients");
 }
