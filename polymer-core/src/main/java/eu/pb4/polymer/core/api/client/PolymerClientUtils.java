@@ -1,16 +1,20 @@
 package eu.pb4.polymer.core.api.client;
 
 import eu.pb4.polymer.common.impl.EventImplUtils;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
+import eu.pb4.polymer.core.impl.client.compat.CompatUtils;
 import eu.pb4.polymer.core.impl.client.interfaces.ClientEntityExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * General utilities while dealing with client side integrations
@@ -73,5 +77,33 @@ public final class PolymerClientUtils {
 
     public static boolean isEnabled() {
         return InternalClientRegistry.enabled;
+    }
+
+    /**
+     * Returns a key object for specific ItemStack representing uniquelly it's type.
+     * Can be used as a alternative to using Identifier for type comparison
+     * in recipe viewers and other cases.
+     *
+     * Return null for non-polymer stacks, Item for polymer-wrapped regular items
+     * and custom object for polymer items.
+     */
+    @Nullable
+    public static Object getUniqueKey(ItemStack stack) {
+        return CompatUtils.getKey(stack);
+    }
+
+    /**
+     * Check if two polymer item stacks are of the same type.
+     */
+    public static boolean areSameType(ItemStack a, ItemStack b) {
+        return CompatUtils.areSamePolymerType(a, b);
+    }
+
+    public static boolean isPolymerControlledItemStack(ItemStack stack) {
+        return PolymerImplUtils.isPolymerControlled(stack);
+    }
+
+    public static void provideCreativeModePolymerItems(Consumer<ItemStack> consumer) {
+        CompatUtils.iterateItems(consumer);
     }
 }

@@ -1,5 +1,7 @@
 package eu.pb4.polymer.core.impl.networking.entry;
 
+import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,7 +20,14 @@ public record PolymerItemEntry(int numId, Identifier identifier, ItemStack repre
     }
 
     public static PolymerItemEntry read(ContextByteBuf buf) {
-        return new PolymerItemEntry(buf.readVarInt(), buf.readIdentifier(), ItemStack.OPTIONAL_STREAM_CODEC.decode(buf));
+        var bufId = buf.readVarInt();
+        var id = buf.readIdentifier();
+        try {
+            return new PolymerItemEntry(bufId, id, ItemStack.OPTIONAL_STREAM_CODEC.decode(buf));
+        } catch (Throwable e) {
+            PolymerImpl.LOGGER.error("Failed to parse '{}' item! Invalid stack data!", id);
+            throw e;
+        }
     }
 
     public void write(ContextByteBuf buf) {

@@ -204,6 +204,7 @@ public class PolymerImplUtils {
         }
         return isPolymerControlled(stack);
     }
+
     public static boolean isPolymerControlled(ItemStack stack) {
         return PolymerItemUtils.isPolymerServerItem(stack) || PolymerItemUtils.getPolymerIdentifier(stack) != null;
     }

@@ -47,14 +47,6 @@ public class CompatUtils {
         return PolymerItemUtils.getPolymerComponents(stack);
     }
 
-    public static boolean isServerSide(ItemStack stack) {
-        return PolymerItemUtils.getPolymerIdentifier(stack) != null;
-    }
-
-    public static boolean isServerSide(@Nullable CustomData component) {
-        return PolymerItemUtils.getPolymerIdentifier(component) != null;
-    }
-
     @Nullable
     public static Object getKey(ItemStack stack) {
         var custom = stack.get(DataComponents.CUSTOM_DATA);
