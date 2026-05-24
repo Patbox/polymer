@@ -31,10 +31,15 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.chicken.ChickenSoundVariants;
 import net.minecraft.world.entity.animal.chicken.ChickenVariant;
+import net.minecraft.world.entity.animal.cow.CowSoundVariants;
 import net.minecraft.world.entity.animal.cow.CowVariant;
+import net.minecraft.world.entity.animal.feline.CatSoundVariants;
 import net.minecraft.world.entity.animal.feline.CatVariant;
 import net.minecraft.world.entity.animal.frog.FrogVariant;
+import net.minecraft.world.entity.animal.nautilus.ZombieNautilusVariant;
+import net.minecraft.world.entity.animal.pig.PigSoundVariants;
 import net.minecraft.world.entity.animal.pig.PigVariant;
 import net.minecraft.world.entity.animal.wolf.WolfSoundVariants;
 import net.minecraft.world.entity.animal.wolf.WolfVariant;
@@ -80,6 +85,7 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.ScheduledTick;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -155,6 +161,27 @@ public final class FakeWorld extends Level implements LightChunk {
             addRegistry(new FakeRegistry<>(Registries.WOLF_SOUND_VARIANT,
                     Identifier.fromNamespaceAndPath("polymer", "wolf"),
                     SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.SoundSet.CLASSIC)));
+
+            addRegistry(new FakeRegistry<>(Registries.CAT_SOUND_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "cat"),
+                    SoundEvents.CAT_SOUNDS.get(CatSoundVariants.SoundSet.CLASSIC)));
+
+            addRegistry(new FakeRegistry<>(Registries.CHICKEN_SOUND_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "chicken"),
+                    SoundEvents.CHICKEN_SOUNDS.get(ChickenSoundVariants.SoundSet.CLASSIC)));
+
+            addRegistry(new FakeRegistry<>(Registries.COW_SOUND_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "cow"),
+                    SoundEvents.COW_SOUNDS.get(CowSoundVariants.SoundSet.CLASSIC)));
+
+            addRegistry(new FakeRegistry<>(Registries.PIG_SOUND_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "pig"),
+                    SoundEvents.PIG_SOUNDS.get(PigSoundVariants.SoundSet.CLASSIC)));
+
+            addRegistry(new FakeRegistry<>(Registries.ZOMBIE_NAUTILUS_VARIANT,
+                    Identifier.fromNamespaceAndPath("polymer", "zombie_noutilus_variant"),
+                    new ZombieNautilusVariant(new ModelAndTexture<>(ZombieNautilusVariant.ModelType.NORMAL,
+                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "zombie_noutilus"))), SpawnPrioritySelectors.EMPTY)));
 
             addRegistry(new FakeRegistry<>(Registries.BIOME, Identifier.fromNamespaceAndPath("polymer", "fake_biome"),
                     new Biome.BiomeBuilder()
@@ -428,6 +455,16 @@ public final class FakeWorld extends Level implements LightChunk {
     }
 
     @Override
+    public Holder<Biome> getBiome(BlockPos pos) {
+        return this.registryAccess().getOrThrow(Biomes.THE_VOID);
+    }
+
+    @Override
+    public @UnknownNullability Holder<Biome> getBiomeFabric(BlockPos pos) {
+        return getBiome(pos);
+    }
+
+    @Override
     public void destroyBlockProgress(int entityId, BlockPos pos, int progress) {
 
     }
@@ -510,7 +547,7 @@ public final class FakeWorld extends Level implements LightChunk {
 
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int biomeX, int biomeY, int biomeZ) {
-        return null;//BuiltinRegistries.BIOME.getEntry(BiomeKeys.THE_VOID).get();
+        return getBiome(null);
     }
 
     @Override

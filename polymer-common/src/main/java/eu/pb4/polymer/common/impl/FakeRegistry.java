@@ -1,6 +1,5 @@
 package eu.pb4.polymer.common.impl;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.component.DataComponentLookup;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +76,7 @@ public record FakeRegistry<T>(ResourceKey<? extends Registry<T>> registryKey, Id
 
     @Override
     public Optional<Holder.Reference<T>> getAny() {
-        return Optional.of(createIntrusiveHolder(defaultValue));
+        return Optional.of(new Holder.Reference(null, this, ResourceKey.create(registryKey, defaultId), defaultValue) {});
     }
 
     @Override

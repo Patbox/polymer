@@ -2,6 +2,7 @@ package eu.pb4.polymertest;
 
 import com.mojang.serialization.Codec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
@@ -324,6 +325,7 @@ public class TestMod implements ModInitializer {
 
     public void onInitialize() {
         MixinEnvironment.getCurrentEnvironment().audit();
+
         //ITEM_GROUP.setIcon();
         PolymerResourcePackUtils.addModAssets("apolymertest");
         ResourcePackExtras.forDefault().addBridgedModelsFolder(Identifier.fromNamespaceAndPath("polymertest", "testificate"));
@@ -617,6 +619,21 @@ public class TestMod implements ModInitializer {
 
         CreativeModeTabEvents.modifyOutputEvent(PolymerCreativeModeTabUtils.getKey(ITEM_GROUP)).register(entries -> {
             entries.insertAfter(TEST_FOOD, Items.LAVA_BUCKET);
+        });
+
+        ServerLifecycleEvents.SERVER_STARTING.register((s) -> {
+            int failure = 0;
+            for (var entity : BuiltInRegistries.ENTITY_TYPE.asHolderIdMap()) {
+                if (entity.unwrapKey().orElseThrow().identifier().getNamespace().equals("minecraft")) {
+                    var ent = InternalEntityHelpers.getEntity(entity.value());
+                    if (ent == InternalEntityHelpers.getFakeEntity() || ent == null) {
+                        failure++;
+                    }
+                }
+            }
+            if (failure != 0) {
+                throw new IllegalStateException("Entity Helper broke");
+            }
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register((s) -> {
