@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import org.jspecify.annotations.Nullable;
@@ -49,7 +50,7 @@ public interface PolymerHeadBlock extends PolymerBlock {
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
-        return PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, main);
+        return PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityTypes.SKULL, main);
     }
 
     @Override

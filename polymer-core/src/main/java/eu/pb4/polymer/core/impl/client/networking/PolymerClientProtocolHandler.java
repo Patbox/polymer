@@ -170,7 +170,7 @@ public class PolymerClientProtocolHandler {
 
     private static void handleDebugValidateStates(DebugBlockStateEntry entry) {
         if (CommonImpl.DEVELOPER_MODE) {
-            var chat = Minecraft.getInstance().gui.getChat();
+            var chat = Minecraft.getInstance().gui.hud.getChat();
 
             var state = Block.BLOCK_STATE_REGISTRY.byId(entry.numId());
 

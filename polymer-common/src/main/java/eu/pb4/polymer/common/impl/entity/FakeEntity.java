@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -48,11 +49,11 @@ class FakeEntity extends Entity {
     static {
         FakeEntity entity;
         try {
-            entity = new FakeEntity(EntityType.PIG, FakeWorld.INSTANCE_UNSAFE);
+            entity = new FakeEntity(EntityTypes.PIG, FakeWorld.INSTANCE_UNSAFE);
         } catch (Throwable e1) {
             CommonImpl.LOGGER.error("Couldn't initiate base template entity... trying again with a different method.", e1);
             try {
-                entity = new FakeEntity(EntityType.PIG, FakeWorld.INSTANCE_REGULAR);
+                entity = new FakeEntity(EntityTypes.PIG, FakeWorld.INSTANCE_REGULAR);
             } catch (Throwable e2) {
                 CommonImpl.LOGGER.error("Couldn't initiate base template entity! It's super bad and it might crash soon!", e2);
                 entity = null;

@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -96,7 +97,7 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
         private int tick = 0;
 
         public CustomHolder(ServerLevel world, BlockState state) {
-            this.planetElement = this.addElement(new ItemDisplayElement(Items.LIGHT_BLUE_WOOL));
+            this.planetElement = this.addElement(new ItemDisplayElement(Items.WOOL.lightBlue()));
             this.moonElement = this.addElement(new ItemDisplayElement(Items.DECORATED_POT));
             this.centralElement = this.addElement(new ItemDisplayElement(TestMod.TATER_BLOCK_ITEM));
             this.centralElement.setItemDisplayContext(ItemDisplayContext.FIXED);
@@ -108,7 +109,7 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
             this.centralElement.setTeleportDuration(1);
             this.moonElement.setTeleportDuration(1);
             this.planetElement.setTeleportDuration(1);
-            this.entity = this.addElement(new EntityElement<>(EntityType.SHEEP, world));
+            this.entity = this.addElement(new EntityElement<>(EntityTypes.SHEEP, world));
             this.updateRotation(state);
             entity.entity().setColor(DyeColor.PINK);
             entity.setOffset(new Vec3(0, 1, 0));

@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -34,7 +35,7 @@ public class ClientboundAddEntityPacketMixin {
 
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/RegistryFriendlyByteBuf;writeVarInt(I)Lnet/minecraft/network/FriendlyByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
-        if (this.type == EntityType.FALLING_BLOCK) {
+        if (this.type == EntityTypes.FALLING_BLOCK) {
             return Block.getId(PolymerBlockUtils.getPolymerBlockState(Block.stateById(data), PacketContext.orElseThrow()));
         }
 

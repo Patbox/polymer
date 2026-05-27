@@ -41,6 +41,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.*;
@@ -352,7 +353,7 @@ public final class PolymerItemUtils {
                 if (attributes != null) {
                     for (var attr : attributes) {
                         if (PolymerEntityUtils.isPolymerAttribute(attr.attribute())
-                                && DefaultAttributes.getSupplier(EntityType.PLAYER).hasAttribute(attr.attribute())) {
+                                && DefaultAttributes.getSupplier(EntityTypes.PLAYER).hasAttribute(attr.attribute())) {
                             return true;
                         }
                     }

@@ -9,6 +9,7 @@ import java.util.List;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.Level;
 
@@ -18,7 +19,7 @@ public class ClientTestEntity3 extends Creeper implements PolymerEntity, Polymer
     }
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
-        return PolymerImpl.IS_CLIENT ? this.getType() : EntityType.ARMOR_STAND;
+        return PolymerImpl.IS_CLIENT ? this.getType() : EntityTypes.ARMOR_STAND;
     }
 
     @Override

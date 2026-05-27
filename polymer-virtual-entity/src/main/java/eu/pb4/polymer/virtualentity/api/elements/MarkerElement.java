@@ -3,6 +3,7 @@ package eu.pb4.polymer.virtualentity.api.elements;
 import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 
 public class MarkerElement extends GenericEntityElement {
@@ -15,6 +16,6 @@ public class MarkerElement extends GenericEntityElement {
 
     @Override
     protected EntityType<? extends Entity> getEntityType() {
-        return EntityType.ARMOR_STAND;
+        return EntityTypes.ARMOR_STAND;
     }
 }

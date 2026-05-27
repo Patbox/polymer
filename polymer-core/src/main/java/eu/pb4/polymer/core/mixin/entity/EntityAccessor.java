@@ -8,8 +8,5 @@ import net.minecraft.world.entity.Entity;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
-    @Accessor
-    static AtomicInteger getENTITY_COUNTER() {
-        throw new UnsupportedOperationException();
-    }
+
 }

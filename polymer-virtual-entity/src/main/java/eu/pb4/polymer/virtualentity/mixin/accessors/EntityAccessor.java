@@ -86,9 +86,4 @@ public interface EntityAccessor {
     static EntityDataAccessor<Boolean> getDATA_SILENT() {
         throw new UnsupportedOperationException();
     }
-
-    @Accessor
-    static AtomicInteger getENTITY_COUNTER() {
-        throw new UnsupportedOperationException();
-    }
 }

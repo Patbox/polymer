@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
@@ -32,7 +33,7 @@ public class FakeEndGatewayBlock extends Block implements PolymerBlock, EntityBl
         nbt.putInt("y", pos.getY());
         nbt.putInt("z", pos.getZ());
         nbt.putLong("Age", Long.MIN_VALUE);
-        player.connection.send(PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.END_GATEWAY, nbt));
+        player.connection.send(PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityTypes.END_GATEWAY, nbt));
     }
 
     @Override

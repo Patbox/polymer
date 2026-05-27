@@ -3,6 +3,7 @@ package eu.pb4.polymer.virtualentity.api.elements;
 import eu.pb4.polymer.virtualentity.api.data.DisplayEntityData;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +37,6 @@ public class ItemDisplayElement extends DisplayElement {
 
     @Override
     protected final EntityType<? extends Display> getEntityType() {
-        return EntityType.ITEM_DISPLAY;
+        return EntityTypes.ITEM_DISPLAY;
     }
 }

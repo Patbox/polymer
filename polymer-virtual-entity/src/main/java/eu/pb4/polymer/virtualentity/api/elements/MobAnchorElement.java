@@ -4,6 +4,7 @@ import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import eu.pb4.polymer.virtualentity.mixin.SlimeEntityAccessor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 public class MobAnchorElement extends GenericEntityElement {
     public MobAnchorElement() {
@@ -15,6 +16,6 @@ public class MobAnchorElement extends GenericEntityElement {
 
     @Override
     protected EntityType<? extends Entity> getEntityType() {
-        return EntityType.SLIME;
+        return EntityTypes.SLIME;
     }
 }

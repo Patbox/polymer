@@ -24,20 +24,29 @@ public abstract class DisplayElement extends GenericEntityElement {
     }
 
     public void setTransformation(Matrix4fc matrix) {
-        float f = 1.0F / matrix.m33();
-        var triple = MatrixUtil.svdDecompose(new Matrix3f(matrix).scale(f));
-        this.syncedData.set(DisplayEntityData.TRANSLATION, matrix.getTranslation(new Vector3f()));
-        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));
-        this.syncedData.set(DisplayEntityData.SCALE, new Vector3f(triple.getMiddle()));
-        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
+        var translation = new Vector3f();
+        var scale = new Vector3f();
+        var leftRotation = new Quaternionf();
+        var rightRotation = new Quaternionf();
+
+        MatrixUtil.svdDecompose(matrix, translation, leftRotation, scale, rightRotation);
+        this.syncedData.set(DisplayEntityData.TRANSLATION, translation);
+        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, leftRotation);
+        this.syncedData.set(DisplayEntityData.SCALE, scale);
+        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, rightRotation);
     }
 
     public void setTransformation(Matrix4x3fc matrix) {
-        var triple = MatrixUtil.svdDecompose(new Matrix3f().set(matrix));
-        this.syncedData.set(DisplayEntityData.TRANSLATION, matrix.getTranslation(new Vector3f()));
-        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, new Quaternionf(triple.getLeft()));
-        this.syncedData.set(DisplayEntityData.SCALE, new Vector3f(triple.getMiddle()));
-        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, new Quaternionf(triple.getRight()));
+        var translation = new Vector3f();
+        var scale = new Vector3f();
+        var leftRotation = new Quaternionf();
+        var rightRotation = new Quaternionf();
+
+        MatrixUtil.svdDecompose(new Matrix4f(matrix), translation, leftRotation, scale, rightRotation);
+        this.syncedData.set(DisplayEntityData.TRANSLATION, translation);
+        this.syncedData.set(DisplayEntityData.LEFT_ROTATION, leftRotation);
+        this.syncedData.set(DisplayEntityData.SCALE, scale);
+        this.syncedData.set(DisplayEntityData.RIGHT_ROTATION, rightRotation);
     }
 
     public boolean isTransformationDirty() {

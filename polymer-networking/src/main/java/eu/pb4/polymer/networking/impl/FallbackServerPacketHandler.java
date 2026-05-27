@@ -145,9 +145,10 @@ public record FallbackServerPacketHandler(ConnectionProtocol phase,
     }
 
     @Override
-    public void handleSpectateEntity(ServerboundSpectateEntityPacket packet) {
+    public void handleSpectatorAction(ServerboundSpectatorActionPacket packet) {
 
     }
+
 
     @Override
     public void handleMovePlayer(ServerboundMovePlayerPacket packet) {

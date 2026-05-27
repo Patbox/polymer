@@ -4,6 +4,7 @@ import eu.pb4.polymer.virtualentity.api.data.DisplayEntityData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 public class TextDisplayElement extends DisplayElement {
     public TextDisplayElement(Component text) {
@@ -103,6 +104,6 @@ public class TextDisplayElement extends DisplayElement {
 
     @Override
     protected final EntityType<? extends Display> getEntityType() {
-        return EntityType.TEXT_DISPLAY;
+        return EntityTypes.TEXT_DISPLAY;
     }
 }

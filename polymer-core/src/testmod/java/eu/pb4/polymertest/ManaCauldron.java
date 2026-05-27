@@ -72,7 +72,7 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
 
     public static class CustomHolder extends ElementHolder {
         private static final BlockState EMPTY_STATE = Blocks.AIR.defaultBlockState();
-        private static final BlockState HALF_FILLED_STATE = Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
+        private static final BlockState HALF_FILLED_STATE = Blocks.STAINED_GLASS.lightBlue().defaultBlockState();
         private static final BlockState FULL_STATE = Blocks.END_PORTAL.defaultBlockState();
         private static final BlockState MANA_BUBBLE_STATE = Blocks.END_GATEWAY.defaultBlockState();
         private final BlockDisplayElement manaFill;

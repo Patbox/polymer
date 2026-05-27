@@ -1,6 +1,7 @@
 package eu.pb4.polymer.blocks.impl;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
@@ -9,7 +10,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -97,26 +97,22 @@ public class DefaultModelData {
                 }
             }
 
-            for (var pair : List.of(
-                    new Tuple<>(Blocks.INFESTED_STONE, Blocks.STONE),
-                    new Tuple<>(Blocks.INFESTED_COBBLESTONE, Blocks.COBBLESTONE),
-                    new Tuple<>(Blocks.INFESTED_STONE_BRICKS, Blocks.STONE_BRICKS),
-                    new Tuple<>(Blocks.INFESTED_MOSSY_STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS),
-                    new Tuple<>(Blocks.INFESTED_CRACKED_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS),
-                    new Tuple<>(Blocks.INFESTED_CHISELED_STONE_BRICKS, Blocks.CHISELED_STONE_BRICKS),
-                    new Tuple<>(Blocks.INFESTED_DEEPSLATE, Blocks.CHISELED_DEEPSLATE),
-                    new Tuple<>(Blocks.WAXED_COPPER_BLOCK, Blocks.COPPER_BLOCK),
-                    new Tuple<>(Blocks.WAXED_EXPOSED_COPPER, Blocks.EXPOSED_COPPER),
-                    new Tuple<>(Blocks.WAXED_WEATHERED_COPPER, Blocks.WEATHERED_COPPER),
-                    new Tuple<>(Blocks.WAXED_OXIDIZED_COPPER, Blocks.OXIDIZED_COPPER),
-                    new Tuple<>(Blocks.WAXED_CUT_COPPER, Blocks.CUT_COPPER),
-                    new Tuple<>(Blocks.WAXED_EXPOSED_CUT_COPPER, Blocks.EXPOSED_CUT_COPPER),
-                    new Tuple<>(Blocks.WAXED_WEATHERED_CUT_COPPER, Blocks.WEATHERED_CUT_COPPER),
-                    new Tuple<>(Blocks.WAXED_OXIDIZED_CUT_COPPER, Blocks.OXIDIZED_CUT_COPPER)
-            )) {
-                for (var state : pair.getA().getStateDefinition().getPossibleStates()) {
+            var cList = new ArrayList<>(List.of(
+                    Pair.of(Blocks.INFESTED_STONE, Blocks.STONE),
+                    Pair.of(Blocks.INFESTED_COBBLESTONE, Blocks.COBBLESTONE),
+                    Pair.of(Blocks.INFESTED_STONE_BRICKS, Blocks.STONE_BRICKS),
+                    Pair.of(Blocks.INFESTED_MOSSY_STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS),
+                    Pair.of(Blocks.INFESTED_CRACKED_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS),
+                    Pair.of(Blocks.INFESTED_CHISELED_STONE_BRICKS, Blocks.CHISELED_STONE_BRICKS),
+                    Pair.of(Blocks.INFESTED_DEEPSLATE, Blocks.CHISELED_DEEPSLATE)
+            ));
+
+            Blocks.COPPER_BLOCK.zipUnwaxedWaxed((a, b) -> cList.add(Pair.of(b, a)));
+
+            for (var pair : cList) {
+                for (var state : pair.getFirst().getStateDefinition().getPossibleStates()) {
                     list.add(state);
-                    SPECIAL_REMAPS.put(state, pair.getB().withPropertiesOf(state));
+                    SPECIAL_REMAPS.put(state, pair.getSecond().withPropertiesOf(state));
                 }
             }
         }
@@ -282,22 +278,18 @@ public class DefaultModelData {
                 }
             }
 
-            for (var block : List.of(
-                    new Tuple<>(Blocks.WAXED_CUT_COPPER_STAIRS, Blocks.CUT_COPPER_STAIRS),
-                    new Tuple<>(Blocks.WAXED_EXPOSED_CUT_COPPER_STAIRS, Blocks.EXPOSED_CUT_COPPER_STAIRS),
-                    new Tuple<>(Blocks.WAXED_WEATHERED_CUT_COPPER_STAIRS, Blocks.WEATHERED_CUT_COPPER_STAIRS),
-                    new Tuple<>(Blocks.WAXED_OXIDIZED_CUT_COPPER_STAIRS, Blocks.OXIDIZED_CUT_COPPER_STAIRS)
-            )) {
+
+            Blocks.CUT_COPPER_STAIRS.zipUnwaxedWaxed((b, a) -> {
                 for (var bound : bounds) {
-                    var state = block.getA().defaultBlockState()
+                    var state = a.defaultBlockState()
                             .setValue(StairBlock.FACING, bound.direction)
                             .setValue(StairBlock.HALF, bound.blockHalf)
                             .setValue(StairBlock.SHAPE, bound.shape)
                             .setValue(StairBlock.WATERLOGGED, bound.waterlogged());
-                    SPECIAL_REMAPS.put(state, block.getB().withPropertiesOf(state));
+                    SPECIAL_REMAPS.put(state, b.withPropertiesOf(state));
                     bound.list.add(state);
                 }
-            }
+            });
         }
 
         {
@@ -349,14 +341,8 @@ public class DefaultModelData {
             var yw = new ReferenceArrayList<BlockState>();
             var zw = new ReferenceArrayList<BlockState>();
 
-            var pairs = List.of(
-                    new Tuple<>(Blocks.WAXED_LIGHTNING_ROD, Blocks.LIGHTNING_ROD),
-                    new Tuple<>(Blocks.WAXED_EXPOSED_LIGHTNING_ROD, Blocks.EXPOSED_LIGHTNING_ROD),
-                    new Tuple<>(Blocks.WAXED_WEATHERED_LIGHTNING_ROD, Blocks.WEATHERED_LIGHTNING_ROD),
-                    new Tuple<>(Blocks.WAXED_OXIDIZED_LIGHTNING_ROD, Blocks.OXIDIZED_LIGHTNING_ROD)
-            );
 
-            for (var pair : pairs) {
+            Blocks.LIGHTNING_ROD.zipUnwaxedWaxed((b, a) -> {
                 for (var powered : bools) {
                     for (var waterlogged : bools) {
                         for (var dir : Direction.values()) {
@@ -366,25 +352,25 @@ public class DefaultModelData {
                                 case Z -> waterlogged ? zw : z;
                             };
 
-                            var state = pair.getA().defaultBlockState()
+                            var state = a.defaultBlockState()
                                     .setValue(LightningRodBlock.POWERED, powered)
                                     .setValue(LightningRodBlock.WATERLOGGED, waterlogged)
                                     .setValue(LightningRodBlock.FACING, dir);
 
-                            var base = powered ? Blocks.LIGHTNING_ROD : pair.getB();
+                            var base = powered ? Blocks.LIGHTNING_ROD.weathering().unaffected() : b;
 
                             list.add(state);
                             SPECIAL_REMAPS.put(state, base.withPropertiesOf(state));
 
-                            if (powered && pair.getB() != Blocks.LIGHTNING_ROD) {
-                                state = pair.getB().withPropertiesOf(state);
+                            if (powered && b != Blocks.LIGHTNING_ROD.weathering().unaffected()) {
+                                state = b.withPropertiesOf(state);
                                 list.add(state);
                                 SPECIAL_REMAPS.put(state, base.withPropertiesOf(state));
                             }
                         }
                     }
                 }
-            }
+            });
 
             USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_X, x);
             USABLE_STATES.put(BlockModelType.LIGHTNING_ROD_Y, y);
@@ -402,7 +388,7 @@ public class DefaultModelData {
             var yw = new ReferenceArrayList<BlockState>();
             var zw = new ReferenceArrayList<BlockState>();
 
-            for (var pair : Blocks.COPPER_CHAIN.waxedMapping().entrySet()) {
+            Blocks.COPPER_CHAIN.zipUnwaxedWaxed((b, a) -> {
                 for (var waterlogged : bools) {
                     for (var dir : Direction.Axis.values()) {
                         var list = switch (dir) {
@@ -411,16 +397,15 @@ public class DefaultModelData {
                             case Z -> waterlogged ? zw : z;
                         };
 
-                        var state = pair.getValue().defaultBlockState()
+                        var state = b.defaultBlockState()
                                 .setValue(ChainBlock.WATERLOGGED, waterlogged)
                                 .setValue(ChainBlock.AXIS, dir);
 
                         list.add(state);
-                        SPECIAL_REMAPS.put(state, pair.getKey().withPropertiesOf(state));
+                        SPECIAL_REMAPS.put(state, a.withPropertiesOf(state));
                     }
-
                 }
-            }
+            });
 
             USABLE_STATES.put(BlockModelType.CHAIN_X, x);
             USABLE_STATES.put(BlockModelType.CHAIN_Y, y);
@@ -455,16 +440,16 @@ public class DefaultModelData {
                 bounds.add(b);
             }
 
-            for (var pair : Blocks.COPPER_BARS.waxedMapping().entrySet()) {
+            Blocks.COPPER_BARS.zipUnwaxedWaxed((unwaxed, waxed) -> {
                 for (var b : bounds) {
-                    var state = pair.getValue().defaultBlockState();
+                    var state = waxed.defaultBlockState();
                     for (var p : b.properties) {
                         state = state.setValue(p, true);
                     }
                     b.list.add(state);
-                    SPECIAL_REMAPS.put(state, pair.getKey().withPropertiesOf(state));
+                    SPECIAL_REMAPS.put(state, unwaxed.withPropertiesOf(state));
                 }
-            }
+            });
         }
 
         {
@@ -473,20 +458,20 @@ public class DefaultModelData {
             var rw = new ReferenceArrayList<BlockState>();
             var hw = new ReferenceArrayList<BlockState>();
 
-            for (var pair : Blocks.COPPER_LANTERN.waxedMapping().entrySet()) {
+            Blocks.COPPER_LANTERN.zipUnwaxedWaxed((unwaxed, waxed) -> {
                 for (var hanging : bools) {
                     for (var waterlogged : bools) {
                         var list = hanging ? (waterlogged ? hw : h) : (waterlogged ? rw : r);
 
-                        var state = pair.getValue().defaultBlockState()
+                        var state = waxed.defaultBlockState()
                                 .setValue(LanternBlock.WATERLOGGED, waterlogged)
                                 .setValue(LanternBlock.HANGING, hanging);
 
                         list.add(state);
-                        SPECIAL_REMAPS.put(state, pair.getKey().withPropertiesOf(state));
+                        SPECIAL_REMAPS.put(state, unwaxed.withPropertiesOf(state));
                     }
                 }
-            }
+            });
 
             USABLE_STATES.put(BlockModelType.LANTERN, r);
             USABLE_STATES.put(BlockModelType.LANTERN_HANGING, h);
@@ -503,77 +488,77 @@ public class DefaultModelData {
             addSlabs(SlabType.BOTTOM, false, BlockModelType.SLAB_BOTTOM);
             addSlabs(SlabType.BOTTOM, true, BlockModelType.SLAB_BOTTOM_WATERLOGGED);
 
-            var fullSlabs = List.<Tuple<Block, Block>>of(
-                    new Tuple<>(Blocks.RESIN_BRICK_SLAB, Blocks.RESIN_BRICKS),
-                    new Tuple<>(Blocks.PRISMARINE_SLAB, Blocks.PRISMARINE),
-                    new Tuple<>(Blocks.PRISMARINE_BRICK_SLAB, Blocks.PRISMARINE_BRICKS),
-                    new Tuple<>(Blocks.DARK_PRISMARINE_SLAB, Blocks.DARK_PRISMARINE),
-                    new Tuple<>(Blocks.OAK_SLAB, Blocks.OAK_PLANKS),
-                    new Tuple<>(Blocks.SPRUCE_SLAB, Blocks.SPRUCE_PLANKS),
-                    new Tuple<>(Blocks.BIRCH_SLAB, Blocks.BIRCH_PLANKS),
-                    new Tuple<>(Blocks.JUNGLE_SLAB, Blocks.JUNGLE_PLANKS),
-                    new Tuple<>(Blocks.ACACIA_SLAB, Blocks.ACACIA_PLANKS),
-                    new Tuple<>(Blocks.CHERRY_SLAB, Blocks.CHERRY_PLANKS),
-                    new Tuple<>(Blocks.DARK_OAK_SLAB, Blocks.DARK_OAK_PLANKS),
-                    new Tuple<>(Blocks.PALE_OAK_SLAB, Blocks.PALE_OAK_PLANKS),
-                    new Tuple<>(Blocks.MANGROVE_SLAB, Blocks.MANGROVE_PLANKS),
-                    new Tuple<>(Blocks.BAMBOO_SLAB, Blocks.BAMBOO_PLANKS),
-                    new Tuple<>(Blocks.BAMBOO_MOSAIC_SLAB, Blocks.BAMBOO_MOSAIC),
-                    new Tuple<>(Blocks.STONE_SLAB, Blocks.STONE),
-                    new Tuple<>(Blocks.SANDSTONE_SLAB, Blocks.SANDSTONE),
-                    new Tuple<>(Blocks.CUT_SANDSTONE_SLAB, Blocks.CUT_SANDSTONE),
-                    new Tuple<>(Blocks.PETRIFIED_OAK_SLAB, Blocks.OAK_PLANKS),
-                    new Tuple<>(Blocks.COBBLESTONE_SLAB, Blocks.COBBLESTONE),
-                    new Tuple<>(Blocks.BRICK_SLAB, Blocks.BRICKS),
-                    new Tuple<>(Blocks.STONE_BRICK_SLAB, Blocks.STONE_BRICKS),
-                    new Tuple<>(Blocks.MUD_BRICK_SLAB, Blocks.MUD_BRICKS),
-                    new Tuple<>(Blocks.NETHER_BRICK_SLAB, Blocks.NETHER_BRICKS),
-                    new Tuple<>(Blocks.QUARTZ_SLAB, Blocks.QUARTZ_BLOCK),
-                    new Tuple<>(Blocks.RED_SANDSTONE_SLAB, Blocks.RED_SANDSTONE),
-                    new Tuple<>(Blocks.CUT_RED_SANDSTONE_SLAB, Blocks.CUT_RED_SANDSTONE),
-                    new Tuple<>(Blocks.PURPUR_SLAB, Blocks.PURPUR_BLOCK),
-                    new Tuple<>(Blocks.POLISHED_GRANITE_SLAB, Blocks.POLISHED_GRANITE),
-                    new Tuple<>(Blocks.SMOOTH_RED_SANDSTONE_SLAB, Blocks.SMOOTH_RED_SANDSTONE),
-                    new Tuple<>(Blocks.MOSSY_STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICKS),
-                    new Tuple<>(Blocks.POLISHED_DIORITE_SLAB, Blocks.POLISHED_DIORITE),
-                    new Tuple<>(Blocks.MOSSY_COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE),
-                    new Tuple<>(Blocks.END_STONE_BRICK_SLAB, Blocks.END_STONE_BRICKS),
-                    new Tuple<>(Blocks.SMOOTH_SANDSTONE_SLAB, Blocks.SMOOTH_SANDSTONE),
-                    new Tuple<>(Blocks.SMOOTH_QUARTZ_SLAB, Blocks.SMOOTH_QUARTZ),
-                    new Tuple<>(Blocks.GRANITE_SLAB, Blocks.GRANITE),
-                    new Tuple<>(Blocks.ANDESITE_SLAB, Blocks.ANDESITE),
-                    new Tuple<>(Blocks.RED_NETHER_BRICK_SLAB, Blocks.RED_NETHER_BRICKS),
-                    new Tuple<>(Blocks.POLISHED_ANDESITE_SLAB, Blocks.POLISHED_ANDESITE),
-                    new Tuple<>(Blocks.DIORITE_SLAB, Blocks.DIORITE),
-                    new Tuple<>(Blocks.CRIMSON_SLAB, Blocks.CRIMSON_PLANKS),
-                    new Tuple<>(Blocks.WARPED_SLAB, Blocks.WARPED_PLANKS),
-                    new Tuple<>(Blocks.BLACKSTONE_SLAB, Blocks.BLACKSTONE),
-                    new Tuple<>(Blocks.POLISHED_BLACKSTONE_BRICK_SLAB, Blocks.POLISHED_BLACKSTONE_BRICKS),
-                    new Tuple<>(Blocks.POLISHED_BLACKSTONE_SLAB, Blocks.POLISHED_BLACKSTONE),
-                    new Tuple<>(Blocks.TUFF_SLAB, Blocks.TUFF),
-                    new Tuple<>(Blocks.POLISHED_TUFF_SLAB, Blocks.POLISHED_TUFF),
-                    new Tuple<>(Blocks.TUFF_BRICK_SLAB, Blocks.TUFF_BRICKS),
-                    new Tuple<>(Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.OXIDIZED_CUT_COPPER),
-                    new Tuple<>(Blocks.WEATHERED_CUT_COPPER_SLAB, Blocks.WEATHERED_CUT_COPPER),
-                    new Tuple<>(Blocks.EXPOSED_CUT_COPPER_SLAB, Blocks.EXPOSED_CUT_COPPER),
-                    new Tuple<>(Blocks.CUT_COPPER_SLAB, Blocks.CUT_COPPER),
-                    new Tuple<>(Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, Blocks.OXIDIZED_CUT_COPPER),
-                    new Tuple<>(Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, Blocks.WEATHERED_CUT_COPPER),
-                    new Tuple<>(Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, Blocks.EXPOSED_CUT_COPPER),
-                    new Tuple<>(Blocks.WAXED_CUT_COPPER_SLAB, Blocks.CUT_COPPER),
-                    new Tuple<>(Blocks.COBBLED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE),
-                    new Tuple<>(Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.POLISHED_DEEPSLATE),
-                    new Tuple<>(Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES),
-                    new Tuple<>(Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICKS)
-            );
+            var fullSlabs = new ArrayList<>(List.of(
+                    Pair.of(Blocks.RESIN_BRICK_SLAB, Blocks.RESIN_BRICKS),
+                    Pair.of(Blocks.PRISMARINE_SLAB, Blocks.PRISMARINE),
+                    Pair.of(Blocks.PRISMARINE_BRICK_SLAB, Blocks.PRISMARINE_BRICKS),
+                    Pair.of(Blocks.DARK_PRISMARINE_SLAB, Blocks.DARK_PRISMARINE),
+                    Pair.of(Blocks.OAK_SLAB, Blocks.OAK_PLANKS),
+                    Pair.of(Blocks.SPRUCE_SLAB, Blocks.SPRUCE_PLANKS),
+                    Pair.of(Blocks.BIRCH_SLAB, Blocks.BIRCH_PLANKS),
+                    Pair.of(Blocks.JUNGLE_SLAB, Blocks.JUNGLE_PLANKS),
+                    Pair.of(Blocks.ACACIA_SLAB, Blocks.ACACIA_PLANKS),
+                    Pair.of(Blocks.CHERRY_SLAB, Blocks.CHERRY_PLANKS),
+                    Pair.of(Blocks.DARK_OAK_SLAB, Blocks.DARK_OAK_PLANKS),
+                    Pair.of(Blocks.PALE_OAK_SLAB, Blocks.PALE_OAK_PLANKS),
+                    Pair.of(Blocks.MANGROVE_SLAB, Blocks.MANGROVE_PLANKS),
+                    Pair.of(Blocks.BAMBOO_SLAB, Blocks.BAMBOO_PLANKS),
+                    Pair.of(Blocks.BAMBOO_MOSAIC_SLAB, Blocks.BAMBOO_MOSAIC),
+                    Pair.of(Blocks.STONE_SLAB, Blocks.STONE),
+                    Pair.of(Blocks.SANDSTONE_SLAB, Blocks.SANDSTONE),
+                    Pair.of(Blocks.CUT_SANDSTONE_SLAB, Blocks.CUT_SANDSTONE),
+                    Pair.of(Blocks.PETRIFIED_OAK_SLAB, Blocks.OAK_PLANKS),
+                    Pair.of(Blocks.COBBLESTONE_SLAB, Blocks.COBBLESTONE),
+                    Pair.of(Blocks.BRICK_SLAB, Blocks.BRICKS),
+                    Pair.of(Blocks.STONE_BRICK_SLAB, Blocks.STONE_BRICKS),
+                    Pair.of(Blocks.MUD_BRICK_SLAB, Blocks.MUD_BRICKS),
+                    Pair.of(Blocks.NETHER_BRICK_SLAB, Blocks.NETHER_BRICKS),
+                    Pair.of(Blocks.QUARTZ_SLAB, Blocks.QUARTZ_BLOCK),
+                    Pair.of(Blocks.RED_SANDSTONE_SLAB, Blocks.RED_SANDSTONE),
+                    Pair.of(Blocks.CUT_RED_SANDSTONE_SLAB, Blocks.CUT_RED_SANDSTONE),
+                    Pair.of(Blocks.PURPUR_SLAB, Blocks.PURPUR_BLOCK),
+                    Pair.of(Blocks.POLISHED_GRANITE_SLAB, Blocks.POLISHED_GRANITE),
+                    Pair.of(Blocks.SMOOTH_RED_SANDSTONE_SLAB, Blocks.SMOOTH_RED_SANDSTONE),
+                    Pair.of(Blocks.MOSSY_STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICKS),
+                    Pair.of(Blocks.POLISHED_DIORITE_SLAB, Blocks.POLISHED_DIORITE),
+                    Pair.of(Blocks.MOSSY_COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE),
+                    Pair.of(Blocks.END_STONE_BRICK_SLAB, Blocks.END_STONE_BRICKS),
+                    Pair.of(Blocks.SMOOTH_SANDSTONE_SLAB, Blocks.SMOOTH_SANDSTONE),
+                    Pair.of(Blocks.SMOOTH_QUARTZ_SLAB, Blocks.SMOOTH_QUARTZ),
+                    Pair.of(Blocks.GRANITE_SLAB, Blocks.GRANITE),
+                    Pair.of(Blocks.ANDESITE_SLAB, Blocks.ANDESITE),
+                    Pair.of(Blocks.RED_NETHER_BRICK_SLAB, Blocks.RED_NETHER_BRICKS),
+                    Pair.of(Blocks.POLISHED_ANDESITE_SLAB, Blocks.POLISHED_ANDESITE),
+                    Pair.of(Blocks.DIORITE_SLAB, Blocks.DIORITE),
+                    Pair.of(Blocks.CRIMSON_SLAB, Blocks.CRIMSON_PLANKS),
+                    Pair.of(Blocks.WARPED_SLAB, Blocks.WARPED_PLANKS),
+                    Pair.of(Blocks.BLACKSTONE_SLAB, Blocks.BLACKSTONE),
+                    Pair.of(Blocks.POLISHED_BLACKSTONE_BRICK_SLAB, Blocks.POLISHED_BLACKSTONE_BRICKS),
+                    Pair.of(Blocks.POLISHED_BLACKSTONE_SLAB, Blocks.POLISHED_BLACKSTONE),
+                    Pair.of(Blocks.TUFF_SLAB, Blocks.TUFF),
+                    Pair.of(Blocks.POLISHED_TUFF_SLAB, Blocks.POLISHED_TUFF),
+                    Pair.of(Blocks.TUFF_BRICK_SLAB, Blocks.TUFF_BRICKS),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.weathering().oxidized(), Blocks.CUT_COPPER.weathering().oxidized()),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.weathering().weathered(), Blocks.CUT_COPPER.weathering().weathered()),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.weathering().exposed(), Blocks.CUT_COPPER.weathering().exposed()),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.weathering().unaffected(), Blocks.CUT_COPPER.weathering().unaffected()),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.waxed().oxidized(), Blocks.CUT_COPPER.weathering().oxidized()),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.waxed().weathered(), Blocks.CUT_COPPER.weathering().weathered()),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.waxed().exposed(), Blocks.CUT_COPPER.weathering().exposed()),
+                    Pair.of(Blocks.CUT_COPPER_SLAB.waxed().unaffected(), Blocks.CUT_COPPER.weathering().unaffected()),
+                    Pair.of(Blocks.COBBLED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE),
+                    Pair.of(Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.POLISHED_DEEPSLATE),
+                    Pair.of(Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES),
+                    Pair.of(Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICKS)
+            ));
 
             var fullRefs = USABLE_STATES.get(BlockModelType.FULL_BLOCK);
             for (var pair : fullSlabs) {
-                addSlab(SlabType.DOUBLE, false, pair.getB(), pair.getA(), fullRefs);
+                addSlab(SlabType.DOUBLE, false, pair.getSecond(), pair.getFirst(), fullRefs);
             }
 
             for (var pair : fullSlabs) {
-                addSlab(SlabType.DOUBLE, true, pair.getB(), pair.getA(), fullRefs);
+                addSlab(SlabType.DOUBLE, true, pair.getSecond(), pair.getFirst(), fullRefs);
             }
         }
 
@@ -747,10 +732,9 @@ public class DefaultModelData {
     }
 
     private static void addDoor(Direction direction, DoorHingeSide doorHinge, DoubleBlockHalf doubleBlockHalf, boolean open, List<BlockState> list) {
-        list.add(addSingleDoor(Blocks.COPPER_DOOR, Blocks.WAXED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
-        list.add(addSingleDoor(Blocks.WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
-        list.add(addSingleDoor(Blocks.EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
-        list.add(addSingleDoor(Blocks.OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        Blocks.COPPER_DOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
+            list.add(addSingleDoor(unwaxed, waxed, direction, doorHinge, doubleBlockHalf, open));
+        });
 
         list.add(addSinglePoweredDoor(Blocks.ACACIA_DOOR, Blocks.ACACIA_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.BAMBOO_DOOR, Blocks.BAMBOO_DOOR, direction, doorHinge, doubleBlockHalf, open));
@@ -765,10 +749,9 @@ public class DefaultModelData {
         list.add(addSinglePoweredDoor(Blocks.WARPED_DOOR, Blocks.WARPED_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.PALE_OAK_DOOR, Blocks.PALE_OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
 
-        list.add(addSinglePoweredDoor(Blocks.WAXED_COPPER_DOOR, Blocks.WAXED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
-        list.add(addSinglePoweredDoor(Blocks.WAXED_WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
-        list.add(addSinglePoweredDoor(Blocks.WAXED_EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
-        list.add(addSinglePoweredDoor(Blocks.WAXED_OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        Blocks.COPPER_DOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
+            list.add(addSinglePoweredDoor(waxed, unwaxed, direction, doorHinge, doubleBlockHalf, open));
+        });
 
         list.add(addSinglePoweredDoor(Blocks.IRON_DOOR, Blocks.IRON_DOOR, direction, doorHinge, doubleBlockHalf, open));
     }
@@ -789,10 +772,10 @@ public class DefaultModelData {
 
     private static void addTrapdoorHalf(Direction facing, Half half, boolean waterlogged, BlockModelType modelType) {
         var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
-        list.add(addSingleClosedTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSingleClosedTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSingleClosedTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSingleClosedTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        Blocks.COPPER_TRAPDOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
+            list.add(addSingleClosedTrapdoor(unwaxed, waxed, facing, half, waterlogged));
+        });
 
         list.add(addSinglePoweredClosedTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
@@ -807,10 +790,10 @@ public class DefaultModelData {
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
 
-        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredClosedTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+
+        Blocks.COPPER_TRAPDOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
+            list.add(addSinglePoweredClosedTrapdoor(waxed, facing, half, waterlogged));
+        });
 
         list.add(addSinglePoweredClosedTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
     }
@@ -818,10 +801,9 @@ public class DefaultModelData {
     private static void addTrapdoorDirection(Direction facing, Half half, boolean waterlogged, BlockModelType modelType) {
         var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
 
-        list.add(addSingleOpenTrapdoor(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSingleOpenTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSingleOpenTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSingleOpenTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        Blocks.COPPER_TRAPDOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
+            list.add(addSingleOpenTrapdoor(unwaxed, waxed, facing, half, waterlogged));
+        });
 
         list.add(addSinglePoweredOpenTrapdoor(Blocks.ACACIA_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.BAMBOO_TRAPDOOR, facing, half, waterlogged));
@@ -836,10 +818,9 @@ public class DefaultModelData {
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
 
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR, facing, half, waterlogged));
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR, facing, half, waterlogged));
+        Blocks.COPPER_TRAPDOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
+            list.add(addSinglePoweredOpenTrapdoor(waxed, facing, half, waterlogged));
+        });
 
         list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
     }
@@ -875,10 +856,9 @@ public class DefaultModelData {
     private static void addSlabs(SlabType slabType, boolean waterlogged, BlockModelType modelType) {
         var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
 
-        addSlab(slabType, waterlogged, Blocks.CUT_COPPER_SLAB, Blocks.WAXED_CUT_COPPER_SLAB, list);
-        addSlab(slabType, waterlogged, Blocks.EXPOSED_CUT_COPPER_SLAB, Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB, list);
-        addSlab(slabType, waterlogged, Blocks.WEATHERED_CUT_COPPER_SLAB, Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB, list);
-        addSlab(slabType, waterlogged, Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB, list);
+        Blocks.CUT_COPPER_SLAB.zipUnwaxedWaxed((unwaxed, waxed) -> {
+            addSlab(slabType, waterlogged, unwaxed, waxed, list);
+        });
 
         addSlab(slabType, waterlogged, Blocks.OAK_SLAB, Blocks.PETRIFIED_OAK_SLAB, list);
     }

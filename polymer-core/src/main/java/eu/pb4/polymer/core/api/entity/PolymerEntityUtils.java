@@ -16,6 +16,7 @@ import eu.pb4.polymer.rsm.api.RegistrySyncUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.world.entity.EntityTypes;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -54,14 +55,6 @@ public final class PolymerEntityUtils {
     private static final Map<EntityType<?>, Function<Entity, PolymerEntity>> POLYMER_ENTITY_CONSTRUCTORS = new IdentityHashMap<>();
     private static final Set<Attribute> ENTITY_ATTRIBUTES = new ObjectOpenCustomHashSet<>(CommonImplUtils.IDENTITY_HASH);
 
-    /**
-     * Allows to get next free entity id you can use for networking
-     *
-     * @return free entity id
-     */
-    public static int requestFreeId() {
-        return EntityAccessor.getENTITY_COUNTER().incrementAndGet();
-    }
 
     /**
      * Marks EntityTypes as server-side only
@@ -74,7 +67,7 @@ public final class PolymerEntityUtils {
         }
 
         for (var type : types) {
-            PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
+            PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, (ent, ctx) -> EntityTypes.MARKER);
         }
     }
 
@@ -85,7 +78,7 @@ public final class PolymerEntityUtils {
 
     public static <T extends Entity> void registerOverlay(EntityType<T> type, Function<T, PolymerEntity> constructor) {
         registerPolymerEntityConstructor(type, constructor);
-        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, (ent, ctx) -> EntityType.MARKER);
+        PolymerSyncedObject.setSyncedObject(BuiltInRegistries.ENTITY_TYPE, type, (ent, ctx) -> EntityTypes.MARKER);
     }
 
     public static <T extends Entity> void registerOverlay(EntityType<T> type, PolymerSyncedObject<EntityType<?>> syncedObject, Function<T, PolymerEntity> constructor) {

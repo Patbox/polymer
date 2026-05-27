@@ -31,7 +31,7 @@ public class WeakGlassBlock extends HalfTransparentBlock implements PolymerBlock
     public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
     return switch (state.getValue(DAMAGE)) {
             case 0 -> Blocks.GLASS.defaultBlockState();
-            case 1 -> Blocks.WHITE_STAINED_GLASS.defaultBlockState();
+            case 1 -> Blocks.STAINED_GLASS.white().defaultBlockState();
             default -> Blocks.BEDROCK.defaultBlockState();
         };
     }

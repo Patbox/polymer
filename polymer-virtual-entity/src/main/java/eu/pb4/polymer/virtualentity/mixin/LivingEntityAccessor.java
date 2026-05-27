@@ -12,5 +12,8 @@ import net.minecraft.world.item.ItemStack;
 @Mixin(LivingEntity.class)
 public interface LivingEntityAccessor {
     @Invoker
-    Map<EquipmentSlot, ItemStack> callCollectEquipmentChanges();
+    Map<EquipmentSlot, ItemStack> callCollectEquipmentChanges(final Map<EquipmentSlot, ItemStack> lastEquipmentItems);
+
+    @Accessor("lastEquipmentItems")
+    Map<EquipmentSlot, ItemStack> polymer$getLastEquipmentItems();
 }

@@ -10,6 +10,7 @@ import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.MobAnchorElement;
 import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import eu.pb4.polymertest.mixin.EntityAccessor;
+import net.minecraft.world.entity.EntityTypes;
 import org.joml.Matrix4x3fStack;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
@@ -29,8 +30,8 @@ import net.minecraft.world.phys.Vec3;
 public class TestEntity3 extends Creeper implements PolymerEntity {
     private final ElementHolder holder;
     private final EntityAttachment attachment;
-    private final ItemDisplayElement leftLeg = new ItemDisplayElement(Items.RED_CONCRETE);
-    private final ItemDisplayElement rightLeg = new ItemDisplayElement(Items.RED_CONCRETE);
+    private final ItemDisplayElement leftLeg = new ItemDisplayElement(Items.CONCRETE.red());
+    private final ItemDisplayElement rightLeg = new ItemDisplayElement(Items.CONCRETE.red());
     private final ItemDisplayElement torso = new ItemDisplayElement(PolymerUtils.createPlayerHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjYyYzQ4NWIxODg2ZGJjZTZjMWNhZDE0MGMwZWY4NzYzNTU5ZDQzYTc4NTY0NDY2NGM2ZDVmMzZlMjc1NGVlOCJ9fX0="));
     private final InteractionElement interaction = InteractionElement.redirect(this);
     private final MobAnchorElement rideAnchor = new MobAnchorElement();
@@ -140,7 +141,7 @@ public class TestEntity3 extends Creeper implements PolymerEntity {
 
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
-        return EntityType.ARMOR_STAND;
+        return EntityTypes.ARMOR_STAND;
     }
 
     @Override

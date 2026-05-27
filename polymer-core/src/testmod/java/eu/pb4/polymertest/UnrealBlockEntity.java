@@ -6,6 +6,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymertest.mixin.DisplayEntityAccessor;
 import eu.pb4.polymertest.mixin.BlockDisplayEntityAccessor;
 import eu.pb4.polymertest.mixin.ItemDisplayEntityAccessor;
+import net.minecraft.world.entity.EntityTypes;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
@@ -146,7 +147,7 @@ public class UnrealBlockEntity extends Entity implements PolymerEntity/*, Entity
 
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
-        return this.tater ? EntityType.ITEM_DISPLAY : EntityType.BLOCK_DISPLAY;
+        return this.tater ? EntityTypes.ITEM_DISPLAY : EntityTypes.BLOCK_DISPLAY;
     }
 
     @Override

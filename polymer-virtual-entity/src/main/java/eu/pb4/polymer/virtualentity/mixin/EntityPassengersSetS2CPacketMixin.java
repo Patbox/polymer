@@ -1,5 +1,6 @@
 package eu.pb4.polymer.virtualentity.mixin;
 
+import com.mojang.datafixers.util.Pair;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
@@ -21,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 
 @Mixin(ClientboundSetPassengersPacket.class)
@@ -29,7 +29,7 @@ public class EntityPassengersSetS2CPacketMixin {
     @Shadow @Mutable
     private int[] passengers;
     @Unique
-    private final List<Tuple<Collection<ServerGamePacketListenerImpl>, IntList>> virtualPassengers = new ArrayList<>();
+    private final List<Pair<Collection<ServerGamePacketListenerImpl>, IntList>> virtualPassengers = new ArrayList<>();
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/Entity;)V", at = @At(value = "TAIL"))
     private void polymerVE$addExtraPassangers(Entity entity, CallbackInfo ci) {
@@ -45,7 +45,7 @@ public class EntityPassengersSetS2CPacketMixin {
         for (var holder : ((HolderAttachmentHolder) entity).polymerVE$getHolders()) {
             var x = holder.holder().getAttachedPassengerEntityIds();
             if (!x.isEmpty()) {
-                this.virtualPassengers.add(new Tuple<>(holder.holder().getWatchingPlayers(), x));
+                this.virtualPassengers.add(Pair.of(holder.holder().getWatchingPlayers(), x));
             }
         }
     }
@@ -67,8 +67,8 @@ public class EntityPassengersSetS2CPacketMixin {
         var conn = player.orElseThrow(PacketContext.CONNECTION).getPacketListener();
 
         for (var x : this.virtualPassengers) {
-            if (x.getA().contains(conn)) {
-                arr.addAll(x.getB());
+            if (x.getFirst().contains(conn)) {
+                arr.addAll(x.getSecond());
             }
         }
 

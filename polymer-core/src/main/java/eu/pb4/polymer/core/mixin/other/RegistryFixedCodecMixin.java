@@ -5,6 +5,7 @@ import com.mojang.serialization.DynamicOps;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import net.minecraft.world.entity.EntityTypes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,7 +38,7 @@ public class RegistryFixedCodecMixin {
                 var registry = ((Registry<Registry>) (Object) BuiltInRegistries.REGISTRY).getValue(this.registryKey);
                 //noinspection unchecked
                 if (entry.value() instanceof EntityType<?> type && PolymerEntityUtils.isPolymerEntityType(type)) {
-                    return EntityType.MARKER.builtInRegistryHolder();
+                    return EntityTypes.MARKER.builtInRegistryHolder();
                 } else if (entry.value() instanceof Attribute && PolymerEntityUtils.isPolymerAttribute((Holder<Attribute>) entry)) {
                     return Attributes.SPAWN_REINFORCEMENTS_CHANCE;
                 } else if (PolymerSyncedObject.getSyncedObject(registry, entry.value()) instanceof PolymerSyncedObject<?> polymerSyncedObject) {

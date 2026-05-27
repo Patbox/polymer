@@ -1,5 +1,6 @@
 package eu.pb4.polymertest;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.block.BlockMapper;
@@ -65,13 +66,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -123,7 +118,7 @@ import static net.minecraft.commands.Commands.literal;
 
 
 public class TestMod implements ModInitializer {
-    private static final Map<Registry<?>, List<Tuple<Identifier, ?>>> REG_CACHE = new HashMap<>();
+    private static final Map<Registry<?>, List<Pair<Identifier, ?>>> REG_CACHE = new HashMap<>();
 
     public static final CreativeModeTab ITEM_GROUP = new CreativeModeTab.Builder(null, -1)
             .title(Component.translatable("testmod.itemgroup").withStyle(ChatFormatting.AQUA))
@@ -136,7 +131,7 @@ public class TestMod implements ModInitializer {
                     var items = REG_CACHE.get(BuiltInRegistries.ITEM);
 
                     for (var pair : items) {
-                        entries.accept((ItemLike) pair.getB());
+                        entries.accept((ItemLike) pair.getSecond());
                     }
                 }
             })
@@ -162,7 +157,7 @@ public class TestMod implements ModInitializer {
     public static BlockItem BLOCK_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "block"), (s) -> new PolymerBlockItem(BLOCK, s, Items.STONE));
     public static BlockItem BLOCK_USE_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "block_use"), (s) -> new PolymerBlockItem(BLOCK_USE, s, Items.REDSTONE_LAMP));
     public static Block BLOCK_PLAYER = registerBlock(Identifier.fromNamespaceAndPath("test", "block_player"), (s) -> new TestPerPlayerBlock(s.strength(2f)));
-    public static BlockItem BLOCK_PLAYER_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "block_player"), (s) -> new PolymerBlockItem(BLOCK_PLAYER, s, Items.WHITE_CARPET));
+    public static BlockItem BLOCK_PLAYER_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "block_player"), (s) -> new PolymerBlockItem(BLOCK_PLAYER, s, Items.CARPET.white()));
     public static Block BLOCK_CLIENT = registerBlock(Identifier.fromNamespaceAndPath("test", "block_client"), (s) -> new TestClientBlock(s.lightLevel((state) -> 3).strength(2f)));
     public static BlockItem BLOCK_CLIENT_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "block_client"), (s) -> new TestClientBlockItem(BLOCK_CLIENT, s));
     public static Block BLOCK_FENCE = registerBlock(Identifier.fromNamespaceAndPath("test", "fence"), (s) -> new SimplePolymerBlock(s.lightLevel((state) -> 15).strength(2f), Blocks.NETHER_BRICK_FENCE));
@@ -314,7 +309,7 @@ public class TestMod implements ModInitializer {
     public static Block END_GATEWAY = registerBlock(Identifier.fromNamespaceAndPath("test", "end_gateway"), s -> new FakeEndGatewayBlock(s.lightLevel((state) -> 15).strength(2f)));
     public static BlockEntityType END_GATEWAY_BE = register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Identifier.fromNamespaceAndPath("test", "end_gateway"),
             FabricBlockEntityTypeBuilder.create(FakeEndGatewayBlockEntity::new, END_GATEWAY).build());
-    public static BlockItem END_GATEWAY_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "end_gateway"), (s) -> new PolymerBlockItem(END_GATEWAY, s, Items.BLACK_CONCRETE_POWDER));
+    public static BlockItem END_GATEWAY_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "end_gateway"), (s) -> new PolymerBlockItem(END_GATEWAY, s, Items.CONCRETE_POWDER.black()));
 
 
 
@@ -402,13 +397,13 @@ public class TestMod implements ModInitializer {
         PolymerEntityUtils.registerOverlay(OVERLAY_ENTITY, (entity) -> new PolymerEntity() {
             @Override
             public EntityType<?> getPolymerEntityType(PacketContext context) {
-                return EntityType.IRON_GOLEM;
+                return EntityTypes.IRON_GOLEM;
             }
 
 
             @Override
             public void modifyRawEntityAttributeData(List<ClientboundUpdateAttributesPacket.AttributeSnapshot> data, ServerPlayer player, boolean initial) {
-                data.add(new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.SCALE, ((IronGolem) entity).getBbHeight() / EntityType.IRON_GOLEM.getHeight(), List.of()));
+                data.add(new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.SCALE, ((IronGolem) entity).getBbHeight() / EntityTypes.IRON_GOLEM.getHeight(), List.of()));
                 PolymerEntity.super.modifyRawEntityAttributeData(data, player, initial);
             }
         });
@@ -602,7 +597,7 @@ public class TestMod implements ModInitializer {
             //Collections.shuffle(entry.getValue());
 
             for (var e : entry.getValue()) {
-                Registry.register((Registry<Object>) entry.getKey(), e.getA(), e.getB());
+                Registry.register((Registry<Object>) entry.getKey(), e.getFirst(), e.getSecond());
 
 
             }
@@ -620,7 +615,7 @@ public class TestMod implements ModInitializer {
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register((s) -> {
-            var creep = new Creeper(EntityType.CREEPER, s.overworld());
+            var creep = new Creeper(EntityTypes.CREEPER, s.overworld());
             new Thread(() -> {
                 try {
                     while (!s.isStopped()) {
@@ -779,7 +774,7 @@ public class TestMod implements ModInitializer {
     }
     
     public static <B, T extends B> T register(Registry<B> registry, Identifier id, T obj) {
-        REG_CACHE.computeIfAbsent(registry, (r) -> new ArrayList<>()).add(new Tuple<>(id, obj));
+        REG_CACHE.computeIfAbsent(registry, (r) -> new ArrayList<>()).add(Pair.of(id, obj));
         return obj;
     }
 

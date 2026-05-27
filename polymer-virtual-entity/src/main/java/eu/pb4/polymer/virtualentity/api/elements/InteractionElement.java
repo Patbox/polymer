@@ -4,6 +4,7 @@ import eu.pb4.polymer.virtualentity.api.data.InteractionEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 public class InteractionElement extends GenericEntityElement {
 
@@ -20,7 +21,7 @@ public class InteractionElement extends GenericEntityElement {
 
     @Override
     protected final EntityType<? extends Entity> getEntityType() {
-        return EntityType.INTERACTION;
+        return EntityTypes.INTERACTION;
     }
 
     public float getWidth() {

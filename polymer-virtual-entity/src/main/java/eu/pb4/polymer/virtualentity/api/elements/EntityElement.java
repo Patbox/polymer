@@ -22,13 +22,16 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class EntityElement<T extends Entity> extends AbstractElement {
     private final T entity;
     private final ServerEntity entry;
+    private final Map<EquipmentSlot, ItemStack> equipmentSlotItemStackEnumMap = new EnumMap<>(EquipmentSlot.class);
 
     public EntityElement(T entity, ServerLevel world) {
         this(entity, world, InteractionHandler.EMPTY);
@@ -148,7 +151,7 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     private void sendEquipmentChanges(LivingEntity livingEntity) {
         var ac = ((LivingEntityAccessor) livingEntity);
-        var equipmentChanges = ac.callCollectEquipmentChanges();
+        var equipmentChanges = ac.callCollectEquipmentChanges(ac.polymer$getLastEquipmentItems());
         if (equipmentChanges != null && !equipmentChanges.isEmpty()) {
             List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(equipmentChanges.size());
             equipmentChanges.forEach((slot, stack) -> {

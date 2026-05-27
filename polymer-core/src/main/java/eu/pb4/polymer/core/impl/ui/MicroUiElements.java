@@ -20,18 +20,18 @@ public class MicroUiElements {
     public static final ItemStack BUTTON_SEARCH;
 
     static {
-        EMPTY = Items.GRAY_STAINED_GLASS_PANE.getDefaultInstance();
+        EMPTY = Items.STAINED_GLASS_PANE.gray().getDefaultInstance();
 
-        BUTTON_PREVIOUS = Items.GREEN_STAINED_GLASS_PANE.getDefaultInstance();
+        BUTTON_PREVIOUS = Items.STAINED_GLASS_PANE.green().getDefaultInstance();
         BUTTON_PREVIOUS.set(DataComponents.CUSTOM_NAME, Component.translatable("spectatorMenu.previous_page").setStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.GREEN)));
 
-        BUTTON_PREVIOUS_LOCK = Items.WHITE_STAINED_GLASS_PANE.getDefaultInstance();
+        BUTTON_PREVIOUS_LOCK = Items.STAINED_GLASS_PANE.white().getDefaultInstance();
         BUTTON_PREVIOUS_LOCK.set(DataComponents.CUSTOM_NAME, Component.translatable("spectatorMenu.previous_page").setStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.DARK_GRAY)));
 
-        BUTTON_NEXT = Items.GREEN_STAINED_GLASS_PANE.getDefaultInstance();
+        BUTTON_NEXT = Items.STAINED_GLASS_PANE.green().getDefaultInstance();
         BUTTON_NEXT.set(DataComponents.CUSTOM_NAME, Component.translatable("spectatorMenu.next_page").setStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.GREEN)));
 
-        BUTTON_NEXT_LOCK = Items.WHITE_STAINED_GLASS_PANE.getDefaultInstance();
+        BUTTON_NEXT_LOCK = Items.STAINED_GLASS_PANE.white().getDefaultInstance();
         BUTTON_NEXT_LOCK.set(DataComponents.CUSTOM_NAME, Component.translatable("spectatorMenu.next_page").setStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.DARK_GRAY)));
 
         BUTTON_BACK = Items.BARRIER.getDefaultInstance();

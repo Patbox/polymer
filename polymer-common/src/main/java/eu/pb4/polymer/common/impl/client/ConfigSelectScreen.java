@@ -40,13 +40,13 @@ public class ConfigSelectScreen extends Screen {
     }
 
     private void openConfig(String config, Class<?> clazz) {
-        this.minecraft.setScreen(new ConfigEditorScreen(config, clazz, () -> {
-            this.minecraft.setScreen(this);
+        this.minecraft.setScreenAndShow(new ConfigEditorScreen(config, clazz, () -> {
+            this.minecraft.setScreenAndShow(this);
         }));
     }
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(this.parent);
+        this.minecraft.setScreenAndShow(this.parent);
     }
 }

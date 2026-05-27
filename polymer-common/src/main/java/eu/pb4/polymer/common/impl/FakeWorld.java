@@ -256,7 +256,7 @@ public final class FakeWorld extends Level implements LightChunk {
         var dimType = Holder.Reference.createIntrusive(new HolderOwner<>() {
                                                        },
                 new DimensionType(true, false, false, false,1.0D,
-                        -64, 256, 256, BlockTags.INFINIBURN_OVERWORLD, 1,
+                        -64, 256, 256, HolderSet.empty(), 1,
                         new DimensionType.MonsterSettings(UniformInt.of(0, 7), 0),
                         DimensionType.Skybox.NONE, CardinalLighting.Type.DEFAULT, EnvironmentAttributeMap.builder().build(), HolderSet.empty(),
                         Optional.empty()));

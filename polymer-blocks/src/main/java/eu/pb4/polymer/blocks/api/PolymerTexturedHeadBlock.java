@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -30,6 +31,6 @@ public interface PolymerTexturedHeadBlock extends PolymerTexturedBlock {
         main.putInt("x", pos.getX());
         main.putInt("y", pos.getY());
         main.putInt("z", pos.getZ());
-        context.connection.send(PolymerBlockUtils.createBlockEntityPacket(pos.immutable(), BlockEntityType.SKULL, main));
+        context.connection.send(PolymerBlockUtils.createBlockEntityPacket(pos.immutable(), BlockEntityTypes.SKULL, main));
     }
 }

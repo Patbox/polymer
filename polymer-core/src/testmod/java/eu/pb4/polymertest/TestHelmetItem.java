@@ -24,7 +24,7 @@ public class TestHelmetItem extends Item implements VanillaModeledPolymerItem {
 
     @Override
     public Item getPolymerItem(ItemStack stack, PacketContext context) {
-        return Items.WHITE_STAINED_GLASS;
+        return Items.STAINED_GLASS.white();
     }
 
     @Override

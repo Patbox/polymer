@@ -11,11 +11,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import org.jetbrains.annotations.ApiStatus;
@@ -79,7 +75,7 @@ public class InternalEntityHelpers {
                 }
             }
         }
-        EXAMPLE_ENTITIES.put(EntityType.PLAYER, player);
+        EXAMPLE_ENTITIES.put(EntityTypes.PLAYER, player);
         return player;
     };
 
@@ -123,7 +119,7 @@ public class InternalEntityHelpers {
         Entity entity = EXAMPLE_ENTITIES.get(type);
 
         if (entity == null) {
-            if (type == EntityType.PLAYER) {
+            if (type == EntityTypes.PLAYER) {
                 return createPlayer();
             }
 

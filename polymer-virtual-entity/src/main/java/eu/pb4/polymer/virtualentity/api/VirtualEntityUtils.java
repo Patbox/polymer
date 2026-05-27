@@ -30,11 +30,24 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public final class VirtualEntityUtils {
+    private static final AtomicInteger ENTITY_COUNTER = new AtomicInteger(-1);
     private VirtualEntityUtils() {}
+
     public static int requestEntityId() {
-        return EntityAccessor.getENTITY_COUNTER().incrementAndGet();
+        // Todo: Replace it with less hacky system?
+        // To make sure it doesn't collide with vanilla ever.
+
+        var id = ENTITY_COUNTER.decrementAndGet();
+        if (id > 0) {
+            id = -1;
+            ENTITY_COUNTER.set(-1);
+        }
+
+        return id;
     }
 
     public static void addVirtualPassenger(Entity entity, int passengerId) {
