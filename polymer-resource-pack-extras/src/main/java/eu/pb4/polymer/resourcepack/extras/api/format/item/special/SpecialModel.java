@@ -12,7 +12,6 @@ public interface SpecialModel {
     ExtraCodecs.LateBoundIdMapper<Identifier, MapCodec<? extends SpecialModel>> TYPES = new LazyIdMapper<>(m -> {
         m.put(Identifier.withDefaultNamespace("bell"), BellSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("book"), BookSpecialModel.CODEC);
-        m.put(Identifier.withDefaultNamespace("bed"), BedSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("banner"), BannerSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("conduit"), ConduitSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("copper_golem_statue"), CopperGolemStatueSpecialModel.CODEC);
@@ -24,8 +23,6 @@ public interface SpecialModel {
         m.put(Identifier.withDefaultNamespace("shield"), ShieldSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("trident"), TridentSpecialModel.CODEC);
         m.put(Identifier.withDefaultNamespace("decorated_pot"), DecoratedPotSpecialModel.CODEC);
-        m.put(Identifier.withDefaultNamespace("standing_sign"), SignSpecialModel.CODEC);
-        m.put(Identifier.withDefaultNamespace("hanging_sign"), HangingSignSpecialModel.CODEC);
     });
     Codec<SpecialModel> CODEC = TYPES.codec(Identifier.CODEC).dispatch(SpecialModel::codec, Function.identity());
     MapCodec<? extends SpecialModel> codec();

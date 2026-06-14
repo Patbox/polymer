@@ -36,7 +36,7 @@ public final class PolymerCommonUtils {
             c.onResourcePackChange(handler, uuid, oldStatus, newStatus);
         }
     });
-    private final static String SAFE_CLIENT_SHA1 = "5de44d76eb2823cdc79d9c3185d80e6162ec0199";
+    private final static String SAFE_CLIENT_SHA1 = "cc990c34111c60c3de127336606f1521a7bc3f81";
     private final static String SAFE_CLIENT_URL = "https://piston-data.mojang.com/v1/objects/" + SAFE_CLIENT_SHA1 + "/client.jar";
     private static Path cachedClientPath;
     private static Path cachedClientJarRoot;
