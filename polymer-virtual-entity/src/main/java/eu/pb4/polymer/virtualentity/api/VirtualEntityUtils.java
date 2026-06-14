@@ -6,9 +6,9 @@ import eu.pb4.polymer.virtualentity.impl.EntityExt;
 import eu.pb4.polymer.virtualentity.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.virtualentity.mixin.EntityPassengersSetS2CPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.SetCameraEntityS2CPacketAccessor;
-import eu.pb4.polymer.virtualentity.mixin.accessors.EntityAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.ClientboundSetEntityLinkPacketAccessor;
 import eu.pb4.polymer.virtualentity.mixin.accessors.ClientboundSoundEntityPacketAccessor;
+import eu.pb4.polymer.virtualentity.mixin.accessors.ServerLevelAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
@@ -30,24 +30,15 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.concurrent.atomic.AtomicInteger;
 
-
-public final class VirtualEntityUtils {
-    private static final AtomicInteger ENTITY_COUNTER = new AtomicInteger(-1);
-    private VirtualEntityUtils() {}
+public final class VirtualEntityUtils { private VirtualEntityUtils() {}
 
     public static int requestEntityId() {
-        // Todo: Replace it with less hacky system?
-        // To make sure it doesn't collide with vanilla ever.
-
-        var id = ENTITY_COUNTER.decrementAndGet();
-        if (id > 0) {
-            id = -1;
-            ENTITY_COUNTER.set(-1);
+        var x = ServerLevelAccessor.polymer$getENTITY_COUNTER().incrementAndGet();
+        if (x == 0) {
+            x = ServerLevelAccessor.polymer$getENTITY_COUNTER().incrementAndGet();
         }
-
-        return id;
+        return x;
     }
 
     public static void addVirtualPassenger(Entity entity, int passengerId) {
