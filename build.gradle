@@ -268,7 +268,7 @@ catalog {
         version('polymer', project.version.toString())
         library('polymer-autohost', 'eu.pb4', 'polymer-autohost').versionRef('polymer')
         library('polymer-blocks', 'eu.pb4', 'polymer-blocks').versionRef('polymer')
-        library('polymer-bundled', 'eu.pb4', 'polymer-autohost').versionRef('polymer')
+        library('polymer-bundled', 'eu.pb4', 'polymer-bundled').versionRef('polymer')
         library('polymer-common', 'eu.pb4', 'polymer-common').versionRef('polymer')
         library('polymer-core', 'eu.pb4', 'polymer-core').versionRef('polymer')
         library('polymer-networking', 'eu.pb4', 'polymer-networking').versionRef('polymer')
