@@ -10,44 +10,10 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.block.BeehiveBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CalibratedSculkSensorBlock;
-import net.minecraft.world.level.block.CampfireBlock;
-import net.minecraft.world.level.block.CaveVines;
-import net.minecraft.world.level.block.ChainBlock;
-import net.minecraft.world.level.block.CreakingHeartBlock;
-import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.FarmlandBlock;
-import net.minecraft.world.level.block.FenceGateBlock;
-import net.minecraft.world.level.block.IronBarsBlock;
-import net.minecraft.world.level.block.LanternBlock;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.LightningRodBlock;
-import net.minecraft.world.level.block.ScaffoldingBlock;
-import net.minecraft.world.level.block.SculkSensorBlock;
-import net.minecraft.world.level.block.ShelfBlock;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.SkullBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.TrapDoorBlock;
-import net.minecraft.world.level.block.TripWireBlock;
-import net.minecraft.world.level.block.WeightedPressurePlateBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.CreakingHeartState;
-import net.minecraft.world.level.block.state.properties.DoorHingeSide;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.RotationSegment;
-import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
-import net.minecraft.world.level.block.state.properties.SideChainPart;
-import net.minecraft.world.level.block.state.properties.SlabType;
-import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.world.level.block.state.properties.*;
+
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -249,7 +215,7 @@ public class DefaultModelData {
         {
             var r = new ReferenceArrayList<BlockState>();
 
-            for (var block : new Block[]{ Blocks.PLAYER_HEAD }) {
+            for (var block : new Block[]{Blocks.PLAYER_HEAD}) {
                 var state = block.defaultBlockState().setValue(SkullBlock.POWERED, true);
                 for (int i = 0; i <= RotationSegment.getMaxSegmentIndex(); i++) {
                     state = state.setValue(SkullBlock.ROTATION, i);
@@ -262,7 +228,9 @@ public class DefaultModelData {
         }
 
         {
-            record Bound(BlockModelType type, Direction direction, Half blockHalf, StairsShape shape, boolean waterlogged, ReferenceArrayList<BlockState> list) { }
+            record Bound(BlockModelType type, Direction direction, Half blockHalf, StairsShape shape,
+                         boolean waterlogged, ReferenceArrayList<BlockState> list) {
+            }
 
             var bounds = new ArrayList<Bound>();
 
@@ -293,7 +261,9 @@ public class DefaultModelData {
         }
 
         {
-            record Bound(BlockModelType type, Direction direction, boolean waterlogged, ReferenceArrayList<BlockState> list) {}
+            record Bound(BlockModelType type, Direction direction, boolean waterlogged,
+                         ReferenceArrayList<BlockState> list) {
+            }
 
             var bounds = new ArrayList<Bound>();
 
@@ -303,11 +273,11 @@ public class DefaultModelData {
             }
 
             for (var block : List.of(
-                    Blocks.OAK_SHELF, 
-                    Blocks.SPRUCE_SHELF, 
-                    Blocks.JUNGLE_SHELF, 
-                    Blocks.ACACIA_SHELF, 
-                    Blocks.DARK_OAK_SHELF, 
+                    Blocks.OAK_SHELF,
+                    Blocks.SPRUCE_SHELF,
+                    Blocks.JUNGLE_SHELF,
+                    Blocks.ACACIA_SHELF,
+                    Blocks.DARK_OAK_SHELF,
                     Blocks.MANGROVE_SHELF,
                     Blocks.BAMBOO_SHELF,
                     Blocks.PALE_OAK_SHELF,
@@ -324,6 +294,32 @@ public class DefaultModelData {
                         SPECIAL_REMAPS.put(state, state.setValue(ShelfBlock.SIDE_CHAIN_PART, SideChainPart.UNCONNECTED));
                         bound.list.add(state);
                     }
+                }
+            }
+
+            for (var b : bounds) {
+                USABLE_STATES.put(b.type(), b.list());
+            }
+        }
+
+        {
+            record Bound(BlockModelType type, Direction direction, BedPart part,
+                         ReferenceArrayList<BlockState> list) {
+            }
+
+            var bounds = new ArrayList<Bound>();
+
+            for (var dir : Direction.Plane.HORIZONTAL) {
+                bounds.add(new Bound(BlockModelType.getBed(dir, BedPart.HEAD), dir, BedPart.HEAD, new ReferenceArrayList<>()));
+                bounds.add(new Bound(BlockModelType.getBed(dir, BedPart.FOOT), dir, BedPart.FOOT, new ReferenceArrayList<>()));
+            }
+
+            for (var block : Blocks.BED.asList()) {
+                for (var bound : bounds) {
+                    var state = block.defaultBlockState().setValue(BedBlock.FACING, bound.direction()).setValue(BedBlock.PART, bound.part())
+                            .setValue(BedBlock.OCCUPIED, true);
+                    SPECIAL_REMAPS.put(state, state.setValue(BedBlock.OCCUPIED, false));
+                    bound.list.add(state);
                 }
             }
 
@@ -416,10 +412,11 @@ public class DefaultModelData {
         }
 
         {
-            record Bound(BlockModelType type, List<BooleanProperty> properties, ReferenceArrayList<BlockState> list) {}
+            record Bound(BlockModelType type, List<BooleanProperty> properties, ReferenceArrayList<BlockState> list) {
+            }
             var bounds = new ArrayList<Bound>();
 
-            var properties = new BooleanProperty[] {
+            var properties = new BooleanProperty[]{
                     IronBarsBlock.WATERLOGGED,
                     IronBarsBlock.NORTH,
                     IronBarsBlock.SOUTH,
@@ -549,7 +546,13 @@ public class DefaultModelData {
                     Pair.of(Blocks.COBBLED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE),
                     Pair.of(Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.POLISHED_DEEPSLATE),
                     Pair.of(Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES),
-                    Pair.of(Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICKS)
+                    Pair.of(Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICKS),
+                    Pair.of(Blocks.SULFUR_SLAB, Blocks.SULFUR),
+                    Pair.of(Blocks.POLISHED_SULFUR_SLAB, Blocks.POLISHED_SULFUR),
+                    Pair.of(Blocks.SULFUR_BRICK_SLAB, Blocks.SULFUR_BRICKS),
+                    Pair.of(Blocks.CINNABAR_SLAB, Blocks.SULFUR),
+                    Pair.of(Blocks.POLISHED_CINNABAR_SLAB, Blocks.POLISHED_CINNABAR),
+                    Pair.of(Blocks.CINNABAR_BRICK_SLAB, Blocks.CINNABAR_BRICKS)
             ));
 
             var fullRefs = USABLE_STATES.get(BlockModelType.FULL_BLOCK);

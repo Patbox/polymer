@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.properties.StairsShape;
@@ -97,6 +98,15 @@ public enum BlockModelType {
     GATE_EAST_WEST_INWALL_OPEN,
     GATE_EAST_WEST,
     GATE_EAST_WEST_OPEN,
+    // Bed
+    BED_NORTH_HEAD,
+    BED_NORTH_FOOT,
+    BED_EAST_HEAD,
+    BED_EAST_FOOT,
+    BED_SOUTH_HEAD,
+    BED_SOUTH_FOOT,
+    BED_WEST_HEAD,
+    BED_WEST_FOOT,
     // Bars
     BARS_CENTER,
     BARS_CENTER_WATERLOGGED,
@@ -318,6 +328,28 @@ public enum BlockModelType {
             case SOUTH -> SHELF_SOUTH;
             case WEST -> SHELF_WEST;
             case EAST -> SHELF_EAST;
+            default -> throw new IllegalArgumentException("Only horizontal directions are supported!");
+        };
+    }
+
+    public static BlockModelType getBed(Direction direction, BedPart part) {
+        return getBed(direction, part == BedPart.HEAD);
+    }
+    public static BlockModelType getBed(Direction direction, boolean head) {
+        if (head) {
+            return switch (direction) {
+                case NORTH -> BED_NORTH_HEAD;
+                case SOUTH -> BED_SOUTH_HEAD;
+                case WEST -> BED_WEST_HEAD;
+                case EAST -> BED_EAST_HEAD;
+                default -> throw new IllegalArgumentException("Only horizontal directions are supported!");
+            };
+        }
+        return switch (direction) {
+            case NORTH -> BED_NORTH_FOOT;
+            case SOUTH -> BED_SOUTH_FOOT;
+            case WEST -> BED_WEST_FOOT;
+            case EAST -> BED_EAST_FOOT;
             default -> throw new IllegalArgumentException("Only horizontal directions are supported!");
         };
     }

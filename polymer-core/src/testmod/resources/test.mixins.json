@@ -18,6 +18,7 @@
     "RedstoneLampMixin",
     "RideCommandMixin",
     "ServerPlayNetworkHandlerMixin",
+    "SulfurCubeMixin",
     "VillagerEntityAccessor"
   ],
   "injectors": {
