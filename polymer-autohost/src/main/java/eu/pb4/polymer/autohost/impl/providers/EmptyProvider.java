@@ -51,11 +51,6 @@ public record EmptyProvider() implements ResourcePackDataProvider {
     }
 
     @Override
-    public String getMainFilePath(PacketContext context) {
-        return getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID);
-    }
-
-    @Override
     public String getFilePath(PacketContext context, Identifier identifier) {
         return AutoHostUtils.getPathFromId(identifier);
     }

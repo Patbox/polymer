@@ -13,10 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class AbstractProvider implements ResourcePackDataProvider {
-    public long size = 0;
-    public String hash = "";
-    public long lastUpdate = 0;
-
     public boolean enabled;
 
     public void serverStarted(MinecraftServer minecraftServer) {
@@ -48,11 +44,6 @@ public abstract class AbstractProvider implements ResourcePackDataProvider {
     @Override
     public String getFilePath(PacketContext context, Identifier identifier) {
         return getAddress(context.orElseThrow(PacketContext.CONNECTION), AutoHostUtils.getPathFromId(identifier) + "+pack.zip");
-    }
-
-    @Override
-    public String getMainFilePath(PacketContext context) {
-        return getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID, hash);
     }
 
     protected abstract String getAddress(Connection connection, String path);

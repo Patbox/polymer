@@ -186,7 +186,7 @@ public class AutoHost implements ModInitializer {
 
         AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.register(((provider1, context, consumer) -> {
             if (mainPackResult == null) return;
-            consumer.accept(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), provider1.getMainFilePath(context), mainPackResult.hash()));
+            consumer.accept(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), provider1.getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID, mainPackResult.hash()), mainPackResult.hash()));
         }));
 
         AutoHostUtils.RESOURCE_PACKS_READY.register(((_, _) -> mainPackResult != null));

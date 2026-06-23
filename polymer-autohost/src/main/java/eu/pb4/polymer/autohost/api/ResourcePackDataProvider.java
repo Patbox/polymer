@@ -30,7 +30,6 @@ public interface ResourcePackDataProvider {
 
     Collection<MinecraftServer.ServerResourcePackInfo> getProperties(PacketContext connection);
 
-    String getMainFilePath(PacketContext context);
     String getFilePath(PacketContext context, Identifier identifier);
 
     default String getFilePath(PacketContext context, Identifier identifier, @Nullable String hash) {
@@ -65,5 +64,10 @@ public interface ResourcePackDataProvider {
                 AutoHost.config.require || (AutoHost.config.modOverride && PolymerResourcePackUtils.isRequired()),
                 AutoHost.message
         );
+    }
+
+    @Deprecated(forRemoval = true)
+    default String getMainFilePath(PacketContext context) {
+        return getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID, AutoHost.mainPackResult != null ? AutoHost.mainPackResult.hash() : null);
     }
 }
