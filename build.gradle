@@ -1,4 +1,5 @@
 plugins {
+    id 'version-catalog'
     id 'net.fabricmc.fabric-loom' version '1.15.+'
     id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -133,7 +134,6 @@ dependencies {
 }
 
 
-
 void setupRepositories(RepositoryHandler repositories) {
     def env = System.getenv()
 
@@ -262,4 +262,31 @@ allprojects {
         }
     }
 }
+catalog {
+    // declare the aliases, bundles and versions in this block
+    versionCatalog {
+        version('polymer', project.version.toString())
+        library('polymer-autohost', 'eu.pb4', 'polymer-autohost').versionRef('polymer')
+        library('polymer-blocks', 'eu.pb4', 'polymer-blocks').versionRef('polymer')
+        library('polymer-bundled', 'eu.pb4', 'polymer-bundled').versionRef('polymer')
+        library('polymer-common', 'eu.pb4', 'polymer-common').versionRef('polymer')
+        library('polymer-core', 'eu.pb4', 'polymer-core').versionRef('polymer')
+        library('polymer-networking', 'eu.pb4', 'polymer-networking').versionRef('polymer')
+        library('polymer-regsyncmanipulator', 'eu.pb4', 'polymer-reg-sync-manipulator').versionRef('polymer')
+        library('polymer-resourcepack-extras', 'eu.pb4', 'polymer-resource-pack-extras').versionRef('polymer')
+        library('polymer-resourcepack', 'eu.pb4', 'polymer-resource-pack').versionRef('polymer')
+        library('polymer-soundpatcher', 'eu.pb4', 'polymer-sound-patcher').versionRef('polymer')
+        library('polymer-virtualentity', 'eu.pb4', 'polymer-virtual-entity').versionRef('polymer')
+    }
+}
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = rootProject.maven_group
+            artifactId = "polymer-catalog"
+            version = project.version
+            from components.versionCatalog
+        }
+    }
+}
