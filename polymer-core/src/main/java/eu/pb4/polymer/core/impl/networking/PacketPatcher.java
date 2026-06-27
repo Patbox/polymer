@@ -1,8 +1,8 @@
 package eu.pb4.polymer.core.impl.networking;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
@@ -12,7 +12,6 @@ import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.compat.ImmersivePortalsUtils;
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket;
@@ -21,6 +20,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -38,17 +38,20 @@ import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.monster.cubemob.SulfurCube;
 import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.properties.Property;
 import org.jspecify.annotations.Nullable;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class PacketPatcher {
 
@@ -67,6 +70,32 @@ public class PacketPatcher {
                             new ClientboundSetEquipmentPacket(entity.getId(), polymerEntity.getPolymerVisibleEquipment(original.getSlots(), handler1.getPlayer())),
                             entity
                     );
+                } else if (entity instanceof SulfurCube) {
+                    var slots = new ArrayList<>(original.getSlots());
+                    for (int i = 0; i < slots.size(); i++) {
+                        var pair = slots.get(i);
+                        if (pair.getFirst() == EquipmentSlot.BODY && pair.getSecond().getItem() instanceof BlockItem blockItem) {
+                            var originalState = pair.getSecond().getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).apply(blockItem.getBlock().defaultBlockState());
+                            var state = PolymerBlockUtils.getPolymerBlockState(originalState, handler.getPacketContext());
+                            if (originalState != state) {
+                                var newItem = state.getBlock().asItem().getDefaultInstance();
+
+                                var properties = new HashMap<String, String>();
+                                //noinspection unchecked,rawtypes
+                                for (var property : (Collection<Property>) (Object) state.getProperties()) {
+                                    //noinspection unchecked
+                                    properties.put(property.getName(), property.getName(state.getValue(property)));
+                                }
+
+                                newItem.set(DataComponents.BLOCK_STATE, new BlockItemStateProperties(properties));
+
+                                slots.set(i, new Pair<>(EquipmentSlot.BODY, newItem));
+                            }
+                            break;
+                        }
+                    }
+
+                    return EntityAttachedPacket.setIfEmpty(new ClientboundSetEquipmentPacket(entity.getId(), slots), entity);
                 }
             }
 

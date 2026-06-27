@@ -15,6 +15,6 @@ public class SulfurCubeMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void fixNonBlockItems(EntityType type, Level level, CallbackInfo ci) {
         var self = (SulfurCube) (Object) this;
-        EntityAttachment.ofTicking(new SulfurCubeModelTestFix(self), self);
+        //EntityAttachment.ofTicking(new SulfurCubeModelTestFix(self), self);
     }
 }

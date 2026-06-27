@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class EntityAttachment implements HolderAttachment {
@@ -98,7 +99,11 @@ public class EntityAttachment implements HolderAttachment {
 
     @Override
     public boolean canUpdatePosition() {
-        return !this.removed && !this.entity.isRemoved() && this.entity.level().getEntity(this.entity.getId()) == this.entity;
+        try {
+            return !this.removed && !this.entity.isRemoved() && this.entity.level().getEntity(this.entity.getId()) == this.entity;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     @Override
@@ -106,8 +111,13 @@ public class EntityAttachment implements HolderAttachment {
         // left that to impl logic
     }
 
+    @Nullable
     private ChunkMap.TrackedEntity getTrackerEntry() {
-        return ((ChunkMapAccessor) ((ServerLevel) this.entity.level()).getChunkSource().chunkMap).getEntityTrackers().get(this.entity.getId());
+        try {
+            return ((ChunkMapAccessor) ((ServerLevel) this.entity.level()).getChunkSource().chunkMap).getEntityTrackers().get(this.entity.getId());
+        } catch (Throwable e) {
+            return null;
+        }
     }
 
     @Override
