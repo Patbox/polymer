@@ -192,6 +192,19 @@ public interface PolymerItem extends PolymerSyncedObject<Item> {
         return false;
     }
 
+    /**
+     * Decodes the item stack received from client.
+     * Mostly relevant in case of players in creative mode.
+     *
+     * @param clientItem ItemStack received from client.
+     * @param out        ItemStack decoded by default Polymer handling, can be modified directly.
+     * @param context    Context for which ItemStack is decoded.
+     * @param lookup
+     * @return Decoded / Server side item stack. You can return the {@code out} stack.
+     */
+    default ItemStack getDecodedItemStack(ItemStack clientItem, ItemStack out, PacketContext context, HolderLookup.Provider lookup) {
+        return out;
+    }
 
     /**
      * Makes the target item use polymer logic for conversion, functionally the same as implementing

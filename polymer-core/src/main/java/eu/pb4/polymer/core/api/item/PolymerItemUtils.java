@@ -5,7 +5,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
-import eu.pb4.polymer.common.impl.CommonImplPacketKeys;
 import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
@@ -13,7 +12,6 @@ import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.other.PacketTooltipContext;
 import eu.pb4.polymer.core.mixin.CustomDataAccessor;
@@ -23,7 +21,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -40,7 +37,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.item.*;
@@ -241,27 +237,42 @@ public final class PolymerItemUtils {
      * @param itemStack Client side ItemStack
      * @return Server side ItemStack
      */
+    @Deprecated
     public static ItemStack getRealItemStack(ItemStack itemStack, HolderLookup.Provider lookup) {
-        var custom = itemStack.get(DataComponents.CUSTOM_DATA);
+        return getRealItemStack(itemStack, PacketContext.get(), lookup);
+    }
 
+    /**
+     * This method gets real ItemStack from Virtual/Client side one
+     *
+     * @param clientItemStack Client side ItemStack
+     * @return Server side ItemStack
+     */
+    public static ItemStack getRealItemStack(ItemStack clientItemStack, PacketContext context, HolderLookup.Provider lookup) {
+        var custom = clientItemStack.get(DataComponents.CUSTOM_DATA);
 
         if (custom != null) {
             var val = ((CustomDataAccessor) (Object) custom).polymer$getNbtUnsafe();
 
             if (!val.contains(POLYMER_STACK)) {
-                return itemStack;
+                return clientItemStack;
             }
 
             try {
                 var counted = val.getBooleanOr(POLYMER_COUNTED, false);
 
-                var x = val.read(POLYMER_STACK, ItemStack.CODEC, lookup.createSerializationContext(NbtOps.INSTANCE)).orElseGet(itemStack::copy);
+                var result = val.read(POLYMER_STACK, ItemStack.CODEC, lookup.createSerializationContext(NbtOps.INSTANCE)).orElseGet(clientItemStack::copy);
 
                 if (!counted) {
-                    x.setCount(itemStack.getCount());
+                    result.setCount(clientItemStack.getCount());
                 }
 
-                return x;
+                // Handle legacy method!
+                if (context != null && PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, result.getItem()) instanceof PolymerItem polymerItem) {
+                    result = polymerItem.getDecodedItemStack(clientItemStack, result, context, lookup);
+                }
+
+                return result;
             } catch (Throwable e) {
                 if (PolymerImpl.LOG_MORE_ERRORS) {
                     PolymerImpl.LOGGER.warn("Failed to decode Item Stack!", e);
@@ -269,7 +280,7 @@ public final class PolymerItemUtils {
             }
         }
 
-        return itemStack;
+        return clientItemStack;
     }
 
     /**

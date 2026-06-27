@@ -46,6 +46,6 @@ public abstract class ItemStackPacketCodecMixin {
     }
     @ModifyReturnValue(method = "decode(Lnet/minecraft/network/RegistryFriendlyByteBuf;)Lnet/minecraft/world/item/ItemStack;", at = @At(value = "RETURN", ordinal = 1))
     private ItemStack polymerCore$decodeItemStackServer(ItemStack stack, @Local(argsOnly = true) RegistryFriendlyByteBuf buf) {
-        return PolymerCommonUtils.isServerNetworkingThread() ? PolymerItemUtils.getRealItemStack(stack, buf.registryAccess()) : stack;
+        return PolymerCommonUtils.isServerNetworkingThread() ? PolymerItemUtils.getRealItemStack(stack, PacketContext.orElseThrow(), buf.registryAccess()) : stack;
     }
 }

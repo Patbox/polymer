@@ -33,7 +33,7 @@ public class ItemStackMixin {
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var context = PacketContext.orElseThrow();
                 var lookup = context.orElse(PacketContext.REGISTRY_ACCESS, PolymerImplUtils.FALLBACK_LOOKUP);
-                return PolymerItemUtils.getRealItemStack(content, lookup);
+                return PolymerItemUtils.getRealItemStack(content, context, lookup);
             }
             return content;
         }, content -> { // Encode

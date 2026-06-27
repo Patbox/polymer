@@ -3,15 +3,17 @@ package eu.pb4.polymer.autohost.impl;
 import com.mojang.serialization.JsonOps;
 import eu.pb4.polymer.autohost.api.AutoHostUtils;
 import eu.pb4.polymer.autohost.api.ResourcePackDataProvider;
-import eu.pb4.polymer.autohost.impl.providers.*;
+import eu.pb4.polymer.autohost.impl.providers.EmptyProvider;
+import eu.pb4.polymer.autohost.impl.providers.ExternalProvider;
+import eu.pb4.polymer.autohost.impl.providers.NettyProvider;
+import eu.pb4.polymer.autohost.impl.providers.StandaloneWebServerProvider;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CommonPacketListenerImplExt;
 import eu.pb4.polymer.resourcepack.api.OutputGenerator;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
-import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
@@ -21,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static net.minecraft.commands.Commands.literal;
@@ -29,6 +32,7 @@ public class AutoHost implements ModInitializer {
     public static final Map<Identifier, Supplier<ResourcePackDataProvider>> TYPES = new HashMap<>();
     public static final List<MinecraftServer.ServerResourcePackInfo> GLOBAL_RESOURCE_PACKS = new ArrayList<>();
     public static final Map<String, Path> FILES = new HashMap<>();
+    public static final String DEFAULT_PATH = AutoHostUtils.getPathFromId(AutoHostUtils.DEFAULT_PACK_ID);
     public static AutoHostConfig config = new AutoHostConfig();
     public static Component message = Component.empty();
     public static Component disconnectMessage = Component.empty();
@@ -36,8 +40,6 @@ public class AutoHost implements ModInitializer {
     public static Component dialogDefaultBody = Component.empty();
     public static Component dialogHeader = Component.empty();
     public static ResourcePackDataProvider provider = EmptyProvider.INSTANCE;
-
-    public static final String DEFAULT_PATH = AutoHostUtils.getPathFromId(AutoHostUtils.DEFAULT_PACK_ID);
     public static boolean generateWhenDisabled = false;
     public static OutputGenerator.Result mainPackResult;
 
@@ -114,7 +116,8 @@ public class AutoHost implements ModInitializer {
 
     public static void startResourcePackGeneration(MinecraftServer minecraftServer) {
         try {
-            PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendSystemMessage, (_) -> {});
+            PolymerResourcePackMod.generateAndCall(minecraftServer, true, minecraftServer::sendSystemMessage, (_) -> {
+            });
         } catch (Throwable e) {
             CommonImpl.LOGGER.warn("Failed to generate the resource pack!", e);
         }
@@ -184,10 +187,7 @@ public class AutoHost implements ModInitializer {
             }));
         });
 
-        AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.register(((provider1, context, consumer) -> {
-            if (mainPackResult == null) return;
-            consumer.accept(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), provider1.getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID, mainPackResult.hash()), mainPackResult.hash()));
-        }));
+        AutoHostUtils.SEND_RESOURCE_PACK_COLLECTOR.register(this::sendRegularPacks);
 
         AutoHostUtils.RESOURCE_PACKS_READY.register(((_, _) -> mainPackResult != null));
 
@@ -200,5 +200,11 @@ public class AutoHost implements ModInitializer {
                 mainPackResult = result;
             }
         });
+    }
+
+    private void sendRegularPacks(ResourcePackDataProvider resourcePackDataProvider, PacketContext context, Consumer<MinecraftServer.ServerResourcePackInfo> consumer) {
+        if (mainPackResult == null) return;
+        consumer.accept(ResourcePackDataProvider.createProperties(PolymerResourcePackUtils.getMainUuid(), provider.getFilePath(context, AutoHostUtils.DEFAULT_PACK_ID, mainPackResult.hash()), mainPackResult.hash()));
+        GLOBAL_RESOURCE_PACKS.forEach(consumer);
     }
 }

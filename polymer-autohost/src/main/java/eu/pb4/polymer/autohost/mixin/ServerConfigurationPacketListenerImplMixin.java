@@ -46,7 +46,6 @@ public abstract class ServerConfigurationPacketListenerImplMixin extends ServerC
             if (ready) {
                 x.addAll(AutoHost.provider.getProperties(this.connection.getPacketContext()));
             }
-            x.addAll(AutoHost.GLOBAL_RESOURCE_PACKS);
 
             this.configurationTasks.add(new AutoHostTask(x, !ready, () -> AutoHost.provider.getProperties(this.connection.getPacketContext()), () -> AutoHost.provider.isReady(this.connection.getPacketContext())));
         }

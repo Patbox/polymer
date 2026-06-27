@@ -23,7 +23,7 @@ public class ItemStackTemplateMixin {
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var context = PacketContext.orElseThrow();
                 var lookup = context.orElse(PacketContext.REGISTRY_ACCESS, PolymerImplUtils.FALLBACK_LOOKUP);
-                return ItemStackTemplate.fromNonEmptyStack(PolymerItemUtils.getRealItemStack(content.create(), lookup));
+                return ItemStackTemplate.fromNonEmptyStack(PolymerItemUtils.getRealItemStack(content.create(), context, lookup));
             }
             return content;
         }, content -> { // Encode
@@ -44,7 +44,7 @@ public class ItemStackTemplateMixin {
             return content;
         }, (buf, content) -> { // Decode
             if (PolymerCommonUtils.isServerNetworkingThread()) {
-                return ItemStackTemplate.fromNonEmptyStack(PolymerItemUtils.getRealItemStack(content.create(), buf.registryAccess()));
+                return ItemStackTemplate.fromNonEmptyStack(PolymerItemUtils.getRealItemStack(content.create(), PacketContext.orElseThrow(), buf.registryAccess()));
             }
             return content;
         });

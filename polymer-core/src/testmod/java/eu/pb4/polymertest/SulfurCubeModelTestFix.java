@@ -6,6 +6,7 @@ import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.cubemob.SulfurCube;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector3f;
 
 public class SulfurCubeModelTestFix extends ElementHolder {
     private final SulfurCube entity;
@@ -15,6 +16,7 @@ public class SulfurCubeModelTestFix extends ElementHolder {
         super();
         this.entity = self;
         this.item = new ItemDisplayElement();
+        this.item.setTranslation(new Vector3f(0, -0.5f, 0));
         this.item.setSendPositionUpdates(false);
         this.addPassengerElement(this.item);
     }

@@ -27,7 +27,7 @@ public class ItemCostMixin {
         }, (buf, tradedItem) -> {
             if (PolymerCommonUtils.isServerNetworkingThread()) {
                 var input = tradedItem.itemStack();
-                var stack = PolymerItemUtils.getRealItemStack(input, buf.registryAccess());
+                var stack = PolymerItemUtils.getRealItemStack(input, PacketContext.orElseThrow(), buf.registryAccess());
                 return stack != input ? new ItemCost(stack.typeHolder(), stack.getCount(), DataComponentExactPredicate.allOf(new ComponentChangesMap(stack.getComponentsPatch()))) : tradedItem;
             }
             return tradedItem;
