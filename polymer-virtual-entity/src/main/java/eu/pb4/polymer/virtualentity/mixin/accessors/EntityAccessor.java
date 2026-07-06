@@ -1,14 +1,16 @@
 package eu.pb4.polymer.virtualentity.mixin.accessors;
 
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
@@ -86,4 +88,7 @@ public interface EntityAccessor {
     static EntityDataAccessor<Boolean> getDATA_SILENT() {
         throw new UnsupportedOperationException();
     }
+
+    @Invoker
+    AABB callMakeBoundingBox(final Vec3 position);
 }

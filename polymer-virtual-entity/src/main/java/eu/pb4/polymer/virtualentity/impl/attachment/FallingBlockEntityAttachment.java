@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 public class FallingBlockEntityAttachment extends EntityAttachment implements BlockAwareAttachment {
     public FallingBlockEntityAttachment(ElementHolder holder, FallingBlockEntity entity) {
         super(holder, entity, true);
+        this.attach();
     }
 
     @Override
