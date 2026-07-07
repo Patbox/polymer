@@ -30,7 +30,7 @@ public class CreativeModeTabsMixin {
     }
 
     @Environment(EnvType.SERVER)
-    @Inject(method = "lambda$bootstrap$14", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/CreativeModeTab$Output;acceptAll(Ljava/util/Collection;)V", shift = At.Shift.BEFORE), require = 0)
+    @Inject(method = "lambda$bootstrap$16", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/CreativeModeTab$Output;acceptAll(Ljava/util/Collection;)V", shift = At.Shift.BEFORE), require = 0)
     private static void polymerCore$injectServerSearch(Registry<CreativeModeTab> registry, CreativeModeTab.ItemDisplayParameters displayContext, CreativeModeTab.Output entries, CallbackInfo ci, @Local Set<ItemStack> set) {
         for (var group : PolymerCreativeModeTabUtils.REGISTRY) {
             set.addAll(group.getSearchTabDisplayItems());
