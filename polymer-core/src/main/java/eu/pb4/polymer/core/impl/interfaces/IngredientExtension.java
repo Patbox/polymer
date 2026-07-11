@@ -88,11 +88,6 @@ public interface IngredientExtension {
                 return;
             }
 
-            var polymerEntries = value.items().filter(x -> PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, x.value()) instanceof PolymerItem).findAny();
-            if (polymerEntries.isEmpty()) {
-                original.encode(buf, value);
-                return;
-            }
             buf.writeVarInt(IngredientExtension.MAGIC_NUMBER);
 
             var entries = ((IngredientAccessor) (Object) value).getEntries();
@@ -188,12 +183,6 @@ public interface IngredientExtension {
             }
             var extendedIngredients = PolymerNetworking.getMetadata(context, ClientMetadataKeys.EXTENDED_RECIPE_INGREDIENTS, ByteTag.TYPE);
             if (extendedIngredients == null || extendedIngredients.byteValue() == 0) {
-                original.encode(buf, value);
-                return;
-            }
-
-            var polymerEntries = value.orElseThrow().items().filter(x -> PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, x.value()) instanceof PolymerItem).findAny();
-            if (polymerEntries.isEmpty()) {
                 original.encode(buf, value);
                 return;
             }

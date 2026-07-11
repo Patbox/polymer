@@ -50,7 +50,7 @@ public final class BlockResourceCreator {
     BlockResourceCreator(ResourcePackCreator creator, BlockExtBlockMapper blockMapper, Runnable onRegister) {
         this.states = new EnumMap<>(BlockModelType.class);
         DefaultModelData.USABLE_STATES.forEach((key, value) -> this.states.put(key, new ReferenceArrayList<>(value)));
-        this.models = new IdentityHashMap<>(DefaultModelData.MODELS);
+        this.models = new IdentityHashMap<>();
         this.creator = creator;
         this.blockMapper = blockMapper;
         this.onRegister = onRegister;
@@ -91,7 +91,7 @@ public final class BlockResourceCreator {
             x = requestBlockImpl(type, predicate, true, Either.left(new PolymerBlockModel[]{EMPTY}));
         }
         if (x == null) {
-            x = requestBlockImpl(type, y -> true, true, Either.left(new PolymerBlockModel[]{EMPTY}));
+            x = requestBlockImpl(type, _ -> true, true, Either.left(new PolymerBlockModel[]{EMPTY}));
         }
         if (x == null) {
             return null;

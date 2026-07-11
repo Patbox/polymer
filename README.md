@@ -21,8 +21,8 @@ Any mod using this library shouldn't be required on the client side! However, as
 are few small quality of life things added with it. So you might want to recommend it or include with
 your mod pack.
 
-If you have a server and polymer based mods you are using include a resource pack, you might want to install
-"bundled/packed/all" version of polymer contains AutoHost module, allowing you to set up automatic building and sending of packs
+If you have a server and the Polymer based mods you are using include a resource pack, you might want to install
+"bundled/packed/all" version of Polymer, as it contains the AutoHost module, allowing you to set up automatic building and sending of packs
 to clients. See [this page](https://polymer.pb4.eu/latest/user/resource-pack-hosting) to learn about the setup.
 
 ## For mod developers:

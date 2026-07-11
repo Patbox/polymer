@@ -19,6 +19,8 @@ public enum BlockModelType {
     VINES,
     PLANT,
     BIOME_PLANT,
+    PROPAGULE,
+    PROPAGULE_WATERLOGGED,
     KELP,
     CACTUS,
     TRIPWIRE,
@@ -140,6 +142,38 @@ public enum BlockModelType {
     BARS_EAST_SOUTH_WEST_WATERLOGGED,
     BARS_NORTH_EAST_SOUTH_WEST,
     BARS_NORTH_EAST_SOUTH_WEST_WATERLOGGED,
+    // Fire
+    FIRE,
+    FIRE_UP,
+    FIRE_NORTH,
+    FIRE_NORTH_UP,
+    FIRE_SOUTH,
+    FIRE_SOUTH_UP,
+    FIRE_NORTH_SOUTH,
+    FIRE_NORTH_SOUTH_UP,
+    FIRE_WEST,
+    FIRE_WEST_UP,
+    FIRE_NORTH_WEST,
+    FIRE_NORTH_WEST_UP,
+    FIRE_SOUTH_WEST,
+    FIRE_SOUTH_WEST_UP,
+    FIRE_NORTH_SOUTH_WEST,
+    FIRE_NORTH_SOUTH_WEST_UP,
+    FIRE_EAST,
+    FIRE_EAST_UP,
+    FIRE_NORTH_EAST,
+    FIRE_NORTH_EAST_UP,
+    FIRE_EAST_SOUTH,
+    FIRE_EAST_SOUTH_UP,
+    FIRE_NORTH_EAST_SOUTH,
+    FIRE_NORTH_EAST_SOUTH_UP,
+    FIRE_EAST_WEST,
+    FIRE_EAST_WEST_UP,
+    FIRE_NORTH_EAST_WEST,
+    FIRE_NORTH_EAST_WEST_UP,
+    FIRE_EAST_SOUTH_WEST,
+    FIRE_EAST_SOUTH_WEST_UP,
+    FIRE_NORTH_EAST_SOUTH_WEST,
     // Stairs
     STAIRS_NORTH_TOP_STRAIGHT,
     STAIRS_NORTH_TOP_STRAIGHT_WATERLOGGED,
@@ -415,6 +449,33 @@ public enum BlockModelType {
         if (west) set.add(Direction.WEST);
         if (east) set.add(Direction.EAST);
         return getBars(waterlogged, set);
+    }
+
+    public static BlockModelType getFire(Direction... directions) {
+        return getFire(List.of(directions));
+    }
+    public static BlockModelType getFire(Collection<Direction> directions) {
+        int id = 0;
+
+        for (var dir : directions) {
+            if (dir != Direction.DOWN) {
+                id |= 1 << (dir.get3DDataValue() - 1);
+            }/* else {
+                throw new IllegalArgumentException("Down direction is not supported! You likely want empty direction list!");
+            }*/
+        }
+
+        return BlockModelType.values()[FIRE.ordinal() + id];
+    }
+
+    public static BlockModelType getFire(boolean up, boolean north, boolean south, boolean west, boolean east) {
+        var set = EnumSet.noneOf(Direction.class);
+        if (north) set.add(Direction.NORTH);
+        if (south) set.add(Direction.SOUTH);
+        if (west) set.add(Direction.WEST);
+        if (east) set.add(Direction.EAST);
+        if (up) set.add(Direction.UP);
+        return getFire(set);
     }
 
     public static BlockModelType getStairs(Direction direction, Half blockHalf, StairsShape shape, boolean waterlogged) {

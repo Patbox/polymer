@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -137,10 +138,15 @@ public class TestInitializer implements ModInitializer {
         var block = Registry.register(BuiltInRegistries.BLOCK, id,
                 new EmptyBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK).setId(ResourceKey.create(Registries.BLOCK, id)), type));
 
+        var item = block.getPolymerBlockState(block.defaultBlockState(), null).getBlock().asItem();
+        if (item == Items.AIR) {
+            item = Items.FEATHER;
+        }
+
         Registry.register(BuiltInRegistries.ITEM, id, new PolymerBlockItem(block, new Item.Properties()
                 .setId(ResourceKey.create(Registries.ITEM, id))
                         //.modelId(block.getPolymerBlockState(block.getDefaultState(), PacketContext.create()).getBlock().getRegistryEntry().registryKey().getValue())
-                        .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true),
-                block.getPolymerBlockState(block.defaultBlockState(), null).getBlock().asItem()));
+                        .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true), item
+                ));
     }
 }

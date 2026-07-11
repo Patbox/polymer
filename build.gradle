@@ -151,7 +151,7 @@ void setupRepositories(RepositoryHandler repositories) {
 }
 
 
-/*curseforge {
+curseforge {
     if (System.getenv("CURSEFORGE")) {
         apiKey = System.getenv("CURSEFORGE")
 
@@ -183,7 +183,7 @@ void setupRepositories(RepositoryHandler repositories) {
     jar {
         finalizedBy project.tasks.curseforge
     }
-}*/
+}
 
 if (System.getenv("MODRINTH")) {
     modrinth {

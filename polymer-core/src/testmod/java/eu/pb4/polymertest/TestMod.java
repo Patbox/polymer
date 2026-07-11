@@ -19,6 +19,7 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.blockstate.BlockStateAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.font.FontAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.model.ItemModel;
@@ -101,6 +102,7 @@ import net.minecraft.world.level.block.TntBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jspecify.annotations.Nullable;
@@ -680,11 +682,17 @@ public class TestMod implements ModInitializer {
         BlockWithElementHolder.registerOverlay(Blocks.NOTE_BLOCK, new NoteblockHolderCreator());
 
         new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             var vanillaJar = PolymerCommonUtils.getClientJarRoot();
             var itemsBase = vanillaJar.resolve("/assets/minecraft/items/");
             var modelsBase = vanillaJar.resolve("/assets/minecraft/models/");
             var atlasBase = vanillaJar.resolve("/assets/minecraft/atlases/");
             var fontBase = vanillaJar.resolve("/assets/minecraft/font/");
+            var blockStateBase = vanillaJar.resolve("/assets/minecraft/blockstates/");
 
             try {
                 var value = new MutableInt();
@@ -750,7 +758,7 @@ public class TestMod implements ModInitializer {
                     }
                 });
                 System.out.println("Parsed " + value + " out of " + count + " models!");
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
 
@@ -772,18 +780,72 @@ public class TestMod implements ModInitializer {
                     }
                 });
                 System.out.println("Parsed " + value + " out of " + count + " atlases!");
-
-
-                try {
-                    var asset = SoundsAsset.fromJson(new String(TestMod.class.getResourceAsStream("/test/sounds.json").readAllBytes(), StandardCharsets.UTF_8));
-                    System.out.println("Parsed sounds.json!");
-                    value.increment();
-                } catch (Throwable e) {
-                    System.err.println("Error while parsing file: sounds.json");
-                    e.printStackTrace();
-                }
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+
+            try {
+                var value = new MutableInt();
+                var count = new MutableInt();
+                for (var block : BuiltInRegistries.BLOCK) {
+                    var id = BuiltInRegistries.BLOCK.getKey(block);
+
+                    if (!id.getNamespace().equals("minecraft")) {
+                        continue;
+                    }
+
+                    var path = blockStateBase.resolve(id.getPath() + ".json");
+
+                    count.increment();
+                    try {
+                        var asset = BlockStateAsset.fromJson(Files.readString(path));
+
+                        BlockStateModelManager.addBlock(id, block, asset);
+
+                        value.increment();
+                    } catch (Throwable e) {
+                        System.err.println("Error while parsing file: " + path);
+                        e.printStackTrace();
+                    }
+                };
+                System.out.println("Parsed " + value + " out of " + count + " blockstates!");
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+
+            try {
+                var asset = SoundsAsset.fromJson(new String(TestMod.class.getResourceAsStream("/test/sounds.json").readAllBytes(), StandardCharsets.UTF_8));
+                System.out.println("Parsed sounds.json!");
+            } catch (Throwable e) {
+                System.err.println("Error while parsing file: sounds.json");
+                e.printStackTrace();
+            }
+
+            var map = new HashMap<Object, Set<BlockState>>();
+
+            BlockStateModelManager.MAP.forEach((state, model) -> {
+                state = state.trySetValue(BlockStateProperties.WATERLOGGED, false);
+
+                map.computeIfAbsent(model, _ -> new HashSet<>()).add(state);
+            });
+
+            var builder = new StringBuilder();
+
+            for (var value : map.values()) {
+                if (value.size() > 1) {
+                    builder.append("====").append('\n');
+                    for (var v : value) {
+                        builder.append(v.toString()).append("\n");
+                    }
+
+                    builder.append("\n");
+                }
+            }
+
+            try {
+                Files.writeString(FabricLoader.getInstance().getGameDir().resolve("equal_models.txt"), builder.toString());
+            } catch (IOException e) {
+
             }
 
 

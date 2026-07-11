@@ -24,7 +24,7 @@ import java.util.Set;
 @Mixin(Ingredient.class)
 public class IngredientMixin implements IngredientExtension {
     @Unique
-    private Set<Identifier> polymerItemIds = Set.of();
+    private Set<Identifier> polymerItemIds = null;
 
     @Unique
     private SlotDisplay polymerItems = null;
@@ -46,9 +46,11 @@ public class IngredientMixin implements IngredientExtension {
 
     @Inject(method = "test(Lnet/minecraft/world/item/ItemStack;)Z", at = @At("HEAD"), cancellable = true)
     private void polymericTest(ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
-        var id = PolymerItemUtils.getPolymerIdentifier(itemStack);
-        if (id != null) {
-            cir.setReturnValue(this.polymerItemIds.contains(id));
+        if (this.polymerItemIds != null) {
+            var id = PolymerItemUtils.getPolymerIdentifier(itemStack);
+            if (id != null) {
+                cir.setReturnValue(this.polymerItemIds.contains(id));
+            }
         }
     }
 

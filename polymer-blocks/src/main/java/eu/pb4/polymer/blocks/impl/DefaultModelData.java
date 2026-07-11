@@ -20,7 +20,6 @@ import java.util.function.Predicate;
 public class DefaultModelData {
     public static final Map<BlockModelType, List<BlockState>> USABLE_STATES = new EnumMap<>(BlockModelType.class);
     public static final Map<BlockState, BlockState> SPECIAL_REMAPS = new IdentityHashMap<>();
-    public static final Map<BlockState, Either<PolymerBlockModel[], MultiPolymerBlockModel>> MODELS = new IdentityHashMap<>();
 
     private static final Predicate<BlockState> WATERLOGGED_PREDICATE = (state -> state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED));
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED)));
@@ -84,22 +83,16 @@ public class DefaultModelData {
         }
         generateDefault(BlockModelType.BIOME_COLORED_LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
         generateDefault(BlockModelType.BIOME_COLORED_LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
-        generateDefault(BlockModelType.LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
-        generateDefault(BlockModelType.LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES);
+        generateDefault(BlockModelType.LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.PALE_OAK_LEAVES);
+        generateDefault(BlockModelType.LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.PALE_OAK_LEAVES);
         generateDefault(BlockModelType.KELP, Blocks.KELP);
         generateDefault(BlockModelType.CACTUS, Blocks.CACTUS);
 
         {
-            var farmland = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse("minecraft:block/farmland"))};
-            MODELS.put(Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 1), Either.left(farmland));
-            MODELS.put(Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 7), Either.left(new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse("minecraft:block/farmland_moist"))}));
-
-
             var list = new ReferenceArrayList<BlockState>();
             for (int i = 2; i < 7; i++) {
                 var state = Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, i);
                 list.add(state);
-                MODELS.put(state, Either.left(farmland));
             }
 
             USABLE_STATES.put(BlockModelType.FARMLAND, list);
@@ -110,22 +103,14 @@ public class DefaultModelData {
 
             for (var block : new Block[]{Blocks.TWISTING_VINES, Blocks.WEEPING_VINES}) {
                 var id = BuiltInRegistries.BLOCK.getKey(block);
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse(id.getNamespace() + ":block/" + id.getPath()))};
-                for (var state : block.getStateDefinition().getPossibleStates()) {
-                    MODELS.put(state, Either.left(model));
-                }
-
                 vines.addAll(block.getStateDefinition().getPossibleStates());
                 vines.remove(block.defaultBlockState());
             }
 
             {
                 var id = BuiltInRegistries.BLOCK.getKey(Blocks.CAVE_VINES);
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse(id.getNamespace() + ":block/" + id.getPath()))};
-                var model2 = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse(id.getNamespace() + ":block/" + id.getPath() + "_lit"))};
                 for (var state : Blocks.CAVE_VINES.getStateDefinition().getPossibleStates()) {
                     var berries = state.getValue(CaveVines.BERRIES);
-                    MODELS.put(state, Either.left(berries ? model2 : model));
                     SPECIAL_REMAPS.put(state, Blocks.CAVE_VINES.defaultBlockState().setValue(CaveVines.BERRIES, berries));
                 }
 
@@ -142,12 +127,6 @@ public class DefaultModelData {
             var plant = new ReferenceArrayList<BlockState>();
 
             {
-                var id = BuiltInRegistries.BLOCK.getKey(Blocks.SUGAR_CANE);
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse(id.getNamespace() + ":block/" + id.getPath()))};
-                for (var state : Blocks.SUGAR_CANE.getStateDefinition().getPossibleStates()) {
-                    MODELS.put(state, Either.left(model));
-                }
-
                 plant.addAll(Blocks.SUGAR_CANE.getStateDefinition().getPossibleStates());
                 plant.remove(Blocks.SUGAR_CANE.defaultBlockState());
 
@@ -159,18 +138,43 @@ public class DefaultModelData {
             var plant = new ReferenceArrayList<BlockState>();
 
             for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING, Blocks.CHERRY_SAPLING, Blocks.PALE_OAK_SAPLING}) {
-                var id = BuiltInRegistries.BLOCK.getKey(block);
-
-                var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse(id.getNamespace() + ":block/" + id.getPath()))};
-                for (var state : block.getStateDefinition().getPossibleStates()) {
-                    MODELS.put(state, Either.left(model));
-                }
-
                 plant.addAll(block.getStateDefinition().getPossibleStates());
                 plant.remove(block.defaultBlockState());
             }
 
             USABLE_STATES.put(BlockModelType.PLANT, plant);
+        }
+
+        {
+            for (var waterlogged : new boolean[] { false, true } ) {
+                var plant = new ReferenceArrayList<BlockState>();
+
+                var def = Blocks.MANGROVE_PROPAGULE.defaultBlockState()
+                        .setValue(BlockStateProperties.WATERLOGGED, waterlogged);
+
+                for (var stage = 0; stage <= 1; stage++) {
+                    for (var age = 0; age <= 4; age++) {
+                        var state = def.setValue(MangrovePropaguleBlock.AGE, age)
+                                .setValue(MangrovePropaguleBlock.STAGE, stage);
+
+                        if (state != def) {
+                            plant.add(state);
+                            SPECIAL_REMAPS.put(state, def);
+                        }
+                    }
+                }
+                {
+                    var state = def
+                            .setValue(MangrovePropaguleBlock.HANGING, true)
+                            .setValue(MangrovePropaguleBlock.AGE, 4)
+                            .setValue(MangrovePropaguleBlock.STAGE, 1);
+
+                    plant.add(state);
+                    SPECIAL_REMAPS.put(state, state.setValue(MangrovePropaguleBlock.STAGE, 0));
+                }
+
+                USABLE_STATES.put(waterlogged ? BlockModelType.PROPAGULE_WATERLOGGED : BlockModelType.PROPAGULE, plant);
+            }
         }
 
         {
@@ -447,6 +451,47 @@ public class DefaultModelData {
                     SPECIAL_REMAPS.put(state, unwaxed.withPropertiesOf(state));
                 }
             });
+        }
+
+        {
+            record Bound(BlockModelType type, List<BooleanProperty> properties, ReferenceArrayList<BlockState> list) {
+            }
+            var bounds = new ArrayList<Bound>();
+
+            var properties = new BooleanProperty[]{
+                    FireBlock.UP,
+                    FireBlock.NORTH,
+                    FireBlock.SOUTH,
+                    FireBlock.WEST,
+                    FireBlock.EAST,
+            };
+
+            for (var i = 0; i < 32; i++) {
+                var b = new Bound(BlockModelType.values()[BlockModelType.FIRE.ordinal() + i], new ArrayList<>(), new ReferenceArrayList<>());
+                USABLE_STATES.put(b.type(), b.list());
+
+                for (int a = 0; a < properties.length; a++) {
+                    if (((i >> a) & 1) == 1) {
+                        b.properties.add(properties[a]);
+                    }
+                }
+
+                bounds.add(b);
+            }
+
+            for (var block : List.of(Blocks.FIRE)) {
+                for (var b : bounds) {
+                    var state = block.defaultBlockState().setValue(FireBlock.AGE, 0);
+                    for (var p : b.properties) {
+                        state = state.setValue(p, true);
+                    }
+                    for (var age = 1; age <= 15; age++) {
+                        var agedState = state.setValue(FireBlock.AGE, age);
+                        b.list.add(agedState);
+                        SPECIAL_REMAPS.put(agedState, state);
+                    }
+                }
+            }
         }
 
         {
@@ -902,7 +947,6 @@ public class DefaultModelData {
 
     private static void addScaffolding(boolean bottom, boolean waterlogged, BlockModelType modelType) {
 
-        var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse("minecraft:block/scaffolding_" + (bottom ? "unstable" : "stable")))};
         var list = USABLE_STATES.computeIfAbsent(modelType, x -> new ReferenceArrayList<>());
 
         for (int i = 0; i <= 7; i++) {
@@ -910,8 +954,6 @@ public class DefaultModelData {
                     .setValue(ScaffoldingBlock.BOTTOM, bottom)
                     .setValue(ScaffoldingBlock.WATERLOGGED, waterlogged)
                     .setValue(ScaffoldingBlock.DISTANCE, i);
-
-            MODELS.put(state, Either.left(model));
 
             if (i != 7 && !(bottom && i == 0)) {
                 list.add(state);
@@ -957,9 +999,7 @@ public class DefaultModelData {
 
         for (var block : blocks) {
             var id = BuiltInRegistries.BLOCK.getKey(block);
-            var model = new PolymerBlockModel[]{PolymerBlockModel.of(Identifier.parse(id.getNamespace() + ":block/" + id.getPath()))};
             for (var state : block.getStateDefinition().getPossibleStates()) {
-                MODELS.put(state, Either.left(model));
                 if (shouldInclude.test(state)) {
                     list.add(state);
                 }
