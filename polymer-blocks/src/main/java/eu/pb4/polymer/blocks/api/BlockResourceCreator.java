@@ -1,6 +1,7 @@
 package eu.pb4.polymer.blocks.api;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
@@ -219,7 +220,7 @@ public final class BlockResourceCreator {
 
         }
 
-        for (var keyVal : keys) {
+        for (var keyVal : keys.stream().sorted(Map.Entry.comparingByKey()).toList()) {
             var key = keyVal.getKey();
             try {
                 var modelObject = new JsonObject();
@@ -237,7 +238,7 @@ public final class BlockResourceCreator {
 
 
                 if (multipart.containsKey(key)) {
-                    multipart.get(key).forEach(multipartObject::add);
+                    multipart.get(key).stream().sorted(Comparator.comparing(JsonObject::toString)).forEach(multipartObject::add);
 
                     var vanillaData = builder.getDataOrSource(key);
                     if (vanillaData != null) {
@@ -264,7 +265,10 @@ public final class BlockResourceCreator {
                                 }
 
                                 var ban2 = new JsonObject();
-                                ban2.add("AND", bannedStates.get(key));
+                                ban2.add("AND", bannedStates.get(key).asList().stream()
+                                        .sorted(Comparator.comparing(JsonElement::toString))
+                                        .collect(JsonArray::new, JsonArray::add, JsonArray::addAll)
+                                );
                                 list.add(ban2);
 
                                 var when = new JsonObject();

@@ -42,7 +42,7 @@ public record PackMcMeta(PackMetadataSection pack, Optional<ResourceFilterSectio
         );
         private final List<IdentifierPattern> filter = new ArrayList<>();
         private final List<OverlayMetadataSection.OverlayEntry> overlay = new ArrayList<>();
-        private final Map<String, LanguageDefinition> language = new HashMap<>();
+        private final Map<String, LanguageDefinition> language = new LinkedHashMap<>();
 
         public Builder metadata(PackMetadataSection metadata) {
             this.metadata = metadata;
@@ -76,8 +76,8 @@ public record PackMcMeta(PackMetadataSection pack, Optional<ResourceFilterSectio
 
         public PackMcMeta build() {
             return new PackMcMeta(this.metadata,
-                    this.filter.isEmpty() ? Optional.empty() : Optional.of(new ResourceFilterSection(this.filter)),
-                    this.overlay.isEmpty() ? Optional.empty() : Optional.of(new OverlayMetadataSection(this.overlay)),
+                    this.filter.isEmpty() ? Optional.empty() : Optional.of(new ResourceFilterSection(this.filter.stream().sorted(Comparator.comparing(Object::toString)).toList())),
+                    this.overlay.isEmpty() ? Optional.empty() : Optional.of(new OverlayMetadataSection(this.overlay.stream().sorted(Comparator.comparing(Object::toString)).toList())),
                     this.language.isEmpty() ? Optional.empty() : Optional.of(new LanguageResourceMetadata(this.language))
             );
         }

@@ -17,6 +17,7 @@ public class PolymerResourcePackImpl {
     public static final String FILE_NAME;
     public static final boolean IGNORE_PACK_VERSION;
     public static final boolean LOG_ERRORS;
+    public static final boolean LOG_GENERATED_PACK_SHA1;
 
 
     static {
@@ -30,6 +31,7 @@ public class PolymerResourcePackImpl {
 
         FORCE_REQUIRE = config.markResourcePackAsRequiredByDefault;
         LOG_ERRORS = config.logErrors || FabricLoader.getInstance().isDevelopmentEnvironment();
+        LOG_GENERATED_PACK_SHA1 = config.logGeneratedPackSha1;
     }
 
     public static Config loadConfig() {
@@ -61,5 +63,7 @@ public class PolymerResourcePackImpl {
         public String _c10 = "Toggles logging of non-critical errors when generating the pack.";
         @SerializedName("log_errors")
         public boolean logErrors = true;
+        @SerializedName("log_generated_pack_sha1")
+        public boolean logGeneratedPackSha1 = true;
     }
 }

@@ -79,7 +79,7 @@ public interface ResourcePackBuilder {
                 }
             }
 
-            try (var str = Files.list(root)) {
+            try (var str = Files.list(root).sorted()) {
                 String finalSourceName = sourceName;
                 str.forEach(file -> {
                     try {

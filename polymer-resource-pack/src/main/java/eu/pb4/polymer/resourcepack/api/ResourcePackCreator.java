@@ -155,15 +155,15 @@ public final class ResourcePackCreator {
 
         var successful = true;
 
-        for (var path : this.sourcePaths) {
+        for (var path : this.sourcePaths.stream().sorted(Comparator.naturalOrder()).toList()) {
             successful = builder.copyFromPath(path) && successful;
         }
 
-        for (String modId : this.modIdsNoCopy) {
+        for (String modId : this.modIdsNoCopy.stream().sorted(Comparator.naturalOrder()).toList()) {
             successful = builder.addAssetsSource(modId) && successful;
         }
 
-        for (String modId : this.modIds) {
+        for (String modId : this.modIds.stream().sorted(Comparator.naturalOrder()).toList()) {
             successful = builder.copyAssets(modId) && successful;
         }
 

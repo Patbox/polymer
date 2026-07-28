@@ -25,6 +25,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -193,7 +194,7 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
             if (Files.isDirectory(basePath)) {
                 status.accept("action:copy_path_start/" + sourceName);
                 Path finalBasePath = basePath;
-                try (var str = Files.walk(basePath)) {
+                try (var str = Files.walk(basePath).sorted()) {
                     str.forEach((file) -> {
                         var relative = finalBasePath.relativize(file);
                         var path = targetPrefix + relative.toString().replace("\\", "/");
@@ -246,7 +247,7 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
             this.modsList.add(container);
             try {
                 for (var rootPaths : container.getRootPaths()) {
-                    try (var str = Files.list(rootPaths)) {
+                    try (var str = Files.list(rootPaths).sorted()) {
                         str.forEach(file -> {
                             try {
                                 var name = file.getFileName().toString();
@@ -272,7 +273,7 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
                     for (var x : baseToCopy) {
                         Path assets = rootPaths.resolve(x);
                         if (Files.exists(assets)) {
-                            try (var str = Files.walk(assets)) {
+                            try (var str = Files.walk(assets).sorted()) {
                                 str.forEach((file) -> {
                                     var relative = assets.relativize(file);
                                     var path = relative.toString().replace("\\", "/");
@@ -324,7 +325,9 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
 
     @Override
     public void forEachResource(BiConsumer<String,  PackResource> consumer) {
-        Map.copyOf(this.fileMap).forEach(consumer);
+        var sorted = new ArrayList<>(this.fileMap.entrySet());
+        sorted.sort(Map.Entry.comparingByKey());
+        sorted.forEach(e -> consumer.accept(e.getKey(), e.getValue()));
     }
 
     @Override
@@ -438,14 +441,24 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
 
                 status.accept("action:merge_files_start");
 
-                for (var entry : this.atlasDefinitions.entrySet()) {
+                var sortedAtlas = new ArrayList<>(this.atlasDefinitions.entrySet());
+                sortedAtlas.sort(Map.Entry.comparingByKey());
+                for (var entry : sortedAtlas) {
                     var obj = new JsonObject();
                     obj.add("sources", entry.getValue());
                     this.fileMap.put(entry.getKey(), PackResource.of(obj.toString().getBytes(StandardCharsets.UTF_8)));
                 }
 
-                for (var entry : this.objectMergeDefinitions.entrySet()) {
-                    this.fileMap.put(entry.getKey(), PackResource.of(entry.getValue().toString().getBytes(StandardCharsets.UTF_8)));
+                var sortedObjects = new ArrayList<>(this.objectMergeDefinitions.entrySet());
+                sortedObjects.sort(Map.Entry.comparingByKey());
+                for (var entry : sortedObjects) {
+                    var sortedJson = new JsonObject();
+                    var keys = new ArrayList<>(entry.getValue().keySet());
+                    keys.sort(String::compareTo);
+                    for (var key : keys) {
+                        sortedJson.add(key, entry.getValue().get(key));
+                    }
+                    this.fileMap.put(entry.getKey(), PackResource.of(sortedJson.toString().getBytes(StandardCharsets.UTF_8)));
                 }
 
                 this.fileMap.put(AssetPaths.PACK_METADATA, PackResource.of(this.packMetadata.build().asString().getBytes(StandardCharsets.UTF_8)));
@@ -519,7 +532,7 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
         try (var outputStream = new ZipOutputStream(new BufferedOutputStream(
                 new HashingStream(Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), Hashing.sha1(), hashCode::setValue), 65536)
         )) {
-            for (var entry : resources) {
+            for (var entry : resources.stream().sorted(Map.Entry.comparingByKey()).toList()) {
                 var path = entry.getKey();
                 var resource = entry.getValue();
 
@@ -532,6 +545,9 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
 
                 var zipEntry = new ZipEntry(path);
                 zipEntry.setTime(0);
+                zipEntry.setLastAccessTime(FileTime.fromMillis(0));
+                zipEntry.setLastModifiedTime(FileTime.fromMillis(0));
+                zipEntry.setCreationTime(FileTime.fromMillis(0));
                 outputStream.putNextEntry(zipEntry);
                 if (resource != null) {
                     resource.getStream().transferTo(outputStream);
@@ -543,6 +559,8 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
             LOGGER.warn("Failed to write the zip file!", e);
             return null;
         }
+        if (PolymerResourcePackImpl.LOG_GENERATED_PACK_SHA1)
+            LOGGER.info("Generated pack SHA1: {}", hashCode);
         status.accept("action:write_zip_end");
         return new OutputGenerator.Result(out, hashCode.toString(), status.hadIssues());
     }

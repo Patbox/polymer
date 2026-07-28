@@ -3,7 +3,6 @@ package eu.pb4.polymer.resourcepack.impl;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.resourcepack.api.OutputGenerator;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.api.ResourcePackStatusConsumer;
@@ -11,7 +10,6 @@ import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.minecraft.ChatFormatting;
@@ -36,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -126,7 +125,9 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                             continue;
                         }
                         try (var stream = Files.newDirectoryStream(folderPath, parts[parts.length - 1])){
-                            stream.forEach(zipReader);
+                            StreamSupport.stream(stream.spliterator(), false)
+                                    .sorted()
+                                    .forEach(zipReader);
                         }
                     } else {
                         zipReader.accept(gamePath.resolve(field));
