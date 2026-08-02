@@ -1,10 +1,12 @@
 package eu.pb4.polymer.core.api.item;
 
+import net.minecraft.server.MinecraftServer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImpl;
+import eu.pb4.polymer.common.impl.CommonImplPacketKeys;
 import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
@@ -12,16 +14,17 @@ import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.TransformingComponent;
 import eu.pb4.polymer.core.impl.other.PacketTooltipContext;
 import eu.pb4.polymer.core.mixin.CustomDataAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -123,7 +126,7 @@ public final class PolymerItemUtils {
     private static final IdentityHashMap<Item, List<DataComponentType<?>>> FORCE_SYNCED_COMPONENTS = new IdentityHashMap<>();
 
 
-    private static final List<DataComponentType<?>> COMPONENTS_TO_COPY = new ArrayList<>(List.of(
+    private static final DataComponentType<?>[] COMPONENTS_TO_COPY = {
             DataComponents.CAN_BREAK,
             DataComponents.CAN_PLACE_ON,
             DataComponents.BLOCK_ENTITY_DATA,
@@ -179,14 +182,14 @@ public final class PolymerItemUtils {
             DataComponents.MINIMUM_ATTACK_CHARGE,
             DataComponents.SWING_ANIMATION,
             DataComponents.USE_EFFECTS
-    ));
-    private static final ReferenceSet<DataComponentType<?>> FORCE_HIDE_TOOLTIP = new ReferenceOpenHashSet<>(List.of(
+    };
+    private static final ReferenceSet<DataComponentType<?>> FORCE_HIDE_TOOLTIP = ReferenceSet.of(
             DataComponents.UNBREAKABLE,
             DataComponents.ATTRIBUTE_MODIFIERS,
             DataComponents.BLOCK_ENTITY_DATA,
             DataComponents.CAN_BREAK,
             DataComponents.CAN_PLACE_ON
-    ));
+    );
     private static final ReferenceSet<DataComponentType<?>> IGNORE_TOOLTIP_HIDING = ReferenceSet.of(
             DataComponents.LORE
     );
@@ -406,7 +409,8 @@ public final class PolymerItemUtils {
             out.set(DataComponents.ITEM_MODEL, model);
         }
 
-        for (var key : COMPONENTS_TO_COPY) {
+        for (var i = 0; i < COMPONENTS_TO_COPY.length; i++) {
+            var key = COMPONENTS_TO_COPY[i];
             var x = itemStack.get(key);
 
             if (x instanceof TransformingComponent t) {
@@ -523,17 +527,25 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, PacketContext context, int maxDistance) {
-        Item out = item.getPolymerItem(stack, context);
-        PolymerItem lastVirtual = item;
+    Item out = item.getPolymerItem(stack, context);
+    PolymerItem lastVirtual = item;
 
-        int req = 0;
-        while (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, out) instanceof PolymerItem newItem && newItem != item && req < maxDistance) {
-            out = newItem.getPolymerItem(stack, context);
-            lastVirtual = newItem;
-            req++;
-        }
-        return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context, context.orElseThrow(PacketContext.REGISTRY_ACCESS)));
+    int req = 0;
+    while (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, out) instanceof PolymerItem newItem && newItem != item && req < maxDistance) {
+        out = newItem.getPolymerItem(stack, context);
+        lastVirtual = newItem;
+        req++;
     }
+
+    HolderLookup.Provider lookup;
+    try {
+        lookup = context.orElseThrow(PacketContext.REGISTRY_ACCESS);
+    } catch (Exception e) {
+        var server = MinecraftServer.getServer();
+        lookup = server != null ? server.registryAccess() : BuiltInRegistries.ITEM.asLookup();
+    }
+    return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context, lookup));
+}
 
     /**
      * This method is minimal wrapper around {@link PolymerItem#getPolymerItem(ItemStack, PacketContext)} to make sure
@@ -632,22 +644,6 @@ public final class PolymerItemUtils {
         }
 
         return IS_SERVER_ITEM_EVENT.invoker().isServerItem(stack, context);
-    }
-
-    /**
-     * Makes polymer copy specified component into polymer-created client side Item Stacks.
-     * Should be used only for compatibility with non-polymer mods!
-     */
-    public static void addCopiedComponent(DataComponentType<?> componentType) {
-        COMPONENTS_TO_COPY.add(componentType);
-    }
-
-    /**
-     * Makes polymer forcefully hide component within polymer-created client side Item Stacks.
-     * Should be used only for compatibility with non-polymer mods!
-     */
-    public static void forceHideComponentTooltip(DataComponentType<?> componentType) {
-        FORCE_HIDE_TOOLTIP.add(componentType);
     }
 
     @FunctionalInterface
