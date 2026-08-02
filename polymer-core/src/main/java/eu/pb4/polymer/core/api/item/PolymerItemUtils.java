@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.api.item;
 
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.core.RegistryAccess;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
@@ -541,8 +541,8 @@ public final class PolymerItemUtils {
     try {
         lookup = context.orElseThrow(PacketContext.REGISTRY_ACCESS);
     } catch (Exception e) {
-        var server = MinecraftServer.getServer();
-        lookup = server != null ? server.registryAccess() : BuiltInRegistries.ITEM.asLookup();
+        // 降级：使用空的 RegistryAccess 避免 NPE
+        lookup = RegistryAccess.EMPTY;
     }
     return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context, lookup));
 }
