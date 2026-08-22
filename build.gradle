@@ -181,7 +181,7 @@ publishMods {
             projectId = 'xGdtZczs'
 
             requires {
-                slug "fabric-api"
+                slug = "fabric-api"
             }
 
             minecraftVersions.add(project.minecraft_version);
