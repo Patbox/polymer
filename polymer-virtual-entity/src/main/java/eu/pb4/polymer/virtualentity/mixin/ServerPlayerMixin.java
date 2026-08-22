@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 @Mixin(ServerPlayer.class)
-public class ServerPlayerEntityMixin {
+public class ServerPlayerMixin {
     @Shadow
     @Final
     public MinecraftServer server;

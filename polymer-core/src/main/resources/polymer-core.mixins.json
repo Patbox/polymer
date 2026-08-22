@@ -92,7 +92,7 @@
     "other.ByteBufCodecsHolderSetMixin",
     "other.ByteBufCodecsRegistryMixin",
     "other.ClientboundAwardStatsPacketMixin",
-    "other.ClientboundUpdateTagsPacketMixin",
+    "tag.ClientboundUpdateTagsPacketMixin",
     "other.ComponentMapMixin",
     "other.CreativeModeTabsAccessor",
     "other.DataComponentPatchMixin",
@@ -113,7 +113,9 @@
     "other.ServerConfigurationPacketListenerImplMixin",
     "other.ServerGamePacketListenerImplMixin",
     "other.ServerLevelMixin",
-    "other.ServerPlayerMixin"
+    "other.ServerPlayerMixin",
+    "tag.ByteBufCodecsHolderSetMixin",
+    "tag.TagKeyMixin"
   ],
   "client": [
     "client.ClientPacketListenerMixin",

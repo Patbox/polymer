@@ -174,6 +174,7 @@ public class TestMod implements ModInitializer {
     public static BlockItem TATER_BLOCK_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "tater"), (s) -> new PolymerHeadBlockItem(TATER_BLOCK, s.stacksTo(99).jukeboxPlayable(ResourceKey.create(Registries.JUKEBOX_SONG, Identifier.fromNamespaceAndPath("polymertest", "test")))));
     public static TestPickaxeItem PICKAXE = registerItem(Identifier.fromNamespaceAndPath("test", "pickaxe"), (s) -> new TestPickaxeItem(Items.WOODEN_PICKAXE, ToolMaterial.NETHERITE, 10, -3.9f, s));
     public static TestPickaxeItem PICKAXE2 = registerItem(Identifier.fromNamespaceAndPath("test", "pickaxe2"), (s) -> new TestPickaxeItem(Items.NETHERITE_PICKAXE, ToolMaterial.WOOD, 10, -5f, s));
+    public static TestScrollableItem SCROLLABLE = registerItem(Identifier.fromNamespaceAndPath("test", "scrollable"), (s) -> new TestScrollableItem(s));
     public static TestHelmetItem HELMET = registerItem(Identifier.fromNamespaceAndPath("test", "helmet"), TestHelmetItem::new);
     public static Block WRAPPED_BLOCK = registerBlock(Identifier.fromNamespaceAndPath("test", "wrapped"), BlockBehaviour.Properties.ofFullCopy(BLOCK), (s) -> new SimplePolymerBlock(s, BLOCK));
     public static Block SELF_REFERENCE_BLOCK = registerBlock(Identifier.fromNamespaceAndPath("test", "self"),BlockBehaviour.Properties.ofFullCopy(Blocks.STONE), (s) -> new SelfReferenceBlock(s));

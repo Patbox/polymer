@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterSectionAccessor;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,9 @@ import net.minecraft.util.IdentifierPattern;
 import net.minecraft.util.InclusiveRange;
 import java.util.*;
 
-public record PackMcMeta(PackMetadataSection pack, Optional<ResourceFilterSection> filter, Optional<OverlayMetadataSection> overlays, Optional<LanguageResourceMetadata> language) {
+public record PackMcMeta(PackMetadataSection pack, Optional<ResourceFilterSection> filter,
+                         Optional<OverlayMetadataSection> overlays, Optional<LanguageResourceMetadata> language
+) {
     public static final Codec<PackMcMeta> CODEC = RecordCodecBuilder.create(instaince -> instaince.group(
             PackMetadataSection.CLIENT_TYPE.codec().fieldOf("pack").forGetter(PackMcMeta::pack),
             ResourceFilterSectionAccessor.getCODEC().optionalFieldOf("filter").forGetter(PackMcMeta::filter),
@@ -37,7 +40,7 @@ public record PackMcMeta(PackMetadataSection pack, Optional<ResourceFilterSectio
                 Component.literal("Server Resource Pack"),
                 new InclusiveRange<>(
                         SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES),
-                        new PackFormat(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES).major(), Integer.MAX_VALUE)
+                        PolymerResourcePackImpl.IGNORE_PACK_VERSION ? new PackFormat(Integer.MAX_VALUE, Integer.MAX_VALUE) : new PackFormat(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES).major(), Integer.MAX_VALUE)
                 )
         );
         private final List<IdentifierPattern> filter = new ArrayList<>();

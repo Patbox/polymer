@@ -22,8 +22,10 @@ public abstract class ItemStackPacketCodecMixin {
 
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryFriendlyByteBuf;Lnet/minecraft/world/item/ItemStack;)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private ItemStack polymer$replaceWithVanillaItem(ItemStack itemStack, @Local(argsOnly = true) RegistryFriendlyByteBuf buf) {
-        var player = PacketContext.orElseThrow();
-        return PolymerItemUtils.getPolymerItemStack(itemStack, player, buf.registryAccess());
+        if (PacketContext.get() instanceof PacketContext context) {
+            return PolymerItemUtils.getPolymerItemStack(itemStack, context, buf.registryAccess());
+        }
+        return itemStack;
     }
 
     @ModifyArg(method = "encode(Lnet/minecraft/network/RegistryFriendlyByteBuf;Lnet/minecraft/world/item/ItemStack;)V",

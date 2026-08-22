@@ -12,7 +12,7 @@
     "EntityTrackerEntryMixin",
     "LivingEntityAccessor",
     "PlayerInteractEntityC2SPacketAccessor",
-    "ServerPlayerEntityMixin",
+    "ServerPlayerMixin",
     "ServerPlayNetworkHandlerMixin",
     "SetCameraEntityS2CPacketAccessor",
     "SlimeEntityAccessor",

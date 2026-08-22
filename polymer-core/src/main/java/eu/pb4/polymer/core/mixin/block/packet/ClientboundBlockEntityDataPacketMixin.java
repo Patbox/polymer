@@ -16,10 +16,11 @@ public class ClientboundBlockEntityDataPacketMixin {
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/StreamCodec;composite(Lnet/minecraft/network/codec/StreamCodec;Ljava/util/function/Function;Lnet/minecraft/network/codec/StreamCodec;Ljava/util/function/Function;Lnet/minecraft/network/codec/StreamCodec;Ljava/util/function/Function;Lcom/mojang/datafixers/util/Function3;)Lnet/minecraft/network/codec/StreamCodec;"))
     private static StreamCodec<RegistryFriendlyByteBuf, ClientboundBlockEntityDataPacket> changeNbt(StreamCodec<RegistryFriendlyByteBuf, ClientboundBlockEntityDataPacket> original) {
         return TransformingPacketCodec.encodeOnly(original, (buf, packet) -> {
-            if (packet.getTag() == null) {
+            var context = PacketContext.get();
+            if (packet.getTag() == null || packet.getTag().isEmpty() || context == null) {
                 return packet;
             }
-            var nbt = PolymerBlockUtils.transformBlockEntityNbt(PacketContext.orElseThrow(), packet.getType(), packet.getTag(), buf.registryAccess());
+            var nbt = PolymerBlockUtils.transformBlockEntityNbt(context, packet.getType(), packet.getTag(), buf.registryAccess());
             if (packet.getTag() == nbt) {
                 return packet;
             }

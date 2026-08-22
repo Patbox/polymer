@@ -28,11 +28,7 @@ public class StandaloneWebServerProvider extends AbstractProvider  {
             server = HttpServer.create(address, 0);
 
             server.createContext("/", this::handle);
-            server.setExecutor(Executors.newFixedThreadPool(2, x -> {
-                var thread = new Thread(x);
-                thread.setDaemon(true);
-                return thread;
-            }));
+            server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
             server.start();
 
             this.baseAddress = config.externalAddress;

@@ -128,7 +128,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         ItemStack itemStack = this.player.getItemInHand(packet.getHand());
 
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, itemStack.getItem()) instanceof PolymerItem polymerItem) {
-            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player.connection.getPacketContext());
+            var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player.connection.getPacketContext(), this.player.registryAccess());
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
                 this.resentActiveHand(packet.getHand(), itemStack);
             }

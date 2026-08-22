@@ -1,8 +1,7 @@
 plugins {
     id 'version-catalog'
     id 'net.fabricmc.fabric-loom' version '1.15.+'
-    id "com.modrinth.minotaur" version "2.+"
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id "me.modmuss50.mod-publish-plugin" version "2.2.0"
 }
 
 apply plugin: 'net.fabricmc.fabric-loom'
@@ -151,68 +150,49 @@ void setupRepositories(RepositoryHandler repositories) {
 }
 
 
-curseforge {
+var env = System.getenv()
+
+publishMods {
+    changelog = System.getenv("CHANGELOG")
+    type = isStable ? STABLE : BETA
+    file = jar.archiveFile
+    modLoaders.add("fabric")
+
     if (System.getenv("CURSEFORGE")) {
-        apiKey = System.getenv("CURSEFORGE")
+        curseforge {
+            projectId = "551890"
+            accessToken = System.getenv("CURSEFORGE")
+            client = true
+            server = true
+            requires("fabric-api")
 
-        project {
-            id = "551890"
-            releaseType = isStable ? "release" : "beta"
-            changelog = System.getenv("CHANGELOG")
-            changelogType = "markdown"
-            addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
-            addGameVersion "Fabric"
-
+            minecraftVersions.add((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
             for (String a : project.mc_extra_supported.split(",")) {
                 if (!a.strip().isEmpty()) {
-                    addGameVersion(a.strip())
+                    minecraftVersions.add(a.strip())
                 }
             }
-
-            mainArtifact(jar.archiveFile)
-
-            afterEvaluate {
-                uploadTask.dependsOn("jar")
-            }
         }
     }
 
-    options {
-        forgeGradleIntegration = false
-    }
-    jar {
-        finalizedBy project.tasks.curseforge
-    }
-}
+    if (System.getenv("MODRINTH")) {
+        modrinth {
+            accessToken = System.getenv("MODRINTH")
+            projectId = 'xGdtZczs'
 
-if (System.getenv("MODRINTH")) {
-    modrinth {
-        token = System.getenv("MODRINTH")
-        projectId = 'xGdtZczs'// The ID of your modrinth project, slugs will not work.
-        versionNumber = "" + version // The version of the mod to upload.
-        versionType = isStable ? "release" : "beta"
-        uploadFile = jar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
+            requires {
+                slug "fabric-api"
+            }
 
-
-        List<String> supportedVersions = new ArrayList<>();
-        supportedVersions.add(project.minecraft_version);
-        for (String a : project.mc_extra_supported.split(",")) {
-            if (!a.strip().isEmpty()) {
-                supportedVersions.add(a.strip())
+            minecraftVersions.add(project.minecraft_version);
+            for (String a : project.mc_extra_supported.split(",")) {
+                if (!a.strip().isEmpty()) {
+                    minecraftVersions.add(a.strip())
+                }
             }
         }
-
-        gameVersions = supportedVersions
-        changelog = System.getenv("CHANGELOG")
-        loaders = ["fabric"]
-    }
-
-    jar {
-        finalizedBy project.tasks.modrinth
     }
 }
-
-
 
 // configure the maven publication
 

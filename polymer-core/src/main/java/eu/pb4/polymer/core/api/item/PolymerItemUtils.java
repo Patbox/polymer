@@ -401,7 +401,7 @@ public final class PolymerItemUtils {
         Identifier model = null;
         boolean storeCount;
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, itemStack.getItem()) instanceof PolymerItem virtualItem) {
-            var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, context);
+            var data = PolymerItemUtils.getItemSafely(virtualItem, itemStack, context, lookup);
             item = data.item();
             storeCount = virtualItem.shouldStorePolymerItemStackCount();
             model = data.itemModel != null ? data.itemModel : item.components().get(DataComponents.ITEM_MODEL);
@@ -538,6 +538,19 @@ public final class PolymerItemUtils {
      * @return Client side ItemStack
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, PacketContext context, int maxDistance) {
+        return getItemSafely(item, stack, context, maxDistance, context.orElseThrow(PacketContext.REGISTRY_ACCESS));
+    }
+
+    /**
+     * This method is minimal wrapper around {@link PolymerItem#getPolymerItem(ItemStack, PacketContext)} to make sure
+     * It gets replaced if it represents other PolymerItem
+     *
+     * @param item        PolymerItem
+     * @param stack       Server side ItemStack
+     * @param maxDistance Maximum number of checks for nested virtual blocks
+     * @return Client side ItemStack
+     */
+    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, PacketContext context, int maxDistance, HolderLookup.Provider lookup) {
         Item out = item.getPolymerItem(stack, context);
         PolymerItem lastVirtual = item;
 
@@ -547,7 +560,7 @@ public final class PolymerItemUtils {
             lastVirtual = newItem;
             req++;
         }
-        return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context, context.orElseThrow(PacketContext.REGISTRY_ACCESS)));
+        return new ItemWithMetadata(out, lastVirtual.getPolymerItemModel(stack, context, lookup));
     }
 
     /**
@@ -560,6 +573,10 @@ public final class PolymerItemUtils {
      */
     public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, PacketContext context) {
         return getItemSafely(item, stack, context, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE);
+    }
+
+    public static ItemWithMetadata getItemSafely(PolymerItem item, ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
+        return getItemSafely(item, stack, context, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, lookup);
     }
 
     public static boolean isPolymerItemInteraction(ServerPlayer player, ItemStack stack, InteractionHand hand, ServerLevel world, InteractionResult actionResult) {

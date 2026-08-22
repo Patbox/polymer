@@ -67,9 +67,7 @@ public class ElementHolder {
         if (this.removeElementWithoutUpdates(element)) {
             var packet = new ClientboundRemoveEntitiesPacket(element.getEntityIds());
             for (var player : this.players) {
-                for (var e : this.elements) {
-                    e.stopWatching(player.getPlayer(), player::send);
-                }
+                element.stopWatching(player.getPlayer(), player::send);
                 player.send(packet);
             }
         }
@@ -149,7 +147,8 @@ public class ElementHolder {
 
         this.updatePosition();
 
-        for (var e : this.elements) {
+        var elements = this.elements.toArray(VirtualElement[]::new);
+        for (var e : elements) {
             e.tick();
         }
     }

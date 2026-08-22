@@ -13,6 +13,8 @@ import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterSectionAccessor
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.server.packs.OverlayMetadataSection;
+import net.minecraft.util.InclusiveRange;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
@@ -69,12 +71,16 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
                 var split = path.split("/");
 
                 if (split.length >= 3 && split[0].equals("assets")) {
-                    if (split[2].equals("atlases")) {
-                        return this.addAtlasFile(path, data.readAllBytes());
-                    } else if (split[2].equals("lang")) {
-                        return this.addMergedObjectFile(path, data.readAllBytes());
-                    } else if (split[2].equals("sounds.json")) {
-                        return this.addMergedSoundsFile(path, data.readAllBytes());
+                    switch (split[2]) {
+                        case "atlases" -> {
+                            return this.addAtlasFile(path, data.readAllBytes());
+                        }
+                        case "lang" -> {
+                            return this.addMergedObjectFile(path, data.readAllBytes());
+                        }
+                        case "sounds.json" -> {
+                            return this.addMergedSoundsFile(path, data.readAllBytes());
+                        }
                     }
                 }
             }
@@ -107,10 +113,22 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
     private void addPackMcMeta(PackMcMeta pack, Consumer<String> overlayConsumer) {
         pack.filter().ifPresent(x -> ((ResourceFilterSectionAccessor) x).getBlockList().forEach(this.packMetadata::addFilter));
         pack.overlays().ifPresent(x -> x.overlays().forEach((o) -> {
-            overlayConsumer.accept(o.overlay());
-            this.packMetadata.addOverlay(o);
+            var union = unionOfRanges(this.packMetadata.metadata().supportedFormats(), o.format());
+
+            if (union != null) {
+                overlayConsumer.accept(o.overlay());
+                this.packMetadata.addOverlay(new OverlayMetadataSection.OverlayEntry(union, o.overlay()));
+            }
         }));
         pack.language().ifPresent(x -> x.definitions().forEach(this.packMetadata::addLanguage));
+    }
+
+    @Nullable
+    private static <T extends Comparable<T>> InclusiveRange<T> unionOfRanges(InclusiveRange<T> a, InclusiveRange<T> b) {
+        var min = a.minInclusive().compareTo(b.minInclusive()) < 0 ? b.minInclusive() : a.minInclusive();
+        var max = a.maxInclusive().compareTo(b.maxInclusive()) > 0 ? b.maxInclusive() : a.maxInclusive();
+
+        return min.compareTo(max) > 0 ? null : new InclusiveRange<>(min, max);
     }
 
     private boolean addMergedObjectFile(String path, byte[] data) {

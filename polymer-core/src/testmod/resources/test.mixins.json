@@ -4,6 +4,7 @@
   "package": "eu.pb4.polymertest.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "AbstractContainerMenuMixin",
     "AECAccessor",
     "BlockDisplayEntityAccessor",
     "BootstrapMixin",

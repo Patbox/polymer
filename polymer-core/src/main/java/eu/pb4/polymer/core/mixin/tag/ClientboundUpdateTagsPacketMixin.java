@@ -1,4 +1,4 @@
-package eu.pb4.polymer.core.mixin.other;
+package eu.pb4.polymer.core.mixin.tag;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
@@ -33,6 +33,8 @@ public class ClientboundUpdateTagsPacketMixin {
             var reg = BuiltInRegistries.REGISTRY.getValue((ResourceKey) regEntry.getKey());
 
             if (reg != null) {
+                //var replacers = PolymerTagHacks.REPLACERS.getOrDefault(regEntry.getKey().identifier(), Map.of());
+                //var fakes = PolymerTagHacks.FAKE_ENTRIES.getOrDefault(regEntry.getKey().identifier(), Map.of());
                 var map = new HashMap<Identifier, IntList>();
 
                 for (var entry : ((NetworkPayloadAccessor) (Object) regEntry.getValue()).getTags().entrySet()) {
@@ -44,6 +46,18 @@ public class ClientboundUpdateTagsPacketMixin {
                             list.add(i);
                         }
                     }
+
+                    /*var replacer = replacers.get(entry.getKey());
+                    if (replacer != null) {
+                        map.put(replacer.target(), list);
+                        list = replacer.keepEntries() ? new IntArrayList(list) : new IntArrayList();
+                    }
+
+                    for (var f : fakes.getOrDefault(entry.getKey(), List.of())) {
+                        //noinspection unchecked
+                        list.add(reg.getId(f));
+                    }*/
+
                     map.put(entry.getKey(), list);
                 }
 
