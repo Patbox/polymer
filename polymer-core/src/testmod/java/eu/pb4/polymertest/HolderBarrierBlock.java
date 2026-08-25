@@ -27,24 +27,17 @@ public class HolderBarrierBlock extends Block implements PolymerBlock, BlockWith
     }
 
     @Override
-    public boolean tickElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
-        return true;
-    }
-
-    @Override
     public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
-        return new CustomHolder(world, initialBlockState, block);
+        return new CustomHolder(block);
     }
 
     public static class CustomHolder extends ElementHolder {
-        private final ItemDisplayElement blockElement;
 
-        public CustomHolder(ServerLevel world, BlockState state, Block block) {
+        public CustomHolder(Block block) {
             var element = new ItemDisplayElement(block.asItem());
-//            element.setDisplaySize(2, 2);
             element.setItemDisplayContext(ItemDisplayContext.NONE);
             element.setInvisible(true);
-            this.blockElement = this.addElement(element);
+            this.addElement(element);
         }
 
     }
