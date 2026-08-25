@@ -306,8 +306,10 @@ public class TestMod implements ModInitializer {
                     Integer.MAX_VALUE);*/
         }
     }));
-    public static Block ANIMATED_BLOCK = registerBlock(Identifier.fromNamespaceAndPath("test", "animated"), s -> new AnimatedBlock(s.lightLevel((state) -> 15).strength(2f)));
+    public static Block ANIMATED_BLOCK = registerBlock(Identifier.fromNamespaceAndPath("test", "animated"), s -> new AnimatedBlock(s/*.lightLevel((state) -> 15)*/.strength(2f)));
+    public static Block HOLDER_DIRT = registerBlock(Identifier.fromNamespaceAndPath("test", "holder_dirt"), s -> new HolderBarrierBlock(s, Blocks.DIRT));
     public static BlockItem ANIMATED_BLOCK_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "animated"), (s) -> new PolymerBlockItem(ANIMATED_BLOCK, s, Items.BEACON));
+    public static BlockItem HOLDER_DIRT_ITEM = registerItem(Identifier.fromNamespaceAndPath("test", "holder_dirt"), (s) -> new PolymerBlockItem(HOLDER_DIRT, s, Items.DIRT));
 
     public static Block END_GATEWAY = registerBlock(Identifier.fromNamespaceAndPath("test", "end_gateway"), s -> new FakeEndGatewayBlock(s.lightLevel((state) -> 15).strength(2f)));
     public static BlockEntityType END_GATEWAY_BE = register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Identifier.fromNamespaceAndPath("test", "end_gateway"),
