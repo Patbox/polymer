@@ -27,6 +27,11 @@ public class HolderBarrierBlock extends Block implements PolymerBlock, BlockWith
     }
 
     @Override
+    public boolean forceLightInsideBlock(BlockState blockState) {
+        return true;
+    }
+
+    @Override
     public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new CustomHolder(block);
     }

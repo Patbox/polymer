@@ -2,24 +2,20 @@ package eu.pb4.polymer.core.impl.interfaces;
 
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 
 @ApiStatus.Internal
-public interface PolymerBlockPosStorage {
-    @Nullable
+public interface PolymerChunkSectionStorage {
     ShortSet polymer$getBackendSet();
 
-    @Nullable
-    Iterator<BlockPos.MutableBlockPos> polymer$iterator(SectionPos sectionPos);
+    Iterator<BlockPos.MutableBlockPos> polymer$blockIterator(SectionPos sectionPos);
 
-    @Nullable
-    Iterator<BlockPos.MutableBlockPos> polymer$iterator();
+    Iterator<BlockPos.MutableBlockPos> polymer$lightInsideIterator(SectionPos sectionPos);
 
-    void polymer$setSynced(int x, int y, int z, boolean lightSource);
+    void polymer$setSynced(int x, int y, int z, boolean lightSource, boolean lightInside);
     void polymer$removeSynced(int x, int y, int z);
 
     boolean polymer$isSynced(int x, int y, int z);

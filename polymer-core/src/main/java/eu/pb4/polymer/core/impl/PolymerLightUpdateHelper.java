@@ -1,13 +1,13 @@
 package eu.pb4.polymer.core.impl;
 
-import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkSectionStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LayerLightEventListener;
@@ -31,7 +31,7 @@ public final class PolymerLightUpdateHelper {
         if (!CHUNK_CONTEXT.isBound()) return;
         var chunk = CHUNK_CONTEXT.get();
 
-        if (chunk == null || !chunk.getPos().equals(chunkPos) || !((PolymerBlockPosStorage) chunk).polymer$hasAny()) {
+        if (chunk == null || !chunk.getPos().equals(chunkPos) || !((PolymerChunkStorage) chunk).polymer$hasAny()) {
             return;
         }
 
@@ -51,7 +51,7 @@ public final class PolymerLightUpdateHelper {
                 continue;
             }
 
-            var storage = (PolymerBlockPosStorage) section;
+            var storage = (PolymerChunkSectionStorage) section;
             if (!storage.polymer$hasAny()) {
                 continue;
             }
@@ -68,7 +68,7 @@ public final class PolymerLightUpdateHelper {
             }
             byte[] update = updates.get(mask.get(0, lightSectionIndex).cardinality());
 
-            for (var iterator = storage.polymer$iterator(SectionPos.of(chunk.getPos(), sectionY)); iterator.hasNext();) {
+            for (var iterator = storage.polymer$lightInsideIterator(SectionPos.of(chunk.getPos(), sectionY)); iterator.hasNext();) {
                 var pos = iterator.next();
                 int value = getBestLightValue(listener, mutable, pos);
 

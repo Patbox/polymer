@@ -15,8 +15,9 @@ import java.util.BitSet;
 @Mixin(ClientboundLightUpdatePacketData.class)
 public class ClientboundLightUpdatePacketDataMixin {
     @Inject(method = "<init>(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/lighting/LevelLightEngine;Ljava/util/BitSet;Ljava/util/BitSet;)V", at = @At("TAIL"))
-    private void polymer$patchPolymerBlockLight(ChunkPos chunkPos, LevelLightEngine lightEngine, @Nullable BitSet skyChangedLightSectionFilter,
-                                                @Nullable BitSet blockChangedLightSectionFilter, CallbackInfo ci) {
+    private void polymer$patchPolymerBlockLight(
+        ChunkPos chunkPos, LevelLightEngine lightEngine, @Nullable BitSet skyChangedLightSectionFilter,
+        @Nullable BitSet blockChangedLightSectionFilter, CallbackInfo ci) {
         PolymerLightUpdateHelper.patchLightData((ClientboundLightUpdatePacketData) (Object) this, chunkPos, lightEngine, skyChangedLightSectionFilter, blockChangedLightSectionFilter);
     }
 }

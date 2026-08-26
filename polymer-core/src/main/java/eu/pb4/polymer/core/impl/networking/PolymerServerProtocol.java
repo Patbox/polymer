@@ -5,7 +5,8 @@ import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkSectionStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
 import eu.pb4.polymer.core.impl.interfaces.RegistryExtension;
 import eu.pb4.polymer.core.impl.networking.entry.*;
@@ -69,12 +70,12 @@ public class PolymerServerProtocol {
         var version = PolymerServerNetworking.getSupportedVersion(player, S2CPackets.WORLD_CHUNK_SECTION_UPDATE);
 
         if (version > -1) {
-            var wci = (PolymerBlockPosStorage) chunk;
+            var wci = (PolymerChunkStorage) chunk;
             if (wci.polymer$hasAny()) {
                 var sections = chunk.getSections();
                 for (var i = 0; i < sections.length; i++) {
                     var section = sections[i];
-                    var storage = (PolymerBlockPosStorage) section;
+                    var storage = (PolymerChunkSectionStorage) section;
 
                     if (section != null && storage.polymer$hasAny()) {
                         var set = storage.polymer$getBackendSet();

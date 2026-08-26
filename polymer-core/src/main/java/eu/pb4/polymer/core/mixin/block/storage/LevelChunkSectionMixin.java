@@ -1,9 +1,9 @@
 package eu.pb4.polymer.core.mixin.block.storage;
 
-import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkSectionStorage;
+import it.unimi.dsi.fastutil.shorts.ShortIterator;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -13,23 +13,24 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 
 @Mixin(LevelChunkSection.class)
-public class LevelChunkSectionMixin implements PolymerBlockPosStorage {
+public class LevelChunkSectionMixin implements PolymerChunkSectionStorage {
     @Unique
     private final ShortSet polymer$blocks = new ShortOpenHashSet();
     @Unique
     private final ShortSet polymer$lights = new ShortOpenHashSet();
     @Unique
+    private final ShortSet polymer$lightInsides = new ShortOpenHashSet();
+    @Unique
     private boolean polymer$requireLightUpdate;;
 
     @Override
-    public @Nullable ShortSet polymer$getBackendSet() {
+    public ShortSet polymer$getBackendSet() {
         return this.polymer$blocks;
     }
 
-    @Override
-    public Iterator<BlockPos.MutableBlockPos> polymer$iterator(SectionPos sectionPos) {
+    @Unique
+    public Iterator<BlockPos.MutableBlockPos> polymer$iterator(ShortIterator iterator, SectionPos sectionPos) {
         var blockPos = new BlockPos.MutableBlockPos();
-        var iterator = this.polymer$blocks.iterator();
 
         return new Iterator<>() {
             @Override
@@ -47,31 +48,39 @@ public class LevelChunkSectionMixin implements PolymerBlockPosStorage {
     }
 
     @Override
-    public @Nullable Iterator<BlockPos.MutableBlockPos> polymer$iterator() {
-        return null;
+    public Iterator<BlockPos.MutableBlockPos> polymer$blockIterator(SectionPos sectionPos) {
+        return polymer$iterator(this.polymer$blocks.iterator(), sectionPos);
     }
 
     @Override
-    public void polymer$setSynced(int x, int y, int z, boolean lightSource) {
-        var i = PolymerBlockPosStorage.pack(x, y, z);
+    public Iterator<BlockPos.MutableBlockPos> polymer$lightInsideIterator(SectionPos sectionPos) {
+        return polymer$iterator(this.polymer$lightInsides.iterator(), sectionPos);
+    }
+
+    @Override
+    public void polymer$setSynced(int x, int y, int z, boolean lightSource, boolean lightInside) {
+        var i = PolymerChunkSectionStorage.pack(x, y, z);
         this.polymer$blocks.add(i);
         if (lightSource) {
             this.polymer$lights.add(i);
+        }
+        if (lightInside) {
+            this.polymer$lightInsides.add(i);
         }
     }
 
     @Override
     public void polymer$removeSynced(int x, int y, int z) {
-        var i = PolymerBlockPosStorage.pack(x, y, z);
+        var i = PolymerChunkSectionStorage.pack(x, y, z);
         this.polymer$blocks.remove(i);
-        if (this.polymer$lights.remove(i)) {
+        if (this.polymer$lights.remove(i) || this.polymer$lightInsides.remove(i)) {
             this.polymer$requireLightUpdate = true;
         }
     }
 
     @Override
     public boolean polymer$isSynced(int x, int y, int z) {
-        return this.polymer$blocks.contains(PolymerBlockPosStorage.pack(x, y, z));
+        return this.polymer$blocks.contains(PolymerChunkSectionStorage.pack(x, y, z));
     }
 
     @Override
@@ -86,7 +95,7 @@ public class LevelChunkSectionMixin implements PolymerBlockPosStorage {
 
     @Override
     public boolean polymer$requireLights() {
-        return this.polymer$requireLightUpdate || polymer$hasLights();
+        return this.polymer$requireLightUpdate || polymer$hasLights() || !this.polymer$lightInsides.isEmpty();
     }
 
     @Override
