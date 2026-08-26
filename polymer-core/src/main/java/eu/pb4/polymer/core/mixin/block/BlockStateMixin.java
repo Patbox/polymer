@@ -37,7 +37,7 @@ public abstract class BlockStateMixin implements BlockStateExtra {
         }
 
         this.polymer$calculatedIsLight = true;
-        return false;
+        return polymer$isLight;
     }
 
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;codec(Lcom/mojang/serialization/Codec;Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
