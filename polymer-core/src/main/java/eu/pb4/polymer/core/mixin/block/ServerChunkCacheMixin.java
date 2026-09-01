@@ -3,8 +3,9 @@ package eu.pb4.polymer.core.mixin.block;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerLightUpdateHelper;
 import eu.pb4.polymer.core.impl.compat.ImmersivePortalsUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkSectionStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import org.jspecify.annotations.Nullable;
@@ -75,12 +76,12 @@ public abstract class ServerChunkCacheMixin {
             int sectionIndex = chunk.getSectionIndexFromSectionY(sectionPos.y());
             // As there is an additional light section above and below the world, there might not even be a block section here
             if (sectionIndex >= 0 && sectionIndex < sections.length) {
-                if (sections[sectionIndex] instanceof PolymerBlockPosStorage section) {
+                if (sections[sectionIndex] instanceof PolymerChunkSectionStorage section) {
                     section.polymer$setRequireLights(false);
                 }
             }
 
-            polymer$broadcastBlockLightForSection(sectionPos);
+            polymer$broadcastBlockLightForSection(chunk, sectionPos);
 
             return true;
         });
@@ -96,14 +97,14 @@ public abstract class ServerChunkCacheMixin {
     }
 
     @Unique
-    private void polymer$broadcastBlockLightForSection(SectionPos pos) {
+    private void polymer$broadcastBlockLightForSection(LevelChunk chunk, SectionPos pos) {
         List<ServerPlayer> players = getPlayersWatchingChunk(pos.chunk());
         if (players.isEmpty()) {
             return;
         }
         BitSet dirtyBlockLightSections = new BitSet();
         dirtyBlockLightSections.set(pos.y() - this.lightEngine.getMinLightSection());
-        Packet<?> packet = new ClientboundLightUpdatePacket(pos.chunk(), this.lightEngine, new BitSet(), dirtyBlockLightSections);
+        Packet<?> packet = ScopedValue.where(PolymerLightUpdateHelper.CHUNK_CONTEXT, chunk).call(() -> new ClientboundLightUpdatePacket(pos.chunk(), this.lightEngine, new BitSet(), dirtyBlockLightSections));
         for (ServerPlayer player : players) {
             player.connection.send(packet);
         }
@@ -132,7 +133,7 @@ public abstract class ServerChunkCacheMixin {
 
                     for (var i = Math.max(0, chunk.getSectionIndexFromSectionY(pos.y() - 1)); i <= max; i++) {
                         var section = sections[i];
-                        if (section != null && !section.hasOnlyAir() && ((PolymerBlockPosStorage) section).polymer$requireLights()) {
+                        if (section != null && !section.hasOnlyAir() && ((PolymerChunkSectionStorage) section).polymer$requireLights()) {
                             return true;
                         }
                     }

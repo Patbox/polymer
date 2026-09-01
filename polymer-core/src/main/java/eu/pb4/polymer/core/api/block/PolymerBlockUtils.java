@@ -115,8 +115,18 @@ public final class PolymerBlockUtils {
             if (virtualBlock.forceLightUpdates(blockState)) {
                 return true;
             }
+            if (virtualBlock.forceLightInsideBlock(blockState)) {
+                return true;
+            }
 
             return ((BlockStateExtra) blockState).polymer$isPolymerLightSource();
+        }
+        return false;
+    }
+
+    public static boolean forceLightInsideBlock(BlockState blockState) {
+        if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, blockState.getBlock()) instanceof PolymerBlock virtualBlock) {
+            return virtualBlock.forceLightInsideBlock(blockState);
         }
         return false;
     }

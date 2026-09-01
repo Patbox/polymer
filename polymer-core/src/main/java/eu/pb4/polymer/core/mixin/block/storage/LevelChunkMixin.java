@@ -3,8 +3,8 @@ package eu.pb4.polymer.core.mixin.block.storage;
 import com.google.common.collect.ForwardingIterator;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
-import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
-import it.unimi.dsi.fastutil.shorts.ShortSet;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkSectionStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 @Mixin(LevelChunk.class)
-public abstract class LevelChunkMixin extends ChunkAccess implements PolymerBlockPosStorage {
+public abstract class LevelChunkMixin extends ChunkAccess implements PolymerChunkStorage {
 
     public LevelChunkMixin(ChunkPos pos, UpgradeData upgradeData, LevelHeightAccessor heightLimitView, PalettedContainerFactory palettesFactory, long inhabitedTime, @Nullable LevelChunkSection[] sectionArray, @Nullable BlendingData blendingData) {
         super(pos, upgradeData, heightLimitView, palettesFactory, inhabitedTime, sectionArray, blendingData);
@@ -54,14 +54,14 @@ public abstract class LevelChunkMixin extends ChunkAccess implements PolymerBloc
             if (section != null && !section.hasOnlyAir()) {
                 var container = section.getStates();
                 if (container.maybeHas(PolymerImplUtils.POLYMER_STATES::contains)) {
-                    var storage = (PolymerBlockPosStorage) section;
+                    var storage = (PolymerChunkSectionStorage) section;
                     BlockState state;
                     for (byte x = 0; x < 16; x++) {
                         for (byte z = 0; z < 16; z++) {
                             for (byte y = 0; y < 16; y++) {
                                 state = container.get(x, y, z);
                                 if (PolymerImplUtils.POLYMER_STATES.contains(state)) {
-                                    storage.polymer$setSynced(x, y, z, PolymerBlockUtils.forceLightUpdates(state));
+                                    storage.polymer$setSynced(x, y, z, PolymerBlockUtils.forceLightUpdates(state), PolymerBlockUtils.forceLightInsideBlock(state));
                                 }
                             }
                         }
@@ -76,7 +76,7 @@ public abstract class LevelChunkMixin extends ChunkAccess implements PolymerBloc
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunkSection;setBlockState(IIILnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/state/BlockState;", shift = At.Shift.AFTER))
     private void polymer$addToList(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         if (PolymerImplUtils.POLYMER_STATES.contains(state)) {
-            this.polymer$setSynced(pos.getX(), pos.getY(), pos.getZ(), PolymerBlockUtils.forceLightUpdates(state));
+            this.polymer$setSynced(pos.getX(), pos.getY(), pos.getZ(), PolymerBlockUtils.forceLightUpdates(state), PolymerBlockUtils.forceLightInsideBlock(state));
         } else {
             this.polymer$removeSynced(pos.getX(), pos.getY(), pos.getZ());
         }
@@ -95,9 +95,9 @@ public abstract class LevelChunkMixin extends ChunkAccess implements PolymerBloc
                     while (this.current < array.length) {
                         var id = this.current++;
                         var s = array[id];
-                        var si = (PolymerBlockPosStorage) s;
+                        var si = (PolymerChunkSectionStorage) s;
                         if (s != null && si.polymer$hasAny()) {
-                            this.currentIterator = si.polymer$iterator(SectionPos.of(LevelChunkMixin.this.getPos(), LevelChunkMixin.this.getSectionYFromSectionIndex(id)));
+                            this.currentIterator = si.polymer$blockIterator(SectionPos.of(LevelChunkMixin.this.getPos(), LevelChunkMixin.this.getSectionYFromSectionIndex(id)));
                             break;
                         }
                     }
@@ -109,8 +109,8 @@ public abstract class LevelChunkMixin extends ChunkAccess implements PolymerBloc
     }
 
     @Override
-    public void polymer$setSynced(int x, int y, int z, boolean lightSource) {
-        this.polymer_getSectionStorage(y).polymer$setSynced(x, y, z, lightSource);
+    public void polymer$setSynced(int x, int y, int z, boolean lightSource, boolean lightInside) {
+        this.polymer_getSectionStorage(y).polymer$setSynced(x, y, z, lightSource, lightInside);
     }
 
     @Override
@@ -126,24 +126,14 @@ public abstract class LevelChunkMixin extends ChunkAccess implements PolymerBloc
     @Override
     public boolean polymer$hasAny() {
         for (var s : this.getSections()) {
-            if (s != null && ((PolymerBlockPosStorage) s).polymer$hasAny()) {
+            if (s != null && ((PolymerChunkSectionStorage) s).polymer$hasAny()) {
                 return true;
             }
         }
         return false;
     }
 
-    @Override
-    public @Nullable ShortSet polymer$getBackendSet() {
-        return null;
-    }
-
-    @Override
-    public @Nullable Iterator<BlockPos.MutableBlockPos> polymer$iterator(SectionPos sectionPos) {
-        return null;
-    }
-
-    private PolymerBlockPosStorage polymer_getSectionStorage(int y) {
-        return (PolymerBlockPosStorage) this.getSection(this.getSectionIndex(y));
+    private PolymerChunkSectionStorage polymer_getSectionStorage(int y) {
+        return (PolymerChunkSectionStorage) this.getSection(this.getSectionIndex(y));
     }
 }

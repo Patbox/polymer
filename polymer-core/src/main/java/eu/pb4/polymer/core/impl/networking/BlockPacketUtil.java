@@ -4,7 +4,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.ChunkDataS2CPacketInterface;
-import eu.pb4.polymer.core.impl.interfaces.PolymerBlockPosStorage;
+import eu.pb4.polymer.core.impl.interfaces.PolymerChunkStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
 import eu.pb4.polymer.core.mixin.block.packet.ClientboundBlockUpdatePacketAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ClientboundSectionBlocksUpdatePacketAccessor;
@@ -20,7 +20,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 public class BlockPacketUtil {
     public static void sendFromPacket(Packet<?> packet, ServerGamePacketListenerImpl handler) {
@@ -31,7 +30,7 @@ public class BlockPacketUtil {
             }
         } else if (packet instanceof ClientboundLevelChunkWithLightPacket) {
             LevelChunk wc = ((ChunkDataS2CPacketInterface) packet).polymer$getWorldChunk();
-            PolymerBlockPosStorage wci = (PolymerBlockPosStorage) wc;
+            PolymerChunkStorage wci = (PolymerChunkStorage) wc;
             if (wc != null && wci.polymer$hasAny()) {
                 PolymerServerProtocol.sendSectionUpdate(handler, wc);
                 var iterator = wci.polymer$iterator();

@@ -49,6 +49,13 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
     default boolean forceLightUpdates(BlockState blockState) { return false; }
 
     /**
+     * You can override this method to force light to be estimated for the block position. This is useful for blocks
+     * using display entities, which sample their brightness from the light level at their position
+     * @param blockState
+     */
+    default boolean forceLightInsideBlock(BlockState blockState) { return false; }
+
+    /**
      * Overrides breaking particle used by the block
      * @param state
      * @param context
