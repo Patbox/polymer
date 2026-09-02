@@ -24,6 +24,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
+import net.minecraft.world.clock.ClockInstance;
 import net.minecraft.world.clock.ClockManager;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.damagesource.DamageScaling;
@@ -50,9 +51,9 @@ import net.minecraft.world.entity.variant.ModelAndTexture;
 import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraft.world.item.crafting.RecipeAccess;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ExplosionDamageCalculator;
@@ -60,7 +61,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -191,6 +191,9 @@ public final class FakeWorld extends Level implements LightChunk {
                             .mobSpawnSettings(new MobSpawnSettings.Builder().build())
                             .generationSettings(BiomeGenerationSettings.EMPTY)
                             .build()));
+
+            addRegistry(new FakeRegistry<>(Registries.RECIPE, Identifier.fromNamespaceAndPath("polymer", "recipe"),
+                    new StonecutterRecipe(new Recipe.CommonInfo(false), Ingredient.of(Items.STONE), new ItemStackTemplate(Items.STONE))));
         }
 
         public static void addRegistry(FakeRegistry<?> registry) {
@@ -220,7 +223,6 @@ public final class FakeWorld extends Level implements LightChunk {
     };
     static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
     private static final FeatureFlagSet FEATURES = FeatureFlags.REGISTRY.allFlags();
-    private static final FuelValues FUEL_REGISTRY = new FuelValues.Builder(FALLBACK_REGISTRY_MANAGER, FeatureFlagSet.of()).build();
     private static final LevelEntityGetter<Entity> ENTITY_LOOKUP = new LevelEntityGetter<>() {
         @Nullable
         @Override
@@ -387,8 +389,28 @@ public final class FakeWorld extends Level implements LightChunk {
     private final WorldBorder worldBorder = new WorldBorder();
     private final ClockManager clockManager = new ClockManager() {
         @Override
-        public long getTotalTicks(Holder<WorldClock> definition) {
-            return 0;
+        public ClockInstance getInstance(Holder<WorldClock> definition) {
+            return new ClockInstance() {
+                @Override
+                public long totalTicks() {
+                    return 0;
+                }
+
+                @Override
+                public float partialTick() {
+                    return 0;
+                }
+
+                @Override
+                public float rate() {
+                    return 0;
+                }
+
+                @Override
+                public boolean isPaused() {
+                    return false;
+                }
+            };
         }
     };
 
@@ -522,17 +544,6 @@ public final class FakeWorld extends Level implements LightChunk {
     @Override
     public EnvironmentAttributeSystem environmentAttributes() {
         return EnvironmentAttributeSystem.builder().build();
-    }
-
-    @Override
-    public PotionBrewing potionBrewing() {
-        return null;
-    }
-
-
-    @Override
-    public FuelValues fuelValues() {
-        return FUEL_REGISTRY;
     }
 
     @Override

@@ -78,14 +78,7 @@ import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.MaceItem;
-import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -235,7 +228,7 @@ public class TestMod implements ModInitializer {
     public static Identifier CUSTOM_STAT;
 
     public static final RecipeType<TestRecipe> TEST_RECIPE_TYPE = RecipeType.register("test");
-    public static final RecipeSerializer<TestRecipe> TEST_RECIPE_SERIALIZER = new RecipeSerializer<>(ItemStack.CODEC.xmap(TestRecipe::new, TestRecipe::stack).fieldOf("item"), null);
+    public static final RecipeSerializer<TestRecipe> TEST_RECIPE_SERIALIZER = new RecipeSerializer<>(ItemStackTemplate.CODEC.xmap(TestRecipe::new, TestRecipe::stack).fieldOf("item"), null);
 
     public static final MobEffect STATUS_EFFECT = new TestStatusEffect();
     public static final MobEffect STATUS_EFFECT_2 = new Test2StatusEffect();

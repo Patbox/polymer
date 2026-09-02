@@ -6,6 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategories;
@@ -19,9 +20,9 @@ import java.util.List;
 
 public class TestRecipe implements Recipe<RecipeInput> {
 
-    private final ItemStack output;
+    private final ItemStackTemplate output;
 
-    public TestRecipe(ItemStack output) {
+    public TestRecipe(ItemStackTemplate output) {
         this.output = output;
     }
 
@@ -33,7 +34,7 @@ public class TestRecipe implements Recipe<RecipeInput> {
 
     @Override
     public ItemStack assemble(RecipeInput input) {
-        return this.output.copy();
+        return this.output.create();
     }
 
     @Override
@@ -76,7 +77,7 @@ public class TestRecipe implements Recipe<RecipeInput> {
         return "";
     }
 
-    public ItemStack stack() {
+    public ItemStackTemplate stack() {
         return this.output;
     }
 }

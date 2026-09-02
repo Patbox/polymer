@@ -42,19 +42,28 @@ public class DataComponentPatchMixin {
     private static DataComponentPatch transformContent(DataComponentPatch content) {
         var player = PacketContext.get();
         var builder = DataComponentPatch.builder();
-        for (var entry : content.entrySet()) {
-            if (!PolymerComponent.canSync(entry.getKey(), entry.getValue().orElse(null), player)) {
+        
+        var split = content.split();
+        for (var key : split.added().keySet()) {
+            var value = split.added().get(key);
+            if (!PolymerComponent.canSync(key, value, player)) {
                 continue;
-            } else if (entry.getValue().isPresent() && entry.getValue().get() instanceof TransformingComponent t) {
+            } else if (value instanceof TransformingComponent t) {
                 //noinspection unchecked
-                builder.set((DataComponentType<Object>) entry.getKey(), t.polymer$getTransformed(player));
-            } else if (entry.getValue().isPresent()) {
-                //noinspection unchecked
-                builder.set((DataComponentType<Object>) entry.getKey(), entry.getValue().get());
+                builder.set((DataComponentType<Object>) key, t.polymer$getTransformed(player));
             } else {
-                builder.remove(entry.getKey());
+                assert value != null;
+                //noinspection unchecked
+                builder.set((DataComponentType<Object>) key, value);
             }
         }
+
+        for (var key : split.removed()) {
+            if (PolymerComponent.canSync(key, null, player)) {
+                builder.remove(key);
+            }
+        }
+
         return builder.build();
     }
 }

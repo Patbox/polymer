@@ -31,7 +31,6 @@ import java.util.Collection;
 // Bug reported with
 // https://github.com/Dev0Louis/Zauber/blob/54fd6f06a9f1c83fdf37641f587da2b27860b98b/src/main/java/dev/louis/zauber/block/ManaCauldron.java
 public class ManaCauldron extends Block implements PolymerBlock, BlockWithElementHolder {
-    public static final MapCodec<ManaCauldron> CODEC = simpleCodec(ManaCauldron::new);
     public static final IntegerProperty MANA_LEVEL = IntegerProperty.create("mana_level", 0, 2);
 
     protected ManaCauldron(Properties settings) {
@@ -48,11 +47,6 @@ public class ManaCauldron extends Block implements PolymerBlock, BlockWithElemen
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         world.setBlockAndUpdate(pos, state.cycle(MANA_LEVEL));
         return InteractionResult.PASS;
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 
     @Override

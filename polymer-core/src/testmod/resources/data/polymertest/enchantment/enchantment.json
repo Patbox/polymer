@@ -51,10 +51,7 @@
             {
               "type": "minecraft:replace_block",
               "block_state": {
-                "type": "minecraft:simple_state_provider",
-                "state": {
-                  "Name": "test:block"
-                }
+                "id": "test:block"
               }
             },
             {

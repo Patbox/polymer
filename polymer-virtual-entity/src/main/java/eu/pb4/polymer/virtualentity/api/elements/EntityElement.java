@@ -12,11 +12,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -39,7 +35,17 @@ public class EntityElement<T extends Entity> extends AbstractElement {
 
     public EntityElement(T entity, ServerLevel world, InteractionHandler handler) {
         this.entity = entity;
-        this.entry = new ServerEntity(world, this.entity, 1, false, new ServerEntity.Synchronizer() {
+        this.entry = new ServerEntity(world, this.entity, new UpdateInterval() {
+            @Override
+            public boolean test(int tick) {
+                return true;
+            }
+
+            @Override
+            public int nextInterval(int tick) {
+                return tick + 1;
+            }
+        }, false, new ServerEntity.Synchronizer() {
             @Override
             public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {
                 sendPacket((Packet<ClientGamePacketListener>) packet);

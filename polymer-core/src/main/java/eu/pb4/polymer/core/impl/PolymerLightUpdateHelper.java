@@ -35,8 +35,8 @@ public final class PolymerLightUpdateHelper {
             return;
         }
 
-        patchLightLayer(data.getSkyYMask(), data.getSkyUpdates(), chunk, lightEngine, LightLayer.SKY, skyChangedLightSectionFilter);
-        patchLightLayer(data.getBlockYMask(), data.getBlockUpdates(), chunk, lightEngine, LightLayer.BLOCK, blockChangedLightSectionFilter);
+        patchLightLayer(data.skyYMask(), data.skyUpdates(), chunk, lightEngine, LightLayer.SKY, skyChangedLightSectionFilter);
+        patchLightLayer(data.blockYMask(), data.blockUpdates(), chunk, lightEngine, LightLayer.BLOCK, blockChangedLightSectionFilter);
     }
 
     private static void patchLightLayer(BitSet mask, List<byte[]> updates, LevelChunk chunk, LevelLightEngine lightEngine,

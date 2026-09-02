@@ -25,7 +25,7 @@ public class NullEntityRenderer extends NoopRenderer<Entity> {
     }
 
     @Override
-    public boolean shouldRender(Entity entity, Frustum frustum, double x, double y, double z) {
+    public boolean shouldRender(Entity entity, Frustum culler, double camX, double camY, double camZ, float partialTicks) {
         return true;
     }
 
@@ -36,7 +36,7 @@ public class NullEntityRenderer extends NoopRenderer<Entity> {
 
         matrices.pushPose();
         matrices.translate(0, renderState.boundingBoxHeight / 2, 0);
-        matrices.mulPose(cameraRenderState.orientation);
+        matrices.rotate(cameraRenderState.orientation);
         matrices.scale(0.025F, -0.025F, 0.025F);
         Font textRenderer = this.getFont();
         float f = (float)(-textRenderer.width(text)) / 2.0F;

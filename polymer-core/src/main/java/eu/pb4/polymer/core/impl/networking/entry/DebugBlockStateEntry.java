@@ -1,10 +1,13 @@
 package eu.pb4.polymer.core.impl.networking.entry;
 
 import eu.pb4.polymer.networking.api.ContextByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.IntFunction;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,7 +25,8 @@ public record DebugBlockStateEntry(Map<String, String> states, int numId, Identi
     public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(numId);
         buf.writeIdentifier(blockId);
-        buf.writeMap(states, FriendlyByteBuf::writeUtf, FriendlyByteBuf::writeUtf);
+        ByteBufCodecs.map((IntFunction<Map<String, String>>) HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.STRING_UTF8)
+                        .encode(buf, this.states);
     }
 
     public static DebugBlockStateEntry of(BlockState state, ServerGamePacketListenerImpl player, int version) {
@@ -41,7 +45,7 @@ public record DebugBlockStateEntry(Map<String, String> states, int numId, Identi
     public static DebugBlockStateEntry read(FriendlyByteBuf buf) {
         var numId = buf.readVarInt();
         var blockId = buf.readIdentifier();
-        var states = buf.readMap(FriendlyByteBuf::readUtf, FriendlyByteBuf::readUtf);
+        var states = ByteBufCodecs.map((IntFunction<Map<String, String>>) HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.STRING_UTF8).decode(buf);
         return new DebugBlockStateEntry(states, numId, blockId);
     }
 

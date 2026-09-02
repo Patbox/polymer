@@ -12,13 +12,7 @@ import eu.pb4.polymer.virtualentity.mixin.accessors.ServerLevelAccessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
-import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
-import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -26,6 +20,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.PositionPath;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -104,17 +99,17 @@ public final class VirtualEntityUtils { private VirtualEntityUtils() {}
         if (!bl5) {
             if ((!areDifferentEnough || !rotate)) {
                 if (areDifferentEnough) {
-                    return new ClientboundMoveEntityPacket.Pos(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), false);
+                    return new ClientboundMoveEntityPacket.Pos(id, new VecDelta.Linear((short) ((int) newX), (short) ((int) newY), (short) ((int) newZ)), false);
                 } else if (rotate) {
                     return new ClientboundMoveEntityPacket.Rot(id, (byte) byteYaw, (byte) bytePitch, false);
                 }
             } else {
-                return new ClientboundMoveEntityPacket.PosRot(id, (short) ((int) newX), (short) ((int) newY), (short) ((int) newZ), (byte) byteYaw, (byte) bytePitch, false);
+                return new ClientboundMoveEntityPacket.PosRot(id, new VecDelta.Linear((short) ((int) newX), (short) ((int) newY), (short) ((int) newZ)), (byte) byteYaw, (byte) bytePitch, false);
             }
 
             return null;
         } else {
-            return new ClientboundEntityPositionSyncPacket(id, new PositionMoveRotation(newPos, Vec3.ZERO, yaw, pitch), false);
+            return new ClientboundEntityPositionSyncPacket(id, new PositionPath.Linear(newPos), yaw, pitch, false);
         }
     }
 

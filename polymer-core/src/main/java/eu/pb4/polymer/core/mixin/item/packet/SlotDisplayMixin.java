@@ -33,13 +33,10 @@ public interface SlotDisplayMixin {
             case SlotDisplay.ItemSlotDisplay item when PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, item.item().value()) instanceof PolymerItem ->
                     new SlotDisplay.ItemStackSlotDisplay(new ItemStackTemplate(item.item().value()));
             case SlotDisplay.TagSlotDisplay tagSlot when !((SkipCheck) (Object) tagSlot).polymer$skipped() -> {
-                var tag = buf.registryAccess().lookupOrThrow(Registries.ITEM).get(tagSlot.tag());
-                if (tag.isEmpty()) {
-                    yield tagSlot;
-                }
+                var tag = tagSlot.tag();
 
                 var array = new ArrayList<SlotDisplay>();
-                for (var entry : tag.get()) {
+                for (var entry : tag) {
                     if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, entry.value()) instanceof PolymerItem) {
                         array.add(new SlotDisplay.ItemStackSlotDisplay(new ItemStackTemplate(entry.value())));
                     }

@@ -70,11 +70,6 @@ public class AnimatedBlock extends FallingBlock implements PolymerBlock, BlockWi
     }
 
     @Override
-    protected MapCodec<? extends FallingBlock> codec() {
-        return null;
-    }
-
-    @Override
     public BlockState getPolymerBlockState(BlockState state, @org.jspecify.annotations.Nullable PacketContext context) {
         return Blocks.BARRIER.defaultBlockState();
     }

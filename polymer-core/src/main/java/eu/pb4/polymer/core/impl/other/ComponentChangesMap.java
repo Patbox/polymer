@@ -19,12 +19,6 @@ public record ComponentChangesMap(DataComponentPatch changes) implements DataCom
 
     @Override
     public Set<DataComponentType<?>> keySet() {
-        var set = new HashSet<DataComponentType<?>>();
-        for (var entry : this.changes.entrySet()) {
-            if (entry.getValue().isPresent()) {
-                set.add(entry.getKey());
-            }
-        }
-        return set;
+        return this.changes.split().added().keySet();
     }
 }

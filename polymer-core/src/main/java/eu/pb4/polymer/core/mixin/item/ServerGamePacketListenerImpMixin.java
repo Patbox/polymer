@@ -121,16 +121,16 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
 
         if (this.lastActionResult != null && this.lastActionResult != InteractionResult.PASS) {
             ci.cancel();
-            this.resentActiveHand(packet.getHand(), this.player.getItemInHand(packet.getHand()));
-            this.ackBlockChangesUpTo(packet.getSequence());
+            this.resentActiveHand(packet.hand(), this.player.getItemInHand(packet.hand()));
+            this.ackBlockChangesUpTo(packet.sequence());
             return;
         }
-        ItemStack itemStack = this.player.getItemInHand(packet.getHand());
+        ItemStack itemStack = this.player.getItemInHand(packet.hand());
 
         if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, itemStack.getItem()) instanceof PolymerItem polymerItem) {
             var data = PolymerItemUtils.getItemSafely(polymerItem, itemStack, this.player.connection.getPacketContext(), this.player.registryAccess());
             if (data.item() instanceof BlockItem || data.item() instanceof BucketItem) {
-                this.resentActiveHand(packet.getHand(), itemStack);
+                this.resentActiveHand(packet.hand(), itemStack);
             }
         }
     }
@@ -160,8 +160,8 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         soundOverride.close();
 
         if (this.forcePolymerInteraction || PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
-            if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
-                original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER, success.itemContext());
+            if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
+                original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER_ONLY, success.itemContext());
             }
 
             this.lastActionResult = original;
@@ -174,8 +174,8 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
     @Inject(method = "handleUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V", shift = At.Shift.AFTER), cancellable = true)
     private void preventItemUse(ServerboundUseItemPacket packet, CallbackInfo ci) {
         if (this.lastActionResult != null && this.lastActionResult != InteractionResult.PASS) {
-            this.resentActiveHand(packet.getHand(), this.player.getItemInHand(packet.getHand()));
-            this.ackBlockChangesUpTo(packet.getSequence());
+            this.resentActiveHand(packet.hand(), this.player.getItemInHand(packet.hand()));
+            this.ackBlockChangesUpTo(packet.sequence());
             ci.cancel();
         }
     }
@@ -194,8 +194,8 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         soundOverride.close();
 
         if (this.forcePolymerInteraction || PolymerItemUtils.isPolymerItemInteraction(this.player, stack, hand, serverWorld, original)) {
-            if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
-                original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER, success.itemContext());
+            if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
+                original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER_ONLY, success.itemContext());
             }
             this.lastActionResult = original;
             this.lastActionSource = ActionSource.ITEM;
@@ -268,7 +268,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
     @Inject(method = "handleUseItemOn", at = @At("TAIL"))
     private void polymer$updateMoreBlocks(ServerboundUseItemOnPacket packet, CallbackInfo ci) {
         if (PolymerImpl.RESEND_BLOCKS_AROUND_CLICK) {
-            var base = packet.getHitResult().getBlockPos();
+            var base = packet.hitResult().getBlockPos();
             for (Direction direction : Direction.values()) {
                 BlockPacketUtil.sendUpdate(this.player, base.relative(direction));
             }

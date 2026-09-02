@@ -6,6 +6,8 @@ import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.mixin.item.IngredientAccessor;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
+import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.SharedConstants;
@@ -16,6 +18,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.VarInt;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.Identifier;
@@ -26,8 +30,31 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.Function;
 
 public interface IngredientExtension {
+    StreamCodec<ByteBuf, IntArrayList> INT_LIST_CODEC = new StreamCodec<ByteBuf, IntArrayList>() {
+        @Override
+        public IntArrayList decode(ByteBuf input) {
+            var count = VarInt.read(input);
+            var out = new IntArrayList(Math.min(count, 1024));
+
+            for (int i = 0; i < count; i++) {
+                out.add(VarInt.read(input));
+            }
+
+            return out;
+        }
+
+        @Override
+        public void encode(ByteBuf output, IntArrayList value) {
+            VarInt.write(output, value.size());
+            for (int i = 0; i < value.size(); i++) {
+                VarInt.write(output, value.getInt(i));
+            }
+        }
+    };
+
     int MAGIC_NUMBER = -0x372ab82;
 
     void polymer$setPolymerItems(IntList polymerItems);
@@ -61,7 +88,7 @@ public interface IngredientExtension {
                 ingredient = Ingredient.of(entries);
             }
 
-            var polymerItems = buf.readIntIdList();
+            var polymerItems = INT_LIST_CODEC.decode(buf);
             //noinspection ConstantValue
             if (((Object) ingredient) instanceof IngredientExtension extension) {
                 extension.polymer$setPolymerItems(polymerItems);
@@ -155,7 +182,7 @@ public interface IngredientExtension {
             }
 
 
-            var polymerItems = buf.readIntIdList();
+            var polymerItems = INT_LIST_CODEC.decode(buf);
             //noinspection ConstantValue
             if (((Object) ingredient) instanceof IngredientExtension extension) {
                 extension.polymer$setPolymerItems(polymerItems);

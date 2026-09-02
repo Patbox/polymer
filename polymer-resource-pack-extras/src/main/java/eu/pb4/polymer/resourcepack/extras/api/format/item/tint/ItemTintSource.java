@@ -16,7 +16,6 @@ public interface ItemTintSource {
 		m.put(Identifier.withDefaultNamespace("grass"), GrassTintSource.CODEC);
 		m.put(Identifier.withDefaultNamespace("firework"), FireworkTintSource.CODEC);
 		m.put(Identifier.withDefaultNamespace("potion"), PotionTintSource.CODEC);
-		m.put(Identifier.withDefaultNamespace("map_color"), MapColorTintSource.CODEC);
 		m.put(Identifier.withDefaultNamespace("team"), TeamTintSource.CODEC);
 	});
 	Codec<ItemTintSource> CODEC = TYPES.codec(Identifier.CODEC).dispatch(ItemTintSource::codec, Function.identity());

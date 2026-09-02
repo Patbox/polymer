@@ -1,11 +1,15 @@
 package eu.pb4.polymer.core.impl.networking.entry;
 
 import eu.pb4.polymer.networking.api.ContextByteBuf;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.function.IntFunction;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,10 +23,12 @@ public record PolymerBlockStateEntry(Map<String, String> properties, int numId, 
 
     public static final StreamCodec<ContextByteBuf, PolymerBlockStateEntry> CODEC = StreamCodec.ofMember(PolymerBlockStateEntry::write, PolymerBlockStateEntry::read);
 
+    private static final StreamCodec<ByteBuf, Map<String, String>> STRING_MAP_CODEC = ByteBufCodecs.map((IntFunction<Map<String, String>>) HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.STRING_UTF8);
+
     public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(numId);
         buf.writeVarInt(blockId);
-        buf.writeMap(properties, FriendlyByteBuf::writeUtf, FriendlyByteBuf::writeUtf);
+        STRING_MAP_CODEC.encode(buf, properties);
     }
 
     public static PolymerBlockStateEntry of(BlockState state) {
@@ -43,7 +49,7 @@ public record PolymerBlockStateEntry(Map<String, String> properties, int numId, 
     public static PolymerBlockStateEntry read(FriendlyByteBuf buf) {
         var numId = buf.readVarInt();
         var blockId = buf.readVarInt();
-        var states = buf.readMap(FriendlyByteBuf::readUtf, FriendlyByteBuf::readUtf);
+        var states = STRING_MAP_CODEC.decode(buf);
         return new PolymerBlockStateEntry(states, numId, blockId);
     }
 }

@@ -131,7 +131,6 @@ public final class PolymerItemUtils {
             DataComponents.TOOL,
             DataComponents.MAX_STACK_SIZE,
             DataComponents.MAP_ID,
-            DataComponents.MAP_COLOR,
             DataComponents.MAP_DECORATIONS,
             DataComponents.MAP_POST_PROCESSING,
             DataComponents.FOOD,
@@ -177,7 +176,8 @@ public final class PolymerItemUtils {
             DataComponents.PIERCING_WEAPON,
             DataComponents.ATTACK_RANGE,
             DataComponents.MINIMUM_ATTACK_CHARGE,
-            DataComponents.SWING_ANIMATION,
+            DataComponents.ATTACK_ANIMATION,
+            DataComponents.INTERACT_ANIMATION,
             DataComponents.USE_EFFECTS
     ));
     private static final ReferenceSet<DataComponentType<?>> FORCE_HIDE_TOOLTIP = new ReferenceOpenHashSet<>(List.of(
@@ -349,12 +349,18 @@ public final class PolymerItemUtils {
         };
 
 
-        for (var x : patch.entrySet()) {
-            if (!PolymerComponent.canSync(x.getKey(), x.getValue().orElse(null), context)) {
+        var split = patch.split();
+
+        for (var x : split.added()) {
+            if (!PolymerComponent.canSync(x.type(), x.value(), context)) {
                 return true;
-            } else if (x.getValue() != null && x.getValue().isPresent()
-                    && x.getValue().get() instanceof TransformingComponent t
-                    && t.polymer$requireModification(context)) {
+            } else if (x.value() instanceof TransformingComponent t && t.polymer$requireModification(context)) {
+                return true;
+            }
+        }
+
+        for (var x : split.removed()) {
+            if (!PolymerComponent.canSync(x, null, context)) {
                 return true;
             }
         }

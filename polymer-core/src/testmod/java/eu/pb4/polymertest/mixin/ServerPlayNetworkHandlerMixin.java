@@ -5,9 +5,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
-import net.minecraft.network.protocol.game.ServerboundSwingPacket;
-import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
-import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -37,7 +34,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
     }
 
 
-    @Inject(method = "handleUseItem", at = @At("TAIL"))
+    /*@Inject(method = "handleUseItem", at = @At("TAIL"))
     private void polymtest_itemUse(ServerboundUseItemPacket packet, CallbackInfo ci) {
         this.player.sendSystemMessage(Component.nullToEmpty("ItemUse: " + " Hand|" + packet.getHand() + " Pitch|" + + packet.getXRot() + " Yaw|" + packet.getYRot() + " Seq|" + packet.getSequence()), false);
     }
@@ -45,7 +42,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
     @Inject(method = "handleUseItemOn", at = @At("TAIL"))
     private void polymtest_blockUse(ServerboundUseItemOnPacket packet, CallbackInfo ci) {
         this.player.sendSystemMessage(Component.nullToEmpty("BlockUse: " + " Hand|" + packet.getHand() + " Pos|" + packet.getHitResult().getBlockPos() + " Seq|" + packet.getSequence()), false);
-    }
+    }*/
 
     @Inject(method = "handlePlayerInput", at = @At("TAIL"))
     private void polymtest_hrte(ServerboundPlayerInputPacket packet, CallbackInfo ci) {
@@ -71,8 +68,8 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
         }
     }
 
-    @Inject(method = "handleAnimate", at = @At("TAIL"))
-    private void onSwing(ServerboundSwingPacket packet, CallbackInfo ci) {
+    //@Inject(method = "handleAnimate", at = @At("TAIL"))
+    //private void onSwing(ServerboundSwingPacket packet, CallbackInfo ci) {
         //this.player.sendMessage(Text.literal("Swing!"));
-    }
+    //}
 }

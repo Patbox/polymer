@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -119,7 +120,7 @@ public class CreativeTabUi extends MicroUi {
                 if (!itemStack.isEmpty()) {
                     ItemStack itemStack2 = itemStack.copy();
                     itemStack2.setCount(button == 0 ? 1 : itemStack2.getMaxStackSize());
-                    player.drop(itemStack2, true);
+                    player.drop(itemStack2, true, Prediction.SERVER_ONLY);
                     //this.client.interactionManager.dropCreativeStack(itemStack2);
                 }
 

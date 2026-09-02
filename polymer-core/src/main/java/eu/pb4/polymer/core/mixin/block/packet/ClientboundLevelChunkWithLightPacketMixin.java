@@ -36,10 +36,10 @@ public class ClientboundLevelChunkWithLightPacketMixin implements ChunkDataS2CPa
             target = "(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/lighting/LevelLightEngine;Ljava/util/BitSet;Ljava/util/BitSet;)Lnet/minecraft/network/protocol/game/ClientboundLightUpdatePacketData;"
         )
     )
-    private ClientboundLightUpdatePacketData polymer$addPolymerLightContext(
-        ChunkPos chunkPos, LevelLightEngine lightEngine, @Nullable BitSet skyChangedLightSectionFilter,
-        @Nullable BitSet blockChangedLightSectionFilter, Operation<ClientboundLightUpdatePacketData> operation,
-        LevelChunk chunk) {
+    private static ClientboundLightUpdatePacketData polymer$addPolymerLightContext(
+            ChunkPos chunkPos, LevelLightEngine lightEngine, @Nullable BitSet skyChangedLightSectionFilter,
+            @Nullable BitSet blockChangedLightSectionFilter, Operation<ClientboundLightUpdatePacketData> operation,
+            LevelChunk chunk) {
         return ScopedValue.where(PolymerLightUpdateHelper.CHUNK_CONTEXT, chunk).call(() -> operation.call(chunkPos, lightEngine, skyChangedLightSectionFilter, blockChangedLightSectionFilter));
     }
 

@@ -10,6 +10,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -37,9 +38,9 @@ public class BlockMixin {
         );
     }
 
-    @Inject(method = "spawnDestroyParticles", at = @At("HEAD"))
-    private void addPolymerParticles(Level world, Player player, BlockPos pos, BlockState state, CallbackInfo ci) {
-        if (player instanceof ServerPlayer serverPlayer
+    @Inject(method = "spawnDestroyByEntityParticles", at = @At("HEAD"))
+    private void addPolymerParticles(Level level, Entity entity, BlockPos pos, BlockState state, CallbackInfo ci) {
+        if (entity instanceof ServerPlayer serverPlayer
                 && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)) {
             serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
         }

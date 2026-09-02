@@ -21,7 +21,7 @@ public abstract class TrackedEntityMixin {
     @Final
     private Set<ServerPlayerConnection> seenBy;
 
-    @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerEntity;<init>(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;IZLnet/minecraft/server/level/ServerEntity$Synchronizer;)V"))
+    @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerEntity;<init>(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/UpdateInterval;ZLnet/minecraft/server/level/ServerEntity$Synchronizer;)V"))
     private ServerEntity.Synchronizer replaceReceiver(ServerEntity.Synchronizer sender, @Local(argsOnly = true) Entity entity) {
         return PolymerServerEntitySynchronizer.of(sender, () -> this.seenBy, entity);
     }

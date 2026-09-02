@@ -25,6 +25,11 @@ public record FallbackServerPacketHandler(ConnectionProtocol phase,
     }
 
     @Override
+    public void handlePunch(ServerboundPunchPacket packet) {
+
+    }
+
+    @Override
     public void handleConfigurationFinished(ServerboundFinishConfigurationPacket packet) {
 
     }
@@ -82,11 +87,6 @@ public record FallbackServerPacketHandler(ConnectionProtocol phase,
     @Override
     public boolean isAcceptingMessages() {
         return true;
-    }
-
-    @Override
-    public void handleAnimate(ServerboundSwingPacket packet) {
-
     }
 
     @Override

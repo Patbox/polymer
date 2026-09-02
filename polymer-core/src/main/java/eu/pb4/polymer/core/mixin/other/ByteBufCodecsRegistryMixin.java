@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-@Mixin(targets = "net/minecraft/network/codec/ByteBufCodecs$29", priority = 500)
+@Mixin(targets = "net/minecraft/network/codec/ByteBufCodecs$32", priority = 500)
 public abstract class ByteBufCodecsRegistryMixin {
 
     @Shadow @Final private ResourceKey val$registryKey;

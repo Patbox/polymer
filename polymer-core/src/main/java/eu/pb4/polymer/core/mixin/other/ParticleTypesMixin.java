@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 @Mixin(ParticleTypes.class)
 public class ParticleTypesMixin {
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;dispatch(Ljava/lang/String;Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
+    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;dispatch(Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
     private static Codec<ParticleOptions> patchCodec(Codec<ParticleOptions> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
             if (PolymerCommonUtils.isServerNetworkingThread() && PolymerParticleType.getOverlay(content.getType()) instanceof PolymerParticleType<?> type) {

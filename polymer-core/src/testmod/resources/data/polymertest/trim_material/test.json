@@ -5,5 +5,6 @@
     "translate": "TEST"
   },
   "ingredient": "test:item",
-  "item_model_index": 0.193702
+  "item_model_index": 0.193702,
+  "palette_id": "test"
 }

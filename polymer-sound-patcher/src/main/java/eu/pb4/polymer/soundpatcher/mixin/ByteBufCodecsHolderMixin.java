@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(targets = "net/minecraft/network/codec/ByteBufCodecs$30", priority = 1200)
+@Mixin(targets = "net/minecraft/network/codec/ByteBufCodecs$33", priority = 1200)
 public abstract class ByteBufCodecsHolderMixin {
     @ModifyVariable(method = "encode(Lnet/minecraft/network/RegistryFriendlyByteBuf;Lnet/minecraft/core/Holder;)V", at = @At("HEAD"), argsOnly = true)
     private Holder<?> polymer$changeData(Holder<?> val, RegistryFriendlyByteBuf buf) {

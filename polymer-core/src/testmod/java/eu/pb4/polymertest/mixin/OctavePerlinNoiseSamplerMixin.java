@@ -6,12 +6,5 @@ import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(PerlinNoise.class)
 public class OctavePerlinNoiseSamplerMixin {
-    /**
-     * @author a
-     * @reason a
-     */
-    @Overwrite
-    public static double wrap(double value) {
-        return value;
-    }
+
 }

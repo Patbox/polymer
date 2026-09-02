@@ -91,7 +91,6 @@
     "other.BuiltInRegistriesMixin",
     "other.ByteBufCodecsEntriesMixin",
     "other.ByteBufCodecsHolderMixin",
-    "other.ByteBufCodecsHolderSetMixin",
     "other.ByteBufCodecsRegistryMixin",
     "other.ClientboundAwardStatsPacketMixin",
     "tag.ClientboundUpdateTagsPacketMixin",

@@ -35,7 +35,7 @@ public abstract class FallingBlockEntityMixin extends Entity {
     @Unique
     private FallingBlockEntityAttachment attachment;
 
-    @Inject(method = "fall", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", shift = At.Shift.BEFORE))
+    @Inject(method = "fall", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z", shift = At.Shift.BEFORE))
     private static void getCurrentAttachment(Level world, BlockPos pos, BlockState state, CallbackInfoReturnable<FallingBlockEntity> cir, @Local FallingBlockEntity entity,
                                              @Share("holder") LocalRef<ElementHolder> ref) {
         var x = BlockBoundAttachment.get(world, pos);
@@ -65,7 +65,7 @@ public abstract class FallingBlockEntityMixin extends Entity {
     }
 
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", shift = At.Shift.BEFORE))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z", shift = At.Shift.BEFORE))
     private void updatePos(CallbackInfo ci, @Local(ordinal = 0) BlockPos blockPos) {
         var att = this.attachment;
 

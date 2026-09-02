@@ -2,26 +2,34 @@ package eu.pb4.polymer.networking.impl.packets;
 
 import eu.pb4.polymer.networking.api.ContextByteBuf;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
-
-import java.util.Map;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.IntFunction;
+
 public record HandshakePayload(String version, Map<Identifier, int[]> packetVersions) implements CustomPacketPayload {
     public static final Type<HandshakePayload> ID = PolymerNetworking.id("polymer", "handshake");
-    public static StreamCodec<ContextByteBuf, HandshakePayload> CODEC = StreamCodec.ofMember(HandshakePayload::write, HandshakePayload::read);
+    public static StreamCodec<ContextByteBuf, HandshakePayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8.cast(),
+            HandshakePayload::version,
+            ByteBufCodecs.map((IntFunction<Map<Identifier, int[]>>) HashMap::new, Identifier.STREAM_CODEC, new StreamCodec<ContextByteBuf, int[]>() {
 
-    public void write(ContextByteBuf buf) {
-        buf.writeUtf(this.version);
-        buf.writeMap(packetVersions, FriendlyByteBuf::writeIdentifier, FriendlyByteBuf::writeVarIntArray);
-    }
+                @Override
+                public void encode(ContextByteBuf output, int[] value) {
+                    output.writeVarIntArray(value);
+                }
 
-    public static HandshakePayload read(ContextByteBuf buf) {
-        return new HandshakePayload(buf.readUtf(), buf.readMap(FriendlyByteBuf::readIdentifier, FriendlyByteBuf::readVarIntArray));
-    }
+                @Override
+                public int[] decode(ContextByteBuf input) {
+                    return input.readVarIntArray();
+                }
+            }), HandshakePayload::packetVersions,
+            HandshakePayload::new
+    );
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

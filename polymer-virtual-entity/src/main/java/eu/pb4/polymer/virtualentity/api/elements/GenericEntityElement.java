@@ -5,6 +5,7 @@ import eu.pb4.polymer.virtualentity.api.data.SynchedEntityDataLike;
 import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import eu.pb4.polymer.virtualentity.api.data.SimpleSynchedEntityData;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.world.entity.*;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -19,10 +20,6 @@ import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.phys.Vec3;
 
 @SuppressWarnings("ConstantConditions")
@@ -173,7 +170,7 @@ public abstract class GenericEntityElement extends AbstractElement {
         }
 
         if (this.lastSyncedPos == null || this.alwaysSyncAbsolutePosition || this.updatesSinceLastAbsolutePositionSync > 200) {
-            packet = new ClientboundEntityPositionSyncPacket(this.id, new PositionMoveRotation(pos, Vec3.ZERO, this.yaw, this.pitch), false);
+            packet = new ClientboundEntityPositionSyncPacket(this.id, new PositionPath.Linear(pos), this.yaw, this.pitch, false);
             this.updatesSinceLastAbsolutePositionSync = 0;
         } else {
             packet = VirtualEntityUtils.createMovePacket(this.id, this.lastSyncedPos, pos, this.isRotationDirty, this.yaw, this.pitch);

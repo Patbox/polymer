@@ -12,7 +12,6 @@ import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,7 +45,8 @@ public abstract class KeyboardHandlerMixin {
 
         var key = keyInput.key();
 
-        if (key == GLFW.GLFW_KEY_0) {
+        // Todo
+        /*if (key == GLFW.GLFW_KEY_0) {
             PolymerImplUtils.dumpRegistry();
             this.debugFeedbackComponent(Component.literal("Dumped Polymer Client registry!"));
             cir.setReturnValue(true);
@@ -58,6 +58,6 @@ public abstract class KeyboardHandlerMixin {
             ClientDebugFlags.customFonts = !ClientDebugFlags.customFonts;
             this.debugFeedbackComponent(Component.literal("Custom fonts: " + ClientDebugFlags.customFonts));
             cir.setReturnValue(true);
-        }
+        }*/
     }
 }
