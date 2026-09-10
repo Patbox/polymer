@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
@@ -83,8 +84,8 @@ public class DefaultModelData {
         }
         generateDefault(BlockModelType.BIOME_COLORED_LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
         generateDefault(BlockModelType.BIOME_COLORED_LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES, Blocks.MANGROVE_LEAVES);
-        generateDefault(BlockModelType.LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.PALE_OAK_LEAVES);
-        generateDefault(BlockModelType.LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.PALE_OAK_LEAVES);
+        generateDefault(BlockModelType.LEAVES, NOT_WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.PALE_OAK_LEAVES, Blocks.YELLOW_POPLAR_LEAVES, Blocks.ORANGE_POPLAR_LEAVES, Blocks.RED_POPLAR_LEAVES);
+        generateDefault(BlockModelType.LEAVES_WATERLOGGED, WATERLOGGED_PREDICATE, Blocks.AZALEA_LEAVES, Blocks.FLOWERING_AZALEA_LEAVES, Blocks.BIRCH_LEAVES, Blocks.SPRUCE_LEAVES, Blocks.PALE_OAK_LEAVES, Blocks.YELLOW_POPLAR_LEAVES, Blocks.ORANGE_POPLAR_LEAVES, Blocks.RED_POPLAR_LEAVES);
         generateDefault(BlockModelType.KELP, Blocks.KELP);
         generateDefault(BlockModelType.CACTUS, Blocks.CACTUS);
 
@@ -137,7 +138,7 @@ public class DefaultModelData {
         {
             var plant = new ReferenceArrayList<BlockState>();
 
-            for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING, Blocks.CHERRY_SAPLING, Blocks.PALE_OAK_SAPLING}) {
+            for (var block : new Block[]{Blocks.OAK_SAPLING, Blocks.BIRCH_SAPLING, Blocks.SPRUCE_SAPLING, Blocks.JUNGLE_SAPLING, Blocks.ACACIA_SAPLING, Blocks.DARK_OAK_SAPLING, Blocks.CHERRY_SAPLING, Blocks.PALE_OAK_SAPLING, Blocks.POPLAR_SAPLING}) {
                 plant.addAll(block.getStateDefinition().getPossibleStates());
                 plant.remove(block.defaultBlockState());
             }
@@ -285,6 +286,7 @@ public class DefaultModelData {
                     Blocks.MANGROVE_SHELF,
                     Blocks.BAMBOO_SHELF,
                     Blocks.PALE_OAK_SHELF,
+                    Blocks.POPLAR_SHELF,
                     Blocks.CHERRY_SHELF,
                     Blocks.WARPED_SHELF
             )) {
@@ -546,6 +548,7 @@ public class DefaultModelData {
                     Pair.of(Blocks.MANGROVE_SLAB, Blocks.MANGROVE_PLANKS),
                     Pair.of(Blocks.BAMBOO_SLAB, Blocks.BAMBOO_PLANKS),
                     Pair.of(Blocks.BAMBOO_MOSAIC_SLAB, Blocks.BAMBOO_MOSAIC),
+                    Pair.of(Blocks.POPLAR_SLAB, Blocks.POPLAR_PLANKS),
                     Pair.of(Blocks.STONE_SLAB, Blocks.STONE),
                     Pair.of(Blocks.SANDSTONE_SLAB, Blocks.SANDSTONE),
                     Pair.of(Blocks.CUT_SANDSTONE_SLAB, Blocks.CUT_SANDSTONE),
@@ -599,6 +602,18 @@ public class DefaultModelData {
                     Pair.of(Blocks.POLISHED_CINNABAR_SLAB, Blocks.POLISHED_CINNABAR),
                     Pair.of(Blocks.CINNABAR_BRICK_SLAB, Blocks.CINNABAR_BRICKS)
             ));
+
+            for (var c : DyeColor.values()) {
+                var woolSlab = Blocks.WOOL_SLAB.pick(c);
+                var wool = Blocks.WOOL.pick(c);
+
+                fullSlabs.add(Pair.of(woolSlab, wool));
+
+                var concreteSlab = Blocks.CONCRETE_SLAB.pick(c);
+                var concrete = Blocks.CONCRETE.pick(c);
+
+                fullSlabs.add(Pair.of(concreteSlab, concrete));
+            }
 
             var fullRefs = USABLE_STATES.get(BlockModelType.FULL_BLOCK);
             for (var pair : fullSlabs) {
@@ -736,7 +751,7 @@ public class DefaultModelData {
             addFenceGates(Blocks.ACACIA_FENCE_GATE, Blocks.BAMBOO_FENCE_GATE, Blocks.BIRCH_FENCE_GATE,
                     Blocks.CHERRY_FENCE_GATE, Blocks.CRIMSON_FENCE_GATE, Blocks.DARK_OAK_FENCE_GATE,
                     Blocks.JUNGLE_FENCE_GATE, Blocks.MANGROVE_FENCE_GATE, Blocks.OAK_FENCE_GATE,
-                    Blocks.PALE_OAK_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.WARPED_FENCE_GATE);
+                    Blocks.PALE_OAK_FENCE_GATE, Blocks.POPLAR_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.WARPED_FENCE_GATE);
         }
 
         if (false) {
@@ -796,6 +811,7 @@ public class DefaultModelData {
         list.add(addSinglePoweredDoor(Blocks.SPRUCE_DOOR, Blocks.SPRUCE_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.WARPED_DOOR, Blocks.WARPED_DOOR, direction, doorHinge, doubleBlockHalf, open));
         list.add(addSinglePoweredDoor(Blocks.PALE_OAK_DOOR, Blocks.PALE_OAK_DOOR, direction, doorHinge, doubleBlockHalf, open));
+        list.add(addSinglePoweredDoor(Blocks.POPLAR_DOOR, Blocks.POPLAR_DOOR, direction, doorHinge, doubleBlockHalf, open));
 
         Blocks.COPPER_DOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
             list.add(addSinglePoweredDoor(waxed, unwaxed, direction, doorHinge, doubleBlockHalf, open));
@@ -837,6 +853,7 @@ public class DefaultModelData {
         list.add(addSinglePoweredClosedTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredClosedTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredClosedTrapdoor(Blocks.POPLAR_TRAPDOOR, facing, half, waterlogged));
 
 
         Blocks.COPPER_TRAPDOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
@@ -865,6 +882,7 @@ public class DefaultModelData {
         list.add(addSinglePoweredOpenTrapdoor(Blocks.SPRUCE_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.WARPED_TRAPDOOR, facing, half, waterlogged));
         list.add(addSinglePoweredOpenTrapdoor(Blocks.PALE_OAK_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSinglePoweredOpenTrapdoor(Blocks.POPLAR_TRAPDOOR, facing, half, waterlogged));
 
         Blocks.COPPER_TRAPDOOR.zipUnwaxedWaxed((unwaxed, waxed) -> {
             list.add(addSinglePoweredOpenTrapdoor(waxed, facing, half, waterlogged));

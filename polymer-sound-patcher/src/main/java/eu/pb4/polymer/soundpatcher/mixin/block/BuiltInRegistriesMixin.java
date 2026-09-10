@@ -4,6 +4,7 @@ import eu.pb4.polymer.soundpatcher.api.SoundPatcher;
 import eu.pb4.polymer.soundpatcher.impl.SoundPatchImpl;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,6 +28,21 @@ public class BuiltInRegistriesMixin {
                 }
             }
         }
+
+        for (var field : WoodType.class.getDeclaredFields()) {
+            if (field.getType() == WoodType.class) {
+                try {
+                    var type = (WoodType) field.get(null);
+
+                    SoundPatcher.convertIntoServerSound(type.fenceGateClose());
+                    SoundPatcher.convertIntoServerSound(type.fenceGateOpen());
+                } catch (Throwable e) {
+                    // ignored
+                }
+            }
+        }
+
+
 
         for (var block : BuiltInRegistries.BLOCK) {
             var id = BuiltInRegistries.BLOCK.getKey(block);

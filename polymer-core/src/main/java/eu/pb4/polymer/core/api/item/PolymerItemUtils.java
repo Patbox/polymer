@@ -169,6 +169,7 @@ public final class PolymerItemUtils {
             DataComponents.BREAK_SOUND,
             DataComponents.PROVIDES_BANNER_PATTERNS,
             DataComponents.PROVIDES_TRIM_MATERIAL,
+            DataComponents.PROVIDES_POTTERY_PATTERN,
             DataComponents.CHARGED_PROJECTILES,
             DataComponents.WEAPON,
             DataComponents.TOOLTIP_DISPLAY,
@@ -178,6 +179,12 @@ public final class PolymerItemUtils {
             DataComponents.MINIMUM_ATTACK_CHARGE,
             DataComponents.ATTACK_ANIMATION,
             DataComponents.INTERACT_ANIMATION,
+            DataComponents.BLOCK_TRANSFORMER,
+            DataComponents.BREWING_FUEL,
+            DataComponents.COOKING_FUEL,
+            DataComponents.COMPOSTABLE,
+            DataComponents.MOB_VISIBILITY,
+            DataComponents.VILLAGER_FOOD,
             DataComponents.USE_EFFECTS
     ));
     private static final ReferenceSet<DataComponentType<?>> FORCE_HIDE_TOOLTIP = new ReferenceOpenHashSet<>(List.of(
