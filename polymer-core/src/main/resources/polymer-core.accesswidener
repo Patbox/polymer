@@ -1,4 +1,5 @@
 accessWidener	v1	official
+accessible  class   net/minecraft/core/component/Removed
 accessible	class	net/minecraft/server/level/ServerChunkCache$MainThreadExecutor
 accessible	class	net/minecraft/server/level/ChunkMap$TrackedEntity
 accessible	class	net/minecraft/server/network/ServerLoginPacketListenerImpl$State
