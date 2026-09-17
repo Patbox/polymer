@@ -85,6 +85,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -666,8 +667,11 @@ public class TestMod implements ModInitializer {
         DefaultItemComponentEvents.MODIFY.register(x -> x.modify(Items.DIAMOND, b -> b.set(DataComponents.MAX_STACK_SIZE, 99)));
         DefaultItemComponentEvents.MODIFY.register(x -> x.modify(Items.CHAINMAIL_HELMET, b -> b.set(DataComponents.EQUIPPABLE, null)));
         DefaultItemComponentEvents.MODIFY.register(x -> x.modify(Items.CHAINMAIL_CHESTPLATE, b -> b.set(DataComponents.EQUIPPABLE, null)));
+        DefaultItemComponentEvents.MODIFY.register(x -> x.modify(Items.CHAINMAIL_LEGGINGS, b -> b.set(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).build())));
+
         PolymerItemUtils.syncDefaultComponent(Items.DIAMOND, DataComponents.MAX_STACK_SIZE);
         PolymerItemUtils.syncDefaultComponent(Items.CHAINMAIL_HELMET, DataComponents.EQUIPPABLE);
+        PolymerItemUtils.syncDefaultComponent(Items.CHAINMAIL_LEGGINGS, DataComponents.EQUIPPABLE);
 
         PolymerComponent.registerDataComponent(TEST, CLIENT_ITEM);
 

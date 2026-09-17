@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
-import java.util.Optional;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.Removed;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 
@@ -36,11 +36,11 @@ public abstract class ItemStackPacketCodecMixin {
             return object;
         }
         var original = ((DataComponentPatchAccessor) object).getMap();
-        var changes = new Reference2ObjectOpenHashMap<DataComponentType<?>, Optional<?>>(changedDefaults.size() + original.size());
+        var changes = new Reference2ObjectOpenHashMap<DataComponentType<?>, Object>(changedDefaults.size() + original.size());
         changes.putAll(original);
         for (var type : changedDefaults) {
             if (!changes.containsKey(type)) {
-                changes.put(type, Optional.ofNullable(stack.getItem().components().get(type)));
+                changes.put(type, Removed.nullToRemoved(stack.getItem().components().get(type)));
             }
         }
 
