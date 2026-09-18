@@ -174,6 +174,7 @@ public enum BlockModelType {
     FIRE_EAST_SOUTH_WEST,
     FIRE_EAST_SOUTH_WEST_UP,
     FIRE_NORTH_EAST_SOUTH_WEST,
+    FIRE_NORTH_EAST_SOUTH_WEST_UP,
     // Stairs
     STAIRS_NORTH_TOP_STRAIGHT,
     STAIRS_NORTH_TOP_STRAIGHT_WATERLOGGED,
@@ -454,6 +455,7 @@ public enum BlockModelType {
     public static BlockModelType getFire(Direction... directions) {
         return getFire(List.of(directions));
     }
+
     public static BlockModelType getFire(Collection<Direction> directions) {
         int id = 0;
 
