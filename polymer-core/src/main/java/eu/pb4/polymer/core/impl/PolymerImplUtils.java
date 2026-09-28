@@ -1,6 +1,7 @@
 package eu.pb4.polymer.core.impl;
 
 import eu.pb4.polymer.common.impl.CompatStatus;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
@@ -16,6 +17,7 @@ import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,8 +31,13 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedWriter;
@@ -246,6 +253,19 @@ public class PolymerImplUtils {
             return getModName(id);
         }
         return null;
+    }
+
+    public static BlockHitResult clientCorrectedBlockClip(ServerPlayer player, boolean withLiquids) {
+        var range = player.blockInteractionRange();
+        Vec3 from = player.getEyePosition(0);
+        Vec3 viewVector = player.getViewVector(0);
+        Vec3 to = from.add(viewVector.x * range, viewVector.y * range, viewVector.z * range);
+        return player.level().clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, withLiquids ? net.minecraft.world.level.ClipContext.Fluid.ANY : net.minecraft.world.level.ClipContext.Fluid.NONE, player) {
+            @Override
+            public VoxelShape getBlockShape(BlockState blockState, BlockGetter level, BlockPos pos) {
+                return super.getBlockShape(PolymerBlockUtils.getPolymerBlockState(blockState, player.getPacketContext()), level, pos);
+            }
+        });
     }
 
     public static String getModName(Identifier id) {

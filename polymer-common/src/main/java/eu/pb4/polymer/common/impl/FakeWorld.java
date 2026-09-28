@@ -10,12 +10,11 @@ import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedList;
@@ -27,40 +26,23 @@ import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.clock.ClockInstance;
 import net.minecraft.world.clock.ClockManager;
 import net.minecraft.world.clock.WorldClock;
-import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.chicken.ChickenSoundVariants;
-import net.minecraft.world.entity.animal.chicken.ChickenVariant;
-import net.minecraft.world.entity.animal.cow.CowSoundVariants;
-import net.minecraft.world.entity.animal.cow.CowVariant;
-import net.minecraft.world.entity.animal.feline.CatSoundVariants;
-import net.minecraft.world.entity.animal.feline.CatVariant;
-import net.minecraft.world.entity.animal.frog.FrogVariant;
-import net.minecraft.world.entity.animal.nautilus.ZombieNautilusVariant;
-import net.minecraft.world.entity.animal.pig.PigSoundVariants;
-import net.minecraft.world.entity.animal.pig.PigVariant;
-import net.minecraft.world.entity.animal.wolf.WolfSoundVariants;
-import net.minecraft.world.entity.animal.wolf.WolfVariant;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
-import net.minecraft.world.entity.decoration.painting.PaintingVariant;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.variant.ModelAndTexture;
-import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.RecipeAccess;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.*;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -92,6 +74,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -103,122 +86,31 @@ public final class FakeWorld extends Level implements LightChunk {
     public static final Level INSTANCE_REGULAR;
     static final Scoreboard SCOREBOARD = new Scoreboard();
 
-    static final RegistryAccess FALLBACK_REGISTRY_MANAGER = new RegistryAccess.Frozen() {
-        private static final Map<ResourceKey<?>, Registry<?>> REGISTRIES = new HashMap<>();
+    static final RegistryAccess FALLBACK_REGISTRY_MANAGER = new RegistryAccess() {
+        private final Map<ResourceKey<?>, Optional<Registry<?>>> REGISTRIES = VanillaRegistries.createReloadableLookup(VanillaRegistries.createWorldLookup())
+                .listRegistries().map(lookup -> {
+                    if (BuiltInRegistries.REGISTRY.containsKey((ResourceKey) lookup.key())) {
+                        return BuiltInRegistries.REGISTRY.getValue((ResourceKey) lookup.key());
+                    }
+                    var reg = new MappedRegistry<>((ResourceKey) lookup.key(), lookup.registryLifecycle());
 
-        static {
-            addRegistry(new FakeRegistry<>(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath("polymer", "fake_damage"),
-                    new DamageType("", DamageScaling.NEVER, 0)));
-            addRegistry(new FakeRegistry<>(Registries.BANNER_PATTERN,
-                    Identifier.fromNamespaceAndPath("polymer", "fake_pattern"),
-                    new BannerPattern(Identifier.fromNamespaceAndPath("polymer", "fake_pattern"), "")));
-            addRegistry(new FakeRegistry<>(Registries.PAINTING_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "painting"),
-                    new PaintingVariant(1, 1, Identifier.fromNamespaceAndPath("polymer", "painting"), Optional.empty(), Optional.empty())));
-            addRegistry(new FakeRegistry<>(Registries.WOLF_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "wolf"),
-                    new WolfVariant(new WolfVariant.AssetInfo(
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
-                            new WolfVariant.AssetInfo(
-                                    new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
-                                    new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
-                                    new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))), SpawnPrioritySelectors.EMPTY)));
+                    lookup.listElements().forEach(entry -> {
+                        if (!reg.containsKey(entry.key()) && reg.getKey(entry.value()) == null) {
+                            reg.register(entry.key(), entry.value(), RegistrationInfo.BUILT_IN);
+                        }
+                    });
 
-            addRegistry(new FakeRegistry<>(Registries.COW_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "cow"),
-                    new CowVariant(
-                            new ModelAndTexture<>(CowVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
-                            SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.PIG_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "pig"),
-                    new PigVariant(
-                            new ModelAndTexture<>(PigVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
-                            SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.CHICKEN_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "chicken"),
-                    new ChickenVariant(
-                            new ModelAndTexture<>(ChickenVariant.ModelType.NORMAL, new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf"))),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "wolf")),
-                            SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.CAT_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "cat"),
-                    new CatVariant(
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "cat")),
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "cat")),
-                            SpawnPrioritySelectors.EMPTY)));
-            addRegistry(new FakeRegistry<>(Registries.FROG_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "frog"),
-                    new FrogVariant(
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "frog")
-                            ), SpawnPrioritySelectors.EMPTY)));
-            addRegistry(new FakeRegistry<>(Registries.WOLF_SOUND_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "wolf"),
-                    SoundEvents.WOLF_SOUNDS.get(WolfSoundVariants.SoundSet.CLASSIC)));
-
-            addRegistry(new FakeRegistry<>(Registries.CAT_SOUND_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "cat"),
-                    SoundEvents.CAT_SOUNDS.get(CatSoundVariants.SoundSet.CLASSIC)));
-
-            addRegistry(new FakeRegistry<>(Registries.CHICKEN_SOUND_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "chicken"),
-                    SoundEvents.CHICKEN_SOUNDS.get(ChickenSoundVariants.SoundSet.CLASSIC)));
-
-            addRegistry(new FakeRegistry<>(Registries.COW_SOUND_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "cow"),
-                    SoundEvents.COW_SOUNDS.get(CowSoundVariants.SoundSet.CLASSIC)));
-
-            addRegistry(new FakeRegistry<>(Registries.PIG_SOUND_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "pig"),
-                    SoundEvents.PIG_SOUNDS.get(PigSoundVariants.SoundSet.CLASSIC)));
-
-            addRegistry(new FakeRegistry<>(Registries.ZOMBIE_NAUTILUS_VARIANT,
-                    Identifier.fromNamespaceAndPath("polymer", "zombie_noutilus_variant"),
-                    new ZombieNautilusVariant(new ModelAndTexture<>(ZombieNautilusVariant.ModelType.NORMAL,
-                            new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("polymer", "zombie_noutilus"))), SpawnPrioritySelectors.EMPTY)));
-
-            addRegistry(new FakeRegistry<>(Registries.BIOME, Identifier.fromNamespaceAndPath("polymer", "fake_biome"),
-                    new Biome.BiomeBuilder()
-                            .temperature(0)
-                            .downfall(0)
-                            .specialEffects(new BiomeSpecialEffects.Builder().waterColor(0).build())
-                            .mobSpawnSettings(new MobSpawnSettings.Builder().build())
-                            .generationSettings(BiomeGenerationSettings.EMPTY)
-                            .build()));
-
-            addRegistry(new FakeRegistry<>(Registries.RECIPE, Identifier.fromNamespaceAndPath("polymer", "recipe"),
-                    new StonecutterRecipe(new Recipe.CommonInfo(false), Ingredient.of(Items.STONE), new ItemStackTemplate(Items.STONE))));
-        }
-
-        public static void addRegistry(FakeRegistry<?> registry) {
-            REGISTRIES.put(registry.key(), registry);
-        }
+                    return reg;
+                }).collect(Collectors.toMap(Registry::key, Optional::of));
 
         @Override
-        public Optional<Registry> lookup(ResourceKey key) {
-            var x = BuiltInRegistries.REGISTRY.getValue(key);
-            if (x != null) {
-                return Optional.of(x);
-            }
-
-            var reg = REGISTRIES.get(key);
-
-            if (reg != null) {
-                return Optional.of(reg);
-            }
-
-            return Optional.empty();
+        public <E> Optional<Registry<E>> lookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
+            return (Optional<Registry<E>>) (Object) REGISTRIES.getOrDefault(registryKey, Optional.empty());
         }
 
         @Override
         public Stream<RegistryEntry<?>> registries() {
-            return Stream.empty();
+            return REGISTRIES.values().stream().map(x -> new RegistryEntry(x.orElseThrow().key(), x.orElseThrow()));
         }
     };
     static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
@@ -284,7 +176,7 @@ public final class FakeWorld extends Level implements LightChunk {
 
         var dimType = Holder.Reference.createIntrusive(new HolderOwner<>() {
                                                        },
-                new DimensionType(true, false, false, false,1.0D,
+                new DimensionType(true, false, false, false, 1.0D,
                         -64, 256, 256, HolderSet.empty(), 1,
                         new DimensionType.MonsterSettings(UniformInt.of(0, 7), 0),
                         DimensionType.Skybox.NONE, CardinalLighting.Type.DEFAULT, EnvironmentAttributeMap.builder().build(), HolderSet.empty(),

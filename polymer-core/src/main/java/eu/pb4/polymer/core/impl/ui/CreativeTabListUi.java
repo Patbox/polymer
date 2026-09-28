@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 public class CreativeTabListUi extends MicroUi {
     private static final int ITEMS_PER_PAGE = 45;
     private final List<CreativeModeTab> items;
+    private final ServerPlayer player;
 
     private int page;
 
@@ -25,8 +26,19 @@ public class CreativeTabListUi extends MicroUi {
         this.items.addAll(PolymerCreativeModeTabUtils.getCreativeModeTabs(player));
         this.page = 0;
         this.drawUi();
+        this.player = player;
 
         this.open(player);
+    }
+
+    @Override
+    protected void tick() {
+        if (!this.player.isCreative()) {
+            this.clear();
+            this.player.closeContainer();
+            return;
+        }
+        super.tick();
     }
 
     private void drawUi() {

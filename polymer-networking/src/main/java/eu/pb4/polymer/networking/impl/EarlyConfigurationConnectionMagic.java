@@ -23,6 +23,10 @@ public class EarlyConfigurationConnectionMagic {
     private static final List<Function<EarlyConfigurationNetworkHandler.Context, EarlyConfigurationNetworkHandler>> CONSTRUCTORS = new ArrayList<>();
 
     public static void handle(GameProfile profile, ClientInformation options, ServerLoginPacketListenerImpl loginHandler, MinecraftServer server, Connection connection, Consumer<ContextImpl> finish) {
+        if (CONSTRUCTORS.isEmpty()) {
+            return;
+        }
+
         var iterator = new ArrayList<>(CONSTRUCTORS).iterator();
 
         var ctx = new ContextImpl(server, profile, connection, loginHandler, new ArrayList<>(), (c) -> {
@@ -47,7 +51,13 @@ public class EarlyConfigurationConnectionMagic {
     }
 
     static {
-        register(PolymerHandshakeHandlerImplLogin::create);
+        if (!NetImpl.IS_DISABLED) {
+            register(PolymerHandshakeHandlerImplLogin::create);
+        }
+    }
+
+    public static boolean isEmpty() {
+        return CONSTRUCTORS.isEmpty();
     }
 
     public record ContextImpl(

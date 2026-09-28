@@ -1,12 +1,21 @@
 package eu.pb4.polymer.core.mixin.other;
 
+import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.core.impl.PolymerCommandsImpl;
 import eu.pb4.polymer.core.impl.interfaces.PolymerCommonPacketListenerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.ScheduledPacket;
+import eu.pb4.polymer.core.impl.ui.PotionUi;
 import io.netty.channel.ChannelFutureListener;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.stats.StatType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -83,5 +92,28 @@ public abstract class ServerCommonPacketListenerImplMixin implements PolymerComm
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V", at = @At("TAIL"))
     private void polymer$extra(Packet<ClientGamePacketListener> packet, ChannelFutureListener listener, CallbackInfo ci) {
         PacketPatcher.sendExtra((ServerCommonPacketListenerImpl) (Object) this, packet);
+    }
+
+    @Inject(method = "handleCustomClickAction", at = @At("TAIL"))
+    private void polymer$handleCustomClickAction(ServerboundCustomClickActionPacket packet, CallbackInfo ci) {
+        var id = packet.id();
+
+        if (this instanceof ServerPlayerConnection connection && id.getNamespace().equals("polymer")) {
+            if (id.getPath().equals("open_statistics_tab")
+                    && packet.payload().orElse(null) instanceof StringTag value
+                    && CommonImplUtils.permissionCheck(connection.getPlayer(), "command/stats", 0)) {
+                var type = BuiltInRegistries.STAT_TYPE.getValue(Identifier.tryParse(value.value()));
+
+                if (type != null) {
+                    PolymerCommandsImpl.openStatsScreen(connection.getPlayer(), (StatType<Object>) type);
+                }
+            } else if (id.getPath().equals("open_statistics")
+                    && CommonImplUtils.permissionCheck(connection.getPlayer(), "command/stats", 0)) {
+                PolymerCommandsImpl.openStatsScreenGeneral(connection.getPlayer());
+            } else if (id.getPath().equals("open_effects")
+                    && CommonImplUtils.permissionCheck(connection.getPlayer(), "command/effects", 0)) {
+                new PotionUi(connection.getPlayer());
+            }
+        }
     }
 }

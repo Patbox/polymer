@@ -27,9 +27,7 @@ public final class PolymerImpl {
     public static final boolean FIX_STONECUTER;
     public static final int SPLIT_RECIPE_PACKETS;
     public static final boolean EXTENDED_RECIPE_INGREDIENTS;
-
-
-    public static final boolean OVERRIDE_POLYMC_MINING;
+    public static final boolean PREDICTIVE_SERVER_MINING;
 
     static {
         var serverConfig =  CommonImpl.loadAndRegisterConfig("server", ServerConfig.class);
@@ -40,10 +38,10 @@ public final class PolymerImpl {
         LOG_BLOCKSTATE_REBUILDS = serverConfig.logBlockStateRebuilds;
         LOG_MORE_ERRORS = CommonImpl.LOG_MORE_ERRORS;
         LIGHT_UPDATE_TICK_DELAY = serverConfig.lightUpdateTickDelay;
-        OVERRIDE_POLYMC_MINING = serverConfig.overridePolyMcMining;
         SPLIT_RECIPE_PACKETS = serverConfig.splitRecipeBookPacket;
         FIX_STONECUTER = serverConfig.stonecutterFix;
         EXTENDED_RECIPE_INGREDIENTS = serverConfig.extendedRecipeIngredients;
+        PREDICTIVE_SERVER_MINING = serverConfig.predictiveServerMining;
 
         if (PolymerImpl.IS_CLIENT) {
             var clientConfig =  CommonImpl.loadAndRegisterConfig("client", ClientConfig.class);

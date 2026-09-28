@@ -19,7 +19,9 @@ public class ClientboundLevelEventPacketMixin {
     @Shadow @Final private int type;
     @ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;writeInt(I)Lnet/minecraft/network/FriendlyByteBuf;", ordinal = 1))
     private int polymer$replaceValue(int data) {
-        if (this.type == LevelEvent.PARTICLES_DESTROY_BLOCK) {
+        if (this.type == LevelEvent.PARTICLES_DESTROY_BLOCK
+                || this.type == LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK
+        ) {
             var state = Block.stateById(data);
             var player = PacketContext.get();
 

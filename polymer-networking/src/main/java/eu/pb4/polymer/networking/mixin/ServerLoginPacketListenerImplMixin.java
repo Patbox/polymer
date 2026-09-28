@@ -40,9 +40,7 @@ public abstract class ServerLoginPacketListenerImplMixin implements PacketListen
 
     @Shadow @Final
     MinecraftServer server;
-
-    @Shadow public abstract void onDisconnect(DisconnectionDetails info);
-
+    
     @Unique
     private boolean polymerNet$ignoreCall = false;
 
@@ -66,12 +64,12 @@ public abstract class ServerLoginPacketListenerImplMixin implements PacketListen
 
     @WrapWithCondition(method = "handleLoginAcknowledgement", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;setupOutboundProtocol(Lnet/minecraft/network/ProtocolInfo;)V"))
     private boolean dontDuplicateCalls(Connection instance, ProtocolInfo<?> newState) {
-        return NetImpl.IS_DISABLED;
+        return EarlyConfigurationConnectionMagic.isEmpty();
     }
 
     @WrapOperation(method = "handleLoginAcknowledgement", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;setupInboundProtocol(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"))
     private void dontDuplicateCalls2(Connection instance, ProtocolInfo<PacketListener> state, PacketListener packetListener, Operation<Void> original) {
-        if (NetImpl.IS_DISABLED) {
+        if (EarlyConfigurationConnectionMagic.isEmpty()) {
             original.call(instance, state, packetListener);
         } else {
             ((ConnectionAccessor) instance).setPacketListener(packetListener);
@@ -80,7 +78,7 @@ public abstract class ServerLoginPacketListenerImplMixin implements PacketListen
 
     @Inject(method = "handleLoginAcknowledgement", at = @At("HEAD"), cancellable = true)
     private void polymerNet$prePlayHandshakeHackfest(ServerboundLoginAcknowledgedPacket packet, CallbackInfo ci) {
-        if (this.polymerNet$ignoreCall || NetImpl.IS_DISABLED) {
+        if (this.polymerNet$ignoreCall || EarlyConfigurationConnectionMagic.isEmpty()) {
             return;
         }
         ci.cancel();

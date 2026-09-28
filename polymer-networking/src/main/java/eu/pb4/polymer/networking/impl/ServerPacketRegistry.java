@@ -45,6 +45,10 @@ public class ServerPacketRegistry {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static boolean handle(MinecraftServer server, ServerCommonPacketListenerImpl handler, CustomPacketPayload packet) {
+        if (NetImpl.IS_DISABLED) {
+            return false;
+        }
+
         var packetHandlers = COMMON_PACKET_LISTENERS.get(packet.getClass());
         boolean handled = false;
         if (packetHandlers != null) {

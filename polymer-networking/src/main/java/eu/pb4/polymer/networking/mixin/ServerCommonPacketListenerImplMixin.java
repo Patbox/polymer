@@ -1,5 +1,6 @@
 package eu.pb4.polymer.networking.mixin;
 
+import eu.pb4.polymer.networking.impl.NetImpl;
 import eu.pb4.polymer.networking.impl.PacketListenerImplExtension;
 import eu.pb4.polymer.networking.impl.ServerPacketRegistry;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;

@@ -1,6 +1,9 @@
 package eu.pb4.polymer.networking.impl;
 
+import com.google.gson.annotations.SerializedName;
+
 public class NetConfig {
-    public String _c1 = "Sends GameJoin packet, only enable if sync does work (most likely for servers under proxy)";
-    public boolean sendGameJoinBeforeSync = false;
+    public String _c2 = "Forcefully disables networking between server and client. I suggest not disabling it for better mod compatibility and client extras.";
+    @SerializedName("disable_player_networking")
+    public boolean forceDisable = false;
 }

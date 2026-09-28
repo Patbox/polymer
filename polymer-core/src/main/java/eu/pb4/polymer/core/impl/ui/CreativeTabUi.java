@@ -16,6 +16,7 @@ public class CreativeTabUi extends MicroUi {
 
     private final CreativeModeTab itemGroup;
     private final NonNullList<ItemStack> items;
+    private final ServerPlayer player;
     private int page;
 
     public CreativeTabUi(ServerPlayer player, CreativeModeTab itemGroup) {
@@ -35,8 +36,19 @@ public class CreativeTabUi extends MicroUi {
         }
         this.page = 0;
         this.drawUi();
+        this.player = player;
 
         this.open(player);
+    }
+
+    @Override
+    protected void tick() {
+        if (!this.player.isCreative()) {
+            this.clear();
+            this.player.closeContainer();
+            return;
+        }
+        super.tick();
     }
 
     private void drawUi() {
@@ -88,6 +100,11 @@ public class CreativeTabUi extends MicroUi {
     }
 
     protected void onMouseClick(ItemStack itemStack, int slotId, int button, ContainerInput actionType, ServerPlayer player) {
+        if (!player.isCreative()) {
+            player.closeContainer();
+            return;
+        }
+
         boolean bl = actionType == ContainerInput.QUICK_MOVE;
         actionType = slotId == -999 && actionType == ContainerInput.PICKUP ? ContainerInput.THROW : actionType;
 

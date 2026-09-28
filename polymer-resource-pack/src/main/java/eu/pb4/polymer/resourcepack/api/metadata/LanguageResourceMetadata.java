@@ -9,5 +9,9 @@ public record LanguageResourceMetadata(Map<String, LanguageDefinition> definitio
     public static final Codec<String> LANGUAGE_CODE_CODEC = Codec.string(1, 16);
     public static final Codec<LanguageResourceMetadata> CODEC = SortedMapCodec.of(LANGUAGE_CODE_CODEC, LanguageDefinition.CODEC)
             .xmap(LanguageResourceMetadata::new, LanguageResourceMetadata::definitions);
-    public static final MetadataSectionType<LanguageResourceMetadata> SERIALIZER = new MetadataSectionType<>("language", CODEC);
+
+    public static final MetadataSectionType<LanguageResourceMetadata> TYPE = new MetadataSectionType<>("language", CODEC);
+
+    @Deprecated(forRemoval = true)
+    public static final MetadataSectionType<LanguageResourceMetadata> SERIALIZER = TYPE;
 }

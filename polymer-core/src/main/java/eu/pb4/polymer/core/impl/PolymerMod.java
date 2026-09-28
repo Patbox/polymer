@@ -3,8 +3,6 @@ package eu.pb4.polymer.core.impl;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
 import eu.pb4.polymer.common.impl.CompatStatus;
-import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.core.impl.client.InternalClientRegistry;
 import eu.pb4.polymer.core.impl.client.compat.FabricFluids;
@@ -22,8 +20,8 @@ import org.jetbrains.annotations.ApiStatus;
 public class PolymerMod implements ModInitializer, ClientModInitializer {
 	@Override
 	public void onInitialize() {
-		CommonImplUtils.registerCommands(Commands::register);
-		CommonImplUtils.registerDevCommands(Commands::registerDev);
+		CommonImplUtils.registerCommands(PolymerCommandsImpl::register);
+		CommonImplUtils.registerDevCommands(PolymerCommandsImpl::registerDev);
 
 		PolymerServerProtocolHandler.register();
 		PolymerCommonUtils.ON_RESOURCE_PACK_STATUS_CHANGE.register(((handler, uuid, oldStatus, newStatus) -> {

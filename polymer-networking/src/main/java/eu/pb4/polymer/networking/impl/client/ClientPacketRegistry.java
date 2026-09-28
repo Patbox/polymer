@@ -48,6 +48,10 @@ public class ClientPacketRegistry {
 
     @SuppressWarnings({"unchecked", "rawtypes", "UnstableApiUsage"})
     public static boolean handle(Minecraft client, ClientCommonPacketListenerImpl handler, CustomPacketPayload packet) {
+        if (NetImpl.IS_DISABLED) {
+            return false;
+        }
+
         var packetHandlers = COMMON_PACKET_LISTENERS.get(packet.getClass());
         boolean handled = false;
         if (packetHandlers != null) {

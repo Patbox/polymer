@@ -3,6 +3,8 @@ package eu.pb4.polymer.core.mixin.block;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import eu.pb4.polymer.core.impl.PolymerImpl;
+import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +18,7 @@ import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -43,6 +46,8 @@ public abstract class ServerPlayerGameModeMixin {
     private int destroyProgressStart;
     @Shadow public abstract void destroyAndAck(BlockPos pos, int sequence, String reason);
 
+    @Shadow
+    private boolean isDestroyingBlock;
     @Unique
     private int polymer$sequence = 0;
 
@@ -157,11 +162,40 @@ public abstract class ServerPlayerGameModeMixin {
 
     @Inject(method = "destroyAndAck", at = @At("HEAD"))
     private void polymer$clearEffects(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
-        this.polymer$clearMiningEffect();
+        if (!PolymerImpl.PREDICTIVE_SERVER_MINING || !polymer$shouldMineServerSidePredictive()) {
+            this.polymer$clearMiningEffect();
+        }
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void updatePredictiveMining(CallbackInfo ci) {
+        if (!PolymerImpl.PREDICTIVE_SERVER_MINING || this.isDestroyingBlock) {
+            return;
+        }
+
+        if (this.polymer$shouldMineServerSidePredictive()) {
+            this.polymer$sendMiningFatigue();
+        } else {
+            this.polymer$clearMiningEffect();
+        }
+    }
+
+    @Unique
+    private boolean polymer$shouldMineServerSidePredictive() {
+        var cast = PolymerImplUtils.clientCorrectedBlockClip(this.player, false);
+        if (cast.getType() != HitResult.Type.BLOCK) {
+            return false;
+        }
+
+        return polymer$shouldMineServerSide(cast.getBlockPos(), this.level.getBlockState(cast.getBlockPos()));
     }
 
     @Unique
     private boolean polymer$shouldMineServerSide(BlockPos pos, BlockState state) {
+        /*if (state.getDestroyProgress(this.player, this.player.level(), pos) >= 1) {
+            return false;
+        }*/
+
         return PolymerBlockUtils.shouldMineServerSide(this.player, pos, state);
     }
 
@@ -186,7 +220,7 @@ public abstract class ServerPlayerGameModeMixin {
         }
     }
 
-    @Redirect(method = "handleBlockBreakAction", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)
+    /*@Redirect(method = "handleBlockBreakAction", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), require = 0)
     private void polymer$noOneCaresAboutMismatch(Logger instance, String s, Object o, Object o2) {
-    }
+    }*/
 }

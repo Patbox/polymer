@@ -10,11 +10,11 @@ import org.slf4j.Logger;
 public class NetImpl {
     //public static final boolean SEND_GAME_JOIN_PACKET;
     public static final Logger LOGGER = CommonImpl.LOGGER;
-    public static final boolean IS_DISABLED = false;
+    public static final boolean IS_DISABLED;
 
     static {
-        //var config = CommonImpl.loadAndRegisterConfig("networking", NetConfig.class);
+        var config = CommonImpl.loadAndRegisterConfig("networking", NetConfig.class);
 
-        //SEND_GAME_JOIN_PACKET = config.sendGameJoinBeforeSync;
+        IS_DISABLED = config.forceDisable;
     }
 }

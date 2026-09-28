@@ -427,6 +427,13 @@ public class TestMod implements ModInitializer {
 
         var instaMine = registerBlock(Identifier.fromNamespaceAndPath("test", "insta_mine"), BlockBehaviour.Properties.of().strength(0).instabreak(), (s) -> new SimplePolymerBlock(s, Blocks.TINTED_GLASS));
         registerItem(Identifier.fromNamespaceAndPath("test", "insta_mine"), s -> new PolymerBlockItem(instaMine, s));
+
+        {
+            var instaMine2 = registerBlock(Identifier.fromNamespaceAndPath("test", "insta_mine2"), BlockBehaviour.Properties.of().strength(0).instabreak(), (s) -> new SimplePolymerBlock(s, Blocks.ROSE_BUSH));
+            registerItem(Identifier.fromNamespaceAndPath("test", "insta_mine2"), s -> new PolymerBlockItem(instaMine2, s));
+
+        }
+
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
             if (state.is(instaMine)) {
                 player.sendSystemMessage(Component.literal("Broke instabrek"));

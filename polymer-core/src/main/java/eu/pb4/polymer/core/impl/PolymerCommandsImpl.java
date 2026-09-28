@@ -31,7 +31,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.locale.Language;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.TextComponentTagVisitor;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.Identifier;
@@ -40,58 +42,58 @@ import net.minecraft.server.dialog.action.StaticAction;
 import net.minecraft.server.dialog.body.DialogBody;
 import net.minecraft.server.dialog.body.ItemBody;
 import net.minecraft.server.dialog.body.PlainMessage;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.StatType;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ApiStatus.Internal
-public class Commands {
+public class PolymerCommandsImpl {
     public static void register(LiteralArgumentBuilder<CommandSourceStack> command, CommandBuildContext access) {
         command.then(literal("stats")
-                        .requires(CommonImplUtils.permission("command.stats", 0))
-                        .executes(Commands::statsGeneral)
-                        .then(argument("type", ResourceArgument.resource(access, Registries.STAT_TYPE)).executes(Commands::stats))
+                        .requires(CommonImplUtils.permission("command/stats", 0))
+                        .executes(PolymerCommandsImpl::statsGeneral)
+                        .then(argument("type", ResourceArgument.resource(access, Registries.STAT_TYPE)).executes(PolymerCommandsImpl::stats))
                 )
                 .then(literal("effects")
-                        .requires(CommonImplUtils.permission("command.effects", 0))
-                        .executes(Commands::effects)
+                        .requires(CommonImplUtils.permission("command/effects", 0))
+                        .executes(PolymerCommandsImpl::effects)
                 )
                 .then(literal("client-item")
-                        .requires(CommonImplUtils.permission("command.client-item", 3))
-                        .executes(Commands::displayClientItem)
-                        .then(literal("get").executes(Commands::getClientItem))
+                        .requires(CommonImplUtils.permission("command/client-item", 3))
+                        .executes(PolymerCommandsImpl::displayClientItem)
+                        .then(literal("get").executes(PolymerCommandsImpl::getClientItem))
                 )
                 .then(literal("export-registry")
-                        .requires(CommonImplUtils.permission("command.export-registry", 3))
-                        .executes(Commands::dumpRegistries)
+                        .requires(CommonImplUtils.permission("command/export-registry", 3))
+                        .executes(PolymerCommandsImpl::dumpRegistries)
                 )
                 .then(literal("target-block")
-                        .requires(CommonImplUtils.permission("command.target-block", 3))
-                        .executes(Commands::targetBlock)
+                        .requires(CommonImplUtils.permission("command/target-block", 3))
+                        .executes(PolymerCommandsImpl::targetBlock)
                 )
                 .then(literal("target-item")
-                        .requires(CommonImplUtils.permission("command.target-item", 3))
-                        .executes(Commands::targetItem)
+                        .requires(CommonImplUtils.permission("command/target-item", 3))
+                        .executes(PolymerCommandsImpl::targetItem)
                 )
                 .then(literal("creative")
-                        .requires(CommonImplUtils.permission("command.creative", 0))
+                        .requires(CommonImplUtils.permission("command/creative", 0))
                         .then(argument("itemGroup", IdentifierArgument.id())
                                 .suggests((context, builder) -> {
                                     var remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
@@ -101,9 +103,9 @@ public class Commands {
                                     SharedSuggestionProvider.filterResources(groups, remaining, PolymerCreativeModeTabUtils::getId, group -> builder.suggest(PolymerCreativeModeTabUtils.getId(group).toString(), group.getDisplayName()));
                                     return builder.buildFuture();
                                 })
-                                .executes(Commands::creativeTab)
+                                .executes(PolymerCommandsImpl::creativeTab)
                         )
-                        .executes(Commands::creativeTab));
+                        .executes(PolymerCommandsImpl::creativeTab));
     }
 
     public static void registerDev(LiteralArgumentBuilder<CommandSourceStack> dev) {
@@ -256,13 +258,46 @@ public class Commands {
     }
 
     private static int statsGeneral(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        var player = context.getSource().getPlayer();
+        return openStatsScreenGeneral(context.getSource().getPlayerOrException());
+    }
 
+    private static Component getStatisticName(@Nullable Identifier id) {
+        var descriptionId = Util.makeDescriptionId("stat_type", id);
+        var lang = Language.DEFAULT_INSTANCE.getOrDefault(descriptionId);
+
+        String fallback;
+        if (id != null) {
+            var parts = new ArrayList<String>();
+            {
+                String[] words = id.getPath().split("_");
+                for (String word : words) {
+                    String[] s = word.split("", 2);
+                    s[0] = s[0].toUpperCase(Locale.ROOT);
+                    parts.add(String.join("", s));
+                }
+            }
+            fallback = String.join(" ", parts);
+        } else {
+            fallback = "Unregistered Stat Type";
+        }
+
+        if (lang.contains("%s")) {
+            return Component.translatableWithFallback(Util.makeDescriptionId("stat_type_name", id), fallback);
+        } else {
+            return Component.translatableWithFallback(descriptionId, "%s", Component.translatableWithFallback(Util.makeDescriptionId("stat_type_name", id), fallback));
+        }
+    }
+
+    public static int openStatsScreenGeneral(ServerPlayer player) {
         var list = new ArrayList<ActionButton>();
 
         for (var statType : BuiltInRegistries.STAT_TYPE) {
-            list.add(new ActionButton(new CommonButtonData(Component.literal(BuiltInRegistries.STAT_TYPE.getKey(statType).toString()), 150),
-                    Optional.of(new StaticAction(new ClickEvent.RunCommand("polymer stats " + BuiltInRegistries.STAT_TYPE.getKey(statType))))));
+            var id = BuiltInRegistries.STAT_TYPE.getKey(statType);
+
+            list.add(new ActionButton(new CommonButtonData(getStatisticName(id), 150),
+                    Optional.of(new StaticAction(new ClickEvent.Custom(PolymerImplUtils.id("open_statistics_tab"),
+                            Optional.of(StringTag.valueOf(String.valueOf(id)))))
+                    )));
         }
 
         player.openDialog(Holder.direct(new MultiActionDialog(new CommonDialogData(
@@ -277,12 +312,17 @@ public class Commands {
         return 1;
     }
 
+
     private static int stats(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
+        var type = (StatType<Object>) ResourceArgument.getResource(context, "type", Registries.STAT_TYPE).value();
 
+        return openStatsScreen(player, type);
+    }
+
+    public static int openStatsScreen(ServerPlayer player, StatType<Object> type) {
         var list = new ArrayList<DialogBody>();
 
-        var type = (StatType<Object>) ResourceArgument.getResource(context, "type", Registries.STAT_TYPE).value();
         for (var statObj : type.getRegistry()) {
             if (PolymerUtils.isServerOnly(type.getRegistry(), statObj) && type.contains(statObj)) {
                 var stat = type.get(statObj);
@@ -303,6 +343,7 @@ public class Commands {
                     stack = item.asItem().getDefaultInstance();
                 } else if (statObj instanceof EntityType item) {
                     title = item.getDescription();
+                    stack = SpawnEggItem.byId(item).map(ItemStack::new).orElse(stack);
                 } else {
                     title = Component.translatable(Util.makeDescriptionId(type.getRegistry().key().identifier().getPath(), type.getRegistry().getKey(statObj)));
                 }
@@ -312,13 +353,13 @@ public class Commands {
                 if (stack.isEmpty()) {
                     list.add(new PlainMessage(text, 200));
                 } else {
-                    list.add(new ItemBody(new ItemStackTemplate(stack.typeHolder(), stack.count(), stack.getComponentsPatch()), Optional.of(new PlainMessage(text, 200)), true, true, 16, 16));
+                    list.add(new ItemBody(new ItemStackTemplate(stack.typeHolder(), stack.count(), stack.getComponentsPatch()), Optional.of(new PlainMessage(text, 200 - 16 - 2)), true, true, 16, 16));
                 }
             }
         }
 
         player.openDialog(Holder.direct(new NoticeDialog(new CommonDialogData(
-                Component.translatable("gui.stats"),
+                Component.translatable("gui.stats").append(" > ").append(getStatisticName(BuiltInRegistries.STAT_TYPE.getKey(type))),
                 Optional.empty(),
                 true, true,
                 DialogAction.CLOSE,
