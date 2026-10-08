@@ -9,6 +9,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.polymer.common.impl.SortedMapCodec;
 import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackImpl;
 import eu.pb4.polymer.resourcepack.mixin.accessors.ResourceFilterSectionAccessor;
+import net.fabricmc.fabric.api.resource.conditions.v1.FabricOverlayMetadataSection;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.OverlayMetadataSection;
@@ -135,6 +137,9 @@ public final class PackMcMeta {
         private final List<IdentifierPattern> filter = new ArrayList<>();
         private final List<OverlayMetadataSection.OverlayEntry> overlay = new ArrayList<>();
         private final Map<String, LanguageDefinition> language = new HashMap<>();
+
+        private final List<FabricOverlayMetadataSection.Entry> fabricOverlay = new ArrayList<>();
+
         private final Map<MetadataSectionType<Object>, Object> custom = new IdentityHashMap<>();
 
         public Builder metadata(PackMetadataSection metadata) {
@@ -154,6 +159,11 @@ public final class PackMcMeta {
 
         public Builder addOverlay(InclusiveRange<PackFormat> format, String overlay) {
             this.overlay.add(new OverlayMetadataSection.OverlayEntry(format, overlay));
+            return this;
+        }
+
+        public Builder addFabricOverlay(ResourceCondition condition, String overlay) {
+            this.fabricOverlay.add(new FabricOverlayMetadataSection.Entry(condition, overlay));
             return this;
         }
 
@@ -184,6 +194,9 @@ public final class PackMcMeta {
             if (!this.language.isEmpty()) {
                 list.add(LanguageResourceMetadata.TYPE.withValue(new LanguageResourceMetadata(this.language)));
             }
+            if (!this.fabricOverlay.isEmpty()) {
+                list.add(FabricOverlayMetadataSection.TYPE.withValue(new FabricOverlayMetadataSection(this.fabricOverlay)));
+            }
 
             this.custom.forEach((key, value) -> {
                 list.add(key.withValue(value));
@@ -198,6 +211,10 @@ public final class PackMcMeta {
 
         public List<OverlayMetadataSection.OverlayEntry> overlays() {
             return this.overlay;
+        }
+
+        public List<FabricOverlayMetadataSection.Entry> fabricOverlays() {
+            return this.fabricOverlay;
         }
 
         @Nullable

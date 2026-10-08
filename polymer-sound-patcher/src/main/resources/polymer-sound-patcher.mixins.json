@@ -8,11 +8,10 @@
     "ByteBufCodecsHolderMixin",
     "ServerLevelMixin",
     "block.BlockItemMixin",
-    "block.BlockMixin",
+    "block.BuiltInRegistriesMixin",
     "block.EntityMixin",
     "block.LivingEntityMixin",
-    "block.BuiltInRegistriesMixin",
-    "block.ServerPlayerGameModeMixin"
+    "block.ServerLevelMixin"
   ],
   "client": [
   ],
