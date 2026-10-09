@@ -20,17 +20,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,10 +42,16 @@ public abstract class ServerPlayerGameModeMixin {
     protected ServerLevel level;
     @Shadow
     private int destroyProgressStart;
-    @Shadow public abstract void destroyAndAck(BlockPos pos, int sequence, String reason);
+
+    @Shadow
+    public abstract void destroyAndAck(BlockPos pos, int sequence, String reason);
 
     @Shadow
     private boolean isDestroyingBlock;
+    @Shadow
+    private int delayedTickStart;
+    @Shadow
+    private int gameTicks;
     @Unique
     private int polymer$sequence = 0;
 
@@ -67,6 +71,11 @@ public abstract class ServerPlayerGameModeMixin {
     @Unique
     @Nullable
     private BlockState polymer$currentlyMinedState;
+
+    @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayerGameMode;incrementDestroyProgress(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;I)F", ordinal = 0))
+    private int polymer$fixBrokenVanillaTickCountMojangPlsFix(int tickCount) {
+        return this.delayedTickStart == tickCount ? this.gameTicks - this.delayedTickStart : tickCount;
+    }
 
     @Inject(method = "incrementDestroyProgress", at = @At("TAIL"))
     private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
@@ -93,7 +102,7 @@ public abstract class ServerPlayerGameModeMixin {
                 this.polymer$currentlyMinedState = null;
                 this.polymer$currentlyMinedPos = null;
             } else {
-                var k = this.polymer$currentBreakingProgress > 0.0F ? (int)(this.polymer$currentBreakingProgress * 10) : -1;
+                var k = this.polymer$currentBreakingProgress > 0.0F ? (int) (this.polymer$currentBreakingProgress * 10) : -1;
                 this.player.connection.send(new ClientboundBlockDestructionPacket(-1, pos, k));
                 polymer$sendMiningFatigue();
                 PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, pos, state, k);
@@ -202,7 +211,8 @@ public abstract class ServerPlayerGameModeMixin {
     @Unique
     private void polymer$sendMiningFatigue() {
         this.polymer$hasMiningFatigue = true;
-        var x = new AttributeInstance(Attributes.BLOCK_BREAK_SPEED, (a) -> {});
+        var x = new AttributeInstance(Attributes.BLOCK_BREAK_SPEED, (a) -> {
+        });
         x.setBaseValue(-9999);
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(), List.of(x)));
     }
