@@ -17,6 +17,7 @@ import eu.pb4.polymer.core.api.other.SimplePolymerPotion;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.blockstate.BlockStateAsset;
@@ -39,6 +40,7 @@ import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
@@ -336,6 +338,10 @@ public class TestMod implements ModInitializer {
         register(BuiltInRegistries.DIALOG_TYPE, Identifier.fromNamespaceAndPath("test", "dialog"), TestDialog.CODEC);
         register(BuiltInRegistries.DIALOG_BODY_TYPE, Identifier.fromNamespaceAndPath("test", "image"), TestDialogImageBody.CODEC);
         PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register(TestDialogImageBody::generateResources);
+        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register(builder -> {
+            builder.getPackMcMetaBuilder().addFabricOverlay(ResourceConditions.alwaysTrue(), "fabric_present");
+            builder.addData("fabric_present/assets/minecraft/textures/item/egg.png", builder.getDataOrSource("assets/minecraft/textures/block/tnt_side.png"));
+        });
         RegistryEntryAddedCallback.allEntries(BuiltInRegistries.RECIPE_SERIALIZER, new Consumer<Holder.Reference<RecipeSerializer<?>>>() {
             @Override
             public void accept(Holder.Reference<RecipeSerializer<?>> ref) {

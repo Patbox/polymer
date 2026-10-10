@@ -257,8 +257,8 @@ public class PolymerImplUtils {
 
     public static BlockHitResult clientCorrectedBlockClip(ServerPlayer player, boolean withLiquids) {
         var range = player.blockInteractionRange();
-        Vec3 from = player.getEyePosition(0);
-        Vec3 viewVector = player.getViewVector(0);
+        Vec3 from = player.getEyePosition(1);
+        Vec3 viewVector = player.getViewVector(1);
         Vec3 to = from.add(viewVector.x * range, viewVector.y * range, viewVector.z * range);
         return player.level().clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, withLiquids ? net.minecraft.world.level.ClipContext.Fluid.ANY : net.minecraft.world.level.ClipContext.Fluid.NONE, player) {
             @Override
