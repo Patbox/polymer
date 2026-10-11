@@ -31,6 +31,7 @@ import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.biome.v1.NetherBiomes;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -91,6 +92,7 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -627,6 +629,8 @@ public class TestMod implements ModInitializer {
         CreativeModeTabEvents.modifyOutputEvent(PolymerCreativeModeTabUtils.getKey(ITEM_GROUP)).register(entries -> {
             entries.insertAfter(TEST_FOOD, Items.LAVA_BUCKET);
         });
+
+        NetherBiomes.addNetherBiome(ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("polymertest", "test")), new Climate.TargetPoint(1, 1, 1, 1, 1, 1));
 
         ServerLifecycleEvents.SERVER_STARTING.register((s) -> {
             int failure = 0;

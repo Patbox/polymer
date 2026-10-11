@@ -27,8 +27,8 @@
     "block.packet.ClientboundBlockUpdatePacketAccessor",
     "block.packet.ClientboundLevelChunkPacketDataMixin",
     "block.packet.ClientboundLevelChunkWithLightPacketMixin",
-    "block.packet.ClientboundLightUpdatePacketDataMixin",
     "block.packet.ClientboundLevelEventPacketMixin",
+    "block.packet.ClientboundLightUpdatePacketDataMixin",
     "block.packet.ClientboundSectionBlocksUpdatePacketAccessor",
     "block.packet.ClientboundSectionBlocksUpdatePacketMixin",
     "block.packet.PalettedContainerDataMixin",
@@ -93,7 +93,6 @@
     "other.ByteBufCodecsHolderMixin",
     "other.ByteBufCodecsRegistryMixin",
     "other.ClientboundAwardStatsPacketMixin",
-    "tag.ClientboundUpdateTagsPacketMixin",
     "other.ComponentMapMixin",
     "other.CreativeModeTabsAccessor",
     "other.DataComponentPatchMixin",
@@ -116,6 +115,7 @@
     "other.ServerLevelMixin",
     "other.ServerPlayerMixin",
     "tag.ByteBufCodecsHolderSetMixin",
+    "tag.ClientboundUpdateTagsPacketMixin",
     "tag.TagKeyMixin"
   ],
   "client": [

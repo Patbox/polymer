@@ -34,6 +34,8 @@ public final class CommonImpl {
     public static final boolean ENABLE_TEMPLATE_ENTITY_WARNINGS;
     public static final boolean FORCE_RESOURCEPACK_ENABLED_STATE;
 
+    public static final ScopedValue<Boolean> SKIP_REGISTRY_VALIDATION = ScopedValue.newInstance();
+
     private static final ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("polymer-common").get();
     public static final List<String> CONTRIBUTORS = new ArrayList<>();
     public static final String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString().split("\\+")[0];

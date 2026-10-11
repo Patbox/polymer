@@ -9,8 +9,10 @@
     "ConnectionMixin",
     "LevelAccessor",
     "ReferenceAccessor",
+    "RegistrySetBuilderMixin",
     "ServerCommonPacketListenerImplMixin",
-    "SyncedEntityDataAccessor"
+    "SyncedEntityDataAccessor",
+    "VanillaRegistriesAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

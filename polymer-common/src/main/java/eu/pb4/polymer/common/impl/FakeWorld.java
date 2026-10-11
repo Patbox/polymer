@@ -3,6 +3,7 @@ package eu.pb4.polymer.common.impl;
 
 import eu.pb4.polymer.common.mixin.LevelAccessor;
 import eu.pb4.polymer.common.mixin.ReferenceAccessor;
+import eu.pb4.polymer.common.mixin.VanillaRegistriesAccessor;
 import io.netty.util.internal.shaded.org.jctools.util.UnsafeAccess;
 import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import net.minecraft.core.*;
@@ -10,7 +11,6 @@ import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -87,21 +87,23 @@ public final class FakeWorld extends Level implements LightChunk {
     static final Scoreboard SCOREBOARD = new Scoreboard();
 
     static final RegistryAccess FALLBACK_REGISTRY_MANAGER = new RegistryAccess() {
-        private final Map<ResourceKey<?>, Optional<Registry<?>>> REGISTRIES = VanillaRegistries.createReloadableLookup(VanillaRegistries.createWorldLookup())
-                .listRegistries().map(lookup -> {
-                    if (BuiltInRegistries.REGISTRY.containsKey((ResourceKey) lookup.key())) {
-                        return BuiltInRegistries.REGISTRY.getValue((ResourceKey) lookup.key());
-                    }
-                    var reg = new MappedRegistry<>((ResourceKey) lookup.key(), lookup.registryLifecycle());
-
-                    lookup.listElements().forEach(entry -> {
-                        if (!reg.containsKey(entry.key()) && reg.getKey(entry.value()) == null) {
-                            reg.register(entry.key(), entry.value(), RegistrationInfo.BUILT_IN);
+        private final Map<ResourceKey, Optional<Registry>> REGISTRIES = ScopedValue.where(CommonImpl.SKIP_REGISTRY_VALIDATION, true).call(() ->
+            VanillaRegistriesAccessor.getRELOADABLE_BUILDER().build(VanillaRegistriesAccessor.getWORLD_BUILDER().build(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)))
+                    .listRegistries().map(lookup -> {
+                        if (BuiltInRegistries.REGISTRY.containsKey((ResourceKey) lookup.key())) {
+                            return BuiltInRegistries.REGISTRY.getValue((ResourceKey) lookup.key());
                         }
-                    });
+                        var reg = new MappedRegistry<>((ResourceKey) lookup.key(), lookup.registryLifecycle());
 
-                    return reg;
-                }).collect(Collectors.toMap(Registry::key, Optional::of));
+                        lookup.listElements().forEach(entry -> {
+                            if (!reg.containsKey(entry.key()) && entry.isBound() && reg.getKey(entry.value()) == null) {
+                                reg.register(entry.key(), entry.value(), RegistrationInfo.BUILT_IN);
+                            }
+                        });
+
+                        return reg;
+                    }).collect(Collectors.toMap(Registry::key, Optional::of))
+        );
 
         @Override
         public <E> Optional<Registry<E>> lookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
