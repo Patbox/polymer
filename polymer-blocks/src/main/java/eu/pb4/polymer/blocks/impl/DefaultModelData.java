@@ -598,7 +598,7 @@ public class DefaultModelData {
                     Pair.of(Blocks.SULFUR_SLAB, Blocks.SULFUR),
                     Pair.of(Blocks.POLISHED_SULFUR_SLAB, Blocks.POLISHED_SULFUR),
                     Pair.of(Blocks.SULFUR_BRICK_SLAB, Blocks.SULFUR_BRICKS),
-                    Pair.of(Blocks.CINNABAR_SLAB, Blocks.SULFUR),
+                    Pair.of(Blocks.CINNABAR_SLAB, Blocks.CINNABAR),
                     Pair.of(Blocks.POLISHED_CINNABAR_SLAB, Blocks.POLISHED_CINNABAR),
                     Pair.of(Blocks.CINNABAR_BRICK_SLAB, Blocks.CINNABAR_BRICKS)
             ));
