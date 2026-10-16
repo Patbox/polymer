@@ -196,14 +196,14 @@ public abstract class ServerPlayerGameModeMixin {
             return false;
         }
 
-        return polymer$shouldMineServerSide(cast.getBlockPos(), this.level.getBlockState(cast.getBlockPos()));
+        return this.polymer$shouldMineServerSide(cast.getBlockPos(), this.level.getBlockState(cast.getBlockPos()));
     }
 
     @Unique
     private boolean polymer$shouldMineServerSide(BlockPos pos, BlockState state) {
-        /*if (state.getDestroyProgress(this.player, this.player.level(), pos) >= 1) {
+        if (this.player.getAbilities().instabuild) {
             return false;
-        }*/
+        }
 
         return PolymerBlockUtils.shouldMineServerSide(this.player, pos, state);
     }

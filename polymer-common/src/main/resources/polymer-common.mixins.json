@@ -9,10 +9,13 @@
     "ConnectionMixin",
     "LevelAccessor",
     "ReferenceAccessor",
-    "RegistrySetBuilderMixin",
     "ServerCommonPacketListenerImplMixin",
     "SyncedEntityDataAccessor",
-    "VanillaRegistriesAccessor"
+    "VanillaRegistriesAccessor",
+    "workaround.BlockLootSubProviderMixin",
+    "workaround.EntityLootSubProviderMixin",
+    "workaround.RegistrySetBuilderMixin",
+    "workaround.VanillaAdventureAdvancementsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

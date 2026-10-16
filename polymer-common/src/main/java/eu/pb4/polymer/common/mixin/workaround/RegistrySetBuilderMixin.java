@@ -1,4 +1,4 @@
-package eu.pb4.polymer.common.mixin;
+package eu.pb4.polymer.common.mixin.workaround;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import eu.pb4.polymer.common.impl.CommonImpl;
