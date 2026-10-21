@@ -16,6 +16,7 @@
     "block.ChunkHolderMixin",
     "block.ClientboundBlockEntityDataPacketAccessor",
     "block.PalettedContainerAccessor",
+    "block.PistonBaseBlockMixin",
     "block.PlayerChunkSenderMixin",
     "block.ServerChunkCacheMixin",
     "block.ServerPlayerGameModeMixin",
