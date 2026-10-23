@@ -64,8 +64,6 @@ dependencies {
     //modCompileOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
     //modRuntimeOnly ("mcjty.theoneprobe:theoneprobe-fabric:1.18.2-5.0.9")
 
-    //modCompileOnly "xyz.nucleoid:disguiselib-fabric:1.2.2"
-
     compileOnly("xyz.nucleoid:server-translations-api:3.0.1+26.1"){
         exclude(group: "net.fabricmc.fabric-api")
     }

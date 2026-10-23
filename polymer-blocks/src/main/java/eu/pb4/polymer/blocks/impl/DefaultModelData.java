@@ -70,7 +70,7 @@ public class DefaultModelData {
                     Pair.of(Blocks.INFESTED_MOSSY_STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS),
                     Pair.of(Blocks.INFESTED_CRACKED_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS),
                     Pair.of(Blocks.INFESTED_CHISELED_STONE_BRICKS, Blocks.CHISELED_STONE_BRICKS),
-                    Pair.of(Blocks.INFESTED_DEEPSLATE, Blocks.CHISELED_DEEPSLATE)
+                    Pair.of(Blocks.INFESTED_DEEPSLATE, Blocks.DEEPSLATE)
             ));
 
             Blocks.COPPER_BLOCK.zipUnwaxedWaxed((a, b) -> cList.add(Pair.of(b, a)));
@@ -598,7 +598,7 @@ public class DefaultModelData {
                     Pair.of(Blocks.SULFUR_SLAB, Blocks.SULFUR),
                     Pair.of(Blocks.POLISHED_SULFUR_SLAB, Blocks.POLISHED_SULFUR),
                     Pair.of(Blocks.SULFUR_BRICK_SLAB, Blocks.SULFUR_BRICKS),
-                    Pair.of(Blocks.CINNABAR_SLAB, Blocks.SULFUR),
+                    Pair.of(Blocks.CINNABAR_SLAB, Blocks.CINNABAR),
                     Pair.of(Blocks.POLISHED_CINNABAR_SLAB, Blocks.POLISHED_CINNABAR),
                     Pair.of(Blocks.CINNABAR_BRICK_SLAB, Blocks.CINNABAR_BRICKS)
             ));

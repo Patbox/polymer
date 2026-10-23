@@ -16,6 +16,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
     compileOnly "me.lucko:fabric-permissions-api:0.7.0"
+    compileOnly "xyz.nucleoid:disguiselib:1.4.0-legacy"
 
 }
 
