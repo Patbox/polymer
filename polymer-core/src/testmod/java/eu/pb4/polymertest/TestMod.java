@@ -676,6 +676,15 @@ public class TestMod implements ModInitializer {
             }).start();
         });
 
+        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register(builder -> {
+            /*try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            /*throw new RuntimeException("Text Exception!");*/
+        });
 
         var local = new ThreadLocal<Boolean>();
         local.set(Boolean.TRUE);

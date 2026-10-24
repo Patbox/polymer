@@ -5,6 +5,7 @@ import eu.pb4.polymer.resourcepack.impl.PolymerResourcePackMod;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.*;
 import net.minecraft.resources.Identifier;
@@ -15,6 +16,7 @@ import net.minecraft.server.dialog.body.DialogBody;
 import net.minecraft.server.dialog.body.PlainMessage;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+import net.minecraft.util.TriState;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -24,6 +26,7 @@ import java.util.function.Supplier;
 public class AutoHostTask implements ConfigurationTask {
     public static final Type KEY = new Type("polymer:autohost/send_packs");
     public static final Identifier DISCONNECT = Identifier.parse("polymer:autohost/disconnect");
+    public static final Identifier JOIN_ON_FAILURE = Identifier.parse("polymer:autohost/join_on_failure");
     private final Collection<MinecraftServer.ServerResourcePackInfo> packs;
 
     private final Set<UUID> requiredPacks = new HashSet<>();
@@ -33,6 +36,7 @@ public class AutoHostTask implements ConfigurationTask {
     private final Map<UUID, MinecraftServer.ServerResourcePackInfo> map = new HashMap<>();
     private boolean hasDelayed;
     private int tick = 0;
+    private int tickAnim = 0;
 
     public AutoHostTask(Collection<MinecraftServer.ServerResourcePackInfo> properties, boolean hasDelayed,
                         Supplier<Collection<MinecraftServer.ServerResourcePackInfo>> delayed, BooleanSupplier isReady) {
@@ -69,15 +73,23 @@ public class AutoHostTask implements ConfigurationTask {
             return;
         }
 
+        var failure = PolymerResourcePackMod.successState == TriState.FALSE;
         var list = new ArrayList<DialogBody>(4);
 
-        list.add(new PlainMessage(AutoHost.dialogHeader, 300));
+        if (failure) {
+            list.add(new PlainMessage(Component.literal("Failed to generate the resource pack! See logs for more details!").withColor(TextColor.RED), 300));
+        } else {
+            list.add(new PlainMessage(AutoHost.dialogHeader, 300));
+        }
 
         if (AutoHost.config.dialogShowDots) {
-            var sb = new StringBuilder();
-            var index = ((this.tick - 1) / 2) % 10;
+            var o = failure ? 'x' : 'o';
+            var O = failure ? 'X' : 'O';
 
-            if (((this.tick - 1) / 2) % 20 >= 10) {
+            var sb = new StringBuilder();
+            var index = this.tickAnim % 10;
+
+            if (this.tickAnim % 20 >= 10) {
                 index = 9 - index;
             }
 
@@ -86,32 +98,49 @@ public class AutoHostTask implements ConfigurationTask {
             }
 
             if (index > 0) {
-                sb.append('o');
+                sb.append(o);
             }
 
-            sb.append('O');
+            sb.append(O);
 
             if (sb.length() < 10) {
-                sb.append('o');
+                sb.append(o);
                 while (sb.length() < 10) {
                     sb.append('_');
                 }
             }
 
-            list.add(new PlainMessage(Component.literal(sb.toString()).withStyle(ChatFormatting.GRAY), 200));
+            list.add(new PlainMessage(Component.literal(sb.toString()).withColor(failure ? TextColor.DARK_RED : TextColor.GRAY), 200));
+            if (!failure) {
+                this.tickAnim++;
+            }
         }
 
         list.add(new PlainMessage(PolymerResourcePackMod.STATUS.isEmpty() || !AutoHost.config.dialogShowStatus ? AutoHost.dialogDefaultBody :
                 Component.literal(String.join("\n", PolymerResourcePackMod.STATUS
                         .subList(Math.max(PolymerResourcePackMod.STATUS.size() - 6, 0), PolymerResourcePackMod.STATUS.size()))), 300));
 
-        sender.accept(new ClientboundShowDialogPacket(Holder.direct(new NoticeDialog(
-                new CommonDialogData(AutoHost.dialogTitle, Optional.empty(), false, false, DialogAction.CLOSE,
-                        list, List.of()),
-                new ActionButton(new CommonButtonData(
-                        Component.translatable("menu.disconnect"), 150),
-                        Optional.of(new CustomAll(DISCONNECT, Optional.empty())))
-        ))));
+
+        if (failure && AutoHost.config.allowJoiningAfterGenerationFailure) {
+            sender.accept(new ClientboundShowDialogPacket(Holder.direct(new ConfirmationDialog(
+                    new CommonDialogData(AutoHost.dialogTitle, Optional.empty(), false, false, DialogAction.CLOSE,
+                            list, List.of()),
+                    new ActionButton(new CommonButtonData(
+                            Component.literal("Join anyway"), 150),
+                            Optional.of(new CustomAll(JOIN_ON_FAILURE, Optional.empty()))),
+                    new ActionButton(new CommonButtonData(
+                            Component.translatable("menu.disconnect"), 150),
+                            Optional.of(new CustomAll(DISCONNECT, Optional.empty())))
+            ))));
+        } else {
+            sender.accept(new ClientboundShowDialogPacket(Holder.direct(new NoticeDialog(
+                    new CommonDialogData(AutoHost.dialogTitle, Optional.empty(), false, false, DialogAction.CLOSE,
+                            list, List.of()),
+                    new ActionButton(new CommonButtonData(
+                            Component.translatable("menu.disconnect"), 150),
+                            Optional.of(new CustomAll(DISCONNECT, Optional.empty())))
+            ))));
+        }
     }
 
     public void tick(Consumer<Packet<?>> sender) {

@@ -3,7 +3,6 @@ package eu.pb4.polymer.resourcepack.impl;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.polymer.common.impl.CommonImpl;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
-import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.resourcepack.api.OutputGenerator;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import eu.pb4.polymer.resourcepack.api.ResourcePackStatusConsumer;
@@ -11,7 +10,6 @@ import eu.pb4.polymer.resourcepack.api.metadata.PackMcMeta;
 import eu.pb4.polymer.resourcepack.impl.client.rendering.PolymerResourcePack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.CustomValue;
 import net.minecraft.ChatFormatting;
@@ -25,6 +23,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackFormat;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.util.InclusiveRange;
+import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -45,6 +44,7 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
 	public static boolean alreadyGeneration = false;
     public static final List<String> STATUS = new CopyOnWriteArrayList<>();
     public static boolean useMainPath = true;
+    public static TriState successState = TriState.DEFAULT;
 
     @Override
 	public void onInitialize() {
@@ -174,6 +174,7 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
             return;
         }
         alreadyGeneration = true;
+        successState = TriState.DEFAULT;
 
         Util.ioPool().execute(() -> {
             boolean success = false;
@@ -205,6 +206,7 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                 final var finalOutputPath = outputPath;
                 boolean finalSuccess = success;
                 OutputGenerator.Result finalResult = result;
+                successState = TriState.from(success);
                 server.execute(() -> {
                     alreadyGeneration = false;
                     if (finalSuccess) {
@@ -220,9 +222,11 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
                     }
                 });
             } catch (Throwable e) {
-                messageConsumer.accept(Component.literal("[Polymer] Found critical issues while creating resource pack! See logs above for more detail!").withStyle(ChatFormatting.RED));
                 CommonImpl.LOGGER.error("Failed to generate the resource pack!", e);
+                messageConsumer.accept(Component.literal("[Polymer] Found critical issues while creating resource pack! See logs above for more detail!").withStyle(ChatFormatting.RED));
                 alreadyGeneration = false;
+                STATUS.add("error:critical_failure [" + e.getMessage() + "]");
+                successState = TriState.FALSE;
             }
         });
     }

@@ -50,4 +50,8 @@ public interface ResourcePackStatusConsumer {
     void setHadIssues();
 
     boolean hadIssues();
+
+    default void failure(String s, Throwable e) {
+        this.accept("error:failure (" + s + ") [" + e.getMessage() + "]");
+    }
 }

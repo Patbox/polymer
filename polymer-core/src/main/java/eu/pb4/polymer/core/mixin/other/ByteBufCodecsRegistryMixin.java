@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.other;
 
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import org.spongepowered.asm.mixin.Final;
@@ -15,7 +16,7 @@ import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 @Mixin(targets = "net/minecraft/network/codec/ByteBufCodecs$32", priority = 500)
 public abstract class ByteBufCodecsRegistryMixin {
 
-    @Shadow @Final private ResourceKey val$registryKey;
+    @Shadow @Final private ResourceKey<Registry<Object>> val$registryKey;
 
     @SuppressWarnings({"rawtypes", "ShadowModifiers"})
 
@@ -38,7 +39,7 @@ public abstract class ByteBufCodecsRegistryMixin {
                     return reg.wrapAsHolder(replacement);
                 }
 
-                return reg.get(0);
+                return reg.getAny().map(x -> (Holder) x).orElse(registryEntry);
             }
         } else {
             var obj = PolymerSyncedObject.getSyncedObject(reg, val);
@@ -48,7 +49,7 @@ public abstract class ByteBufCodecsRegistryMixin {
                 if (replacement != null) {
                     return replacement;
                 }
-                return reg.byId(0);
+                return reg.getAny().map(Holder::value).orElse(val);
             }
         }
 

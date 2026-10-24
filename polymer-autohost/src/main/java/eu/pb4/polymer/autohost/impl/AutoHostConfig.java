@@ -71,6 +71,9 @@ public class AutoHostConfig {
     public String _c19 = "Delays server from showing as online on player list until resource pack is generated.";
     @SerializedName("delay_player_list_motd_until_generated")
     public boolean delayPlayerListMotd = false;
+    public String _c21 = "Allows joining the server even if resource pack failed to generate.";
+    @SerializedName("allow_joining_after_generation_failure")
+    public boolean allowJoiningAfterGenerationFailure = true;
 
     public static class ExternalResourcePack {
         public UUID id;

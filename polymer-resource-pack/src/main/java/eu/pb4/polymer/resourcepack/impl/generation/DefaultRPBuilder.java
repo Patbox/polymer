@@ -504,8 +504,10 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
                 //Thread.sleep(100000);
 
                 return this.outputGenerator.generateFile(sorted, this.converters.isEmpty() ? ResourceConverter.NO_OP : this::convertResource, status);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("Something went wrong while creating resource pack!", e);
+                status.setHadIssues();
+                status.failure("Failed to generate the resource pack!", e);
                 return null;
             }
         });
