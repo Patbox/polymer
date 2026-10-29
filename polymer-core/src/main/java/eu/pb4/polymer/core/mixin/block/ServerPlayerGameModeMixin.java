@@ -62,7 +62,7 @@ public abstract class ServerPlayerGameModeMixin {
     private int polymer$blockBreakingCooldown;
 
     @Unique
-    private boolean polymer$hasMiningFatigue;
+    private boolean polymer$hasClientMiningPrevention;
 
     @Unique
     @Nullable
@@ -104,11 +104,11 @@ public abstract class ServerPlayerGameModeMixin {
             } else {
                 var k = this.polymer$currentBreakingProgress > 0.0F ? (int) (this.polymer$currentBreakingProgress * 10) : -1;
                 this.player.connection.send(new ClientboundBlockDestructionPacket(-1, pos, k));
-                polymer$sendMiningFatigue();
+                this.polymer$sendClientMiningPrevention();
                 PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, pos, state, k);
             }
-        } else if (this.polymer$hasMiningFatigue) {
-            this.polymer$clearMiningEffect();
+        } else {
+            this.polymer$clearClientMiningPrevention();
         }
     }
 
@@ -135,16 +135,14 @@ public abstract class ServerPlayerGameModeMixin {
                 PolymerBlockUtils.BREAKING_PROGRESS_UPDATE.invoker().onBreakingProgressUpdate(player, pos, serverState, 0);
 
                 if (serverDelta < 1.0f) {
-                    polymer$sendMiningFatigue();
+                    this.polymer$sendClientMiningPrevention();
                 }
             } else if (action == ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK) {
-                if (this.polymer$hasMiningFatigue) {
-                    this.polymer$clearMiningEffect();
-                }
+                this.polymer$clearClientMiningPrevention();
                 this.player.connection.send(new ClientboundBlockDestructionPacket(-1, pos, -1));
             }
-        } else if (this.polymer$hasMiningFatigue) {
-            this.polymer$clearMiningEffect();
+        } else {
+            this.polymer$clearClientMiningPrevention();
         }
     }
 
@@ -164,15 +162,15 @@ public abstract class ServerPlayerGameModeMixin {
             if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
                 this.destroyProgressStart += polymer$blockBreakingCooldown;
             }
-        } else if (this.polymer$hasMiningFatigue) {
-            this.polymer$clearMiningEffect();
+        } else {
+            this.polymer$clearClientMiningPrevention();
         }
     }
 
     @Inject(method = "destroyAndAck", at = @At("HEAD"))
     private void polymer$clearEffects(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
         if (!PolymerImpl.PREDICTIVE_SERVER_MINING || !polymer$shouldMineServerSidePredictive()) {
-            this.polymer$clearMiningEffect();
+            this.polymer$clearClientMiningPrevention();
         }
     }
 
@@ -183,9 +181,11 @@ public abstract class ServerPlayerGameModeMixin {
         }
 
         if (this.polymer$shouldMineServerSidePredictive()) {
-            this.polymer$sendMiningFatigue();
+            if (!this.polymer$hasClientMiningPrevention) {
+                this.polymer$sendClientMiningPrevention();
+            }
         } else {
-            this.polymer$clearMiningEffect();
+            this.polymer$clearClientMiningPrevention();
         }
     }
 
@@ -209,8 +209,8 @@ public abstract class ServerPlayerGameModeMixin {
     }
 
     @Unique
-    private void polymer$sendMiningFatigue() {
-        this.polymer$hasMiningFatigue = true;
+    private void polymer$sendClientMiningPrevention() {
+        this.polymer$hasClientMiningPrevention = true;
         var x = new AttributeInstance(Attributes.BLOCK_BREAK_SPEED, (a) -> {
         });
         x.setBaseValue(-9999);
@@ -218,8 +218,12 @@ public abstract class ServerPlayerGameModeMixin {
     }
 
     @Unique
-    private void polymer$clearMiningEffect() {
-        this.polymer$hasMiningFatigue = false;
+    private void polymer$clearClientMiningPrevention() {
+        if (!this.polymer$hasClientMiningPrevention) {
+            return;
+        }
+
+        this.polymer$hasClientMiningPrevention = false;
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(),
                 List.of(Objects.requireNonNull(this.player.getAttribute(Attributes.BLOCK_BREAK_SPEED)))));
 

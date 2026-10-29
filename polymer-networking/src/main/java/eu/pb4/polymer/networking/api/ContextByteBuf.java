@@ -67,8 +67,11 @@ public class ContextByteBuf extends RegistryFriendlyByteBuf {
         return this.version;
     }
 
-    @Nullable
     public Connection clientConnection() {
         return context.orElseThrow(PacketContext.CONNECTION);
+    }
+
+    public PacketContext packetContext() {
+        return context;
     }
 }

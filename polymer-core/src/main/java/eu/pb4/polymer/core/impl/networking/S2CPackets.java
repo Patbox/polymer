@@ -63,9 +63,9 @@ public class S2CPackets {
 
         int baseVersion = 15;
 
-        SYNC_BLOCK_ID = registerList(SYNC_BLOCK, PolymerBlockEntry.CODEC, baseVersion);
+        SYNC_BLOCK_ID = registerList(SYNC_BLOCK, PolymerBlockEntry.CODEC, baseVersion, 16);
         SYNC_BLOCKSTATE_ID = registerList(SYNC_BLOCKSTATE, PolymerBlockStateEntry.CODEC, baseVersion);
-        SYNC_ITEM_ID = registerList(SYNC_ITEM, PolymerItemEntry.CODEC, baseVersion);
+        SYNC_ITEM_ID = registerList(SYNC_ITEM, PolymerItemEntry.CODEC, baseVersion, 16);
         SYNC_ENTITY_ID = registerList(SYNC_ENTITY, PolymerEntityEntry.CODEC, baseVersion);
         SYNC_TAGS_ID = registerList(SYNC_TAGS, PolymerTagEntry.CODEC, baseVersion);
         DEBUG_VALIDATE_STATES_ID = registerList(DEBUG_VALIDATE_STATES, DebugBlockStateEntry.CODEC, baseVersion);

@@ -1,8 +1,10 @@
 package eu.pb4.polymer.core.impl.networking.entry;
 
+import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.networking.api.ContextByteBuf;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
@@ -65,14 +68,17 @@ public record PolymerBlockEntry(Identifier identifier, int numId, float hardness
         var id = buf.readIdentifier();
         var numId = buf.readVarInt();
         var name = ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.decode(buf);
-        var visual = STATE.decode(buf);
-        var visualStack = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
-        float hardness = -2;
-        var miningDeltaLogic = MiningDeltaLogic.CUSTOM_SERVER;
-        if (buf.version() >= 12) {
-            hardness = buf.readFloat();
-            miningDeltaLogic = buf.readEnum(MiningDeltaLogic.class);
+
+        BlockState visual;
+        if (buf.version() < 16 || buf.readBoolean()) {
+            visual = STATE.decode(buf);
+        } else {
+            visual = BuiltInRegistries.BLOCK.getValue(id).defaultBlockState();
         }
+        var visualStack = PolymerItemEntry.readSafeItemStack(buf, visual::getBlock);
+
+        var hardness = buf.readFloat();
+        var miningDeltaLogic = buf.readEnum(MiningDeltaLogic.class);
 
         return new PolymerBlockEntry(id, numId, hardness, miningDeltaLogic, name, visual, visualStack);
     }
@@ -81,12 +87,25 @@ public record PolymerBlockEntry(Identifier identifier, int numId, float hardness
         buf.writeIdentifier(identifier);
         buf.writeVarInt(numId);
         ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.encode(buf, text);
-        STATE.encode(buf, visual);
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, this.visualStack);
-        if (buf.version() >= 12) {
-            buf.writeFloat(this.hardness);
-            buf.writeEnum(this.miningDeltaLogic);
+
+        {
+            var writtenStack = PolymerBlockUtils.getPolymerBlockState(this.visual, buf.packetContext());
+            var isSafeWrite = !(PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, writtenStack.getBlock()) instanceof PolymerBlock);
+
+            if (buf.version() >= 16) {
+                buf.writeBoolean(isSafeWrite);
+                if (isSafeWrite) {
+                    STATE.encode(buf, this.visual);
+                }
+            } else {
+                STATE.encode(buf, isSafeWrite ? this.visual : Blocks.STONE.defaultBlockState());
+            }
         }
+
+        PolymerItemEntry.writeSafeItemStack(buf, this.visualStack);
+
+        buf.writeFloat(this.hardness);
+        buf.writeEnum(this.miningDeltaLogic);
     }
 
     public enum MiningDeltaLogic {

@@ -1,6 +1,7 @@
 package eu.pb4.polymer.soundpatcher.mixin.block;
 
 import eu.pb4.polymer.soundpatcher.impl.CoreBridge;
+import eu.pb4.polymer.soundpatcher.impl.SoundPatchImpl;
 import eu.pb4.polymer.soundpatcher.impl.SoundRemapperImpl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -9,7 +10,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -48,6 +48,10 @@ public abstract class ServerLevelMixin extends Level {
 
     @Inject(method = "levelEvent", at = @At("TAIL"))
     private void handleSoundEvents(Entity source, int type, BlockPos pos, int data, CallbackInfo ci) {
+        if (SoundPatchImpl.FORCE_DISABLE) {
+            return;
+        }
+
         if (type == LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK) {
             var state = Block.stateById(data);
             this.sendSoundToPlayersIfNeeded(state, pos, SoundType::getBreakSound, 0.5f, 0.8f);
