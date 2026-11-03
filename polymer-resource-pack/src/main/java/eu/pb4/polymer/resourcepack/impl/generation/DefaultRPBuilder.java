@@ -369,8 +369,7 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
 
     @Nullable
     private byte[] getSourceData(String path) {
-        try {
-            var stream = getSourceStream(path);
+        try (var stream = getSourceStream(path)) {
             if (stream != null) {
                 return stream.readAllBytes();
             }
