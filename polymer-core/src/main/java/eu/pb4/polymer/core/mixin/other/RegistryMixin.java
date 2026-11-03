@@ -24,14 +24,17 @@ public interface RegistryMixin {
     @ModifyReturnValue(method = "referenceHolderWithLifecycle", at = @At(value = "RETURN"))
     private Codec<Holder.Reference<Object>> patchCodec(Codec<Holder.Reference<Object>> codec) {
         return codec.xmap(Function.identity(), content -> { // Encode
-            if (PolymerCommonUtils.isServerNetworkingThread() && content.isBound()
-                    && content.value() instanceof PolymerSyncedObject<?> obj) {
+            if (PolymerCommonUtils.isServerNetworkingThread() && content.isBound()) {
+                //noinspection unchecked
+                var obj = PolymerSyncedObject.getSyncedObject((Registry<Object>) this, content.value());
+                if (obj == null) {
+                    return content;
+                }
                 var ctx = PacketContext.get();
                 if (obj.canSyncRawToClient(ctx)) {
                     return content;
                 }
-                //noinspection unchecked
-                var val = ((PolymerSyncedObject<Object>) obj).getPolymerReplacement(content.value(), ctx);
+                var val = obj.getPolymerReplacement(content.value(), ctx);
                 return val != null && this.wrapAsHolder(val) instanceof Holder.Reference<Object> ref ? ref : this.get(0).orElseThrow();
             }
             return content;
