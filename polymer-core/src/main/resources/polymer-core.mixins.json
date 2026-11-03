@@ -78,6 +78,7 @@
     "item.component.ConsumableMixin",
     "item.component.DebugStickStateMixin",
     "item.component.ItemAttributeModifiersMixin",
+    "item.component.MapDecorationsMixin",
     "item.component.PotionContentsMixin",
     "item.component.SuspiciousStewEffectsMixin",
     "item.component.ench.EnchantmentAttributeEffectMixin",
