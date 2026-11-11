@@ -42,7 +42,7 @@ public class BlockMixin {
     private void addPolymerParticles(Level level, Entity entity, BlockPos pos, BlockState state, CallbackInfo ci) {
         if (entity instanceof ServerPlayer serverPlayer
                 && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state) && !serverPlayer.getAbilities().instabuild) {
-            serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
+            serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK, pos, Block.getId(state), false));
         }
     }
 }
