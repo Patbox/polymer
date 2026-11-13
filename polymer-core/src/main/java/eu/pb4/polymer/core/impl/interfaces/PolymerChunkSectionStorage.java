@@ -1,6 +1,6 @@
 package eu.pb4.polymer.core.impl.interfaces;
 
-import it.unimi.dsi.fastutil.shorts.ShortSet;
+import it.unimi.dsi.fastutil.shorts.ShortIterator;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Iterator;
@@ -9,7 +9,7 @@ import net.minecraft.core.SectionPos;
 
 @ApiStatus.Internal
 public interface PolymerChunkSectionStorage {
-    ShortSet polymer$getBackendSet();
+    ShortIterator polymer$getRawBlockIterator();
 
     Iterator<BlockPos.MutableBlockPos> polymer$blockIterator(SectionPos sectionPos);
 
@@ -22,8 +22,8 @@ public interface PolymerChunkSectionStorage {
 
     boolean polymer$hasAny();
 
-    static short pack(int x, int y, int z) {
-        return (short) ((x & 15) << 8 | (z & 15) << 4 | (y & 15));
+    static int pack(int x, int y, int z) {
+        return ((x & 15) << 8 | (z & 15) << 4 | (y & 15)) & 0xFFFF;
     }
     boolean polymer$hasLights();
     boolean polymer$requireLights();

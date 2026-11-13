@@ -78,12 +78,14 @@ public class PolymerServerProtocol {
                     var storage = (PolymerChunkSectionStorage) section;
 
                     if (section != null && storage.polymer$hasAny()) {
-                        var set = storage.polymer$getBackendSet();
+                        var set = storage.polymer$getRawBlockIterator();
                         var blocks = new IntArrayList();
 
-
                         assert set != null;
-                        for (var pos : set) {
+                        var array = new ShortArrayList();
+                        while (set.hasNext()) {
+                            var pos = set.nextShort();
+                            array.add(pos);
                             int x = SectionPos.sectionRelativeX(pos);
                             int y = SectionPos.sectionRelativeY(pos);
                             int z = SectionPos.sectionRelativeZ(pos);
@@ -92,7 +94,7 @@ public class PolymerServerProtocol {
                         }
 
                         player.send(new ClientboundCustomPayloadPacket(new PolymerSectionUpdateS2CPayload(SectionPos.of(chunk.getPos(), chunk.getSectionYFromSectionIndex(i)),
-                                set.toShortArray(), blocks.toIntArray())));
+                                array.toShortArray(), blocks.toIntArray())));
                     }
                 }
             }
