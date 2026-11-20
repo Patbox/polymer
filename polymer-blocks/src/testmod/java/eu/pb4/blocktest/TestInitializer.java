@@ -2,9 +2,19 @@ package eu.pb4.blocktest;
 
 import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
+import eu.pb4.polymer.blocks.impl.DefaultModelData;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.blockstate.BlockStateAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.font.FontAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.item.model.ItemModel;
+import eu.pb4.polymer.resourcepack.extras.api.format.model.ModelAsset;
+import eu.pb4.polymer.resourcepack.extras.api.format.sound.SoundsAsset;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,11 +23,19 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import org.apache.commons.lang3.mutable.MutableInt;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 public class TestInitializer implements ModInitializer {
@@ -101,6 +119,81 @@ public class TestInitializer implements ModInitializer {
             }
         }
         System.out.println(str);*/
+
+
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            var vanillaJar = PolymerCommonUtils.getClientJarRoot();
+            var blockStateBase = vanillaJar.resolve("/assets/minecraft/blockstates/");
+
+            try {
+                for (var block : BuiltInRegistries.BLOCK) {
+                    var id = BuiltInRegistries.BLOCK.getKey(block);
+
+                    if (!id.getNamespace().equals("minecraft")) {
+                        continue;
+                    }
+
+                    var path = blockStateBase.resolve(id.getPath() + ".json");
+
+                    try {
+                        var asset = BlockStateAsset.fromJson(Files.readString(path));
+                        BlockStateModelManager.addBlock(id, block, asset);
+                    } catch (Throwable e) {
+                        System.err.println("Error while parsing file: " + path);
+                        e.printStackTrace();
+                    }
+                };
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+
+            var map = new HashMap<Object, Set<BlockState>>();
+
+            BlockStateModelManager.MAP.forEach((state, model) -> {
+                state = state.trySetValue(BlockStateProperties.WATERLOGGED, false);
+                if (state.getBlock() instanceof StairBlock || DefaultModelData.SPECIAL_REMAPS.values().contains(state)
+                        || state.is(Blocks.REDSTONE_WIRE) || state.getBlock() instanceof AbstractSkullBlock
+                        || state.getBlock() instanceof AbstractBannerBlock || state.getBlock() instanceof AbstractChestBlock<?>
+                        || state.getBlock() instanceof ShulkerBoxBlock) {
+                    return;
+                }
+
+                for (var x : DefaultModelData.USABLE_STATES.values()) {
+                    if (x.contains(state)) {
+                        return;
+                    }
+                }
+
+                map.computeIfAbsent(model, _ -> new HashSet<>()).add(state);
+            });
+
+            var builder = new StringBuilder();
+
+            for (var value : map.values()) {
+                if (value.size() > 1) {
+                    builder.append("====").append('\n');
+                    for (var v : value) {
+                        builder.append(v.toString()).append("\n");
+                    }
+
+                    builder.append("\n");
+                }
+            }
+
+            try {
+                Files.writeString(FabricLoader.getInstance().getGameDir().resolve("equal_models.txt"), builder.toString());
+            } catch (IOException e) {
+
+            }
+
+
+        }).run();
     }
 
     public static void register(BlockModelType type, String modelId) {

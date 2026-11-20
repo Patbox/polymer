@@ -27,6 +27,7 @@ public enum BlockModelType {
     TRIPWIRE_FLAT,
     PRESSURE_PLATE_ACTIVE,
     HEAD,
+    DAYLIGHT_DETECTOR,
     // Sculk
     SCULK_SENSOR,
     SCULK_SENSOR_WATERLOGGED,

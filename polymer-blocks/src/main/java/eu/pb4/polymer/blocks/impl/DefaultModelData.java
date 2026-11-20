@@ -91,7 +91,7 @@ public class DefaultModelData {
 
         {
             var list = new ReferenceArrayList<BlockState>();
-            for (int i = 2; i < 7; i++) {
+            for (int i = 1; i < 7; i++) {
                 var state = Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, i);
                 list.add(state);
             }
@@ -197,6 +197,22 @@ public class DefaultModelData {
         }
 
         {
+            var states = new ReferenceArrayList<BlockState>();
+
+            for (var inverted : bools) {
+                var defaultState = Blocks.DAYLIGHT_DETECTOR.defaultBlockState().setValue(DaylightDetectorBlock.INVERTED, inverted)
+                        .setValue(DaylightDetectorBlock.POWER, 0);
+                for (int i = 1; i <= 15; i++) {
+                    var state = defaultState.setValue(DaylightDetectorBlock.POWER, i);
+                    states.add(state);
+                    SPECIAL_REMAPS.put(state, defaultState);
+                }
+            }
+
+            USABLE_STATES.put(BlockModelType.DAYLIGHT_DETECTOR, states);
+        }
+
+        {
             var r = new ReferenceArrayList<BlockState>();
             var w = new ReferenceArrayList<BlockState>();
 
@@ -288,6 +304,7 @@ public class DefaultModelData {
                     Blocks.PALE_OAK_SHELF,
                     Blocks.POPLAR_SHELF,
                     Blocks.CHERRY_SHELF,
+                    Blocks.CRIMSON_SHELF,
                     Blocks.WARPED_SHELF
             )) {
                 for (var chain : SideChainPart.values()) {

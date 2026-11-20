@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.shorts.ShortSet;
 
 import java.util.BitSet;
 
-public class PolymerSectionBitStorage {
+public final class PolymerSectionBitStorage {
     private ShortSet shorts = null;
     private BitSet bits = null;
 

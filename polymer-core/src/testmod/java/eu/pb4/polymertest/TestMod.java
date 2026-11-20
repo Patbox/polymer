@@ -17,7 +17,6 @@ import eu.pb4.polymer.core.api.other.SimplePolymerPotion;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
-import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import eu.pb4.polymer.resourcepack.extras.api.format.atlas.AtlasAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.blockstate.BlockStateAsset;
@@ -66,7 +65,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
@@ -100,7 +98,6 @@ import net.minecraft.world.level.block.TntBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jspecify.annotations.Nullable;
@@ -825,9 +822,6 @@ public class TestMod implements ModInitializer {
                     count.increment();
                     try {
                         var asset = BlockStateAsset.fromJson(Files.readString(path));
-
-                        BlockStateModelManager.addBlock(id, block, asset);
-
                         value.increment();
                     } catch (Throwable e) {
                         System.err.println("Error while parsing file: " + path);
@@ -846,35 +840,6 @@ public class TestMod implements ModInitializer {
                 System.err.println("Error while parsing file: sounds.json");
                 e.printStackTrace();
             }
-
-            var map = new HashMap<Object, Set<BlockState>>();
-
-            BlockStateModelManager.MAP.forEach((state, model) -> {
-                state = state.trySetValue(BlockStateProperties.WATERLOGGED, false);
-
-                map.computeIfAbsent(model, _ -> new HashSet<>()).add(state);
-            });
-
-            var builder = new StringBuilder();
-
-            for (var value : map.values()) {
-                if (value.size() > 1) {
-                    builder.append("====").append('\n');
-                    for (var v : value) {
-                        builder.append(v.toString()).append("\n");
-                    }
-
-                    builder.append("\n");
-                }
-            }
-
-            try {
-                Files.writeString(FabricLoader.getInstance().getGameDir().resolve("equal_models.txt"), builder.toString());
-            } catch (IOException e) {
-
-            }
-
-
         }).run();
     }
     

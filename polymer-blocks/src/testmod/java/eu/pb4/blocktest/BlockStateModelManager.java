@@ -1,4 +1,4 @@
-package eu.pb4.polymertest;
+package eu.pb4.blocktest;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
